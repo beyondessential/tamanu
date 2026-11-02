@@ -760,7 +760,7 @@ export const globalSettings = {
             enableLabResultsPrintout: {
               name: 'Lab results printout',
               description:
-                'Enable lab results printout (print results button and interim report option)',
+                "Enable lab results printout (print results button, interim report option, and printing an encounter's results from the Labs tab)",
               type: yup.boolean(),
               defaultValue: true,
             },

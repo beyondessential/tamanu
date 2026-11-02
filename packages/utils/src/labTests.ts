@@ -1,4 +1,8 @@
-import { FHIR_QUANTITY_COMPARATOR, SEX_VALUES } from '@tamanu/constants';
+import {
+  FHIR_QUANTITY_COMPARATOR,
+  INTERIM_LAB_REQUEST_STATUSES,
+  SEX_VALUES,
+} from '@tamanu/constants';
 import { isNil } from 'es-toolkit/compat';
 
 // These types are structurally compatible with the Database models but defined here
@@ -248,3 +252,13 @@ export const getLabRequestTestAndPanelNames = ({
     .filter((name): name is string => Boolean(name));
   return [...panelNames, ...individualTestNames].sort((a, b) => a.localeCompare(b));
 };
+
+export type LabRequestStatusLike = { status?: string | null };
+
+// A request is interim while its results are still provisional — it has not reached Verified or
+// Published — so a printout holding one has to say its results may yet change.
+export const isInterimLabRequest = ({ status }: LabRequestStatusLike = {}): boolean =>
+  INTERIM_LAB_REQUEST_STATUSES.includes(status as string);
+
+export const hasInterimLabResults = (labRequests: LabRequestStatusLike[] = []): boolean =>
+  labRequests.some(isInterimLabRequest);

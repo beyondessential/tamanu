@@ -1,8 +1,12 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 
-import { INTERIM_LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { getReferenceRangeWithUnit } from '@tamanu/utils/labTests';
+import { LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
+import {
+  getReferenceRangeWithUnit,
+  hasInterimLabResults,
+  isInterimLabRequest,
+} from '@tamanu/utils/labTests';
 
 import { PatientDetails } from './printComponents/PatientDetails';
 import { styles, CertificateHeader } from './Layout';
@@ -37,6 +41,12 @@ const generalStyles = StyleSheet.create({
     padding: '8px',
     marginHorizontal: '18px',
   },
+  interimMarker: {
+    border: '1px solid black',
+    padding: '3px 6px',
+    marginBottom: 6,
+    alignSelf: 'flex-start',
+  },
   tableContainer: {
     marginTop: 8,
   },
@@ -57,6 +67,10 @@ const generalStyles = StyleSheet.create({
     border: '1px solid black',
     padding: 10,
     marginBottom: 10,
+  },
+  requestDivider: {
+    borderBottom: '2px solid black',
+    marginVertical: 10,
   },
 });
 
@@ -92,62 +106,133 @@ const InterimBanner = () => {
   );
 };
 
+// With several requests in one document the banner can't say which of them are unpublished, so
+// each interim request is marked at the top of its own block.
+const InterimMarker = ({ labRequest }) => {
+  const { getEnumTranslation } = useLanguageContext();
+  return (
+    <P style={generalStyles.interimMarker} fontSize={9} bold>
+      {getEnumTranslation(LAB_REQUEST_STATUS_LABELS, labRequest.status)}
+    </P>
+  );
+};
+
+const LabRequestBlock = ({
+  labRequest,
+  patientData,
+  getSetting,
+  showInterimMarker,
+  showDivider,
+}) => {
+  const { getTranslation } = useLanguageContext();
+  const { tests } = labRequest;
+
+  const labResultsColumns = [
+    {
+      key: 'labTestType.name',
+      title: getTranslation('lab.results.table.column.testType', 'Test'),
+      accessor: ({ labTestType }) => labTestType?.name || '',
+    },
+    {
+      key: 'result',
+      title: getTranslation('lab.results.table.column.result', 'Result'),
+      accessor: ({ result, secondaryResult, labTestType }) => {
+        if (result === undefined || result === null || result === '') return '';
+        const unit = labTestType?.unit;
+        const resultWithUnit = unit ? `${result} ${unit}` : result;
+
+        if (labTestType?.supportsSecondaryResults && secondaryResult) {
+          return `${resultWithUnit} (${secondaryResult})`;
+        }
+        return resultWithUnit;
+      },
+    },
+    {
+      key: 'reference',
+      title: getTranslation('lab.results.table.column.reference', 'Reference'),
+      accessor: row =>
+        getReferenceRangeWithUnit({
+          labTestType: row.labTestType,
+          labTest: row,
+          sex: patientData?.sex,
+          getTranslation,
+        }),
+    },
+  ];
+
+  // A request can hold several panels plus individual tests. Rows arrive grouped by panel and
+  // ordered panels-first, so labelling each row by its own panel gives one section per panel,
+  // matching the on-screen results table.
+  const getRowSectionLabel = ({ labTestPanel }) =>
+    labTestPanel?.name ?? getTranslation('lab.results.individualTests.label', 'Individual tests');
+
+  return (
+    <>
+      {/* The divider and details are a fixed handful of rows, so keeping them whole can't
+          overflow a page — and the divider travels with the block it introduces rather than
+          being left stranded at the foot of the previous page. */}
+      <SectionContainer wrap={false}>
+        {showDivider && <View style={generalStyles.requestDivider} />}
+        {showInterimMarker && isInterimLabRequest(labRequest) && (
+          <InterimMarker labRequest={labRequest} />
+        )}
+        <LabRequestDetailsSection labRequest={labRequest} />
+      </SectionContainer>
+      {tests?.length > 0 && (
+        <SectionContainer>
+          <P bold fontSize={11} mb={3}>
+            {getTranslation('pdf.labResults.testResultsTitle', 'Test results')}
+          </P>
+          <View style={generalStyles.tableContainer}>
+            <Table
+              hideRowDividers
+              data={tests}
+              columns={labResultsColumns}
+              getSetting={getSetting}
+              getRowSectionLabel={getRowSectionLabel}
+              headerStyle={generalStyles.tableHeaderStyles}
+              columnStyle={generalStyles.tableColumnStyles}
+            />
+          </View>
+        </SectionContainer>
+      )}
+      {labRequest.resultsInterpretation && (
+        <SectionContainer>
+          <P bold fontSize={11} mb={3}>
+            {getTranslation('pdf.labResults.resultsInterpretationTitle', 'Results interpretation')}
+          </P>
+          <View style={generalStyles.resultsInterpretationContainer}>
+            <P fontSize={11}>{labRequest.resultsInterpretation}</P>
+          </View>
+        </SectionContainer>
+      )}
+    </>
+  );
+};
+
 const LabResultsPrintoutComponent = React.memo(
-  ({ patientData, encounter, labRequest, certificateData, getSetting }) => {
+  ({ patientData, encounter, labRequests, certificateData, getSetting }) => {
     const { getTranslation } = useLanguageContext();
     const { logo } = certificateData;
-    const { tests } = labRequest;
-    const labResultsColumns = [
-      {
-        key: 'labTestType.name',
-        title: getTranslation('lab.results.table.column.testType', 'Test'),
-        accessor: ({ labTestType }) => labTestType?.name || '',
-      },
-      {
-        key: 'result',
-        title: getTranslation('lab.results.table.column.result', 'Result'),
-        accessor: ({ result, secondaryResult, labTestType }) => {
-          if (result === undefined || result === null || result === '') return '';
-          const unit = labTestType?.unit;
-          const resultWithUnit = unit ? `${result} ${unit}` : result;
-          
-          if (labTestType?.supportsSecondaryResults && secondaryResult) {
-            return `${resultWithUnit} (${secondaryResult})`;
-          }
-          return resultWithUnit;
-        },
-      },
-      {
-        key: 'reference',
-        title: getTranslation('lab.results.table.column.reference', 'Reference'),
-        accessor: row =>
-          getReferenceRangeWithUnit({
-            labTestType: row.labTestType,
-            labTest: row,
-            sex: patientData?.sex,
-            getTranslation,
-          }),
-      },
-    ];
-
-    // A request can hold several panels plus individual tests. Rows arrive grouped by panel and
-    // ordered panels-first, so labelling each row by its own panel gives one section per panel,
-    // matching the on-screen results table.
-    const getRowSectionLabel = ({ labTestPanel }) =>
-      labTestPanel?.name ??
-      getTranslation('lab.results.individualTests.label', 'Individual tests');
+    const documentName = getTranslation('pdf.labResults.documentName', 'Lab results');
+    // A single-request printout names its request in the running header; an encounter's printout
+    // holds several, so it has no one request to name.
+    const isSingleRequest = labRequests.length === 1;
+    const hasAnyTests = labRequests.some(labRequest => labRequest.tests?.length > 0);
 
     return (
       <Document>
         <Page size="A4" style={[styles.page, generalStyles.page]}>
-          {tests?.length > 0 && (
+          {hasAnyTests && (
             <MultiPageHeader
-              documentName={getTranslation('pdf.labResults.documentName', 'Lab results')}
-              documentSubname={getTranslation(
-                'pdf.labResults.documentSubname',
-                'Request ID: :requestId',
-                { replacements: { requestId: labRequest?.displayId || '' } },
-              )}
+              documentName={documentName}
+              documentSubname={
+                isSingleRequest
+                  ? getTranslation('pdf.labResults.documentSubname', 'Request ID: :requestId', {
+                      replacements: { requestId: labRequests[0]?.displayId || '' },
+                    })
+                  : undefined
+              }
               patientId={patientData?.displayId || ''}
               patientName={getName(patientData)}
             />
@@ -156,53 +241,26 @@ const LabResultsPrintoutComponent = React.memo(
             <LetterheadSection
               logoSrc={logo}
               letterheadConfig={certificateData}
-              certificateTitle={getTranslation('pdf.labResults.documentName', 'Lab results')}
+              certificateTitle={documentName}
             />
-            {INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status) && <InterimBanner />}
+            {hasInterimLabResults(labRequests) && <InterimBanner />}
             <SectionContainer>
-              <PatientDetails
-                patient={patientData}
-                getSetting={getSetting}
-              />
+              <PatientDetails patient={patientData} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails hideLocation encounter={encounter} />
             </SectionContainer>
           </CertificateHeader>
-          <SectionContainer>
-            <LabRequestDetailsSection labRequest={labRequest} />
-          </SectionContainer>
-          {tests?.length > 0 && (
-            <SectionContainer>
-              <P bold fontSize={11} mb={3}>
-                {getTranslation('pdf.labResults.testResultsTitle', 'Test results')}
-              </P>
-              <View style={generalStyles.tableContainer}>
-                <Table
-                  hideRowDividers
-                  data={tests}
-                  columns={labResultsColumns}
-                  getSetting={getSetting}
-                  getRowSectionLabel={getRowSectionLabel}
-                  headerStyle={generalStyles.tableHeaderStyles}
-                  columnStyle={generalStyles.tableColumnStyles}
-                />
-              </View>
-            </SectionContainer>
-          )}
-          {labRequest.resultsInterpretation && (
-            <SectionContainer>
-              <P bold fontSize={11} mb={3}>
-                {getTranslation(
-                  'pdf.labResults.resultsInterpretationTitle',
-                  'Results interpretation',
-                )}
-              </P>
-              <View style={generalStyles.resultsInterpretationContainer}>
-                <P fontSize={11}>{labRequest.resultsInterpretation}</P>
-              </View>
-            </SectionContainer>
-          )}
+          {labRequests.map((labRequest, index) => (
+            <LabRequestBlock
+              key={labRequest.id}
+              labRequest={labRequest}
+              patientData={patientData}
+              getSetting={getSetting}
+              showInterimMarker={!isSingleRequest}
+              showDivider={index > 0}
+            />
+          ))}
           <Footer />
         </Page>
       </Document>
