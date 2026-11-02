@@ -15,6 +15,7 @@ import {
   getCoverageAmountPerInsurancePlan,
   getInsuranceCoverageTotalAmount,
   getInvoiceDiscountReason,
+  getInvoiceReceiptTotalsDisplay,
 } from '../src';
 
 describe('Invoice Utils', () => {
@@ -792,6 +793,91 @@ describe('Invoice Utils', () => {
       const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
       expect(summary.insurancePlanPaymentRemainingBalance).toEqual(60);
       expect(lastPayment.remainingBalance).toEqual(summary.insurancePlanPaymentRemainingBalance);
+    });
+  });
+
+  describe('getInvoiceReceiptTotalsDisplay', () => {
+    const slidingFeeScaleOn = { isSlidingFeeScaleEnabled: true };
+    const slidingFeeScaleOff = { isSlidingFeeScaleEnabled: false };
+
+    it('shows every total as 0.00 for an invoice with nothing on it', () => {
+      const totals = getInvoiceReceiptTotalsDisplay(
+        { items: [], payments: [] },
+        slidingFeeScaleOff,
+      );
+      expect(totals).toEqual({
+        invoiceTotal: '0.00',
+        itemAdjustments: '0.00',
+        insuranceCoverage: '0.00',
+        patientSubtotal: '0.00',
+        feeScaleAdjustment: null,
+        patientPayments: '0.00',
+        patientTotalDue: '0.00',
+      });
+    });
+
+    it('shows insurance coverage and patient payments as deductions', () => {
+      const invoice = {
+        items: [
+          {
+            manualEntryPrice: 100,
+            quantity: 2,
+            insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+            product: { insurable: true },
+          },
+        ],
+        payments: [{ amount: 30, patientPayment: { id: 'patient-payment-1' } }],
+      };
+      const totals = getInvoiceReceiptTotalsDisplay(invoice, slidingFeeScaleOff);
+      expect(totals.invoiceTotal).toEqual('200.00');
+      expect(totals.insuranceCoverage).toEqual('-100.00');
+      expect(totals.patientSubtotal).toEqual('100.00');
+      expect(totals.patientPayments).toEqual('-30.00');
+      expect(totals.patientTotalDue).toEqual('70.00');
+    });
+
+    it('shows the item adjustment total with its sign', () => {
+      const invoice = {
+        items: [
+          {
+            manualEntryPrice: 100,
+            quantity: 1,
+            discount: { type: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT, amount: 20 },
+          },
+        ],
+        payments: [],
+      };
+      const totals = getInvoiceReceiptTotalsDisplay(invoice, slidingFeeScaleOff);
+      expect(totals.invoiceTotal).toEqual('100.00');
+      expect(totals.itemAdjustments).toEqual('-20.00');
+      expect(totals.patientSubtotal).toEqual('80.00');
+    });
+
+    describe('fee scale adjustment', () => {
+      const discountedInvoice = {
+        items: [{ manualEntryPrice: 100, quantity: 1, insurancePlanItems: [] }],
+        payments: [],
+        discount: { percentage: 0.25 },
+      };
+
+      it('shows the percentage and the discount as a deduction when the sliding fee scale is on', () => {
+        const totals = getInvoiceReceiptTotalsDisplay(discountedInvoice, slidingFeeScaleOn);
+        expect(totals.feeScaleAdjustment).toEqual({ percentage: 25, amount: '-25.00' });
+        expect(totals.patientTotalDue).toEqual('75.00');
+      });
+
+      it('is left off when the sliding fee scale is off', () => {
+        const totals = getInvoiceReceiptTotalsDisplay(discountedInvoice, slidingFeeScaleOff);
+        expect(totals.feeScaleAdjustment).toBeNull();
+      });
+
+      it('is left off when the invoice has no fee scale discount', () => {
+        const totals = getInvoiceReceiptTotalsDisplay(
+          { ...discountedInvoice, discount: undefined },
+          slidingFeeScaleOn,
+        );
+        expect(totals.feeScaleAdjustment).toBeNull();
+      });
     });
   });
 

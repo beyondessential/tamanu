@@ -26,11 +26,11 @@ import {
   getInvoiceSummary,
 } from '@tamanu/utils/invoice';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { getDrugUnitLabel } from '../medication';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { InvoiceEncounterDetails } from './printComponents/InvoiceEncounterDetails';
+import { InvoiceItemQuantity } from './printComponents/InvoiceItemQuantity';
 
 const borderStyle = '1 solid black';
 
@@ -176,14 +176,6 @@ const Cell = ({ children, style = {} }) => (
 const CustomCellComponent = ({ children, style = {} }) => (
   <View style={[baseTableStyles.baseCell, style]}>{children}</View>
 );
-
-// Reads the language context itself so the dispensing unit can be pluralised
-// without threading getEnumTranslation through the shared formatters object.
-const QuantityCell = ({ quantity, dispensingUnit }) => {
-  const { getEnumTranslation } = useLanguageContext();
-  if (!dispensingUnit) return quantity != null ? String(quantity) : '';
-  return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
-};
 
 const getPrice = item => {
   const price = getInvoiceItemPriceDisplay(item);
@@ -342,7 +334,10 @@ const getColumns = (getTranslation, getEnumTranslation) => ({
       title: getTranslation('invoice.modal.editInvoice.quantity.label', 'Quantity'),
       style: { width: '12%' },
       accessor: ({ quantity, sourcePrescription }) => (
-        <QuantityCell quantity={quantity} dispensingUnit={sourcePrescription?.dispensingUnit} />
+        <InvoiceItemQuantity
+          quantity={quantity}
+          dispensingUnit={sourcePrescription?.dispensingUnit}
+        />
       ),
     },
     {

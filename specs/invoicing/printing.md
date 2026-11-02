@@ -51,7 +51,7 @@ The receipt prints on 80 mm thermal roll paper, as one strip the length of the i
 - [ ] The receipt is one continuous strip as long as its content, with no page breaks and no fixed
       page length.
 - [ ] Each section is divided from the next by a horizontal dotted line.
-- [ ] The facility name and the section titles are set in medium weight (500).
+- [ ] The facility name and the section titles are set in bold.
 
 ### Content
 
