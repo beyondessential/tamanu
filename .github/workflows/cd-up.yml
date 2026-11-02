@@ -33,6 +33,13 @@ jobs:
     name: ${{ inputs.deploy-name }}
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+          path: deployed-ref
+          persist-credentials: false
+          sparse-checkout: /package.json
+          sparse-checkout-cone-mode: false
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
@@ -91,7 +98,7 @@ jobs:
           script: |
             const fs = require('fs');
             const cwd = '${{ github.workspace }}';
-            const pkg = JSON.parse(fs.readFileSync(`${cwd}/package.json`, 'utf8'));
+            const pkg = JSON.parse(fs.readFileSync(`${cwd}/deployed-ref/package.json`, 'utf8'));
             const appVersion = pkg.version || null;
             const { configMap } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
             const config = configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}, { appVersion });
