@@ -37,7 +37,8 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           path: deployed-ref
-          sparse-checkout: package.json
+          persist-credentials: false
+          sparse-checkout: /package.json
           sparse-checkout-cone-mode: false
       - id: setup
         uses: ./.github/actions/setup-cd
