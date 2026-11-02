@@ -8,12 +8,14 @@ import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
 
 export interface RecentlyDischargedSearchCriteria extends BaseSearchCriteria {
   encounterType?: string;
+  area?: string;
   department?: string;
   dischargingClinician?: string;
 }
 
 export class RecentlyDischargedPatientsPage extends BasePatientListPage {
   readonly encounterTypeSelect!: Locator;
+  readonly areaInput!: Locator;
   readonly departmentInput!: Locator;
   readonly dischargingClinicianInput!: Locator;
 
@@ -27,6 +29,7 @@ export class RecentlyDischargedPatientsPage extends BasePatientListPage {
       firstNameInput: 'field-rdp-first-name-input',
       lastNameInput: 'field-rdp-last-name-input',
       encounterTypeSelect: 'field-rdp-encounter-type-select',
+      areaInput: 'field-rdp-area-input',
       departmentInput: 'field-rdp-department-input',
       dischargingClinicianInput: 'field-rdp-discharging-clinician-input',
     } as const;
@@ -54,6 +57,11 @@ export class RecentlyDischargedPatientsPage extends BasePatientListPage {
         optionToSelect: searchCriteria.encounterType,
       });
     }
+    if (searchCriteria.area) {
+      await selectAutocompleteFieldOption(this.page, this.areaInput, {
+        optionToSelect: searchCriteria.area,
+      });
+    }
     if (searchCriteria.department) {
       await selectAutocompleteFieldOption(this.page, this.departmentInput, {
         optionToSelect: searchCriteria.department,
@@ -73,6 +81,7 @@ export class RecentlyDischargedPatientsPage extends BasePatientListPage {
     await expect(this.nhnInput).toHaveValue('');
     await expect(this.firstNameInput).toHaveValue('');
     await expect(this.lastNameInput).toHaveValue('');
+    await expect(this.areaInput.locator('input')).toHaveValue('');
     await expect(this.departmentInput.locator('input')).toHaveValue('');
     await expect(this.dischargingClinicianInput.locator('input')).toHaveValue('');
   }
