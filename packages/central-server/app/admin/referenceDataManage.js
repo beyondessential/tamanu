@@ -194,8 +194,14 @@ referenceDataManageRouter.get(
     const searchableKeys = new Set(
       columns.filter(c => !c.detail && isSearchable(c)).map(c => c.key),
     );
+    // Real columns on the detail table only. getColumnsForModel can also emit synthetic detail
+    // columns — an FK's read-only name companion — and a where naming one of those would name a
+    // column the table hasn't got. They aren't populated for display either (see fkNameColumns),
+    // so an ignored filter is the right failure, not a SQL error.
     const detailSearchableKeys = new Set(
-      detailAssociation ? columns.filter(c => c.detail && isSearchable(c)).map(c => c.key) : [],
+      columns
+        .filter(c => c.detail && isSearchable(c) && detailModel?.rawAttributes?.[c.key])
+        .map(c => c.key),
     );
 
     const normalizedOrder = order.toUpperCase();

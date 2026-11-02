@@ -905,6 +905,73 @@ describe('Reference Data Manage', () => {
       expect(response.body.count).toBe(response.body.data.length);
     });
 
+    it('should filter a satellite boolean by an explicit false', async () => {
+      // the search bar sends 'false' as a string, so an explicit No stays distinct from no filter
+      const sensitive = await createDrugWithDetail('filter-bool-true', { isSensitive: true });
+      const notSensitive = await createDrugWithDetail('filter-bool-false', { isSensitive: false });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'filter-bool',
+        isSensitive: 'false',
+        rowsPerPage: 100,
+      });
+      expect(response).toHaveSucceeded();
+      const ids = response.body.data.map(r => r.id);
+      expect(ids).toContain(notSensitive.id);
+      expect(ids).not.toContain(sensitive.id);
+    });
+
+    it('should drop records with no satellite row from a satellite filter', async () => {
+      const withDetail = await createDrugWithDetail('filter-rowless-with', {
+        notes: 'Dispense whole',
+      });
+      const withoutDetail = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'filter-rowless-without',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const filtered = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        notes: 'dispense whole',
+        rowsPerPage: 100,
+      });
+      expect(filtered).toHaveSucceeded();
+      const filteredIds = filtered.body.data.map(r => r.id);
+      expect(filteredIds).toContain(withDetail.id);
+      expect(filteredIds).not.toContain(withoutDetail.id);
+
+      // the join only turns inner for the length of a detail filter, so it's still listed otherwise
+      const unfiltered = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'filter-rowless-without',
+      });
+      expect(unfiltered).toHaveSucceeded();
+      expect(unfiltered.body.data.map(r => r.id)).toContain(withoutDetail.id);
+    });
+
+    it('should AND a base filter with a satellite filter', async () => {
+      const both = await createDrugWithDetail('filter-combined-both', { notes: 'Shake well' });
+      const baseOnly = await createDrugWithDetail('filter-combined-base', {
+        notes: 'Do not refrigerate',
+      });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'filter-combined', // matches both
+        notes: 'shake well', // matches only the first
+        rowsPerPage: 100,
+      });
+      expect(response).toHaveSucceeded();
+      const ids = response.body.data.map(r => r.id);
+      expect(ids).toContain(both.id);
+      expect(ids).not.toContain(baseOnly.id);
+      // both halves of the filter have to reach the count query, not just the base one
+      expect(response.body.count).toBe(response.body.data.length);
+    });
+
     it('should ignore a filter on a column the type does not have', async () => {
       const response = await adminApp.get(BASE_URL).query({
         referenceDataType: TEST_TYPE,
