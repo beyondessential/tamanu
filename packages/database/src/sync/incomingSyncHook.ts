@@ -1,4 +1,3 @@
-import config from 'config';
 import { Sequelize } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 
@@ -10,8 +9,7 @@ import type { Models } from '../types/model';
 import { insertSnapshotRecords, updateSnapshotRecords } from './manageSnapshotTable';
 import { readOnlyTransaction } from './transactions';
 import type { SyncHookSnapshotChanges } from 'types/sync';
-
-const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
+import { getSyncTuning } from './syncTuning';
 
 export const incomingSyncHook = async (
   sequelize: Sequelize,
@@ -31,7 +29,7 @@ export const incomingSyncHook = async (
     );
 
     // Load the persisted record ids in batches to avoid memory issue
-    const batchSize = config.sync.incomingSyncHookBatchSize;
+    const batchSize = getSyncTuning().incomingSyncHookBatchSize;
     const batchCount = Math.ceil(modelPersistedRecordsCount / batchSize);
     let fromId;
 
@@ -77,10 +75,13 @@ export const incomingSyncHook = async (
           }));
 
           // Update existing changes in sync_snapshot table
-          await asyncPool(persistUpdateWorkerPoolSize, newChangesToUpdate, async change =>
-            updateSnapshotRecords(sequelize, sessionId, change, {
-              id: change.id,
-            }),
+          await asyncPool(
+            getSyncTuning().persistUpdateWorkerPoolSize,
+            newChangesToUpdate,
+            async change =>
+              updateSnapshotRecords(sequelize, sessionId, change, {
+                id: change.id,
+              }),
           );
         }
       }
