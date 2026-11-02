@@ -954,7 +954,7 @@ describe('Patient relations', () => {
       expect(uniqueCategories.length).toBeGreaterThan(1);
     });
 
-    it('Allows filtering lab tests by category, listed alphabetically by test name', async () => {
+    it('Allows filtering lab tests by category', async () => {
       const response = await app.get(
         `/api/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}`,
       );
@@ -962,8 +962,6 @@ describe('Patient relations', () => {
       response.body.data.forEach(labTest => {
         expect(labTest.testCategory).toEqual(randomCategory.name);
       });
-      const names = response.body.data.map(labTest => labTest.testType);
-      expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
     });
 
     it('excludes sensitive lab test results', async () => {
@@ -1059,6 +1057,53 @@ describe('Patient relations', () => {
       expect(response.body.groups[0].testTypeIds.slice().sort()).toEqual(expectedTypeIds);
       // The data holds exactly the panel's member tests.
       expect(response.body.data.map(result => result.testTypeId).sort()).toEqual(expectedTypeIds);
+    });
+
+    it("lists a category's tests alphabetically by name", async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const { id: categoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      // Distinct leading letters in a single case sort the same way under any database collation.
+      const createType = name =>
+        models.LabTestType.create({
+          ...fake(models.LabTestType),
+          name,
+          code: name,
+          labTestCategoryId: categoryId,
+          isSensitive: false,
+          availableFacilities: null,
+        });
+      const [zebra, apple, mango] = await Promise.all([
+        createType('Zebratest'),
+        createType('Appletest'),
+        createType('Mangotest'),
+      ]);
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId,
+          labTestCategoryId: categoryId,
+          labTestTypeIds: [zebra.id, apple.id, mango.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+
+      const response = await app.get(
+        `/api/patient/${labTestsPatient.id}/labTestResults?categoryId=${categoryId}`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(labTest => labTest.testType)).toEqual([
+        'Appletest',
+        'Mangotest',
+        'Zebratest',
+      ]);
     });
 
     it('unions panel members and individual test ids, returning each distinct test once', async () => {
