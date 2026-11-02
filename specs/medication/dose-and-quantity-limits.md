@@ -30,7 +30,7 @@ Each drug can carry an accepted range for its dose amount and for its dispensing
 
 - [ ] When a value is outside the range, a warning appears directly below the field.
 - [ ] The warning updates as the value is typed, without waiting for the user to leave the field or save. It appears as soon as the value moves outside the range and clears as soon as it is back within the range or the field is emptied, e.g. changing a dose of 300 tablets to 2 against a maximum of 3 tablets clears the warning.
-- [ ] The warning names the limit that was crossed and its value in the drug's unit, e.g. "Above max of 2 tablets" or "Below minimum of 1 tablet".
+- [ ] The warning names the limit that was crossed and its value in the drug's unit, e.g. "Above max of 2 tablets" or "Below min of 1 tablet".
 - [ ] The warning does not prevent saving. The form or table submits as normal with the value as entered.
 - [ ] In the send to pharmacy, discharge, and dispense tables, the warning appears below the quantity input on that item's row.
 - [ ] In a medication set, an item with a value outside the range shows the warning in the set's list of items as well as when the item is opened for editing.
@@ -46,6 +46,5 @@ Each drug can carry an accepted range for its dose amount and for its dispensing
 
 ## Pharmacy flags
 
-- [ ] In the active medication requests list, a request whose prescription or pharmacy order item carries an override shows a warning icon beside the medication name.
-- [ ] On the dispense screen, an item whose prescription or pharmacy order item carries an override shows the same warning icon beside the medication name, so pharmacy can check the order before dispensing.
-- [ ] Hovering the warning icon shows which values were outside the range, the value saved, and the limit crossed.
+- [ ] On the dispense screen, an item whose prescription or pharmacy order item carries an override shows a warning below the medication name, so pharmacy can check the order before dispensing.
+- [ ] The warning uses the same wording as the inline warning, naming each limit that was crossed, e.g. "Above max of 2 tablets".
