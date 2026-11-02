@@ -12,6 +12,7 @@ import {
   OTHER_REFERENCE_TYPES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
+  TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
 import { HIDDEN_COLUMNS } from '../../app/admin/referenceDataManageUtils';
 import { createTestContext } from '../utilities';
@@ -173,7 +174,22 @@ describe('Reference Data Manage', () => {
       const failures = [];
       for (const [type, modelName] of Object.entries(SATELLITE_MODEL_BY_TYPE)) {
         const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: type });
-        expect(response).toHaveSucceeded();
+        if (response.status >= 400) {
+          // collected rather than thrown, so one broken type doesn't hide the others
+          failures.push(`${type}: /columns answered ${response.status}, so nothing could be checked.`);
+          continue;
+        }
+
+        // the read-only name companion an FK gets is dropped for a detail column: nothing
+        // populates it, so it would offer a filter the list query then ignores
+        const syntheticDetailColumns = response.body.filter(c => c.detail && c.isFkName);
+        if (syntheticDetailColumns.length > 0) {
+          failures.push(
+            `${type}: ${syntheticDetailColumns.map(c => c.key).join(', ')} reached the column ` +
+              'list as a synthetic detail column. getColumnsForModel is meant to drop those.',
+          );
+        }
+
         const shownKeys = new Set(response.body.map(c => c.key));
 
         for (const key of Object.keys(models[modelName].rawAttributes)) {
@@ -974,6 +990,36 @@ describe('Reference Data Manage', () => {
       expect(ids).not.toContain(baseOnly.id);
       // both halves of the filter have to reach the count query, not just the base one
       expect(response.body.count).toBe(response.body.data.length);
+    });
+
+    it('should filter a second satellite through its own join', async () => {
+      const createTaskTemplate = async (code, frequencyUnit) => {
+        const record = await models.ReferenceData.create({
+          ...fake(models.ReferenceData),
+          type: REFERENCE_TYPES.TASK_TEMPLATE,
+          code,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+        await models.TaskTemplate.create({
+          ...fake(models.TaskTemplate),
+          referenceDataId: record.id,
+          frequencyValue: 1,
+          frequencyUnit,
+        });
+        return record;
+      };
+      const hourly = await createTaskTemplate('filter-task-hourly', TASK_FREQUENCY_UNIT.HOUR);
+      const daily = await createTaskTemplate('filter-task-daily', TASK_FREQUENCY_UNIT.DAY);
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: REFERENCE_TYPES.TASK_TEMPLATE,
+        frequencyUnit: TASK_FREQUENCY_UNIT.HOUR,
+        rowsPerPage: 100,
+      });
+      expect(response).toHaveSucceeded();
+      const ids = response.body.data.map(r => r.id);
+      expect(ids).toContain(hourly.id);
+      expect(ids).not.toContain(daily.id);
     });
 
     it('should ignore a filter on a column the type does not have', async () => {

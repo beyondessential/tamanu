@@ -238,7 +238,7 @@ referenceDataManageRouter.get(
         continue;
       }
       const match = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
-      // a key the base record also has is the base record's; detail only gets what's left
+      // a key the base record can be searched by is the base record's; detail gets what's left
       if (searchableKeys.has(key)) {
         searchWhere[key] = match;
       } else if (detailSearchableKeys.has(key)) {

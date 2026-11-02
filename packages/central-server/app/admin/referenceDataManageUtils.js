@@ -323,12 +323,7 @@ export const getColumnsForModel = async (model, referenceDataType, detailModel =
   // populates those only for the base model, and pickDetailValues can't resolve one, so keeping it
   // would offer a filter the server then ignores.
   const detailColumns = (await buildColumns(detailModel))
-    .filter(
-      col =>
-        !col.isFkName &&
-        !DETAIL_INTERNAL_COLUMNS.has(col.key) &&
-        !DETAIL_INTERNAL_COLUMNS.has(col.fkKey),
-    )
+    .filter(col => !col.isFkName && !DETAIL_INTERNAL_COLUMNS.has(col.key))
     .map(col => ({ ...col, detail: true }));
 
   return [...columns, ...detailColumns];
