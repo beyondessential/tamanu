@@ -1,11 +1,19 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { isEqual } from 'es-toolkit/compat';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
-import { randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';
 import {
+  createDummyEncounter,
+  createDummyPatient,
+  randomReferenceId,
+} from '@tamanu/database/demoData/patients';
+import {
+  createLabTestTypes,
+  randomLabRequest,
+  randomSensitiveLabRequest,
+} from '@tamanu/database/demoData';
+import {
+  ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES,
   LAB_REQUEST_STATUSES,
   NOTE_TYPES,
-  PRINTABLE_LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import { fakeUser } from '@tamanu/fake-data/fake';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
@@ -241,6 +249,7 @@ describe('Encounter labs', () => {
 
     let printoutApp = null;
     let sensitiveApp = null;
+    let encounterOnlyApp = null;
 
     beforeAll(async () => {
       printoutApp = await baseApp.asNewRole([
@@ -252,6 +261,31 @@ describe('Encounter labs', () => {
         ['list', 'LabRequest'],
         ['list', 'SensitiveLabRequest'],
       ]);
+      encounterOnlyApp = await baseApp.asNewRole([['read', 'Encounter']]);
+    });
+
+    it('rejects an unauthenticated request', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const result = await baseApp.get(
+        `/api/encounter/${encounter.id}/labRequests?excludeSensitive=true`,
+      );
+      expect(result).toHaveRequestError();
+    });
+
+    it('forbids a user without permission to list lab requests', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const result = await encounterOnlyApp.get(
+        `/api/encounter/${encounter.id}/labRequests?excludeSensitive=true`,
+      );
+      expect(result).toBeForbidden();
     });
 
     it('leaves out sensitive requests with excludeSensitive, even for a privileged user', async () => {
@@ -288,6 +322,37 @@ describe('Encounter labs', () => {
       expect(withoutSensitive.body.data.map(request => request.id)).toEqual([labRequest.id]);
     });
 
+    it('leaves out a request that mixes a sensitive test with a non-sensitive one', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // One request holding both kinds of test: the sensitive one has to disqualify the whole
+      // request, or its results would print alongside the rest.
+      const categoryId = await randomReferenceId(models, 'labTestCategory');
+      const [sensitiveType] = await createLabTestTypes(models, categoryId, { isSensitive: true });
+      const [plainType] = await createLabTestTypes(models, categoryId, { isSensitive: false });
+      const mixedLabRequest = await models.LabRequest.createWithTests({
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        displayId: 'TESTID',
+        categoryId,
+        labTestTypeIds: [sensitiveType.id, plainType.id],
+      });
+
+      const withSensitive = await sensitiveApp.get(`/api/encounter/${encounter.id}/labRequests`);
+      expect(withSensitive).toHaveSucceeded();
+      expect(withSensitive.body.data.map(request => request.id)).toEqual([mixedLabRequest.id]);
+
+      const withoutSensitive = await sensitiveApp.get(
+        `/api/encounter/${encounter.id}/labRequests?excludeSensitive=true`,
+      );
+      expect(withoutSensitive).toHaveSucceeded();
+      expect(withoutSensitive.body.data).toEqual([]);
+    });
+
     it('filters to the requested statuses', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
@@ -295,7 +360,7 @@ describe('Encounter labs', () => {
       });
 
       const printable = await Promise.all(
-        PRINTABLE_LAB_REQUEST_STATUSES.map(status =>
+        ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES.map(status =>
           createLabRequest(models, {
             patientId: patient.id,
             encounterId: encounter.id,
@@ -309,7 +374,7 @@ describe('Encounter labs', () => {
         status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
       });
 
-      const statusQuery = PRINTABLE_LAB_REQUEST_STATUSES.map(
+      const statusQuery = ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES.map(
         (status, index) => `status[${index}]=${status}`,
       ).join('&');
       const result = await printoutApp.get(

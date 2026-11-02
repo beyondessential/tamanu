@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
-import { PRINTABLE_LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { route } from '@tamanu/api-client';
 import { LabRequestModal } from '../../../components/LabRequestModal';
 import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
@@ -19,19 +19,23 @@ import { usePatient } from '../../../contexts/Patient';
 import { useSettings } from '../../../contexts/Settings';
 
 // The requests the results printout covers: resulted, and not sensitive — sensitive requests are
-// left out for every user, so they are printed from the request itself.
-const usePrintableLabRequestsQuery = (encounterId, { enabled }) => {
+// left out for every user, so they are printed from the request itself. Keyed on refreshCount for
+// the same reason the table takes it: this endpoint is self-fetched, so invalidating the encounter
+// query doesn't reach it, and a newly published request must reach the printout as well as the table.
+const usePrintableLabRequestsQuery = (encounterId, refreshCount, { enabled }) => {
   const api = useApi();
   return useQuery(
-    ['encounterPrintableLabRequests', encounterId],
+    ['encounterPrintableLabRequests', encounterId, refreshCount],
     () =>
       api.get(route('encounter/:encounterId/labRequests', { encounterId }), {
-        status: PRINTABLE_LAB_REQUEST_STATUSES,
+        status: ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES,
         excludeSensitive: true,
         orderBy: 'requestedDate',
         order: 'ASC',
       }),
-    { enabled },
+    // The response carries every eligible request with its tests, so don't re-pull it on every
+    // window focus; refreshCount already covers the changes that matter.
+    { enabled, staleTime: 5 * 60 * 1000 },
   );
 };
 
@@ -49,7 +53,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
   const isResultsPrintoutEnabled =
     getSetting('features.labRequest.enableLabResultsPrintout') &&
     ability?.can('read', 'LabTestResult');
-  const { data: printableLabRequests } = usePrintableLabRequestsQuery(encounter.id, {
+  const { data: printableLabRequests } = usePrintableLabRequestsQuery(encounter.id, refreshCount, {
     enabled: isResultsPrintoutEnabled,
   });
   const canPrintResults = printableLabRequests?.data?.length > 0;

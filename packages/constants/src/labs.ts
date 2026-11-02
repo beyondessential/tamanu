@@ -23,9 +23,10 @@ export const INTERIM_LAB_REQUEST_STATUSES = [
   LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
 ];
 
-// The statuses whose results are complete enough to print as part of an encounter's results.
-// A request at any other status either has nothing to show or has been withdrawn.
-export const PRINTABLE_LAB_REQUEST_STATUSES = [
+// The statuses an encounter's results printout covers. A request at any other status has produced
+// no results yet, has had them withdrawn, or — at To be verified — holds results the lab has not
+// yet stood behind. A single request prints from its own view at any of those statuses.
+export const ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES = [
   LAB_REQUEST_STATUSES.PUBLISHED,
   LAB_REQUEST_STATUSES.VERIFIED,
   LAB_REQUEST_STATUSES.INTERIM_RESULTS,
