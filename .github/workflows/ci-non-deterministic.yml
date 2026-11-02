@@ -58,6 +58,8 @@ jobs:
 
       - run: npm i -g '@swc/cli@^0.1.63'
       - run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
       - run: npm run build-shared
 
       - name: Precheck

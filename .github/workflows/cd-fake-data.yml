@@ -28,6 +28,8 @@ jobs:
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
       - run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
       - run: npm run build-shared
       - run: npm run build
         working-directory: packages/scripts
