@@ -95,7 +95,9 @@ export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open,
   };
 
   if (allQueries.isError) {
-    const isForbidden = allQueries.errors.some(error => error instanceof ForbiddenError);
+    const isForbidden = allQueries.errors.some(
+      error => error instanceof ForbiddenError || error?.status === 403,
+    );
     return (
       <Modal {...modalProps} data-testid="modal-lab-results-printout-error">
         {isForbidden ? (

@@ -33,9 +33,7 @@ const usePrintableLabRequestsQuery = (encounterId, refreshCount, { enabled }) =>
         orderBy: 'requestedDate',
         order: 'ASC',
       }),
-    // The response carries every eligible request with its tests, so don't re-pull it on every
-    // window focus; refreshCount already covers the changes that matter.
-    { enabled, staleTime: 5 * 60 * 1000 },
+    { enabled },
   );
 };
 
@@ -50,9 +48,12 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
   const { patient } = usePatient();
   const { getSetting } = useSettings();
 
+  // Reading results is what the printout needs; listing requests is what the endpoint behind it
+  // enforces, so a user holding only one of the two must not reach the action.
   const isResultsPrintoutEnabled =
     getSetting('features.labRequest.enableLabResultsPrintout') &&
-    ability?.can('read', 'LabTestResult');
+    ability?.can('read', 'LabTestResult') &&
+    ability?.can('list', 'LabRequest');
   const { data: printableLabRequests } = usePrintableLabRequestsQuery(encounter.id, refreshCount, {
     enabled: isResultsPrintoutEnabled,
   });

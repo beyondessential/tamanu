@@ -386,6 +386,49 @@ describe('Encounter labs', () => {
       );
     });
 
+    it('answers the query the printout actually issues', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const published = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedDate: '2026-03-02 09:00:00',
+      });
+      const interim = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+        requestedDate: '2026-03-01 09:00:00',
+      });
+      await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        requestedDate: '2026-03-01 08:00:00',
+      });
+      await models.LabRequest.createWithTests(
+        await randomSensitiveLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          requestedDate: '2026-02-28 08:00:00',
+        }),
+      );
+
+      const statusQuery = ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES.map(
+        (status, index) => `status[${index}]=${status}`,
+      ).join('&');
+      const result = await sensitiveApp.get(
+        `/api/encounter/${encounter.id}/labRequests?${statusQuery}&excludeSensitive=true&orderBy=requestedDate&order=ASC`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(request => request.id)).toEqual([interim.id, published.id]);
+    });
+
     it('orders by requested date, oldest first', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
