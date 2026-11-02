@@ -40,6 +40,7 @@ export class PatientTable {
   readonly pageRecordCountDropDown!: Locator;
   readonly patientPageRecordCount25!: Locator;
   readonly patientPageRecordCount50!: Locator;
+  readonly patientPageRecordCount100!: Locator;
   readonly patientPage2!: Locator;
   readonly pageRecordCount!: Locator;
   readonly pageRecordCountDropDownOptions!: Locator;
@@ -101,6 +102,9 @@ export class PatientTable {
     this.patientPageRecordCount50 = page
       .getByTestId('styledmenuitem-fkrw-undefined')
       .getByText('50');
+    this.patientPageRecordCount100 = page
+      .getByTestId('styledmenuitem-fkrw-undefined')
+      .getByText('100');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2', { exact: true });
   }
 
@@ -312,6 +316,16 @@ export class PatientTable {
     await expect(this.sexDropDownCrossIcon).not.toBeVisible();
     await expect(this.DOBFromTxt).toHaveValue('');
     await expect(this.DOBToTxt).toHaveValue('');
+  }
+
+  // Confirms the size on the dropdown, so it also works on lists with fewer records than a page
+  async selectPageSize(recordsPerPage: number) {
+    await this.pageRecordCountDropDown.click();
+    await this.pageRecordCountDropDownOptions
+      .getByText(recordsPerPage.toString(), { exact: true })
+      .click();
+    await this.waitForTableToLoad();
+    await expect(this.pageRecordCountDropDown).toHaveText(recordsPerPage.toString());
   }
 
   async changePageSize(recordsPerPage: number) {

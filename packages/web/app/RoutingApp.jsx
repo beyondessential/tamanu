@@ -24,6 +24,18 @@ import { DashboardView } from './views/dashboard/DashboardView';
 import { useSettings } from './contexts/Settings';
 import { KioskView } from './views/kiosk/KioskView';
 import { TelemetryRouteListener } from './telemetry';
+import { useAdminUserPreferencesQuery, useUserPreferencesQuery } from './api/queries';
+
+// Fetched as soon as the user is logged in, so tables with a remembered page size don't wait on
+// them before their first load. These render as App children, which App holds back until login.
+const PrefetchUserPreferences = () => {
+  useUserPreferencesQuery();
+  return null;
+};
+const PrefetchAdminUserPreferences = () => {
+  useAdminUserPreferencesQuery();
+  return null;
+};
 
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
@@ -58,6 +70,7 @@ const RoutingClinicalApp = () => {
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
       <UserActivityMonitor />
+      <PrefetchUserPreferences />
       <Routes>
         {isSettingsLoaded ? (
           <Route path="/" element={<Navigate to={sidebarMenuItems[0].path} replace />} />
@@ -81,6 +94,7 @@ export const RoutingAdminApp = React.memo(() => {
   const sidebarMenuItems = useCentralSidebar();
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
+      <PrefetchAdminUserPreferences />
       <Routes>
         <Route path="/" element={<Navigate to="/admin" replace />} />
         <Route path="/admin/*" element={<AdministrationRoutes />} />

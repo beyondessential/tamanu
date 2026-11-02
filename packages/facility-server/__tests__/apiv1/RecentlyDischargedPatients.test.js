@@ -279,7 +279,7 @@ describe('Recently discharged patients', () => {
 
     it('caps the page size, and falls back to defaults for invalid paging values', async () => {
       const lastName = 'Rdp-page-size';
-      for (let i = 0; i < 51; i++) {
+      for (let i = 0; i < 101; i++) {
         const patient = await createPatient({ lastName });
         await createDischargedEncounter(patient);
       }
@@ -292,8 +292,8 @@ describe('Recently discharged patients', () => {
         .query({ lastName, rowsPerPage: 'many', page: -1 });
 
       expect(oversizedPage).toHaveSucceeded();
-      expect(oversizedPage.body).toMatchObject({ count: 51 });
-      expect(oversizedPage.body.data).toHaveLength(50);
+      expect(oversizedPage.body).toMatchObject({ count: 101 });
+      expect(oversizedPage.body.data).toHaveLength(100);
       expect(invalidPaging).toHaveSucceeded();
       expect(invalidPaging.body.data).toHaveLength(10);
     });

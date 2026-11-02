@@ -10,7 +10,7 @@ import { TableRefreshButton } from './TableRefreshButton';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { useSettings } from '../../contexts/Settings';
-import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
+import { usePageSizePreference } from './usePageSizePreference';
 
 const DEFAULT_SORT = /** @type {const} */ ({ order: 'asc', orderBy: undefined });
 
@@ -40,13 +40,15 @@ export const DataFetchingTable = memo(
     autoRefresh,
     lazyLoading = false,
     hasPermission = true,
-    defaultRowsPerPage = ROWS_PER_PAGE_OPTIONS[0],
+    defaultRowsPerPage,
+    pageSizePreferenceKey,
     'data-testid': dataTestId,
     ...props
   }) => {
     const { getCurrentDateTime } = useDateTime();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
+    const { rowsPerPage, rowsPerPageOptions, onChangeRowsPerPage, isPageSizeReady } =
+      usePageSizePreference({ preferenceKey: pageSizePreferenceKey, defaultRowsPerPage });
     const [sorting, setSorting] = useState(initialSort);
     const [fetchState, setFetchState] = useState(() => initialiseFetchState(getCurrentDateTime()));
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
@@ -219,6 +221,9 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       if (!hasPermission) return;
+      // spec: TPAGE#remembered-page-size
+      // Wait for a remembered page size, so the table loads once at that size rather than twice
+      if (!isPageSizeReady) return;
 
       // Guards against a slower earlier request resolving after a newer one (eg
       // when filters change while a fetch is still in flight) and clobbering the
@@ -289,6 +294,7 @@ export const DataFetchingTable = memo(
       onDataFetched,
       disablePagination,
       hasPermission,
+      isPageSizeReady,
     ]);
 
     useEffect(() => {
@@ -349,11 +355,11 @@ export const DataFetchingTable = memo(
           page={disablePagination ? null : page}
           count={count}
           onChangePage={setPage}
-          onChangeRowsPerPage={setRowsPerPage}
+          onChangeRowsPerPage={onChangeRowsPerPage}
           onChangeOrderBy={handleChangeOrderBy}
           order={order}
           orderBy={orderBy}
-          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          rowsPerPageOptions={rowsPerPageOptions}
           refreshTable={refreshTable}
           rowStyle={row => {
             const rowStyle = [];

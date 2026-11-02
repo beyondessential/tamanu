@@ -39,43 +39,41 @@ test.describe('outpatient table tests', () => {
   });
 
   test.describe('pagination', () => {
-    //skipping this test for now as it is failing in ci because of less than 10 outpatients
-    test.skip('[AT-0124]number of patients in patient list defaulted to 10', async ({
+    //skipping this test for now as it is failing in ci because of less than 50 outpatients
+    test.skip('[AT-0124]number of patients in patient list defaulted to 50', async ({
       outpatientsPage,
     }) => {
-      await expect(outpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('10');
-      await outpatientsPage.patientTable.validateNumberOfPatients(10);
+      await expect(outpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('50');
+      await outpatientsPage.patientTable.validateNumberOfPatients(50);
     });
 
-    //skipping this test for now as it is failing in ci because of less than 10 outpatients
-    test.skip('[AT-0125]change number of patients per list to 25 and going to next page', async ({
+    //skipping this test for now as it is failing in ci because of less than 101 outpatients
+    test.skip('[AT-0125]change number of patients per list to 100 and going to next page', async ({
       outpatientsPage,
     }) => {
-      await expect(outpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('10');
+      await expect(outpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('50');
       await outpatientsPage.patientTable.pageRecordCountDropDown.click();
-      await outpatientsPage.patientTable.patientPageRecordCount25.click();
+      await outpatientsPage.patientTable.patientPageRecordCount100.click();
       await outpatientsPage.patientTable.waitForTableToLoad();
-      await outpatientsPage.patientTable.waitForTableRowCount(25);
-      await outpatientsPage.patientTable.validateNumberOfPatients(25);
+      await outpatientsPage.patientTable.waitForTableRowCount(100);
+      await outpatientsPage.patientTable.validateNumberOfPatients(100);
       await outpatientsPage.patientTable.patientPage2.click();
       await outpatientsPage.patientTable.waitForTableToLoad();
-      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('26');
+      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('101');
+      // The chosen size is remembered for the test user, so put it back for other tests
+      await outpatientsPage.patientTable.selectPageSize(50);
     });
 
-    //skipping this test for now as it is failing in ci because of less than 100 patients in the database.
-    test.skip('[AT-0126]change number of patients per list to 50 and going to next page', async ({
+    //skipping this test for now as it is failing in ci because of less than 51 outpatients
+    test.skip('[AT-0126]change number of patients per list back to 50 and going to next page', async ({
       outpatientsPage,
     }) => {
-      await expect(outpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('10');
-      await outpatientsPage.patientTable.pageRecordCountDropDown.click();
-      await outpatientsPage.patientTable.patientPageRecordCount50.click();
-      await outpatientsPage.patientTable.waitForTableToLoad();
-      //await outpatientsPage.patientTable.waitForTableRowCount(50);
+      await outpatientsPage.patientTable.selectPageSize(100);
+      await outpatientsPage.patientTable.selectPageSize(50);
       await outpatientsPage.patientTable.validateNumberOfPatients(50);
       await outpatientsPage.patientTable.patientPage2.click();
       await outpatientsPage.patientTable.waitForTableToLoad();
-      //await outpatientsPage.patientTable.waitForTableRowCount(50);
-      await outpatientsPage.patientTable.validateNumberOfPatients(50);
+      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('51');
     });
   });
 

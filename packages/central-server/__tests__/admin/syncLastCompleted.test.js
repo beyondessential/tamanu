@@ -93,4 +93,13 @@ describe('GET /admin/sync/lastCompleted', () => {
     expect(row).toBeTruthy();
     expect(new Date(row.completedAt)).toEqual(new Date('2024-06-01'));
   });
+
+  it('accepts page sizes up to the largest the table offers', async () => {
+    const app = await baseApp.asRole('admin');
+    const largestPage = await app.get(ENDPOINT).query({ rowsPerPage: 100 });
+    const oversizedPage = await app.get(ENDPOINT).query({ rowsPerPage: 101 });
+
+    expect(largestPage).toHaveSucceeded();
+    expect(oversizedPage).toHaveRequestError();
+  });
 });

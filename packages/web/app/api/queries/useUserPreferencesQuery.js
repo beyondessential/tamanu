@@ -1,11 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
-import { useAuth } from '../../contexts/Auth';
+import { useSelector } from 'react-redux';
+import { getCurrentUser } from '../../store/auth';
 import { route } from '@tamanu/api-client';
 
 export const useUserPreferencesQuery = queryOptions => {
   const api = useApi();
-  const { currentUser, facilityId } = useAuth();
+  // Read from the store rather than useAuth, so tables using this need no router around them
+  const currentUser = useSelector(getCurrentUser);
+  const facilityId = useSelector(({ auth }) => auth.facilityId);
 
   return useQuery(
     ['userPreferences', currentUser?.id],

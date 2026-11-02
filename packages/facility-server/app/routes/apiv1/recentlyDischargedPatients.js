@@ -14,7 +14,7 @@ export const recentlyDischargedPatients = express.Router();
 
 const DEFAULT_ROWS_PER_PAGE = 10;
 // The largest page size the web table offers
-const MAX_ROWS_PER_PAGE = 50;
+const MAX_ROWS_PER_PAGE = 100;
 
 const SORT_KEYS = {
   firstName: 'UPPER(patients.first_name)',

@@ -26,7 +26,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
             return Number.parseInt(val);
           }
           return val;
-        }, z.int().min(1).max(50))
+        }, z.int().min(1).max(100))
         .default(10),
       order: z.enum(['asc', 'desc']).default('desc'),
       orderBy: z

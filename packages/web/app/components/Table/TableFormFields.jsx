@@ -11,10 +11,9 @@ import TableFooter from '@material-ui/core/TableFooter';
 
 import { Colors } from '../../constants';
 import { Paginator } from './Paginator.jsx';
+import { usePageSizePreference } from './usePageSizePreference';
 
 import { TranslatedText } from '../../components/Translation';
-
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const StyledFixedTable = styled(MaterialTable)`
   background-color: ${p => p.theme.palette.background.paper};
@@ -91,11 +90,18 @@ Formik's Field component and provide a special naming scheme to avoid
 namespace collisions.
 */
 export const TableFormFields = React.memo(
-  ({ columns, data, className = '', pagination = false, getRowGroupHeader, ...props }) => {
+  ({
+    columns,
+    data,
+    className = '',
+    pagination = false,
+    pageSizePreferenceKey,
+    getRowGroupHeader,
+    ...props
+  }) => {
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(
-      pagination ? ROWS_PER_PAGE_OPTIONS[0] : data.length,
-    );
+    const pageSize = usePageSizePreference({ preferenceKey: pageSizePreferenceKey });
+    const rowsPerPage = pagination ? pageSize.rowsPerPage : data.length;
     const [pageRows, setPageRows] = useState(pagination ? data.slice(page, rowsPerPage) : data);
 
     // When the data to be displayed is changed (e.g. by search), update the rows and set to page 1
@@ -105,7 +111,6 @@ export const TableFormFields = React.memo(
         setPage(0);
       } else {
         setPageRows(data);
-        setRowsPerPage(data.length);
       }
     }, [data, pagination, rowsPerPage]);
 
@@ -118,7 +123,7 @@ export const TableFormFields = React.memo(
     // Display the new amount of rows per page and set to page 1
     const handleRowsPerPageChange = event => {
       const newRowsPerPage = event.target.value;
-      setRowsPerPage(newRowsPerPage);
+      pageSize.onChangeRowsPerPage(newRowsPerPage);
       setPage(0);
       setPageRows(data.slice(0, newRowsPerPage));
     };
@@ -193,7 +198,7 @@ export const TableFormFields = React.memo(
           <StyledTableFooter data-testid="styledtablefooter-pzhl">
             <PaginationRow data-testid="paginationrow-o0vp">
               <Paginator
-                rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+                rowsPerPageOptions={pageSize.rowsPerPageOptions}
                 colSpan={columns.length}
                 page={page}
                 count={data.length}
@@ -225,4 +230,6 @@ TableFormFields.propTypes = {
   /** Optional. Given (row, previousRow), returns a node to render as a full-width group
    * header before that row, or null/undefined for no header. Mirrors the shared Table prop. */
   getRowGroupHeader: PropTypes.func,
+  /** Optional. Offers the large page sizes and remembers the user's choice under this key. */
+  pageSizePreferenceKey: PropTypes.string,
 };
