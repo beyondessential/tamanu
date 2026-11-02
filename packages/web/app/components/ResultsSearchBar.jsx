@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { toArrayParam } from '@tamanu/utils/toArrayParam';
 import { useSuggester } from '../api';
 import { AutocompleteInput, MultiAutocompleteInput } from './Field';
 import { Colors } from '../constants';
@@ -49,8 +50,6 @@ const TestOrPanelField = styled.div`
   }
 `;
 
-const toArray = value => (Array.isArray(value) ? value : value == null ? [] : [value]);
-
 const PANEL_PREFIX = 'panel:';
 const TEST_PREFIX = 'test:';
 
@@ -93,8 +92,8 @@ export const ResultsSearchBar = React.memo(
 
     const selectedTestOrPanel = useMemo(
       () => [
-        ...toArray(searchParameters.panelIds).map(id => `${PANEL_PREFIX}${id}`),
-        ...toArray(searchParameters.testIds).map(id => `${TEST_PREFIX}${id}`),
+        ...toArrayParam(searchParameters.panelIds).map(id => `${PANEL_PREFIX}${id}`),
+        ...toArrayParam(searchParameters.testIds).map(id => `${TEST_PREFIX}${id}`),
       ],
       [searchParameters.panelIds, searchParameters.testIds],
     );

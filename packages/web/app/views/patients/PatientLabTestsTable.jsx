@@ -12,6 +12,7 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { getLabTestValidationCriteriaFromNormalRanges } from '@tamanu/utils/labTests';
+import { toArrayParam } from '@tamanu/utils/toArrayParam';
 import { BodyText } from '../../components';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Table } from '../../components/Table';
@@ -19,8 +20,6 @@ import { Colors } from '../../constants/styles';
 import { LabTestResultModal } from './LabTestResultModal';
 
 const INDIVIDUAL_GROUP_ID = '__individual__';
-
-const toArray = value => (Array.isArray(value) ? value : value == null ? [] : [value]);
 
 // White-header style, matching the lab request results table. The test and normal-range columns are
 // no longer frozen (as in the agreed mockup), so the whole table scrolls horizontally when there are
@@ -130,7 +129,7 @@ export const PatientLabTestsTable = React.memo(
     // panel (A–Z) with its member tests in configured order, then the individually picked tests
     // (A–Z) under an "Individual tests" group. A test shared by several picks appears under each.
     const { rows, hasGroups } = useMemo(() => {
-      const pickedTestIds = toArray(searchParameters.testIds);
+      const pickedTestIds = toArrayParam(searchParameters.testIds);
       // A category lists its tests flat, A–Z. The same flat shape is used defensively when nothing
       // is picked (the table is not rendered in that state), so there is always something to show.
       if (isCategoryMode || (groups.length === 0 && pickedTestIds.length === 0)) {

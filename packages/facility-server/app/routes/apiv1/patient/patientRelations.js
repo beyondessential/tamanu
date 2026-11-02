@@ -3,6 +3,7 @@ import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
+import { toArrayParam } from '@tamanu/utils/toArrayParam';
 import {
   permissionCheckingRouter,
   runPaginatedQuery,
@@ -399,18 +400,9 @@ patientRelations.get(
       query,
     } = req;
 
-    // qs parses repeated query params into an array, but once a list passes its arrayLimit it
-    // degrades to an index-keyed object ({ '0': ..., '1': ... }); since there is no cap on picks,
-    // normalise both shapes (and a bare single value) to an array.
-    const toArray = value => {
-      if (Array.isArray(value)) return value;
-      if (value == null) return [];
-      if (typeof value === 'object') return Object.values(value);
-      return [value];
-    };
     const { categoryId, status = 'published' } = query;
-    const panelIds = toArray(query.panelIds);
-    const testIds = toArray(query.testIds);
+    const panelIds = toArrayParam(query.panelIds);
+    const testIds = toArrayParam(query.testIds);
 
     // Test category and Test or panel are mutually exclusive. A category lists every test in it
     // as a flat A–Z list; test/panel picks drive a grouped view the frontend assembles from the
