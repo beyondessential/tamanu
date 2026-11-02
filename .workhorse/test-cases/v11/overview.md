@@ -62,6 +62,8 @@ notification have no meaningful emulation in unit tests.
 - [ ] Install and close shows the installing message, which cannot be dismissed (verifies spec: MUPD)
 - [ ] A successful install replaces the app, and the notification opens it when tapped (verifies
       spec: MUPD)
+- [ ] The notification permission is asked when staff tap Install, not when the download starts
+      (verifies spec: MUPD)
 - [ ] Refusing the notification permission still lets the update finish (verifies spec: MUPD)
 - [ ] Opening the updated app leads to sign-in, and the first sync sends everything recorded while
       sync was paused (verifies spec: MUPD)

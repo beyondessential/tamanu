@@ -50,6 +50,7 @@ The Sync tab is where staff go when sync looks wrong, so it says why sync is pau
 - [ ] While an update is outstanding, the Sync tab reads "Sync paused" instead of showing sync progress, and does not offer Manual sync.
 - [ ] While downloading, it reads "Downloading a Tamanu update (:percent%)."
 - [ ] Once downloaded, it reads "Tamanu needs to update before it can sync." and offers Install update.
+- [ ] Where the device does not yet allow Tamanu to install apps, it reads "Tamanu needs permission to update before it can sync." and offers Allow, which opens the Android settings screen that grants it.
 - [ ] Install update is available on the Sync tab whether or not the home screen banner has been closed.
 - [ ] The time of the last successful sync stays visible, so staff can see how long the device has been held back.
 
@@ -63,7 +64,7 @@ Installing is the one step staff choose. It closes the app, so they are told bef
 - [ ] Install and close hands the package to Android and replaces the confirmation with "Installing update", reading "Tamanu will close in a moment. Open it again from the app icon."
 - [ ] The installing message cannot be dismissed, since Android has the package from that point and the app is about to close.
 - [ ] After a successful install, a notification reading "Tamanu has been updated" opens the app when tapped.
-- [ ] The app asks for permission to post notifications as part of the update, where the device requires it. Where it is refused the update still proceeds, and staff rely on the confirmation having told them to use the app icon.
+- [ ] The app asks for permission to post notifications when staff tap Install, where the device requires it, rather than while they are still working. Where it is refused the update still proceeds, and staff rely on the confirmation having told them to use the app icon.
 - [ ] Opening the updated app leads to the sign-in screen, and the first sync after signing in sends everything recorded while sync was paused.
 - [ ] The downloaded package is deleted once it has been installed.
 

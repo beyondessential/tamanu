@@ -42,6 +42,8 @@ export interface AppUpdateState {
   dismissInstallFailure: () => void;
   /** Opens the Android settings screen that allows Tamanu to install apps. */
   grantPermission: () => void;
+  /** Asks to post the "Tamanu has been updated" notification, before the install is confirmed. */
+  prepareInstall: () => Promise<void>;
 }
 
 const NO_PROGRESS: UpdateProgress = { downloadedBytes: 0, totalBytes: -1 };
@@ -70,12 +72,9 @@ export const useAppUpdate = (): AppUpdateState => {
   }, []);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(
-      PROGRESS_EVENT,
-      (next: UpdateProgress) => {
-        setProgress(next);
-      },
-    );
+    const subscription = DeviceEventEmitter.addListener(PROGRESS_EVENT, (next: UpdateProgress) => {
+      setProgress(next);
+    });
     return () => subscription.remove();
   }, []);
 
@@ -125,9 +124,6 @@ export const useAppUpdate = (): AppUpdateState => {
     }
 
     const status = await Updater.getStatus();
-    if (!status.canPostNotifications) {
-      await requestNotificationPermission();
-    }
 
     // The package can download while the device is still being set up to install it, so the
     // permission is only asked for once there is something waiting to be installed.
@@ -136,7 +132,7 @@ export const useAppUpdate = (): AppUpdateState => {
       return;
     }
     await download();
-  }, [packageUrl, block, download, requestNotificationPermission]);
+  }, [packageUrl, block, download]);
 
   useEffect(() => {
     if (packageUrl && stage === UPDATE_STAGE.CHECKING) {
@@ -166,6 +162,17 @@ export const useAppUpdate = (): AppUpdateState => {
   const grantPermission = useCallback(() => {
     Updater.openInstallPermissionSettings();
   }, []);
+
+  /**
+   * Asked when staff tap Install, the moment the notification becomes useful, rather than while
+   * they are still working and the update has only just started downloading.
+   */
+  const prepareInstall = useCallback(async () => {
+    const status = await Updater.getStatus();
+    if (!status.canPostNotifications) {
+      await requestNotificationPermission();
+    }
+  }, [requestNotificationPermission]);
 
   const install = useCallback(async () => {
     setStage(UPDATE_STAGE.INSTALLING);
@@ -198,5 +205,6 @@ export const useAppUpdate = (): AppUpdateState => {
     install,
     dismissInstallFailure,
     grantPermission,
+    prepareInstall,
   };
 };

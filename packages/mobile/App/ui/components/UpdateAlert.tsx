@@ -3,35 +3,40 @@ import React, { type ReactElement, useCallback, useState } from 'react';
 import { Linking } from 'react-native';
 
 import { UPDATE_BLOCKER, UPDATE_STAGE } from '~/types/Updater';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useUpdate } from '~/ui/contexts/UpdateContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { downloadProportion } from '~/services/update/updatePolicy';
 import { StyledText, StyledTouchableOpacity } from '~/ui/styled/common';
-import { theme } from '~/ui/styled/theme';
-import { Alert, AlertSeverity } from './Alert';
+import { Alert, AlertSeverity, SEVERITY_TO_COLORS } from './Alert';
 import { TranslatedText } from './Translations/TranslatedText';
 import { UpdateModals } from './UpdateModals';
 
+const { color: ALERT_COLOUR } = SEVERITY_TO_COLORS[AlertSeverity.Warning];
+
 const AlertText = ({ children }: { children: React.ReactNode }): ReactElement => (
   <StyledText
-    color={theme.colors.PRIMARY_MAIN}
+    color={ALERT_COLOUR}
     fontSize={screenPercentageToDP(1.68, Orientation.Height)}
+    // Wraps instead of pushing the action and close button off the banner
+    style={{ flexShrink: 1 }}
   >
     {children}
   </StyledText>
 );
 
+// Takes a plain string: TranslatedText resets the text decoration, which would drop the underline
 const AlertAction = ({
   onPress,
   children,
 }: {
   onPress: () => void;
-  children: React.ReactNode;
+  children: string;
 }): ReactElement => (
   <StyledTouchableOpacity onPress={onPress}>
     <StyledText
       marginLeft={screenPercentageToDP(1, Orientation.Width)}
-      color={theme.colors.PRIMARY_MAIN}
+      color={ALERT_COLOUR}
       textDecorationLine="underline"
       fontSize={screenPercentageToDP(1.68, Orientation.Height)}
     >
@@ -45,8 +50,17 @@ const AlertAction = ({
  * closing it only hides it until they next arrive at the home screen, because the screen remounts.
  */
 export const UpdateAlert = (): ReactElement | null => {
-  const { isUpdateOutstanding, stage, progress, blocker, manualUrl, install, grantPermission } =
-    useUpdate();
+  const {
+    isUpdateOutstanding,
+    stage,
+    progress,
+    blocker,
+    manualUrl,
+    install,
+    grantPermission,
+    prepareInstall,
+  } = useUpdate();
+  const { getTranslation } = useTranslation();
   const [closed, setClosed] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
@@ -64,11 +78,10 @@ export const UpdateAlert = (): ReactElement | null => {
   const percent = proportion === null ? null : Math.round(proportion * 100);
 
   const isBlocked = stage === UPDATE_STAGE.BLOCKED;
-  const severity = isBlocked ? AlertSeverity.Warning : AlertSeverity.Info;
 
   return (
     <>
-      <Alert open onClose={() => void setClosed(true)} severity={severity}>
+      <Alert open onClose={() => void setClosed(true)} severity={AlertSeverity.Warning}>
         {stage === UPDATE_STAGE.NEEDS_PERMISSION ? (
           <>
             <AlertText>
@@ -78,7 +91,7 @@ export const UpdateAlert = (): ReactElement | null => {
               />
             </AlertText>
             <AlertAction onPress={grantPermission}>
-              <TranslatedText stringId="update.action.allow" fallback="Allow" />
+              {getTranslation('update.action.allow', 'Allow')}
             </AlertAction>
           </>
         ) : stage === UPDATE_STAGE.READY || stage === UPDATE_STAGE.INSTALL_FAILED ? (
@@ -89,8 +102,13 @@ export const UpdateAlert = (): ReactElement | null => {
                 fallback="Tamanu update ready. Install to sync."
               />
             </AlertText>
-            <AlertAction onPress={() => void setConfirming(true)}>
-              <TranslatedText stringId="update.action.install" fallback="Install" />
+            <AlertAction
+              onPress={async () => {
+                await prepareInstall();
+                setConfirming(true);
+              }}
+            >
+              {getTranslation('update.action.install', 'Install')}
             </AlertAction>
           </>
         ) : isBlocked && blocker === UPDATE_BLOCKER.STILL_OUT_OF_DATE ? (
@@ -110,10 +128,7 @@ export const UpdateAlert = (): ReactElement | null => {
             </AlertText>
             {manualUrl && (
               <AlertAction onPress={() => void Linking.openURL(manualUrl)}>
-                <TranslatedText
-                  stringId="update.action.downloadByHand"
-                  fallback="Download by hand"
-                />
+                {getTranslation('update.action.downloadByHand', 'Download by hand')}
               </AlertAction>
             )}
           </>
@@ -135,10 +150,7 @@ export const UpdateAlert = (): ReactElement | null => {
             </AlertText>
             {manualUrl && (
               <AlertAction onPress={() => void Linking.openURL(manualUrl)}>
-                <TranslatedText
-                  stringId="update.action.downloadByHand"
-                  fallback="Download by hand"
-                />
+                {getTranslation('update.action.downloadByHand', 'Download by hand')}
               </AlertAction>
             )}
           </>

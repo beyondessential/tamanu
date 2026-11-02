@@ -144,6 +144,11 @@ export class CentralServerConnection {
           return this.fetch(path, query, updatedConfig);
         }
       }
+      // Any call the server turns away for the app's version starts the update, not only login,
+      // which already emits through throwError
+      if (err instanceof OutdatedVersionError && !isLogin) {
+        this.emitter.emit('error', err);
+      }
       throw err;
     }
   }

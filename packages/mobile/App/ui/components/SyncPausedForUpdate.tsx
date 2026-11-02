@@ -7,6 +7,7 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { Button } from './Button';
+import { PauseIcon } from './Icons';
 import { TranslatedText } from './Translations/TranslatedText';
 import { UpdateModals } from './UpdateModals';
 
@@ -15,15 +16,17 @@ import { UpdateModals } from './UpdateModals';
  * installed, so this says why rather than offering a manual sync the server would reject.
  */
 export const SyncPausedForUpdate = (): ReactElement => {
-  const { stage, progress, install } = useUpdate();
+  const { stage, progress, install, prepareInstall, grantPermission } = useUpdate();
   const [confirming, setConfirming] = useState(false);
 
   const proportion = downloadProportion(progress.downloadedBytes, progress.totalBytes);
   const percent = proportion === null ? null : Math.round(proportion * 100);
   const isReady = stage === UPDATE_STAGE.READY || stage === UPDATE_STAGE.INSTALL_FAILED;
+  const needsPermission = stage === UPDATE_STAGE.NEEDS_PERMISSION;
 
   return (
     <StyledView alignItems="center">
+      <PauseIcon size={screenPercentageToDP('8', Orientation.Height)} />
       <StyledText
         marginTop={25}
         fontWeight={500}
@@ -44,6 +47,11 @@ export const SyncPausedForUpdate = (): ReactElement => {
             stringId="sync.paused.updateReady"
             fallback="Tamanu needs to update before it can sync."
           />
+        ) : needsPermission ? (
+          <TranslatedText
+            stringId="sync.paused.needsPermission"
+            fallback="Tamanu needs permission to update before it can sync."
+          />
         ) : percent === null ? (
           <TranslatedText
             stringId="sync.paused.downloading"
@@ -59,7 +67,10 @@ export const SyncPausedForUpdate = (): ReactElement => {
       </StyledText>
       {isReady && (
         <Button
-          onPress={() => void setConfirming(true)}
+          onPress={async () => {
+            await prepareInstall();
+            setConfirming(true);
+          }}
           width={160}
           outline
           textColor={theme.colors.SECONDARY_MAIN}
@@ -67,6 +78,17 @@ export const SyncPausedForUpdate = (): ReactElement => {
           buttonText={
             <TranslatedText stringId="update.action.installUpdate" fallback="Install update" />
           }
+          marginTop={20}
+        />
+      )}
+      {needsPermission && (
+        <Button
+          onPress={grantPermission}
+          width={160}
+          outline
+          textColor={theme.colors.SECONDARY_MAIN}
+          borderColor={theme.colors.SECONDARY_MAIN}
+          buttonText={<TranslatedText stringId="update.action.allow" fallback="Allow" />}
           marginTop={20}
         />
       )}
