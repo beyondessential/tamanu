@@ -1,99 +1,87 @@
 import { Button } from '@material-ui/core';
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import React, { useMemo, useState } from 'react';
+import styled from 'styled-components';
 
 import {
   EditedEntryLegend,
+  OutlinedButton,
   TranslatedOption,
   TranslatedReferenceData,
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
 import { getLabTestValidationCriteriaFromNormalRanges } from '@tamanu/utils/labTests';
+import { toArrayParam } from '@tamanu/utils/toArrayParam';
 import { BodyText } from '../../components';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Table } from '../../components/Table';
 import { Colors } from '../../constants/styles';
 import { LabTestResultModal } from './LabTestResultModal';
 
-const COLUMN_WIDTHS = [150, 120, 120];
+const INDIVIDUAL_GROUP_ID = '__individual__';
 
+// White-header style, matching the lab request results table. The test and normal-range columns are
+// no longer frozen (as in the agreed mockup), so the whole table scrolls horizontally when there are
+// many result dates.
 const StyledTable = styled(Table)`
   table {
     table-layout: fixed;
-    position: relative;
-    width: initial;
+  }
 
-    thead tr th:nth-child(-n + ${props => props.$stickyColumns}),
-    tbody tr td:nth-child(-n + ${props => props.$stickyColumns}) {
-      position: sticky;
-      z-index: 1;
-      border-right: 1px solid ${Colors.outline};
+  thead tr th {
+    color: ${Colors.midText};
+    font-weight: 400;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  tbody tr td.MuiTableCell-body {
+    padding: 7px 15px;
+    vertical-align: middle;
+
+    &:first-child {
+      padding-left: 20px;
     }
+  }
 
-    thead tr th:nth-child(${props => props.$stickyColumns}),
-    tbody tr td:nth-child(${props => props.$stickyColumns}) {
-      border-right: 2px solid ${Colors.outline};
-    }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
 
-    ${props =>
-      COLUMN_WIDTHS.slice(0, props.$stickyColumns)
-        .map(
-          (width, index) => css`
-            thead tr th:nth-child(${index + 1}),
-            tbody tr td:nth-child(${index + 1}) {
-              width: ${width}px;
-              min-width: ${width}px;
-              max-width: ${width}px;
-              left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
-            }
-          `,
-        )
-        .join('\n')}
+  tfoot {
+    background: ${Colors.white};
+  }
 
-    tfoot {
-      inset-inline-end: 0;
-    }
-
-    thead tr th:nth-child(n + 4),
-    tbody tr td:nth-child(n + 4) {
-      width: 120px;
-    }
-
-    thead tr th:last-child,
-    tbody tr td:last-child {
-      width: 100%;
-    }
-
-    thead tr th {
-      color: ${props => props.theme.palette.text.secondary};
-      background: ${Colors.background};
-      white-space: break-spaces;
-    }
-
-    td {
-      position: relative;
-    }
-
-    tbody tr td.MuiTableCell-body {
-      background: ${Colors.white};
-      padding: 7px 15px;
-
-      &:first-child {
-        padding-left: 17px;
-      }
-    }
-
-    tfoot tr td button.MuiButton-root {
-      position: sticky;
-      left: 16px;
-    }
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 220px;
+  }
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 120px;
+  }
+  th:nth-child(n + 3),
+  td:nth-child(n + 3) {
+    width: 120px;
+  }
+  th:last-child,
+  td:last-child {
+    width: auto;
   }
 `;
 
-const CategoryCell = styled.div`
-  font-weight: 500;
-  color: ${Colors.darkText};
+// Test names and normal ranges read in the same regular weight and colour as the results themselves.
+// Tests shown under a panel or "Individual tests" heading are indented from it.
+const TestTypeCell = styled.div`
+  color: ${Colors.darkestText};
+  font-weight: 400;
+  padding-left: ${props => (props.$indented ? '20px' : '0')};
+`;
+
+const RangeCell = styled.div`
+  color: ${Colors.darkestText};
+  font-weight: 400;
 `;
 
 const StyledButton = styled(Button)`
@@ -110,8 +98,18 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const ResultsExportButton = ({ onClick }) => (
+  <OutlinedButton
+    onClick={onClick}
+    startIcon={<GetAppIcon data-testid="getappicon-export" />}
+    data-testid="resultsexportbutton"
+  >
+    <TranslatedText stringId="general.action.export" fallback="Export" data-testid="translatedtext-export" />
+  </OutlinedButton>
+);
+
 export const PatientLabTestsTable = React.memo(
-  ({ patient, labTests = [], count, isLoading, searchParameters }) => {
+  ({ patient, labTests = [], groups = [], count, isLoading, searchParameters }) => {
     const { formatShort, formatTimeWithSeconds } = useDateTime();
     const [modalLabTestId, setModalLabTestId] = useState();
     const [modalOpen, setModalOpen] = useState(false);
@@ -125,30 +123,83 @@ export const PatientLabTestsTable = React.memo(
       Object.values(test.results ?? {}).some(result => result.isEdited === true),
     );
 
+    const isCategoryMode = Boolean(searchParameters.categoryId);
+
+    // A picked category lists its tests flat and A–Z. Picked panels and tests are grouped: each
+    // panel (A–Z) with its member tests in configured order, then the individually picked tests
+    // (A–Z) under an "Individual tests" group. A test shared by several picks appears under each.
+    const { rows, hasGroups } = useMemo(() => {
+      const pickedTestIds = toArrayParam(searchParameters.testIds);
+      // A category lists its tests flat, A–Z. The same flat shape is used defensively when nothing
+      // is picked (the table is not rendered in that state), so there is always something to show.
+      if (isCategoryMode || (groups.length === 0 && pickedTestIds.length === 0)) {
+        return {
+          rows: labTests.map(test => ({ ...test, rowKey: test.testTypeId })),
+          hasGroups: false,
+        };
+      }
+
+      const byTypeId = new Map(labTests.map(test => [test.testTypeId, test]));
+      const displayRows = [];
+
+      for (const group of groups) {
+        for (const testTypeId of group.testTypeIds) {
+          const test = byTypeId.get(testTypeId);
+          if (!test) continue;
+          displayRows.push({
+            ...test,
+            rowKey: `${group.id}:${testTypeId}`,
+            groupId: group.id,
+            groupName: group.name,
+            grouped: true,
+          });
+        }
+      }
+
+      const individualTestIds = pickedTestIds
+        .filter(testTypeId => byTypeId.has(testTypeId))
+        .sort((a, b) => byTypeId.get(a).testType.localeCompare(byTypeId.get(b).testType));
+      for (const testTypeId of individualTestIds) {
+        displayRows.push({
+          ...byTypeId.get(testTypeId),
+          rowKey: `${INDIVIDUAL_GROUP_ID}:${testTypeId}`,
+          groupId: INDIVIDUAL_GROUP_ID,
+          grouped: true,
+        });
+      }
+
+      return { rows: displayRows, hasGroups: true };
+    }, [isCategoryMode, labTests, groups, searchParameters.testIds]);
+
+    const getRowGroupHeader = useMemo(() => {
+      if (!hasGroups) return undefined;
+      return (row, previousRow) => {
+        if (previousRow && previousRow.groupId === row.groupId) return null;
+        if (row.groupId === INDIVIDUAL_GROUP_ID) {
+          return (
+            <TranslatedText
+              stringId="patient.lab.results.table.individualTests"
+              fallback="Individual tests"
+              data-testid="translatedtext-individualtests"
+            />
+          );
+        }
+        return (
+          <TranslatedReferenceData
+            value={row.groupId}
+            fallback={row.groupName}
+            category="labTestPanel"
+            data-testid="translatedreferencedata-panelheading"
+          />
+        );
+      };
+    }, [hasGroups]);
+
     const allDates = isLoading
       ? []
-      : Object.keys(Object.assign({}, ...labTests.map(x => x.results)));
+      : Object.keys(Object.assign({}, ...labTests.map(test => test.results ?? {})));
 
-    const stickyColumns = [
-      // Only include category column if not filtering by category
-      ...(!searchParameters.categoryId
-        ? [
-            {
-              key: 'testCategory.id',
-              title: (
-                <TranslatedText
-                  stringId="lab.testCategory.label"
-                  fallback="Test category"
-                  data-testid="translatedtext-0dpy"
-                />
-              ),
-              accessor: row => (
-                <CategoryCell data-testid="categorycell-8dsz">{row.testCategory}</CategoryCell>
-              ),
-              sortable: false,
-            },
-          ]
-        : []),
+    const columns = [
       {
         key: 'testType',
         title: (
@@ -159,7 +210,7 @@ export const PatientLabTestsTable = React.memo(
           />
         ),
         accessor: row => (
-          <CategoryCell data-testid="categorycell-7aet">
+          <TestTypeCell $indented={row.grouped} data-testid="testtypecell-7aet">
             <TranslatedReferenceData
               fallback={row.testType}
               value={row.testTypeId}
@@ -170,7 +221,7 @@ export const PatientLabTestsTable = React.memo(
             <BodyText color="textTertiary" data-testid="bodytext-zxuk">
               {row.unit ? `(${row.unit})` : null}
             </BodyText>
-          </CategoryCell>
+          </TestTypeCell>
         ),
         sortable: false,
       },
@@ -184,19 +235,15 @@ export const PatientLabTestsTable = React.memo(
           />
         ),
         accessor: row => {
-          const range = row.normalRanges[patient?.sex];
+          const range = row.normalRanges?.[patient?.sex];
           const value =
             range?.min != null && range?.max != null
               ? `${range.min}–${range.max}`
               : (row.rangeText ?? '—');
-          return <CategoryCell data-testid="categorycell-1fi2">{value}</CategoryCell>;
+          return <RangeCell data-testid="rangecell-1fi2">{value}</RangeCell>;
         },
         sortable: false,
       },
-    ];
-
-    const columns = [
-      ...stickyColumns,
       ...allDates
         .sort((a, b) => b.localeCompare(a))
         .map((date, index) => ({
@@ -263,8 +310,9 @@ export const PatientLabTestsTable = React.memo(
       <>
         <StyledTable
           elevated={false}
+          headerColor={Colors.white}
           columns={columns}
-          data={labTests}
+          data={rows}
           isLoading={isLoading}
           noDataMessage={
             <TranslatedText
@@ -276,8 +324,9 @@ export const PatientLabTestsTable = React.memo(
           count={count}
           allowExport
           exportName="PatientResults"
-          $stickyColumns={stickyColumns.length}
-          rowIdKey="testType"
+          ExportButton={ResultsExportButton}
+          getRowGroupHeader={getRowGroupHeader}
+          rowIdKey="rowKey"
           data-testid="styledtable-u2v9"
         />
         {showEditedEntryLegend && <EditedEntryLegend data-testid="box-q7pq" />}
