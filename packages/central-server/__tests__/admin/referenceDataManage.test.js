@@ -19,6 +19,30 @@ const BASE_URL = '/api/admin/referenceData/manage';
 const COLUMNS_URL = `${BASE_URL}/columns`;
 const TEST_TYPE = REFERENCE_TYPES.DRUG;
 
+// A satellite table holds the rest of one reference type's record, keyed by reference_data_id:
+// ReferenceDrug for a drug, TaskTemplate for a task template. Manage derives its columns from the
+// base model, so it has to follow the association out to the satellite — otherwise those columns
+// are invisible in the panel even though the importer and exporter both handle them.
+const SATELLITE_MODEL_BY_TYPE = {
+  [REFERENCE_TYPES.DRUG]: 'ReferenceDrug',
+  [REFERENCE_TYPES.TASK_TEMPLATE]: 'TaskTemplate',
+  [REFERENCE_TYPES.MEDICATION_TEMPLATE]: 'ReferenceMedicationTemplate',
+};
+
+// Satellite columns deliberately left out of Manage, as "type.column". Empty: every satellite
+// column is currently surfaced, and a new one has to be surfaced or listed here with its reason.
+const EXCLUDED_SATELLITE_COLUMNS = new Set();
+
+// Owned by the row or by the association, never edited as a field.
+const INTERNAL_SATELLITE_COLUMNS = new Set([
+  'id',
+  'referenceDataId',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+]);
+
 describe('Reference Data Manage', () => {
   let ctx;
   let models;
@@ -128,6 +152,39 @@ describe('Reference Data Manage', () => {
         }
       }
       expect(sawCompanion).toBe(true);
+    });
+
+    it('should surface every satellite column of every manageable type', async () => {
+      // Discovered from the schema rather than from Manage's own registry, so a satellite table
+      // that nobody wired up fails here instead of going unnoticed. A hasOne keyed by anything
+      // other than referenceDataId is a separate record with its own row in Manage (a reference
+      // area's imaging external code, a village's catchment facility), not a satellite.
+      const satelliteModelNames = Object.values(models.ReferenceData.associations)
+        .filter(assoc => assoc.associationType === 'HasOne' && assoc.foreignKey === 'referenceDataId')
+        .map(assoc => assoc.target.name);
+      expect(satelliteModelNames.toSorted()).toEqual(
+        Object.values(SATELLITE_MODEL_BY_TYPE).toSorted(),
+      );
+
+      const failures = [];
+      for (const [type, modelName] of Object.entries(SATELLITE_MODEL_BY_TYPE)) {
+        const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: type });
+        expect(response).toHaveSucceeded();
+        const shownKeys = new Set(response.body.map(c => c.key));
+
+        for (const key of Object.keys(models[modelName].rawAttributes)) {
+          if (INTERNAL_SATELLITE_COLUMNS.has(key)) continue;
+          if (EXCLUDED_SATELLITE_COLUMNS.has(`${type}.${key}`)) continue;
+          if (shownKeys.has(key)) continue;
+          failures.push(
+            `${type}.${key}: ${modelName}.${key} is never shown in the Manage table. ` +
+              'Register the satellite in DETAIL_ASSOCIATIONS (packages/central-server/app/admin/' +
+              'referenceDataManageUtils.js) so its columns are surfaced, or add it to ' +
+              'EXCLUDED_SATELLITE_COLUMNS in this file with the reason it cannot be.',
+          );
+        }
+      }
+      expect(failures).toEqual([]);
     });
 
     it('should reject import-only “reference” types that have no model', async () => {
@@ -778,6 +835,84 @@ describe('Reference Data Manage', () => {
       });
       expect(response).toHaveSucceeded();
       expect(response.body.data[0]).toMatchObject({ route: null, isSensitive: null });
+    });
+
+    // Satellite columns are shown in the table, so the search bar filters on them too. They sit on
+    // the joined table rather than on reference_data, so they go through the association path.
+    const createDrugWithDetail = async (code, detail) => {
+      const drug = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      await models.ReferenceDrug.create({ referenceDataId: drug.id, ...detail });
+      return drug;
+    };
+
+    it('should filter by a satellite text column', async () => {
+      const matching = await createDrugWithDetail('filter-notes-match', {
+        notes: 'Refrigerate below 8 degrees',
+      });
+      const other = await createDrugWithDetail('filter-notes-other', {
+        notes: 'Store at room temperature',
+      });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        notes: 'refrigerate',
+        rowsPerPage: 100,
+      });
+      expect(response).toHaveSucceeded();
+      const ids = response.body.data.map(r => r.id);
+      expect(ids).toContain(matching.id);
+      expect(ids).not.toContain(other.id);
+    });
+
+    it('should filter by a satellite enum column with an exact match', async () => {
+      const matching = await createDrugWithDetail('filter-route-match', {
+        route: 'intravitreal',
+      });
+      const other = await createDrugWithDetail('filter-route-other', { route: 'oral' });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        route: 'intravitreal',
+        rowsPerPage: 100,
+      });
+      expect(response).toHaveSucceeded();
+      const ids = response.body.data.map(r => r.id);
+      expect(ids).toContain(matching.id);
+      expect(ids).not.toContain(other.id);
+    });
+
+    it('should count only the records a satellite filter matches', async () => {
+      const sensitive = await createDrugWithDetail('filter-sensitive-match', {
+        isSensitive: true,
+      });
+      const other = await createDrugWithDetail('filter-sensitive-other', { isSensitive: false });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        isSensitive: 'true',
+        rowsPerPage: 100,
+      });
+      expect(response).toHaveSucceeded();
+      const ids = response.body.data.map(r => r.id);
+      expect(ids).toContain(sensitive.id);
+      expect(ids).not.toContain(other.id);
+      // the count query has to carry the same join, or the table pages against the wrong total
+      expect(response.body.count).toBe(response.body.data.length);
+    });
+
+    it('should ignore a filter on a column the type does not have', async () => {
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        frequencyUnit: 'hour', // a task template's satellite column, not a drug's
+        rowsPerPage: 100,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.length).toBeGreaterThan(0);
     });
 
     it('should support pagination', async () => {

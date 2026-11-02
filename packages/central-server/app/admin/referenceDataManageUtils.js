@@ -318,7 +318,8 @@ export const getColumnsForModel = async (model, referenceDataType, detailModel =
   ];
   if (!detailModel) return columns;
 
-  // Detail columns live on another table, so the list query cannot sort or filter by them.
+  // Detail columns live on another table, so the list query filters them through the join and
+  // cannot sort by them at all.
   const detailColumns = (await buildColumns(detailModel))
     .filter(col => !DETAIL_INTERNAL_COLUMNS.has(col.key) && !DETAIL_INTERNAL_COLUMNS.has(col.fkKey))
     .map(col => ({ ...col, detail: true }));

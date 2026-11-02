@@ -183,20 +183,19 @@ referenceDataManageRouter.get(
       attributes: ['id', 'name'],
       required: false,
     }));
-    if (detailAssociation) {
-      include.push({ association: detailAssociation, required: false });
-    }
 
-    // Build search filters from query params
+    // Build search filters from query params. Detail columns are shown in the table, so they're
+    // filtered on too, but they live on the joined table rather than on this model and so collect
+    // into their own where (applied to the include below).
     const searchWhere = {};
+    const detailWhere = {};
+    const isSearchable = c =>
+      SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues;
     const searchableKeys = new Set(
-      columns
-        .filter(
-          c =>
-            !c.detail &&
-            (SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues),
-        )
-        .map(c => c.key),
+      columns.filter(c => !c.detail && isSearchable(c)).map(c => c.key),
+    );
+    const detailSearchableKeys = new Set(
+      detailAssociation ? columns.filter(c => c.detail && isSearchable(c)).map(c => c.key) : [],
     );
 
     const normalizedOrder = order.toUpperCase();
@@ -236,9 +235,24 @@ referenceDataManageRouter.get(
         searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: `%${value}%` };
         continue;
       }
+      const match = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
+      // a key the base record also has is the base record's; detail only gets what's left
       if (searchableKeys.has(key)) {
-        searchWhere[key] = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
+        searchWhere[key] = match;
+      } else if (detailSearchableKeys.has(key)) {
+        detailWhere[key] = match;
       }
+    }
+
+    if (detailAssociation) {
+      // `required` turns the join inner, dropping records with no detail row — which is what
+      // filtering on a detail value means. Unfiltered, it stays a left join so every record shows.
+      const hasDetailFilter = Object.keys(detailWhere).length > 0;
+      include.push({
+        association: detailAssociation,
+        required: hasDetailFilter,
+        ...(hasDetailFilter && { where: detailWhere }),
+      });
     }
 
     // Default to current records when model has visibilityStatus and no filter was sent.
@@ -258,11 +272,13 @@ referenceDataManageRouter.get(
 
     const where = { ...typeFilter, ...searchWhere };
 
-    // count() only needs the FK joins that a name filter actually references; the rest are
-    // display-only and would add pointless LEFT JOINs to the count query. findAll keeps them
-    // all so every companion column can be populated in the response.
-    const countInclude = include.filter(({ association }) =>
-      Object.prototype.hasOwnProperty.call(searchWhere, `$${association}.name$`),
+    // count() only needs the joins a filter actually references — an FK's name, or a detail
+    // column; the rest are display-only and would add pointless LEFT JOINs to the count query.
+    // findAll keeps them all so every companion column can be populated in the response.
+    const countInclude = include.filter(
+      entry =>
+        entry.where ||
+        Object.prototype.hasOwnProperty.call(searchWhere, `$${entry.association}.name$`),
     );
 
     const count = await model.count({ where, include: countInclude });
