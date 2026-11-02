@@ -11,17 +11,16 @@ permissions required see [Permissions](03-permissions.md).
 # Settings
 
 Settings are managed in the Settings admin panel. A few settings in this guide are marked high risk:
-they are changed by a user with the `admin` role, and other users see them disabled. See
-[The admin role](../02-users/03-permissions.md#the-admin-role).
+they are changed by a user with the `admin` role, and other users see them disabled.
 
 ## Patient fields
 
-The **Fields (Previously localised fields)** category holds a sub-category for each patient field, and
-each sub-category holds the settings that decide whether the field is mandatory, whether it shows, and
-what it is filled in with by default. They apply across the deployment.
+The **Fields** category at the Global level holds a sub-category for each patient field, and each
+sub-category holds the settings that decide whether the field is mandatory, whether it displays on the
+frontend, and what it is filled in with by default. They apply across the deployment.
 
 <p align="center">
-  <img src="images/settings-fields-sex.png" alt="The Sex sub-category of Fields (Previously localised fields) in Settings, showing Default value, Hidden, Required and Required patient data" width="722"><br>
+  <img src="images/settings-fields-sex.png" alt="The Sex sub-category of Fields in Settings, showing Default value, Hidden, Required and Required patient data" width="722"><br>
   <sub>Each field's sub-category holds <b>Default value</b>, <b>Hidden</b>, <b>Required</b> and <b>Required patient data</b>.</sub>
 </p>
 
@@ -34,7 +33,7 @@ the form, so that every mandatory field is together.
 | Field | Value |
 | --- | --- |
 | Scope | Global (All Facilities/Servers) |
-| Category | Fields (Previously localised fields) |
+| Category | Fields |
 | Sub-category | The field, for example Passport |
 | Setting | Required patient data |
 | Default | Disabled |
@@ -59,7 +58,7 @@ removed from the patient search where it appears there.
 | Field | Value |
 | --- | --- |
 | Scope | Global (All Facilities/Servers) |
-| Category | Fields (Previously localised fields) |
+| Category | Fields |
 | Sub-category | The field, for example Cultural name |
 | Setting | Hidden |
 | Default | Disabled |
@@ -76,7 +75,7 @@ on the patient's **Details** tab once they are registered, or to custom patient 
 | Field | Value |
 | --- | --- |
 | Scope | Global (All Facilities/Servers) |
-| Category | Fields (Previously localised fields) |
+| Category | Fields |
 | Sub-category | The field, for example Country |
 | Setting | Default value |
 | Default | None |
@@ -89,13 +88,14 @@ For a field that chooses from reference data, the default value is the `id` of t
 
 A field's label is changed on the **Translation** screen of the admin panel rather than in settings,
 for example to show **Cultural/traditional name** as **Maiden name**. Most patient fields are found
-under the string id `general.localisedField.` followed by the field name and `.label`, such as
-`general.localisedField.culturalName.label`. See the
-[Translations configuration guide](https://beyond-essential.slab.com/public/posts/translations-module-configuration-guide-qvs6uaxp).
+under the translation ID `general.localisedField.` followed by the field name and `.label`, such as
+`general.localisedField.culturalName.label`. On the **Edit** tab, search for the translation ID, enter
+the new label in the column for the language, and select **Save changes**. The new label shows
+wherever the field appears, on desktop and mobile, once devices have synced.
 
 ### Patient fields reference
 
-The patient fields in the **Fields (Previously localised fields)** category, by the sub-category name
+The patient fields in the **Fields** category, by the sub-category name
 in Settings and the label on the desktop form. The category also holds fields belonging to other
 modules, such as encounter fields.
 
@@ -168,7 +168,7 @@ Every patient has a display ID, the identifier shown on their record, printed on
 and used to search for them. It shows as **National Health Number** by default, a label that can be
 changed through translations. See [Changing a field label](#changing-a-field-label).
 
-### Display ID format (supported from v2.49 onwards)
+### Display ID format
 
 Tamanu generates a display ID when a patient is registered, on desktop and mobile, following a pattern
 set for each facility.
@@ -187,9 +187,6 @@ In the pattern, `A` is replaced with a random letter and `0` with a random numbe
 in square brackets are kept as they are, so `[B]AAAA000000` generates an 11 character ID starting with
 B. The pattern is made only of `A`, `0` and bracketed characters, and any other character is rejected
 when the setting is saved.
-
-> [!NOTE]
-> Deployments running a version earlier than v2.49 generate display IDs in the default format only.
 
 ### Editing a display ID
 
@@ -228,7 +225,7 @@ code.
 | Field | Value |
 | --- | --- |
 | Scope | Global (All Facilities/Servers) |
-| Category | Fields (Previously localised fields) |
+| Category | Fields |
 | Sub-category | Display ID |
 | Setting | Pattern |
 | Default | `[\s\S]*`, which accepts any value |
@@ -317,7 +314,7 @@ The cause of death and contributing conditions choose from `Diagnosis` reference
 Recording a death discharges the patient's open encounters. See
 [Discharge on death](#discharge-on-death).
 
-## Civil registration style (supported from v2.51 onwards)
+## Civil registration style
 
 Switches the death form, the death certificate and the **Birth notification** printout to the civil
 registration style used in the Federated States of Micronesia. The death form asks additional
@@ -411,9 +408,8 @@ details reference data.
 > **Country Of Birth Id** and **Secondary Village Id** are offered in the list, but their search field
 > finds no values to choose from. Leave them out.
 
-Additional search fields are supported from v2.54 onwards, and are chosen from a list from v2.62.
-Between those versions the setting takes a list of field names in the JSON editor, such as
-`["passport", "nationalityId"]`.
+The fields are chosen from a list from v2.62 onwards. Earlier deployments enter a list of field names
+in the JSON editor, such as `["passport", "nationalityId"]`.
 
 ## Age display
 
@@ -499,13 +495,13 @@ The identification options are always offered:
 - **ID card**, a patient identification card with a barcode
 - **Multiple ID labels**, an A4 sheet of patient identification labels with a barcode that reads as
   the display ID when scanned
-- **QR code ID**, a patient identification card with a QR code (supported from v2.53 onwards)
+- **QR code ID**, a patient identification card with a QR code
 
 **Birth notification** prints the birth notification document, drawing on the mother's, father's and
 child's details where they are recorded. The COVID-19 certificates are covered in the
 [Immunisations](../07-immunisations/) configuration guides, **International Patient Summary** under
 [Permissions](03-permissions.md#patient-resources), and **Patient portal registration** under
-[Patient portal](#patient-portal-supported-from-v242-onwards).
+[Patient portal](#patient-portal).
 
 The ID card shows the patient's photo from the most recent form answer to a question with the code
 `ProfilePhoto`. See the [Programs](../06-programs/) configuration guides for setting up forms.
@@ -535,10 +531,7 @@ The ID card measures apply to both **ID card** and **QR code ID**.
 
 ---
 
-# Patient portal (supported from v2.42 onwards)
-
-> [!NOTE]
-> Deployments running a version earlier than v2.42 have no patient portal.
+# Patient portal
 
 The patient portal is a website where patients log in with a code sent to their email address. They
 see their details, ongoing conditions, allergies, medications, vaccinations, procedures and upcoming
@@ -633,10 +626,7 @@ Words between dollar signs are replaced when the email is sent:
 
 ---
 
-# AI patient summary (supported from v2.57 onwards)
-
-> [!NOTE]
-> Deployments running a version earlier than v2.57 have no AI patient summary.
+# AI patient summary
 
 The AI patient summary shows an AI generated summary of the patient's record in the patient sidebar on
 desktop, which clinicians can edit, save, discard and regenerate. It is shown only for a patient marked
@@ -669,7 +659,7 @@ Viewing and generating the summary also needs the `PatientSummary` permissions. 
 
 These work without configuration.
 
-## Duplicate patient check (supported from v2.35 onwards)
+## Duplicate patient check
 
 When a patient is registered on desktop, Tamanu checks for existing patients who may be the same
 person. Where it finds any, the **Add new patient** window shows a

@@ -81,7 +81,7 @@ Recording deaths must also be turned on in settings. See [Patient deaths](02-set
 ## Patient portal
 
 The patient portal must also be turned on in settings. See
-[Patient portal](02-settings.md#patient-portal-supported-from-v242-onwards).
+[Patient portal](02-settings.md#patient-portal).
 
 | Task | Permissions |
 | --- | --- |
@@ -96,7 +96,7 @@ Choosing a form also needs the `Program` and `Survey` permissions for that form.
 ## AI patient summary
 
 The AI patient summary must also be turned on in settings. See
-[AI patient summary](02-settings.md#ai-patient-summary-supported-from-v257-onwards).
+[AI patient summary](02-settings.md#ai-patient-summary).
 
 | Task | Permissions |
 | --- | --- |

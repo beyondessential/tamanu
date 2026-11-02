@@ -4,10 +4,6 @@ patient import sheet. Reference data is configured through the reference data im
 downloaded from and uploaded to your Tamanu system. Records can also be added and edited one at a time
 on the **Manage** tab of the **Reference data** screen in the admin panel.
 
-> [!NOTE]
-> The **Manage** tab is supported from v2.54 onwards. Earlier deployments configure reference data by
-> import spreadsheet only.
-
 For the settings that control which patient fields show and how they behave see
 [Settings](02-settings.md), and for the permissions required see [Permissions](03-permissions.md).
 
@@ -15,7 +11,38 @@ For the settings that control which patient fields show and how they behave see
 
 # Reference Data Types
 
-See the [Tamanu Reference Data Manual](https://beyond-essential.slab.com/public/posts/tamanu-reference-data-manual-intf5xei) for how importing works.
+## Importing reference data
+
+Reference data is managed on the **Reference data** screen of the admin panel, which has **Import**,
+**Export** and **Manage** tabs. The permissions each needs are listed under
+[Reference data permissions](03-permissions.md#reference-data).
+
+The import spreadsheet is an Excel (`.xlsx`) workbook. Each reference data type has its own tab, named
+as shown for each type in this guide, with the column names in the first row and one record per row
+below. One workbook can hold several types.
+
+To change reference data, start from an export so that your changes are made to the current records:
+
+1. On the **Export** tab, choose the types under **Select data types to export**, then select
+   **Export**. The workbook downloads with a tab for each type
+2. Edit the workbook. Add a row for each new record. To change a record, edit its row and keep its
+   `id`. To remove a record from use, set its `visibilityStatus` to `historical`: records cannot be
+   deleted by import
+3. On the **Import** tab, choose the workbook with **Select file**, and choose the types to import under
+   **Select data types to import**
+4. Select **Test import**. Tamanu checks the workbook and reports how many records would be created,
+   updated or skipped, and lists any errors by tab and row, without saving anything
+5. Correct any errors in the workbook and test again, until the result reads
+   **Test import finished successfully**
+6. Select **Import**
+
+An import is all or nothing: if any row has an error, nothing in the workbook is saved. Rows are matched
+to existing records by `id`, so a row with an existing `id` updates that record and a row with a new
+`id` creates one. Records not in the workbook are left as they are. Changes reach facility servers and
+mobile devices when they next sync.
+
+To add or edit a single record without a spreadsheet, choose its type on the **Manage** tab, then
+select **Add reference data**, or edit the record from its row in the table.
 
 ## Patient details
 
@@ -97,8 +124,6 @@ The address hierarchy links divisions, subdivisions, settlements and villages, s
 takes effect once the location hierarchy setting is turned on. See
 [Location hierarchy](02-settings.md#location-hierarchy).
 
-**[Screenshot: the linked Division, Sub division, Settlement and Village fields in the Location information section of a patient's Details tab]**
-
 The records themselves are imported as [Patient details](#patient-details) reference data. The links
 between them are imported on a separate tab, one row per link from a record to the record above it.
 
@@ -123,17 +148,39 @@ that has a parent and shows each level above it, so every village must sit at th
 every level in use must be linked all the way up. A hierarchy can skip a level, such as linking
 villages straight to divisions, in which case that level does not show.
 
+### Example
+
+A deployment whose villages sit within settlements, settlements within subdivisions, and subdivisions
+within divisions imports each level on its own tab:
+
+| Tab name | id | code | name |
+| --- | --- | --- | --- |
+| `Division` | division-central | central | Central |
+| `Subdivision` | subdivision-tailevu | tailevu | Tailevu |
+| `Settlement` | settlement-nausori | nausori | Nausori |
+| `Village` | village-naila | naila | Naila |
+
+and links them on the `Reference Data Relation` tab, one row for each step down:
+
+| type | referenceDataParentId | referenceDataId |
+| --- | --- | --- |
+| address_hierarchy | division-central | subdivision-tailevu |
+| address_hierarchy | subdivision-tailevu | settlement-nausori |
+| address_hierarchy | settlement-nausori | village-naila |
+
+With the location hierarchy setting on, choosing **Central** as the **Division** offers **Tailevu** as
+the **Sub division**, then **Nausori** as the **Settlement**, then **Naila** as the **Village**. Every
+other division, subdivision, settlement and village is linked the same way.
+
 ---
 
 ## Custom patient fields
 
-Custom patient fields add fields that are not in Tamanu's standard set to patient details, on desktop
+Custom patient fields add fields that are not in Tamanu's standard set of patient details, on desktop
 and mobile. Each field sits under a category, and each category shows as its own section heading on
 the patient's **Details** tab and when registering a patient. Two reference data types configure them:
 `Patient Field Def Category`, which creates the sections, and `Patient Field Definition`, which creates
 the fields within them.
-
-**[Screenshot: a custom field category and its fields on a patient's Details tab]**
 
 Categories are shown in alphabetical order of name, and fields within a category in alphabetical order
 of name. To control the order, name them accordingly.
@@ -171,14 +218,15 @@ Where * is a required field.
 | --- | --- |
 | id * | Unique id for the field. Letters, numbers and hyphens only. This id is also the column header used when importing patients. |
 | name * | The field label displayed in Tamanu. |
-| fieldType * | One of the values listed under [Custom patient field types](#custom-patient-field-types). |
+| fieldType * | The kind of field: `string` for a free text box, `number` for a number box, or `select` for a list of the options set in `options`. |
 | options | For a `select` field, the options to choose from, separated by commas, for example `s,m,l,xl`. Leave blank for other field types. This column is not validated, so a `select` field left blank imports without an error and offers nothing to choose. |
 | visibilityStatus | `current` for fields shown in Tamanu, or `historical` for fields that should no longer show. Values already recorded are kept. Defaults to `current` if blank. |
 | categoryId * | The `id` of the category, from Patient Field Def Category, the field sits under. |
 
 A `note` column is accepted for your own reference and is ignored on import.
 
-An export writes `options` back as a comma-separated list, so a round trip is safe.
+An export writes `options` back as a comma-separated list, in the same form the importer reads. An
+exported sheet can be edited and imported again without the options of a `select` field changing.
 
 ---
 
@@ -365,16 +413,6 @@ Used by the birth details recorded when registering a birth on desktop.
 | --- | --- |
 | single | Single |
 | plural | Plural |
-
-## Custom patient field types
-
-Used for `fieldType` in Patient Field Definition.
-
-| Value | Field shown |
-| --- | --- |
-| string | A free text box |
-| number | A number box |
-| select | A list of the options set in `options` |
 
 ## Patient issue type
 

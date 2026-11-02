@@ -3,11 +3,8 @@
 Patient registration and details, identifiers, custom patient fields, patient history, search,
 printing, deaths, merging and importing patients, the patient portal and the AI patient summary.
 
-These guides step system administrators through setting up how patients are registered and recorded in
+These guides step system administrators through setting up how patients are registered and managed in
 Tamanu. Patient records sit beneath almost every other module, so they are usually configured first.
-
-If it is your first time setting up patient records in Tamanu, read the
-[Patients Module Implementation Guide](https://beyond-essential.slab.com/topics/patients-module-e8qnu52c) first.
 
 | # | Guide | Covers |
 | --- | --- | --- |
