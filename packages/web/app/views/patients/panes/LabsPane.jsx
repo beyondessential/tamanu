@@ -22,6 +22,10 @@ import { useSettings } from '../../../contexts/Settings';
 // left out for every user, so they are printed from the request itself. Keyed on refreshCount for
 // the same reason the table takes it: this endpoint is self-fetched, so invalidating the encounter
 // query doesn't reach it, and a newly published request must reach the printout as well as the table.
+//
+// Unpaged on purpose. The server drops sensitive requests after the page is cut, so asking for one
+// row to test "is anything eligible" would answer no whenever that row happened to be sensitive.
+// The printout reads the same cached response, so fetching it all costs nothing extra at print time.
 const usePrintableLabRequestsQuery = (encounterId, refreshCount, { enabled }) => {
   const api = useApi();
   return useQuery(

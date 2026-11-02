@@ -41,8 +41,11 @@ const useLabRequestDetailsQueries = labRequests => {
   const publishedLogs = combineQueries(publishedLogQueries);
 
   return {
-    // Flat, so a failure in any one of them reaches the caller's combined error state intact.
-    queries: testsQueries.concat(publishedLogQueries),
+    // Results are the document: a request whose tests failed to load would print as a block with
+    // no results at all, so these are fatal. The publisher is one field of the request's header —
+    // reading the status log needs its own permission, and without it the field reads "n/a".
+    requiredQueries: testsQueries,
+    optionalQueries: publishedLogQueries,
     labRequestsWithDetails: withLabRequestPrintoutDetails(labRequests, {
       testsResponses: tests.data,
       publishedLogs: publishedLogs.data,
@@ -67,16 +70,17 @@ export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open,
     { enabled: isVillageEnabled },
   );
 
-  const { queries: labRequestDetailsQueries, labRequestsWithDetails } =
+  const { requiredQueries, optionalQueries, labRequestsWithDetails } =
     useLabRequestDetailsQueries(labRequests);
 
-  const allQueries = combineQueries([
-    certificateQuery,
-    encounterQuery,
-    additionalDataQuery,
-    ...(isVillageEnabled ? [villageQuery] : []),
-    ...labRequestDetailsQueries,
-  ]);
+  const required = combineQueries(
+    [certificateQuery, encounterQuery, additionalDataQuery].concat(
+      isVillageEnabled ? [villageQuery] : [],
+      requiredQueries,
+    ),
+  );
+  // Everything the preview waits on, fatal or not, so the document doesn't render half-filled.
+  const everything = combineQueries([required].concat(optionalQueries));
 
   const modalProps = {
     title: (
@@ -91,11 +95,11 @@ export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open,
     width: 'md',
     color: Colors.white,
     // A failed fetch would leave a request's results silently missing, so don't offer to print one.
-    printable: !allQueries.isError && !allQueries.isFetching,
+    printable: !required.isError && !everything.isFetching,
   };
 
-  if (allQueries.isError) {
-    const isForbidden = allQueries.errors.some(
+  if (required.isError) {
+    const isForbidden = required.errors.some(
       error => error instanceof ForbiddenError || error?.status === 403,
     );
     return (
@@ -128,7 +132,7 @@ export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open,
       data-testid="modal-lab-results-printout"
     >
       <PDFLoader
-        isLoading={allQueries.isFetching}
+        isLoading={everything.isFetching}
         id="lab-results-printout"
         data-testid="pdfloader-lab-results-printout"
       >

@@ -29,8 +29,11 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
 
     // Sensitive requests are normally hidden only from users without the permission, but the
     // encounter results printout leaves them out for everyone, so callers can force the filter on.
-    // The filter runs over the page getResourceList returned, so `count` stays pre-filter and can
-    // exceed `data.length` — read the length, not the count, to tell whether anything is left.
+    //
+    // The filter runs over whatever getResourceList returned, not inside its query, so `count`
+    // stays pre-filter and can exceed `data.length`. A caller that also pages gets short pages,
+    // with no way to tell a filtered row from the end of the data — so don't combine
+    // excludeSensitive with rowsPerPage; fetch the whole set and read its length.
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
     const mustExcludeSensitive = !canListSensitive || excludeSensitive === 'true';
     const permittedLabRequests = mustExcludeSensitive
