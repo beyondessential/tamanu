@@ -9,6 +9,7 @@ import { MenuButton, TableButtonRow, NoteModalActionBlocker } from '../../../com
 import {
   LabResultsPrintoutModal,
   PrintMultipleLabRequestsSelectionModal,
+  RESULTS_PRINTOUT_PERMISSIONS,
 } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
@@ -17,16 +18,6 @@ import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { usePatient } from '../../../contexts/Patient';
 import { useSettings } from '../../../contexts/Settings';
-
-// Every permission the printout's own fetches enforce: the list it is built from, each request's
-// tests, and the results themselves. Reading the status log is deliberately absent — that fetch
-// degrades to "n/a" rather than blocking the document, so it must not hide the action either.
-const RESULTS_PRINTOUT_PERMISSIONS = [
-  ['read', 'LabTestResult'],
-  ['read', 'LabRequest'],
-  ['list', 'LabRequest'],
-  ['list', 'LabTest'],
-];
 
 // The requests the results printout covers: resulted, and not sensitive — sensitive requests are
 // left out for every user, so they are printed from the request itself. Keyed on refreshCount for

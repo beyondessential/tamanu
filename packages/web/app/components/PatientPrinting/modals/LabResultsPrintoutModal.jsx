@@ -14,6 +14,17 @@ import { withLabRequestPrintoutDetails } from '../../../utils/lab';
 import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { route } from '@tamanu/api-client';
 
+// What a caller must hold before offering the printout, listed beside the fetches that enforce it
+// so the two can't drift: the encounter's request list, each request's tests, and the results.
+// Reading the status log is deliberately absent — that fetch degrades to "n/a" rather than
+// blocking the document, so it must not hide the action either.
+export const RESULTS_PRINTOUT_PERMISSIONS = [
+  ['read', 'LabTestResult'],
+  ['read', 'LabRequest'],
+  ['list', 'LabRequest'],
+  ['list', 'LabTest'],
+];
+
 // The printout needs each request's tests grouped and ordered the way the results table shows
 // them, and the user who published it, neither of which travels with the request itself.
 const useLabRequestDetailsQueries = labRequests => {
@@ -72,6 +83,8 @@ export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open,
   const { requiredQueries, optionalQueries, labRequestsWithDetails } =
     useLabRequestDetailsQueries(labRequests);
 
+  // useCertificate isn't a react-query result: it contributes isFetching and nothing else, so a
+  // letterhead that fails to load leaves the printout without a logo rather than erroring.
   const requiredList = [certificateQuery, encounterQuery, additionalDataQuery].concat(
     isVillageEnabled ? [villageQuery] : [],
     requiredQueries,
