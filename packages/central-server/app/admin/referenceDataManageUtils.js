@@ -65,7 +65,7 @@ export const getModelForType = (models, type) => {
 
 // Columns hidden from the admin UI.
 // true = hidden for all models, Set = hidden only for those models.
-const HIDDEN_COLUMNS = {
+export const HIDDEN_COLUMNS = {
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
@@ -319,9 +319,16 @@ export const getColumnsForModel = async (model, referenceDataType, detailModel =
   if (!detailModel) return columns;
 
   // Detail columns live on another table, so the list query filters them through the join and
-  // cannot sort by them at all.
+  // cannot sort by them at all. An FK's read-only name companion is dropped: the list query
+  // populates those only for the base model, and pickDetailValues can't resolve one, so keeping it
+  // would offer a filter the server then ignores.
   const detailColumns = (await buildColumns(detailModel))
-    .filter(col => !DETAIL_INTERNAL_COLUMNS.has(col.key) && !DETAIL_INTERNAL_COLUMNS.has(col.fkKey))
+    .filter(
+      col =>
+        !col.isFkName &&
+        !DETAIL_INTERNAL_COLUMNS.has(col.key) &&
+        !DETAIL_INTERNAL_COLUMNS.has(col.fkKey),
+    )
     .map(col => ({ ...col, detail: true }));
 
   return [...columns, ...detailColumns];

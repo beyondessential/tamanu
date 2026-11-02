@@ -13,6 +13,7 @@ import {
   MANAGEABLE_REFERENCE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
 } from '@tamanu/constants';
+import { HIDDEN_COLUMNS } from '../../app/admin/referenceDataManageUtils';
 import { createTestContext } from '../utilities';
 
 const BASE_URL = '/api/admin/referenceData/manage';
@@ -33,14 +34,17 @@ const SATELLITE_MODEL_BY_TYPE = {
 // column is currently surfaced, and a new one has to be surfaced or listed here with its reason.
 const EXCLUDED_SATELLITE_COLUMNS = new Set();
 
-// Owned by the row or by the association, never edited as a field.
+// Columns Manage hides for every model (timestamps, the sync tick), read from the source so that
+// hiding a new internal column doesn't fail this test as though a product field had gone missing.
+// The satellite's own identity is spelled out rather than read from DETAIL_INTERNAL_COLUMNS: if a
+// real column were ever added to that set, this test has to keep checking it rather than quietly
+// stop.
 const INTERNAL_SATELLITE_COLUMNS = new Set([
+  ...Object.entries(HIDDEN_COLUMNS)
+    .filter(([, hiddenForEveryModel]) => hiddenForEveryModel === true)
+    .map(([key]) => key),
   'id',
   'referenceDataId',
-  'createdAt',
-  'updatedAt',
-  'deletedAt',
-  'updatedAtSyncTick',
 ]);
 
 describe('Reference Data Manage', () => {
