@@ -190,7 +190,19 @@ describe('Reference Data Manage', () => {
           );
         }
 
-        const shownKeys = new Set(response.body.map(c => c.key));
+        // A detail column sharing a key with a base one would render its own search field while
+        // the list query filtered the base column instead, so a collision has to fail loudly
+        // rather than quietly misdirect the filter.
+        const keys = response.body.map(c => c.key);
+        const collidingKeys = [...new Set(keys.filter((key, i) => keys.indexOf(key) !== i))];
+        if (collidingKeys.length > 0) {
+          failures.push(
+            `${type}: ${collidingKeys.join(', ')} is both a base and a detail column. The list ` +
+              'query would filter the base one and silently ignore the detail one.',
+          );
+        }
+
+        const shownKeys = new Set(keys);
 
         for (const key of Object.keys(models[modelName].rawAttributes)) {
           if (INTERNAL_SATELLITE_COLUMNS.has(key)) continue;
