@@ -1,21 +1,52 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 
 import { Modal, TranslatedText, useTranslation, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { useApi } from '../../../api';
-import {
-  useEncounterDataQuery,
-  useLabRequestNotesQuery,
-  usePatientAdditionalDataQuery,
-} from '../../../api/queries';
+import { combineQueries, useApi } from '../../../api';
+import { useEncounterDataQuery, usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useSettings } from '../../../contexts/Settings';
+import { withLabRequestPrintoutDetails } from '../../../utils/lab';
 import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { route } from '@tamanu/api-client';
 
-export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, onClose }) => {
+// The printout needs each request's tests grouped and ordered the way the results table shows
+// them, and the user who published it, neither of which travels with the request itself.
+const useLabRequestDetailsQueries = labRequests => {
+  const api = useApi();
+
+  const testsQueries = useQueries({
+    queries: labRequests.map(({ id }) => ({
+      queryKey: ['labRequest', id, 'tests'],
+      queryFn: () => api.get(route('labRequest/:labRequestId/tests', { labRequestId: id })),
+    })),
+  });
+
+  const publishedLogQueries = useQueries({
+    queries: labRequests.map(({ id }) => ({
+      queryKey: ['labRequestLog', id, 'latest-published'],
+      queryFn: () =>
+        api.get(
+          route('labRequestLog/labRequest/:labRequestId/latest-published', { labRequestId: id }),
+        ),
+    })),
+  });
+
+  const tests = combineQueries(testsQueries);
+  const publishedLogs = combineQueries(publishedLogQueries);
+
+  return {
+    isLoading: tests.isLoading || publishedLogs.isLoading,
+    labRequestsWithDetails: withLabRequestPrintoutDetails(labRequests, {
+      testsResponses: tests.data,
+      publishedLogs: publishedLogs.data,
+    }),
+  };
+};
+
+export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open, onClose }) => {
   const { translations } = useTranslation();
   const { getSetting } = useSettings();
   const { primaryTimeZone } = useDateTime();
@@ -23,18 +54,11 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
   const { data: encounter, isLoading: isEncounterLoading } = useEncounterDataQuery(
-    labRequest.encounterId,
+    labRequests[0]?.encounterId,
   );
 
   const { data: additionalData, isLoading: isAdditionalDataLoading } =
     usePatientAdditionalDataQuery(patient.id);
-
-  const { data: notes, isLoading: areNotesLoading } = useLabRequestNotesQuery(labRequest.id);
-
-  const { data: testsData, isLoading: areTestsLoading } = useQuery(
-    ['labRequest', labRequest.id, 'tests'],
-    () => api.get(route('labRequest/:labRequestId/tests', { labRequestId: labRequest.id })),
-  );
 
   const isVillageEnabled = !!patient.villageId;
   const { data: village = {}, isLoading: isVillageLoading } = useQuery(
@@ -43,31 +67,15 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
     { enabled: isVillageEnabled },
   );
 
-  const { data: publishedLog, isLoading: isPublishedLogLoading } = useQuery(
-    ['labRequestLog', labRequest.id, 'latest-published'],
-    () =>
-      api.get(
-        route('labRequestLog/labRequest/:labRequestId/latest-published', {
-          labRequestId: labRequest.id,
-        }),
-      ),
-  );
+  const { isLoading: areLabRequestDetailsLoading, labRequestsWithDetails } =
+    useLabRequestDetailsQueries(labRequests);
 
   const isLoading =
     isEncounterLoading ||
-    areTestsLoading ||
-    areNotesLoading ||
+    areLabRequestDetailsLoading ||
     isAdditionalDataLoading ||
     (isVillageEnabled && isVillageLoading) ||
-    isCertificateFetching ||
-    isPublishedLogLoading;
-
-  const labRequestWithDetails = {
-    ...labRequest,
-    tests: testsData?.data,
-    notes: notes?.data || [],
-    publishedBy: publishedLog?.updatedBy,
-  };
+    isCertificateFetching;
 
   return (
     <Modal
@@ -95,7 +103,7 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
-          labRequest={labRequestWithDetails}
+          labRequests={labRequestsWithDetails}
           getSetting={getSetting}
           translations={translations}
           primaryTimeZone={primaryTimeZone}

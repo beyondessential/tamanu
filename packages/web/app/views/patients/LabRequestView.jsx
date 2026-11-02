@@ -140,7 +140,13 @@ const MODALS = {
     />
   ),
   [MODAL_IDS.PRINT]: LabRequestPrintModal,
-  [MODAL_IDS.RESULTS_PRINT]: LabResultsPrintoutModal,
+  [MODAL_IDS.RESULTS_PRINT]: ({ labRequest, ...props }) => (
+    <LabResultsPrintoutModal
+      {...props}
+      labRequests={[labRequest]}
+      data-testid="labresultsprintoutmodal-single"
+    />
+  ),
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
   [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
   [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,

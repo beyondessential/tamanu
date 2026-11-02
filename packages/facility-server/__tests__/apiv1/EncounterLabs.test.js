@@ -2,8 +2,13 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { isEqual } from 'es-toolkit/compat';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
+  PRINTABLE_LAB_REQUEST_STATUSES,
+} from '@tamanu/constants';
 import { fakeUser } from '@tamanu/fake-data/fake';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 async function createLabRequest(models, overrides) {
@@ -226,6 +231,130 @@ describe('Encounter labs', () => {
       // so that's why we ensure there is only one lab request included
       expect(result.body.data.length).toBe(1);
       expect(result.body.data[0].id).toBe(labRequest1.id);
+    });
+  });
+
+  describe('GET encounter lab requests for the results printout', () => {
+    // The sensitive filter turns on permission, so these cases need real roles rather than the
+    // hardcoded ones.
+    disableHardcodedPermissionsForSuite();
+
+    let printoutApp = null;
+    let sensitiveApp = null;
+
+    beforeAll(async () => {
+      printoutApp = await baseApp.asNewRole([
+        ['read', 'Encounter'],
+        ['list', 'LabRequest'],
+      ]);
+      sensitiveApp = await baseApp.asNewRole([
+        ['read', 'Encounter'],
+        ['list', 'LabRequest'],
+        ['list', 'SensitiveLabRequest'],
+      ]);
+    });
+
+    it('leaves out sensitive requests with excludeSensitive, even for a privileged user', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const labRequest = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      const sensitiveLabRequest = await models.LabRequest.createWithTests(
+        await randomSensitiveLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+        }),
+      );
+
+      const withSensitive = await sensitiveApp.get(
+        `/api/encounter/${encounter.id}/labRequests`,
+      );
+      expect(withSensitive).toHaveSucceeded();
+      expect(withSensitive.body.data.map(request => request.id).sort()).toEqual(
+        [labRequest.id, sensitiveLabRequest.id].sort(),
+      );
+
+      const withoutSensitive = await sensitiveApp.get(
+        `/api/encounter/${encounter.id}/labRequests?excludeSensitive=true`,
+      );
+      expect(withoutSensitive).toHaveSucceeded();
+      expect(withoutSensitive.body.data.map(request => request.id)).toEqual([labRequest.id]);
+    });
+
+    it('filters to the requested statuses', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const printable = await Promise.all(
+        PRINTABLE_LAB_REQUEST_STATUSES.map(status =>
+          createLabRequest(models, {
+            patientId: patient.id,
+            encounterId: encounter.id,
+            status,
+          }),
+        ),
+      );
+      await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+      });
+
+      const statusQuery = PRINTABLE_LAB_REQUEST_STATUSES.map(
+        (status, index) => `status[${index}]=${status}`,
+      ).join('&');
+      const result = await printoutApp.get(
+        `/api/encounter/${encounter.id}/labRequests?${statusQuery}`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(request => request.id).sort()).toEqual(
+        printable.map(request => request.id).sort(),
+      );
+    });
+
+    it('orders by requested date, oldest first', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const newest = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedDate: '2026-03-02 09:00:00',
+      });
+      const oldest = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedDate: '2026-03-01 09:00:00',
+      });
+      const middle = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedDate: '2026-03-01 15:30:00',
+      });
+
+      const result = await printoutApp.get(
+        `/api/encounter/${encounter.id}/labRequests?orderBy=requestedDate&order=ASC`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(request => request.id)).toEqual([
+        oldest.id,
+        middle.id,
+        newest.id,
+      ]);
     });
   });
 });

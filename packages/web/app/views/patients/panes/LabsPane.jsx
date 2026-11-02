@@ -1,21 +1,73 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { PRINTABLE_LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { route } from '@tamanu/api-client';
 import { LabRequestModal } from '../../../components/LabRequestModal';
 import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
+import { MenuButton, TableButtonRow, NoteModalActionBlocker } from '../../../components';
 import {
-  TableButtonRow,
-  NoteModalActionBlocker,
-} from '../../../components';
-import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
+  LabResultsPrintoutModal,
+  PrintMultipleLabRequestsSelectionModal,
+} from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useApi } from '../../../api';
+import { useAuth } from '../../../contexts/Auth';
+import { usePatient } from '../../../contexts/Patient';
+import { useSettings } from '../../../contexts/Settings';
+
+// The requests the results printout covers: resulted, and not sensitive — sensitive requests are
+// left out for every user, so they are printed from the request itself.
+const usePrintableLabRequestsQuery = (encounterId, { enabled }) => {
+  const api = useApi();
+  return useQuery(
+    ['encounterPrintableLabRequests', encounterId],
+    () =>
+      api.get(route('encounter/:encounterId/labRequests', { encounterId }), {
+        status: PRINTABLE_LAB_REQUEST_STATUSES,
+        excludeSensitive: true,
+        orderBy: 'requestedDate',
+        order: 'ASC',
+      }),
+    { enabled },
+  );
+};
 
 export const LabsPane = React.memo(({ encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
+  const [printResultsModalOpen, setPrintResultsModalOpen] = useState(false);
   // The table fetches its own endpoint, so invalidating the encounter query doesn't reach it.
   const [refreshCount, updateRefreshCount] = useRefreshCount();
+
+  const { ability } = useAuth();
+  const { patient } = usePatient();
+  const { getSetting } = useSettings();
+
+  const isResultsPrintoutEnabled =
+    getSetting('features.labRequest.enableLabResultsPrintout') &&
+    ability?.can('read', 'LabTestResult');
+  const { data: printableLabRequests } = usePrintableLabRequestsQuery(encounter.id, {
+    enabled: isResultsPrintoutEnabled,
+  });
+  const canPrintResults = printableLabRequests?.data?.length > 0;
+
+  const menuActions = canPrintResults
+    ? [
+        {
+          label: (
+            <TranslatedText
+              stringId="lab.action.printResults"
+              fallback="Print results"
+              data-testid="translatedtext-print-results"
+            />
+          ),
+          action: () => setPrintResultsModalOpen(true),
+        },
+      ]
+    : [];
 
   return (
     <TabPane data-testid="tabpane-zm0o">
@@ -34,6 +86,16 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
         onClose={() => setPrintRequestsModalOpen(false)}
         data-testid="printmultiplelabrequestsselectionmodal-hccp"
       />
+      {/* Mounted only while open: the printout fetches each request's tests and publication. */}
+      {printResultsModalOpen && (
+        <LabResultsPrintoutModal
+          open
+          labRequests={printableLabRequests.data}
+          patient={patient}
+          onClose={() => setPrintResultsModalOpen(false)}
+          data-testid="labresultsprintoutmodal-encounter"
+        />
+      )}
       <TableButtonRow variant="small" data-testid="tablebuttonrow-yf2d">
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
@@ -69,6 +131,13 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
             />
           </ButtonWithPermissionCheck>
         </NoteModalActionBlocker>
+        {menuActions.length > 0 && (
+          <MenuButton
+            a11yLabel={<TranslatedText stringId="lab.actions" fallback="Lab request actions" />}
+            actions={menuActions}
+            data-testid="menubutton-labs-pane"
+          />
+        )}
       </TableButtonRow>
       <EncounterLabRequestsTable
         encounterId={encounter.id}

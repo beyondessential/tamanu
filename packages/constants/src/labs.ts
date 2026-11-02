@@ -23,6 +23,14 @@ export const INTERIM_LAB_REQUEST_STATUSES = [
   LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
 ];
 
+// The statuses whose results are complete enough to print as part of an encounter's results.
+// A request at any other status either has nothing to show or has been withdrawn.
+export const PRINTABLE_LAB_REQUEST_STATUSES = [
+  LAB_REQUEST_STATUSES.PUBLISHED,
+  LAB_REQUEST_STATUSES.VERIFIED,
+  LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+];
+
 export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: 'Reception pending',
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: 'Results pending',
