@@ -553,6 +553,17 @@ describe('Suggestions', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body.map(({ id }) => id)).not.toContain(sensitivePanelId);
+
+      // The searchById route path strips the where's Op.and clause, so the sensitivity filter must
+      // live inside the id subquery to survive it; confirm the panel stays hidden on that path too.
+      const searchByIdResult = await userApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        searchById: 'true',
+        q: sensitivePanelId,
+      });
+      expect(searchByIdResult).toHaveSucceeded();
+      expect(searchByIdResult.body.map(({ id }) => id)).not.toContain(sensitivePanelId);
     });
   });
 
