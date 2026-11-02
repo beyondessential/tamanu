@@ -22,8 +22,8 @@ Each drug can carry an accepted range for its dose amount and for its dispensing
 - [ ] A variable-dose prescription has no dose amount, so only its dispensing quantity is checked.
 - [ ] An automatically calculated dispensing quantity is checked the same way as one entered by hand.
 - [ ] When prescribing on desktop, the dose amount and dispensing quantity are checked on a new prescription, when editing a prescription, and on each item of a medication set.
-- [ ] When sending to pharmacy, the quantity on each item is checked.
-- [ ] When discharging a patient, the dispensing quantity on each medication is checked.
+- [ ] When sending to pharmacy, the quantity and the prescription's dose amount on each item are checked.
+- [ ] When discharging a patient, the dispensing quantity and the prescription's dose amount on each medication are checked.
 - [ ] When dispensing, the quantity on each item is checked against the drug's dispensing quantity range, and the dose amount and quantity are checked when pharmacy modifies a prescription at dispense.
 
 ## Inline warning
@@ -33,6 +33,7 @@ Each drug can carry an accepted range for its dose amount and for its dispensing
 - [ ] The warning names the limit that was crossed and its value in the drug's unit, e.g. "Above max of 2 tablets" or "Below min of 1 tablet".
 - [ ] The warning does not prevent saving. The form or table submits as normal with the value as entered.
 - [ ] In the send to pharmacy, discharge, and dispense tables, the warning appears below the quantity input on that item's row.
+- [ ] In the send to pharmacy and discharge tables, a dose amount outside the range shows its warning below the dose on that item's row: in the dose column when sending to pharmacy, and below the dose and frequency line under the medication name when discharging. The dose is not editable there, so the warning stays for as long as the modal is open.
 - [ ] In a medication set, an item with a value outside the range shows the warning in the set's list of items as well as when the item is opened for editing.
 
 ## Overrides
@@ -40,6 +41,7 @@ Each drug can carry an accepted range for its dose amount and for its dispensing
 - [ ] Saving with a value outside the range records an override, noting which value was outside the range and the limit it crossed.
 - [ ] Any user who can save the prescription, pharmacy order, or dispense can save past the warning.
 - [ ] An override made while prescribing, editing a prescription, or discharging is recorded against the prescription, one made while sending to pharmacy against the pharmacy order item, and one made while dispensing against the dispense.
+- [ ] Saving past a dose warning in the send to pharmacy or discharge modals records no override, since the dose is not changed there. The dose's override, if any, is the one recorded when the prescription was saved.
 - [ ] An override reflects the record's saved values: editing a prescription so its values are back within range clears its override.
 - [ ] An override is fixed when saved. Changing a drug's limits later does not add or remove overrides on existing records.
 - [ ] An override made while dispensing is held on the dispense record for audit and reporting.
