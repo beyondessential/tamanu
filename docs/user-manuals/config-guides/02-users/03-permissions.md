@@ -130,21 +130,6 @@ A per-record permission also satisfies checks that are made against the noun as 
 single form, with `create`, lets a role import any program's forms. Where this happens it is noted
 under the noun.
 
-## The admin role
-
-The role with the id `admin` is built in. Users with this role can do everything in Tamanu whatever
-the matrix says, so editing the `admin` role's permissions has no effect. They are the users who can
-change the settings marked high risk and set up a new facility server. They can also log in to every
-facility, including sensitive ones, and are never restricted from syncing. See
-[Facility access](02-settings.md#facility-access).
-
-### Impersonating a role
-
-A user with the `admin` role can see Tamanu desktop as another role would, to check a role's
-permissions. Hold Ctrl (Cmd on a Mac) and select the user's avatar at the foot of the sidebar to open
-**Impersonate role**, choose a role, and select **Stop impersonating** to return. Impersonation works
-on desktop only.
-
 <p align="center">
   <img src="images/permissions-impersonate-role.png" alt="The Impersonate role list opened from the avatar at the foot of the sidebar" width="162"><br>
   <sub>The <b>Impersonate role</b> list.</sub>
