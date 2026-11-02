@@ -1163,6 +1163,8 @@ createSuggester(
       ...(canListSensitive ? {} : { isSensitive: false }),
       id: {
         [Op.in]: Sequelize.literal(
+          // sample_time must be present to match what the results endpoint returns (it only shows
+          // dated results); otherwise a suggested test would open an empty table.
           `(
           SELECT DISTINCT(lab_tests.lab_test_type_id)
           FROM lab_tests
@@ -1174,6 +1176,7 @@ createSuggester(
             AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
+            AND lab_requests.sample_time IS NOT NULL
         )`,
         ),
       },
