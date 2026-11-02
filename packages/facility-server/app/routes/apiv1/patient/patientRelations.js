@@ -399,7 +399,15 @@ patientRelations.get(
       query,
     } = req;
 
-    const toArray = value => (Array.isArray(value) ? value : value == null ? [] : [value]);
+    // qs parses repeated query params into an array, but once a list passes its arrayLimit it
+    // degrades to an index-keyed object ({ '0': ..., '1': ... }); since there is no cap on picks,
+    // normalise both shapes (and a bare single value) to an array.
+    const toArray = value => {
+      if (Array.isArray(value)) return value;
+      if (value == null) return [];
+      if (typeof value === 'object') return Object.values(value);
+      return [value];
+    };
     const { categoryId, status = 'published' } = query;
     const panelIds = toArray(query.panelIds);
     const testIds = toArray(query.testIds);

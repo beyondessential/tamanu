@@ -954,7 +954,7 @@ describe('Patient relations', () => {
       expect(uniqueCategories.length).toBeGreaterThan(1);
     });
 
-    it('Allows filtering lab tests by category', async () => {
+    it('Allows filtering lab tests by category, listed alphabetically by test name', async () => {
       const response = await app.get(
         `/api/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}`,
       );
@@ -962,6 +962,8 @@ describe('Patient relations', () => {
       response.body.data.forEach(labTest => {
         expect(labTest.testCategory).toEqual(randomCategory.name);
       });
+      const names = response.body.data.map(labTest => labTest.testType);
+      expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
     });
 
     it('excludes sensitive lab test results', async () => {
@@ -1057,6 +1059,108 @@ describe('Patient relations', () => {
       expect(response.body.groups[0].testTypeIds.slice().sort()).toEqual(expectedTypeIds);
       // The data holds exactly the panel's member tests.
       expect(response.body.data.map(result => result.testTypeId).sort()).toEqual(expectedTypeIds);
+    });
+
+    it('unions panel members and individual test ids, returning each distinct test once', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const category = await randomReferenceData(models, 'labTestCategory');
+      const [sharedType, panelOnlyType] = await createLabTestTypes(models, category.id);
+      const { id: panelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+      await Promise.all(
+        [sharedType, panelOnlyType].map((testType, order) =>
+          models.LabTestPanelLabTestTypes.create({
+            labTestPanelId: panelId,
+            labTestTypeId: testType.id,
+            order,
+          }),
+        ),
+      );
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: category.id,
+          labTestPanelId: panelId,
+          labTestTypeIds: [sharedType.id, panelOnlyType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+
+      // Pick the panel plus one of its members individually — the shared test is grouped under the
+      // panel and the data set still holds it once.
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ panelIds: [panelId], testIds: [sharedType.id] });
+      expect(response).toHaveSucceeded();
+      expect(response.body.groups).toHaveLength(1);
+      expect(response.body.groups[0].testTypeIds.slice().sort()).toEqual(
+        [sharedType.id, panelOnlyType.id].sort(),
+      );
+      expect(response.body.data.map(result => result.testTypeId).sort()).toEqual(
+        [sharedType.id, panelOnlyType.id].sort(),
+      );
+    });
+
+    it('excludes results from a soft-deleted encounter', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const category = await randomReferenceData(models, 'labTestCategory');
+      const [testType] = await createLabTestTypes(models, category.id);
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: category.id,
+          labTestTypeIds: [testType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+      await encounter.destroy();
+
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ testIds: [testType.id] });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(0);
+      expect(response.body.data).toEqual([]);
+    });
+
+    describe('with the SensitiveLabRequest permission', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('returns sensitive lab test results when filtering by test id', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: labTestsPatient.id,
+        });
+        const labRequestData = await randomSensitiveLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        });
+        await models.LabRequest.createWithTests(labRequestData);
+
+        const permittedApp = await baseApp.asNewRole([
+          ['read', 'Patient'],
+          ['list', 'LabTest'],
+          ['list', 'SensitiveLabRequest'],
+        ]);
+        const response = await permittedApp
+          .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+          .query({ testIds: labRequestData.labTestTypeIds });
+        expect(response).toHaveSucceeded();
+        expect(response.body.data.map(result => result.testTypeId).sort()).toEqual(
+          labRequestData.labTestTypeIds.slice().sort(),
+        );
+      });
     });
   });
 });
