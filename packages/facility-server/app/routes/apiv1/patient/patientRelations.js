@@ -433,6 +433,8 @@ patientRelations.get(
            INNER JOIN lab_test_panel_lab_test_types
              ON lab_test_panel_lab_test_types.lab_test_panel_id = lab_test_panels.id
            WHERE lab_test_panels.id IN (:panelIds)
+             AND lab_test_panels.deleted_at IS NULL
+             AND lab_test_panel_lab_test_types.deleted_at IS NULL
            ORDER BY lab_test_panels.name ASC, lab_test_panel_lab_test_types."order" ASC`,
           { replacements: { panelIds }, type: QueryTypes.SELECT },
         );

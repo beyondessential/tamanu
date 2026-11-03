@@ -1111,6 +1111,8 @@ createSuggester(
             INNER JOIN lab_test_types
               ON lab_test_types.id = lab_test_panel_lab_test_types.lab_test_type_id
             WHERE lab_test_panel_lab_test_types.lab_test_panel_id = lab_test_panel_requests.lab_test_panel_id
+              AND lab_test_panel_lab_test_types.deleted_at IS NULL
+              AND lab_test_types.deleted_at IS NULL
               AND lab_test_types.is_sensitive IS FALSE
           )`;
 
@@ -1129,6 +1131,7 @@ createSuggester(
             AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
+            AND lab_requests.sample_time IS NOT NULL
             ${sensitivePanelFilter}
         )`,
         ),
