@@ -27,6 +27,19 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
+// Saves one of the logged-in user's preferences with no facility, so it applies everywhere
+export const setUserPreferenceViaApi = async (
+  api: APIRequestContext,
+  key: string,
+  value: unknown,
+) => {
+  const url = constructFacilityUrl('/api/user/userPreferences');
+  const response = await api.post(url, { data: { key, value } });
+  if (!response.ok()) {
+    throw new Error(`Failed to set user preference: ${response.status()} ${await response.text()}`);
+  }
+};
+
 export const getCurrentEncounterViaApi = async (api: APIRequestContext, patientId: string) => {
   const encounterUrl = constructFacilityUrl(`/api/patient/${patientId}/currentEncounter`);
   const response = await api.get(encounterUrl);

@@ -2,6 +2,8 @@ import * as React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Provider as ReduxProvider } from 'react-redux';
+import { createStore } from 'redux';
 import { ThemeProvider } from 'styled-components';
 import { createTheme } from '@material-ui/core/styles';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -70,15 +72,17 @@ describe('EncounterMedicationTable', () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
     render(
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={createTheme({})}>
-          <TranslationProvider value={TRANSLATION_CONTEXT}>
-            <MemoryRouter>
-              <EncounterMedicationTable encounter={ENCOUNTER} />
-            </MemoryRouter>
-          </TranslationProvider>
-        </ThemeProvider>
-      </QueryClientProvider>,
+      <ReduxProvider store={createStore(() => ({ auth: {} }))}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={createTheme({})}>
+            <TranslationProvider value={TRANSLATION_CONTEXT}>
+              <MemoryRouter>
+                <EncounterMedicationTable encounter={ENCOUNTER} />
+              </MemoryRouter>
+            </TranslationProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </ReduxProvider>,
     );
 
     await waitFor(() => expect(tableFetchCount()).toBeGreaterThan(0));

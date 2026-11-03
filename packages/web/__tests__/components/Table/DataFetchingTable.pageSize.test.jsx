@@ -50,6 +50,10 @@ const columns = [{ key: 'name', title: 'Name' }];
 
 const getTableFetches = () =>
   stableApi.get.mock.calls.filter(([endpoint]) => endpoint === 'patient');
+const getPreferenceFetches = () =>
+  stableApi.get.mock.calls.filter(
+    ([endpoint]) => endpoint?.template === 'user/userPreferences/:facilityId',
+  );
 
 describe('DataFetchingTable page size', () => {
   beforeEach(() => {
@@ -90,6 +94,6 @@ describe('DataFetchingTable page size', () => {
 
     await waitFor(() => expect(getTableFetches()).toHaveLength(1));
     expect(getTableFetches()[0][1]).toMatchObject({ rowsPerPage: 10 });
-    expect(stableApi.get).toHaveBeenCalledTimes(1);
+    expect(getPreferenceFetches()).toHaveLength(0);
   });
 });
