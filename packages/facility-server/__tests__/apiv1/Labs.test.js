@@ -1519,7 +1519,9 @@ describe('Labs', () => {
         const response = await app.get(`/api/labTest/${labTest.id}/history`);
         expect(response).toHaveSucceeded();
 
-        const historyItems = response.body;
+        // The result was changed repeatedly, so the server reports the cell as edited.
+        expect(response.body.isEdited).toBe(true);
+        const historyItems = response.body.changes;
         const resultChanges = historyItems.filter(h => h.fieldType === 'result');
         const secondaryChanges = historyItems.filter(h => h.fieldType === 'secondaryResult');
 

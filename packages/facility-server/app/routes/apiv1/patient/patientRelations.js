@@ -17,6 +17,7 @@ import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../../utils/getPermittedSurveyIds';
 import { makeFilter, getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
+import { labTestChangelogHasValueSql, labTestFieldEditedSql } from '../../../utils/labTestEdited';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -451,21 +452,18 @@ patientRelations.get(
       `WITH edited_tests AS (
     SELECT
       record_id,
-      -- Edited when the result OR its secondary result has taken more than one non-empty value
-      -- over its audit history; first filling in a blank is not an edit. Mirrors
-      -- getEditedFieldsByLabTestId in labs.js so the asterisk and the modal change log agree.
-      (COUNT(DISTINCT record_data->>'result')
-         FILTER (WHERE NULLIF(TRIM(record_data->>'result'), '') IS NOT NULL) >= 2
-       OR COUNT(DISTINCT record_data->>'secondary_result')
-         FILTER (WHERE NULLIF(TRIM(record_data->>'secondary_result'), '') IS NOT NULL) >= 2) AS is_edited
+      -- The result cell surfaces both the result and its secondary result, so it is edited when
+      -- either has taken more than one non-empty value over its audit history (first filling in a
+      -- blank is not an edit). Shares the edited-field SQL with labs.js so the asterisk, the modal
+      -- change log and the lab request table always agree.
+      (${labTestFieldEditedSql('result')}
+       OR ${labTestFieldEditedSql('secondary_result')}) AS is_edited
     FROM logs.changes
     WHERE table_schema = 'public'
       AND table_name = 'lab_tests'
-      -- Discard rows where neither tracked field holds a value before aggregating; matches the
-      -- union of the two FILTERs below, so is_edited is unchanged but far fewer changelog rows
-      -- are scanned and grouped.
-      AND (NULLIF(TRIM(record_data->>'result'), '') IS NOT NULL
-           OR NULLIF(TRIM(record_data->>'secondary_result'), '') IS NOT NULL)
+      -- Discard rows where neither tracked field holds a value before aggregating, so far fewer
+      -- changelog rows are scanned and grouped (is_edited is unchanged).
+      AND (${labTestChangelogHasValueSql(['result', 'secondary_result'])})
       AND record_id IN (
         SELECT lab_tests.id::text
         FROM lab_tests

@@ -1,8 +1,8 @@
 /*
- * The result details modal shows a change log only when a result has actually been edited. The
- * history endpoint emits one entry per distinct value a field has taken (including its first fill),
- * so a never-edited test that has both a result and a secondary result yields two entries — which
- * must NOT be mistaken for an edit (TAM-3101).
+ * The result details modal shows a change log only when the result cell has actually been edited.
+ * That flag is computed on the server (the same query the results tables use) and returned as
+ * `isEdited` alongside the change history, so the modal simply renders the History section when the
+ * server says the cell is edited (TAM-3101).
  */
 
 import * as React from 'react';
@@ -11,7 +11,9 @@ import { describe, it, expect, vi } from 'vitest';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 
-const { historyRef } = vi.hoisted(() => ({ historyRef: { current: [] } }));
+const { dataRef } = vi.hoisted(() => ({
+  dataRef: { current: { changes: [], isEdited: false } },
+}));
 
 vi.mock('@tamanu/ui-components', async () => {
   const actual = await vi.importActual('@tamanu/ui-components');
@@ -36,7 +38,7 @@ vi.mock('../../../app/api/queries/useLabTestQuery', () => ({
 }));
 
 vi.mock('../../../app/api/queries', () => ({
-  useLabTestResultHistoryQuery: () => ({ data: historyRef.current }),
+  useLabTestResultHistoryQuery: () => ({ data: dataRef.current }),
 }));
 
 vi.mock('../../../app/contexts/LabRequest', () => ({
@@ -56,20 +58,26 @@ const renderModal = () =>
   );
 
 describe('LabTestResultModal change log', () => {
-  it('hides the change log when a result and a secondary result were each only filled once', () => {
-    historyRef.current = [
-      { id: '1-result', fieldType: 'result', result: 'Positive', loggedAt: '2026-01-01 00:00:00' },
-      { id: '1-secondaryResult', fieldType: 'secondaryResult', result: 'A', loggedAt: '2026-01-01 00:00:00' },
-    ];
+  it('hides the change log when the server reports the cell is not edited', () => {
+    dataRef.current = {
+      isEdited: false,
+      changes: [
+        { id: '1-result', fieldType: 'result', result: 'Positive', loggedAt: '2026-01-01 00:00:00' },
+        { id: '1-secondaryResult', fieldType: 'secondaryResult', result: 'A', loggedAt: '2026-01-01 00:00:00' },
+      ],
+    };
     renderModal();
     expect(screen.queryByText('History')).toBeNull();
   });
 
-  it('shows the change log when a field has taken more than one value', () => {
-    historyRef.current = [
-      { id: '2-result', fieldType: 'result', result: 'Negative', loggedAt: '2026-01-02 00:00:00' },
-      { id: '1-result', fieldType: 'result', result: 'Positive', loggedAt: '2026-01-01 00:00:00' },
-    ];
+  it('shows the change log when the server reports the cell is edited', () => {
+    dataRef.current = {
+      isEdited: true,
+      changes: [
+        { id: '2-result', fieldType: 'result', result: 'Negative', loggedAt: '2026-01-02 00:00:00' },
+        { id: '1-result', fieldType: 'result', result: 'Positive', loggedAt: '2026-01-01 00:00:00' },
+      ],
+    };
     renderModal();
     expect(screen.queryByText('History')).not.toBeNull();
   });

@@ -32,6 +32,11 @@ import {
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
 } from '../../utils/query';
+import {
+  EDITABLE_LAB_TEST_FIELDS,
+  labTestChangelogHasValueSql,
+  labTestFieldEditedSql,
+} from '../../utils/labTestEdited';
 import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
 // A reflex test exists in reference data only so a LIMS can attach its results to a request; it is
@@ -43,31 +48,15 @@ const UNORDERABLE_VISIBILITY_STATUSES = [LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLE
 const isOrderableTestType = testType =>
   !UNORDERABLE_VISIBILITY_STATUSES.includes(testType.visibilityStatus);
 
-// The fields of a lab test that can change after first entry, mapped from the column captured
-// in the audit log to the key returned to the client.
-const EDITABLE_LAB_TEST_FIELDS = {
-  result: 'result',
-  secondary_result: 'secondaryResult',
-  lab_test_method_id: 'labTestMethodId',
-  laboratory_officer: 'laboratoryOfficer',
-  verification: 'verification',
-  completed_date: 'completedDate',
-};
-
 // A field counts as edited when it has taken more than one distinct non-empty value over its
 // audit history (logs.changes) — so first filling in a blank is not an edit. This matches how
 // the patient-wide results grid derives its edited flag for results, so the two agree.
 const getEditedFieldsByLabTestId = async (db, labRequestId) => {
   const auditColumns = Object.keys(EDITABLE_LAB_TEST_FIELDS);
 
-  // Built from the constant map above, never from user input.
+  // Built from the constant map, never from user input.
   const editedFlagSelections = auditColumns
-    .map(
-      column =>
-        `COUNT(DISTINCT (record_data->>'${column}'))
-           FILTER (WHERE NULLIF(TRIM(record_data->>'${column}'), '') IS NOT NULL) >= 2
-           AS "${column}"`,
-    )
+    .map(column => `${labTestFieldEditedSql(column)} AS "${column}"`)
     .join(',\n       ');
 
   const rows = await db.query(
@@ -76,6 +65,7 @@ const getEditedFieldsByLabTestId = async (db, labRequestId) => {
      FROM logs.changes
      WHERE table_schema = 'public'
        AND table_name = 'lab_tests'
+       AND (${labTestChangelogHasValueSql(auditColumns)})
        AND record_id IN (
          SELECT id::text FROM lab_tests WHERE lab_request_id = :labRequestId
        )
@@ -880,7 +870,19 @@ labTest.get(
     }
 
     changes.reverse();
-    res.send(changes);
+
+    // The result cell surfaces both the result and its secondary result, so it is edited when
+    // either has changed. Derived from the same query the results tables use rather than re-derived
+    // from the history above, so the modal's change log and the tables' asterisk always agree.
+    const editedFieldsByTestId = await getEditedFieldsByLabTestId(req.db, labTest.labRequestId);
+    const editedFields = editedFieldsByTestId.get(labTestId) ?? [];
+    const isEdited = editedFields.some(
+      field =>
+        field === EDITABLE_LAB_TEST_FIELDS.result ||
+        field === EDITABLE_LAB_TEST_FIELDS.secondary_result,
+    );
+
+    res.send({ changes, isEdited });
   }),
 );
 

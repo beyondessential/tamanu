@@ -96,18 +96,11 @@ const ButtonContainer = styled.div`
 export const LabTestResultModal = React.memo(
   ({ open, onClose, labTestId, includeRequestLink = true }) => {
     const { data: labTest } = useLabTestQuery(labTestId);
-    const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
-    // A field is edited once it has taken more than one non-empty value — matching the table's
-    // asterisk, so the two always agree. A first fill, or a later transition to blank, is not an
-    // edit (the history endpoint emits an entry for each of those too).
-    const nonEmptyValuesByField = history.reduce((values, { fieldType, result }) => {
-      if (result) {
-        values[fieldType] = values[fieldType] ?? new Set();
-        values[fieldType].add(result);
-      }
-      return values;
-    }, {});
-    const hasEdits = Object.values(nonEmptyValuesByField).some(values => values.size > 1);
+    const { data } = useLabTestResultHistoryQuery(labTestId);
+    const history = data?.changes ?? [];
+    // Whether the result cell is edited comes from the server (the same query the results tables
+    // use), so the modal's change log and the tables' asterisk always agree.
+    const hasEdits = data?.isEdited ?? false;
     const { loadLabRequest } = useLabRequest();
     const navigate = useNavigate();
     const { category = 'all' } = useParams();
