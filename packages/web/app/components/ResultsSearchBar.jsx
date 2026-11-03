@@ -85,7 +85,12 @@ export const ResultsSearchBar = React.memo(
           const prefix = isPanel ? PANEL_PREFIX : TEST_PREFIX;
           const suggester = isPanel ? panelSuggester : testSuggester;
           const option = await suggester.fetchCurrentOption(compositeValue.slice(prefix.length));
-          return option ? { ...option, value: `${prefix}${option.value}` } : undefined;
+          // Keep a resolvable option even when the id no longer resolves (a deleted/unavailable test
+          // or panel, or a 404 from the lookup route) so the chip still renders instead of throwing
+          // on option.label.
+          return option
+            ? { ...option, value: `${prefix}${option.value}` }
+            : { value: compositeValue, label: '' };
         },
       };
     }, [panelSuggester, testSuggester]);
@@ -110,7 +115,9 @@ export const ResultsSearchBar = React.memo(
       const testIds = value
         .filter(id => id.startsWith(TEST_PREFIX))
         .map(id => id.slice(TEST_PREFIX.length));
-      setSearchParameters({ panelIds, testIds });
+      // Clear the category with an empty string rather than by omitting it: the single-select field
+      // only resets its displayed option on '', not on undefined, so a dropped key leaves a stale name.
+      setSearchParameters({ categoryId: '', panelIds, testIds });
     };
 
     return (

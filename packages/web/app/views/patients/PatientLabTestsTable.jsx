@@ -109,7 +109,7 @@ const ResultsExportButton = ({ onClick }) => (
 );
 
 export const PatientLabTestsTable = React.memo(
-  ({ patient, labTests = [], groups = [], count, isLoading, searchParameters }) => {
+  ({ patient, labTests = [], groups = [], isLoading, searchParameters }) => {
     const { formatShort, formatTimeWithSeconds } = useDateTime();
     const [modalLabTestId, setModalLabTestId] = useState();
     const [modalOpen, setModalOpen] = useState(false);
@@ -321,7 +321,7 @@ export const PatientLabTestsTable = React.memo(
               data-testid="translatedtext-2i86"
             />
           }
-          count={count}
+          count={rows.length}
           allowExport
           exportName="PatientResults"
           ExportButton={ResultsExportButton}

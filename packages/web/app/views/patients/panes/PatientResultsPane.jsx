@@ -97,7 +97,6 @@ export const PatientResultsPane = React.memo(({ patient }) => {
                 searchParameters={searchParameters}
                 labTests={data?.data}
                 groups={data?.groups}
-                count={data?.count}
                 isLoading={isLoading}
                 data-testid="patientlabteststable-9cgh"
               />
