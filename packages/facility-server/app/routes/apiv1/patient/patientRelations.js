@@ -17,7 +17,7 @@ import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../../utils/getPermittedSurveyIds';
 import { makeFilter, getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
-import { labTestChangelogHasValueSql, labTestFieldEditedSql } from '../../../utils/labTestEdited';
+import { labTestChangelogHasValueSql, labTestResultCellEditedSql } from '../../../utils/labTestEdited';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -456,14 +456,13 @@ patientRelations.get(
       -- either has taken more than one non-empty value over its audit history (first filling in a
       -- blank is not an edit). Shares the edited-field SQL with labs.js so the asterisk, the modal
       -- change log and the lab request table always agree.
-      (${labTestFieldEditedSql('result')}
-       OR ${labTestFieldEditedSql('secondary_result')}) AS is_edited
+      ${labTestResultCellEditedSql()} AS is_edited
     FROM logs.changes
     WHERE table_schema = 'public'
       AND table_name = 'lab_tests'
       -- Discard rows where neither tracked field holds a value before aggregating, so far fewer
       -- changelog rows are scanned and grouped (is_edited is unchanged).
-      AND (${labTestChangelogHasValueSql(['result', 'secondary_result'])})
+      AND ${labTestChangelogHasValueSql(['result', 'secondary_result'])}
       AND record_id IN (
         SELECT lab_tests.id::text
         FROM lab_tests
@@ -471,6 +470,8 @@ patientRelations.get(
         WHERE lab_requests.encounter_id IN (
           SELECT id FROM encounters WHERE patient_id = :patientId AND deleted_at IS NULL
         )
+        AND lab_tests.deleted_at IS NULL
+        AND lab_requests.deleted_at IS NULL
         ${cteSelectionClause}
       )
     GROUP BY record_id
@@ -532,6 +533,7 @@ patientRelations.get(
   AND lab_requests.status = :status
   AND lab_requests.sample_time IS NOT NULL
   AND lab_requests.deleted_at IS NULL
+  AND lab_tests.deleted_at IS NULL
   AND CASE WHEN :canListSensitive IS TRUE
     THEN TRUE
     ELSE lab_test_types.is_sensitive IS FALSE
