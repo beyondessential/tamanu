@@ -77,19 +77,19 @@ describe('InvoiceRecordModal', () => {
 
   it('prints the A4 layout when the facility uses A4', () => {
     renderModal({ 'invoicing.printLayout': INVOICE_PRINT_LAYOUTS.A4 });
-    expect(screen.getByTestId('a4-printout')).toBeInTheDocument();
-    expect(screen.queryByTestId('receipt-printout')).not.toBeInTheDocument();
+    expect(screen.getByTestId('a4-printout')).toBeTruthy();
+    expect(screen.queryByTestId('receipt-printout')).toBeNull();
   });
 
   it('prints the A4 layout when no layout is set', () => {
     renderModal({});
-    expect(screen.getByTestId('a4-printout')).toBeInTheDocument();
+    expect(screen.getByTestId('a4-printout')).toBeTruthy();
   });
 
   it('prints the receipt layout when the facility uses receipts', () => {
     renderModal({ 'invoicing.printLayout': INVOICE_PRINT_LAYOUTS.RECEIPT });
-    expect(screen.getByTestId('receipt-printout')).toBeInTheDocument();
-    expect(screen.queryByTestId('a4-printout')).not.toBeInTheDocument();
+    expect(screen.getByTestId('receipt-printout')).toBeTruthy();
+    expect(screen.queryByTestId('a4-printout')).toBeNull();
   });
 
   it.each([
