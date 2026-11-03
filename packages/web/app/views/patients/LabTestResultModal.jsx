@@ -97,6 +97,14 @@ export const LabTestResultModal = React.memo(
   ({ open, onClose, labTestId, includeRequestLink = true }) => {
     const { data: labTest } = useLabTestQuery(labTestId);
     const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
+    // The history endpoint emits one entry per distinct value a field has taken, including its
+    // first fill. A result is only edited once a field has more than one entry — so a never-edited
+    // test with both a result and a secondary result (two first fills) must not show a change log.
+    const historyEntriesByField = history.reduce((counts, { fieldType }) => {
+      counts[fieldType] = (counts[fieldType] ?? 0) + 1;
+      return counts;
+    }, {});
+    const hasEdits = Object.values(historyEntriesByField).some(count => count > 1);
     const { loadLabRequest } = useLabRequest();
     const navigate = useNavigate();
     const { category = 'all' } = useParams();
@@ -233,7 +241,7 @@ export const LabTestResultModal = React.memo(
             />
           </Column>
         </ModalBody>
-        {history.length > 1 && (
+        {hasEdits && (
           <>
             <HistoryTitle data-testid="historytitle-hist">
               <TranslatedText

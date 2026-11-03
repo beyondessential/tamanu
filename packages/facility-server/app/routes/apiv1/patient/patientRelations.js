@@ -449,12 +449,16 @@ patientRelations.get(
       `WITH edited_tests AS (
     SELECT
       record_id,
-      COUNT(DISTINCT (record_data->>'result')) >= 2 AS is_edited
+      -- Edited when the result OR its secondary result has taken more than one non-empty value
+      -- over its audit history; first filling in a blank is not an edit. Mirrors
+      -- getEditedFieldsByLabTestId in labs.js so the asterisk and the modal change log agree.
+      (COUNT(DISTINCT record_data->>'result')
+         FILTER (WHERE NULLIF(TRIM(record_data->>'result'), '') IS NOT NULL) >= 2
+       OR COUNT(DISTINCT record_data->>'secondary_result')
+         FILTER (WHERE NULLIF(TRIM(record_data->>'secondary_result'), '') IS NOT NULL) >= 2) AS is_edited
     FROM logs.changes
     WHERE table_schema = 'public'
       AND table_name = 'lab_tests'
-      AND record_data->>'result' IS NOT NULL
-      AND TRIM(record_data->>'result') != ''
       AND record_id IN (
         SELECT lab_tests.id::text
         FROM lab_tests

@@ -1177,6 +1177,37 @@ describe('Patient relations', () => {
       expect(response.body.data).toEqual([]);
     });
 
+    it('marks a result as edited when only its secondary result changed', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const category = await randomReferenceData(models, 'labTestCategory');
+      const [testType] = await createLabTestTypes(models, category.id);
+      const labRequest = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: category.id,
+          labTestTypeIds: [testType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+      const [labTest] = await labRequest.getTests();
+      // Fill the result once (not an edit), then edit only the secondary result.
+      await labTest.update({ result: 'Positive', secondaryResult: 'A' });
+      await labTest.update({ secondaryResult: 'B' });
+
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ testIds: [testType.id] });
+      expect(response).toHaveSucceeded();
+      const test = response.body.data.find(row => row.testTypeId === testType.id);
+      expect(test).toBeDefined();
+      expect(Object.values(test.results).some(cell => cell.isEdited === true)).toBe(true);
+    });
+
     describe('with the SensitiveLabRequest permission', () => {
       disableHardcodedPermissionsForSuite();
 
