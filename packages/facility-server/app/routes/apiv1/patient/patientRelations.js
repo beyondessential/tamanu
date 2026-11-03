@@ -461,6 +461,11 @@ patientRelations.get(
     FROM logs.changes
     WHERE table_schema = 'public'
       AND table_name = 'lab_tests'
+      -- Discard rows where neither tracked field holds a value before aggregating; matches the
+      -- union of the two FILTERs below, so is_edited is unchanged but far fewer changelog rows
+      -- are scanned and grouped.
+      AND (NULLIF(TRIM(record_data->>'result'), '') IS NOT NULL
+           OR NULLIF(TRIM(record_data->>'secondary_result'), '') IS NOT NULL)
       AND record_id IN (
         SELECT lab_tests.id::text
         FROM lab_tests
