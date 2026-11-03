@@ -116,8 +116,8 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
             data-testid="buttonwithpermissioncheck-hjef"
           >
             <TranslatedText
-              stringId="lab.action.print"
-              fallback="Print"
+              stringId="lab.action.printRequest"
+              fallback="Print request"
               data-testid="translatedtext-923g"
             />
           </ButtonWithPermissionCheck>
