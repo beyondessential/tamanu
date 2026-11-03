@@ -4,7 +4,7 @@ id: DQLIM
 
 # Dose and dispensing quantity limits
 
-Each drug can carry an accepted range for its dose amount and for its dispensing quantity, to catch values entered in the wrong unit (500 tablets where 500 mg was meant) before they flow through to dispensing and invoicing. When a value entered while prescribing, sending to pharmacy, or dispensing falls outside the range, a warning appears inline below the field. The warning does not block saving: saving with a value outside the range is an override, which is recorded and flagged to pharmacy.
+Each drug can carry an accepted range for its dose amount and for its dispensing quantity, to catch values entered in the wrong unit (500 tablets where 500 mg was meant) before they flow through to dispensing and invoicing. When a value entered while prescribing, sending to pharmacy, or dispensing falls outside the range, a warning appears inline below the field. The warning does not block saving: saving with a value outside the range is an override, which is recorded.
 
 ## Configuration
 
@@ -45,8 +45,3 @@ Each drug can carry an accepted range for its dose amount and for its dispensing
 - [ ] An override reflects the record's saved values: editing a prescription so its values are back within range clears its override.
 - [ ] An override is fixed when saved. Changing a drug's limits later does not add or remove overrides on existing records.
 - [ ] An override made while dispensing is held on the dispense record for audit and reporting.
-
-## Pharmacy flags
-
-- [ ] On the dispense screen, an item whose prescription or pharmacy order item carries an override shows a warning below the medication name, so pharmacy can check the order before dispensing.
-- [ ] The warning uses the same wording as the inline warning, naming each limit that was crossed, e.g. "Above max of 2 tablets".
