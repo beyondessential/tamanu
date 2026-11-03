@@ -9,9 +9,13 @@ import {
 
 import { renderElementWithTranslatedText } from '../../helpers';
 
+const loadedQuery = data => ({ data, isFetching: false, isError: false });
+
 const mocks = vi.hoisted(() => ({
   a4Printout: vi.fn(() => <div data-testid="a4-printout" />),
   receiptPrintout: vi.fn(() => <div data-testid="receipt-printout" />),
+  usePatientAdditionalDataQuery: vi.fn(),
+  useReferenceDataQuery: vi.fn(),
 }));
 
 vi.mock('@tamanu/shared/utils/patientCertificates', () => ({
@@ -25,19 +29,18 @@ vi.mock('../../../app/components/PatientPrinting/PDFLoader', () => ({
   printPDF: () => {},
 }));
 
-const loadedQuery = data => ({ data, isFetching: false, isError: false });
-
 vi.mock('../../../app/utils/useCertificate', () => ({
   useCertificate: () => loadedQuery({ title: 'Facility', subTitle: 'Address' }),
 }));
 vi.mock('../../../app/api/queries/usePatientDataQuery', () => ({
-  usePatientDataQuery: () => loadedQuery({ id: 'patient-1', displayId: 'ABC123' }),
+  usePatientDataQuery: () =>
+    loadedQuery({ id: 'patient-1', displayId: 'ABC123', villageId: 'village-1' }),
 }));
 vi.mock('../../../app/api/queries/usePatientAdditionalDataQuery', () => ({
-  usePatientAdditionalDataQuery: () => loadedQuery({}),
+  usePatientAdditionalDataQuery: mocks.usePatientAdditionalDataQuery,
 }));
 vi.mock('../../../app/api/queries/useReferenceDataQuery', () => ({
-  useReferenceDataQuery: () => loadedQuery(null),
+  useReferenceDataQuery: mocks.useReferenceDataQuery,
 }));
 vi.mock('../../../app/contexts/Encounter', () => ({
   useEncounter: () => ({ encounter: { id: 'encounter-1' } }),
@@ -58,6 +61,16 @@ const invoice = {
   ],
 };
 
+const translations = { 'general.localisedField.displayId.label': 'NHN' };
+
+const translationContext = {
+  getTranslation: (_stringId, fallback) => fallback,
+  getEnumTranslation: (enumValues, value) => enumValues[value] ?? value,
+  updateStoredLanguage: () => {},
+  storedLanguage: 'en',
+  translations,
+};
+
 const renderModal = settings =>
   renderElementWithTranslatedText(
     <SettingsContext.Provider value={{ getSetting: key => settings[key] }}>
@@ -65,14 +78,17 @@ const renderModal = settings =>
         <InvoiceRecordModal open onClose={() => {}} invoice={invoice} />
       </DateTimeProviderContext.Provider>
     </SettingsContext.Provider>,
+    undefined,
+    translationContext,
   );
 
 const printedItemIds = printout => printout.mock.lastCall[0].invoice.items.map(item => item.id);
 
 describe('InvoiceRecordModal', () => {
   beforeEach(() => {
-    mocks.a4Printout.mockClear();
-    mocks.receiptPrintout.mockClear();
+    vi.clearAllMocks();
+    mocks.usePatientAdditionalDataQuery.mockReturnValue(loadedQuery({}));
+    mocks.useReferenceDataQuery.mockReturnValue(loadedQuery(null));
   });
 
   it('prints the A4 layout when the facility uses A4', () => {
@@ -98,5 +114,25 @@ describe('InvoiceRecordModal', () => {
   ])('leaves zeroed bed-fee lines off the %s layout', (_name, printLayout, printout) => {
     renderModal({ 'invoicing.printLayout': printLayout });
     expect(printedItemIds(printout)).toEqual(['item-1']);
+  });
+
+  it.each([
+    ['A4', INVOICE_PRINT_LAYOUTS.A4, mocks.a4Printout],
+    ['receipt', INVOICE_PRINT_LAYOUTS.RECEIPT, mocks.receiptPrintout],
+  ])("prints the %s layout in the deployment's translations", (_name, printLayout, printout) => {
+    renderModal({ 'invoicing.printLayout': printLayout });
+    expect(printout.mock.lastCall[0].translations).toBe(translations);
+  });
+
+  it("fetches the patient's additional data and village for the A4 layout", () => {
+    renderModal({ 'invoicing.printLayout': INVOICE_PRINT_LAYOUTS.A4 });
+    expect(mocks.usePatientAdditionalDataQuery).toHaveBeenLastCalledWith('patient-1');
+    expect(mocks.useReferenceDataQuery).toHaveBeenLastCalledWith('village-1');
+  });
+
+  it("doesn't fetch the patient's additional data or village for the receipt layout", () => {
+    renderModal({ 'invoicing.printLayout': INVOICE_PRINT_LAYOUTS.RECEIPT });
+    expect(mocks.usePatientAdditionalDataQuery).toHaveBeenLastCalledWith(null);
+    expect(mocks.useReferenceDataQuery).toHaveBeenLastCalledWith(null);
   });
 });

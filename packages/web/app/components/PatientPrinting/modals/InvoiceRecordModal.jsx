@@ -52,13 +52,24 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const patientQuery = usePatientDataQuery(invoice.encounter.patientId);
   const patient = patientQuery.data;
 
-  const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
+  // Only the A4 layout prints the patient's additional data and village, so the receipt doesn't
+  // fetch them and isn't held up waiting on them
+  const padDataQuery = usePatientAdditionalDataQuery(isReceiptLayout ? null : patient?.id);
   const { data: additionalData } = padDataQuery;
 
-  const villageQuery = useReferenceDataQuery(patient?.villageId);
+  const villageQuery = useReferenceDataQuery(isReceiptLayout ? null : patient?.villageId);
   const village = villageQuery.data;
 
   const allQueries = combineQueries([patientQuery, certificateQuery, villageQuery, padDataQuery]);
+
+  // What both layouts need, so neither can drop a prop the other is given
+  const printoutProps = {
+    certificateData,
+    getSetting,
+    invoice: printableInvoice,
+    translations,
+    primaryTimeZone,
+  };
 
   const modalProps = {
     title: (
@@ -94,24 +105,17 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
       <PDFLoader isLoading={allQueries.isFetching} id="invoice-record" data-testid="pdfloader-yikw">
         {isReceiptLayout ? (
           <InvoiceReceiptPrintout
+            {...printoutProps}
             patientData={patient}
-            certificateData={certificateData}
-            getSetting={getSetting}
-            invoice={printableInvoice}
-            primaryTimeZone={primaryTimeZone}
             data-testid="invoicereceiptprintout-k4vd"
           />
         ) : (
           <InvoiceRecordPrintout
+            {...printoutProps}
             patientData={{ ...patient, additionalData, village }}
             encounter={encounter}
-            certificateData={certificateData}
-            getSetting={getSetting}
             clinicianText={clinicianText}
-            invoice={printableInvoice}
             enablePatientInsurer={enablePatientInsurer}
-            translations={translations}
-            primaryTimeZone={primaryTimeZone}
             data-testid="invoicerecordprintout-0r2o"
           />
         )}

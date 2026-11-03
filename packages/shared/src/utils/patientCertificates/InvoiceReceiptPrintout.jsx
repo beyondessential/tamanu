@@ -117,12 +117,21 @@ const PatientDetailsSection = ({ patient }) => {
         label={getTranslation('general.name.label', 'Name')}
         value={getName(patient)}
       />
+      {/* Like the A4 patient details, prefer the deployment's short name for a field */}
       <LabelledValue
-        label={getTranslation('general.localisedField.dateOfBirth.label', 'Date of birth')}
+        label={
+          getTranslation('general.localisedField.dateOfBirth.label.short') ||
+          getTranslation('general.localisedField.dateOfBirth.label') ||
+          'Date of birth'
+        }
         value={getDob(patient, { getTranslation, formatShort })}
       />
       <LabelledValue
-        label={getTranslation('general.localisedField.displayId.label', 'Patient ID')}
+        label={
+          getTranslation('general.localisedField.displayId.label.short') ||
+          getTranslation('general.localisedField.displayId.label') ||
+          'Patient ID'
+        }
         value={patient.displayId}
       />
     </Section>
@@ -215,6 +224,7 @@ const PatientTotalDueSection = ({ totals }) => {
 };
 
 const InvoiceReceiptPrintoutComponent = ({ patientData, certificateData, invoice, getSetting }) => {
+  const items = invoice.items ?? [];
   const totals = getInvoiceReceiptTotalsDisplay(invoice, {
     isSlidingFeeScaleEnabled: Boolean(getSetting('features.invoicing.slidingFeeScale')),
   });
@@ -229,8 +239,12 @@ const InvoiceReceiptPrintoutComponent = ({ patientData, certificateData, invoice
         <Divider />
         <InvoiceSection invoice={invoice} />
         <Divider />
-        <LineItemsSection items={invoice.items ?? []} />
-        <Divider />
+        {items.length > 0 && (
+          <>
+            <LineItemsSection items={items} />
+            <Divider />
+          </>
+        )}
         <DetailsSection totals={totals} />
         <Divider />
         <PatientTotalDueSection totals={totals} />
