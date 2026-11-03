@@ -17,9 +17,11 @@ import {
   createLabTestTypes,
   randomRecords,
   randomLabRequest,
+  randomDate,
   splitIds,
   randomSensitiveLabRequest,
 } from '@tamanu/database/demoData';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
@@ -478,38 +480,185 @@ describe('Suggestions', () => {
       encounterId = encounter.id;
     });
 
-    it('should still include a historical (no longer current) panel if the patient has a published lab request ordered under it', async () => {
+    const orderPanelUnder = async (panelId, labTestTypeIds, categoryId) =>
+      models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId,
+          labTestPanelId: panelId,
+          labTestTypeIds,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+          encounterId,
+        }),
+      );
+
+    it('suggests panels ordered under (including historical ones), not panels that merely contain a resulted test', async () => {
       const { id: categoryId } = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
         type: 'labTestCategory',
       });
       const [labTestType] = await createLabTestTypes(models, categoryId);
 
-      const { id: panelId } = await models.LabTestPanel.create({
+      const { id: orderedPanelId } = await models.LabTestPanel.create({
         ...fake(models.LabTestPanel),
         visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
       });
       await models.LabTestPanelLabTestTypes.create({
-        labTestPanelId: panelId,
+        labTestPanelId: orderedPanelId,
         labTestTypeId: labTestType.id,
       });
 
-      await models.LabRequest.createWithTests(
-        await randomLabRequest(models, {
-          categoryId,
-          labTestPanelId: panelId,
-          labTestTypeIds: [labTestType.id],
-          status: LAB_REQUEST_STATUSES.PUBLISHED,
-          encounterId,
-        }),
-      );
+      // Same test, a different panel it was NOT ordered under — must not be suggested.
+      const { id: unorderedPanelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: unorderedPanelId,
+        labTestTypeId: labTestType.id,
+      });
+
+      await orderPanelUnder(orderedPanelId, [labTestType.id], categoryId);
 
       const result = await userApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
         patientId,
         status: LAB_REQUEST_STATUSES.PUBLISHED,
       });
       expect(result).toHaveSucceeded();
-      expect(result.body.map(({ id }) => id)).toEqual([panelId]);
+      const ids = result.body.map(({ id }) => id);
+      expect(ids).toContain(orderedPanelId);
+      expect(ids).not.toContain(unorderedPanelId);
+    });
+
+    it('hides a wholly-sensitive panel from a user without permission, including on the searchById path', async () => {
+      const { id: categoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [sensitiveType] = await createLabTestTypes(models, categoryId, { isSensitive: true });
+      const { id: sensitivePanelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: sensitivePanelId,
+        labTestTypeId: sensitiveType.id,
+      });
+      await orderPanelUnder(sensitivePanelId, [sensitiveType.id], categoryId);
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ id }) => id)).not.toContain(sensitivePanelId);
+
+      // searchById strips the where's Op.and, so the sensitivity filter must live inside the id
+      // subquery to survive it — confirm the panel stays hidden on that path too.
+      const byId = await userApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        searchById: 'true',
+        q: sensitivePanelId,
+      });
+      expect(byId).toHaveSucceeded();
+      expect(byId.body.map(({ id }) => id)).not.toContain(sensitivePanelId);
+    });
+
+    describe('with the SensitiveLabRequest permission', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('shows a wholly-sensitive panel to a permitted user', async () => {
+        const { id: categoryId } = await models.ReferenceData.create({
+          ...fake(models.ReferenceData),
+          type: 'labTestCategory',
+        });
+        const [sensitiveType] = await createLabTestTypes(models, categoryId, { isSensitive: true });
+        const { id: sensitivePanelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+        await models.LabTestPanelLabTestTypes.create({
+          labTestPanelId: sensitivePanelId,
+          labTestTypeId: sensitiveType.id,
+        });
+        await orderPanelUnder(sensitivePanelId, [sensitiveType.id], categoryId);
+
+        const permittedApp = await baseApp.asNewRole([
+          ['list', 'LabTestPanel'],
+          ['list', 'SensitiveLabRequest'],
+        ]);
+        const result = await permittedApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
+          patientId,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.map(({ id }) => id)).toContain(sensitivePanelId);
+      });
+    });
+  });
+
+  describe('patientLabTestTypes', () => {
+    let patientId;
+    let encounterId;
+
+    beforeAll(async () => {
+      patientId = (await models.Patient.create(await createDummyPatient(models))).id;
+      const encounter = await models.Encounter.create(
+        await createDummyEncounter(models, { patientId }),
+      );
+      encounterId = encounter.id;
+    });
+
+    it('suggests only test types the patient has a dated published request for, and hides sensitive ones without permission', async () => {
+      const { id: categoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [orderedType, unorderedType] = await createLabTestTypes(models, categoryId);
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId,
+          labTestTypeIds: [orderedType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+          encounterId,
+        }),
+      );
+      const sensitiveData = await randomSensitiveLabRequest(models, {
+        patientId,
+        encounterId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        sampleTime: randomDate(),
+      });
+      await models.LabRequest.createWithTests(sensitiveData);
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      const ids = result.body.map(({ id }) => id);
+      expect(ids).toContain(orderedType.id);
+      expect(ids).not.toContain(unorderedType.id);
+      sensitiveData.labTestTypeIds.forEach(sensitiveId => expect(ids).not.toContain(sensitiveId));
+    });
+
+    describe('with the SensitiveLabRequest permission', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('shows sensitive test types to a permitted user', async () => {
+        const sensitiveData = await randomSensitiveLabRequest(models, {
+          patientId,
+          encounterId,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        });
+        await models.LabRequest.createWithTests(sensitiveData);
+
+        const permittedApp = await baseApp.asNewRole([
+          ['list', 'LabTestType'],
+          ['list', 'SensitiveLabRequest'],
+        ]);
+        const result = await permittedApp.get('/v1/suggestions/patientLabTestTypes').query({
+          patientId,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+        });
+        expect(result).toHaveSucceeded();
+        const ids = result.body.map(({ id }) => id);
+        sensitiveData.labTestTypeIds.forEach(sensitiveId => expect(ids).toContain(sensitiveId));
+      });
     });
   });
 
