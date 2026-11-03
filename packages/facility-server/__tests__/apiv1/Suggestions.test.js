@@ -689,6 +689,28 @@ describe('Suggestions', () => {
       expect(result.body.map(({ id }) => id)).not.toContain(orderedType.id);
     });
 
+    it('hides a sensitive test type on the searchById path for a user without permission', async () => {
+      const sensitiveData = await randomSensitiveLabRequest(models, {
+        patientId,
+        encounterId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        sampleTime: randomDate(),
+      });
+      await models.LabRequest.createWithTests(sensitiveData);
+      const [sensitiveId] = sensitiveData.labTestTypeIds;
+
+      // searchById rewrites the where clause; the sensitivity filter is a plain key, so it must
+      // survive and keep the sensitive test hidden on this path too.
+      const byId = await userApp.get('/v1/suggestions/patientLabTestTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        searchById: 'true',
+        q: sensitiveId,
+      });
+      expect(byId).toHaveSucceeded();
+      expect(byId.body.map(({ id }) => id)).not.toContain(sensitiveId);
+    });
+
     describe('with the SensitiveLabRequest permission', () => {
       disableHardcodedPermissionsForSuite();
 
