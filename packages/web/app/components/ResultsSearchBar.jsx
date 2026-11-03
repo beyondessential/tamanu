@@ -55,15 +55,15 @@ const TEST_PREFIX = 'test:';
 
 export const ResultsSearchBar = React.memo(
   ({ setSearchParameters, searchParameters, patientId, disabled }) => {
-    const categorySuggester = useSuggester('patientLabTestCategories', {
-      baseQueryParameters: { patientId },
-    });
-    const panelSuggester = useSuggester('patientLabTestPanelTypes', {
-      baseQueryParameters: { patientId },
-    });
-    const testSuggester = useSuggester('patientLabTestTypes', {
-      baseQueryParameters: { patientId },
-    });
+    // One stable options object keeps each useSuggester (and the merged suggester below) identity
+    // stable across renders, so MultiAutocompleteInput's debounce timer survives between keystrokes.
+    const suggesterOptions = useMemo(
+      () => ({ baseQueryParameters: { patientId } }),
+      [patientId],
+    );
+    const categorySuggester = useSuggester('patientLabTestCategories', suggesterOptions);
+    const panelSuggester = useSuggester('patientLabTestPanelTypes', suggesterOptions);
+    const testSuggester = useSuggester('patientLabTestTypes', suggesterOptions);
 
     // One field suggests both tests and panels, listed together by name. Each option is tagged with
     // its kind in the value (panel:<id> / test:<id>) so the two can be told apart when filtering.
