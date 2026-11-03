@@ -1024,6 +1024,10 @@ createSuggester(
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
     }
 
+    // Gate patient-scoped suggestions on the lab-results permission (not just the reference-
+    // data list permission the route checked), since they expose which tests a patient has.
+    req.checkPermission('list', 'LabTest');
+
     // A category that's no longer active (visibilityStatus !== current) should still be
     // selectable here as long as the patient actually has a published lab request against
     // it — skip the usual "current only" visibility filter and rely on the patient-scoped
@@ -1090,6 +1094,10 @@ createSuggester(
       return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     }
 
+    // Gate patient-scoped suggestions on the lab-results permission (not just the reference-
+    // data list permission the route checked), since they expose which tests a patient has.
+    req.checkPermission('list', 'LabTest');
+
     // A panel that's no longer active (visibilityStatus !== current) should still be
     // selectable here as long as the patient actually has a published lab request ordered
     // under it — skip the usual "current only" visibility filter and rely on the
@@ -1155,6 +1163,10 @@ createSuggester(
     if (!query.patientId) {
       return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     }
+
+    // Gate patient-scoped suggestions on the lab-results permission (not just the reference-
+    // data list permission the route checked), since they expose which tests a patient has.
+    req.checkPermission('list', 'LabTest');
 
     // A test type that's no longer active (visibilityStatus !== current) should still be
     // selectable here as long as the patient has a published result for it — skip the usual

@@ -607,6 +607,7 @@ describe('Suggestions', () => {
 
         const permittedApp = await baseApp.asNewRole([
           ['list', 'LabTestPanel'],
+          ['list', 'LabTest'],
           ['list', 'SensitiveLabRequest'],
         ]);
         const result = await permittedApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
@@ -711,6 +712,18 @@ describe('Suggestions', () => {
       expect(byId.body.map(({ id }) => id)).not.toContain(sensitiveId);
     });
 
+    describe('without the lab-results permission', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('forbids patient-scoped suggestions for a user who cannot list lab tests', async () => {
+        const noLabTestApp = await baseApp.asNewRole([['list', 'LabTestType']]);
+        const result = await noLabTestApp
+          .get('/v1/suggestions/patientLabTestTypes')
+          .query({ patientId });
+        expect(result).toBeForbidden();
+      });
+    });
+
     describe('with the SensitiveLabRequest permission', () => {
       disableHardcodedPermissionsForSuite();
 
@@ -725,6 +738,7 @@ describe('Suggestions', () => {
 
         const permittedApp = await baseApp.asNewRole([
           ['list', 'LabTestType'],
+          ['list', 'LabTest'],
           ['list', 'SensitiveLabRequest'],
         ]);
         const result = await permittedApp.get('/v1/suggestions/patientLabTestTypes').query({
