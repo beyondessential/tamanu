@@ -158,7 +158,9 @@ export const PatientLabTestsTable = React.memo(
 
       const individualTestIds = pickedTestIds
         .filter(testTypeId => byTypeId.has(testTypeId))
-        .sort((a, b) => byTypeId.get(a).testType.localeCompare(byTypeId.get(b).testType));
+        .sort((a, b) =>
+          (byTypeId.get(a).testType ?? '').localeCompare(byTypeId.get(b).testType ?? ''),
+        );
       for (const testTypeId of individualTestIds) {
         displayRows.push({
           ...byTypeId.get(testTypeId),
