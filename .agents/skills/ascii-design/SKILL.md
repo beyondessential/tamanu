@@ -2,10 +2,8 @@
 name: ascii-design
 description: "Run a quick UX/UI workshop using ASCII-art sketches"
 label: "ASCII design chat"
-pill-order:
-  not-started: 5
-  specifying: 11
-workhorse-version: 0.3.0
+category: design
+workhorse-version: 0.7.9
 ---
 
 ## Your task: ASCII design chat
