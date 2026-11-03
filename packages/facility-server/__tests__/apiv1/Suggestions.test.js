@@ -527,6 +527,36 @@ describe('Suggestions', () => {
       expect(ids).not.toContain(unorderedPanelId);
     });
 
+    it('does not suggest a panel ordered under a request with no sample time', async () => {
+      const { id: categoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [labTestType] = await createLabTestTypes(models, categoryId);
+      const { id: panelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: panelId,
+        labTestTypeId: labTestType.id,
+      });
+      // randomLabRequest leaves sampleTime null; an unsampled order must not surface the panel.
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId,
+          labTestPanelId: panelId,
+          labTestTypeIds: [labTestType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ id }) => id)).not.toContain(panelId);
+    });
+
     it('hides a wholly-sensitive panel from a user without permission, including on the searchById path', async () => {
       const { id: categoryId } = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
@@ -633,6 +663,30 @@ describe('Suggestions', () => {
       expect(ids).toContain(orderedType.id);
       expect(ids).not.toContain(unorderedType.id);
       sensitiveData.labTestTypeIds.forEach(sensitiveId => expect(ids).not.toContain(sensitiveId));
+    });
+
+    it('does not suggest a test type from a request with no sample time', async () => {
+      const { id: categoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [orderedType] = await createLabTestTypes(models, categoryId);
+      // randomLabRequest leaves sampleTime null; an unsampled result must not surface the test.
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId,
+          labTestTypeIds: [orderedType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ id }) => id)).not.toContain(orderedType.id);
     });
 
     describe('with the SensitiveLabRequest permission', () => {

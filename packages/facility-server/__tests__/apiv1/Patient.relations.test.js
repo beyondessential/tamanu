@@ -1208,6 +1208,72 @@ describe('Patient relations', () => {
       expect(Object.values(test.results).some(cell => cell.isEdited === true)).toBe(true);
     });
 
+    it('does not mark a result as edited when its result and secondary result were each filled once', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const category = await randomReferenceData(models, 'labTestCategory');
+      const [testType] = await createLabTestTypes(models, category.id);
+      const labRequest = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: category.id,
+          labTestTypeIds: [testType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+      const [labTest] = await labRequest.getTests();
+      // A single fill of each field is not an edit (the TAM-3101 regression).
+      await labTest.update({ result: 'Positive', secondaryResult: 'A' });
+
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ testIds: [testType.id] });
+      expect(response).toHaveSucceeded();
+      const test = response.body.data.find(row => row.testTypeId === testType.id);
+      expect(test).toBeDefined();
+      expect(Object.values(test.results).every(cell => cell.isEdited === false)).toBe(true);
+    });
+
+    it('returns results for a large selection of test ids, past the qs array limit', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const category = await randomReferenceData(models, 'labTestCategory');
+      // More than qs's default arrayLimit (20), so the query string degrades to an index-keyed
+      // object that toArrayParam must normalise back to a list — the spec allows unlimited picks.
+      const manyTypes = await Promise.all(
+        Array.from({ length: 25 }, () =>
+          models.LabTestType.create({
+            ...fake(models.LabTestType),
+            labTestCategoryId: category.id,
+          }),
+        ),
+      );
+      const typeIds = manyTypes.map(type => type.id);
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: category.id,
+          labTestTypeIds: typeIds,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ testIds: typeIds });
+      expect(response).toHaveSucceeded();
+      const returnedIds = response.body.data.map(row => row.testTypeId);
+      typeIds.forEach(id => expect(returnedIds).toContain(id));
+    });
+
     describe('with the SensitiveLabRequest permission', () => {
       disableHardcodedPermissionsForSuite();
 
