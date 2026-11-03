@@ -30,7 +30,7 @@ Each drug can carry an accepted range for its dose amount and for its dispensing
 
 - [ ] When a value is outside the range, a warning appears directly below the field.
 - [ ] The warning updates as the value is typed, without waiting for the user to leave the field or save. It appears as soon as the value moves outside the range and clears as soon as it is back within the range or the field is emptied, e.g. changing a dose of 300 tablets to 2 against a maximum of 3 tablets clears the warning.
-- [ ] The warning names the limit that was crossed and its value in the drug's unit, e.g. "Above max of 2 tablets" or "Below min of 1 tablet".
+- [ ] The warning names the limit that was crossed and its value in the drug's unit, e.g. "Above expected max of 2 tablets" or "Below expected min of 1 tablet".
 - [ ] The warning does not prevent saving. The form or table submits as normal with the value as entered.
 - [ ] In the send to pharmacy, discharge, and dispense tables, the warning appears below the quantity input on that item's row.
 - [ ] In the send to pharmacy and discharge tables, a dose amount outside the range shows its warning below the dose on that item's row: in the dose column when sending to pharmacy, and below the dose and frequency line under the medication name when discharging. The dose is not editable there, so the warning stays for as long as the modal is open.
