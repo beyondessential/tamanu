@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { route } from '@tamanu/api-client';
 
+import { VisuallyHidden } from '@tamanu/ui-components';
+import { useAuth } from '../contexts/Auth';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { MenuButton } from './MenuButton';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
 
 const getProcedureLabel = ({ procedureType }) => (
@@ -51,14 +55,52 @@ const COLUMNS = [
   },
 ];
 
-export const ProcedureTable = React.memo(({ encounterId, onItemClick, refreshCount }) => (
-  <DataFetchingTable
-    columns={COLUMNS}
-    endpoint={route('encounter/:encounterId/procedures', { encounterId })}
-    onRowClick={row => onItemClick(row)}
-    elevated={false}
-    initialSort={{ orderBy: 'date', order: 'desc' }}
-    refreshCount={refreshCount}
-    data-testid="datafetchingtable-ks0b"
-  />
-));
+// spec: PROC#actions-menu
+const buildActionsColumn = onDelete => ({
+  key: 'actions',
+  title: (
+    <VisuallyHidden>
+      <TranslatedText stringId="general.table.column.actions" fallback="Actions" />
+    </VisuallyHidden>
+  ),
+  numeric: true, // Not really, but right-aligns the menu at the far end of the row
+  dontCallRowInput: true,
+  sortable: false,
+  isExportable: false,
+  CellComponent: ({ data }) => (
+    <MenuButton
+      a11yLabel={<TranslatedText stringId="procedure.table.actions" fallback="Procedure actions" />}
+      actions={[
+        {
+          label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+          action: () => onDelete(data),
+          wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
+        },
+      ]}
+      buttonTestId="menubutton-procedure-actions"
+    />
+  ),
+});
+
+export const ProcedureTable = React.memo(
+  ({ encounterId, onItemClick, onDeleteItem, refreshCount }) => {
+    const { ability } = useAuth();
+    const canDeleteProcedure = Boolean(ability?.can('delete', 'Procedure'));
+    const columns = useMemo(
+      () => (canDeleteProcedure ? [...COLUMNS, buildActionsColumn(onDeleteItem)] : COLUMNS),
+      [canDeleteProcedure, onDeleteItem],
+    );
+
+    return (
+      <DataFetchingTable
+        columns={columns}
+        endpoint={route('encounter/:encounterId/procedures', { encounterId })}
+        onRowClick={row => onItemClick(row)}
+        elevated={false}
+        initialSort={{ orderBy: 'date', order: 'desc' }}
+        refreshCount={refreshCount}
+        data-testid="datafetchingtable-ks0b"
+      />
+    );
+  },
+);

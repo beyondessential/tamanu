@@ -22,6 +22,7 @@ const SORT_KEYS = {
   dateOfBirth: 'patients.date_of_birth',
   sex: 'patients.sex',
   patientStatus: 'latest_discharges.patient_status',
+  locationGroupName: 'UPPER(location_group.name)',
   departmentName: 'UPPER(department.name)',
   clinician: 'UPPER(discharger.display_name)',
   dischargeDate: 'latest_discharges.end_date',
@@ -37,6 +38,7 @@ const createSearchFilters = filterParams => {
     makeSubstringTextFilter('firstName', 'patients.first_name'),
     makeSubstringTextFilter('lastName', 'patients.last_name'),
     makeFilter(filterParams.patientStatus, 'patient_statuses.patient_status = :patientStatus'),
+    makeFilter(filterParams.locationGroupId, 'locations.location_group_id = :locationGroupId'),
     makeFilter(filterParams.departmentId, 'encounters.department_id = :departmentId'),
     makeFilter(
       filterParams.dischargingClinicianId,
@@ -63,6 +65,7 @@ const buildLatestDischargesCte = searchClauses => `
       encounters.patient_id,
       encounters.end_date,
       encounters.department_id,
+      locations.location_group_id,
       patient_statuses.patient_status,
       discharges.discharger_id
     FROM encounters
@@ -151,12 +154,16 @@ recentlyDischargedPatients.get(
           patients.sex,
           latest_discharges.patient_status AS "patientStatus",
           latest_discharges.end_date AS "dischargeDate",
+          location_group.id AS "locationGroupId",
+          location_group.name AS "locationGroupName",
           department.id AS "departmentId",
           department.name AS "departmentName",
           discharger.display_name AS clinician
         FROM latest_discharges
           JOIN patients
             ON patients.id = latest_discharges.patient_id
+          LEFT JOIN location_groups AS location_group
+            ON location_group.id = latest_discharges.location_group_id
           LEFT JOIN departments AS department
             ON department.id = latest_discharges.department_id
           LEFT JOIN users AS discharger

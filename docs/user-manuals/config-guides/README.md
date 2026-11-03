@@ -21,7 +21,7 @@ what is still to be written.
 | # | Module | Guides |
 | --- | --- | --- |
 | 1 | [Deploying Tamanu](01-deploying-tamanu/) | Not written yet |
-| 2 | [Users](02-users/) | Not written yet |
+| 2 | [Users](02-users/) | 2.1 [Reference data](02-users/01-reference-data.md) &middot; 2.2 [Settings](02-users/02-settings.md) &middot; 2.3 [Permissions](02-users/03-permissions.md) |
 | 3 | [Patients](03-patients/) | Not written yet |
 | 4 | [Clinician Dashboard](04-clinician-dashboard/) | Not written yet |
 | 5 | [Scheduling](05-scheduling/) | Not written yet |
