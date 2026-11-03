@@ -36,6 +36,7 @@ import {
   EDITABLE_LAB_TEST_FIELDS,
   labTestChangelogHasValueSql,
   labTestFieldEditedSql,
+  labTestResultCellEditedSql,
 } from '../../utils/labTestEdited';
 import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
@@ -65,7 +66,7 @@ const getEditedFieldsByLabTestId = async (db, labRequestId) => {
      FROM logs.changes
      WHERE table_schema = 'public'
        AND table_name = 'lab_tests'
-       AND (${labTestChangelogHasValueSql(auditColumns)})
+       AND ${labTestChangelogHasValueSql(auditColumns)}
        AND record_id IN (
          SELECT id::text FROM lab_tests WHERE lab_request_id = :labRequestId
        )
@@ -79,6 +80,23 @@ const getEditedFieldsByLabTestId = async (db, labRequestId) => {
       auditColumns.filter(column => row[column]).map(column => EDITABLE_LAB_TEST_FIELDS[column]),
     ]),
   );
+};
+
+// Whether a single test's result cell is edited. Keyed by equality on record_id (uncast) so the
+// hash index on logs.changes.record_id applies — this runs on the result-detail modal's page-load
+// path. Shares the result-cell rule with the patient grid CTE.
+const isLabTestResultCellEdited = async (db, labTestId) => {
+  const rows = await db.query(
+    `SELECT ${labTestResultCellEditedSql()} AS is_edited
+     FROM logs.changes
+     WHERE table_schema = 'public'
+       AND table_name = 'lab_tests'
+       AND ${labTestChangelogHasValueSql(['result', 'secondary_result'])}
+       AND record_id = :labTestId
+     GROUP BY record_id`,
+    { replacements: { labTestId }, type: QueryTypes.SELECT },
+  );
+  return rows[0]?.is_edited ?? false;
 };
 
 // Attach each category's default specimen type (a reference-data relation) so the sample-recording
@@ -871,16 +889,9 @@ labTest.get(
 
     changes.reverse();
 
-    // The result cell surfaces both the result and its secondary result, so it is edited when
-    // either has changed. Derived from the same query the results tables use rather than re-derived
-    // from the history above, so the modal's change log and the tables' asterisk always agree.
-    const editedFieldsByTestId = await getEditedFieldsByLabTestId(req.db, labTest.labRequestId);
-    const editedFields = editedFieldsByTestId.get(labTestId) ?? [];
-    const isEdited = editedFields.some(
-      field =>
-        field === EDITABLE_LAB_TEST_FIELDS.result ||
-        field === EDITABLE_LAB_TEST_FIELDS.secondary_result,
-    );
+    // The result cell's edited flag comes from the same rule the results tables use, so the modal's
+    // change log and the tables' asterisk always agree — rather than being re-derived here.
+    const isEdited = await isLabTestResultCellEdited(req.db, labTestId);
 
     res.send({ changes, isEdited });
   }),

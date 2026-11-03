@@ -1540,6 +1540,17 @@ describe('Labs', () => {
         });
       });
 
+      it('reports isEdited false when the result and secondary result were each filled once', async () => {
+        const [labTest] = await labRequest.getTests();
+        // A single fill of each field is not an edit (the TAM-3101 regression).
+        await labTest.update({ result: 'Only result', secondaryResult: 'Only secondary' });
+
+        const response = await app.get(`/api/labTest/${labTest.id}/history`);
+        expect(response).toHaveSucceeded();
+        expect(response.body.isEdited).toBe(false);
+        expect(response.body.changes.length).toBeGreaterThan(0);
+      });
+
       it('should error if lab test is sensitive', async () => {
         const labRequestData = await randomSensitiveLabRequest(models, {
           patientId,

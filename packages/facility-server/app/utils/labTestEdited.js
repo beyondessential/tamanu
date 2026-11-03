@@ -18,10 +18,17 @@ export const labTestFieldEditedSql = column =>
   `COUNT(DISTINCT record_data->>'${column}')
      FILTER (WHERE NULLIF(TRIM(record_data->>'${column}'), '') IS NOT NULL) >= 2`;
 
-// A changelog row is worth aggregating only if at least one tracked column holds a value; this
-// prunes the blank rows before GROUP BY. Matches the union of the per-field FILTERs, so the edited
-// flags are unchanged. Columns are literals from the map above, never query input.
+// The result cell surfaces both the result and its secondary result, so it is edited when either
+// has changed. Shared by the patient grid CTE and the single-test lookup so the asterisk, the lab
+// request table and the modal change log always agree.
+export const labTestResultCellEditedSql = () =>
+  `(${labTestFieldEditedSql('result')}
+       OR ${labTestFieldEditedSql('secondary_result')})`;
+
+// A self-contained (parenthesised) predicate that keeps only changelog rows where at least one
+// tracked column holds a value, pruning the blank rows before GROUP BY. Matches the union of the
+// per-field FILTERs, so the edited flags are unchanged. Columns are literals, never query input.
 export const labTestChangelogHasValueSql = (columns = Object.keys(EDITABLE_LAB_TEST_FIELDS)) =>
-  columns
+  `(${columns
     .map(column => `NULLIF(TRIM(record_data->>'${column}'), '') IS NOT NULL`)
-    .join('\n       OR ');
+    .join('\n       OR ')})`;
