@@ -20,7 +20,7 @@ import { useSettings } from '../../../contexts/Settings';
 import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
 export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
-  const { getTranslation } = useTranslation();
+  const { getTranslation, translations } = useTranslation();
   const clinicianText = getTranslation(
     'general.localisedField.clinician.label.short',
     'Clinician',
@@ -94,6 +94,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           clinicianText={clinicianText}
           invoice={printableInvoice}
           enablePatientInsurer={enablePatientInsurer}
+          translations={translations}
           primaryTimeZone={primaryTimeZone}
           data-testid="invoicerecordprintout-0r2o"
         />
