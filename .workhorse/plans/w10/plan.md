@@ -15,6 +15,7 @@ Mockup: `.workhorse/design/mockups/w10/Mockup.html`
 - A search needs at least one criterion. Selecting Search with every field blank keeps the empty state, so a blank search can't be used to get around it
 - "Include deceased patients" is a modifier, not a criterion: ticking it alone keeps the empty state
 - Clear returns to the empty state
+- Search and Clear are disabled until at least one criterion has a non-blank value. Ticking "Include deceased patients" alone leaves them disabled
 - Fields containing only spaces count as blank
 - Sex, village and date-of-birth range count as criteria on their own, so a search on one of them alone lists results the way it does today
 - Users without permission to list patients keep the existing no-permission state rather than the guided empty state

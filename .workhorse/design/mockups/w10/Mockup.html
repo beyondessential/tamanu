@@ -131,6 +131,8 @@
   .search-button { margin: 0 20px 0 6px; }
   .clear-button { color: #5b84ad; font-size: 14px; font-weight: 500; line-height: 16px; }
   .clear-button:hover { color: #23476b; text-decoration: underline; }
+  .button-contained:disabled { background: #c2d2e1; cursor: default; }
+  .clear-button:disabled { color: rgba(0, 0, 0, 0.26); text-decoration: none; cursor: default; }
 
   /* Patient table */
   .table-container { width: 100%; overflow: auto; border: 1px solid var(--outline); border-top: none; border-radius: 0 0 5px 5px; background: var(--white); }
@@ -388,8 +390,8 @@
             <button class="icon-button advanced-toggle" type="button" aria-controls="advancedSearchFields" aria-expanded="false" aria-label="show advanced search" title="Advanced search">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6.41 16.59 5 12 9.58 7.41 5 6 6.41l6 6z"/><path d="m18 13-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
             </button>
-            <button class="button button-contained search-button" type="submit">Search</button>
-            <button class="clear-button" type="button">Clear</button>
+            <button class="button button-contained search-button" type="submit" disabled>Search</button>
+            <button class="clear-button" type="button" disabled>Clear</button>
           </div>
         </div>
         <div class="search-grid" id="advancedSearchFields" hidden>
@@ -460,6 +462,23 @@
     advancedToggle.setAttribute('aria-label', isExpanded ? 'show advanced search' : 'hide advanced search');
     advancedToggle.title = isExpanded ? 'Advanced search' : 'Hide advanced search';
     advancedFields.hidden = isExpanded;
+  });
+
+  // Search and Clear stay disabled until a criterion is entered. "Include deceased patients" is not a criterion.
+  const searchForm = document.querySelector('.search-bar');
+  const criterionInputs = searchForm.querySelectorAll('input[type="text"]');
+  const searchButton = searchForm.querySelector('.search-button');
+  const clearButton = searchForm.querySelector('.clear-button');
+  const updateButtons = () => {
+    const hasCriteria = [...criterionInputs].some(input => input.value.trim() !== '');
+    searchButton.disabled = !hasCriteria;
+    clearButton.disabled = !hasCriteria;
+  };
+  searchForm.addEventListener('input', updateButtons);
+  searchForm.addEventListener('submit', event => event.preventDefault());
+  clearButton.addEventListener('click', () => {
+    searchForm.reset();
+    updateButtons();
   });
 </script>
 </body>
