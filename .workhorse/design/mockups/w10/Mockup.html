@@ -167,6 +167,20 @@
   .empty-state-title { margin: 0 0 6px; color: var(--primary-dark); font-size: 16px; font-weight: 500; }
   .empty-state-hint { margin: 0; color: var(--text-secondary); font-size: 14px; }
   .empty-state-hint .inline-icon { margin: 0 -1px; color: var(--primary); font-size: 18px; vertical-align: -4px; }
+  /* Advanced search fields */
+  .search-grid[hidden] { display: none; }
+  .advanced-toggle .icon { transition: rotate 200ms; }
+  .advanced-toggle[aria-expanded="true"] .icon { rotate: x 0.5turn; }
+  .two-columns-field { display: flex; grid-column: span 2; gap: 10px; }
+  .two-columns-field > div { flex: 1; min-width: 0; }
+  .two-columns-field .sex-field { min-width: 100px; }
+  .joined-field .input { position: relative; }
+  .joined-field .input::after { position: absolute; top: 50%; left: 100%; width: 10px; height: 1px; background: #bdbdbd; content: ""; }
+  .input.select { padding-right: 6px; }
+  .input.select input { cursor: pointer; }
+  .select-arrow { color: rgba(0, 0, 0, 0.54); font-size: 24px; }
+  .check-field { display: flex; align-items: center; align-self: end; height: 40px; padding-left: 10px; gap: 8px; color: var(--text); font-size: 14px; cursor: pointer; }
+  .check-field input { width: 18px; height: 18px; margin: 0; accent-color: var(--primary); cursor: pointer; }
 </style>
 </head>
 <body>
@@ -371,12 +385,59 @@
             </div>
           </div>
           <div class="search-actions">
-            <button class="icon-button advanced-toggle" type="button" aria-expanded="false" aria-label="show advanced search" title="Advanced search">
+            <button class="icon-button advanced-toggle" type="button" aria-controls="advancedSearchFields" aria-expanded="false" aria-label="show advanced search" title="Advanced search">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6.41 16.59 5 12 9.58 7.41 5 6 6.41l6 6z"/><path d="m18 13-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
             </button>
             <button class="button button-contained search-button" type="submit">Search</button>
             <button class="clear-button" type="button">Clear</button>
           </div>
+        </div>
+        <div class="search-grid" id="advancedSearchFields" hidden>
+          <div>
+            <label class="field-label" for="culturalName">Cultural/traditional name</label>
+            <div class="input">
+              <svg class="icon search-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg>
+              <input id="culturalName" name="culturalName" type="text" placeholder="Cultural/traditional name">
+            </div>
+          </div>
+          <div class="two-columns-field">
+              <div class="joined-field">
+                <label class="field-label" for="dateOfBirthFrom">DOB from</label>
+                <div class="input">
+                  <input id="dateOfBirthFrom" name="dateOfBirthFrom" type="text" placeholder="dd/mm/yyyy" autocomplete="off">
+                  <button class="icon-button date-button" type="button" aria-label="Choose date">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="">
+                <label class="field-label" for="dateOfBirthTo">DOB to</label>
+                <div class="input">
+                  <input id="dateOfBirthTo" name="dateOfBirthTo" type="text" placeholder="dd/mm/yyyy" autocomplete="off">
+                  <button class="icon-button date-button" type="button" aria-label="Choose date">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                  </button>
+                </div>
+              </div>
+            <div class="sex-field">
+              <label class="field-label" for="sex">Sex</label>
+              <div class="input select">
+                <input id="sex" name="sex" type="text" placeholder="Select" readonly>
+                <svg class="icon select-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="field-label" for="villageId">Village</label>
+            <div class="input select">
+              <input id="villageId" name="villageId" type="text" placeholder="Search…">
+              <svg class="icon select-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+            </div>
+          </div>
+          <label class="check-field">
+            <input type="checkbox" name="deceased">
+            <span>Include deceased patients</span>
+          </label>
         </div>
       </form>
 
@@ -390,5 +451,16 @@
     </section>
   </main>
 </div>
+<script>
+  const advancedToggle = document.querySelector('.advanced-toggle');
+  const advancedFields = document.getElementById('advancedSearchFields');
+  advancedToggle.addEventListener('click', () => {
+    const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
+    advancedToggle.setAttribute('aria-expanded', String(!isExpanded));
+    advancedToggle.setAttribute('aria-label', isExpanded ? 'show advanced search' : 'hide advanced search');
+    advancedToggle.title = isExpanded ? 'Advanced search' : 'Hide advanced search';
+    advancedFields.hidden = isExpanded;
+  });
+</script>
 </body>
 </html>
