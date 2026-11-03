@@ -2,10 +2,8 @@
 name: split-working-doc
 description: "Split a working doc into the card's specs, plan, and test cases once its shape is clear"
 label: "Split working doc"
-pill-order:
-  specifying: 8
-jockey-hint: "Surface as soon as the card has a working doc in draft — the moment it exists, regardless of how developed it looks. On cards with no draft working doc, do not include in pills or suggestions at all."
-workhorse-version: 0.3.0
+category: plan
+workhorse-version: 0.7.9
 ---
 
 ## Your task: Split the working doc
