@@ -28,9 +28,10 @@ The tables give each Figma style, its hex, and its `Colors` token. A style with 
 token (—) has not been added to `TAMANU_COLORS` yet; add it there before using it.
 All styles are at full opacity.
 
-Secondary and tertiary hues come as a ramp: **100** is the full colour, **20** and
-**10** are progressively lighter tints of it for fills and backgrounds behind that
-colour.
+Secondary and tertiary hues come as a ramp: **100** is the full colour, and **20**
+and **10** are 20% and 10% value versions of it, for fills and backgrounds behind
+that colour. Tints without their own token are named after the full colour's token
+and their value, e.g. Safe 20% is the 20% version of `safe`.
 
 ### Primary
 
@@ -53,17 +54,17 @@ decoration.
 | Style | Value | Token | Usage |
 |---|---|---|---|
 | Green-S 100 | `#47CA80` | `safe` | **Success / complete**: completed items, positive status, inpatient. MUI `success.main` |
-| Green-S 20 | `#DAF4E6` | — | Success tint |
-| Green-S 10 | `#EDFAF3` | — | Light background behind a success region |
+| Green-S 20 | `#DAF4E6` | Safe 20% | Success tint |
+| Green-S 10 | `#EDFAF3` | Safe 10% | Light background behind a success region |
 | Red-S 100 | `#F76853` | `alert` | **Error**: validation failures, destructive confirmation, error toasts. MUI `error.main` |
-| Red-S 20 | `#FDE1DD` | — | Error tint |
+| Red-S 20 | `#FDE1DD` | Alert 20% | Error tint |
 | Red-S 10 | `#FFF0EE` | `lightAlert` | Light background behind an error/alert region |
 | Orange-S 100 | `#F17F16` | `orange` | **Warning / urgent**: triage, emergency/observation states |
-| Orange-S 20 | `#FCE5D0` | — | Warning tint |
-| Orange-S 10 | `#FEF3E8` | — | Light background behind a warning region |
+| Orange-S 20 | `#FCE5D0` | Orange 20% | Warning tint |
+| Orange-S 10 | `#FEF3E8` | Orange 10% | Light background behind a warning region |
 | Yellow-S 100 | `#FFCC24` | `secondary` | **Attention**: secondary accent. MUI `secondary.main` |
-| Yellow-S 20 | `#FFF5D3` | — | Attention tint |
-| Yellow-S 10 | `#FFFAEA` | — | Light background behind an attention region |
+| Yellow-S 20 | `#FFF5D3` | Secondary 20% | Attention tint |
+| Yellow-S 10 | `#FFFAEA` | Secondary 10% | Light background behind an attention region |
 
 ### Tertiary
 
@@ -76,29 +77,29 @@ warning).
 | Style | Value | Token |
 |---|---|---|
 | Green-T 100 | `#19934E` | `green` |
-| Green-T 20 | `#D1E9DC` | — |
-| Green-T 10 | `#E9F5EE` | — |
+| Green-T 20 | `#D1E9DC` | Green 20% |
+| Green-T 10 | `#E9F5EE` | Green 10% |
 | Blue-T 100 | `#1172D1` | `blue` |
-| Blue-T 20 | `#CFE3F6` | — |
-| Blue-T 10 | `#E8F1FB` | — |
+| Blue-T 20 | `#CFE3F6` | Blue 20% |
+| Blue-T 10 | `#E8F1FB` | Blue 10% |
 | Purple-T 100 | `#4101C9` | `purple` |
-| Purple-T 20 | `#D9CCF4` | — |
-| Purple-T 10 | `#ECE6FA` | — |
+| Purple-T 20 | `#D9CCF4` | Purple 20% |
+| Purple-T 10 | `#ECE6FA` | Purple 10% |
 | Pink-T 100 | `#D10580` | `pink` |
-| Pink-T 20 | `#F6CDE6` | — |
-| Pink-T 10 | `#FBE7F3` | — |
+| Pink-T 20 | `#F6CDE6` | Pink 20% |
+| Pink-T 10 | `#FBE7F3` | Pink 10% |
 | Orange-T 100 | `#CB6100` | `darkOrange` |
-| Orange-T 20 | `#F5DFCC` | — |
-| Orange-T 10 | `#FAF0E6` | — |
+| Orange-T 20 | `#F5DFCC` | Dark orange 20% |
+| Orange-T 10 | `#FAF0E6` | Dark orange 10% |
 | Yellow-T 100 | `#BD9503` | `metallicYellow` |
-| Yellow-T 20 | `#F2EACD` | — |
-| Yellow-T 10 | `#F9F5E6` | — |
+| Yellow-T 20 | `#F2EACD` | Metallic yellow 20% |
+| Yellow-T 10 | `#F9F5E6` | Metallic yellow 10% |
 | Brown-T 100 | `#67361B` | — |
-| Brown-T 20 | `#E1D7D1` | — |
-| Brown-T 10 | `#F0EBE9` | — |
+| Brown-T 20 | `#E1D7D1` | Brown 20% |
+| Brown-T 10 | `#F0EBE9` | Brown 10% |
 | Teal-T 100 | `#125E7E` | — |
-| Teal-T 20 | `#D0DFE5` | — |
-| Teal-T 10 | `#E8EFF3` | — |
+| Teal-T 20 | `#D0DFE5` | Teal 20% |
+| Teal-T 10 | `#E8EFF3` | Teal 10% |
 
 ### Font
 
