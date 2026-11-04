@@ -9,34 +9,41 @@ import { useAuth } from '../../../contexts/Auth';
 
 import { BedIcon } from '../../../assets/icons/BedIcon';
 
-// Sits at the top of the encounter details, which carry on from the top bar with no top padding of
-// their own, so the space between this and them is kept here.
-const Section = styled.div`
-  background-color: ${TAMANU_COLORS.white};
-  padding-bottom: 20px;
-`;
-
+// Sits at the top of the encounter details card, lined up with the details below it.
 const Container = styled.div`
   display: flex;
   flex-direction: row;
   gap: 10px;
   align-items: center;
   justify-content: flex-start;
-  padding: 10px 25px;
-  border-block: 1px solid ${TAMANU_COLORS.outline};
+  padding: 10px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
+`;
+
+// Styled like the encounter details' values.
+const LocationName = styled.span`
+  font-weight: 500;
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const FinaliseButton = styled(Button)`
   padding: 8px 12px;
   margin-left: 5px;
   min-width: 66px;
-  font-size: 12px;
+  font-size: 14px;
 `;
 
 const CancelButton = styled(TextButton)`
   color: ${TAMANU_COLORS.darkestText};
   text-decoration: underline;
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 18px;
+
+  &:hover {
+    color: ${TAMANU_COLORS.primary};
+    text-decoration: underline;
+  }
 `;
 
 export const PlannedMoveActions = ({ encounter }) => {
@@ -51,24 +58,22 @@ export const PlannedMoveActions = ({ encounter }) => {
 
   return (
     <>
-      <Section>
-        <Container>
-          <BedIcon color={TAMANU_COLORS.softText} />
-          <BodyText>
-            <TranslatedText
-              stringId="encounter.action.plannedLocationMove"
-              fallback="Planned location move: "
-            />
-            <b>{getFullLocationName(encounter.plannedLocation)}</b>
-          </BodyText>
-          <FinaliseButton variant="outlined" onClick={() => setFinaliseModalOpen(true)}>
-            <TranslatedText stringId="encounter.action.finalisePatientMove" fallback="Finalise" />
-          </FinaliseButton>
-          <CancelButton variant="text" onClick={() => setCancelModalOpen(true)}>
-            <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-          </CancelButton>
-        </Container>
-      </Section>
+      <Container>
+        <BedIcon color={TAMANU_COLORS.softText} />
+        <BodyText>
+          <TranslatedText
+            stringId="encounter.action.plannedLocationMove"
+            fallback="Planned location move: "
+          />
+          <LocationName>{getFullLocationName(encounter.plannedLocation)}</LocationName>
+        </BodyText>
+        <FinaliseButton variant="outlined" onClick={() => setFinaliseModalOpen(true)}>
+          <TranslatedText stringId="encounter.action.finalisePatientMove" fallback="Finalise" />
+        </FinaliseButton>
+        <CancelButton variant="text" onClick={() => setCancelModalOpen(true)}>
+          <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+        </CancelButton>
+      </Container>
 
       <FinalisePatientMoveModal
         encounter={encounter}

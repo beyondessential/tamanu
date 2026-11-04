@@ -93,6 +93,7 @@ export const EncounterInfoCard = ({
   paddingTop,
   inlineValues,
   headerContent = null,
+  footerContent = null,
   numberOfColumns = 2,
 }) => (
   <Card
@@ -106,5 +107,6 @@ export const EncounterInfoCard = ({
     <CardBody $numberOfColumns={numberOfColumns} data-testid="cardbody-m456">
       {children}
     </CardBody>
+    {footerContent}
   </Card>
 );

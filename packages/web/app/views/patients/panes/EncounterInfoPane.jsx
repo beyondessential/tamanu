@@ -38,6 +38,8 @@ import { useEncounter } from '../../../contexts/Encounter.jsx';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { useAuth } from '../../../contexts/Auth';
+import { PlannedMoveActions } from '../components/PlannedMoveActions';
+import { PrimaryDiagnoses } from '../components/PrimaryDiagnoses';
 
 const InfoCardFirstColumn = styled.div`
   display: flex;
@@ -215,7 +217,14 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
   const triage = encounter.triages?.[0];
 
   return (
-    <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
+    <InfoCard
+      inlineValues
+      contentPadding={25}
+      paddingTop={0}
+      headerContent={encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
+      footerContent={<PrimaryDiagnoses diagnoses={encounter.diagnoses} />}
+      data-testid="infocard-o4i8"
+    >
       <InfoCardFirstColumn data-testid="infocardfirstcolumn-u3u3">
         <InfoCardItem
           label={
