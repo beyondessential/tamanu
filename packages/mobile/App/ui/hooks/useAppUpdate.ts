@@ -189,6 +189,11 @@ export const useAppUpdate = (): AppUpdateState => {
       // A successful install replaces the app and closes it, so there is nothing to do here and
       // usually nothing left running to do it in.
     } catch (error) {
+      // Cancelling Android's confirmation installs nothing and leaves the update ready to install
+      if ((error as { code?: string }).code === 'INSTALL_ABORTED') {
+        setStage(UPDATE_STAGE.READY);
+        return;
+      }
       console.warn('useAppUpdate: install failed', error);
       setStage(UPDATE_STAGE.INSTALL_FAILED);
     }

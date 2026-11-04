@@ -1,6 +1,6 @@
 /**
- * The decisions behind the update screen, kept apart from the screen and the native module so they
- * can be reasoned about and tested on their own.
+ * The decisions behind the update banner and Sync tab, kept apart from them and the native module
+ * so they can be reasoned about and tested on their own.
  */
 
 /** Attempts after which the manual download address is offered alongside automatic retries. */

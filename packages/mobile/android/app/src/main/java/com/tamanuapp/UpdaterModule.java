@@ -260,9 +260,20 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
             // The device has not confirmed an install from Tamanu before, so Android asks the user
             // once. Later updates on this device install without a prompt.
             Intent confirmation = intent.getParcelableExtra(Intent.EXTRA_INTENT);
-            if (confirmation != null) {
+            try {
+                if (confirmation == null) {
+                    throw new IllegalStateException("Android gave no confirmation to show");
+                }
                 confirmation.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getReactApplicationContext().startActivity(confirmation);
+            } catch (Exception e) {
+                // Without the confirmation no result will ever follow, so settle the install here
+                // rather than leave the installing message up for good
+                abandonSession(intent);
+                pendingInstallPromise = null;
+                if (promise != null) {
+                    promise.reject("INSTALL_FAILED", "Could not ask to confirm the install", e);
+                }
             }
             return;
         }
@@ -275,8 +286,26 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
             return;
         }
+        if (status == PackageInstaller.STATUS_FAILURE_ABORTED) {
+            // Staff cancelled Android's confirmation, which is a choice rather than a failure
+            promise.reject("INSTALL_ABORTED", "The install was cancelled");
+            return;
+        }
         String message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
         promise.reject("INSTALL_FAILED", message != null ? message : "The update could not be installed");
+    }
+
+    private void abandonSession(Intent intent) {
+        int sessionId = intent.getIntExtra(PackageInstaller.EXTRA_SESSION_ID, -1);
+        if (sessionId == -1) {
+            return;
+        }
+        try {
+            getReactApplicationContext().getPackageManager().getPackageInstaller()
+                .abandonSession(sessionId);
+        } catch (SecurityException ignored) {
+            // already finished or abandoned
+        }
     }
 
     @Override

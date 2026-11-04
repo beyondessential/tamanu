@@ -99,15 +99,20 @@ export const SignInForm: FunctionComponent<any> = ({ initialErrorMessage = '', o
         await signIn(values);
         onSuccess();
       } catch (error) {
-        // An out-of-date app is taken over by the update screen, so there is nothing to report on
-        // the form: the user is about to stop looking at it.
-        if (error instanceof OutdatedVersionError) {
+        // Without an update address the app is too new for its server, which no update can fix
+        if (error instanceof OutdatedVersionError && !error.updateUrl) {
+          setErrorMessage(
+            getTranslation(
+              'login.error.incompatibleVersion',
+              'This version of Tamanu is not compatible with your server. Please contact your system administrator.',
+            ),
+          );
           return;
         }
         setErrorMessage(getLoginErrorMessage(error));
       }
     },
-    [existingHost, signIn, onSuccess],
+    [existingHost, signIn, onSuccess, getTranslation],
   );
 
   useEffect(() => {

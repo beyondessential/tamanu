@@ -4,8 +4,9 @@ import { version as currentVersion } from '/root/package.json';
 import { readConfig, writeConfig } from '~/services/config';
 
 /**
- * Lets the update screen pick up a rejection that arrives while the app is already running, rather
- * than only on the next launch. Emits `recorded` with the address to update from.
+ * Lets the home screen banner and the Sync tab pick up a rejection that arrives while the app is
+ * already running, rather than only on the next launch. Emits `recorded` with the address to update
+ * from.
  */
 export const pendingUpdateEmitter = mitt();
 
@@ -23,8 +24,7 @@ export function isUpdatePending(): boolean {
 
 /**
  * An outstanding update is remembered on the device rather than held in memory, so closing the app
- * part way through an update returns to the update screen rather than to a sign-in the server will
- * reject.
+ * part way through an update resumes it, with sync still paused and the banner still showing.
  */
 const PENDING_UPDATE_URL = 'pendingUpdateUrl';
 const PENDING_UPDATE_RECORDED_AT_VERSION = 'pendingUpdateRecordedAtVersion';
@@ -79,8 +79,9 @@ export async function hasInstalledUpdateAndStillOutOfDate(): Promise<boolean> {
 }
 
 /**
- * Forgets everything about updating. Called once a sign-in succeeds, which is the point at which
- * the server has accepted the version now running.
+ * Forgets everything about updating. Called once a sync succeeds, which is the point at which the
+ * server has accepted the version now running. Not on sign-in: the server lets an out-of-date app
+ * sign in, so a sign-in proves nothing about its version.
  */
 export async function clearUpdateState(): Promise<void> {
   cachedUpdateUrl = null;

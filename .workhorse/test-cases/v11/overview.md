@@ -88,6 +88,8 @@ notification have no meaningful emulation in unit tests.
 - [ ] A download interrupted by losing the connection resumes rather than starting again (verifies
       spec: MUPD)
 - [ ] A download interrupted by closing the app resumes on the next launch (verifies spec: MUPD)
+- [ ] A download interrupted before a new patch is published starts again for the new patch
+      rather than resuming onto the old bytes (verifies spec: MUPD)
 - [ ] A device without room for the package and its install is told so before the download starts
       (verifies spec: MUPD)
 - [ ] A failed download retries automatically, with a longer gap before each attempt (verifies

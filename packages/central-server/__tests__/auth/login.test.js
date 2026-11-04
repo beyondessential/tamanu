@@ -4,7 +4,7 @@ import config from 'config';
 import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
-import { SETTING_KEYS } from '@tamanu/constants';
+import { SERVER_TYPES, SETTING_KEYS, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
@@ -202,6 +202,43 @@ describe('Auth - Login', () => {
         deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
+    });
+  });
+
+  describe('Client version', () => {
+    const login = (client, version) =>
+      baseApp
+        .post('/api/login')
+        .set({ 'X-Tamanu-Client': client, 'X-Version': version })
+        .send({ email: TEST_EMAIL, password: TEST_PASSWORD, deviceId: TEST_DEVICE_ID });
+
+    const errorMessage = response => JSON.parse(response.error.text).error.message;
+
+    it('Should let an out-of-date mobile app log in, so it can update while staff work', async () => {
+      const response = await login(SERVER_TYPES.MOBILE, '0.0.1');
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('token');
+    });
+
+    it('Should still reject the same out-of-date mobile app beyond login', async () => {
+      const response = await baseApp.get('/').set({
+        'X-Tamanu-Client': SERVER_TYPES.MOBILE,
+        'X-Version': '0.0.1',
+      });
+      expect(response).not.toHaveSucceeded();
+      expect(errorMessage(response)).toEqual(VERSION_COMPATIBILITY_ERRORS.LOW);
+    });
+
+    it('Should still reject a mobile app above the maximum at login', async () => {
+      const response = await login(SERVER_TYPES.MOBILE, '999.0.0');
+      expect(response).not.toHaveSucceeded();
+      expect(errorMessage(response)).toEqual(VERSION_COMPATIBILITY_ERRORS.HIGH);
+    });
+
+    it('Should still reject other out-of-date clients at login', async () => {
+      const response = await login(SERVER_TYPES.FACILITY, '0.0.1');
+      expect(response).not.toHaveSucceeded();
+      expect(errorMessage(response)).toEqual(VERSION_COMPATIBILITY_ERRORS.LOW);
     });
   });
 

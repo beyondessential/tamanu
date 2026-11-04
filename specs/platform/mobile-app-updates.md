@@ -85,6 +85,7 @@ The download is built for the connections Tamanu is used on: slow, interrupted, 
 
 - [ ] The download runs on whatever connection is available, including a metered one, since sync stays paused until it finishes.
 - [ ] An interrupted download resumes from where it stopped, including after the app is closed and reopened.
+- [ ] A partial download is only resumed if it is for the same address and the server confirms the package has not changed since; otherwise the download starts again, so bytes from two packages are never joined.
 - [ ] Before downloading, the app checks there is enough free space for the package and for installing it. If there is not, the banner says so and sync stays paused.
 - [ ] A failed download is retried automatically, with a longer gap before each successive attempt.
 - [ ] A download that completes at a size other than the one declared is discarded and retried rather than installed.

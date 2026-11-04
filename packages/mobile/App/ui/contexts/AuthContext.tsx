@@ -190,7 +190,11 @@ const Provider = ({
       // An out-of-date app keeps working offline while its update downloads, so the rejection is
       // remembered — which pauses sync and raises the banner — and the session is left alone.
       if (error instanceof OutdatedVersionError) {
-        recordPendingUpdate(error.updateUrl);
+        // No address means nothing to update to: the app is too new for its server, or the server
+        // has no update address set. Sync then reports the rejection as an ordinary sync error.
+        if (error.updateUrl) {
+          recordPendingUpdate(error.updateUrl);
+        }
         return;
       }
 
