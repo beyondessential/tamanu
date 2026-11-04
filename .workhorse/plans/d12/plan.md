@@ -27,3 +27,4 @@
 - The option opens a print modal following `InvoiceRecordModal`: a `Modal` titled "Print table summary", `printable`, with the PDF in a `PDFLoader`
 - The PDF is a new printout in `packages/shared/src/utils/patientCertificates/`, built from the same pieces as `InvoiceRecordPrintout`: `MultiPageHeader`, `LetterheadSection`, `PatientDetails`, the invoice item table styling, a summary pane holding the total balance, and `Footer`
 - The printout is titled "Patient invoice summary" and lists all of the patient's in-progress and finalised invoices, not only the page shown in the table, so it needs its own unpaginated fetch
+- The printout is landscape A4 (`<Page size="A4" orientation="landscape">`, as in `EncounterRecordPrintout`), so all nine columns fit with their headings on one line
