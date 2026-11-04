@@ -6,7 +6,7 @@ id: BTEL
 
 The web clients measure how the application performs from the user's seat — how long each page takes to become usable, and how long every API request takes — and record those measurements on the Tamanu server the client talks to for later analysis. For the clinical client that is its facility server; for the admin panel and the patient portal, which both talk to central, it is the central server. Measurement is done in the browser with OpenTelemetry; the raw events are stored locally on the receiving server and pruned on a retention schedule.
 
-This spec covers collecting the measurements and storing the raw events. Rolling the raw events up into summary statistics, anonymising them, and reporting them onward (to central and Canopy) are handled separately; the raw store described here is the source those steps read from.
+This spec covers collecting the measurements and storing the raw events. Rolling them up into anonymised statistics that are kept long-term and reported to central is covered in `platform/browser-telemetry-aggregation.md`; the raw store described here is its source.
 
 ## What is measured
 
@@ -59,6 +59,7 @@ The receiving server writes events into a single flat table — one row per span
 - [ ] Received telemetry events are written to a single flat table, one row per span, with a trace identifier tying a navigation's rows together.
 - [ ] The raw telemetry table does not sync to central and is not recorded in the changelog.
 - [ ] A scheduled job on each server holding raw telemetry — facility and central alike — removes rows older than the configured retention period.
+- [ ] The retention period applies to raw events only; aggregates rolled up from them are kept separately (see `platform/browser-telemetry-aggregation.md`).
 
 ## Settings
 
