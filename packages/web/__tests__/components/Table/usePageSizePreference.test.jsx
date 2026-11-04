@@ -121,6 +121,7 @@ describe('page size preferences providers', () => {
 
   afterEach(() => {
     onlineManager.setOnline(undefined);
+    vi.useRealTimers();
   });
 
   const renderWithProvider = (Provider = FacilityPageSizePreferencesProvider) => {
@@ -192,6 +193,29 @@ describe('page size preferences providers', () => {
 
     await waitFor(() => expect(result.current.isPageSizeReady).toBe(true));
     expect(result.current.rowsPerPage).toBe(50);
+  });
+
+  it('stops waiting for preferences that take too long, then moves to the saved size', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    let finishLoading;
+    mockApi.get.mockImplementation(
+      () =>
+        new Promise(resolve => {
+          finishLoading = () => resolve({ [PREFERENCE_KEY]: 100 });
+        }),
+    );
+    const { result } = renderWithProvider();
+    await waitFor(() => expect(mockApi.get).toHaveBeenCalled());
+    expect(result.current.isPageSizeReady).toBe(false);
+
+    act(() => vi.advanceTimersByTime(5_000));
+
+    expect(result.current.isPageSizeReady).toBe(true);
+    expect(result.current.rowsPerPage).toBe(50);
+
+    finishLoading();
+
+    await waitFor(() => expect(result.current.rowsPerPage).toBe(100));
   });
 
   it('opens at 50 rows without waiting while the browser reports itself offline', () => {

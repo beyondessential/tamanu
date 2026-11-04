@@ -40,6 +40,7 @@ export const DataFetchingTable = memo(
     autoRefresh,
     lazyLoading = false,
     hasPermission = true,
+    // Applies only to a table without a pageSizePreferenceKey (see usePageSizePreference)
     defaultRowsPerPage,
     pageSizePreferenceKey,
     'data-testid': dataTestId,

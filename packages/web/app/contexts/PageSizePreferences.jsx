@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useMemo, useRef } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   useAdminUserPreferencesMutation,
@@ -11,10 +11,21 @@ import { useAdminUserPreferencesQuery, useUserPreferencesQuery } from '../api/qu
 // spec: TPAGE#remembered-page-size
 export const PageSizePreferencesContext = createContext(null);
 
+// How long tables wait for the preferences before opening at the default size
+const PREFERENCES_WAIT_MS = 5_000;
+
 const PageSizePreferencesProvider = ({ preferencesQuery, savePreferenceAsync, children }) => {
+  // A request on a stalled connection neither loads nor fails, so tables stop waiting on it
+  const [hasStoppedWaiting, setHasStoppedWaiting] = useState(false);
+  useEffect(() => {
+    if (!preferencesQuery.isLoading) return undefined;
+    const timer = setTimeout(() => setHasStoppedWaiting(true), PREFERENCES_WAIT_MS);
+    return () => clearTimeout(timer);
+  }, [preferencesQuery.isLoading]);
+
   // React Query holds a request while the browser reports itself offline, though the server may
   // still be reachable on the local network. Tables load at the default size rather than wait.
-  const isLoaded = !preferencesQuery.isLoading || preferencesQuery.isPaused;
+  const isLoaded = !preferencesQuery.isLoading || preferencesQuery.isPaused || hasStoppedWaiting;
 
   const previousSave = useRef(Promise.resolve());
   const savePreference = useCallback(

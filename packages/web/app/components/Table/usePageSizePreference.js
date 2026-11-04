@@ -6,7 +6,8 @@ import { LARGE_ROWS_PER_PAGE_OPTIONS, ROWS_PER_PAGE_OPTIONS } from '../../consta
 /**
  * The page size for a table. A table given a preference key offers the large page sizes and
  * remembers the size the user picks on it; any other table offers the standard sizes and opens
- * at its default each time.
+ * at its default each time. `defaultRowsPerPage` applies only to a table without a key, since a
+ * table with one opens at 50 until the user picks a size.
  */
 // spec: TPAGE#remembered-page-size
 export const usePageSizePreference = ({ preferenceKey, defaultRowsPerPage }) => {

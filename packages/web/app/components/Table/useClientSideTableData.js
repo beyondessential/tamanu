@@ -4,7 +4,8 @@ import { usePageSizePreference } from './usePageSizePreference';
 
 // Sorts and paginates a plain in-memory array for tables backed by local/mock data rather
 // than a server endpoint (see DataFetchingTable for the server-driven equivalent, where the
-// server itself handles sorting and slicing).
+// server itself handles sorting and slicing). `defaultRowsPerPage` applies only to a table
+// without a `pageSizePreferenceKey` (see usePageSizePreference).
 export const useClientSideTableData = (
   data,
   { initialSortKey, initialSortDirection, defaultRowsPerPage = 25, pageSizePreferenceKey },
