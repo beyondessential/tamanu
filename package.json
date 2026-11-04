@@ -98,6 +98,7 @@
     "patch-package": "^8.0.0"
   },
   "overrides": {
+    "@playwright/browser-chromium": "npm:noop2@2.0.0",
     "protobufjs": ">=7.5.5",
     "socket.io-parser": ">=4.2.6",
     "axios": "^1.15.0",
