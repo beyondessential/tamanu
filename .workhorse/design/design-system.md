@@ -161,27 +161,44 @@ systems); identifiers render in Roboto like everything else.
 
 ### Type scale
 
-Tamanu's type scale is **not** expressed through MUI typography variants — the
-theme only sets `fontFamily: 'Roboto'` and leaves the MUI variant scale at its
-defaults. The real scale is eight styled components in
-`packages/web/app/components/Typography.js`. Use these components for text rather
-than raw MUI `Typography` or ad-hoc `font-size`.
+The source of truth is the 14 text styles in the Figma library: six sizes, each in
+Regular (400) and Medium (500), plus an underlined Small. In code the scale is the
+styled components in `packages/web/app/components/Typography.js`. It is **not**
+expressed through MUI typography variants: the theme only sets
+`fontFamily: 'Roboto'` and leaves the MUI variant scale at its defaults. Use these
+components for text rather than raw MUI `Typography` or ad-hoc `font-size`.
 
-| Component | Size | Line-height | Weight | Element |
+| Style | Weight | Size | Line height | Component |
 |---|---|---|---|---|
-| `Heading1` | 24px | 32px | 500 | `h1` |
-| `Heading2` | 20px | 28px | 500 | `h2` |
-| `Heading3` | 18px | 24px | 500 | `h3` |
-| `Heading4` | 16px | 21px | 500 | `h4` |
-| `Heading5` | 14px | 18px | 500 | `h5` |
-| `LargeBodyText` | 16px | 21px | 400 | `div` |
-| `BodyText` | 14px | 18px | 400 | `div` |
-| `SmallBodyText` | 11px | 15px | 400 | `div` |
+| Header 1 - Regular | 400 | 24px | 32px | — |
+| Header 1 - Medium | 500 | 24px | 32px | `Heading1` (`h1`) |
+| Header 2 - Regular | 400 | 20px | 28px | — |
+| Header 2 - Medium | 500 | 20px | 28px | `Heading2` (`h2`) |
+| Header 3 - Regular | 400 | 18px | 24px | — |
+| Header 3 - Medium | 500 | 18px | 24px | `Heading3` (`h3`) |
+| Header 4 - Regular | 400 | 16px | 21px | `LargeBodyText` |
+| Header 4 - Medium | 500 | 16px | 21px | `Heading4` (`h4`) |
+| Body - Regular | 400 | 14px | 18px | `BodyText` |
+| Body - Medium | 500 | 14px | 18px | `Heading5` (`h5`) |
+| Small - Regular | 400 | 11px | 15px | `SmallBodyText` |
+| Small - Medium | 500 | 11px | 15px | — |
+| Small Underline - Regular | 400 | 11px | 15px | — |
+| Small Underline - Medium | 500 | 11px | 15px | — |
 
-`BodyText` (14px) is the default body size — it matches the base control text
-(inputs, buttons, table cells are all 14px). `SmallBodyText` (11px) is for
-helper text, captions, and metadata. Headings step 24 → 20 → 18 → 16 → 14, all at
-weight 500 (medium); there is no 700/bold heading weight in the scale.
+Every style shares the same settings:
+
+```
+font-family: Roboto;  letter-spacing: 0;  text-transform: none;
+paragraph spacing: 0;  indent: 0;  text-decoration: none (underline on the two Small Underline styles);
+```
+
+A style with no component (—) has none in `Typography.js` yet. The Figma file spells the last style "Small Undelrine -
+Medium".
+
+`BodyText` (14px) is the default body size. It matches the base control text
+(inputs, buttons and table cells are all 14px). Small (11px) is for helper text,
+captions and metadata. Sizes step 24 → 20 → 18 → 16 → 14 → 11. There is no
+700/bold weight in the scale.
 
 ### The `color` prop gotcha (important)
 
@@ -203,7 +220,7 @@ Don't trust `textPrimary`/`textSecondary` on these components.
 | Context | Treatment | Source |
 |---|---|---|
 | Form helper text | 11px, line-height 1.4, `midText` | `MuiFormHelperText` |
-| Menu item | 11px, letter-spacing 0.02em | `MuiMenuItem` |
+| Menu item | 11px, letter-spacing 0.02em (differs from the scale's 0) | `MuiMenuItem` |
 | Tabs | `text-transform: none`, min-height 48px | `MuiTab` |
 | Button | 14px, weight 500, `text-transform: none` | `StyledButton` |
 
