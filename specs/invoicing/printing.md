@@ -73,8 +73,10 @@ The receipt shows these sections, in order.
       An invoice with no items shows the totals directly under the section title, with no dotted
       line.
 - [ ] Line items: one line per invoice item, in the same order as the A4 layout, showing the item
-      name, its quantity and its line total before any item adjustment.
-- [ ] A medication's quantity carries its dispensing unit, as on the A4 layout.
+      name with its quantity in brackets after it, such as Blood Sugar (x3), and its line total
+      before any item adjustment.
+- [ ] A medication's quantity carries its dispensing unit, as on the A4 layout, such as
+      Paracetamol 500mg (x10 Tablets).
 - [ ] Totals: invoice total, item adjustments, insurance coverage, patient subtotal, fee scale
       adjustment and patient payments, each the same figure as in the A4 layout's summary of
       totals.
@@ -90,7 +92,8 @@ The receipt shows these sections, in order.
 
 ### Labels
 
-- [ ] Every label on the receipt is translatable.
+- [ ] Every label on the receipt is translatable, and so is the way a line item's quantity is
+      shown beside its name.
 - [ ] Patient field labels follow the deployment's localised field names, so a deployment that
       renames the patient ID shows its own name for it on the receipt.
 - [ ] Labels default to: Patient details, Name, Date of birth, Patient ID, Invoice number, Date,

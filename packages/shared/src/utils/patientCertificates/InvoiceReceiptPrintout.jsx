@@ -3,12 +3,12 @@ import { Document, Image, StyleSheet, View } from '@react-pdf/renderer';
 
 import { getInvoiceItemPriceDisplay, getInvoicePrintTotalsDisplay } from '@tamanu/utils/invoice';
 
+import { getDrugUnitLabel } from '../medication';
 import { getDob, getName } from '../patientAccessors';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { InvoiceItemQuantity } from './printComponents/InvoiceItemQuantity';
 
 // spec: INVPRT#receipt-layout
 
@@ -21,7 +21,8 @@ const styles = StyleSheet.create({
   page: {
     paddingHorizontal: UNPRINTABLE_EDGE,
     paddingVertical: 8,
-    fontSize: 8,
+    // Sized to the receipt design, relative to the 80mm roll
+    fontSize: 9.75,
     lineHeight: 1.3,
   },
   section: {
@@ -61,21 +62,14 @@ const styles = StyleSheet.create({
   },
   itemName: {
     flex: 1,
+    paddingRight: 8,
   },
-  itemQuantity: {
-    width: 52,
-    paddingHorizontal: 4,
-    textAlign: 'right',
-  },
-  // react-pdf ignores textAlign on text widened by minWidth, so the column right-aligns its text
   itemTotal: {
     flexShrink: 0,
-    minWidth: 48,
-    alignItems: 'flex-end',
   },
   // A little larger than the section titles, which are set at the page's font size
   patientTotalDue: {
-    fontSize: 10,
+    fontSize: 11.25,
     textTransform: 'uppercase',
   },
 });
@@ -171,21 +165,29 @@ const InvoiceSection = ({ invoice }) => {
   );
 };
 
-const LineItemRows = ({ items }) =>
-  items.map(item => (
+// A medication's quantity carries its dispensing unit, as on the A4 layout (e.g. "10 Tablets")
+const getItemQuantityText = (item, getEnumTranslation) => {
+  const dispensingUnit = item.sourcePrescription?.dispensingUnit;
+  if (!dispensingUnit) return String(item.quantity);
+  return `${item.quantity} ${getDrugUnitLabel(dispensingUnit, item.quantity, getEnumTranslation)}`;
+};
+
+const LineItemRows = ({ items }) => {
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
+  return items.map(item => (
     <View key={item.id} style={styles.row}>
-      <Text style={styles.itemName}>{item.product?.name}</Text>
-      <Text style={styles.itemQuantity}>
-        <InvoiceItemQuantity
-          quantity={item.quantity}
-          dispensingUnit={item.sourcePrescription?.dispensingUnit}
-        />
+      <Text style={styles.itemName}>
+        {getTranslation('pdf.invoiceReceipt.itemWithQuantity', ':itemName (x:quantity)', {
+          replacements: {
+            itemName: item.product?.name,
+            quantity: getItemQuantityText(item, getEnumTranslation),
+          },
+        })}
       </Text>
-      <View style={styles.itemTotal}>
-        <Text>{getInvoiceItemPriceDisplay(item)}</Text>
-      </View>
+      <Text style={styles.itemTotal}>{getInvoiceItemPriceDisplay(item)}</Text>
     </View>
   ));
+};
 
 const TotalRows = ({ totals }) => {
   const { getTranslation } = useLanguageContext();
