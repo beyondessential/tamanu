@@ -9,6 +9,13 @@ import { useAuth } from '../../../contexts/Auth';
 
 import { BedIcon } from '../../../assets/icons/BedIcon';
 
+// Sits at the top of the encounter details, which carry on from the top bar with no top padding of
+// their own, so the space between this and them is kept here.
+const Section = styled.div`
+  background-color: ${TAMANU_COLORS.white};
+  padding-bottom: 20px;
+`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -16,8 +23,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: flex-start;
   padding: 10px 25px;
-  background-color: ${TAMANU_COLORS.white};
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-block: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const FinaliseButton = styled(Button)`
@@ -45,22 +51,24 @@ export const PlannedMoveActions = ({ encounter }) => {
 
   return (
     <>
-      <Container>
-        <BedIcon color={TAMANU_COLORS.softText} />
-        <BodyText>
-          <TranslatedText
-            stringId="encounter.action.plannedLocationMove"
-            fallback="Planned location move: "
-          />
-          <b>{getFullLocationName(encounter.plannedLocation)}</b>
-        </BodyText>
-        <FinaliseButton variant="outlined" onClick={() => setFinaliseModalOpen(true)}>
-          <TranslatedText stringId="encounter.action.finalisePatientMove" fallback="Finalise" />
-        </FinaliseButton>
-        <CancelButton variant="text" onClick={() => setCancelModalOpen(true)}>
-          <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-        </CancelButton>
-      </Container>
+      <Section>
+        <Container>
+          <BedIcon color={TAMANU_COLORS.softText} />
+          <BodyText>
+            <TranslatedText
+              stringId="encounter.action.plannedLocationMove"
+              fallback="Planned location move: "
+            />
+            <b>{getFullLocationName(encounter.plannedLocation)}</b>
+          </BodyText>
+          <FinaliseButton variant="outlined" onClick={() => setFinaliseModalOpen(true)}>
+            <TranslatedText stringId="encounter.action.finalisePatientMove" fallback="Finalise" />
+          </FinaliseButton>
+          <CancelButton variant="text" onClick={() => setCancelModalOpen(true)}>
+            <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+          </CancelButton>
+        </Container>
+      </Section>
 
       <FinalisePatientMoveModal
         encounter={encounter}

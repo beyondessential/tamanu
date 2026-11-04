@@ -2025,6 +2025,20 @@ export const globalSettings = {
         },
       },
     },
+    syndromicSurveillance: {
+      name: 'Syndromic surveillance',
+      description: 'Settings related to syndromic surveillance',
+      exposedToWeb: true,
+      properties: {
+        mandatorySyndromicSurveillanceOnDischarge: {
+          name: 'Mandatory syndromic surveillance on discharge',
+          description:
+            'Require syndromic surveillance to be completed before a patient can be manually discharged. Not enforced on the server, so an encounter that discharges automatically (e.g. outpatient) is unaffected.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     notifications: {
       description: 'Notification settings',
       properties: {

@@ -2,13 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { DIAGNOSIS_CERTAINTY_CONFIG, DIAGNOSIS_CERTAINTY_LABELS } from '@tamanu/constants';
 import { Colors } from '../constants/styles';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { DiagnosisCertaintyTag } from './DiagnosisCertaintyTag';
 import { LimitedLinesCell } from './FormattedTableCell';
-import { TableCellTag } from './Tag';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
+import { TranslatedReferenceData, TranslatedText } from './Translation';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   border: none;
@@ -66,11 +65,6 @@ const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
-const CertaintyTag = styled(TableCellTag)`
-  font-size: 14px;
-  line-height: 18px;
-`;
-
 // A diagnosis's reference data can be missing from the list, such as when it has been deleted or
 // has yet to sync, so the row still renders without it.
 const getDiagnosisLabel = ({ diagnosis }) =>
@@ -102,21 +96,11 @@ const getClinician = ({ clinician }) => (
   <NoWrapCell data-testid="nowrapcell-clinician">{clinician?.displayName}</NoWrapCell>
 );
 
-// Certainty is nullable, and only validated by the application, so a row may hold none or a value
-// with no colour of its own.
-const getCertainty = ({ certainty }) => {
-  if (!certainty) return null;
-  const color = DIAGNOSIS_CERTAINTY_CONFIG[certainty]?.color ?? Colors.midText;
-  return (
-    <CertaintyTag $color={color} noWrap data-testid="tablecelltag-certainty">
-      <TranslatedEnum
-        value={certainty}
-        enumValues={DIAGNOSIS_CERTAINTY_LABELS}
-        data-testid="translatedenum-certainty"
-      />
-    </CertaintyTag>
-  );
-};
+// Certainty is nullable, so a row may hold none.
+const getCertainty = ({ certainty }) =>
+  certainty ? (
+    <DiagnosisCertaintyTag certainty={certainty} data-testid="tablecelltag-certainty" />
+  ) : null;
 
 const COLUMNS = [
   {

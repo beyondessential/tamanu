@@ -257,20 +257,18 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             data-testid="infocarditem-p5t5"
           />
         )}
-        {!isEmergencyPatient(encounter.encounterType) && (
-          <InfoCardItem
-            label={
-              <TranslatedText
-                stringId="encounter.summary.patientType.label"
-                fallback="Patient type"
-                data-testid="translatedtext-vk46"
-              />
-            }
-            value={patientBillingType}
-            icon={patientTypeIcon}
-            data-testid="infocarditem-3svu"
-          />
-        )}
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="general.location.label"
+              fallback="Location"
+              data-testid="translatedtext-iwqn"
+            />
+          }
+          value={getFullLocationName(encounter?.location)}
+          icon={locationIcon}
+          data-testid="infocarditem-82xq"
+        />
         {isInpatient(encounter?.encounterType) && (
           <InfoCardItem
             label={
@@ -285,18 +283,20 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             data-testid="infocarditem-m5lp"
           />
         )}
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="general.location.label"
-              fallback="Location"
-              data-testid="translatedtext-iwqn"
-            />
-          }
-          value={getFullLocationName(encounter?.location)}
-          icon={locationIcon}
-          data-testid="infocarditem-82xq"
-        />
+        {!isEmergencyPatient(encounter.encounterType) && (
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="encounter.summary.patientType.label"
+                fallback="Patient type"
+                data-testid="translatedtext-vk46"
+              />
+            }
+            value={patientBillingType}
+            icon={patientTypeIcon}
+            data-testid="infocarditem-3svu"
+          />
+        )}
       </InfoCardFirstColumn>
       <InfoCardSecondColumn data-testid="infocardsecondcolumn-oh1m">
         <InfoCardItem
@@ -370,20 +370,6 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
           icon={supervisingClinicianIcon}
           data-testid="infocarditem-fmd5"
         />
-        {!getSetting(`referralSourceId.hidden`) && !isEmergencyPatient(encounter.encounterType) && (
-          <InfoCardItem
-            label={
-              <TranslatedText
-                stringId="general.localisedField.referralSourceId.label"
-                fallback="Referral source"
-                data-testid="translatedtext-cwip"
-              />
-            }
-            value={getReferralSource(encounter)}
-            icon={referralSourceIcon}
-            data-testid="infocarditem-n7q6"
-          />
-        )}
         {isEmergencyPatient(encounter.encounterType) ? (
           <>
             <InfoCardItem
@@ -438,6 +424,20 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             icon={reasonForEncounterIcon}
             $whiteSpace="normal"
             data-testid="infocarditem-axjq"
+          />
+        )}
+        {!getSetting(`referralSourceId.hidden`) && !isEmergencyPatient(encounter.encounterType) && (
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="general.localisedField.referralSourceId.label"
+                fallback="Referral source"
+                data-testid="translatedtext-cwip"
+              />
+            }
+            value={getReferralSource(encounter)}
+            icon={referralSourceIcon}
+            data-testid="infocarditem-n7q6"
           />
         )}
       </InfoCardSecondColumn>

@@ -37,6 +37,7 @@ import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQue
 import { isEqual } from 'es-toolkit/compat';
 import { ChartDataProvider } from '../../contexts/ChartData';
 import { PlannedMoveActions } from './components/PlannedMoveActions';
+import { PrimaryDiagnoses } from './components/PrimaryDiagnoses';
 
 const TABS = [
   {
@@ -275,6 +276,7 @@ export const EncounterView = () => {
             encounter.encounterType,
           ) && <EncounterActions encounter={encounter} data-testid="encounteractions-8368" />}
       </EncounterTopBar>
+      {encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
       <EncounterInfoPane
         encounter={encounter}
         getSetting={getSetting}
@@ -290,7 +292,7 @@ export const EncounterView = () => {
         }
         data-testid="encounterinfopane-nabb"
       />
-      {encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
+      <PrimaryDiagnoses diagnoses={encounter.diagnoses} data-testid="primarydiagnoses-encounter" />
       <StyledContentPane data-testid="contentpane-nv12">
         <StyledTabDisplayDraggable
           tabs={visibleTabs}
