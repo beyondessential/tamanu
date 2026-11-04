@@ -96,18 +96,26 @@ export const useAppUpdate = (): AppUpdateState => {
   const download = useCallback(async () => {
     if (!packageUrl) return;
     setStage(UPDATE_STAGE.DOWNLOADING);
+
+    // The size probe is only a courtesy for the space check below; a server that cannot answer it
+    // (a 405 to HEAD is common) is not reason enough to give up before even trying the download.
+    let packageBytes = -1;
     try {
-      // The size only feeds the space check, and some servers refuse HEAD, so a failed probe leaves
-      // it unknown rather than stopping a download the GET would complete
-      const packageBytes = await Updater.getPackageSize(packageUrl).catch(() => -1);
-      if (packageBytes > 0) {
-        const freeBytes = await Updater.getFreeDiskBytes();
-        if (!hasEnoughSpace(freeBytes, packageBytes)) {
-          setProgress({ downloadedBytes: 0, totalBytes: packageBytes });
-          block(UPDATE_BLOCKER.NOT_ENOUGH_SPACE);
-          return;
-        }
+      packageBytes = await Updater.getPackageSize(packageUrl);
+    } catch (error) {
+      console.warn('useAppUpdate: could not read the package size', error);
+    }
+
+    if (packageBytes > 0) {
+      const freeBytes = await Updater.getFreeDiskBytes();
+      if (!hasEnoughSpace(freeBytes, packageBytes)) {
+        setProgress({ downloadedBytes: 0, totalBytes: packageBytes });
+        block(UPDATE_BLOCKER.NOT_ENOUGH_SPACE);
+        return;
       }
+    }
+
+    try {
       await Updater.startDownload(packageUrl);
       setStage(UPDATE_STAGE.READY);
     } catch (error) {
