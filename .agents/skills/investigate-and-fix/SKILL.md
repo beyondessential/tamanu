@@ -2,11 +2,8 @@
 name: investigate-and-fix
 description: "Diagnose and fix the bug described on this card"
 label: "Investigate and fix"
-pill-order:
-  not-started: 1
-  specifying: 1
-jockey-hint: "Surface as a top pill only when the card carries the `Bug` tag, and only in the `not-started` and `specifying` phases. On untagged cards, do not include in pills or suggestions at all."
-workhorse-version: 0.3.0
+category: build
+workhorse-version: 0.7.9
 ---
 
 ## Your task: Investigate and fix

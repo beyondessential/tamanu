@@ -32,6 +32,9 @@ setup('authenticate', async ({ loginPage, page }) => {
   await page.locator('input[name="password"]').fill(password);
   await page.getByTestId('loginbutton-gx21').click();
   await page.getByTestId('logoutbutton-4zn4').waitFor({ state: 'visible', timeout: 60_000 });
+  // the token is encrypted before it is written, which can land after the shell renders; wait for
+  // it before capturing, or the saved admin session has no token and specs open on the login screen
+  await page.waitForFunction(() => window.localStorage.getItem('apiToken') !== null);
   const adminState = await page.context().storageState();
 
   // storageState() only retains localStorage for the currently-loaded origin,

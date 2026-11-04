@@ -2,11 +2,8 @@
 name: draft-test-cases
 description: "Draft or refine the test-cases checklist for this card"
 label: "Draft test cases"
-pill-order:
-  specifying: 9
-  implementing: 5
-jockey-hint: "Surface when the card has specs but no test cases yet, or when the user wants to refresh the scenario list. Demote once a healthy test-cases file exists unless the user signals a fresh area to cover."
-workhorse-version: 0.3.0
+category: verify
+workhorse-version: 0.7.9
 ---
 
 ## Your task: Draft test cases

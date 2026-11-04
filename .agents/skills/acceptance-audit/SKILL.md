@@ -2,11 +2,8 @@
 name: acceptance-audit
 description: "Check whether this card's code meets the acceptance criteria"
 label: "Acceptance audit"
-pill-order:
-  implementing: 4
-  reviewing: 4
-  complete: 3
-workhorse-version: 0.3.0
+category: verify
+workhorse-version: 0.7.9
 ---
 
 ## Your task: Acceptance audit

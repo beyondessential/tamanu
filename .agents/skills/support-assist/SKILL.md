@@ -1,8 +1,9 @@
 ---
 name: support-assist
-description: "Run a support investigation as a suggest-and-interpret loop, never executing anything yourself — orient to the product's support pack and follow the signal with judgment. Use when someone asks for help triaging, investigating, or resolving an operational or support issue on a deployment. Not for feature-development cards (see investigate-and-fix and implement-this)."
+description: "Run a support investigation as a suggest-and-interpret loop, never executing anything yourself — orient to the product's support pack and follow the signal with judgement. Use when someone asks for help triaging, investigating, or resolving an operational or support issue on a deployment. Not for feature-development cards (see investigate-and-fix and implement-this)."
 label: "Support assist"
-workhorse-version: 0.3.0
+category: other
+workhorse-version: 0.7.9
 ---
 
 ## Your task: Support assist
@@ -23,11 +24,11 @@ No pack? Work code-grounded: establish the environment from what the user tells 
 
 ### How to work it
 
-There's no fixed order here — read the situation and choose the path, the way a human would. These are the things to do, applied with judgment rather than run in lockstep:
+There's no fixed order here — read the situation and choose the path, the way a human would. These are the things to do, applied with judgement rather than run in lockstep:
 
 - **Establish the deployment context early** when the symptom looks deployment-specific — which one, what version, what's changed recently, any known quirks.
 - **Try to match a runbook** to the symptom in front of you. If one fits, follow it, and cite it by `file:line` for each step you draw from it.
-- **Review the SOPs and notes** for anything applicable to the area you've landed in. When one fits the situation as it stands, using it exactly as written is perfectly fine — that's what it's for. When the deployment in front of you differs, it's just as fine to adapt the procedure to it — building the contextually appropriate step for *this* environment from your reading of the SOP and grounding in the code. Both are legitimate; which way to go is a judgment call about what the context needs, not a nudge away from using it as written. Whatever you land on still sits somewhere on the classification scheme: a step already blessed in principle by an approved runbook stays pre-approved whether you use it as written or parameterise it for this deployment, anything you generate that mutates without that cover defaults to the more cautious end, and the never-suggest gate never bends.
+- **Review the SOPs and notes** for anything applicable to the area you've landed in. When one fits the situation as it stands, using it exactly as written is perfectly fine — that's what it's for. When the deployment in front of you differs, it's just as fine to adapt the procedure to it — building the contextually appropriate step for *this* environment from your reading of the SOP and grounding in the code. Both are legitimate; which way to go is a judgement call about what the context needs, not a nudge away from using it as written. Whatever you land on still sits somewhere on the classification scheme: a step already blessed in principle by an approved runbook stays pre-approved whether you use it as written or parameterise it for this deployment, anything you generate that mutates without that cover defaults to the more cautious end, and the never-suggest gate never bends.
 - **Reach for the query cookbook** rather than improvising when a ready diagnostic already exists. If a cookbook entry fits the question in front of you, running it exactly as written is fine. If the deployment or the question calls for it, it's equally fine to tailor the entry — grounded in the schema and code as they actually are — so the query you suggest fits *this* context. Use it as-is or adapt it to the situation: both are fine, whichever the case in front of you calls for.
 - **Ground in the code** when nothing in the pack fits — read the relevant code and configuration to form a hypothesis about what's happening and where to look next.
 - **Give the human a triage read** whenever it helps them tag the ticket: a plain, labelled judgement covering tier / severity (in the product's own terms), urgency, scope, whether there's a workaround, and whether the deployment is inside its supported hours. Write it as flat labelled lines (`Tier: …`, `Urgency: …`) they can copy straight onto the ticket — state the judgement, don't apply the tag for them.
