@@ -240,6 +240,16 @@ public class UpdateDownloader {
                 throw new IOException("Update server responded " + status);
             }
 
+            // A partial response is only appended if it starts where the part on disk ends; anything
+            // else would splice the package, so the part is dropped and the next attempt starts over
+            if (isResuming) {
+                String contentRange = connection.getHeaderField("Content-Range");
+                if (contentRange == null || !contentRange.startsWith("bytes " + resumeFrom + "-")) {
+                    partial.delete();
+                    throw new IOException("Update server resumed from the wrong place: " + contentRange);
+                }
+            }
+
             // A whole package back means the server ignored the range or the package has changed, so
             // anything already on disk has to be thrown away and the new package recorded.
             if (!isResuming) {
