@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { cloneDeep, get } from 'es-toolkit/compat';
 import { translationFactory } from '../translation/translationFactory';
-import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { getEnumPrefix, toCamelCase } from '@tamanu/shared/utils/enumRegistry';
 import { registerFonts } from './registerFonts';
 
 registerFonts();
@@ -43,7 +43,9 @@ export const withLanguageContext = Component => props => {
       getEnumTranslation(enumValues, currentValue) {
         const translationFunc = translationFactory(translations);
         const fallback = enumValues[currentValue];
-        const stringId = `${getEnumPrefix(enumValues)}.${currentValue}`;
+        // Must match getEnumStringId, which is how the seeded translations are keyed —
+        // a raw value leaves every multi-word enum looking up an id nothing is stored under.
+        const stringId = `${getEnumPrefix(enumValues)}.${toCamelCase(currentValue ?? '')}`;
         const { value } = translationFunc(stringId, fallback);
         return value;
       },

@@ -2,8 +2,8 @@
 name: run-review-hero
 description: "Drive the card's Review Hero loop by hand — trigger a review, address its comments, rerun until clean, then merge. Use in an external tool (Claude Code, Cursor) where Workhorse's automated loop isn't running."
 label: "Run Review Hero"
-jockey-hint: "External-agent workflow only. Inside Workhorse the PR control section's Run action and Rerun until clean automation drive this loop, so never surface this skill as a pill — keep it out of the pill list in every phase. It is invoked in external tools where those controls aren't available."
-workhorse-version: 0.3.0
+category: verify
+workhorse-version: 0.7.9
 ---
 
 ## Your task: Run Review Hero
@@ -55,7 +55,7 @@ Assess each against your understanding from the specs, the codebase, and the car
 - **Spec-level** — a comment that questions intended behaviour rather than the implementation. Don't act unilaterally; flag it to the user and let them decide
 - **Non-actionable** (praise, acknowledgements, questions aimed at the PR author) — note that you're skipping it and why
 
-Do not reply to the comments on GitHub — push fixes silently, the way Workhorse's auto-fix comments automation does. Avoid circular fix cycles: if a later round re-raises something you deliberately left, hold your ground rather than thrashing.
+Do not reply to the comments on GitHub — push fixes silently, as Workhorse's own handling of review comments does. Avoid circular fix cycles: if a later round re-raises something you deliberately left, hold your ground rather than thrashing.
 
 ### 5. Decide clean or not
 
@@ -67,8 +67,8 @@ Do not reply to the comments on GitHub — push fixes silently, the way Workhors
 
 ### 6. Loop or stop
 
-- **Not clean, and under the round cap** → go back to step 2 and tick the box again. Your pushed fixes mean the next review runs against the updated diff. Announce which round you're on
-- **Cap the loop at 5 rounds.** If you reach five without deeming it clean, stop and report where things stand — don't loop indefinitely
+- **Not clean, and the retry budget isn't spent** → go back to step 2 and tick the box again. Your pushed fixes mean the next review runs against the updated diff. Announce which round you're on
+- **The PR has one automated retry budget of 5 turns**, shared between your review rounds and the CI fixes you make on the same PR — so a PR whose rounds followed several CI fixes has fewer rounds left. If you spend it without deeming the PR clean, stop and report where things stand — don't loop indefinitely
 - **Clean** → move to merge
 
 Report progress at each round so the user can follow along — which comments you fixed, which you skipped or flagged, and the round's counts.
@@ -78,7 +78,10 @@ Report progress at each round so the user can follow along — which comments yo
 Once you deem the PR clean and CI is green:
 
 - **Pause for the user first** if you flagged any spec-level comment, deemed it clean while leaving items unaddressed, or anything else leaves the merge in doubt. Otherwise — when the loop reached a clean verdict with everything resolved — merging is what this skill is for, so proceed
-- **Empty the card-scoped artifact trees before squashing.** Merging here bypasses Workhorse's merge button, so this path owns the obligations that button carries. Delete everything under `.workhorse/design/mockups/`, `.workhorse/working-docs/`, `.workhorse/breakdowns/`, `.workhorse/plans/`, and `.workhorse/test-cases/` — the whole trees, not just this card's folders, since they hold card scratch only. Commit and push, then wait for CI to pass on the new head. This is not optional and not a question for the user
+- **Empty the card-scoped artefact trees before submitting.** Merging here bypasses Workhorse's merge button, so this path owns the obligations that button carries. Delete everything under `.workhorse/design/mockups/`, `.workhorse/working-docs/`, `.workhorse/plans/`, and `.workhorse/test-cases/` — the whole trees, not just this card's folders, since they hold card scratch only. Commit and push, then wait for CI to pass on the new head. This is not optional and not a question for the user
 - If the card's design-library changes are to be reverted before merge, revert those files in the same commit
-- Squash-merge: `gh pr merge <n> --squash`
-- Confirm the merge succeeded and report the merge commit
+- **Work out how this repository expects PRs to be merged rather than assuming a squash.** Read the base branch's rules and the repository's settings — `gh api repos/{owner}/{repo}/rules/branches/{branch}` names a `merge_queue` rule when a queue is in force and a `pull_request` rule's `allowed_merge_methods` when the branch narrows the methods, and `gh api repos/{owner}/{repo}` gives the repository's allowed methods. Then:
+  - **Merge queue in force** → run `gh pr merge <n>` with no strategy flag; on a queue-gated branch that adds the PR to the queue. Report that it is queued and don't wait out the queue's own run. Two things to watch: `gh` enables GitHub's native auto-merge instead if the branch's *required* checks have not yet passed, so only run this once they have — auto-merge would merge on GitHub's conditions rather than yours, past the artefact cleanup and the review verdict this skill exists to enforce. And never pass `--auto` (which arms it outright) or `--admin` (which bypasses the queue)
+  - **The repository's merges are owned by something outside Workhorse** (a merge bot) → prepare the PR and stop, reporting that the merge belongs to whoever owns it
+  - **Otherwise merge directly**, using a method the branch allows: `gh pr merge <n> --squash`, `--merge`, or `--rebase`. Prefer squash where it is allowed
+- Confirm the merge succeeded and report the merge commit — but only where you were the one who merged. Where the merge belongs to a queue or an external merger, report the PR as submitted rather than claiming a merge you didn't make
