@@ -300,7 +300,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 <style>
 /* Interactive area limits editor. Focus and menu styles from ui-components TextField.jsx and SelectField.jsx */
 .area-limits-row.eDLpSh:hover, .area-limits-row.eDLpSh:focus-within { background-color: transparent; }
-.hQbJBg .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline, .hQbJBg .MuiOutlinedInput-root.Mui-focused:hover .MuiOutlinedInput-notchedOutline { border: 1px solid rgb(50, 102, 153); /* primary */ }
+.hQbJBg .MuiOutlinedInput-root.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline, .hQbJBg .MuiOutlinedInput-root.Mui-focused:not(.Mui-error):hover .MuiOutlinedInput-notchedOutline { border: 1px solid rgb(50, 102, 153); /* primary */ }
 #area-limits-editor .css-y4yyoz-control { cursor: text; }
 #area-limits-editor .css-y4yyoz-control.is-focused { border-color: rgb(50, 102, 153); /* primary */ }
 #area-limits-editor .css-1hwfws3 input { color: rgb(68, 68, 68); /* darkestText */ font-size: 15px; font-family: inherit; }
@@ -374,7 +374,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       + `<div class="sc-csoVao gqavqa"><div>${index === 0 ? '<label class="sc-dhKdcB fmJEhw label-field">Area</label>' : ''}<div class="MuiFormControl-root MuiFormControl-fullWidth sc-jEACwC bFuImz css-17qa0m8"><div>${selectHtml(row, index)}</div></div></div></div>`
       + `<div class="sc-eypcYp hoVSnS" style="width: 210px;">${index === 0 ? '<label class="sc-dhKdcB fmJEhw label-field">Max appointments</label>' : ''}`
       + `<div class="MuiFormControl-root MuiTextField-root sc-jlZhew hQbJBg sc-eypcYp hoVSnS MuiFormControl-fullWidth" style="width: 210px;"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl">`
-      + `<input type="text" inputmode="numeric" aria-label="Max appointments" class="MuiInputBase-input MuiOutlinedInput-input" data-field="max" value="${escape(row.max)}">${FIELDSET}</div></div></div>`
+      + `<input type="number" min="1" step="1" aria-label="Max appointments" class="MuiInputBase-input MuiOutlinedInput-input" data-field="max" value="${escape(row.max)}">${FIELDSET}</div></div></div>`
       + (isEntry ? DELETE(index === 0 ? 28 : 8) : '') + `</div>`;
   };
 
@@ -384,17 +384,22 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     button.tabIndex = enabled ? 0 : -1;
   };
 
-  const render = focus => {
-    editor.innerHTML = allRows().map(rowHtml).join('');
+  const refreshButtons = () => {
     const isDirty = JSON.stringify(rows) !== JSON.stringify(saved);
     setEnabled(resetButton, rows.length > 0);
     setEnabled(clearButton, isDirty);
     setEnabled(saveButton, isDirty);
+  };
+
+  const render = focus => {
+    editor.innerHTML = allRows().map(rowHtml).join('');
+    refreshButtons();
     if (focus) {
       const input = editor.querySelector(`[data-index="${focus.index}"] [data-field="${focus.field}"]`);
       if (input) {
         input.focus();
-        input.setSelectionRange(input.value.length, input.value.length);
+        // number inputs have no text selection to place the caret in
+        if (input.type === 'text') input.setSelectionRange(input.value.length, input.value.length);
       }
     }
   };
@@ -460,9 +465,12 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   editor.addEventListener('input', event => {
     const index = indexOf(event.target);
     if (event.target.dataset.field === 'max') {
-      const max = event.target.value.replace(/\D/g, '');
+      const max = event.target.value;
+      // Only re-render when a row is added or removed; otherwise the counter keeps working under the pointer
+      const addsOrRemovesRow = index === rows.length || (index === rows.length - 1 && !rows[index].area && max === '');
       update(index, { max });
-      render({ index: Math.min(index, rows.length), field: 'max' });
+      if (addsOrRemovesRow) render({ index: Math.min(index, rows.length), field: 'max' });
+      else refreshButtons();
       return;
     }
     menu.index = index;
@@ -492,6 +500,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       closeMenu();
       render({ index, field: 'area' });
     }
+  });
+
+  editor.addEventListener('wheel', event => {
+    if (event.target.dataset.field === 'max') event.target.blur();
   });
 
   editor.addEventListener('focusin', event => {
