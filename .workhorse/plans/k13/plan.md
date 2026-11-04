@@ -11,6 +11,7 @@ Roll the raw `logs.browser_telemetry_spans` rows (M9, spec BTEL) up into long-li
 - Slow events keep path parameter values and query parameter names only (no query values), plus device and user
 - Slow events are kept forever
 - Abandoned navigations are counted but kept out of the duration stats; capped ones are included at their capped duration
+- Defaults: 5s navigation and 2s request slow thresholds, slowest 5 and a cap of 20 per row, histogram bands as below
 
 ## Technical design notes
 
@@ -20,7 +21,7 @@ Roll the raw `logs.browser_telemetry_spans` rows (M9, spec BTEL) up into long-li
 - Slow events reference their trend row. The child requests of a slow navigation sit in the same table as rows with `parent_slow_event_id` and a `start_offset_ms` (offset from the navigation's `occurred_at`; the offset is reliable because both times come from the same client clock). This keeps them as typed columns instead of a JSON blob
 - `path_parameters` jsonb (UUIDs only) and `query_parameter_names` text[]
 
-**Histogram.** Store it as `integer[]` against a band-boundary constant in `@tamanu/constants`. Changing that constant breaks combinability, so it gets the same "public contract" comment treatment as the AI prompt protocol. Proposed boundaries (ms): 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 30000, 60000, then open-ended.
+**Histogram.** Store it as `integer[]` against a band-boundary constant in `@tamanu/constants`. Changing that constant breaks combinability, so it gets the same "public contract" comment treatment as the AI prompt protocol. Confirmed boundaries (ms): 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 30000, 60000, then open-ended.
 
 **Bucketing and watermark.** Bucket by `created_at` (server receipt). The existing `browser_telemetry_spans_created_at` index serves the range scan. A bucket closes at `bucket_end + grace`, a short grace that covers commit lag on in-flight ingest. Keep the watermark in `local_system_facts` and advance it in the same transaction as each bucket's inserts, so the job is exactly-once and resumable. On first run, process from the oldest raw row. One transaction per bucket keeps transactions short.
 
@@ -36,7 +37,7 @@ Roll the raw `logs.browser_telemetry_spans` rows (M9, spec BTEL) up into long-li
 - `aggregation.requestSlowThresholdMs`: default 2000
 - `aggregation.slowEventCapPerRow`: default 20
 
-The rollup schedule is `rollupBrowserTelemetry` in both `facility.ts` and `central.ts` scheduled tasks. These defaults are proposals to confirm with the user.
+The rollup schedule is `rollupBrowserTelemetry` in both `facility.ts` and `central.ts` scheduled tasks. The user has confirmed these defaults.
 
 **Bucket-size changes.** When the bucket size changes, the next bucket starts at the first boundary of the new size that is at or after the watermark. Each row carries `bucket_minutes`.
 
