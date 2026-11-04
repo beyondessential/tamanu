@@ -87,18 +87,13 @@ export const getFormattedInvoiceItemNetCost = (item: InvoiceItem): string | unde
   return formatDisplayPrice(netCost);
 };
 
-// Negating a zero total gives -0, which formats as "-0.00"
-const formatDeduction = (value: number) => formatDisplayPrice(value === 0 ? 0 : -value);
-
 /**
- * Format the totals printed on an invoice receipt. Deductions are shown as negative amounts, and
- * the fee scale adjustment is null when the receipt leaves it off: when the sliding fee scale is
- * switched off, or the invoice has no fee scale discount.
+ * Format the summary totals printed on an invoice. Both print layouts read their figures from here,
+ * so an invoice prints the same figures whichever layout the facility uses. Deductions are shown
+ * as negative amounts, and the fee scale adjustment is null when the invoice has no fee scale
+ * discount.
  */
-export const getInvoiceReceiptTotalsDisplay = (
-  invoice: Invoice,
-  { isSlidingFeeScaleEnabled }: { isSlidingFeeScaleEnabled: boolean },
-) => {
+export const getInvoicePrintTotalsDisplay = (invoice: Invoice) => {
   const {
     invoiceItemsUndiscountedTotal,
     itemAdjustmentsTotal,
@@ -113,16 +108,20 @@ export const getInvoiceReceiptTotalsDisplay = (
   return {
     invoiceTotal: formatDisplayPrice(invoiceItemsUndiscountedTotal),
     itemAdjustments: formatDisplayPrice(itemAdjustmentsTotal),
-    insuranceCoverage: formatDeduction(insuranceCoverageTotal),
+    // Only the receipt prints this total; the A4 lists coverage per insurance plan instead
+    insuranceCoverage: formatDisplayPrice(
+      insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0,
+    ),
     patientSubtotal: formatDisplayPrice(patientSubtotal),
-    feeScaleAdjustment:
-      isSlidingFeeScaleEnabled && feeScalePercentage
-        ? {
-            percentage: Math.round(feeScalePercentage * 100),
-            amount: formatDeduction(discountTotal),
-          }
-        : null,
-    patientPayments: formatDeduction(patientPaymentsTotal),
+    // Shown whether or not the sliding fee scale is still switched on, since the discount still
+    // comes off the patient total due
+    feeScaleAdjustment: feeScalePercentage
+      ? {
+          percentage: Math.round(feeScalePercentage * 100),
+          amount: formatDisplayPrice(discountTotal * -1),
+        }
+      : null,
+    patientPayments: formatDisplayPrice(patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0),
     patientTotalDue: formatDisplayPrice(patientPaymentRemainingBalance),
   };
 };

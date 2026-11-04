@@ -106,7 +106,9 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
         {isReceiptLayout ? (
           <InvoiceReceiptPrintout
             {...printoutProps}
-            patientData={patient}
+            // A failed patient fetch still renders the preview, without a print button, so give
+            // the receipt an empty patient as the A4 effectively gets
+            patientData={patient ?? {}}
             data-testid="invoicereceiptprintout-k4vd"
           />
         ) : (

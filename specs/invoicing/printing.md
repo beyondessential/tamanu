@@ -69,9 +69,10 @@ The receipt shows these sections, in order.
       patient subtotal, fee scale adjustment and patient payments, each the same figure as in the
       A4 layout's summary of totals.
 - [ ] Insurance coverage is the invoice's total coverage, shown as a single figure.
-- [ ] The fee scale adjustment appears only while the sliding fee scale is switched on
-      (`features.invoicing.slidingFeeScale`) and the invoice has a fee scale discount. Its label
-      carries the invoice's fee scale percentage.
+- [ ] The fee scale adjustment appears only when the invoice has a fee scale discount, as on the A4
+      layout. It still appears after the sliding fee scale (`features.invoicing.slidingFeeScale`)
+      is switched off, since the discount still comes off the patient total due. Its label carries
+      the invoice's fee scale percentage.
 - [ ] Insurance coverage, the fee scale adjustment and patient payments are shown as deductions,
       as negative amounts, as on the A4 layout.
 - [ ] Every other figure in Details is shown as 0.00 when there is nothing to record.

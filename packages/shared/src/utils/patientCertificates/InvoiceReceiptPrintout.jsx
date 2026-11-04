@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, Image, StyleSheet, View } from '@react-pdf/renderer';
 
-import { getInvoiceItemPriceDisplay, getInvoiceReceiptTotalsDisplay } from '@tamanu/utils/invoice';
+import { getInvoiceItemPriceDisplay, getInvoicePrintTotalsDisplay } from '@tamanu/utils/invoice';
 
 import { getDob, getName } from '../patientAccessors';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
@@ -223,16 +223,14 @@ const PatientTotalDueSection = ({ totals }) => {
   );
 };
 
-const InvoiceReceiptPrintoutComponent = ({ patientData, certificateData, invoice, getSetting }) => {
+const InvoiceReceiptPrintoutComponent = ({ patientData, certificateData, invoice }) => {
   const items = invoice.items ?? [];
-  const totals = getInvoiceReceiptTotalsDisplay(invoice, {
-    isSlidingFeeScaleEnabled: Boolean(getSetting('features.invoicing.slidingFeeScale')),
-  });
+  const totals = getInvoicePrintTotalsDisplay(invoice);
 
   return (
     <Document>
       {/* With no height, the page is as long as its content: one continuous strip of roll */}
-      <Page size={[RECEIPT_WIDTH]} wrap={false} style={styles.page}>
+      <Page size={{ width: RECEIPT_WIDTH }} wrap={false} style={styles.page}>
         <HeaderSection certificateData={certificateData} />
         <Divider />
         <PatientDetailsSection patient={patientData} />
