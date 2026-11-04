@@ -108,6 +108,8 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
         executor.execute(() -> {
             try {
                 promise.resolve((double) downloader.declaredSize(url));
+            } catch (UpdateDownloader.ServerRejectedException e) {
+                promise.reject("PACKAGE_SIZE_REJECTED", e.getMessage(), e);
             } catch (Exception e) {
                 promise.reject("PACKAGE_SIZE_FAILED", e.getMessage(), e);
             }
@@ -131,6 +133,10 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
                 promise.resolve((double) file.length());
             } catch (UpdateDownloader.TruncatedDownloadException e) {
                 promise.reject("DOWNLOAD_TRUNCATED", e.getMessage(), e);
+            } catch (UpdateDownloader.ServerRejectedException e) {
+                // A permanent refusal (a 404 for a version or branding the server has no package
+                // for) rather than something retrying on a schedule could ever fix.
+                promise.reject("DOWNLOAD_REJECTED", e.getMessage(), e);
             } catch (Exception e) {
                 promise.reject("DOWNLOAD_FAILED", e.getMessage(), e);
             }

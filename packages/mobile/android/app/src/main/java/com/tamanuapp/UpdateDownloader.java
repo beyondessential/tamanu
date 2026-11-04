@@ -39,6 +39,17 @@ public class UpdateDownloader {
         }
     }
 
+    /**
+     * The server refused the request outright (for example a 404 for a version or branding it has
+     * no package for). Retrying on a schedule cannot fix this, unlike a timeout or a dropped
+     * connection.
+     */
+    public static class ServerRejectedException extends IOException {
+        ServerRejectedException(int status) {
+            super("Update server responded " + status);
+        }
+    }
+
     private static final String DOWNLOAD_DIRECTORY = "update";
     private static final String PARTIAL_FILE = "tamanu.apk.part";
     private static final String COMPLETE_FILE = "tamanu.apk";
@@ -107,6 +118,16 @@ public class UpdateDownloader {
             return etag;
         }
         return connection.getHeaderField("Last-Modified");
+    }
+
+    /**
+     * Whether a 206 response actually resumes from where it was asked to. A server or proxy that
+     * answers 206 without honouring the range (or omits Content-Range altogether) cannot be trusted
+     * to be continuing the same bytes, so the partial download is restarted rather than appended to.
+     */
+    private static boolean rangeStartsAt(HttpURLConnection connection, long resumeFrom) {
+        String contentRange = connection.getHeaderField("Content-Range");
+        return contentRange != null && contentRange.startsWith("bytes " + resumeFrom + "-");
     }
 
     public long downloadedBytes() {
@@ -184,7 +205,7 @@ public class UpdateDownloader {
             connection.connect();
             int status = connection.getResponseCode();
             if (status != HttpURLConnection.HTTP_OK) {
-                throw new IOException("Update server responded " + status);
+                throw new ServerRejectedException(status);
             }
             return connection.getContentLengthLong();
         } finally {
@@ -225,13 +246,16 @@ public class UpdateDownloader {
             connection.connect();
             int status = connection.getResponseCode();
 
-            boolean isResuming = status == HttpURLConnection.HTTP_PARTIAL;
-            if (!isResuming && status != HttpURLConnection.HTTP_OK) {
-                throw new IOException("Update server responded " + status);
+            boolean isResuming = status == HttpURLConnection.HTTP_PARTIAL
+                && resumeFrom > 0
+                && rangeStartsAt(connection, resumeFrom);
+            if (status != HttpURLConnection.HTTP_PARTIAL && status != HttpURLConnection.HTTP_OK) {
+                throw new ServerRejectedException(status);
             }
 
-            // A whole package back means the server ignored the range or the package has changed, so
-            // anything already on disk has to be thrown away and the new package recorded.
+            // A whole package back, or a 206 that does not actually start where asked, means the
+            // server ignored the range or the package has changed, so anything already on disk has to
+            // be thrown away and the new package recorded.
             if (!isResuming) {
                 partial.delete();
                 resumeFrom = 0;
