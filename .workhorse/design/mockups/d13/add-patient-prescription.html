@@ -354,7 +354,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .wh-check .wh-fa { color: #888888; /* midText */ }
 .wh-check.is-checked { border-color: #326699; /* primary */ }
 .wh-check.is-checked .wh-fa { color: #326699; /* primary */ }
-.wh-check.is-locked { border-color: #888888; /* midText */ cursor: default; }
+.wh-check.is-locked { border-color: #dedede; /* outline */ cursor: default; }
 .wh-check.is-locked .wh-fa { color: #888888; /* midText */ }
 .wh-check.is-plain { height: auto; padding: 0; background: none; border: 0; }
 .wh-check-group { grid-column: 1 / -1; padding-bottom: 1.2rem; border-bottom: 1px solid #dedede; /* outline */ display: flex; flex-direction: column; gap: 20px; }
@@ -370,9 +370,11 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .wh-radio.is-selected { border-color: #326699; /* primary */ }
 .wh-radio.is-selected .wh-dot { border-color: #326699; /* primary */ }
 .wh-radio.is-selected .wh-dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #326699; /* primary */ }
-.wh-radio.is-locked { border-color: #888888; /* midText */ cursor: default; }
+.wh-radio.is-locked { border-color: #dedede; /* outline */ cursor: default; }
 .wh-radio.is-locked .wh-dot { border-color: #888888; /* midText */ }
 .wh-radio.is-locked .wh-dot::after { background: #888888; /* midText */ }
+.wh-radio.is-locked:not(.is-selected) { color: #888888; /* midText */ }
+.wh-radio.is-locked:not(.is-selected) .wh-dot { border-color: #dedede; /* outline */ }
 
 .wh-button-row { grid-column: 1 / -1; display: flex; justify-content: space-between; height: 40px; }
 .wh-btn { font-family: Roboto; font-weight: 500; font-size: 14px; line-height: 16px; padding: 11px 18px 12px; min-width: 100px; border-radius: 3px; border: 1px solid #326699; /* primary */ cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -488,6 +490,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
           <label class="wh-label">Prescription type<span class="wh-req">*</span></label>
           <div class="wh-radios" role="radiogroup">
             <div class="wh-radio is-selected is-locked" role="radio" aria-checked="true" aria-disabled="true"><span class="wh-dot"></span>Outpatient/Discharge</div>
+            <div class="wh-radio is-locked" role="radio" aria-checked="false" aria-disabled="true"><span class="wh-dot"></span>Inpatient</div>
           </div>
         </div>
 
