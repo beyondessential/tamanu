@@ -4,7 +4,7 @@ id: OPAPPT
 
 # Outpatient appointments calendar
 
-The outpatient appointments calendar shows a facility's outpatient appointments for a selected day, in columns grouped by area or by clinician. Staff narrow it with a patient search and filters, and choose how appointments are ordered within each column. See `scheduling/overview.md` for scheduling as a whole.
+The outpatient appointments calendar shows a facility's outpatient appointments for a selected day, in columns Updstgrouped by area or by clinician. Staff narrow it with a patient search and filters, and choose how appointments are ordered within each column. See `scheduling/overview.md` for scheduling as a whole.
 
 ## Search and filter row
 
