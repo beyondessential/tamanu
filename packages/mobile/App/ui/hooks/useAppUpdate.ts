@@ -96,20 +96,36 @@ export const useAppUpdate = (): AppUpdateState => {
   const download = useCallback(async () => {
     if (!packageUrl) return;
     setStage(UPDATE_STAGE.DOWNLOADING);
+
+    // The size probe is only a courtesy for the space check below; a server that cannot answer it
+    // (a 405 to HEAD is common) is not reason enough to give up before even trying the download.
+    let packageBytes = -1;
     try {
-      const packageBytes = await Updater.getPackageSize(packageUrl);
-      if (packageBytes > 0) {
-        const freeBytes = await Updater.getFreeDiskBytes();
-        if (!hasEnoughSpace(freeBytes, packageBytes)) {
-          setProgress({ downloadedBytes: 0, totalBytes: packageBytes });
-          block(UPDATE_BLOCKER.NOT_ENOUGH_SPACE);
-          return;
-        }
+      packageBytes = await Updater.getPackageSize(packageUrl);
+    } catch (error) {
+      console.warn('useAppUpdate: could not read the package size', error);
+    }
+
+    if (packageBytes > 0) {
+      const freeBytes = await Updater.getFreeDiskBytes();
+      if (!hasEnoughSpace(freeBytes, packageBytes)) {
+        setProgress({ downloadedBytes: 0, totalBytes: packageBytes });
+        block(UPDATE_BLOCKER.NOT_ENOUGH_SPACE);
+        return;
       }
+    }
+
+    try {
       await Updater.startDownload(packageUrl);
       setStage(UPDATE_STAGE.READY);
     } catch (error) {
       console.warn('useAppUpdate: download failed', error);
+      if ((error as { code?: string }).code === 'DOWNLOAD_REJECTED') {
+        // The server is refusing this version or branding outright; retrying on a schedule cannot
+        // fix that, so stop and offer the manual fallback straight away.
+        block(UPDATE_BLOCKER.REPEATED_FAILURES);
+        return;
+      }
       setFailedAttempts(attempts => attempts + 1);
       setStage(UPDATE_STAGE.RETRYING);
     }
@@ -206,7 +222,7 @@ export const useAppUpdate = (): AppUpdateState => {
   }, []);
 
   const offerManualUrl =
-    blocker !== null || shouldOfferManualFallback(failedAttempts) ? updateUrl : null;
+    blocker !== null || shouldOfferManualFallback(failedAttempts) ? packageUrl : null;
 
   return {
     isUpdateOutstanding: Boolean(updateUrl),
