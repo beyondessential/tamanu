@@ -626,7 +626,6 @@ jobs:
           fi
 
           kubectl -n "$namespace" scale deploy/synthetic-tests --replicas="$replicas"
-          kubectl -n "$namespace" get deploy/synthetic-tests
 
   fake-data:
     needs:
