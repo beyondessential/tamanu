@@ -4,7 +4,7 @@ description: "Interview me about this project to develop the PRD"
 label: "PRD interview"
 category: plan
 surface: project
-workhorse-version: 0.7.9
+workhorse-version: 0.7.10
 ---
 
 ## Your task: PRD interview

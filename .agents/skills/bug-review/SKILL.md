@@ -3,7 +3,7 @@ name: bug-review
 description: "Review code changes on this card for likely bugs, regressions, and missed edges"
 label: "Bug review"
 category: verify
-workhorse-version: 0.7.9
+workhorse-version: 0.7.10
 ---
 
 ## Your task: Bug review

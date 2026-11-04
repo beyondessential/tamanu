@@ -3,7 +3,7 @@ name: hands-free-feature
 description: "Design, build and polish a large feature end to end without check-ins, until it is beautiful, refined and free of bugs"
 label: "Build hands-free"
 category: build
-workhorse-version: 0.7.9
+workhorse-version: 0.7.10
 ---
 
 ## Your task: build a large feature, hands free

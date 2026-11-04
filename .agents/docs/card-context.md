@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.7.9
+workhorse-version: 0.7.10
 ---
 
 # Establishing card context outside Workhorse

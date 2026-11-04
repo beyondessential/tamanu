@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.7.9
+workhorse-version: 0.7.10
 ---
 
 # Driving the app in a real browser

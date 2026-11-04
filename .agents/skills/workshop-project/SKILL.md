@@ -4,7 +4,7 @@ description: "Workshop the shape of this project — audience, components, ambig
 label: "Workshop project"
 category: plan
 surface: project
-workhorse-version: 0.7.9
+workhorse-version: 0.7.10
 ---
 
 ## Your task: Workshop project

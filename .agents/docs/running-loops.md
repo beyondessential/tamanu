@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.7.9
+workhorse-version: 0.7.10
 ---
 
 # Running a loop of agents
