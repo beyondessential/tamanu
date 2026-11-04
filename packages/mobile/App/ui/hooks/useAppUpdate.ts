@@ -61,9 +61,11 @@ export const useAppUpdate = (): AppUpdateState => {
 
   // An update outstanding from a previous launch, and one rejected while the app is running.
   useEffect(() => {
+    // Saved on the device, so an update cut short by the app closing resumes on the next launch
     readPendingUpdate().then(pending => {
       if (pending) setUpdateUrl(pending);
     });
+    // Recorded by AuthContext when the server rejects this version while the app is running
     const onRecorded = (recordedUrl?: string) => {
       if (recordedUrl) setUpdateUrl(recordedUrl);
     };
@@ -71,6 +73,7 @@ export const useAppUpdate = (): AppUpdateState => {
     return () => pendingUpdateEmitter.off('recorded', onRecorded);
   }, []);
 
+  // Download progress reported by the native downloader, for the percentage on the banner and Sync tab
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener(PROGRESS_EVENT, (next: UpdateProgress) => {
       setProgress(next);
@@ -78,6 +81,8 @@ export const useAppUpdate = (): AppUpdateState => {
     return () => subscription.remove();
   }, []);
 
+  // Stops at a failure retrying can't fix, until the next launch checks afresh. The reason picks
+  // the banner's message.
   const block = useCallback((reason: UpdateBlocker) => {
     setBlocker(reason);
     setStage(UPDATE_STAGE.BLOCKED);
@@ -93,6 +98,8 @@ export const useAppUpdate = (): AppUpdateState => {
     }
   }, []);
 
+  // Checks there's room, then downloads the package. A refused package blocks; any other failure
+  // retries after a lengthening gap.
   const download = useCallback(async () => {
     if (!packageUrl) return;
     setStage(UPDATE_STAGE.DOWNLOADING);
@@ -130,6 +137,8 @@ export const useAppUpdate = (): AppUpdateState => {
     }
   }, [packageUrl, block]);
 
+  // Picks up from wherever the update stands: blocked if an install already failed to satisfy the
+  // server, ready if the package is already downloaded, otherwise downloads it.
   const begin = useCallback(async () => {
     if (!packageUrl) return;
 
