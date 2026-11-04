@@ -6,6 +6,8 @@ id: PHORD
 
 A prescriber sends selected prescriptions to the pharmacy from either an active encounter or a patient's ongoing medications, specifying the ordering prescriber, quantity per item, and (for encounter orders) whether the request is inpatient or outpatient/discharge.
 
+A pharmacist can also create a prescription that goes straight to pharmacy for a patient with no active encounter (see `medication/patient-prescription.md`).
+
 ## Prescription list
 
 - [ ] Each prescription row shows its medication, dose, frequency, and the stock status of that medication at the current facility.
