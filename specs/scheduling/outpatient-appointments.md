@@ -37,11 +37,11 @@ Each filter offers a list of options the user can tick, and any number of option
 
 The sort control is a dropdown that orders the appointments within each column. While open it reads "Sort by" and lists the two orders, with the current one highlighted.
 
-- [ ] **Booking time** orders appointments by the time they are booked for, earliest first.
-- [ ] **Arrival time** puts first the appointments whose patient has arrived, meaning those marked Arrived, Assessed or Seen, earliest arrival at the top. Appointments not yet arrived follow in booking-time order, then no-shows and cancelled appointments last, in booking-time order.
+- [ ] **Appointment time** orders appointments by the time they are booked for, earliest first.
+- [ ] **Arrival time** puts first the appointments whose patient has arrived, meaning those marked Arrived, Assessed or Seen, earliest arrival at the top. Appointments not yet arrived follow in appointment-time order, then no-shows and cancelled appointments last, in appointment-time order.
 - [ ] An appointment's arrival time is when it was first marked Arrived, Assessed or Seen. Moving it back to Confirmed clears its arrival time.
-- [ ] An arrived appointment with no recorded arrival time sorts after the arrived appointments that have one, in booking-time order.
-- [ ] Booking time is the order used until a user picks another.
+- [ ] An arrived appointment with no recorded arrival time sorts after the arrived appointments that have one, in appointment-time order.
+- [ ] Appointment time is the order used until a user picks another.
 
 ## Remembered choices
 
