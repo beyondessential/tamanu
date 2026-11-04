@@ -192,8 +192,6 @@ outstanding shots across all Tamanu documentation are found by one search.
 - **Every image has a thin black border**, drawn into the image itself
 - **Outline in red the action buttons the reader should find**, drawn into the image. Which buttons
   are outlined is the author's call, so ask
-- **Show each image centred and smaller than the text column**, at a `width` of about 0.31 times
-  its pixel width, which matches the user guides
 - **Every image has alt text** describing what the shot shows, including any red outline
 - **Every image has a caption**: one short sentence describing what the
   image shows or the action it illustrates, with Tamanu front-end text word for word in bold
