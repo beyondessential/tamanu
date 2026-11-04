@@ -3,9 +3,11 @@ import { CentralServerConnection } from './CentralServerConnection';
 import {
   getModelsForDirection,
   getSyncTick,
+  getTableNamesForDirection,
   pushOutgoingChanges,
   snapshotOutgoingChanges,
 } from './utils';
+import { CURRENT_SYNC_TIME } from './constants';
 
 jest.mock('./utils', () => ({
   setSyncTick: jest.fn(),
@@ -58,6 +60,9 @@ describe('MobileSyncManager', () => {
   beforeEach(() => {
     mobileSyncManager = new MobileSyncManager(centralServerConnection, mockSettingsService as any);
     jest.clearAllMocks();
+    // a push with nothing to send still reports its cursor to central, so every push path
+    // reaches completePush — stub it so no test makes a real request
+    jest.spyOn(centralServerConnection, 'completePush').mockResolvedValue(undefined);
   });
 
   describe('triggerSync()', () => {
@@ -145,7 +150,12 @@ describe('MobileSyncManager', () => {
       await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.pushOutgoingChanges).toBeCalledTimes(1);
-      expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
+      // third arg is central's recorded push cursor, undefined here as the mock returns none
+      expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(
+        mockSessionId,
+        mockSyncTick,
+        undefined,
+      );
     });
 
     it("should call pullIncomingChanges() with the correct 'sessionId'", async () => {
@@ -205,17 +215,85 @@ describe('MobileSyncManager', () => {
       expect(snapshotOutgoingChanges).toBeCalledWith(modelsToPush, pushSince);
     });
 
-    it('should not push outgoing changes if there are no changes', async () => {
-      const modelsToPush = ['Patient', 'PatientAdditionalData', 'PatientDeathData'];
+    it('should not push outgoing changes if there are no changes, but still reports the cursor', async () => {
+      const modelsToPush = ['Patient'];
       const sessionId = 'test-session';
       const newSyncClockTime = 4;
+      const currentSyncTick = 100;
 
       (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
+      (getTableNamesForDirection as jest.Mock).mockReturnValueOnce(['patients']);
+      (getSyncTick as jest.Mock).mockImplementation((_models, key) =>
+        key === CURRENT_SYNC_TIME ? currentSyncTick : 10,
+      );
       (snapshotOutgoingChanges as jest.Mock).mockImplementationOnce(() => []);
+      const completePushSpy = centralServerConnection.completePush as jest.Mock;
 
       await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 
+      // the batched push helper is skipped, but central is still told how far we've pushed so its
+      // cursor tracks ours on an idle sync
       expect(pushOutgoingChanges).not.toBeCalled();
+      expect(completePushSpy).toBeCalledWith(sessionId, ['patients'], currentSyncTick);
+    });
+
+    // We check our own cursor against central's record and resume from the lower of the two.
+    // Mirrors the facility cases in FacilitySyncManager.test.js (spec: PUSH).
+    describe('resuming from the lower of the two cursors', () => {
+      const sessionId = 'test-session';
+      const newSyncClockTime = 200;
+      const currentSyncTick = 100;
+      const localPushCursor = 10;
+
+      const arrange = () => {
+        const modelsToPush = ['Patient'];
+        (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
+        (getSyncTick as jest.Mock).mockImplementation((_models, key) =>
+          key === CURRENT_SYNC_TIME ? currentSyncTick : localPushCursor,
+        );
+        (snapshotOutgoingChanges as jest.Mock).mockImplementationOnce(() => []);
+      };
+
+      it("resumes from central's cursor when it is below the local one", async () => {
+        arrange();
+
+        await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime, 5);
+
+        expect(snapshotOutgoingChanges).toBeCalledWith(['Patient'], 5);
+      });
+
+      it("resumes from the local cursor when central's is above it", async () => {
+        arrange();
+
+        await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime, 50);
+
+        expect(snapshotOutgoingChanges).toBeCalledWith(['Patient'], localPushCursor);
+      });
+
+      it('falls back to the local cursor when central holds none', async () => {
+        arrange();
+
+        await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime, null);
+
+        expect(snapshotOutgoingChanges).toBeCalledWith(['Patient'], localPushCursor);
+      });
+
+      it('reports the local tick it has pushed up to when completing the push', async () => {
+        const modelsToPush = ['Patient'];
+        (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
+        (getSyncTick as jest.Mock).mockImplementation((_models, key) =>
+          key === CURRENT_SYNC_TIME ? currentSyncTick : localPushCursor,
+        );
+        (snapshotOutgoingChanges as jest.Mock).mockImplementationOnce(() => [
+          { recordType: 'patients', recordId: 'abc', data: {} },
+        ]);
+
+        await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime, 5);
+
+        // the reported cursor is the tick current before this session bumped the clock, not the
+        // new tick, so records stamped mid-push are still picked up next time
+        expect((pushOutgoingChanges as jest.Mock).mock.calls[0][6]).toBe(currentSyncTick);
+      });
     });
   });
 });

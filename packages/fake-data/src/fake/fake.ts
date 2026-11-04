@@ -512,6 +512,11 @@ const fakeFacilityName = (facilityType: string): string => {
 };
 
 const MODEL_SPECIFIC_OVERRIDES = {
+  Device: () => ({
+    // A faked device hasn't pushed yet, so central holds no push cursor for it. Also keeps
+    // fakeField off this BIGINT, which it has no handler for (spec: PUSH).
+    lastSuccessfulSyncPush: null,
+  }),
   Facility: ({ name: passedName }) => {
     const facilityType = chance.pickone(Object.keys(FACILITY_NAME_SUFFIXES));
     return {

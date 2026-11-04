@@ -29,6 +29,7 @@ export class Device extends Model {
   declare registeredById: string;
   declare scopes: DeviceScope[];
   declare name?: string;
+  declare lastSuccessfulSyncPush?: number;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -52,6 +53,13 @@ export class Device extends Model {
         },
         name: {
           type: DataTypes.TEXT,
+        },
+        // The client-local sync tick up to which this device's pushed changes have been
+        // durably persisted here. Handed back to the client as a cross-check, so it resumes its
+        // push from the lower of this and its own cursor. See spec PUSH.
+        lastSuccessfulSyncPush: {
+          type: DataTypes.BIGINT,
+          allowNull: true,
         },
       },
       {

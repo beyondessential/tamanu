@@ -31,3 +31,10 @@ otherwise. Some scopes are restricted by quota. Devices aren't allowed to
 request more scopes than they currently have, but may login without
 specifying the full scopes they have.
 {% enddocs %}
+
+{% docs devices__last_successful_sync_push %}
+The client-local sync tick up to which this device's pushed changes have been
+durably persisted on central. Central is the authority on how far a client has
+pushed; the client resumes its push from the lower of this and its own cursor.
+Null until the device's first push is persisted.
+{% enddocs %}
