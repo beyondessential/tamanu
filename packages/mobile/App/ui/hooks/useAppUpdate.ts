@@ -212,8 +212,9 @@ export const useAppUpdate = (): AppUpdateState => {
     setStage(UPDATE_STAGE.CHECKING);
   }, []);
 
+  // The same branded address the app downloads from, since the update server picks the package by it
   const offerManualUrl =
-    blocker !== null || shouldOfferManualFallback(failedAttempts) ? updateUrl : null;
+    blocker !== null || shouldOfferManualFallback(failedAttempts) ? packageUrl : null;
 
   return {
     isUpdateOutstanding: Boolean(updateUrl),
