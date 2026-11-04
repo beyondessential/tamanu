@@ -94,10 +94,14 @@ off directly. Turning a verb on also turns on the verbs below it, in the order `
 `write`, `read`, `list`: turning on `create` for `Procedure` also grants `write`, `read` and `list`.
 Turning a verb off turns off only that verb.
 
-<p align="center">
-  <img src="images/permissions-edit-tab.png" alt="The Edit tab of the Permissions screen filtered to Encounter, with each role's verb checkboxes outlined in red" width="732"><br>
-  <sub>Expand a noun to tick or untick each verb for each role.</sub>
-</p>
+<figure>
+  <img
+    src="images/permissions-edit-tab.png"
+    alt="The Edit tab of the Permissions screen filtered to Encounter, with each role's verb checkboxes outlined in red"
+    width="732"
+  />
+  <figcaption>Expand a noun to tick or untick each verb for each role.</figcaption>
+</figure>
 
 Viewing the matrix needs `read` for `Permission` and `list` for `Role`. Turning permissions on needs
 `create` for `Permission`, and turning them off needs `delete`. See [Permission](#permission).
@@ -145,10 +149,14 @@ permissions. Hold Ctrl (Cmd on a Mac) and select the user's avatar at the foot o
 **Impersonate role**, choose a role, and select **Stop impersonating** to return. Impersonation works
 on desktop only.
 
-<p align="center">
-  <img src="images/permissions-impersonate-role.png" alt="The Impersonate role list opened from the avatar at the foot of the sidebar" width="162"><br>
-  <sub>The <b>Impersonate role</b> list.</sub>
-</p>
+<figure>
+  <img
+    src="images/permissions-impersonate-role.png"
+    alt="The Impersonate role list opened from the avatar at the foot of the sidebar"
+    width="162"
+  />
+  <figcaption>The <b>Impersonate role</b> list.</figcaption>
+</figure>
 
 ## Admin panel access
 

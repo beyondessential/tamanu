@@ -16,10 +16,14 @@ See the [Tamanu Reference Data Manual](https://beyond-essential.slab.com/public/
 
 The `Drug` reference data type configures the medication list available when prescribing.
 
-<p align="center">
-  <img src="images/reference-data-new-prescription-medication-field.png" alt="The Medication field in the new prescription form, listing drugs from reference data" width="415"><br>
-  <sub>The <b>Medication</b> field lists the drugs imported as reference data.</sub>
-</p>
+<figure>
+  <img
+    src="images/reference-data-new-prescription-medication-field.png"
+    alt="The Medication field in the new prescription form, listing drugs from reference data"
+    width="415"
+  />
+  <figcaption>The <b>Medication</b> field lists the drugs imported as reference data.</figcaption>
+</figure>
 
 For a deployment where mSupply is also in use, the drugs list should be copied from the mSupply
 essential medicines list.
@@ -268,10 +272,14 @@ Frequency selection supports searching by synonym. For example `Daily at night` 
 synonym shown in brackets, so the meaning stays clear while supporting the medical abbreviations still
 in common use.
 
-<p align="center">
-  <img src="images/reference-data-frequency-synonym-search.png" alt="Frequency search for BID returning Two times daily (BD)" width="415"><br>
-  <sub>Searching <b>Frequency</b> for BID returns <b>Two times daily (BD)</b>.</sub>
-</p>
+<figure>
+  <img
+    src="images/reference-data-frequency-synonym-search.png"
+    alt="Frequency search for BID returning Two times daily (BD)"
+    width="415"
+  />
+  <figcaption>Searching <b>Frequency</b> for BID returns <b>Two times daily (BD)</b>.</figcaption>
+</figure>
 
 | Frequency | Synonyms |
 | --- | --- |
