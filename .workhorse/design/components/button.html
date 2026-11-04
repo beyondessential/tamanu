@@ -57,7 +57,17 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 .btn--primary:hover,.btn--primary-hover{background:var(--hover2);}
 .btn--secondary{background:transparent;color:var(--primary);border:1px solid var(--primary);}
 .btn--secondary:hover,.btn--secondary-hover{background:var(--hover1);}
-.btn--tertiary{background:none;border:none;color:#5b84ad;padding:0;height:auto;}
+.link{
+  font-family:'Roboto','Helvetica','Arial',sans-serif;
+  background:transparent;border:none;border-radius:0;box-shadow:none;padding:0;
+  font-size:14px;line-height:18px;letter-spacing:0;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+}
+.link svg{width:12px;height:12px;fill:currentColor;flex:none;}
+.link--xsmall{font-size:11px;line-height:15px;}
+.link--primary{color:var(--primary);font-weight:500;text-decoration:none;}
+.link--secondary{color:var(--darkest);font-weight:400;text-decoration:underline;}
+.link--primary:hover,.link--secondary:hover,.link--hover{color:var(--primary);font-weight:500;text-decoration:underline;}
 .btn--grey-outlined{background:transparent;color:var(--dark);border:1px solid var(--outline);}
 .btn--red-outlined{background:transparent;color:var(--alert);border:1px solid var(--alert);}
 .btn--delete{background:#d32f2f;color:var(--white);border-color:#d32f2f;}
@@ -83,6 +93,7 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 /* ---- State grid ---- */
 .ds-grid{display:grid;grid-template-columns:repeat(4,max-content);gap:16px 28px;align-items:center;}
 .ds-grid .ds-caption{white-space:nowrap;}
+.ds-grid > *{justify-self:start;}
 </style>
 </head>
 <body>
@@ -103,8 +114,8 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
         <span class="ds-caption">Secondary · <code>OutlinedButton</code></span>
       </div>
       <div class="ds-cell">
-        <button class="btn btn--tertiary">View details</button>
-        <span class="ds-caption">Tertiary · <code>TextButton</code> (hover #23476b)</span>
+        <button class="link link--primary" style="margin-top:11px;">View details</button>
+        <span class="ds-caption">Tertiary · <code>TextButton</code> (link)</span>
       </div>
     </div>
   </section>
@@ -148,7 +159,23 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     </div>
   </section>
 
-  <!-- 4. Variants -->
+  <!-- 4. Link buttons -->
+  <section class="ds-section">
+    <h2 class="ds-h">Link buttons</h2>
+    <div class="ds-grid">
+      <span></span><span class="ds-caption">Primary</span><span class="ds-caption">Secondary</span><span class="ds-caption">Hover</span>
+      <span class="ds-caption">Large · 14px</span>
+      <button class="link link--large link--primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>Link style button</button>
+      <button class="link link--large link--secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>Link style button</button>
+      <button class="link link--large link--hover"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>Link style button</button>
+      <span class="ds-caption">XSmall · 11px</span>
+      <button class="link link--xsmall link--primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>Link style button</button>
+      <button class="link link--xsmall link--secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>Link style button</button>
+      <button class="link link--xsmall link--hover"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>Link style button</button>
+    </div>
+  </section>
+
+  <!-- 5. Variants -->
   <section class="ds-section">
     <h2 class="ds-h">Variants</h2>
     <div class="ds-row">
@@ -167,7 +194,7 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     </div>
   </section>
 
-  <!-- 5. Other states -->
+  <!-- 6. Other states -->
   <section class="ds-section">
     <h2 class="ds-h">Other states</h2>
     <div class="ds-row">
@@ -185,7 +212,7 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     </div>
   </section>
 
-  <!-- 6. Form footer -->
+  <!-- 7. Form footer -->
   <section class="ds-section">
     <h2 class="ds-h">Form footer (FormSubmitCancelRow)</h2>
     <div class="ds-row">

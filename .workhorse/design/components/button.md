@@ -17,8 +17,8 @@ is. Use at most one primary per region.
 
 - **`Button`** (primary, filled blue) — the main action of a screen, form, or modal.
 - **`OutlinedButton`** (blue border, transparent) — secondary actions, and *Cancel*.
-- **`TextButton`** (no border/fill, link-like) — tertiary, low-weight actions that
-  sit inside content.
+- **`TextButton`** (link button) — tertiary, low-weight actions that sit inside
+  content. See [Link buttons](#link-buttons).
 - **`GreyOutlinedButton`** — neutral secondary where blue would over-signal.
 - **`RedOutlinedButton`** / **`DeleteButton`** — destructive actions (outlined =
   secondary-destructive; `DeleteButton` = filled red primary-destructive).
@@ -79,7 +79,31 @@ The same colours apply at every size.
 Primary is `Button`; secondary is `OutlinedButton`. The Figma file names the
 disabled variants "Deactive".
 
-### Where the code differs
+## Link buttons
+
+Text-only buttons with an optional leading icon. Two sizes, each with a primary and
+secondary style.
+
+| Size | Font size / line height | Icon | Icon–label gap |
+|---|---|---|---|
+| Large | 14px / 18px | 12 × 12px | 4px |
+| XSmall | 11px / 15px | 12 × 12px | 4px |
+
+```
+background: transparent;  border: none;  border-radius: 0;  box-shadow: none;
+padding: 0;  letter-spacing: 0;  sized to content;  icon then label, centred;
+```
+
+| Style | Label and icon | Weight | Underline |
+|---|---|---|---|
+| Primary | Tamanu Blue 60 `#326699` | Medium 500 | No |
+| Secondary | Super Dark 80 `#444444` | Regular 400 | Yes |
+| Hover (both styles) | Tamanu Blue 60 `#326699` | Medium 500 | Yes |
+
+Line height holds in every state, so a link keeps its height on hover. The Figma
+file has no disabled, pressed or focus variants for links.
+
+## Where the code differs
 
 The implementation predates these sizes. Until it is brought in line:
 
@@ -93,13 +117,17 @@ The implementation predates these sizes. Until it is brought in line:
   secondary hover to MUI's translucent primary tint, rather than Hover 2 and Hover 1.
 - `OutlinedButton` overrides its disabled border to Light 20 `#b8b8b8`, so it
   doesn't match its Tamanu Blue 30 label.
+- `TextButton` is the nearest to the primary link, but uses `#5b84ad` at 16px,
+  turns `#23476b` on hover without an underline, and keeps MUI's 8px icon gap.
+  There is no secondary link style or XSmall link.
+- `BackButton` is a `TextButton` in Tamanu Blue 60 at 12px with a 20px chevron,
+  between the Large and XSmall link sizes.
 
-### Other variants
+## Other variants
 
 These sit outside the Figma button set:
 
 ```
-/* TextButton: */          background: none; border: none; color: #5b84ad; padding: 0;  (hover #23476b)
 /* GreyOutlinedButton: */  border: 1px solid #dedede; color: text.secondary;
 /* RedOutlinedButton: */   MUI outlined, color="error" (Red-S 100 #f76853)
 /* DeleteButton: */        background: MUI red[600]; hover red[800]; color: #fff;
