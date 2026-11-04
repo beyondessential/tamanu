@@ -50,8 +50,15 @@ The receipt prints on 80 mm thermal roll paper, as one strip the length of the i
 - [ ] Long text, such as an item name, wraps onto further lines and is never cut off.
 - [ ] The receipt is one continuous strip as long as its content, with no page breaks and no fixed
       page length.
-- [ ] Each section is divided from the next by a horizontal dotted line.
-- [ ] The facility name and the section titles are set in bold.
+- [ ] Each section is divided from the next by a horizontal dotted line, and a dotted line follows
+      the patient total due.
+- [ ] The facility name and the section titles are set in bold, and the section titles are printed
+      in capitals.
+- [ ] The labels Name, Date of birth, Patient ID, Invoice number, Date and Invoice total are set in
+      bold.
+- [ ] The patient total due, both its label and its amount, is set in bold capitals a little larger
+      than the section titles.
+- [ ] Every amount is right-aligned, including each line item's line total.
 
 ### Content
 
@@ -62,12 +69,15 @@ The receipt shows these sections, in order.
 - [ ] **Patient details**, under that section title: the patient's name, date of birth and patient
       ID (display ID).
 - [ ] **Invoice**: the invoice number and the invoice date.
-- [ ] **Line items**: one line per invoice item, in the same order as the A4 layout, showing the
-      item name, its quantity and its line total before any item adjustment.
+- [ ] **Details**, under that section title: the line items, then a dotted line, then the totals.
+      An invoice with no items shows the totals directly under the section title, with no dotted
+      line.
+- [ ] Line items: one line per invoice item, in the same order as the A4 layout, showing the item
+      name, its quantity and its line total before any item adjustment.
 - [ ] A medication's quantity carries its dispensing unit, as on the A4 layout.
-- [ ] **Details**, under that section title: invoice total, item adjustments, insurance coverage,
-      patient subtotal, fee scale adjustment and patient payments, each the same figure as in the
-      A4 layout's summary of totals.
+- [ ] Totals: invoice total, item adjustments, insurance coverage, patient subtotal, fee scale
+      adjustment and patient payments, each the same figure as in the A4 layout's summary of
+      totals.
 - [ ] Insurance coverage is the invoice's total coverage, shown as a single figure.
 - [ ] The fee scale adjustment appears only when the invoice has a fee scale discount, as on the A4
       layout. It still appears after the sliding fee scale (`features.invoicing.slidingFeeScale`)
@@ -75,7 +85,7 @@ The receipt shows these sections, in order.
       the invoice's fee scale percentage.
 - [ ] Insurance coverage, the fee scale adjustment and patient payments are shown as deductions,
       as negative amounts, as on the A4 layout.
-- [ ] Every other figure in Details is shown as 0.00 when there is nothing to record.
+- [ ] Every other total is shown as 0.00 when there is nothing to record.
 - [ ] **Patient total due**: the same figure as the A4 layout's patient total due.
 
 ### Labels
@@ -87,3 +97,5 @@ The receipt shows these sections, in order.
       Details, Invoice total, Item adjustments, Insurance coverage, Patient subtotal, Fee scale
       adjustment - N% (where N is the invoice's fee scale percentage), Patient payments, Patient
       total due.
+- [ ] Labels printed in capitals are capitalised when printed, so a translation is entered in its
+      normal case.
