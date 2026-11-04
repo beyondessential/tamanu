@@ -16,10 +16,14 @@ users see them disabled. See [The admin role](03-permissions.md#the-admin-role).
 Login lockout, idle logout, password reset and mobile device registration are covered in the
 [Deploying Tamanu](../01-deploying-tamanu/) configuration guides.
 
-<p align="center">
-  <img src="images/settings-auth-category.png" alt="The Auth category in Settings, with a high risk marker beside each setting" width="717"><br>
-  <sub>The <b>Auth</b> settings, each marked high risk.</sub>
-</p>
+<figure>
+  <img
+    src="images/settings-auth-category.png"
+    alt="The Auth category in Settings, with a high risk marker beside each setting"
+    width="717"
+  />
+  <figcaption>The <b>Auth</b> settings, each marked high risk.</figcaption>
+</figure>
 
 ## Permissions source
 
