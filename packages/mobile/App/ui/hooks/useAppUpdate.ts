@@ -97,7 +97,9 @@ export const useAppUpdate = (): AppUpdateState => {
     if (!packageUrl) return;
     setStage(UPDATE_STAGE.DOWNLOADING);
     try {
-      const packageBytes = await Updater.getPackageSize(packageUrl);
+      // The size only feeds the space check, and some servers refuse HEAD, so a failed probe leaves
+      // it unknown rather than stopping a download the GET would complete
+      const packageBytes = await Updater.getPackageSize(packageUrl).catch(() => -1);
       if (packageBytes > 0) {
         const freeBytes = await Updater.getFreeDiskBytes();
         if (!hasEnoughSpace(freeBytes, packageBytes)) {
