@@ -35,7 +35,7 @@ export const createPatient = async ({
   } = models;
 
   const isOtherSexAllowed =
-    (await new ReadSettings(models).get('features.hideOtherSex')) === false;
+    (await ReadSettings.forGlobal(models).get('features.hideOtherSex')) === false;
   const patientFields = fake(Patient, { sex: fakeSex({ isOtherSexAllowed }) });
   const patient = await Patient.create(
     isDead
