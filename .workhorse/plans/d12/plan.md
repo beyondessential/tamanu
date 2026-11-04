@@ -6,6 +6,11 @@
 
 - The total balance above the patient invoices table is the sum of the patient total due on every in-progress and finalised invoice. Cancelled invoices are left out. The `totalOutstandingBalance` route in `packages/facility-server/app/routes/apiv1/patient/patientInvoice.js` filters to finalised invoices today, so that filter widens to include in-progress ones
 
+### Cancelled invoices
+
+- Cancelled invoices stay in the patient invoices table. Their Patient total due shows "n/a"; the other money columns show their amounts as usual
+- They are left out of the total balance and the printed summary
+
 ### Admission column
 
 - An invoice whose encounter changed type shows every type it has held, in the order it held them, as comma-separated abbreviations (e.g. "ESS, HA"). The table shows only the encounter's current type today (`getEncounterType` in `InvoicesTable.jsx`); the earlier types come from the encounter's history (`EncounterHistory`), which the invoices list route needs to include
@@ -21,3 +26,4 @@
 - An overflow menu (`ThreeDotMenu`, as on the encounter invoicing pane) sits beside the total balance in the table title, with a single "Print table summary" option
 - The option opens a print modal following `InvoiceRecordModal`: a `Modal` titled "Print table summary", `printable`, with the PDF in a `PDFLoader`
 - The PDF is a new printout in `packages/shared/src/utils/patientCertificates/`, built from the same pieces as `InvoiceRecordPrintout`: `MultiPageHeader`, `LetterheadSection`, `PatientDetails`, the invoice item table styling, a summary pane holding the total balance, and `Footer`
+- The printout is titled "Patient invoice summary" and lists all of the patient's in-progress and finalised invoices, not only the page shown in the table, so it needs its own unpaginated fetch
