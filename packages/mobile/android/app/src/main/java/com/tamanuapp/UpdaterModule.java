@@ -170,7 +170,7 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void installDownloadedPackage(Promise promise) {
         File packageFile = downloader.completeFile();
-        if (!packageFile.exists()) {
+        if (!downloader.hasCompletedDownload()) {
             promise.reject("NO_PACKAGE", "There is no downloaded package to install");
             return;
         }

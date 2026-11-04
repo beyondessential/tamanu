@@ -175,6 +175,13 @@ export const useAppUpdate = (): AppUpdateState => {
   }, [requestNotificationPermission]);
 
   const install = useCallback(async () => {
+    // A package found stale or unreadable since it downloaded has been discarded, so trying again
+    // fetches a fresh one rather than failing on the missing file
+    const { hasCompletedDownload } = await Updater.getStatus();
+    if (!hasCompletedDownload) {
+      setStage(UPDATE_STAGE.CHECKING);
+      return;
+    }
     setStage(UPDATE_STAGE.INSTALLING);
     await recordInstallAttempt();
     try {
@@ -187,10 +194,10 @@ export const useAppUpdate = (): AppUpdateState => {
     }
   }, []);
 
-  // The package is still downloaded and still installable, so a failure staff have dismissed
-  // simply returns them to the ready banner.
+  // Checking afresh returns staff to the ready banner while the package is still installable, and
+  // downloads a new one if it has been discarded.
   const dismissInstallFailure = useCallback(() => {
-    setStage(UPDATE_STAGE.READY);
+    setStage(UPDATE_STAGE.CHECKING);
   }, []);
 
   const offerManualUrl =

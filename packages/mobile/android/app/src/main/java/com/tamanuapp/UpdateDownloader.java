@@ -1,6 +1,8 @@
 package com.tamanuapp;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -69,8 +71,35 @@ public class UpdateDownloader {
         return partial.exists() ? partial.length() : 0;
     }
 
+    /**
+     * Whether a downloaded package is ready to install. One that would not move the app forward is
+     * left over from an update already installed, or is unreadable, so it is discarded rather than
+     * offered again. This holds even if the clean-up after an install never ran.
+     */
     public boolean hasCompletedDownload() {
-        return completeFile().exists();
+        File complete = completeFile();
+        if (!complete.exists()) {
+            return false;
+        }
+        if (isNewerThanInstalled(complete)) {
+            return true;
+        }
+        complete.delete();
+        return false;
+    }
+
+    private boolean isNewerThanInstalled(File packageFile) {
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo downloaded = packageManager.getPackageArchiveInfo(packageFile.getPath(), 0);
+        if (downloaded == null) {
+            return false;
+        }
+        try {
+            PackageInfo installed = packageManager.getPackageInfo(context.getPackageName(), 0);
+            return downloaded.getLongVersionCode() > installed.getLongVersionCode();
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     public void cancel() {

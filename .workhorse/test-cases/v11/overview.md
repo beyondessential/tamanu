@@ -68,6 +68,8 @@ notification have no meaningful emulation in unit tests.
 - [ ] Opening the updated app leads to sign-in, and the first sync sends everything recorded while
       sync was paused (verifies spec: MUPD)
 - [ ] The downloaded package is gone from the device after a successful install (verifies spec: MUPD)
+- [ ] A later update downloads its own package rather than offering the one already installed
+      (verifies spec: MUPD)
 
 ## Permission setup
 

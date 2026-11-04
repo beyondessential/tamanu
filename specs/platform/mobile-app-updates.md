@@ -67,6 +67,7 @@ Installing is the one step staff choose. It closes the app, so they are told bef
 - [ ] The app asks for permission to post notifications when staff tap Install, where the device requires it, rather than while they are still working. Where it is refused the update still proceeds, and staff rely on the confirmation having told them to use the app icon.
 - [ ] Opening the updated app leads to the sign-in screen, and the first sync after signing in sends everything recorded while sync was paused.
 - [ ] The downloaded package is deleted once it has been installed.
+- [ ] A downloaded package that is no newer than the installed app, or cannot be read, is discarded and downloaded again rather than offered for install.
 
 ## Permission setup
 
@@ -94,6 +95,6 @@ The download is built for the connections Tamanu is used on: slow, interrupted, 
 Android replaces the app only once the new version is in place, so a failed install leaves the device on the version it was already running, with the work on it untouched.
 
 - [ ] An install Android rejects replaces the installing message with "Update not installed", reading "The update couldn't be installed. Your work is unaffected.", offering Try again and Cancel.
-- [ ] Try again starts the install again. Cancel, or closing it, returns to the ready banner so staff can install when they choose.
+- [ ] Try again starts the install again, or downloads the update afresh where the downloaded package has since been discarded. Cancel, or closing it, returns to the ready banner so staff can install when they choose.
 - [ ] An install interrupted by the device restarting or the app closing leaves the device on its existing version with the update still waiting, and the banner returns to its ready state.
 - [ ] An app still rejected for its version immediately after installing an update does not download the same package again. The banner reads "Tamanu update was not accepted by the server. Please contact your system administrator."
