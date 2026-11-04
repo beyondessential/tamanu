@@ -8,11 +8,6 @@ import {
   snapshotOutgoingChanges,
 } from './utils';
 
-jest.mock('@sayem314/react-native-keep-awake', () => ({
-  activateKeepAwake: jest.fn(),
-  deactivateKeepAwake: jest.fn(),
-}));
-
 jest.mock('./utils', () => ({
   setSyncTick: jest.fn(),
   snapshotOutgoingChanges: jest.fn(() => []),
