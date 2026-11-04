@@ -24,6 +24,13 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
 
+  // Encounter updates (move, edit) can add system notes, so refetch when the encounter changes.
+  const [lastSeenEncounterUpdatedAt, setLastSeenEncounterUpdatedAt] = useState(encounter.updatedAt);
+  if (encounter.updatedAt !== lastSeenEncounterUpdatedAt) {
+    setLastSeenEncounterUpdatedAt(encounter.updatedAt);
+    setRefreshCount(count => count + 1);
+  }
+
   const noteModalOnSaved = async createdNote => {
     updateNoteModalProps({ note: createdNote });
     setRefreshCount(count => count + 1);
