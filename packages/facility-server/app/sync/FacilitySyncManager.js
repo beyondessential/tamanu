@@ -62,6 +62,9 @@ export class FacilitySyncManager {
   /** @type {string | null} */
   reason = null;
 
+  /** Reason for the sync queued to run after the current one, chosen from the callers waiting on it */
+  nextSyncReason = null;
+
   lastDurationMs = 0;
 
   lastCompletedAt = 0;
@@ -81,8 +84,24 @@ export class FacilitySyncManager {
   }
 
   async waitForCurrentSyncAndTriggerNextSync() {
-    await this.currentSyncPromise;
-    return this.triggerSync();
+    try {
+      await this.currentSyncPromise;
+    } catch (error) {
+      // The queued sync won't run, so don't leave its reason for a later, unrelated sync
+      this.nextSyncReason = null;
+      throw error;
+    }
+    const reason = this.nextSyncReason;
+    this.nextSyncReason = null;
+    return this.triggerSync(reason);
+  }
+
+  // The queued sync takes the first waiting caller's reason, unless a later caller is urgent and
+  // the reason so far isn't, so an urgent request still jumps the central queue once it gets a turn
+  queueNextSyncReason(reason) {
+    if (!this.nextSyncReason || (reason?.urgent && !this.nextSyncReason.urgent)) {
+      this.nextSyncReason = reason;
+    }
   }
 
   async triggerSync(reason) {
@@ -95,12 +114,14 @@ export class FacilitySyncManager {
     // queued up to run after that, just wait for that next sync run
     // (which will definitely sync any changes made up until the time this sync was requested)
     if (this.nextSyncPromise) {
+      this.queueNextSyncReason(reason);
       const result = await this.nextSyncPromise;
       return { enabled: true, ...result };
     }
 
     // if there's an existing sync, just wait for that sync run and trigger the next one right after
     if (this.currentSyncPromise) {
+      this.queueNextSyncReason(reason);
       this.nextSyncPromise = this.waitForCurrentSyncAndTriggerNextSync();
       const result = await this.nextSyncPromise;
       return { enabled: true, ...result };
