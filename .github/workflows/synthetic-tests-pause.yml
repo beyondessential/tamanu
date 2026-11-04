@@ -1,0 +1,87 @@
+name: Pause Synthetic Tests
+
+# Stops or restarts the synthetic tests on one auto-deploy without waiting for a
+# deploy. `%synthetic` is Pulumi config, so adding or removing it only takes
+# effect on the next CD run, which is a full `pulumi up` to scale one Deployment
+# to zero. This scales it directly.
+#
+# It is a pause, not a setting: the next CD run reconciles the Deployment back
+# to whatever `%synthetic` says on the auto-deploy issue. To stop them for good,
+# remove `%synthetic` there as well.
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy name, as the auto-deploy names it (e.g. release-2-67-rc)'
+        required: true
+        type: string
+      state:
+        description: What to leave the synthetic tests in
+        required: true
+        default: paused
+        type: choice
+        options:
+          - paused
+          - running
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.deploy }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # for Tailscale OIDC authentication
+
+jobs:
+  scale:
+    name: ${{ inputs.state == 'paused' && 'Pause' || 'Resume' }} ${{ inputs.deploy }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-cd
+        with:
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - name: Scale the synthetic tests
+        env:
+          # Via env, not interpolation: a deploy name is free text and would
+          # otherwise run as shell.
+          DEPLOY: ${{ inputs.deploy }}
+          STATE: ${{ inputs.state }}
+        run: |
+          set -euo pipefail
+
+          case "$DEPLOY" in
+            *[!a-z0-9-]* | "" | -* )
+              echo "::error::'$DEPLOY' is not a deploy name" >&2
+              exit 1
+              ;;
+          esac
+
+          # Not `[ ... ] && replicas=1`: that tests false on a pause, which is
+          # a non-zero status and ends the script under `set -e`.
+          if [ "$STATE" = running ]; then replicas=1; else replicas=0; fi
+          namespace="tamanu-$DEPLOY"
+
+          # Deploys are spread across clusters, so the one holding the namespace
+          # is found rather than assumed.
+          for core in $(tailscale status --json | jq '.Peer[].HostName | select(. | test("k8s-operator-.*"))' -r); do
+            tailscale configure kubeconfig "$core" || continue
+            kubectl get "namespace/$namespace" >/dev/null 2>&1 || continue
+
+            if ! kubectl -n "$namespace" get deploy/synthetic-tests >/dev/null 2>&1; then
+              echo "::error::$namespace runs no synthetic tests; it was deployed without %synthetic" >&2
+              exit 1
+            fi
+
+            kubectl -n "$namespace" scale deploy/synthetic-tests --replicas="$replicas"
+            kubectl -n "$namespace" get deploy/synthetic-tests
+            echo "::notice::synthetic tests on $DEPLOY are now $STATE (until the next deploy)"
+            exit 0
+          done
+
+          echo "::error::no cluster holds $namespace" >&2
+          exit 1
