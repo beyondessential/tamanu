@@ -67,21 +67,31 @@ jobs:
           namespace="tamanu-$DEPLOY"
 
           # Deploys are spread across clusters, so the one holding the namespace
-          # is found rather than assumed.
+          # is found rather than assumed. A namespace of the same name can linger
+          # on a cluster a deploy has moved off, so every peer is checked: pausing
+          # the orphan alone would report success while the live one kept running.
+          found=0
+          scaled=0
           for core in $(tailscale status --json | jq '.Peer[].HostName | select(. | test("k8s-operator-.*"))' -r); do
             tailscale configure kubeconfig "$core" || continue
             kubectl get "namespace/$namespace" >/dev/null 2>&1 || continue
+            found=1
 
-            if ! kubectl -n "$namespace" get deploy/synthetic-tests >/dev/null 2>&1; then
-              echo "::error::$namespace runs no synthetic tests; it was deployed without %synthetic" >&2
-              exit 1
-            fi
+            kubectl -n "$namespace" get deploy/synthetic-tests >/dev/null 2>&1 || continue
 
             kubectl -n "$namespace" scale deploy/synthetic-tests --replicas="$replicas"
             kubectl -n "$namespace" get deploy/synthetic-tests
-            echo "::notice::synthetic tests on $DEPLOY are now $STATE (until the next deploy)"
-            exit 0
+            scaled=$((scaled + 1))
           done
 
-          echo "::error::no cluster holds $namespace" >&2
-          exit 1
+          if [ "$found" = 0 ]; then
+            echo "::error::no cluster holds $namespace" >&2
+            exit 1
+          fi
+
+          if [ "$scaled" = 0 ]; then
+            echo "::error::$namespace runs no synthetic tests; it was deployed without %synthetic" >&2
+            exit 1
+          fi
+
+          echo "::notice::synthetic tests on $DEPLOY are now $STATE (until the next deploy)"
