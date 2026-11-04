@@ -17,7 +17,7 @@
   --alert:#f76853;--light-alert:#fff0ee;--safe:#47ca80;--green:#19934E;
   --orange:#f17f16;--dark-orange:#CB6100;--secondary:#ffcc24;
   --white:#ffffff;--off-white:#fafafa;--bg:#f3f5f7;--bg2:#f9fafb;
-  --outline:#dedede;--soft-outline:#ebebeb;
+  --outline:#dedede;--soft-outline:#ebebeb;--hover1:#F4F9FF;--hover2:#22486D;
 }
 *{box-sizing:border-box;}
 html{-webkit-font-smoothing:antialiased;}
@@ -32,30 +32,39 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 .ds-cell{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
 .ds-caption{font-size:11px;line-height:15px;color:var(--mid);}
 
-/* ---- Button base (shared by all variants) ---- */
+/* ---- Button base (shared by all variants, Medium size) ---- */
 .btn{
   font-family:'Roboto','Helvetica','Arial',sans-serif;
-  font-weight:500;font-size:14px;line-height:16px;text-transform:none;
+  font-weight:500;font-size:14px;line-height:18px;letter-spacing:0;text-transform:none;
   cursor:pointer;
-  padding:11px 18px 12px;min-width:100px;
+  height:40px;padding:8px 20px;
   border-radius:3px;box-shadow:none;
   border:1px solid transparent;text-align:center;
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
 }
+.btn svg{width:20px;height:20px;fill:currentColor;flex:none;}
+
+/* ---- Sizes ---- */
+.btn--size-large{height:44px;padding:8px 20px;}
+.btn--size-medium{height:40px;padding:8px 20px;}
+.btn--size-small{height:36px;padding:8px 16px;}
+.btn--size-small svg{width:18px;height:18px;}
+.btn--size-xsmall{height:32px;padding:8px 12px;gap:4px;font-size:11px;line-height:15px;}
+.btn--size-xsmall svg{width:16px;height:16px;}
 
 /* ---- Variants ---- */
-.btn--primary{background:var(--primary);color:var(--white);border-color:var(--primary);}
+.btn--primary{background:var(--primary);color:var(--white);border:none;}
+.btn--primary:hover,.btn--primary-hover{background:var(--hover2);}
 .btn--secondary{background:transparent;color:var(--primary);border:1px solid var(--primary);}
-.btn--tertiary{background:none;border:none;color:#5b84ad;padding:0;min-width:0;}
+.btn--secondary:hover,.btn--secondary-hover{background:var(--hover1);}
+.btn--tertiary{background:none;border:none;color:#5b84ad;padding:0;height:auto;}
 .btn--grey-outlined{background:transparent;color:var(--dark);border:1px solid var(--outline);}
 .btn--red-outlined{background:transparent;color:var(--alert);border:1px solid var(--alert);}
 .btn--delete{background:#d32f2f;color:var(--white);border-color:#d32f2f;}
-.btn--large{background:var(--primary);color:var(--white);border-color:var(--primary);font-size:16px;padding:14px 22px;}
 
 /* ---- States ---- */
-.btn--disabled-primary{background:var(--primary30);color:var(--white);cursor:not-allowed;border-color:var(--primary30);}
-.btn--disabled-outlined{background:transparent;color:var(--soft);border:1px solid var(--soft);cursor:not-allowed;}
-.btn--small{background:var(--primary);color:var(--white);border-color:var(--primary);padding:7px 14px;}
+.btn--disabled-primary,.btn--disabled-primary:hover{background:var(--primary30);color:var(--white);cursor:not-allowed;border:none;}
+.btn--disabled-outlined,.btn--disabled-outlined:hover{background:transparent;color:var(--primary30);border:1px solid var(--primary30);cursor:not-allowed;}
 .btn--locked{background:transparent;color:var(--soft);border:1px solid var(--soft);cursor:not-allowed;}
 .btn--locked svg{fill:var(--soft);}
 
@@ -70,6 +79,10 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 /* ---- Form footer card ---- */
 .form-card{max-width:600px;background:var(--white);border:1px solid var(--outline);border-radius:5px;padding:20px;}
 .form-footer{display:flex;justify-content:flex-end;gap:16px;}
+
+/* ---- State grid ---- */
+.ds-grid{display:grid;grid-template-columns:repeat(4,max-content);gap:16px 28px;align-items:center;}
+.ds-grid .ds-caption{white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -96,7 +109,46 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     </div>
   </section>
 
-  <!-- 2. Variants -->
+  <!-- 2. Sizes -->
+  <section class="ds-section">
+    <h2 class="ds-h">Sizes</h2>
+    <div class="ds-row" style="align-items:flex-end;">
+      <div class="ds-cell">
+        <button class="btn btn--primary btn--size-large"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Button</button>
+        <span class="ds-caption">Large · 44px</span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--primary btn--size-medium"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Button</button>
+        <span class="ds-caption">Medium (default) · 40px</span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--primary btn--size-small"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Button</button>
+        <span class="ds-caption">Small · 36px</span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--primary btn--size-xsmall"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Button</button>
+        <span class="ds-caption">XSmall · 32px</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Colours and states -->
+  <section class="ds-section">
+    <h2 class="ds-h">Colours and states</h2>
+    <div class="ds-grid">
+      <span></span><span class="ds-caption">Default</span><span class="ds-caption">Hover</span><span class="ds-caption">Disabled</span>
+      <span class="ds-caption">Primary · <code>Button</code></span>
+      <button class="btn btn--primary">Save</button>
+      <button class="btn btn--primary btn--primary-hover">Save</button>
+      <button class="btn btn--disabled-primary" disabled>Save</button>
+      <span class="ds-caption">Secondary · <code>OutlinedButton</code></span>
+      <button class="btn btn--secondary">Cancel</button>
+      <button class="btn btn--secondary btn--secondary-hover">Cancel</button>
+      <button class="btn btn--disabled-outlined" disabled>Cancel</button>
+    </div>
+  </section>
+
+  <!-- 4. Variants -->
   <section class="ds-section">
     <h2 class="ds-h">Variants</h2>
     <div class="ds-row">
@@ -112,36 +164,20 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
         <button class="btn btn--delete">Delete</button>
         <span class="ds-caption"><code>DeleteButton</code></span>
       </div>
-      <div class="ds-cell">
-        <button class="btn btn--large">Admit patient</button>
-        <span class="ds-caption"><code>LargeButton</code></span>
-      </div>
     </div>
   </section>
 
-  <!-- 3. States -->
+  <!-- 5. Other states -->
   <section class="ds-section">
-    <h2 class="ds-h">States</h2>
+    <h2 class="ds-h">Other states</h2>
     <div class="ds-row">
-      <div class="ds-cell">
-        <button class="btn btn--disabled-primary" disabled>Save</button>
-        <span class="ds-caption">Disabled · primary</span>
-      </div>
-      <div class="ds-cell">
-        <button class="btn btn--disabled-outlined" disabled>Cancel</button>
-        <span class="ds-caption">Disabled · outlined</span>
-      </div>
       <div class="ds-cell">
         <button class="btn btn--primary" aria-label="Loading" aria-busy="true"><span class="spinner"></span></button>
         <span class="ds-caption">Loading · primary</span>
       </div>
       <div class="ds-cell">
-        <button class="btn btn--small">Add</button>
-        <span class="ds-caption">Small size</span>
-      </div>
-      <div class="ds-cell">
         <button class="btn btn--locked" disabled>
-          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3H9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3H9z"/></svg>
           Edit
         </button>
         <span class="ds-caption">Permission-locked</span>
@@ -149,7 +185,7 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     </div>
   </section>
 
-  <!-- 4. Form footer -->
+  <!-- 6. Form footer -->
   <section class="ds-section">
     <h2 class="ds-h">Form footer (FormSubmitCancelRow)</h2>
     <div class="ds-row">
