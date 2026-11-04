@@ -72,12 +72,17 @@ const styles = StyleSheet.create({
     fontSize: 11.25,
     textTransform: 'uppercase',
   },
+  // Capitals and figures have no descenders, so the space kept below the text for them leaves the
+  // row sitting high between its dividers; a shallower bottom padding centres it
+  patientTotalDueSection: {
+    paddingBottom: 3.5,
+  },
 });
 
 const Divider = () => <View style={styles.divider} />;
 
-const Section = ({ title, children }) => (
-  <View style={styles.section}>
+const Section = ({ title, style, children }) => (
+  <View style={[styles.section, style]}>
     {title && (
       <Text bold style={styles.sectionTitle}>
         {title}
@@ -177,7 +182,7 @@ const LineItemRows = ({ items }) => {
   return items.map(item => (
     <View key={item.id} style={styles.row}>
       <Text style={styles.itemName}>
-        {getTranslation('pdf.invoiceReceipt.itemWithQuantity', ':itemName (x:quantity)', {
+        {getTranslation('pdf.invoiceReceipt.itemWithQuantity', ':itemName x :quantity', {
           replacements: {
             itemName: item.product?.name,
             quantity: getItemQuantityText(item, getEnumTranslation),
@@ -258,7 +263,7 @@ const DetailsSection = ({ items, totals }) => {
 const PatientTotalDueSection = ({ totals }) => {
   const { getTranslation } = useLanguageContext();
   return (
-    <Section>
+    <Section style={styles.patientTotalDueSection}>
       <View style={styles.patientTotalDue}>
         <LabelledValue
           isLabelBold

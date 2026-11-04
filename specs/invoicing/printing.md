@@ -73,10 +73,10 @@ The receipt shows these sections, in order.
       An invoice with no items shows the totals directly under the section title, with no dotted
       line.
 - [ ] Line items: one line per invoice item, in the same order as the A4 layout, showing the item
-      name with its quantity in brackets after it, such as Blood Sugar (x3), and its line total
-      before any item adjustment.
+      name with its quantity after it, such as Blood Sugar x 3, and its line total before any item
+      adjustment.
 - [ ] A medication's quantity carries its dispensing unit, as on the A4 layout, such as
-      Paracetamol 500mg (x10 Tablets).
+      Paracetamol 500mg x 10 Tablets.
 - [ ] Totals: invoice total, item adjustments, insurance coverage, patient subtotal, fee scale
       adjustment and patient payments, each the same figure as in the A4 layout's summary of
       totals.
