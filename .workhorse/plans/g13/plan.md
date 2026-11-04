@@ -13,23 +13,23 @@ Move the keep-awake out of `SyncDataScreen` and into `MobileSyncManager`, so it 
 
 ## Build
 
-- [ ] In `packages/mobile/App/services/sync/MobileSyncManager.ts`, import `activateKeepAwake` and `deactivateKeepAwake` from `@sayem314/react-native-keep-awake`
-- [ ] In `runSync`, call `activateKeepAwake()` just before emitting `SYNC_STARTED`, and wrap the remainder of the method (push, pull, end session, snapshot cleanup, last-sync time) in a `try`/`finally` that calls `deactivateKeepAwake()`, keeping the existing inner `try`/`catch` that reports the error to central
-- [ ] Add a `// spec: SYNAWK` comment at the acquire site
-- [ ] In `packages/mobile/App/ui/navigation/screens/home/Tabs/SyncDataScreen.tsx`, remove the library import and the `activateKeepAwake()` and `deactivateKeepAwake()` calls from the `SYNC_STARTED` and `SYNC_ENDED` cases
+- [x] In `packages/mobile/App/services/sync/MobileSyncManager.ts`, import `activateKeepAwake` and `deactivateKeepAwake` from `@sayem314/react-native-keep-awake`
+- [x] In `runSync`, call `activateKeepAwake()` just before emitting `SYNC_STARTED`, and wrap the remainder of the method (push, pull, end session, snapshot cleanup, last-sync time) in a `try`/`finally` that calls `deactivateKeepAwake()`, keeping the existing inner `try`/`catch` that reports the error to central
+- [x] Add a `// spec: SYNAWK` comment at the acquire site
+- [x] In `packages/mobile/App/ui/navigation/screens/home/Tabs/SyncDataScreen.tsx`, remove the library import and the `activateKeepAwake()` and `deactivateKeepAwake()` calls from the `SYNC_STARTED` and `SYNC_ENDED` cases
 
 ## Tests
 
-- [ ] In `MobileSyncManager.test.ts`, mock `@sayem314/react-native-keep-awake` and clear it in the existing `beforeEach`
-- [ ] Add a `runSync()` test that `activateKeepAwake` is called after `startSyncSession` resolves and before `pushOutgoingChanges`, and `deactivateKeepAwake` is called once after `endSyncSession` (verifies SYNAWK: held from session to end)
-- [ ] Add a `runSync()` test that `deactivateKeepAwake` is still called once when `pullIncomingChanges` throws (verifies SYNAWK: failure releases)
-- [ ] Add a `runSync()` test that neither function is called when `startSyncSession` returns no `sessionId` (verifies SYNAWK: a queued sync holds nothing)
-- [ ] Add a `triggerSync()` test that a sync started through the trigger path takes and releases the lock, so the coverage is of the real entry point and not only `runSync`
+- [x] In `MobileSyncManager.test.ts`, mock `@sayem314/react-native-keep-awake` and clear it in the existing `beforeEach`
+- [x] Add a `runSync()` test that `activateKeepAwake` is called after `startSyncSession` resolves and before `pushOutgoingChanges`, and `deactivateKeepAwake` is called once after `endSyncSession` (verifies SYNAWK: held from session to end)
+- [x] Add a `runSync()` test that `deactivateKeepAwake` is still called once when `pullIncomingChanges` throws (verifies SYNAWK: failure releases)
+- [x] Add a `runSync()` test that neither function is called when `startSyncSession` returns no `sessionId` (verifies SYNAWK: a queued sync holds nothing)
+- [x] Add a `triggerSync()` test that a sync started through the trigger path takes and releases the lock, so the coverage is of the real entry point and not only `runSync`
 
 ## Verify
 
-- [ ] Run `npx jest App/services/sync/MobileSyncManager.test.ts` in `packages/mobile`, and confirm the new tests fail with the manager change reverted
-- [ ] Run `npx eslint` on the two changed files and the test file
-- [ ] Type-check `packages/mobile`
+- [x] Run `npx jest App/services/sync/MobileSyncManager.test.ts` in `packages/mobile`, and confirm the new tests fail with the manager change reverted
+- [x] Run `npx eslint` on the two changed files and the test file
+- [x] Type-check `packages/mobile`
 - [ ] On a device: select a facility from a fresh install and leave the Home tab showing past the screen timeout; the screen stays on until the initial sync finishes, then follows the normal timeout
 - [ ] On a device: let a periodic sync start while another tab is showing, and confirm the screen stays awake until it ends

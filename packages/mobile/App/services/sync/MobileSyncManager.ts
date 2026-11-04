@@ -1,3 +1,4 @@
+import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
@@ -266,26 +267,35 @@ export class MobileSyncManager {
     this.isSyncing = true;
     this.isQueuing = false;
 
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-    console.log('MobileSyncManager.runSync(): Sync started');
+    // don't let the device sleep while syncing, whatever started the sync and whichever screen is
+    // showing. Released in the finally below, so every exit from here on lets go of it
+    // spec: SYNAWK
+    activateKeepAwake();
 
     try {
-      await this.pushOutgoingChanges(sessionId, newSyncClockTime);
-      await this.pullIncomingChanges(sessionId);
-      await this.centralServer.endSyncSession(sessionId);
-    } catch (error) {
-      // notify central so its own alerting sees the failure immediately, rather than waiting for
-      // the session to time out there (mobile otherwise never reports a session's error to
-      // central, unlike facility servers, which already do this)
-      await this.reportSyncError(sessionId, error);
-      throw error;
+      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
+      console.log('MobileSyncManager.runSync(): Sync started');
+
+      try {
+        await this.pushOutgoingChanges(sessionId, newSyncClockTime);
+        await this.pullIncomingChanges(sessionId);
+        await this.centralServer.endSyncSession(sessionId);
+      } catch (error) {
+        // notify central so its own alerting sees the failure immediately, rather than waiting for
+        // the session to time out there (mobile otherwise never reports a session's error to
+        // central, unlike facility servers, which already do this)
+        await this.reportSyncError(sessionId, error);
+        throw error;
+      }
+
+      // clear persisted cache from this session
+      await dropSnapshotTable();
+
+      this.lastSuccessfulSyncTime = new Date();
+      this.setProgress(0, '');
+    } finally {
+      deactivateKeepAwake();
     }
-
-    // clear persisted cache from this session
-    await dropSnapshotTable();
-
-    this.lastSuccessfulSyncTime = new Date();
-    this.setProgress(0, '');
   }
 
   /**

@@ -1,3 +1,4 @@
+import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
@@ -6,6 +7,11 @@ import {
   pushOutgoingChanges,
   snapshotOutgoingChanges,
 } from './utils';
+
+jest.mock('@sayem314/react-native-keep-awake', () => ({
+  activateKeepAwake: jest.fn(),
+  deactivateKeepAwake: jest.fn(),
+}));
 
 jest.mock('./utils', () => ({
   setSyncTick: jest.fn(),
@@ -182,6 +188,80 @@ describe('MobileSyncManager', () => {
       await expect(mobileSyncManager.runSync()).rejects.toThrow('pull failed');
 
       expect(markSessionErroredSpy).toHaveBeenCalledWith(mockSessionId, 'pull failed');
+    });
+
+    describe('keep awake', () => {
+      it('should hold the screen awake from the session being granted until the sync ends', async () => {
+        const pushOutgoingChangesSpy = jest
+          .spyOn(mobileSyncManager, 'pushOutgoingChanges')
+          .mockImplementationOnce(jest.fn());
+        jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
+        const startSyncSessionSpy = jest
+          .spyOn(centralServerConnection, 'startSyncSession')
+          .mockImplementationOnce(
+            jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
+          );
+        const endSyncSessionSpy = jest
+          .spyOn(centralServerConnection, 'endSyncSession')
+          .mockImplementationOnce(jest.fn());
+
+        await mobileSyncManager.runSync();
+
+        expect(activateKeepAwake).toBeCalledTimes(1);
+        expect(deactivateKeepAwake).toBeCalledTimes(1);
+        const [activateOrder] = (activateKeepAwake as jest.Mock).mock.invocationCallOrder;
+        const [deactivateOrder] = (deactivateKeepAwake as jest.Mock).mock.invocationCallOrder;
+        expect(startSyncSessionSpy.mock.invocationCallOrder[0]).toBeLessThan(activateOrder);
+        expect(activateOrder).toBeLessThan(pushOutgoingChangesSpy.mock.invocationCallOrder[0]);
+        expect(endSyncSessionSpy.mock.invocationCallOrder[0]).toBeLessThan(deactivateOrder);
+      });
+
+      it('should release the screen when the sync fails part way', async () => {
+        jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
+        jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(() => {
+          throw new Error('pull failed');
+        });
+        jest
+          .spyOn(centralServerConnection, 'startSyncSession')
+          .mockImplementationOnce(
+            jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
+          );
+        jest.spyOn(centralServerConnection, 'markSessionErrored').mockImplementationOnce(jest.fn());
+
+        await expect(mobileSyncManager.runSync()).rejects.toThrow('pull failed');
+
+        expect(activateKeepAwake).toBeCalledTimes(1);
+        expect(deactivateKeepAwake).toBeCalledTimes(1);
+      });
+
+      it('should not hold the screen for a sync that is queued', async () => {
+        jest
+          .spyOn(centralServerConnection, 'startSyncSession')
+          .mockImplementationOnce(jest.fn(async () => ({ status: 'queued' })));
+
+        await mobileSyncManager.runSync();
+
+        expect(activateKeepAwake).not.toBeCalled();
+        expect(deactivateKeepAwake).not.toBeCalled();
+      });
+    });
+  });
+
+  describe('triggerSync() keep awake', () => {
+    it('should hold and release the screen for a sync started through the trigger', async () => {
+      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
+      jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
+      jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockImplementationOnce(
+          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
+        );
+      jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
+
+      await mobileSyncManager.triggerSync();
+
+      expect(activateKeepAwake).toBeCalledTimes(1);
+      expect(deactivateKeepAwake).toBeCalledTimes(1);
     });
   });
 
