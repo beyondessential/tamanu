@@ -8,7 +8,7 @@ A pharmacist creates a prescription for a patient who has no active encounter, d
 
 ## Entry point
 
-- [ ] The Active medication requests screen has an **Add patient prescription** button in its top bar, matching the **Add new patient** button on the patient listing.
+- [ ] The Active medication requests screen has a **New prescription** button in its top bar, matching the **Add new patient** button on the patient listing.
 - [ ] The button is shown only to users with permission to create encounters, prescriptions and medication requests.
 - [ ] Selecting the button opens the **New prescription** modal with an empty form.
 
