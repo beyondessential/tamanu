@@ -118,6 +118,13 @@ export const UpdateAlert = (): ReactElement | null => {
               fallback="Tamanu update was not accepted by the server. Please contact your system administrator."
             />
           </AlertText>
+        ) : isBlocked && blocker === UPDATE_BLOCKER.PACKAGE_UNAVAILABLE ? (
+          <AlertText>
+            <TranslatedText
+              stringId="update.alert.packageUnavailable"
+              fallback="No Tamanu update is available for this server. Sync paused. Please contact your system administrator."
+            />
+          </AlertText>
         ) : isBlocked && blocker === UPDATE_BLOCKER.NOT_ENOUGH_SPACE ? (
           <>
             <AlertText>

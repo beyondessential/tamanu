@@ -131,6 +131,8 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
                 promise.resolve((double) file.length());
             } catch (UpdateDownloader.TruncatedDownloadException e) {
                 promise.reject("DOWNLOAD_TRUNCATED", e.getMessage(), e);
+            } catch (UpdateDownloader.PackageUnavailableException e) {
+                promise.reject("PACKAGE_UNAVAILABLE", e.getMessage(), e);
             } catch (Exception e) {
                 promise.reject("DOWNLOAD_FAILED", e.getMessage(), e);
             }

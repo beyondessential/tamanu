@@ -111,6 +111,11 @@ export const useAppUpdate = (): AppUpdateState => {
       await Updater.startDownload(packageUrl);
       setStage(UPDATE_STAGE.READY);
     } catch (error) {
+      // No package at the address is a refusal, not a dropped connection, so retrying won't help
+      if ((error as { code?: string }).code === 'PACKAGE_UNAVAILABLE') {
+        block(UPDATE_BLOCKER.PACKAGE_UNAVAILABLE);
+        return;
+      }
       console.warn('useAppUpdate: download failed', error);
       setFailedAttempts(attempts => attempts + 1);
       setStage(UPDATE_STAGE.RETRYING);

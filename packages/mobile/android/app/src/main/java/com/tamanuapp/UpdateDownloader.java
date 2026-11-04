@@ -39,6 +39,13 @@ public class UpdateDownloader {
         }
     }
 
+    /** The server has no package at this address, which retrying will not change. */
+    public static class PackageUnavailableException extends IOException {
+        PackageUnavailableException(int status) {
+            super("Update server has no package at this address (" + status + ")");
+        }
+    }
+
     private static final String DOWNLOAD_DIRECTORY = "update";
     private static final String PARTIAL_FILE = "tamanu.apk.part";
     private static final String COMPLETE_FILE = "tamanu.apk";
@@ -226,6 +233,9 @@ public class UpdateDownloader {
             int status = connection.getResponseCode();
 
             boolean isResuming = status == HttpURLConnection.HTTP_PARTIAL;
+            if (status == HttpURLConnection.HTTP_NOT_FOUND || status == HttpURLConnection.HTTP_GONE) {
+                throw new PackageUnavailableException(status);
+            }
             if (!isResuming && status != HttpURLConnection.HTTP_OK) {
                 throw new IOException("Update server responded " + status);
             }

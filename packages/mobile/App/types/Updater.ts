@@ -65,7 +65,7 @@ export const UPDATE_STAGE = {
   INSTALLING: 'installing',
   /** Android would not install the package. */
   INSTALL_FAILED: 'installFailed',
-  /** Retrying cannot help: no space, or an update that did not satisfy the server. */
+  /** Retrying cannot help: no space, no package to download, or an update the server refused. */
   BLOCKED: 'blocked',
 } as const;
 
@@ -74,6 +74,8 @@ export type UpdateStage = (typeof UPDATE_STAGE)[keyof typeof UPDATE_STAGE];
 /** Why the update cannot proceed on its own. */
 export const UPDATE_BLOCKER = {
   NOT_ENOUGH_SPACE: 'notEnoughSpace',
+  /** The update server has no package for this version, so there is nothing to download. */
+  PACKAGE_UNAVAILABLE: 'packageUnavailable',
   REPEATED_FAILURES: 'repeatedFailures',
   STILL_OUT_OF_DATE: 'stillOutOfDate',
 } as const;
