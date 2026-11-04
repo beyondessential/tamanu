@@ -3,10 +3,11 @@ import { times } from 'es-toolkit/compat';
 
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import type { Patient } from '@tamanu/database';
+import { ReadSettings } from '@tamanu/settings';
 import { randomRecordId } from '../randomRecord.js';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { fake, chance, fakeDate } from '../../fake/index.js';
+import { fake, chance, fakeDate, fakeSex } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreatePatientParams extends CommonParams {
@@ -33,7 +34,9 @@ export const createPatient = async ({
     ReferenceData,
   } = models;
 
-  const patientFields = fake(Patient);
+  const isOtherSexAllowed =
+    (await new ReadSettings(models).get('features.hideOtherSex')) === false;
+  const patientFields = fake(Patient, { sex: fakeSex({ isOtherSexAllowed }) });
   const patient = await Patient.create(
     isDead
       ? {
