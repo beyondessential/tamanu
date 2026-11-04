@@ -173,7 +173,7 @@ export const useAppUpdate = (): AppUpdateState => {
     };
   }, [stage, failedAttempts, download]);
 
-  // A download that finishes while the device still won't allow installing holds at the ask,
+  // A download that finishes while the device still don't have permission to install - holds at the ask,
   // which is also re-checked whenever staff come back from Android's settings.
   useEffect(() => {
     if (!isForeground) return;
