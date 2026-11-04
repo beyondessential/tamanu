@@ -616,8 +616,12 @@ jobs:
           if [ "$WANTED" = true ]; then replicas=1; else replicas=0; fi
           namespace="tamanu-$DEPLOY"
 
-          if ! kubectl -n "$namespace" get deploy/synthetic-tests >/dev/null 2>&1; then
-            echo "::notice::$DEPLOY has no synthetic tests to scale; the deploy makes them"
+          # --ignore-not-found, so a missing Deployment reads as empty output
+          # and anything kubectl does report ends the job instead of passing as
+          # one.
+          existing=$(kubectl -n "$namespace" get deploy/synthetic-tests --ignore-not-found -o name)
+          if [ -z "$existing" ]; then
+            echo "::notice::$DEPLOY runs no synthetic tests to scale"
             exit 0
           fi
 
