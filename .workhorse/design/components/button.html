@@ -68,15 +68,10 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 .link--primary{color:var(--primary);font-weight:500;text-decoration:none;}
 .link--secondary{color:var(--darkest);font-weight:400;text-decoration:underline;}
 .link--primary:hover,.link--secondary:hover,.link--hover{color:var(--primary);font-weight:500;text-decoration:underline;}
-.btn--grey-outlined{background:transparent;color:var(--dark);border:1px solid var(--outline);}
-.btn--red-outlined{background:transparent;color:var(--alert);border:1px solid var(--alert);}
-.btn--delete{background:#d32f2f;color:var(--white);border-color:#d32f2f;}
 
 /* ---- States ---- */
 .btn--disabled-primary,.btn--disabled-primary:hover{background:var(--primary30);color:var(--white);cursor:not-allowed;border:none;}
 .btn--disabled-outlined,.btn--disabled-outlined:hover{background:transparent;color:var(--primary30);border:1px solid var(--primary30);cursor:not-allowed;}
-.btn--locked{background:transparent;color:var(--soft);border:1px solid var(--soft);cursor:not-allowed;}
-.btn--locked svg{fill:var(--soft);}
 
 .spinner{
   width:16px;height:16px;border-radius:50%;
@@ -85,10 +80,6 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
   animation:spin 0.8s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg);}}
-
-/* ---- Form footer card ---- */
-.form-card{max-width:600px;background:var(--white);border:1px solid var(--outline);border-radius:5px;padding:20px;}
-.form-footer{display:flex;justify-content:flex-end;gap:16px;}
 
 /* ---- State grid ---- */
 .ds-grid{display:grid;grid-template-columns:repeat(4,max-content);gap:16px 28px;align-items:center;}
@@ -99,7 +90,7 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 <body>
 <div class="page">
   <h1 class="ds-title">Button</h1>
-  <p class="ds-sub">The action control — primary / secondary / tertiary weight ladder. Grounded in <code>packages/ui-components/src/components/Button/Button.jsx</code></p>
+  <p class="ds-sub">The action control. Grounded in <code>packages/ui-components/src/components/Button/Button.jsx</code></p>
 
   <!-- 1. Weight ladder -->
   <section class="ds-section">
@@ -112,10 +103,6 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
       <div class="ds-cell">
         <button class="btn btn--secondary">Cancel</button>
         <span class="ds-caption">Secondary · <code>OutlinedButton</code></span>
-      </div>
-      <div class="ds-cell">
-        <button class="link link--primary" style="margin-top:11px;">View details</button>
-        <span class="ds-caption">Tertiary · <code>TextButton</code> (link)</span>
       </div>
     </div>
   </section>
@@ -175,55 +162,13 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     </div>
   </section>
 
-  <!-- 5. Variants -->
-  <section class="ds-section">
-    <h2 class="ds-h">Variants</h2>
-    <div class="ds-row">
-      <div class="ds-cell">
-        <button class="btn btn--grey-outlined">Back</button>
-        <span class="ds-caption"><code>GreyOutlinedButton</code></span>
-      </div>
-      <div class="ds-cell">
-        <button class="btn btn--red-outlined">Remove</button>
-        <span class="ds-caption"><code>RedOutlinedButton</code></span>
-      </div>
-      <div class="ds-cell">
-        <button class="btn btn--delete">Delete</button>
-        <span class="ds-caption"><code>DeleteButton</code></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6. Other states -->
+  <!-- 5. Other states -->
   <section class="ds-section">
     <h2 class="ds-h">Other states</h2>
     <div class="ds-row">
       <div class="ds-cell">
         <button class="btn btn--primary" aria-label="Loading" aria-busy="true"><span class="spinner"></span></button>
         <span class="ds-caption">Loading · primary</span>
-      </div>
-      <div class="ds-cell">
-        <button class="btn btn--locked" disabled>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3H9z"/></svg>
-          Edit
-        </button>
-        <span class="ds-caption">Permission-locked</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- 7. Form footer -->
-  <section class="ds-section">
-    <h2 class="ds-h">Form footer (FormSubmitCancelRow)</h2>
-    <div class="ds-row">
-      <div class="ds-cell" style="width:100%;">
-        <div class="form-card">
-          <div class="form-footer">
-            <button class="btn btn--secondary">Cancel</button>
-            <button class="btn btn--primary">Save</button>
-          </div>
-        </div>
-        <span class="ds-caption">The standard form footer — Cancel (outlined) left of Save (primary), right-aligned.</span>
       </div>
     </div>
   </section>
