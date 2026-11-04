@@ -18,7 +18,6 @@ A facility can set the most outpatient appointments each of its areas takes in a
 - [ ] The Area and Max appointments labels sit above the first row only.
 - [ ] Saving a row that has an area but no maximum, or a maximum but no area, flags the missing field as required, and the settings aren't saved until it is filled in or the row is removed.
 - [ ] Reset to default clears every limit.
-- [ ] The setting's row keeps a plain background while hovered or while one of its fields has focus, so the highlight band other settings rows show doesn't fill its whole list.
 
 ## Counting an area's appointments
 
