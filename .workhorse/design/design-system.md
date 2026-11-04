@@ -15,90 +15,136 @@ information. No novelty for its own sake.
 
 ## Colour palette
 
-A cool, blue-grey system. The single source of truth is `TAMANU_COLORS` in
-`packages/ui-components/src/constants/colors.js`, re-exported as `Colors`. Read
-colours from that object (`Colors.primary`) — never hardcode a hex in a component.
+A cool, blue-grey system. The source of truth is the colour styles in the
+[Tamanu Design System Figma library](https://www.figma.com/design/0zuHw8wmEMhEL5IJ0apjBd/Tamanu-Design-System?node-id=748-43).
+In code, `TAMANU_COLORS` in `packages/ui-components/src/constants/colors.js`
+(re-exported as `Colors`) mirrors those styles. Read colours from that object
+(`Colors.primary`), never hardcode a hex in a component.
 
 The MUI theme (`packages/web/app/theme/theme.jsx`) maps these tokens onto the
 standard MUI palette slots (noted below), so MUI components inherit them.
 
-### Brand / interactive
+The tables give each Figma style, its hex, and its `Colors` token. A style with no
+token (—) has not been added to `TAMANU_COLORS` yet; add it there before using it.
+All styles are at full opacity.
+
+Secondary and tertiary hues come as a ramp: **100** is the full colour, **20** and
+**10** are progressively lighter tints of it for fills and backgrounds behind that
+colour.
+
+### Primary
 
 Blue is the interactive colour: primary actions, links, selected/active states,
-focus. Spend it sparingly — it only reads as "interactive" if most of the screen
+focus. Spend it sparingly. It only reads as "interactive" if most of the screen
 isn't blue.
 
-| Token | Value | Usage |
+| Style | Value | Token | Usage |
+|---|---|---|---|
+| Tamanu Blue 60 | `#326699` | `primary` | Primary buttons, active tabs, selected rows/borders, links. MUI `primary.main` |
+| Tamanu Blue 30 | `#C2D2E1` | `primary30` | Disabled primary button fill/border |
+| Tamanu Blue 10 | `#EBF0F5` | `primary10` | Faint primary tint for backgrounds/highlights |
+| Dark Blue | `#2F4358` | `primaryDark` | Dark sidebar, tooltip backgrounds. MUI `primary.dark` |
+
+### Secondary
+
+The semantic colours. Each carries one meaning; use it for that meaning, not as
+decoration.
+
+| Style | Value | Token | Usage |
+|---|---|---|---|
+| Green-S 100 | `#47CA80` | `safe` | **Success / complete**: completed items, positive status, inpatient. MUI `success.main` |
+| Green-S 20 | `#DAF4E6` | — | Success tint |
+| Green-S 10 | `#EDFAF3` | — | Light background behind a success region |
+| Red-S 100 | `#F76853` | `alert` | **Error**: validation failures, destructive confirmation, error toasts. MUI `error.main` |
+| Red-S 20 | `#FDE1DD` | — | Error tint |
+| Red-S 10 | `#FFF0EE` | `lightAlert` | Light background behind an error/alert region |
+| Orange-S 100 | `#F17F16` | `orange` | **Warning / urgent**: triage, emergency/observation states |
+| Orange-S 20 | `#FCE5D0` | — | Warning tint |
+| Orange-S 10 | `#FEF3E8` | — | Light background behind a warning region |
+| Yellow-S 100 | `#FFCC24` | `secondary` | **Attention**: secondary accent. MUI `secondary.main` |
+| Yellow-S 20 | `#FFF5D3` | — | Attention tint |
+| Yellow-S 10 | `#FFFAEA` | — | Light background behind an attention region |
+
+### Tertiary
+
+Deeper hues for distinguishing categories and statuses, such as appointment
+statuses, bed states and program registry conditions. Don't reach for these for
+general UI. Where a secondary colour is too light for text or icons, the tertiary
+hue of the same family is its darker partner (Green-T for success, Orange-T for
+warning).
+
+| Style | Value | Token |
 |---|---|---|
-| `primary` | `#326699` | Primary buttons, active tabs, selected rows/borders, links. MUI `primary.main` |
-| `primaryDark` | `#2f4358` | Dark sidebar, tooltip backgrounds. MUI `primary.dark` |
-| `primary30` | `#C2D2E1` | Disabled primary button fill/border (30% presence) |
-| `primary10` | `#EBF0F5` | Faint primary tint for backgrounds/highlights |
-| `blue` | `#1172D1` | Secondary link/info blue (distinct from brand `primary`) |
-| `brightBlue` | `#67A6E3` | Lighter accent blue |
-| `veryLightBlue` | `#F4F9FF` | Row hover tint on clickable tables. MUI `action.hover` |
+| Green-T 100 | `#19934E` | `green` |
+| Green-T 20 | `#D1E9DC` | — |
+| Green-T 10 | `#E9F5EE` | — |
+| Blue-T 100 | `#1172D1` | `blue` |
+| Blue-T 20 | `#CFE3F6` | — |
+| Blue-T 10 | `#E8F1FB` | — |
+| Purple-T 100 | `#4101C9` | `purple` |
+| Purple-T 20 | `#D9CCF4` | — |
+| Purple-T 10 | `#ECE6FA` | — |
+| Pink-T 100 | `#D10580` | `pink` |
+| Pink-T 20 | `#F6CDE6` | — |
+| Pink-T 10 | `#FBE7F3` | — |
+| Orange-T 100 | `#CB6100` | `darkOrange` |
+| Orange-T 20 | `#F5DFCC` | — |
+| Orange-T 10 | `#FAF0E6` | — |
+| Yellow-T 100 | `#BD9503` | `metallicYellow` |
+| Yellow-T 20 | `#F2EACD` | — |
+| Yellow-T 10 | `#F9F5E6` | — |
+| Brown-T 100 | `#67361B` | — |
+| Brown-T 20 | `#E1D7D1` | — |
+| Brown-T 10 | `#F0EBE9` | — |
+| Teal-T 100 | `#125E7E` | — |
+| Teal-T 20 | `#D0DFE5` | — |
+| Teal-T 10 | `#E8EFF3` | — |
 
-### Text ramp
+### Font
 
-Four weights of grey, darkest for primary reading down to faint. Use the ramp;
-don't invent intermediate greys.
+Four greys, darkest for primary reading down to faint. Use the ramp; don't invent
+intermediate greys.
 
-| Token | Value | Usage |
-|---|---|---|
-| `darkestText` | `#444444` | Primary text — headings, labels, body. MUI `text.primary` |
-| `darkText` | `#666666` | Secondary text — values, descriptions |
-| `midText` | `#888888` | Tertiary / de-emphasised — placeholders, helper text, disabled, card labels. MUI `text.tertiary` |
-| `softText` | `#b8b8b8` | Lowest emphasis — disabled controls, faint captions, version strings |
+| Style | Value | Token | Usage |
+|---|---|---|---|
+| Super Dark 80 | `#444444` | `darkestText` | Primary text: headings, labels, body. MUI `text.primary` |
+| Dark 60 | `#666666` | `darkText` | Secondary text: values, descriptions |
+| Mid 40 | `#888888` | `midText` | De-emphasised: placeholders, helper text, card labels. MUI `text.tertiary` |
+| Light 20 | `#B8B8B8` | `softText` | Lowest emphasis: disabled controls, faint captions, version strings |
 
-### Semantic
+### Misc
 
-Each carries one meaning. Use them for that meaning, not as decoration.
+Surfaces, lines and hover states.
 
-| Token | Value | Meaning |
-|---|---|---|
-| `alert` | `#f76853` | **Error** — validation failures, destructive confirmation, error toasts. MUI `error.main` |
-| `lightAlert` | `#fff0ee` | Light tint background behind an error/alert region |
-| `safe` | `#47ca80` | **Success / complete** — completed items, positive status, inpatient. MUI `success.main` |
-| `green` | `#19934E` | Deeper success green (text/icons where `safe` is too light) |
-| `orange` | `#f17f16` | **Warning / urgent** — triage, emergency/observation states |
-| `darkOrange` | `#CB6100` | Darker warning — in-progress, no-show |
-| `secondary` | `#ffcc24` | Attention yellow (secondary accent). MUI `secondary.main` |
+| Style | Value | Token | Usage |
+|---|---|---|---|
+| White | `#FFFFFF` | `white` | Cards, panels, inputs, table bodies |
+| Hover 1 | `#F4F9FF` | `veryLightBlue` | Row hover tint on clickable tables. MUI `action.hover` |
+| Hover 2 | `#22486D` | — | Hover colour for blue text buttons (`TextButton` hardcodes the near-identical `#23476b`) |
+| Background | `#F3F5F7` | `background` | App/page background, modal body, table header, disabled fields, neutral hover. MUI `background.default` |
+| Background 2 | `#F9FAFB` | `background2` | Lighter alternate panel (summary panels) |
+| Default Off | `#EBEBEB` | `softOutline` | Subtle borders: section dividers, modal and card header rules |
+| Box Outline | `#DEDEDE` | `outline` | Default borders: inputs, cards, table container, dividers. MUI `divider` |
 
-### Surfaces & lines
+### Tokens outside the Figma library
 
-| Token | Value | Usage |
-|---|---|---|
-| `white` | `#ffffff` | Cards, panels, inputs, table bodies |
-| `offWhite` | `#fafafa` | Subtle off-white surface |
-| `background` | `#f3f5f7` | App/page background, modal body, table header, disabled fields. MUI `background.default` |
-| `background2` | `#f9fafb` | Lighter alternate panel (summary panels). Confirmed against Figma `Background 2` |
-| `hoverGrey` | `#f3f5f7` | Neutral hover fill (same hex as `background`) |
-| `outline` | `#dedede` | Default borders — inputs, cards, table container, dividers. MUI `divider` |
-| `softOutline` | `#ebebeb` | Subtle borders — section dividers, modal header rule, card header rule |
-| `searchTintColor` | `#d2dae3` | Search field tint |
-
-### Occasional
-
-Reserved, narrow-use hues. Don't reach for these for general UI.
-
-| Token | Value | Usage |
-|---|---|---|
-| `pink` | `#D10580` | Category/identity accent |
-| `purple` | `#4101C9` | Category/identity accent |
-| `metallicYellow` | `#BD9503` | Category/identity accent |
+`TAMANU_COLORS` also carries `brightBlue` (`#67A6E3`), `offWhite` (`#fafafa`),
+`searchTintColor` (`#d2dae3`) and `hoverGrey` (`#f3f5f7`, a duplicate of
+`background`). They have no Figma style, so new work uses the nearest style above
+instead.
 
 ### Rules
 
 - **Read from `Colors`.** Never inline a hex. If a value you need isn't in the
-  palette, that's a palette decision — raise it, don't fork a one-off shade.
-- **Don't recolour chrome.** Borders are `outline`/`softOutline`, backgrounds are
-  `white`/`background`. Resist tinting panels to "group" them; alignment and
+  palette, that's a palette decision: raise it, don't fork a one-off shade.
+- **Don't recolour chrome.** Borders are Box Outline / Default Off, backgrounds are
+  White / Background. Resist tinting panels to "group" them; alignment and
   spacing do that job.
-- **Semantic colours keep their meaning.** Don't use `alert` red for emphasis, or
-  `safe` green for a non-success accent.
-- **Contrast.** Body text is `darkestText`/`darkText` on white or `background`.
-  `midText` is for de-emphasised secondary content, not long-form reading;
-  `softText` is for disabled/faint only.
+- **Semantic colours keep their meaning.** Don't use Red-S red for emphasis, or
+  Green-S green for a non-success accent.
+- **Contrast.** Body text is Super Dark 80 / Dark 60 on White or Background.
+  Mid 40 is for de-emphasised secondary content, not long-form reading; Light 20
+  is for disabled/faint only.
 
 ## Typography
 
