@@ -329,6 +329,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .wh-clear { border: 0; background: none; padding: 5px; margin-right: 4px; cursor: pointer; display: none; color: #666666; /* darkText */ }
 .wh-clear svg { width: 18px; height: 18px; fill: currentColor; }
 .wh-patient.has-value .wh-clear { display: inline-flex; }
+.wh-field-message { display: none; margin: 2px 0 0; font-size: 11px; line-height: 15px; color: #666666; /* darkText */ }
+.wh-field-message.is-open { display: block; }
 .wh-help { margin-top: 2px; font-size: 11px; line-height: 1.4; color: #888888; /* midText */ }
 
 .wh-suggestions { position: absolute; left: 0; right: 0; top: 100%; margin-top: 2px; z-index: 5; background: #ffffff; /* white */ border: 1px solid #326699; /* primary */ border-radius: 3px; max-height: 210px; overflow: auto; display: none; }
@@ -418,7 +420,12 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 
         <div class="wh-full">
           <label class="wh-label" for="wh-medication">Medication<span class="wh-req">*</span></label>
-          <div class="wh-input"><input id="wh-medication" type="text" placeholder="Search…" autocomplete="off"><span class="wh-adorn"><svg viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M4.99992 5.85523C4.84367 5.85523 4.69398 5.79242 4.58367 5.67992L0.171797 1.20555C-0.0572656 0.972422 -0.0572656 0.595234 0.171797 0.362422C0.401484 0.129609 0.775234 0.129609 1.00367 0.362422L4.99992 4.41555L8.99523 0.362109C9.22523 0.129297 9.59836 0.129297 9.82773 0.362109C10.0571 0.594609 10.0571 0.972422 9.82773 1.20555L5.41617 5.68055C5.30523 5.79242 5.15555 5.85523 4.99992 5.85523Z" fill="#666666"></path></svg></span></div>
+          <div class="wh-input" id="wh-medication-field">
+            <input id="wh-medication" type="text" autocomplete="off" placeholder="Search…" role="combobox" aria-expanded="false" aria-controls="wh-medication-list">
+            <span class="wh-adorn"><svg viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M4.99992 5.85523C4.84367 5.85523 4.69398 5.79242 4.58367 5.67992L0.171797 1.20555C-0.0572656 0.972422 -0.0572656 0.595234 0.171797 0.362422C0.401484 0.129609 0.775234 0.129609 1.00367 0.362422L4.99992 4.41555L8.99523 0.362109C9.22523 0.129297 9.59836 0.129297 9.82773 0.362109C10.0571 0.594609 10.0571 0.972422 9.82773 1.20555L5.41617 5.68055C5.30523 5.79242 5.15555 5.85523 4.99992 5.85523Z" fill="#666666"></path></svg></span>
+            <div class="wh-suggestions" id="wh-medication-list" role="listbox"><ul></ul></div>
+          </div>
+          <p class="wh-field-message" id="wh-active-request-message">Please be aware that this patient already has an active request for this medication. Double check that this is clinically appropriate.</p>
         </div>
 
         <div class="wh-check-group">
@@ -528,6 +535,23 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     { name: 'Jason Jones', displayId: 'MZLA559201', sex: 'male', dob: '19/11/1978', hasActiveEncounter: false },
     { name: 'Janelle Jordan', displayId: 'TBNE418093', sex: 'female', dob: '23/08/1964', hasActiveEncounter: false },
   ];
+  var medications = [
+    'Aciclovir 400mg Tablets',
+    'Amoxicillin 500mg Capsules',
+    'Amlodipine 5mg Tablets',
+    'Atorvastatin 20mg Tablets',
+    'Azithromycin 250mg Tablets',
+  ];
+  // Active pharmacy requests by patient display ID
+  var activeRequests = { KQPW204718: ['Amoxicillin 500mg Capsules'] };
+  var selectedPatient = null;
+  var selectedMedication = null;
+  var activeRequestMessage = document.getElementById('wh-active-request-message');
+  function checkActiveRequest() {
+    var hasActiveRequest = Boolean(selectedPatient && selectedMedication &&
+      (activeRequests[selectedPatient.displayId] || []).indexOf(selectedMedication) !== -1);
+    activeRequestMessage.classList.toggle('is-open', hasActiveRequest);
+  }
   var modal = document.getElementById('wh-rx-modal');
   var field = document.getElementById('wh-patient');
   var input = document.getElementById('wh-patient-input');
@@ -565,6 +589,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
           input.value = label(p);
           field.classList.add('has-value');
           allergies.classList.toggle('is-open', Boolean(p.hasAllergies));
+          selectedPatient = p;
+          checkActiveRequest();
           close();
           input.blur();
         });
@@ -576,22 +602,61 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   function close() { list.classList.remove('is-open'); tooltip.classList.remove('is-open'); input.setAttribute('aria-expanded', 'false'); }
 
   input.addEventListener('focus', open);
-  input.addEventListener('input', function () { field.classList.remove('has-value'); allergies.classList.remove('is-open'); open(); });
+  input.addEventListener('input', function () { field.classList.remove('has-value'); allergies.classList.remove('is-open'); selectedPatient = null; checkActiveRequest(); open(); });
   input.addEventListener('blur', close);
   document.getElementById('wh-patient-clear').addEventListener('click', function () {
     input.value = '';
     field.classList.remove('has-value');
     allergies.classList.remove('is-open');
+    selectedPatient = null;
+    checkActiveRequest();
     input.focus();
   });
   list.addEventListener('scroll', function () { tooltip.classList.remove('is-open'); });
 
   function reset() {
     input.value = '';
+    medicationInput.value = '';
+    selectedPatient = null;
+    selectedMedication = null;
+    checkActiveRequest();
     field.classList.remove('has-value');
     allergies.classList.remove('is-open');
     close();
   }
+  var medicationInput = document.getElementById('wh-medication');
+  var medicationList = document.getElementById('wh-medication-list');
+  function renderMedications() {
+    var query = medicationInput.value.trim().toLowerCase();
+    var ul = medicationList.querySelector('ul');
+    ul.innerHTML = '';
+    var matches = medications.filter(function (name) { return name.toLowerCase().indexOf(query) !== -1; });
+    if (!matches.length) ul.innerHTML = '<li class="wh-empty">No results</li>';
+    matches.forEach(function (name) {
+      var li = document.createElement('li');
+      li.className = 'wh-option';
+      li.setAttribute('role', 'option');
+      li.textContent = name;
+      li.addEventListener('mousedown', function (event) {
+        event.preventDefault();
+        medicationInput.value = name;
+        selectedMedication = name;
+        checkActiveRequest();
+        medicationList.classList.remove('is-open');
+        medicationInput.blur();
+      });
+      ul.appendChild(li);
+    });
+  }
+  medicationInput.addEventListener('focus', function () { renderMedications(); medicationList.classList.add('is-open'); });
+  medicationInput.addEventListener('input', function () {
+    selectedMedication = null;
+    checkActiveRequest();
+    renderMedications();
+    medicationList.classList.add('is-open');
+  });
+  medicationInput.addEventListener('blur', function () { medicationList.classList.remove('is-open'); });
+
   document.getElementById('wh-add-patient-prescription').addEventListener('click', function () {
     reset();
     modal.classList.add('is-open');

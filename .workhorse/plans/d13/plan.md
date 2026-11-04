@@ -21,4 +21,5 @@
 - The button is hidden for users without those permissions, so it is rendered conditionally on `ability.can(...)` rather than through `ButtonWithPermissionCheck`, which disables it and shows a lock
 - The automatic encounter location and department settings describe themselves as for the ongoing medications table only. Their descriptions need widening to cover this flow
 - An ongoing prescription normally reaches the patient's ongoing medications at discharge. The automatic encounter has no discharge step, so this endpoint has to create the `PatientOngoingPrescription` link itself
+- The active request message needs a lookup of the chosen patient's active medication requests (the same set the Active requests list shows) for the selected medication. It stands in for the existing-drug warning, which checks the encounter's prescriptions and has no encounter to check here
 - The patient suggester needs to exclude deceased patients and flag those with an active encounter, so the field can disable them

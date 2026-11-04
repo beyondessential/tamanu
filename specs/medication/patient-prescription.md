@@ -24,7 +24,9 @@ A pharmacist creates a prescription for a patient who has no active encounter, d
 
 ## Prescription form
 
-- [ ] Apart from the patient field and the pharmacy fields below, the form is the same prescription form used elsewhere.
+- [ ] Apart from the patient field, the active request message and the pharmacy fields below, the form is the same prescription form used elsewhere.
+- [ ] When the chosen patient already has an active medication request for the selected medication, a message below the medication field reads "Please be aware that this patient already has an active request for this medication. Double check that this is clinically appropriate". It is styled like the message shown when a medication has already been prescribed in an encounter.
+- [ ] The message is checked once both a patient and a medication are chosen, and again whenever either changes.
 - [ ] **Ongoing medication** is unticked by default and can be changed.
 - [ ] **Send to pharmacy** is ticked and cannot be changed.
 - [ ] **Prescription type** shows both options, with **Outpatient/Discharge** selected and **Inpatient** greyed out. Neither can be changed.
