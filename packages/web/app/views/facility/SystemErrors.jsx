@@ -57,6 +57,7 @@ export const SystemErrors = React.memo(() => {
     rowsPerPageOptions,
     onChangePage,
     onChangeRowsPerPage,
+    isPageSizeReady,
   } = useClientSideTableData(errors, {
     initialSortKey: 'timestamp',
     initialSortDirection: 'desc',
@@ -77,6 +78,7 @@ export const SystemErrors = React.memo(() => {
         <Table
           data={pageData}
           columns={COLUMNS}
+          isLoading={!isPageSizeReady}
           noDataMessage={
             <NoDataContainer data-testid="nodatacontainer-syse">
               <TranslatedText

@@ -1,6 +1,37 @@
+import { Browser } from '@playwright/test';
+
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { testData } from '@utils/testData';
 import { test, expect } from '../../fixtures/baseFixture';
-import { getUser } from '../../utils/apiHelpers';
+import { LoginPage, SidebarPage } from '../../pages';
+import { InpatientsPage } from '../../pages/patients/InpatientsPage';
+import { getUser, setUserPreferenceViaApi } from '../../utils/apiHelpers';
+
+const getTestUser = () => {
+  const email = process.env.TEST_EMAIL;
+  const password = process.env.TEST_PASSWORD;
+  if (!email || !password) {
+    throw new Error('TEST_EMAIL and TEST_PASSWORD environment variables must be set');
+  }
+  return { email, password };
+};
+
+// Logs in afresh in a separate browser context, so logging out there leaves the saved session the
+// other specs share untouched
+const signInInNewContext = async (browser: Browser) => {
+  const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+  try {
+    const page = await context.newPage();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    const { email, password } = getTestUser();
+    await loginPage.login(email, password);
+    return { context, page, loginPage };
+  } catch (error) {
+    await context.close();
+    throw error;
+  }
+};
 
 test.describe('inpatient table tests', () => {
   test.beforeEach(async ({ inpatientsPage }) => {
@@ -39,6 +70,34 @@ test.describe('inpatient table tests', () => {
   });
 
   test.describe('pagination', () => {
+    // These change the shared test user's remembered Inpatients size, so they run in order rather
+    // than alongside each other, and put it back after each test, whether it passed or not
+    test.describe.configure({ mode: 'default' });
+    test.afterEach(async ({ api }) => {
+      await setUserPreferenceViaApi(api, TABLE_PAGE_SIZE_PREFERENCE_KEYS.INPATIENTS, 50);
+    });
+
+    test('a page size picked on Inpatients is kept after logging out and back in', async ({
+      browser,
+      newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,
+    }) => {
+      const { context, page, loginPage } = await signInInNewContext(browser);
+      try {
+        const inpatientsPage = new InpatientsPage(page);
+        await inpatientsPage.goto();
+        await inpatientsPage.patientTable.changePageSize(100);
+
+        await new SidebarPage(page).logOutButton.click();
+        const { email, password } = getTestUser();
+        await loginPage.login(email, password);
+        await inpatientsPage.goto();
+
+        await expect(inpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('100');
+      } finally {
+        await context.close();
+      }
+    });
+
     //skipping this test for now as it is failing in ci because of less than 50 inpatients
     test.skip('[AT-0040]number of patients in patient list defaulted to 50', async ({
       newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,
@@ -60,21 +119,19 @@ test.describe('inpatient table tests', () => {
       await inpatientsPage.patientTable.validateNumberOfPatients(100);
       await inpatientsPage.patientTable.patientPage2.click();
       await inpatientsPage.patientTable.waitForTableToLoad();
-      await expect(inpatientsPage.patientTable.pageRecordCount).toContainText('101');
-      // The chosen size is remembered for the test user, so put it back for other tests
-      await inpatientsPage.patientTable.selectPageSize(50);
+      await expect(inpatientsPage.patientTable.pageRecordCount).toContainText('101–');
     });
 
     //skipping this test for now as it is failing in ci because of less than 51 inpatients
     test.skip('[AT-0042]change number of patients per list back to 50 and going to next page', async ({
       inpatientsPage,
     }) => {
-      await inpatientsPage.patientTable.selectPageSize(100);
-      await inpatientsPage.patientTable.selectPageSize(50);
+      await inpatientsPage.patientTable.changePageSize(100);
+      await inpatientsPage.patientTable.changePageSize(50);
       await inpatientsPage.patientTable.validateNumberOfPatients(50);
       await inpatientsPage.patientTable.patientPage2.click();
       await inpatientsPage.patientTable.waitForTableToLoad();
-      await expect(inpatientsPage.patientTable.pageRecordCount).toContainText('51');
+      await expect(inpatientsPage.patientTable.pageRecordCount).toContainText('51–');
     });
   });
 

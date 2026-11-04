@@ -14,10 +14,11 @@ export const useClientSideTableData = (
     initialSortDirection,
   });
   const [page, setPage] = useState(0);
-  const { rowsPerPage, rowsPerPageOptions, onChangeRowsPerPage } = usePageSizePreference({
-    preferenceKey: pageSizePreferenceKey,
-    defaultRowsPerPage,
-  });
+  const { rowsPerPage, rowsPerPageOptions, onChangeRowsPerPage, isPageSizeReady } =
+    usePageSizePreference({
+      preferenceKey: pageSizePreferenceKey,
+      defaultRowsPerPage,
+    });
 
   const pageData = useMemo(() => {
     const sorted = customSort([...data]);
@@ -41,5 +42,6 @@ export const useClientSideTableData = (
     rowsPerPageOptions,
     onChangePage: setPage,
     onChangeRowsPerPage,
+    isPageSizeReady,
   };
 };

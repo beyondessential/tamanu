@@ -35,3 +35,4 @@ A table with the large set remembers the size each user picks on it. The choice 
 - [ ] A size is remembered for the user who picked it, so one user's choice never changes the size another user sees, including on the same device
 - [ ] A table opening at a remembered size loads its first page at that size, so it loads once rather than loading at 50 and then reloading
 - [ ] A picked size applies straight away, even if saving it fails. If it wasn't saved, the table opens at the user's previously saved size, or at 50, on the next visit
+- [ ] When the user's remembered sizes can't be read, including while the browser reports itself offline, a table with the large set opens at 50 rather than waiting for them

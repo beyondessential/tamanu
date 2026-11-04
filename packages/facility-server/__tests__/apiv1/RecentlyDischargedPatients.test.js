@@ -4,6 +4,7 @@ import { addMinutes, subHours } from 'date-fns';
 import {
   ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_PATIENT_STATUSES,
+  MAX_ROWS_PER_PAGE,
   PATIENT_STATUSES,
 } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
@@ -279,10 +280,28 @@ describe('Recently discharged patients', () => {
 
     it('caps the page size, and falls back to defaults for invalid paging values', async () => {
       const lastName = 'Rdp-page-size';
-      for (let i = 0; i < 101; i++) {
-        const patient = await createPatient({ lastName });
-        await createDischargedEncounter(patient);
-      }
+      // One more patient than the largest page, inserted in bulk as one at a time is slow
+      const patients = await models.Patient.bulkCreate(
+        Array.from({ length: MAX_ROWS_PER_PAGE + 1 }, () =>
+          createDummyPatient(models, { lastName }),
+        ),
+        { returning: true },
+      );
+      const encounterValues = await createDummyEncounter(models, {
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        startDate: hoursAgo(3),
+        endDate: hoursAgo(1),
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: discharger.id,
+      });
+      const encounters = await models.Encounter.bulkCreate(
+        patients.map(patient => ({ ...encounterValues, patientId: patient.id })),
+        { returning: true },
+      );
+      await models.Discharge.bulkCreate(
+        encounters.map(encounter => ({ encounterId: encounter.id, dischargerId: discharger.id })),
+      );
 
       const oversizedPage = await app
         .get('/api/recentlyDischargedPatients')
@@ -292,8 +311,8 @@ describe('Recently discharged patients', () => {
         .query({ lastName, rowsPerPage: 'many', page: -1 });
 
       expect(oversizedPage).toHaveSucceeded();
-      expect(oversizedPage.body).toMatchObject({ count: 101 });
-      expect(oversizedPage.body.data).toHaveLength(100);
+      expect(oversizedPage.body).toMatchObject({ count: MAX_ROWS_PER_PAGE + 1 });
+      expect(oversizedPage.body.data).toHaveLength(MAX_ROWS_PER_PAGE);
       expect(invalidPaging).toHaveSucceeded();
       expect(invalidPaging.body.data).toHaveLength(10);
     });

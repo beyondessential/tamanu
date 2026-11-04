@@ -1,6 +1,7 @@
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { testData } from '../../utils/testData';
 import { test, expect } from '../../fixtures/baseFixture';
-import { getUser } from '../../utils/apiHelpers';
+import { getUser, setUserPreferenceViaApi } from '../../utils/apiHelpers';
 
 test.describe('outpatient table tests', () => {
   test.beforeEach(async ({ outpatientsPage }) => {
@@ -39,6 +40,13 @@ test.describe('outpatient table tests', () => {
   });
 
   test.describe('pagination', () => {
+    // These change the shared test user's remembered Outpatients size, so they run in order rather
+    // than alongside each other, and put it back after each test, whether it passed or not
+    test.describe.configure({ mode: 'default' });
+    test.afterEach(async ({ api }) => {
+      await setUserPreferenceViaApi(api, TABLE_PAGE_SIZE_PREFERENCE_KEYS.OUTPATIENTS, 50);
+    });
+
     //skipping this test for now as it is failing in ci because of less than 50 outpatients
     test.skip('[AT-0124]number of patients in patient list defaulted to 50', async ({
       outpatientsPage,
@@ -59,21 +67,19 @@ test.describe('outpatient table tests', () => {
       await outpatientsPage.patientTable.validateNumberOfPatients(100);
       await outpatientsPage.patientTable.patientPage2.click();
       await outpatientsPage.patientTable.waitForTableToLoad();
-      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('101');
-      // The chosen size is remembered for the test user, so put it back for other tests
-      await outpatientsPage.patientTable.selectPageSize(50);
+      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('101–');
     });
 
     //skipping this test for now as it is failing in ci because of less than 51 outpatients
     test.skip('[AT-0126]change number of patients per list back to 50 and going to next page', async ({
       outpatientsPage,
     }) => {
-      await outpatientsPage.patientTable.selectPageSize(100);
-      await outpatientsPage.patientTable.selectPageSize(50);
+      await outpatientsPage.patientTable.changePageSize(100);
+      await outpatientsPage.patientTable.changePageSize(50);
       await outpatientsPage.patientTable.validateNumberOfPatients(50);
       await outpatientsPage.patientTable.patientPage2.click();
       await outpatientsPage.patientTable.waitForTableToLoad();
-      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('51');
+      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('51–');
     });
   });
 

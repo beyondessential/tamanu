@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
+import { MAX_ROWS_PER_PAGE } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { createTestContext } from '../utilities';
@@ -96,8 +97,8 @@ describe('GET /admin/sync/lastCompleted', () => {
 
   it('accepts page sizes up to the largest the table offers', async () => {
     const app = await baseApp.asRole('admin');
-    const largestPage = await app.get(ENDPOINT).query({ rowsPerPage: 100 });
-    const oversizedPage = await app.get(ENDPOINT).query({ rowsPerPage: 101 });
+    const largestPage = await app.get(ENDPOINT).query({ rowsPerPage: MAX_ROWS_PER_PAGE });
+    const oversizedPage = await app.get(ENDPOINT).query({ rowsPerPage: MAX_ROWS_PER_PAGE + 1 });
 
     expect(largestPage).toHaveSucceeded();
     expect(oversizedPage).toHaveRequestError();

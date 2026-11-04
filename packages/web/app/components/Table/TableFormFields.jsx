@@ -129,6 +129,10 @@ export const TableFormFields = React.memo(
     };
 
     const displayRows = pagination ? pageRows : data;
+    // Rows and paging are held back until a remembered size is known, so the table doesn't show
+    // at one size then jump to another
+    // spec: TPAGE#remembered-page-size
+    const isWaitingForPageSize = pagination && !pageSize.isPageSizeReady;
 
     return (
       <>
@@ -154,7 +158,7 @@ export const TableFormFields = React.memo(
               </TableRow>
             </StyledTableHead>
             <TableBody data-testid="tablebody-l659">
-              {displayRows && displayRows.length > 0 ? (
+              {!isWaitingForPageSize && displayRows && displayRows.length > 0 ? (
                 displayRows.map((rowData, i) => {
                   const groupHeader = getRowGroupHeader?.(
                     rowData,
@@ -183,18 +187,22 @@ export const TableFormFields = React.memo(
               ) : (
                 <TableRow data-testid="tablerow-d2it">
                   <NoDataTableCell colSpan={columns.length} data-testid="nodatatablecell-2yp7">
-                    <TranslatedText
-                      stringId="general.table.noData"
-                      fallback="No data"
-                      data-testid="translatedtext-ddgw"
-                    />
+                    {isWaitingForPageSize ? (
+                      <TranslatedText stringId="general.table.loading" fallback="Loading…" />
+                    ) : (
+                      <TranslatedText
+                        stringId="general.table.noData"
+                        fallback="No data"
+                        data-testid="translatedtext-ddgw"
+                      />
+                    )}
                   </NoDataTableCell>
                 </TableRow>
               )}
             </TableBody>
           </StyledFixedTable>
         </TableContainer>
-        {pagination && (
+        {pagination && !isWaitingForPageSize && (
           <StyledTableFooter data-testid="styledtablefooter-pzhl">
             <PaginationRow data-testid="paginationrow-o0vp">
               <Paginator

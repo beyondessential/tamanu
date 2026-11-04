@@ -1,11 +1,6 @@
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { SERVER_TYPES } from '@tamanu/constants';
+import { useContext, useState } from 'react';
 
-import { useApi } from '../../api';
-import { useAdminUserPreferencesQuery, useUserPreferencesQuery } from '../../api/queries';
-import { getCurrentUser, getServerType } from '../../store/auth';
+import { PageSizePreferencesContext } from '../../contexts/PageSizePreferences';
 import { LARGE_ROWS_PER_PAGE_OPTIONS, ROWS_PER_PAGE_OPTIONS } from '../../constants';
 
 /**
@@ -15,42 +10,10 @@ import { LARGE_ROWS_PER_PAGE_OPTIONS, ROWS_PER_PAGE_OPTIONS } from '../../consta
  */
 // spec: TPAGE#remembered-page-size
 export const usePageSizePreference = ({ preferenceKey, defaultRowsPerPage }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
-  const currentUser = useSelector(getCurrentUser);
-  const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
-  const isRemembered = Boolean(preferenceKey);
-
-  // The admin panel keeps its preferences on the central server, the clinical app on the facility
-  // server. The preferences are saved with no facility so they follow the user everywhere.
-  const facilityPreferencesQuery = useUserPreferencesQuery({
-    enabled: isRemembered && !isCentralServer,
-  });
-  const adminPreferencesQuery = useAdminUserPreferencesQuery({
-    enabled: isRemembered && isCentralServer,
-  });
-  const preferencesQuery = isCentralServer ? adminPreferencesQuery : facilityPreferencesQuery;
-  const preferencesQueryKey = isCentralServer
-    ? ['adminUserPreferences', currentUser?.id]
-    : ['userPreferences', currentUser?.id];
-
-  const { mutate: savePageSize } = useMutation({
-    mutationFn: rowsPerPage =>
-      api.post(isCentralServer ? 'admin/user/userPreferences' : 'user/userPreferences', {
-        key: preferenceKey,
-        value: rowsPerPage,
-      }),
-    // Write the saved size into the cached preferences instead of refetching them all
-    onSuccess: (_, rowsPerPage) =>
-      queryClient.setQueryData(preferencesQueryKey, preferences => ({
-        ...preferences,
-        [preferenceKey]: rowsPerPage,
-      })),
-  });
-
+  const pageSizePreferences = useContext(PageSizePreferencesContext);
   const [pickedRowsPerPage, setPickedRowsPerPage] = useState(null);
 
-  if (!isRemembered) {
+  if (!preferenceKey) {
     return {
       rowsPerPage: pickedRowsPerPage ?? defaultRowsPerPage ?? ROWS_PER_PAGE_OPTIONS[0],
       rowsPerPageOptions: ROWS_PER_PAGE_OPTIONS,
@@ -59,7 +22,13 @@ export const usePageSizePreference = ({ preferenceKey, defaultRowsPerPage }) => 
     };
   }
 
-  const savedRowsPerPage = preferencesQuery.data?.[preferenceKey];
+  if (!pageSizePreferences) {
+    throw new Error(
+      `The table remembering "${preferenceKey}" must be inside a page size preferences provider`,
+    );
+  }
+  const { preferences, isLoaded, savePreference } = pageSizePreferences;
+  const savedRowsPerPage = preferences?.[preferenceKey];
   const isSavedSizeOffered = LARGE_ROWS_PER_PAGE_OPTIONS.includes(savedRowsPerPage);
 
   return {
@@ -69,9 +38,9 @@ export const usePageSizePreference = ({ preferenceKey, defaultRowsPerPage }) => 
     onChangeRowsPerPage: rowsPerPage => {
       // The picked size applies straight away, whether or not saving it succeeds
       setPickedRowsPerPage(rowsPerPage);
-      savePageSize(rowsPerPage);
+      savePreference({ key: preferenceKey, value: rowsPerPage });
     },
-    // Ready once the preferences have loaded, or failed to, so the first fetch is at the right size
-    isPageSizeReady: !preferencesQuery.isLoading,
+    // Ready once the preferences have loaded, or failed to, so the first load is at the right size
+    isPageSizeReady: isLoaded,
   };
 };
