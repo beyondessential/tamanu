@@ -1,4 +1,4 @@
-import React, { type ReactElement, useState } from 'react';
+import React, { type ReactElement } from 'react';
 
 import { UPDATE_STAGE } from '~/types/Updater';
 import { useUpdate } from '~/ui/contexts/UpdateContext';
@@ -9,15 +9,13 @@ import { theme } from '~/ui/styled/theme';
 import { Button } from './Button';
 import { PauseIcon } from './Icons';
 import { TranslatedText } from './Translations/TranslatedText';
-import { UpdateModals } from './UpdateModals';
 
 /**
  * What the Sync tab shows while an update is outstanding. Sync cannot run until the update is
  * installed, so this says why rather than offering a manual sync the server would reject.
  */
 export const SyncPausedForUpdate = (): ReactElement => {
-  const { stage, progress, install, prepareInstall, grantPermission } = useUpdate();
-  const [confirming, setConfirming] = useState(false);
+  const { stage, progress, grantPermission, requestInstall } = useUpdate();
 
   const proportion = downloadProportion(progress.downloadedBytes, progress.totalBytes);
   const percent = proportion === null ? null : Math.round(proportion * 100);
@@ -67,10 +65,7 @@ export const SyncPausedForUpdate = (): ReactElement => {
       </StyledText>
       {isReady && (
         <Button
-          onPress={async () => {
-            await prepareInstall();
-            setConfirming(true);
-          }}
+          onPress={() => void requestInstall()}
           width={160}
           outline
           textColor={theme.colors.SECONDARY_MAIN}
@@ -92,14 +87,6 @@ export const SyncPausedForUpdate = (): ReactElement => {
           marginTop={20}
         />
       )}
-      <UpdateModals
-        confirming={confirming}
-        onCancelConfirm={() => void setConfirming(false)}
-        onConfirm={() => {
-          setConfirming(false);
-          install();
-        }}
-      />
     </StyledView>
   );
 };

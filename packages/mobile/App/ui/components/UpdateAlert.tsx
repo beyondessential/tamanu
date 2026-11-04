@@ -10,7 +10,6 @@ import { downloadProportion } from '~/services/update/updatePolicy';
 import { StyledText, StyledTouchableOpacity } from '~/ui/styled/common';
 import { Alert, AlertSeverity, SEVERITY_TO_COLORS } from './Alert';
 import { TranslatedText } from './Translations/TranslatedText';
-import { UpdateModals } from './UpdateModals';
 
 const { color: ALERT_COLOUR } = SEVERITY_TO_COLORS[AlertSeverity.Warning];
 
@@ -56,13 +55,11 @@ export const UpdateAlert = (): ReactElement | null => {
     progress,
     blocker,
     manualUrl,
-    install,
     grantPermission,
-    prepareInstall,
+    requestInstall,
   } = useUpdate();
   const { getTranslation } = useTranslation();
   const [closed, setClosed] = useState(false);
-  const [confirming, setConfirming] = useState(false);
 
   // Closing the banner only hides it until staff next arrive at the home screen. The screen stays
   // mounted behind the other tabs, so coming back to it has to clear the dismissal explicitly.
@@ -102,12 +99,7 @@ export const UpdateAlert = (): ReactElement | null => {
                 fallback="Tamanu update ready. Install to sync."
               />
             </AlertText>
-            <AlertAction
-              onPress={async () => {
-                await prepareInstall();
-                setConfirming(true);
-              }}
-            >
+            <AlertAction onPress={() => void requestInstall()}>
               {getTranslation('update.action.install', 'Install')}
             </AlertAction>
           </>
@@ -163,14 +155,6 @@ export const UpdateAlert = (): ReactElement | null => {
           </>
         )}
       </Alert>
-      <UpdateModals
-        confirming={confirming}
-        onCancelConfirm={() => void setConfirming(false)}
-        onConfirm={() => {
-          setConfirming(false);
-          install();
-        }}
-      />
     </>
   );
 };

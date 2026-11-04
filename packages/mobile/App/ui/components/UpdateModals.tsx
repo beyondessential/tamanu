@@ -1,8 +1,7 @@
 import React, { type ReactElement, type ReactNode } from 'react';
 import Modal from 'react-native-modal';
 
-import { UPDATE_STAGE } from '~/types/Updater';
-import { useUpdate } from '~/ui/contexts/UpdateContext';
+import { UPDATE_STAGE, type UpdateStage } from '~/types/Updater';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
@@ -11,9 +10,12 @@ import { CrossIcon } from './Icons';
 import { TranslatedText } from './Translations/TranslatedText';
 
 interface UpdateModalsProps {
+  stage: UpdateStage;
   confirming: boolean;
   onCancelConfirm: () => void;
   onConfirm: () => void;
+  onTryAgain: () => void;
+  onDismissFailure: () => void;
 }
 
 interface UpdateModalProps {
@@ -76,15 +78,17 @@ const UpdateModal = ({
 
 /**
  * The three states installing can be in. Only one is ever visible, and the installing one cannot
- * be dismissed because Android has the package by then and the app is about to close.
+ * be dismissed because Android has the package by then and the app is about to close. Rendered once,
+ * by UpdateProvider, so screens kept mounted behind the current one never show a second copy.
  */
 export const UpdateModals = ({
+  stage,
   confirming,
   onCancelConfirm,
   onConfirm,
+  onTryAgain,
+  onDismissFailure,
 }: UpdateModalsProps): ReactElement => {
-  const { stage, install, dismissInstallFailure } = useUpdate();
-
   return (
     <>
       <UpdateModal
@@ -142,7 +146,7 @@ export const UpdateModals = ({
 
       <UpdateModal
         isVisible={stage === UPDATE_STAGE.INSTALL_FAILED}
-        onClose={dismissInstallFailure}
+        onClose={onDismissFailure}
         title={
           <TranslatedText stringId="update.modal.failed.title" fallback="Update not installed" />
         }
@@ -156,7 +160,7 @@ export const UpdateModals = ({
         <StyledView alignItems="center">
           <Button
             backgroundColor={theme.colors.PRIMARY_MAIN}
-            onPress={() => void install()}
+            onPress={onTryAgain}
             textColor={theme.colors.WHITE}
             width={screenPercentageToDP(60, Orientation.Width)}
             fontSize={screenPercentageToDP(1.94, Orientation.Height)}
@@ -167,7 +171,7 @@ export const UpdateModals = ({
             marginTop={screenPercentageToDP(1.5, Orientation.Height)}
             outline
             borderColor={theme.colors.PRIMARY_MAIN}
-            onPress={dismissInstallFailure}
+            onPress={onDismissFailure}
             textColor={theme.colors.PRIMARY_MAIN}
             width={screenPercentageToDP(60, Orientation.Width)}
             fontSize={screenPercentageToDP(1.94, Orientation.Height)}
