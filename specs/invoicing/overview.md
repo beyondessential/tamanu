@@ -31,8 +31,11 @@ The patient's details can be viewed and edited from an invoice without leaving i
       saved values.
 - [ ] A save blocked by validation keeps the modal open and brings the first field with a
       message into view.
-- [ ] Cancel, Escape and the close button close the modal without saving, discarding any
-      unsaved edits.
+- [ ] Cancel, Escape and the close button close the modal without saving.
+- [ ] When the modal has unsaved edits, closing it first asks for confirmation, titled
+      "Unsaved changes", reading "You have unsaved changes. Are you sure you would like to
+      discard those changes?" Go back returns to the modal with the edits kept, and Discard
+      changes closes it.
 
 ### Adding an insurance plan
 
@@ -42,12 +45,15 @@ The patient's details can be viewed and edited from an invoice without leaving i
 - [ ] Go to patient details, and Add insurance plan on Record payment (see
       [Patient payments](#patient-payments)), are offered on in-progress invoices, to users
       who can edit invoices, when the patient's details show the insurance plan field.
-- [ ] When the modal is opened to add an insurance plan, saving it applies all of the
-      patient's insurance plans available at the invoice's facility to the invoice. The
-      invoice's amounts due reflect them straight away.
-- [ ] Saving with no insurance plan available at the invoice's facility, whether the patient
-      has no plans or only plans restricted to other facilities, applies none.
-- [ ] Opened from Insurance plan, saving or cancelling the modal returns to the invoice.
+- [ ] When the modal is opened to add an insurance plan, saving it with a plan available at
+      the invoice's facility opens Insurance plans, the invoice's plan picker, to choose
+      which of the patient's plans apply to the invoice. Saving the picker applies the
+      chosen plans, and the invoice's amounts due reflect them straight away.
+- [ ] Saving the modal with no insurance plan available at the invoice's facility, whether
+      the patient has no plans or only plans restricted to other facilities, returns to the
+      invoice without opening the picker.
+- [ ] Opened from Insurance plan, cancelling the modal, or saving or cancelling the picker,
+      returns to the invoice.
 
 ## Patient payments
 
@@ -64,15 +70,15 @@ The patient's details can be viewed and edited from an invoice without leaving i
 - [ ] When the patient has no insurance plans available at the invoice's facility, Add
       insurance plan opens the patient details modal over the invoice, scrolled to and
       focused on the insurance plan field. Saving it with a plan available at the invoice's
-      facility applies the plans to the invoice and then opens the record payment form,
-      with the patient total due reflecting them. Saving it with none, or cancelling it,
-      returns to the invoice without recording a payment.
+      facility opens Insurance plans (see
+      [Adding an insurance plan](#adding-an-insurance-plan)).
 - [ ] When the patient has insurance plans available at the invoice's facility, Add
-      insurance plan opens Insurance plans, the plan picker the invoice's Insurance plan
-      action opens. Saving it with at least one plan selected applies those plans and then
-      opens the record payment form, with the patient total due reflecting them. Saving it
-      with no plan selected, or cancelling it, returns to the invoice without recording a
-      payment.
+      insurance plan opens Insurance plans directly.
+- [ ] Saving Insurance plans with at least one plan selected applies those plans and then
+      opens the record payment form, with the patient total due reflecting them.
+- [ ] Saving Insurance plans with no plan selected, cancelling it, cancelling the patient
+      details modal, or saving the modal with no plan available at the invoice's facility,
+      returns to the invoice without recording a payment.
 - [ ] Record payment on an invoice that has insurance plans opens the record payment form
       directly.
 
