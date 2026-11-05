@@ -53,6 +53,7 @@ describe('Browser telemetry ingest', () => {
           parentId: 'span-nav-1',
           kind: 'request',
           route: '/patient/:param1',
+          navigationRoute: '/patients/:param1',
           method: 'GET',
           statusCode: 200,
           durationMs: 120,
@@ -75,6 +76,9 @@ describe('Browser telemetry ingest', () => {
     expect(nav.interface).toBe('clinical');
     const request = rows.find(r => r.kind === 'request');
     expect(request.parentId).toBe('span-nav-1');
+    // spec: BTEL. The page that was loading, stamped by the browser on the request.
+    expect(request.navigationRoute).toBe('/patients/:param1');
+    expect(nav.navigationRoute).toBeNull();
     expect(request.statusCode).toBe(200);
   });
 

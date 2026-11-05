@@ -1,5 +1,5 @@
 {% docs logs__table__browser_telemetry_spans %}
-Raw browser performance telemetry: one row per span. A span is either a page navigation (the root) or an API request made during it. Spans are captured in the web clients (clinical, admin, patient portal) via OpenTelemetry, batched, and posted to the server the client talks to, which stamps the facility and stores them here. The table is local to the server (does not sync, is not changelogged) and a scheduled task prunes rows past the retention horizon. Aggregation and reporting happen downstream.
+Raw browser performance telemetry: one row per span. A span is either a page navigation (the root) or an API request made during it. Spans are captured in the web clients (clinical, admin, patient portal) via OpenTelemetry, batched, and posted to the server the client talks to, which stamps the facility and stores them here. The table is local to the server (does not sync, is not changelogged) and a scheduled task prunes rows past the retention horizon. A scheduled rollup aggregates these rows into the browser_telemetry_trends, browser_telemetry_slow_events and browser_telemetry_slow_event_requests tables, which are pushed to central.
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__id %}
@@ -39,7 +39,7 @@ Generic route pattern with identifiers replaced by placeholders (for a navigatio
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__parameters %}
-Resolved values that the route pattern abstracts away, as a JSON object with `path` (the placeholder fillers) and `query` (query-string parameters) kept apart. May contain patient-identifiable values such as search terms, so it is anonymised downstream.
+Resolved values that the route pattern abstracts away, as a JSON object with `path` (the placeholder fillers) and `query` (query-string parameters) kept apart. Query values may contain patient-identifiable values such as search terms, so the aggregates keep only path values and query parameter names.
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__method %}
@@ -55,7 +55,7 @@ Span duration in milliseconds: for a navigation, until the page settled (or was 
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__outcome %}
-How a navigation ended: `settled` once the network went quiet, `abandoned` if the user navigated away first, or `capped` if it hit the maximum duration. Null for a request span.
+How a navigation ended: `settled` once the network went quiet, `abandoned` if the user navigated away first, or `capped` if it hit the maximum duration. On a request span, set to its navigation's outcome (`abandoned` or `capped`) when the request was still in flight as that navigation ended and was cut off, which truncates its duration; null otherwise.
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__interface %}
@@ -84,4 +84,8 @@ Facility the span is attributed to, stamped server-side from the receiving serve
 
 {% docs logs__browser_telemetry_spans__occurred_at %}
 Time the span occurred in the browser, as reported by the client.
+{% enddocs %}
+
+{% docs logs__browser_telemetry_spans__navigation_route %}
+For a request span made while a page was loading, the route pattern of that page, stamped by the browser. Null for navigations and for standalone requests.
 {% enddocs %}

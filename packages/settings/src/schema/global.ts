@@ -479,6 +479,58 @@ export const globalSettings = {
           defaultValue: 30,
           unit: 'days',
         },
+        // spec: BTAG. Read only by the servers' rollup task, on every run.
+        aggregation: {
+          name: 'Aggregation',
+          description:
+            'How the raw browser telemetry is rolled up into the long-lived trend rows and slow events that are pushed to central',
+          properties: {
+            bucketMinutes: {
+              name: 'Bucket size',
+              description:
+                'Length of each aggregation bucket. Must divide a day evenly. A change applies from the first boundary of the new size.',
+              type: yup
+                .number()
+                .integer()
+                .positive()
+                .test(
+                  'divides-a-day',
+                  'bucket size must divide a day (1440 minutes) evenly',
+                  value => value === undefined || 1440 % value === 0,
+                ),
+              defaultValue: 60,
+              unit: 'minutes',
+            },
+            slowestPerRow: {
+              name: 'Slowest events kept',
+              description:
+                'How many of the slowest events are kept in detail for each page or endpoint in each bucket, however fast they were',
+              type: yup.number().integer().min(0),
+              defaultValue: 5,
+            },
+            navigationSlowThresholdMs: {
+              name: 'Slow page load threshold',
+              description: 'Page loads slower than this are kept in detail, up to the cap',
+              type: yup.number().integer().positive(),
+              defaultValue: 5000,
+              unit: 'ms',
+            },
+            requestSlowThresholdMs: {
+              name: 'Slow request threshold',
+              description: 'API requests slower than this are kept in detail, up to the cap',
+              type: yup.number().integer().positive(),
+              defaultValue: 2000,
+              unit: 'ms',
+            },
+            slowEventCapPerRow: {
+              name: 'Slow event cap',
+              description:
+                'Most events kept in detail for each page or endpoint in each bucket; the slowest are kept when more qualify',
+              type: yup.number().integer().min(0),
+              defaultValue: 20,
+            },
+          },
+        },
       },
     },
     features: {

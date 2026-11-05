@@ -1,6 +1,7 @@
 import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 import { CleanupBrowserTelemetry } from '@tamanu/shared/tasks/CleanupBrowserTelemetry';
+import { RollupBrowserTelemetry } from '@tamanu/shared/tasks/RollupBrowserTelemetry';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
@@ -49,6 +50,8 @@ export async function startScheduledTasks(context) {
   context.integrationSettings = await context.settings.get('integrations');
   // Global telemetry settings (incl. retentionDays), read by CleanupBrowserTelemetry.
   context.telemetrySettings = await context.settings.get('telemetry');
+  // Server-wide settings for tasks that read them on every run (RollupBrowserTelemetry).
+  context.globalSettings = context.settings;
   /* eslint-enable require-atomic-updates */
 
   const taskClasses = [
@@ -84,6 +87,9 @@ export async function startScheduledTasks(context) {
     // spec: BTEL — central stores telemetry from the admin panel and the patient
     // portal, so it needs the same retention prune as a facility server.
     CleanupBrowserTelemetry,
+    // spec: BTAG. Central rolls up its own raw telemetry; facilities' aggregates
+    // arrive by sync.
+    RollupBrowserTelemetry,
   ];
 
   if (context.integrationSettings.fijiVrs.enabled) {

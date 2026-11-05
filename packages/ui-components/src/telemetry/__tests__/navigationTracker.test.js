@@ -261,6 +261,16 @@ describe('TelemetryNavigationTracker', () => {
 
     expect(first.ended).toBe(true);
     expect(first.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.ABANDONED);
+
+    // The request still in flight is cut off with the navigation, and marked so.
+    const request = tracer.spans[1];
+    expect(request.ended).toBe(true);
+    expect(request.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.ABANDONED);
+    expect(request.attributes[SPAN_ATTR.STATUS_CODE]).toBeUndefined();
+
+    // Its late settle is ignored rather than overwriting the cut-off span.
+    tracker.onRequestSettle({ phase: 'settle', id: 3, status: 200 });
+    expect(request.attributes[SPAN_ATTR.STATUS_CODE]).toBeUndefined();
   });
 
   it('caps a navigation that never goes quiet', () => {
@@ -279,5 +289,35 @@ describe('TelemetryNavigationTracker', () => {
 
     expect(nav.ended).toBe(true);
     expect(nav.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.CAPPED);
+    expect(tracer.spans[1].attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.CAPPED);
+  });
+
+  it('stamps a navigational request with its navigation route, and a standalone one with none', () => {
+    tracker.startNavigation('/patients/:patientId', { patientId: 'p1' }, {});
+    tracker.onRequestStart({
+      phase: 'start',
+      id: 5,
+      endpoint: 'patient/p1',
+      query: {},
+      method: 'GET',
+      background: false,
+    });
+    tracker.onRequestSettle({ phase: 'settle', id: 5, status: 200 });
+    timers.fireByMs(QUIET_MS);
+
+    tracker.onRequestStart({
+      phase: 'start',
+      id: 6,
+      endpoint: 'suggestions/icd10',
+      query: {},
+      method: 'GET',
+      background: false,
+    });
+    tracker.onRequestSettle({ phase: 'settle', id: 6, status: 200 });
+
+    const [, navigational, standalone] = tracer.spans;
+    expect(navigational.attributes[SPAN_ATTR.NAVIGATION_ROUTE]).toBe('/patients/:patientId');
+    expect(navigational.attributes[SPAN_ATTR.OUTCOME]).toBeUndefined();
+    expect(standalone.attributes[SPAN_ATTR.NAVIGATION_ROUTE]).toBeUndefined();
   });
 });
