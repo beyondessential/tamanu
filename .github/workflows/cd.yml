@@ -616,6 +616,16 @@ jobs:
           if [ "$WANTED" = true ]; then replicas=1; else replicas=0; fi
           namespace="tamanu-$DEPLOY"
 
+          # Access to a deploy's namespace is granted as the deploy creates it, so
+          # before the first deploy kubectl answers Forbidden rather than not found.
+          # That deploy applies the flag itself. can-i exits 1 on "no", so only that
+          # answer skips; a failed call prints nothing and the get below reports it.
+          granted=$(kubectl auth can-i get deployments -n "$namespace" || true)
+          if [ "$granted" = no ]; then
+            echo "::notice::$DEPLOY has not been deployed yet"
+            exit 0
+          fi
+
           # --ignore-not-found, so a missing Deployment reads as empty output
           # and anything kubectl does report ends the job instead of passing as
           # one.
