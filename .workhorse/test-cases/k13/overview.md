@@ -1,6 +1,6 @@
 # Aggregate browser performance statistics: test cases
 
-Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and ingest changes it depends on (spec: BTEL). Automated cases live in `packages/facility-server/__tests__/tasks/RollupBrowserTelemetry.test.js`, `packages/shared/__tests__/utils/browserTelemetryBuckets.test.js` and `packages/ui-components/src/telemetry/__tests__/navigationTracker.test.js`, with the central push in `packages/central-server/__tests__/sync/CentralSyncManager.addIncomingChanges.test.js`.
+Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and ingest changes it depends on (spec: BTEL). Automated cases live in `packages/facility-server/__tests__/tasks/RollupBrowserTelemetry.test.js`, `packages/shared/__tests__/utils/browserTelemetryBuckets.test.js` and `packages/ui-components/src/telemetry/__tests__/navigationTracker.test.js`, with the central push in `packages/central-server/__tests__/sync/CentralSyncManager.addIncomingChanges.test.js` and the tasks on central in `packages/central-server/__tests__/tasks/BrowserTelemetryTasks.test.js`.
 
 ## Rolling up
 
@@ -27,7 +27,7 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 - [x] Navigations are counted by outcome, with capped loads timed at their capped duration and abandoned loads untimed (verifies spec: BTAG)
 - [x] Histogram bands are inclusive of their upper bound, and percentiles use the nearest-rank method (verifies spec: BTAG)
 - [x] Rows are keyed separately by bucket, route, method and application version (verifies spec: BTAG)
-- [ ] Rows rolled up on central for the admin panel and patient portal carry no facility (verifies spec: BTAG)
+- [x] Rows rolled up on central for the admin panel and patient portal carry no facility (verifies spec: BTAG)
 
 ## Slow events
 

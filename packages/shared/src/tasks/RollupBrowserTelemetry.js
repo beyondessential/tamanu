@@ -256,8 +256,9 @@ export class RollupBrowserTelemetry extends ScheduledTask {
   constructor(context) {
     const { schedule, jitterTime, enabled } = context.schedules.rollupBrowserTelemetry;
     super(schedule, log, jitterTime, enabled);
-    this.models = context.models;
-    this.sequelize = context.models.BrowserTelemetrySpan.sequelize;
+    // Central keeps its models on the store; facility has them on the context.
+    this.models = context.models ?? context.store.models;
+    this.sequelize = this.models.BrowserTelemetrySpan.sequelize;
     // A reader for server-wide settings, read on every run so changes apply
     // without a restart.
     this.settings = context.globalSettings;
