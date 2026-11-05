@@ -22,13 +22,13 @@ All fees run through one fee engine and one pricing mechanism, so a facility man
 ### Encounter-type taxonomy
 
 - [ ] Outpatient covers clinic and imaging encounters.
-- [ ] Emergency covers triage, active ED care and emergency short-stay encounters — one emergency family, all charged the ED fee.
+- [ ] Emergency covers triage, active ED care and emergency short-stay encounters — one emergency category, all charged the ED fee.
 - [ ] Inpatient covers admission encounters.
 - [ ] Vaccination and form-response encounters carry no encounter fee.
 
 ## Outpatient and ED fees
 
-The outpatient and emergency fees are added once, at encounter start, wherever an invoice is created. The fee product is chosen from the encounter family and the time-of-day bucket; the same mechanism serves the emergency fee.
+The outpatient and emergency fees are added once, at encounter start, wherever an invoice is created. The fee product is chosen from the encounter category and the time-of-day bucket; the same mechanism serves the emergency fee.
 
 Both an outpatient fee and an emergency fee still apply when a patient is admitted directly to hospital from the encounter.
 
@@ -49,7 +49,7 @@ Both an outpatient fee and an emergency fee still apply when a patient is admitt
 
 Walk-in pharmacy dispensing creates a clinic encounter — the same type as a regular clinic visit — but in a dedicated department, distinct from regular clinic departments. The encounter's department is therefore what distinguishes a clinic fee from a pharmacy fee.
 
-- [ ] Clinic encounter fees (standard, after-hours, weekend, emergency) are selected by encounter family and facility-local time-of-day.
+- [ ] Clinic encounter fees (standard, after-hours, weekend, emergency) are selected by encounter category and facility-local time-of-day.
 - [ ] A single flat pharmacy encounter-fee product is charged for an encounter created in the configured pharmacy department.
 - [ ] When adding the fee, the encounter's department is compared to the configured pharmacy department: a match resolves the pharmacy product, otherwise the clinic selector runs.
 - [ ] Both the clinic and pharmacy products live on the one facility price list; there is no department-scoped list and no department dimension on the price-list engine.
