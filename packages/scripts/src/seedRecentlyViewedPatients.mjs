@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { readFileSync } from 'node:fs';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 // Gives the admin user a few recently viewed patients on each facility of an autodeploy, so the
 // patient listing doesn't open bare. The list is per facility and never syncs, so each facility
@@ -17,8 +18,6 @@ const headers = {
   'x-tamanu-client': 'Tamanu Desktop',
   'x-version': version,
 };
-
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function request(url, options) {
   const response = await fetch(url, options);
