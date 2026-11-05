@@ -9,6 +9,9 @@
 - Annual income is stored as the band as displayed, so a band the scale no longer has is still shown as saved on the Details tab
 - The invoice discount assessment pre-fills from the patient's saved family size and annual income. Changes made there apply to that invoice only and are not written back to the patient
 - Adoption number and marriage licence are new text fields at the end of Identification information
+- The new fields are hidden by default so only deployments that turn them on see them. `generateFieldSchema` (`packages/settings/src/schema/definitions/fields.ts`) hard-codes `hidden` to default `false`, so it needs a way to default a field to hidden
+- Web only. The mobile app's patient details are out of scope for this card
+- Payor search excludes deceased patients, so it needs its own suggester filter rather than reusing the mother and father suggesters as they are
 
 ## Open technical questions
 

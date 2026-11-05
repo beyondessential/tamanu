@@ -9,17 +9,21 @@ billing information is recorded and edited. Fields are grouped into headed secti
 
 ## Sections
 
-- [ ] The Details tab shows its sections in this order: Birth details (for patients
-      registered through the birth registry), Identification information, Contact
-      information, Personal information, Location information, Billing information.
+- [ ] The Details tab shows its sections in this order: General information, Birth
+      details (for patients registered through the birth registry), Identification
+      information, Contact information, Personal information, Location information,
+      Billing information. Any custom patient field groups follow Billing information.
 - [ ] Each field can be hidden, made required, or made required when creating a patient
       through the patient field settings, the same way for every field in every section.
+- [ ] Adoption number, marriage licence, family size, annual income, both payors and their
+      reference numbers are hidden unless a deployment's patient field settings show them.
 - [ ] A section whose fields are all hidden is not shown, heading included.
 
 ## Identification information
 
 - [ ] Identification information holds, in order: display ID (where editing it is
-      enabled), birth certificate, driving licence (for new patients), passport number,
+      enabled), birth certificate, driving licence (for patients not registered through
+      the birth registry), passport number,
       adoption number, and marriage licence.
 - [ ] Adoption number and marriage licence are free-text fields, recorded on the
       patient's record and editable from the Details tab.
@@ -34,6 +38,9 @@ The details used to bill the patient, grouped together so they are found in one 
       Each payor's reference number sits beside it.
 - [ ] Insurance plan accepts more than one plan, chosen from the insurance plans
       available to patients.
+- [ ] An insurance plan that is on one of the patient's in-progress invoices cannot be
+      removed. Saving shows a message naming the plan and asking for it to be removed from
+      the invoices first.
 - [ ] Patient type is chosen from the patient billing types.
 - [ ] Family size is chosen from a list with one option for each family size the sliding
       fee scale setting covers, numbered from 1.
@@ -59,7 +66,7 @@ The details used to bill the patient, grouped together so they are found in one 
       band is chosen in its place.
 - [ ] Payor 1 and Payor 2 are each chosen by searching existing patient records, the
       same way as the patient's mother and father. Each match shows the patient's name,
-      display ID, sex and date of birth.
+      display ID, sex and date of birth. Deceased patients are not offered.
 - [ ] Each payor's reference number is a free-text field.
 - [ ] Annual income, family size, both payors and their reference numbers are recorded on
       the patient's record and editable from the Details tab.
@@ -69,3 +76,7 @@ The details used to bill the patient, grouped together so they are found in one 
 - [ ] When creating a patient, any field from any section that is set as required when
       creating a patient appears on the new patient form, including the Billing
       information fields and the adoption number and marriage licence fields.
+- [ ] When Sliding fee scale is selected on the new patient form, family size and annual
+      income appear in Billing information and are required, with the same behaviour as on
+      the Details tab. Removing Sliding fee scale takes them off the form again unless
+      they are set as required when creating a patient.
