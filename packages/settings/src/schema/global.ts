@@ -469,7 +469,7 @@ export const globalSettings = {
           description:
             'Collect browser performance telemetry (page-load and API timings) from the web clients and store it on the server each client talks to.',
           type: yup.boolean(),
-          defaultValue: false,
+          defaultValue: true,
         },
         retentionDays: {
           name: 'Retention',
