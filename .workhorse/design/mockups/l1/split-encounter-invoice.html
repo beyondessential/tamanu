@@ -492,6 +492,12 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .wh-select-option:hover { background-color: rgb(243, 245, 247); /* background */ }
 .wh-select-empty { padding: 8px 12px; color: rgb(136, 136, 136); /* midText */ text-align: center; }
 .wh-modal-paper--lg { max-width: 1200px; }
+.wh-menu { position: fixed; z-index: 1300; min-width: 16px; background-color: rgb(255, 255, 255); /* white */ border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 5px -3px, rgba(0, 0, 0, 0.14) 0px 8px 10px 1px, rgba(0, 0, 0, 0.12) 0px 3px 14px 2px; font-family: Roboto; color: rgb(68, 68, 68); /* darkestText */ }
+.wh-menu[hidden] { display: none; }
+.wh-menu-list { padding-block: 4px; }
+.wh-menu-item { display: flex; align-items: center; cursor: pointer; white-space: nowrap; font-size: 11px; line-height: 1.5; letter-spacing: 0.02em; padding-block: 4px; padding-inline: 12px; }
+.wh-menu-item:hover { background-color: rgba(0, 0, 0, 0.04); }
+.wh-menu-item[hidden] { display: none; }
 .wh-add-items-body { padding: 20px 8px 0px; }
 .wh-add-items-description { margin: 0px 0px 20px; font-size: 14px; line-height: 1.5; }
 .wh-add-items-table { border: 1px solid rgb(222, 222, 222); /* outline */ border-radius: 3px; overflow: hidden; }
@@ -725,9 +731,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 <header class="wh-modal-header"><h2 class="wh-modal-title" id="add-items-modal-title">Add items</h2><button class="MuiButtonBase-root MuiIconButton-root wh-modal-close" type="button" data-action="cancel"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-q7mezt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CloseIcon"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg><span class="sc-imWYAI fHsCki">Close</span></button></header>
 <div class="wh-modal-content">
 <div class="wh-add-items-body">
-<p class="wh-add-items-description">Add items to <span id="add-items-group"></span> below</p>
+<p class="wh-add-items-description" id="items-modal-description"></p>
 <div class="wh-add-items-table">
-<table class="sc-ikxrtH cVpOVm"><thead class="sc-leHGUY bYqlbJ"><tr>
+<table class="sc-ikxrtH cVpOVm" id="items-modal-table"><thead class="sc-leHGUY bYqlbJ"><tr>
 <th scope="col" class="sc-bJqjYt EKuqY" style="min-inline-size: 12em;">Date</th>
 <th scope="col" class="sc-bJqjYt EKuqY" style="inline-size: 100%; min-inline-size: 16em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Details</th>
 <th scope="col" class="sc-bJqjYt EKuqY" style="min-inline-size: 6em;">Qty</th>
@@ -736,15 +742,25 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 <th scope="col" class="sc-bJqjYt EKuqY" style="min-inline-size: 6em; text-align: end;">Cost</th>
 <th scope="col" class="sc-bJqjYt EKuqY" style="min-inline-size: 6em; text-align: end;">Net cost</th>
 </tr></thead><tbody id="add-items-rows"></tbody>
-<tfoot class="sc-hTwFKb fRbCMh"><tr><td colspan="7"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary sc-khyxCU bqveWP css-881xks" tabindex="0" type="button" data-action="add-row" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1s63ceu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></span>Add item<span class="MuiTouchRipple-root css-4mb1j7"></span></button></td></tr></tfoot></table>
+<tfoot class="sc-hTwFKb fRbCMh" id="items-modal-footer"><tr><td colspan="7"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary sc-khyxCU bqveWP css-881xks" tabindex="0" type="button" data-action="add-row" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1s63ceu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></span>Add item<span class="MuiTouchRipple-root css-4mb1j7"></span></button></td></tr></tfoot></table>
 </div>
 <div class="wh-add-items-footer">
 <button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-ym3cbw" tabindex="0" type="button" data-action="cancel" style="margin-right: 8px; --variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Cancel</button>
-<button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-q5bog7" tabindex="0" type="button" data-action="save" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Save</button>
+<button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-q5bog7" tabindex="0" type="button" data-action="save" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;" id="items-modal-save">Save</button>
 </div>
 </div>
 </div>
 </div>
+</div>
+<div class="wh-menu" id="invoice-menu" role="menu" hidden>
+<ul class="MuiList-root MuiList-padding wh-menu-list">
+<li class="wh-menu-item" role="menuitem" tabindex="-1" data-menu="edit-items">Edit items</li>
+<li class="wh-menu-item" role="menuitem" tabindex="-1" data-menu="approve-all">Mark all as approved</li>
+<li class="wh-menu-item" role="menuitem" tabindex="-1" data-menu="remove-approvals">Remove all approvals</li>
+<li class="wh-menu-item" role="menuitem" tabindex="-1">Print invoice</li>
+<li class="wh-menu-item" role="menuitem" tabindex="-1">Cancel invoice</li>
+<li class="wh-menu-item" role="menuitem" tabindex="-1">Delete invoice</li>
+</ul>
 </div>
 <script>
 (() => {
@@ -787,29 +803,36 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   const inputClass = adorned => `MuiInputBase-input MuiOutlinedInput-input${adorned ? ' MuiInputBase-inputAdornedEnd MuiOutlinedInput-inputAdornedEnd' : ''}`;
 
   const modal = document.getElementById('add-items-modal');
+  const table = document.getElementById('items-modal-table');
   const rows = document.getElementById('add-items-rows');
   let editingGroup = null;
+  let mode = 'add';
+  // In Edit invoice, each edit row's invoice row, so Save changes can write back to it
+  const editSources = new Map();
 
-  const addRow = () => {
-    const period = periods[editingGroup];
-    const date = period.end ? '' : toFieldDisplay(todayIso());
+  const addRow = (group = editingGroup, item = null, body = rows) => {
+    const period = periods[group];
+    const defaultDate = period.end ? '' : toFieldDisplay(todayIso());
+    const date = item ? item.date : defaultDate;
     const row = document.createElement('tr');
     row.className = 'sc-hnCoju cnCRUY wh-edit-row';
+    row.dataset.rowGroup = group;
     row.innerHTML = `
       <td style="min-inline-size: 12em;">${textField('date',
         `<input autocomplete="off" placeholder="dd/mm/yyyy" type="text" inputmode="text" class="${inputClass(true)}" value="${date}">`,
         `<div class="MuiInputAdornment-root MuiInputAdornment-positionEnd css-yxqbup"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-19stgqx wh-open-picker" tabindex="-1" type="button" aria-label="Choose date" data-action="pick-date" style="--IconButton-hoverBg:rgba(0, 0, 0, 0.04);">${CALENDAR_ICON}</button></div>`)}</td>
       <td style="min-inline-size: 16em;">${textField('details',
-        `<input autocomplete="off" placeholder="Search…" type="text" class="${inputClass(true)}" value="">`,
+        `<input autocomplete="off" placeholder="Search…" type="text" class="${inputClass(true)}" value="${item ? item.details : ''}">`,
         `<div class="MuiInputAdornment-root sc-tagGq ebbjHU MuiInputAdornment-positionEnd">${EXPAND_ICON}</div>`)}</td>
-      <td style="min-inline-size: 6em;">${textField('quantity', `<input type="number" min="1" max="99" class="${inputClass(false)}" value="1">`)}</td>
-      <td style="min-inline-size: 6em;"></td>
+      <td style="min-inline-size: 6em;">${textField('quantity', `<input type="number" min="1" max="99" class="${inputClass(false)}" value="${item ? item.quantity : 1}">`)}</td>
+      <td style="min-inline-size: 6em;">${item ? item.approved : ''}</td>
       <td style="min-inline-size: 14em;">${textField('orderedBy',
-        `<input autocomplete="off" placeholder="Search…" type="text" class="${inputClass(true)}" value="${supervisingClinician}">`,
+        `<input autocomplete="off" placeholder="Search…" type="text" class="${inputClass(true)}" value="${item ? item.orderedBy : supervisingClinician}">`,
         `<div class="MuiInputAdornment-root sc-tagGq ebbjHU MuiInputAdornment-positionEnd">${EXPAND_ICON}</div>`)}</td>
-      <td style="min-inline-size: 6em;"></td>
-      <td style="min-inline-size: 6em; text-align: end;"></td>`;
-    rows.append(row);
+      <td style="min-inline-size: 6em;">${item ? item.cost : ''}</td>
+      <td style="min-inline-size: 6em; text-align: end;">${item ? item.netCost : ''}</td>`;
+    body.append(row);
+    return row;
   };
 
   const setError = (field, message) => {
@@ -820,11 +843,11 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     helper.textContent = message ?? '';
   };
 
-  const dateError = text => {
+  const dateError = (text, group) => {
     if (!text.trim()) return '*Required';
     const iso = parseDisplay(text);
     if (!iso) return 'Invalid date';
-    const period = periods[editingGroup];
+    const period = periods[group];
     const end = periodEnd(period);
     const start = earliestDate(period);
     if (iso < start || iso > end) {
@@ -838,7 +861,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     const detailsField = row.querySelector('[data-field="details"]');
     const orderedByField = row.querySelector('[data-field="orderedBy"]');
     const errors = [
-      [dateField, dateError(dateField.querySelector('input').value)],
+      [dateField, dateError(dateField.querySelector('input').value, row.dataset.rowGroup)],
       [detailsField, detailsField.querySelector('input').value.trim() ? null : '*Required'],
       [orderedByField, orderedByField.querySelector('input').value.trim() ? null : '*Required'],
     ];
@@ -846,13 +869,58 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     return errors.every(([, message]) => !message);
   };
 
+  const periodLabel = period => `${toDisplay(period.start)} - ${period.end ? toDisplay(period.end) : 'Current'}`;
+  const setModalMode = nextMode => {
+    mode = nextMode;
+    const isEdit = mode === 'edit';
+    document.getElementById('add-items-modal-title').textContent = isEdit ? 'Edit invoice' : 'Add items';
+    document.getElementById('items-modal-save').textContent = isEdit ? 'Save changes' : 'Save';
+    document.getElementById('items-modal-footer').hidden = isEdit;
+    table.querySelectorAll('tbody:not(#add-items-rows)').forEach(body => body.remove());
+    rows.innerHTML = '';
+    rows.hidden = isEdit;
+    editSources.clear();
+  };
+
   const openModal = group => {
+    setModalMode('add');
     editingGroup = group;
     const period = periods[group];
-    document.getElementById('add-items-group').textContent =
-      `${period.name} (${toDisplay(period.start)} - ${period.end ? toDisplay(period.end) : 'Current'})`;
-    rows.innerHTML = '';
+    document.getElementById('items-modal-description').textContent =
+      `Add items to ${period.name} (${periodLabel(period)}) below`;
     addRow();
+    modal.hidden = false;
+  };
+
+  // Edit invoice lists every item under its group, with the group's own date limits
+  const itemFrom = invoiceRow => {
+    const priceText = invoiceRow.cells[6].querySelector('[data-testid="pricetext-is33"]');
+    return {
+      date: toFieldDisplay(parseDisplay(invoiceRow.cells[1].textContent)),
+      details: invoiceRow.cells[2].querySelector('div[title]').textContent.trim(),
+      quantity: parseInt(invoiceRow.cells[3].textContent, 10) || 1,
+      approved: invoiceRow.cells[4].textContent.trim(),
+      orderedBy: invoiceRow.cells[5].textContent.trim(),
+      cost: priceText ? priceText.textContent : invoiceRow.dataset.price,
+      netCost: invoiceRow.cells[7].textContent.trim(),
+    };
+  };
+  const openEditModal = () => {
+    setModalMode('edit');
+    document.getElementById('items-modal-description').textContent = 'Edit invoice items below';
+    Object.keys(periods).forEach(group => {
+      const invoiceBody = document.querySelector(`[data-group-body="${group}"]`);
+      const body = document.createElement('tbody');
+      body.className = 'wh-encounter-group';
+      const header = invoiceBody.querySelector('.wh-encounter-group-header').cloneNode(true);
+      header.querySelector('button')?.remove();
+      header.querySelector('th').colSpan = 7;
+      body.append(header);
+      invoiceBody.querySelectorAll('tr[data-group]').forEach(invoiceRow => {
+        editSources.set(addRow(group, itemFrom(invoiceRow), body), invoiceRow);
+      });
+      table.insertBefore(body, rows);
+    });
     modal.hidden = false;
   };
   const closeModal = () => {
@@ -885,6 +953,27 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     body.insertBefore(item, later ?? body.querySelector('.wh-group-add-row'));
   };
 
+  const updateInvoiceRow = row => {
+    const invoiceRow = editSources.get(row);
+    const value = name => row.querySelector(`[data-field="${name}"] input`).value.trim();
+    invoiceRow.cells[1].querySelector('span').textContent = toDisplay(parseDisplay(value('date')));
+    const details = invoiceRow.cells[2].querySelector('div[title]');
+    details.textContent = value('details');
+    details.title = value('details');
+    const quantityCell = invoiceRow.cells[3];
+    quantityCell.textContent = quantityCell.textContent.replace(/^\d+/, value('quantity'));
+    invoiceRow.cells[5].textContent = value('orderedBy');
+  };
+  const sortGroup = group => {
+    const body = document.querySelector(`[data-group-body="${group}"]`);
+    const items = [...body.querySelectorAll('tr[data-group]')]
+      .sort((a, b) => sortKey(a.cells[1].textContent).localeCompare(sortKey(b.cells[1].textContent)));
+    items.forEach(item => body.insertBefore(item, body.querySelector('.wh-group-add-row')));
+  };
+
+  document.querySelector('[data-testid="actionspane-l9ey"] [data-testid="stylediconbutton-szh8"]')
+    .addEventListener('openedit', openEditModal);
+
   document.querySelectorAll('.wh-group-add-row button').forEach(button => {
     button.addEventListener('click', () => openModal(button.closest('tbody').dataset.groupBody));
   });
@@ -903,8 +992,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
   };
 
+  const pickerPeriod = () => periods[pickerField.closest('tr').dataset.rowGroup];
   const renderCalendar = () => {
-    const period = periods[editingGroup];
+    const period = pickerPeriod();
     const min = earliestDate(period);
     const max = periodEnd(period);
     const selected = parseDisplay(pickerField.querySelector('input').value);
@@ -942,7 +1032,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 
   const openCalendar = field => {
     pickerField = field;
-    const period = periods[editingGroup];
+    const period = pickerPeriod();
     const selected = parseDisplay(field.querySelector('input').value);
     // With no date chosen, the calendar opens at today, held within the period
     const reference = selected ?? [earliestDate(period), todayIso(), periodEnd(period)].sort()[1];
@@ -958,7 +1048,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   const setFieldDate = iso => {
     const input = pickerField.querySelector('input');
     input.value = iso ? toFieldDisplay(iso) : '';
-    setError(pickerField, iso ? dateError(input.value) : null);
+    setError(pickerField, iso ? dateError(input.value, pickerField.closest('tr').dataset.rowGroup) : null);
     closeCalendar();
   };
 
@@ -980,7 +1070,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     const field = event.target.closest('[data-field="date"]');
     const isMovingToPicker = event.relatedTarget && (field?.contains(event.relatedTarget) || calendar.contains(event.relatedTarget));
     if (field && event.target.type === 'text' && !isMovingToPicker && !calendar.contains(document.activeElement)) {
-      setError(field, dateError(event.target.value));
+      setError(field, dateError(event.target.value, field.closest('tr').dataset.rowGroup));
     }
   });
   modal.addEventListener('click', event => {
@@ -995,10 +1085,15 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       closeCalendar();
       closeModal();
     } else if (action === 'save') {
-      const editRows = [...rows.querySelectorAll('tr')];
+      const editRows = [...table.querySelectorAll('tr.wh-edit-row')];
       const isValid = editRows.map(validateRow).every(Boolean);
       if (!isValid) return;
-      editRows.forEach(addToInvoice);
+      if (mode === 'edit') {
+        editRows.forEach(updateInvoiceRow);
+        Object.keys(periods).forEach(sortGroup);
+      } else {
+        editRows.forEach(addToInvoice);
+      }
       window.whInvoice.render();
       closeModal();
     }
@@ -1008,6 +1103,43 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     if (!calendar.hidden) closeCalendar();
     else closeModal();
   }, true);
+})();
+</script>
+<script>
+(() => {
+  // The invoice's overflow menu, as Tamanu's ThreeDotMenu shows it
+  const button = document.querySelector('[data-testid="actionspane-l9ey"] [data-testid="stylediconbutton-szh8"]');
+  const menu = document.getElementById('invoice-menu');
+  const approvals = () => [...document.querySelectorAll('tr[data-group]')].map(row => row.cells[4].textContent.trim() === 'Y');
+  const setOpen = isOpen => {
+    menu.hidden = !isOpen;
+    button.setAttribute('aria-expanded', String(isOpen));
+    if (!isOpen) return;
+    const states = approvals();
+    menu.querySelector('[data-menu="approve-all"]').hidden = states.every(Boolean);
+    menu.querySelector('[data-menu="remove-approvals"]').hidden = !states.some(Boolean);
+    const anchor = button.getBoundingClientRect();
+    menu.style.top = `${anchor.bottom}px`;
+    menu.style.left = `${anchor.right - menu.offsetWidth}px`;
+  };
+  const setApproval = isApproved => {
+    document.querySelectorAll('tr[data-group]').forEach(row => { row.cells[4].textContent = isApproved ? 'Y' : ''; });
+  };
+  button.setAttribute('aria-controls', 'invoice-menu');
+  button.addEventListener('click', () => setOpen(menu.hidden));
+  menu.addEventListener('click', event => {
+    const action = event.target.closest('[data-menu]')?.dataset.menu;
+    if (action === 'edit-items') button.dispatchEvent(new Event('openedit'));
+    else if (action === 'approve-all') setApproval(true);
+    else if (action === 'remove-approvals') setApproval(false);
+    setOpen(false);
+  });
+  document.addEventListener('mousedown', event => {
+    if (!menu.hidden && !menu.contains(event.target) && !button.contains(event.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !menu.hidden) setOpen(false);
+  });
 })();
 </script>
 </body>

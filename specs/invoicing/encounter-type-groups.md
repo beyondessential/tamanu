@@ -37,7 +37,7 @@ An encounter can move between encounter families part way through, for example a
 ## Adding and editing items
 
 - [ ] A group's Add item opens the Add items window for that group, naming its family and date range.
-- [ ] The Edit invoice window groups items the same way as the invoice, each group with its own Add item.
+- [ ] The Edit invoice window groups items the same way as the invoice, each group opening with its header row.
 - [ ] In a group whose period has ended, a new item's date starts empty and the date picker only offers dates within that period.
 - [ ] In the group for the current period, a new item's date starts at today, and can be backdated as far as the encounter's start.
 - [ ] Editing an item's date in the Edit invoice window follows the same limits as the group it belongs to.
