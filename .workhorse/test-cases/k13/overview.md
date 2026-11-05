@@ -8,8 +8,11 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 - [x] The first run rolls up from the bucket holding the oldest raw span, through every closed bucket (verifies spec: BTAG)
 - [x] Spans are bucketed by when the server received them, not the browser-reported time (verifies spec: BTAG)
 - [x] A bucket that has not closed is left for a later run (verifies spec: BTAG)
-- [x] Running twice counts each span once (verifies spec: BTAG)
-- [x] With progress lost (as after a restore) but raw spans present, rolling up again replaces trend rows and slow events rather than duplicating them (verifies spec: BTAG)
+- [x] A span received into a bucket already rolled up is not counted again (verifies spec: BTAG)
+- [x] A long stretch with no spans is skipped rather than rolled up bucket by bucket
+- [x] With progress ahead of the clock (a fast clock since corrected), recent buckets are rolled up again and new spans counted (verifies spec: BTAG)
+- [x] A larger bucket size waits for its first boundary, finishing buckets of the previous size end to end (verifies spec: BTAG)
+- [x] With progress lost (as after a restore) but raw spans present, rolling up again updates trend rows and slow events rather than duplicating them (verifies spec: BTAG)
 - [x] Bucket boundaries are measured from midnight UTC (verifies spec: BTAG)
 - [x] A smaller bucket size applies from the next boundary; a larger one waits for its first boundary, with no gap (verifies spec: BTAG)
 - [x] The rollup rolls up with a new bucket size from its first boundary end to end (verifies spec: BTAG)
@@ -34,6 +37,7 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 - [x] Path parameter values and query parameter names are kept; query values never are (verifies spec: BTAG)
 - [x] A slow request keeps the route of the page that was loading (verifies spec: BTAG)
 - [x] A slow navigation keeps every request made while it loaded, with start offsets and cut-off outcomes (verifies spec: BTAG)
+- [x] A request dated weeks from its navigation is clamped rather than failing the bucket
 
 ## Browser and ingest
 

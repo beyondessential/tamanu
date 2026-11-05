@@ -20,7 +20,8 @@ Two kinds of aggregate are produced for each time bucket: **trend rows**, summar
 - [ ] The job runs whether or not collection is enabled, so events received before collection was switched off are still rolled up.
 - [ ] A bucket with no events for a page or endpoint produces no rows for it.
 - [ ] A change to the bucket size takes effect from the first boundary of the new size; until then buckets of the previous size continue, so no stretch of time is skipped or counted twice. Each aggregate records its bucket's start and length.
-- [ ] Rolling up a bucket again, such as after a server is restored from a backup, replaces its aggregates rather than duplicating them.
+- [ ] Rolling up a bucket again, such as after a server is restored from a backup, updates the aggregates it produces rather than duplicating them, and leaves other aggregates for that bucket in place, so central keeps its record of a period whose raw events the restored server no longer holds.
+- [ ] If the server's clock ran ahead and was then corrected, the job rolls up recent buckets again, so events received after the correction are still counted.
 
 ## Trend rows
 

@@ -37,7 +37,8 @@ export class BrowserTelemetryTrend extends Model {
   declare cappedCount: number;
   declare abandonedCount: number;
   declare timedCount: number;
-  declare totalDurationMs: number;
+  // BIGINT, which Postgres returns as a string.
+  declare totalDurationMs: string;
   declare durationHistogram: number[];
   declare p50DurationMs?: number;
   declare p95DurationMs?: number;
