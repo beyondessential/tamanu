@@ -9,6 +9,7 @@ import { UnstyledHtmlButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { DiagnosisCertaintyTag } from '../../../components/DiagnosisCertaintyTag';
 import { TranslatedReferenceData, TranslatedText } from '../../../components/Translation';
+import { useAuth } from '../../../contexts/Auth';
 
 // Listed in this order, then alphabetically by diagnosis within each certainty.
 const DISPLAYED_CERTAINTIES = [
@@ -70,22 +71,16 @@ const Label = styled.span`
   color: ${Colors.darkText};
 `;
 
-// Each diagnosis has a divider before it, and the list is pulled left by the divider and its
-// spacing so that this clips the divider before whichever diagnosis starts a line. Dividers then
-// only show between diagnoses on the same line.
-const ListClip = styled.div`
+// A name too long for the panel is cut off rather than spilling past its border.
+const List = styled.ul.attrs({ role: 'list' })`
   flex: 1;
   min-width: 0;
   overflow: hidden;
-`;
-
-const List = styled.ul.attrs({ role: 'list' })`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  row-gap: 6px;
+  gap: 6px 24px;
   margin: 0;
-  margin-inline-start: -13px;
   padding: 0;
   list-style: none;
 `;
@@ -94,13 +89,7 @@ const Item = styled.li`
   display: flex;
   align-items: center;
   gap: 6px;
-  padding-inline: 12px;
-  border-inline-start: 1px solid ${Colors.outline};
   white-space: nowrap;
-
-  &:last-child {
-    padding-inline-end: 0;
-  }
 `;
 
 const DiagnosisName = styled.span`
@@ -218,38 +207,36 @@ const PrimaryDiagnosisList = ({ diagnoses, roomWidth }) => {
 
   return (
     <>
-      <ListClip>
-        <List ref={listRef} data-testid="list-primary-diagnoses">
-          {inlineDiagnoses.map(encounterDiagnosis => (
-            <Item
-              key={encounterDiagnosis.id}
-              data-testid={`item-primary-diagnosis-${encounterDiagnosis.id}`}
+      <List ref={listRef} data-testid="list-primary-diagnoses">
+        {inlineDiagnoses.map(encounterDiagnosis => (
+          <Item
+            key={encounterDiagnosis.id}
+            data-testid={`item-primary-diagnosis-${encounterDiagnosis.id}`}
+          >
+            <DiagnosisWithCertainty encounterDiagnosis={encounterDiagnosis} />
+          </Item>
+        ))}
+        {menuDiagnoses.length > 0 && (
+          <Item key="more" data-testid="item-primary-diagnoses-more">
+            <MoreToggle
+              ref={toggleRef}
+              aria-expanded={isMenuOpen}
+              aria-controls={menuId}
+              onClick={() => setIsMenuOpen(isOpen => !isOpen)}
+              onKeyDown={event => event.key === 'Escape' && closeMenu()}
+              data-testid="moretoggle-primary-diagnoses"
             >
-              <DiagnosisWithCertainty encounterDiagnosis={encounterDiagnosis} />
-            </Item>
-          ))}
-          {menuDiagnoses.length > 0 && (
-            <Item key="more" data-testid="item-primary-diagnoses-more">
-              <MoreToggle
-                ref={toggleRef}
-                aria-expanded={isMenuOpen}
-                aria-controls={menuId}
-                onClick={() => setIsMenuOpen(isOpen => !isOpen)}
-                onKeyDown={event => event.key === 'Escape' && closeMenu()}
-                data-testid="moretoggle-primary-diagnoses"
-              >
-                <TranslatedText
-                  stringId="encounter.primaryDiagnosis.moreToggle"
-                  fallback="+:count more"
-                  replacements={{ count: menuDiagnoses.length }}
-                  data-testid="translatedtext-primary-diagnoses-more"
-                />
-                <ExpandMoreIcon fontSize="small" aria-hidden />
-              </MoreToggle>
-            </Item>
-          )}
-        </List>
-      </ListClip>
+              <TranslatedText
+                stringId="encounter.primaryDiagnosis.moreToggle"
+                fallback="+:count more"
+                replacements={{ count: menuDiagnoses.length }}
+                data-testid="translatedtext-primary-diagnoses-more"
+              />
+              <ExpandMoreIcon fontSize="small" aria-hidden />
+            </MoreToggle>
+          </Item>
+        )}
+      </List>
       <Popper
         open={isMenuOpen && menuDiagnoses.length > 0}
         anchorEl={toggleRef.current}
@@ -312,13 +299,13 @@ const PrimaryDiagnosisPanel = ({ diagnoses }) => {
 
 /**
  * The encounter's primary diagnoses, shown in the encounter details above the encounter's tabs,
- * whichever is selected.
- *
- * Shows nothing when there are none to list, including for a user who cannot list diagnoses, as
- * the encounter is then loaded without any.
+ * whichever is selected. Shows nothing for a user who cannot list diagnoses, or when there are none
+ * to list.
  */
 export const PrimaryDiagnoses = ({ diagnoses }) => {
+  const { ability } = useAuth();
+  const canListDiagnoses = ability.can('list', 'EncounterDiagnosis');
   const displayedDiagnoses = useMemo(() => getDisplayedPrimaryDiagnoses(diagnoses), [diagnoses]);
-  if (displayedDiagnoses.length === 0) return null;
+  if (!canListDiagnoses || displayedDiagnoses.length === 0) return null;
   return <PrimaryDiagnosisPanel diagnoses={displayedDiagnoses} />;
 };
