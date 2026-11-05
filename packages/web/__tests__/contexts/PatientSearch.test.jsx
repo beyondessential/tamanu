@@ -3,7 +3,12 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const preferences = vi.hoisted(() => ({ data: {}, mutate: vi.fn(), user: { id: 'user-1' } }));
+const preferences = vi.hoisted(() => ({
+  data: {},
+  mutate: vi.fn(),
+  user: { id: 'user-1' },
+  facilityId: 'facility-1',
+}));
 
 vi.mock('../../app/api/queries', () => ({
   useUserPreferencesQuery: () => ({ data: preferences.data }),
@@ -12,7 +17,7 @@ vi.mock('../../app/api/mutations', () => ({
   useUserPreferencesMutation: () => ({ mutate: preferences.mutate }),
 }));
 vi.mock('../../app/contexts/Auth', () => ({
-  useAuth: () => ({ currentUser: preferences.user, facilityId: 'facility-1' }),
+  useAuth: () => ({ currentUser: preferences.user, facilityId: preferences.facilityId }),
 }));
 
 import {
@@ -49,6 +54,7 @@ describe('PatientSearch context', () => {
     preferences.data = {};
     preferences.mutate.mockClear();
     preferences.user = { id: 'user-1' };
+    preferences.facilityId = 'facility-1';
   });
 
   it('retains search parameters when the consumer unmounts and remounts', async () => {
@@ -151,5 +157,23 @@ describe('PatientSearch context', () => {
     rerender(<Harness isConsumerMounted searchKey={searchKey} />);
 
     expect(screen.getByTestId(`parameters-${searchKey}`).textContent).toBe(JSON.stringify({}));
+  });
+
+  it("loads the new facility's filters when the facility changes", () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    preferences.data = {
+      patientSearchParameters: { [searchKey]: { departmentId: 'department-2' } },
+    };
+    const { rerender } = render(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    preferences.facilityId = 'facility-2';
+    preferences.data = {
+      patientSearchParameters: { [searchKey]: { departmentId: 'department-4' } },
+    };
+    rerender(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    expect(screen.getByTestId(`parameters-${searchKey}`).textContent).toBe(
+      JSON.stringify({ departmentId: 'department-4' }),
+    );
   });
 });
