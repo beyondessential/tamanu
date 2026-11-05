@@ -28,8 +28,8 @@ The patient's details can be viewed and edited from an invoice without leaving i
 - [ ] For users who cannot edit patient records, Save is disabled, and hovering it shows
       "You do not have permission to edit patient details".
 - [ ] Saving updates the patient's record, closes the modal and shows "Patient details
-      successfully updated". The patient's details shown elsewhere on the screen show the
-      saved values.
+      successfully updated". The patient details sidebar shows the saved name, sex, date of
+      birth and display ID.
 - [ ] A save blocked by validation keeps the modal open and brings the first field with a
       message into view.
 - [ ] Cancel, Escape and the close button close the modal without saving.
