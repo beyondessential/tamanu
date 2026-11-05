@@ -10,3 +10,31 @@ export const USER_PREFERENCES_KEYS = {
   OUTPATIENT_APPOINTMENT_GROUP_BY: 'outpatientAppointmentGroupBy',
   LOCATION_ASSIGNMENT_SELECTED_FACILITY: 'locationAssignmentSelectedFacility',
 };
+
+// spec: TPAGE#remembered-page-size
+// One preference per table, so a choice saved on one table never overwrites another's
+export const TABLE_PAGE_SIZE_PREFERENCE_KEYS = {
+  INPATIENTS: 'tablePageSize.inpatients',
+  EMERGENCY_PATIENTS: 'tablePageSize.emergencyPatients',
+  OUTPATIENTS: 'tablePageSize.outpatients',
+  BED_MANAGEMENT: 'tablePageSize.bedManagement',
+  RECENTLY_DISCHARGED: 'tablePageSize.recentlyDischarged',
+  ACTIVE_LAB_REQUESTS: 'tablePageSize.activeLabRequests',
+  FINALISED_LAB_REQUESTS: 'tablePageSize.finalisedLabRequests',
+  ACTIVE_IMAGING_REQUESTS: 'tablePageSize.activeImagingRequests',
+  COMPLETED_IMAGING_REQUESTS: 'tablePageSize.completedImagingRequests',
+  ACTIVE_MEDICATION_REQUESTS: 'tablePageSize.activeMedicationRequests',
+  DISPENSED_MEDICATIONS: 'tablePageSize.dispensedMedications',
+  IMMUNISATION_REGISTER: 'tablePageSize.immunisationRegister',
+  PROGRAM_REGISTRY_PATIENTS: 'tablePageSize.programRegistryPatients',
+  REFERENCE_DATA: 'tablePageSize.referenceData',
+  USER_PROFILES: 'tablePageSize.userProfiles',
+  ROLES: 'tablePageSize.roles',
+  DESIGNATIONS: 'tablePageSize.designations',
+  PROGRAM_FORMS: 'tablePageSize.programForms',
+  PROGRAM_REGISTRIES: 'tablePageSize.programRegistries',
+  TEMPLATES: 'tablePageSize.templates',
+  SYNC_STATUS: 'tablePageSize.syncStatus',
+  TRANSLATIONS: 'tablePageSize.translations',
+  SYSTEM_ERRORS: 'tablePageSize.systemErrors',
+};

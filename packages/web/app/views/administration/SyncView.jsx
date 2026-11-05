@@ -5,10 +5,12 @@ import { Box } from '@material-ui/core';
 import { DataFetchingTable, DateDisplay, PageContainer, TopBar } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const LastSyncs = React.memo(props => (
   <DataFetchingTable
     endpoint={SYNC_LAST_COMPLETED_ENDPOINT}
+    pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.SYNC_STATUS}
     columns={[
       {
         key: 'facilityIds',

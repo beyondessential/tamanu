@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
+import { MAX_ROWS_PER_PAGE } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { createTestContext } from '../utilities';
@@ -92,5 +93,14 @@ describe('GET /admin/sync/lastCompleted', () => {
     const row = result.body.data.find(r => r.facilityIds?.[0] === facilityIds[0]);
     expect(row).toBeTruthy();
     expect(new Date(row.completedAt)).toEqual(new Date('2024-06-01'));
+  });
+
+  it('accepts page sizes up to the largest the table offers', async () => {
+    const app = await baseApp.asRole('admin');
+    const largestPage = await app.get(ENDPOINT).query({ rowsPerPage: MAX_ROWS_PER_PAGE });
+    const oversizedPage = await app.get(ENDPOINT).query({ rowsPerPage: MAX_ROWS_PER_PAGE + 1 });
+
+    expect(largestPage).toHaveSucceeded();
+    expect(oversizedPage).toHaveRequestError();
   });
 });

@@ -29,6 +29,7 @@ import { EditMedicationDispenseModal } from './Medication/EditMedicationDispense
 import { DispensedMedicationDetailsModal } from './Medication/DispensedMedicationDetailsModal';
 import { PrescriptionChangeHistoryModal } from './Medication/PrescriptionChangeHistoryModal';
 import { route } from '@tamanu/api-client';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -373,6 +374,7 @@ export const MedicationDispensesTable = () => {
         noun="MedicationDispense"
         autoRefresh={true}
         endpoint="medication/medication-dispenses"
+        pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.DISPENSED_MEDICATIONS}
         columns={columns}
         noDataMessage={
           <NoDataContainer>
