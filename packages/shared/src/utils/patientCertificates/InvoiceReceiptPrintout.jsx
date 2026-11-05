@@ -73,9 +73,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   // Capitals and figures have no descenders, so the space kept below the text for them leaves the
-  // row sitting high between its dividers; a shallower bottom padding centres it
+  // row sitting high between its dividers. A shallower bottom padding centres the text between the
+  // tops of its capitals and its baseline, measured in the default PDF font (Helvetica)
   patientTotalDueSection: {
-    paddingBottom: 3.5,
+    paddingBottom: 1.6,
   },
 });
 
