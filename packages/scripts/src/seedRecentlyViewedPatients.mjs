@@ -29,6 +29,7 @@ async function seedFacility(facilityNumber) {
   const facilityId = `facility-${facilityNumber}`;
   const api = `https://${facilityId}.${deployName}.cd.tamanu.app/api`;
   const deadline = Date.now() + WAIT_FOR_PATIENTS_MS;
+  let lastProblem = 'no patients synced yet';
 
   while (Date.now() < deadline) {
     try {
@@ -39,7 +40,6 @@ async function seedFacility(facilityNumber) {
           email: 'admin@tamanu.io',
           password: 'admin',
           deviceId: 'cd-seed-recently-viewed',
-          facilityId,
         }),
       });
       const authorised = { ...headers, authorization: `Bearer ${token}` };
@@ -57,14 +57,16 @@ async function seedFacility(facilityNumber) {
         console.log(`${facilityId}: seeded ${patients.length} recently viewed patients`);
         return;
       }
-      console.log(`${facilityId}: no patients synced yet`);
+      lastProblem = 'no patients synced yet';
+      console.log(`${facilityId}: ${lastProblem}`);
     } catch (error) {
-      console.log(`${facilityId}: not ready (${error.message})`);
+      lastProblem = error.message;
+      console.log(`${facilityId}: not ready (${lastProblem})`);
     }
     await sleep(POLL_MS);
   }
   throw new Error(
-    `${facilityId}: no patients to seed after ${WAIT_FOR_PATIENTS_MS / 60000} minutes`,
+    `${facilityId}: gave up after ${WAIT_FOR_PATIENTS_MS / 60000} minutes (${lastProblem})`,
   );
 }
 
