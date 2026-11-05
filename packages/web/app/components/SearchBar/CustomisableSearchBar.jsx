@@ -87,6 +87,7 @@ export const CustomisableSearchBar = ({
   hiddenFields,
   hasPermission = true,
   className,
+  canSearch,
 }) => {
   const switchExpandValue = useCallback(() => {
     setIsExpanded(previous => !previous);
@@ -129,6 +130,7 @@ export const CustomisableSearchBar = ({
               <SearchButton
                 type="submit"
                 hasPermission={hasPermission}
+                disabled={canSearch && !canSearch(values)}
                 data-testid="searchbutton-nt24"
               >
                 <TranslatedText
@@ -138,6 +140,7 @@ export const CustomisableSearchBar = ({
                 />
               </SearchButton>
               <ClearButton
+                disabled={canSearch && !canSearch(values)}
                 onClick={() => {
                   // Cant check for dirty as form is reinitialized with persisted values
                   if (Object.keys(values).length === 0) return;

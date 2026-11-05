@@ -15,6 +15,7 @@ import { useSettings } from '../../contexts/Settings';
 import { DOBFields, LocalisedField, QRCodeSearchField, SearchField } from '../Field';
 import { AdditionalSearchField } from './AdditionalSearchField';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
+import { hasSearchCriteria } from './hasSearchCriteria';
 import { SearchBarCheckField } from './SearchBarCheckField';
 
 const TwoColumnsField = styled.div`
@@ -48,6 +49,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       onSearch={onSearch}
+      canSearch={hasSearchCriteria}
       initialValues={searchParameters}
       hiddenFields={
         <>

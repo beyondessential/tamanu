@@ -15,6 +15,8 @@ import {
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { NewPatientModal } from './components';
+import { PatientSearchEmptyState } from './components/PatientSearchEmptyState';
+import { hasSearchCriteria } from '../../components/SearchBar/hasSearchCriteria';
 import {
   clinician,
   culturalName,
@@ -166,7 +168,10 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
-  const { facilityId } = useAuth();
+  const { facilityId, ability } = useAuth();
+  // Without list permission the table shows its own no-permission message instead.
+  const isAwaitingSearch =
+    ability.can('list', 'Patient') && !hasSearchCriteria(searchParameters);
 
   return (
     <PageContainer data-testid="pagecontainer-bbim">
@@ -195,13 +200,17 @@ export const PatientListingView = ({ onViewPatient }) => {
           onSearch={setSearchParameters}
           data-testid="allpatientssearchbar-f491"
         />
-        <PatientTable
-          onViewPatient={onViewPatient}
-          fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={{ isAllPatientsListing: true, facilityId, ...searchParameters }}
-          columns={LISTING_COLUMNS}
-          data-testid="patienttable-l8c2"
-        />
+        {isAwaitingSearch ? (
+          <PatientSearchEmptyState />
+        ) : (
+          <PatientTable
+            onViewPatient={onViewPatient}
+            fetchOptions={{ matchSecondaryIds: true }}
+            searchParameters={{ isAllPatientsListing: true, facilityId, ...searchParameters }}
+            columns={LISTING_COLUMNS}
+            data-testid="patienttable-l8c2"
+          />
+        )}
       </ContentPane>
     </PageContainer>
   );
