@@ -68,6 +68,8 @@ async function seedFacility(facilityNumber) {
   );
 }
 
-for (let facilityNumber = 1; facilityNumber <= Number(facilityCount); facilityNumber++) {
-  await seedFacility(facilityNumber);
-}
+const facilityNumbers = Array.from({ length: Number(facilityCount) }, (_, index) => index + 1);
+const results = await Promise.allSettled(facilityNumbers.map(seedFacility));
+const failures = results.filter(({ status }) => status === 'rejected');
+for (const { reason } of failures) console.error(reason.message);
+if (failures.length > 0) process.exit(1);
