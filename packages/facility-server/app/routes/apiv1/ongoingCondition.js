@@ -6,9 +6,23 @@ import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpe
 
 export const ongoingCondition = express.Router();
 
+const EDITABLE_FIELDS = [
+  'conditionId',
+  'examinerId',
+  'note',
+  'recordedDate',
+  'resolutionDate',
+  'resolutionNote',
+  'resolutionPractitionerId',
+  'resolved',
+];
+
 ongoingCondition.get('/:id', simpleGet('PatientCondition', { auditAccess: true }));
-ongoingCondition.put('/:id', simplePut('PatientCondition'));
-ongoingCondition.post('/', simplePost('PatientCondition'));
+ongoingCondition.put('/:id', simplePut('PatientCondition', { allowedFields: EDITABLE_FIELDS }));
+ongoingCondition.post(
+  '/',
+  simplePost('PatientCondition', { allowedFields: [...EDITABLE_FIELDS, 'id', 'patientId'] }),
+);
 
 ongoingCondition.delete('/:id', asyncHandler(async (req, res) => {
   const { models, params } = req;

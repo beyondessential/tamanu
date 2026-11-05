@@ -43,5 +43,16 @@ templateRoutes.get(
     additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
   }),
 );
-templateRoutes.post('/', checkUniqueName, simplePost('Template'));
-templateRoutes.put('/:id', checkUniqueName, simplePut('Template'));
+
+const EDITABLE_FIELDS = ['body', 'createdById', 'name', 'title', 'type', 'visibilityStatus'];
+
+templateRoutes.post(
+  '/',
+  checkUniqueName,
+  simplePost('Template', { allowedFields: [...EDITABLE_FIELDS, 'id'] }),
+);
+templateRoutes.put(
+  '/:id',
+  checkUniqueName,
+  simplePut('Template', { allowedFields: EDITABLE_FIELDS }),
+);
