@@ -20,6 +20,9 @@ Adding or editing an invoice item uses the same form and validation.
       invoice unchanged, such as View patient details and Print invoice. Insurance plan, Add
       item, Edit items, Mark all as approved, Remove all approvals, Cancel invoice and
       Finalise are hidden from them, as is each item's actions menu.
+- [ ] When the patient field settings hide the insurance plan field, the invoice's Insurance
+      plan action is hidden, and Record payment opens the record payment form without the
+      "No insurance plan added" confirmation.
 
 ## Patient details
 
@@ -51,13 +54,13 @@ The patient's details can be viewed and edited from an invoice without leaving i
       details modal over the invoice, scrolled to and focused on the insurance plan field.
 - [ ] Go to patient details, and Add insurance plan on Record payment (see
       [Patient payments](#patient-payments)), are offered on in-progress invoices, to users
-      who can edit invoices, when the patient's details show the insurance plan field.
+      who can edit invoices.
 - [ ] When the modal is opened to add an insurance plan, saving it with a plan available at
       the invoice's facility opens Insurance plans, the invoice's plan picker, to choose
       which of the patient's plans apply to the invoice. The picker opens with the invoice's
       current plans selected, so plans just added to the patient start unselected. Saving
-      the picker applies the
-      chosen plans, and the invoice's amounts due reflect them straight away.
+      the picker applies the chosen plans, and the invoice's amounts due reflect them
+      straight away.
 - [ ] Saving the modal with no insurance plan available at the invoice's facility, whether
       the patient has no plans or only plans restricted to other facilities, returns to the
       invoice without opening the picker.
@@ -66,7 +69,8 @@ The patient's details can be viewed and edited from an invoice without leaving i
 
 ## Patient payments
 
-- [ ] Record payment on an invoice with no insurance plans first asks for confirmation,
+- [ ] Record payment on an invoice with no insurance plans, where the insurance plan field
+      is shown (see [Invoice actions](#invoice-actions)), first asks for confirmation,
       titled "No insurance plan added". It reads "No insurance plan has been added to this
       invoice yet. Insurance plans affect the patient amount that is due." followed by
       "Are you sure you would like to continue?"
