@@ -530,7 +530,6 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .wh-date-picker .MuiPickersDay-hiddenDaySpacingFiller { width: 36px; height: 36px; margin: 0px 2px; }
 .wh-date-picker .wh-day { width: 36px; height: 36px; margin: 0px 2px; padding: 0px; border-radius: 50%; background-color: transparent; color: rgba(0, 0, 0, 0.87); font-family: Roboto; font-size: 0.75rem; font-weight: 400; line-height: 1.66; letter-spacing: 0.03333em; }
 .wh-date-picker .wh-day:hover:not(:disabled) { background-color: rgba(50, 102, 153, 0.04); }
-.wh-date-picker .wh-day.MuiPickersDay-today { border: 1px solid rgba(0, 0, 0, 0.6); }
 .wh-date-picker .wh-day.Mui-selected { background-color: rgb(50, 102, 153); /* primary */ color: rgb(255, 255, 255); /* white */ font-weight: 500; }
 .wh-date-picker .wh-day.Mui-disabled { color: rgba(0, 0, 0, 0.38); cursor: default; }
 .wh-date-picker .wh-picker-action-bar { display: flex; justify-content: flex-end; gap: 4px; padding: 4px 8px; }
@@ -996,7 +995,6 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     const min = earliestDate(period);
     const max = periodEnd(period);
     const selected = parseDisplay(pickerField.querySelector('input').value);
-    const today = todayIso();
     const [year, month] = shownMonth.split('-').map(Number);
     const firstWeekday = new Date(year, month - 1, 1).getDay();
     const daysInMonth = new Date(year, month, 0).getDate();
@@ -1010,7 +1008,6 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       const isDisabled = iso < min || iso > max;
       const classes = ['MuiButtonBase-root', 'MuiPickersDay-root', 'wh-day'];
       if (iso === selected) classes.push('Mui-selected');
-      if (iso === today && iso !== selected) classes.push('MuiPickersDay-today');
       if (isDisabled) classes.push('Mui-disabled');
       cells.push(`<button type="button" class="${classes.join(' ')}" data-day="${iso}"${isDisabled ? ' disabled' : ''}${iso === selected ? ' aria-selected="true"' : ''}>${day}</button>`);
     }
