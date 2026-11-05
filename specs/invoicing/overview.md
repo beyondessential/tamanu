@@ -14,6 +14,13 @@ Adding or editing an invoice item uses the same form and validation.
 - [ ] Ordered by is required on every item; saving is blocked with an inline required message when it is empty.
 - [ ] Ordered by is prefilled with the encounter's supervising clinician and stays editable.
 
+## Invoice actions
+
+- [ ] Users who cannot edit invoices are offered only the invoice actions that leave the
+      invoice unchanged, such as View patient details and Print invoice. Insurance plan, Add
+      item, Edit items, Mark all as approved, Remove all approvals, Cancel invoice and
+      Finalise are hidden from them, as is each item's actions menu.
+
 ## Patient details
 
 The patient's details can be viewed and edited from an invoice without leaving it.
