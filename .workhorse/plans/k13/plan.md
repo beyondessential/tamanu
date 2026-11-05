@@ -12,6 +12,7 @@ Roll the raw `logs.browser_telemetry_spans` rows (M9, spec BTEL) up into long-li
 - Slow events are kept forever
 - Abandoned navigations are counted but kept out of the duration stats; capped ones are included at their capped duration
 - Defaults: 5s navigation and 2s request slow thresholds, slowest 5 and a cap of 20 per row, histogram bands as below
+- Collection (`telemetry.enabled`) is on by default from this card, now that it has passed testing. The web and portal clients collect until they have read the setting, matching the default
 
 ## Technical design notes
 
