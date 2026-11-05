@@ -132,6 +132,7 @@ export const AiPatientSummary = ({ patient }) => {
   // Don't render anything until we have content or are actively loading or discarded
   if (!isLoading && !summary && !error && !isDiscarded) return null;
 
+
   return (
     <>
       <Container data-testid="ai-patient-summary">
