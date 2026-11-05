@@ -47,7 +47,9 @@ The patient's details can be viewed and edited from an invoice without leaving i
       who can edit invoices, when the patient's details show the insurance plan field.
 - [ ] When the modal is opened to add an insurance plan, saving it with a plan available at
       the invoice's facility opens Insurance plans, the invoice's plan picker, to choose
-      which of the patient's plans apply to the invoice. Saving the picker applies the
+      which of the patient's plans apply to the invoice. The picker opens with the invoice's
+      current plans selected, so plans just added to the patient start unselected. Saving
+      the picker applies the
       chosen plans, and the invoice's amounts due reflect them straight away.
 - [ ] Saving the modal with no insurance plan available at the invoice's facility, whether
       the patient has no plans or only plans restricted to other facilities, returns to the
