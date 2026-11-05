@@ -58,6 +58,16 @@ const AdvancedSearchIcon = styled(KeyboardDoubleArrowDownIcon)`
 
 export const PatientSearchEmptyState = () => {
   const { getTranslation } = useTranslation();
+  // One sentence for translators, so they can place the inline icon wherever their word order needs.
+  const [beforeIcon, afterIcon] = getTranslation(
+    'patientList.emptyState.hint',
+    'Search by :displayId, name or date of birth. Otherwise select :advancedSearchIcon for more advanced search options.',
+    {
+      replacements: {
+        displayId: getTranslation('general.localisedField.displayId.label.short', 'NHN'),
+      },
+    },
+  ).split(':advancedSearchIcon');
   return (
     <Container data-testid="patientsearchemptystate">
       <Badge>
@@ -67,20 +77,11 @@ export const PatientSearchEmptyState = () => {
         <TranslatedText stringId="patientList.emptyState.title" fallback="Search for a patient" />
       </Title>
       <Hint>
-        <TranslatedText
-          stringId="patientList.emptyState.hint"
-          fallback="Search by :displayId, name or date of birth. Otherwise select"
-          replacements={{
-            displayId: getTranslation('general.localisedField.displayId.label.short', 'NHN'),
-          }}
-        />{' '}
+        {beforeIcon}
         <AdvancedSearchIcon
           titleAccess={getTranslation('patientList.emptyState.advancedSearch', 'advanced search')}
-        />{' '}
-        <TranslatedText
-          stringId="patientList.emptyState.hintEnd"
-          fallback="for more advanced search options."
         />
+        {afterIcon}
       </Hint>
     </Container>
   );

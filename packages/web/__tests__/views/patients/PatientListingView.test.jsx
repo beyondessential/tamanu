@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthContext } from '@tamanu/ui-components';
+import { replaceStringVariables } from '@tamanu/shared/utils/translation';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 
@@ -50,11 +51,20 @@ vi.mock('../../../app/utils/usePatientNavigation', () => ({
 
 import { PatientListingView } from '../../../app/views/patients/PatientListingView';
 
+const translationContext = {
+  getTranslation: (_stringId, fallback, options) => replaceStringVariables(fallback, options),
+  updateStoredLanguage: () => {},
+  storedLanguage: 'en',
+  translations: {},
+};
+
 const renderView = () =>
   renderElementWithTranslatedText(
     <AuthContext.Provider value={{ ability: { can: () => auth.canListPatients } }}>
       <PatientListingView />
     </AuthContext.Provider>,
+    undefined,
+    translationContext,
   );
 
 describe('PatientListingView', () => {
@@ -67,6 +77,16 @@ describe('PatientListingView', () => {
 
     expect(screen.getByText('Search for a patient')).toBeTruthy();
     expect(screen.queryByTestId('patient-table')).toBeNull();
+  });
+
+  it("names the deployment's identifier and the advanced search toggle in the hint", () => {
+    renderView();
+
+    const hint = screen.getByTestId('patientsearchemptystate').textContent;
+    expect(hint).toContain('Search by NHN, name or date of birth. Otherwise select');
+    expect(hint).toContain('for more advanced search options.');
+    expect(hint).not.toContain(':advancedSearchIcon');
+    expect(screen.getByTitle('advanced search')).toBeTruthy();
   });
 
   it('lists patients once a search with criteria runs', async () => {

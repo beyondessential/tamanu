@@ -55,6 +55,7 @@ export class AllPatientsPage extends BasePatientListPage {
   readonly DOBFromTxt!: Locator;
   readonly DOBToTxt!: Locator;
   readonly clearSearchBtn!: Locator;
+  readonly emptyState!: Locator;
   readonly patientPageRecordCount25!: Locator;
   readonly patientPageRecordCount50!: Locator;
   readonly patientPage2!: Locator;
@@ -103,6 +104,7 @@ export class AllPatientsPage extends BasePatientListPage {
       DOBFromTxt: 'joinedfield-swzm',
       DOBToTxt: 'field-aax5',
       clearSearchBtn: 'clearbutton-z9x3',
+      emptyState: 'patientsearchemptystate',
       patientPageRecordCount25: 'styledmenuitem-fkrw-undefined',
       patientPageRecordCount50: 'styledmenuitem-fkrw-undefined',
       patientPage2: 'paginationitem-c5vg',
@@ -176,6 +178,15 @@ export class AllPatientsPage extends BasePatientListPage {
   }
 
   // Implement abstract method from base class
+  // The listing loads no patients until a search runs, so this matches everyone born since 1900.
+  async searchAllPatients(): Promise<void> {
+    await this.searchTable({
+      DOBFrom: '1900-01-01',
+      DOBTo: new Date().toISOString().split('T')[0],
+      advancedSearch: true,
+    });
+  }
+
   async searchTable(searchCriteria: PatientSearchCriteria): Promise<void> {
     if (searchCriteria.advancedSearch) {
       await this.advanceSearchIcon.click();

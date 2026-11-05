@@ -39,5 +39,17 @@ describe('CustomisableSearchBar', () => {
       expect(searchButton()).toHaveProperty('disabled', false);
       expect(clearButton()).toHaveProperty('disabled', false);
     });
+
+    it('keeps Clear available after a search, even once the fields are emptied', async () => {
+      renderSearchBar({ canSearch: hasSearchCriteria });
+      const firstName = screen.getByRole('textbox', { name: 'First name' });
+      await userEvent.type(firstName, 'Ana');
+      await userEvent.click(searchButton());
+
+      await userEvent.clear(firstName);
+
+      expect(searchButton()).toHaveProperty('disabled', true);
+      expect(clearButton()).toHaveProperty('disabled', false);
+    });
   });
 });
