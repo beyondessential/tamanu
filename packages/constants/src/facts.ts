@@ -44,6 +44,13 @@ export const FACT_CENTRAL_CONFIG_MIGRATED = 'centralConfigMigratedToSettings';
 // FacilitySettingMigration carrier to push up to central, so it runs only once.
 export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
 
+// Set once the central server has seeded the settings that left config after
+// FACT_CENTRAL_CONFIG_MIGRATED had already run, so those keys are lifted once too.
+export const FACT_CENTRAL_LATE_CONFIG_MIGRATED = 'centralLateConfigMigratedToSettings';
+
+// The facility counterpart: set once the late facility-scoped keys are in the carrier.
+export const FACT_FACILITY_LATE_CONFIG_MIGRATED = 'facilityLateConfigMigratedToSettings';
+
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
 

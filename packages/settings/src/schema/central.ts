@@ -253,6 +253,13 @@ export const centralSettings = {
           type: yup.number().integer().min(1),
           defaultValue: 1000,
         },
+        numberConcurrentPullSnapshots: {
+          name: 'Concurrent pull snapshots',
+          description:
+            'How many sync sessions can build their pull snapshot at the same time. Each one holds a database connection, so keep it well below the connection pool size.',
+          type: yup.number().integer().min(1),
+          defaultValue: 4,
+        },
         streaming: {
           properties: {
             enabled: {

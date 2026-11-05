@@ -1,10 +1,10 @@
-import config from 'config';
 import { Sequelize } from 'sequelize';
 
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { getSyncSnapshotRecordIds } from './getSyncSnapshotRecordIds';
 import { SYNC_SESSION_DIRECTION } from './constants';
 import type { Models } from '../types/model';
+import { getSyncTuning } from './syncTuning';
 
 export const adjustDataPostSyncPush = async (
   sequelize: Sequelize,
@@ -24,7 +24,7 @@ export const adjustDataPostSyncPush = async (
     );
 
     // Load the persisted record ids in batches to avoid memory issue
-    const batchSize: number = config.sync.adjustDataBatchSize;
+    const batchSize = getSyncTuning().adjustDataBatchSize;
     const batchCount = Math.ceil(modelPersistedRecordsCount / batchSize);
     let fromId;
 

@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import {
+  SETTING_EDITORS,
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
   INPATIENT_BUNDLED_CATEGORY_VALUES,
@@ -8,6 +9,7 @@ import {
 import { extractDefaults } from './utils';
 import {
   batchingProperties,
+  cronExpressionSchema,
   emailSchema,
   letterheadProperties,
   nationalityIdSchema,
@@ -18,6 +20,7 @@ import {
   datelessTimeStringSchema,
   durationStringSchema,
   fhirResourceMaterialisationSchema,
+  msDurationSchema,
 } from './definitions';
 
 export const facilitySettings = {
@@ -271,14 +274,15 @@ export const facilitySettings = {
       },
     },
     sync: {
-      description: 'Facility sync settings',
-      exposedToWeb: true,
+      description:
+        'Facility sync settings. A bad value can stop the facility syncing, and then a fix made on central can’t reach it. On a server that serves several facilities, the first facility’s values apply.',
       highRisk: true,
       properties: {
         syncAllLabRequests: {
           description: '_',
           type: yup.boolean(),
           defaultValue: false,
+          exposedToWeb: true,
         },
         urgentIntervalInSeconds: {
           name: 'Sync urgent interval',
@@ -286,6 +290,95 @@ export const facilitySettings = {
           description: 'Mobile urgent sync interval',
           type: yup.number().integer().positive(),
           defaultValue: 10,
+          exposedToWeb: true,
+        },
+        schedule: {
+          name: 'Sync schedule',
+          description: 'Cron expression for when the facility server syncs with central',
+          type: cronExpressionSchema,
+          defaultValue: '*/1 * * * *',
+          editor: SETTING_EDITORS.CRON,
+          requiresRestart: true,
+        },
+        jitterTime: {
+          name: 'Sync jitter',
+          description: 'Maximum random delay added to each scheduled sync, e.g. ‘1s’',
+          type: msDurationSchema,
+          defaultValue: '1s',
+          requiresRestart: true,
+        },
+        timeout: {
+          name: 'Central request timeout',
+          description: 'How long a request to central can take before it fails',
+          type: yup.number().integer().positive(),
+          defaultValue: 10000,
+          unit: 'ms',
+          requiresRestart: true,
+        },
+        backoff: {
+          name: 'Login retry backoff',
+          description: 'How the facility server retries logging in to central',
+          requiresRestart: true,
+          properties: {
+            multiplierMs: {
+              description: 'Base delay, multiplied by the attempt number',
+              type: yup.number().integer().min(0),
+              defaultValue: 300,
+              unit: 'ms',
+            },
+            maxAttempts: {
+              description: 'Attempts before giving up',
+              type: yup.number().integer().positive(),
+              defaultValue: 15,
+            },
+            maxWaitMs: {
+              description: 'Longest delay between attempts',
+              type: yup.number().integer().min(0),
+              defaultValue: 10000,
+              unit: 'ms',
+            },
+          },
+        },
+        dynamicLimiter: {
+          name: 'Page size limiter',
+          description: 'How the facility server sizes each page of records it pushes or pulls',
+          requiresRestart: true,
+          properties: {
+            initialLimit: {
+              description: 'Records in the first page',
+              type: yup.number().integer().positive(),
+              defaultValue: 10,
+            },
+            minLimit: {
+              description: 'Fewest records in a page',
+              type: yup.number().integer().positive(),
+              defaultValue: 1,
+            },
+            maxLimit: {
+              description: 'Most records in a page',
+              type: yup.number().integer().positive(),
+              defaultValue: 10000,
+            },
+            optimalTimePerPageMs: {
+              description: 'Time each page should take; the page size moves toward it',
+              type: yup.number().integer().positive(),
+              defaultValue: 2000,
+              unit: 'ms',
+            },
+            maxLimitChangePerPage: {
+              description: 'Largest change in page size from one page to the next, as a fraction',
+              type: yup.number().positive().max(1),
+              defaultValue: 0.2,
+            },
+          },
+        },
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: {
+          name: 'Restart sync on concurrent edits',
+          description:
+            'Abort and restart a sync when a pulled record was edited locally after the push snapshot, so the edit is pushed first',
+          type: yup.boolean(),
+          defaultValue: true,
+          requiresRestart: true,
         },
       },
     },

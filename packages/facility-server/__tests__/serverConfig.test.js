@@ -10,7 +10,9 @@ import {
   initServerConfig,
   getSyncConfig,
   getServerFacilityIds,
+  getSyncApiConnection,
   isServerConfigured,
+  isSyncEnabled,
 } from '../app/serverConfig';
 
 // In-memory stand-ins for the models the resolver reads: LocalSystemFact (host,
@@ -151,5 +153,36 @@ describe('serverConfig', () => {
     expect(sync.password).toBeTruthy();
     expect(getServerFacilityIds()?.length).toBeGreaterThan(0);
     expect(isServerConfigured()).toBe(true);
+  });
+});
+
+describe('sync process env', () => {
+  afterEach(() => {
+    delete process.env.SYNC_ENABLED;
+    delete process.env.SYNC_API_HOST;
+    delete process.env.SYNC_API_PORT;
+  });
+
+  it('falls back to config when the env vars are unset', () => {
+    expect(isSyncEnabled({ enabled: false })).toBe(false);
+    expect(getSyncApiConnection()).toEqual({ host: 'http://localhost', port: 4100 });
+  });
+
+  it('prefers the env vars over config', () => {
+    process.env.SYNC_ENABLED = 'false';
+    process.env.SYNC_API_HOST = 'http://sync.internal';
+    process.env.SYNC_API_PORT = '3000';
+    expect(isSyncEnabled({ enabled: true })).toBe(false);
+    expect(getSyncApiConnection()).toEqual({ host: 'http://sync.internal', port: 3000 });
+  });
+
+  it('refuses a sync flag other than true or false', () => {
+    process.env.SYNC_ENABLED = '1';
+    expect(() => isSyncEnabled({ enabled: true })).toThrow('SYNC_ENABLED');
+  });
+
+  it('refuses a malformed port', () => {
+    process.env.SYNC_API_PORT = '30a0';
+    expect(() => getSyncApiConnection()).toThrow('SYNC_API_PORT');
   });
 });

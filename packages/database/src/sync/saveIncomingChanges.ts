@@ -1,4 +1,3 @@
-import config from 'config';
 import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 
@@ -19,8 +18,7 @@ import { SYNC_SESSION_DIRECTION } from './constants';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { saveCreates, saveUpdates } from './saveChanges';
-
-const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
+import { getSyncTuning } from './syncTuning';
 
 export const saveChangesForModel = async (
   model: typeof Model,
@@ -141,6 +139,8 @@ const saveChangesForModelInBatches = async (
     model.tableName,
   );
 
+  const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } =
+    getSyncTuning();
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
   log.debug('Sync: saveIncomingChanges', {
     total: syncRecordsCount,

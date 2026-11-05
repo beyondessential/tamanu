@@ -1,8 +1,8 @@
-import config from 'config';
 import { chunk } from 'es-toolkit/compat';
 import { log } from '@tamanu/shared/services/logging';
 import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import {
+  getSyncTuning,
   insertSnapshotRecords,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
@@ -11,7 +11,7 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
-const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
+const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = getSyncTuning();
 
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   const start = Date.now();
