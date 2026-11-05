@@ -7,3 +7,8 @@ With split encounters the invoice table gains a header row per encounter type (w
 - The price breakdown under an item's cost (item discount, price after discount, insurance plan lines) should not widen the Cost column. Its labels extend left under Ordered by, which is empty on those lines. In the mockup this is `contain: inline-size` on the breakdown rows in `PriceCell.jsx`
 - Each column's minimum width (`CELL_WIDTHS` in `features/Invoice/constants.js`) gives way when the table is narrower than the minimums add up to. Wide screens keep today's widths. In the mockup the table wrapper is a size container and each minimum is `min(<current em>, <share of the table width>)`
 - The invoice card keeps its 750px minimum. Below that the pane still scrolls sideways, as the Patient payments section has fixed-width columns too
+
+## Scope
+
+- This card covers the on-screen invoice: grouping, the Add items and Edit invoice windows, per-group insurance plans and insurer balances, and the Split invoice by encounter type setting. The printed invoice is covered by separate work
+- Tech design is still to come. Open questions for it: how an item records its group, where per-group insurance plans and insurer payments are stored, and how a group's period is worked out from the encounter's type history

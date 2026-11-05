@@ -13,9 +13,10 @@ Adding or editing an invoice item uses the same form and validation.
 - [ ] Details (the product) is required on every item; saving is blocked with an inline required message when it is empty.
 - [ ] Ordered by is required on every item; saving is blocked with an inline required message when it is empty.
 - [ ] Ordered by is prefilled with the encounter's supervising clinician and stays editable.
+- [ ] An item's date falls between the encounter's start and its end, or today while the encounter is open. A date outside that range shows an inline error and the item cannot be saved.
 
 ## Insurance plans
 
 - [ ] An insurance plan can be restricted to a set of facilities; a plan with no facilities set is available at every facility.
 - [ ] When adding an insurance plan to an invoice, only plans available at the invoice's facility are offered.
-- [ ] When an encounter changes encounter type, insurance plans are set per encounter type period rather than for the whole invoice (see `invoicing/encounter-type-groups.md`).
+- [ ] With invoice splitting on, an encounter that moves between encounter families has insurance plans set per group (see `invoicing/encounter-type-groups.md`).
