@@ -559,6 +559,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 /* Mockup states: switches outside the product to show permission and setting variations */
 .w11-states { position: fixed; left: 16px; bottom: 16px; z-index: 1400; display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; border: 1px dashed #b8b8b8; /* softText */ border-radius: 4px; background-color: #ffffff; /* white */ font-family: Roboto; font-size: 12px; color: #444444; /* darkestText */ }
 .w11-states strong { font-weight: 500; color: #888888; /* midText */ }
+/* Mockup state: invoice editing actions hidden from users who cannot edit invoices */
+body.w11-no-invoice-edit [data-requires-invoice-edit] { display: none !important; }
 .w11-states label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
 </style>
 <style>
@@ -613,10 +615,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 <div class="w11-menu-paper" id="w11-invoice-menu" role="menu" hidden>
 <ul class="w11-menu-list">
 <li class="w11-menu-item" role="menuitem" tabindex="-1" data-action="view-patient-details">View patient details</li>
-<li class="w11-menu-item" role="menuitem" tabindex="-1">Edit items</li>
-<li class="w11-menu-item" role="menuitem" tabindex="-1">Remove all approvals</li>
+<li class="w11-menu-item" role="menuitem" tabindex="-1" data-requires-invoice-edit>Edit items</li>
+<li class="w11-menu-item" role="menuitem" tabindex="-1" data-requires-invoice-edit>Remove all approvals</li>
 <li class="w11-menu-item" role="menuitem" tabindex="-1">Print invoice</li>
-<li class="w11-menu-item" role="menuitem" tabindex="-1" data-hidden-with-payments="true">Cancel invoice</li>
+<li class="w11-menu-item" role="menuitem" tabindex="-1" data-hidden-with-payments="true" data-requires-invoice-edit>Cancel invoice</li>
 <li class="w11-menu-item" role="menuitem" tabindex="-1" data-hidden-with-payments="true">Delete invoice</li>
 </ul>
 </div>
@@ -863,7 +865,7 @@ document.addEventListener('click', event => {
   const menu = byId('w11-invoice-menu');
   const menuBackdrop = byId('w11-invoice-menu-backdrop');
   menuButton.setAttribute('aria-controls', 'w11-invoice-menu');
-  const visibleMenuItems = () => [...menu.querySelectorAll('.w11-menu-item:not([hidden])')];
+  const visibleMenuItems = () => [...menu.querySelectorAll('.w11-menu-item:not([hidden])')].filter(item => item.checkVisibility());
   const openMenu = () => {
     const rect = menuButton.getBoundingClientRect();
     menu.hidden = false;
@@ -1489,7 +1491,10 @@ document.addEventListener('click', event => {
     saveButton.disabled = !mockupStates.canEditPatient;
     saveButton.classList.toggle('Mui-disabled', !mockupStates.canEditPatient);
     insurancePlan.field.hidden = !mockupStates.isPlanFieldShown;
+    document.body.classList.toggle('w11-no-invoice-edit', !mockupStates.canEditInvoices);
   });
+  insuranceButton.dataset.requiresInvoiceEdit = '';
+  [...document.querySelectorAll('button')].find(button => button.textContent.trim() === 'Add item').dataset.requiresInvoiceEdit = '';
 
   // Insurance plan: the picker, or a prompt to record a plan when the patient has none
   const plansRecordedModal = byId('w11-plans-recorded-modal');
