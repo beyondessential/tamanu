@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   FACT_BROWSER_TELEMETRY_ROLLED_UP_TO,
@@ -26,6 +26,7 @@ const histogram = countsByBand => {
 describe('RollupBrowserTelemetry', () => {
   let ctx;
   let models;
+  let sequelize;
   let aggregationSettings;
   // A closed hourly bucket a few hours back, and the one after it.
   let bucketStart;
@@ -85,6 +86,7 @@ describe('RollupBrowserTelemetry', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
+    sequelize = models.BrowserTelemetrySpan.sequelize;
   });
 
   afterAll(() => ctx.close());
@@ -212,17 +214,15 @@ describe('RollupBrowserTelemetry', () => {
     });
 
     it('rolls up from the oldest raw span on its first run and records how far it got', async () => {
-      await createSpan({ receivedAt: new Date(bucketStart.getTime() - 2 * HOUR_MS) });
+      const oldestBucketStart = new Date(bucketStart.getTime() - 2 * HOUR_MS);
+      await createSpan({ receivedAt: new Date(oldestBucketStart.getTime() + 10 * MINUTE_MS) });
 
       await runRollup();
 
       expect(await models.BrowserTelemetryTrend.count()).toBe(1);
-      const rolledUpTo = new Date(
-        await models.LocalSystemFact.get(FACT_BROWSER_TELEMETRY_ROLLED_UP_TO),
+      expect(await models.LocalSystemFact.get(FACT_BROWSER_TELEMETRY_ROLLED_UP_TO)).toBe(
+        new Date(oldestBucketStart.getTime() + HOUR_MS).toISOString(),
       );
-      // Every bucket that has closed, and none that has not.
-      expect(rolledUpTo.getTime()).toBeLessThanOrEqual(Date.now());
-      expect(rolledUpTo.getTime()).toBeGreaterThan(Date.now() - 2 * HOUR_MS);
       expect(await models.LocalSystemFact.get(FACT_BROWSER_TELEMETRY_ROLLUP_BUCKET_MINUTES)).toBe(
         '60',
       );
@@ -231,6 +231,8 @@ describe('RollupBrowserTelemetry', () => {
     it('counts each span once across runs', async () => {
       await createSpan();
       await runRollup();
+      // Received into a bucket already rolled up, so never counted again.
+      await createSpan();
       await runRollup();
 
       const trends = await findTrends({});
@@ -238,7 +240,42 @@ describe('RollupBrowserTelemetry', () => {
       expect(trends[0].eventCount).toBe(1);
     });
 
-    it('replaces its aggregates when a bucket is rolled up again', async () => {
+    it('skips straight past a stretch with no spans', async () => {
+      const longAgo = floorToBucket(new Date(Date.now() - 20 * 24 * HOUR_MS), 60);
+      await createSpan({ receivedAt: new Date(longAgo.getTime() + 10 * MINUTE_MS) });
+      await createSpan();
+      const transactions = vi.spyOn(sequelize, 'transaction');
+
+      await runRollup();
+      const transactionCount = transactions.mock.calls.length;
+      transactions.mockRestore();
+
+      // One transaction per bucket holding spans, not one per empty hour between.
+      expect(transactionCount).toBe(2);
+      const trends = await findTrends({});
+      expect(trends.map(trend => new Date(trend.bucketStart))).toEqual([longAgo, bucketStart]);
+    });
+
+    it('rolls up again from the past day when its progress is ahead of the clock', async () => {
+      // As after the server's clock ran fast and was corrected.
+      await models.LocalSystemFact.set(
+        FACT_BROWSER_TELEMETRY_ROLLED_UP_TO,
+        new Date(Date.now() + 24 * HOUR_MS).toISOString(),
+      );
+      await models.LocalSystemFact.set(FACT_BROWSER_TELEMETRY_ROLLUP_BUCKET_MINUTES, '60');
+      await createSpan();
+
+      await runRollup();
+
+      const [trend] = await findTrends({});
+      expect(new Date(trend.bucketStart)).toEqual(bucketStart);
+      const rolledUpTo = new Date(
+        await models.LocalSystemFact.get(FACT_BROWSER_TELEMETRY_ROLLED_UP_TO),
+      );
+      expect(rolledUpTo.getTime()).toBeLessThan(Date.now());
+    });
+
+    it('updates rather than duplicates its aggregates when a bucket is rolled up again', async () => {
       await createSpan({ durationMs: 9000 });
       await runRollup();
       const [firstTrend] = await findTrends({});
@@ -279,6 +316,28 @@ describe('RollupBrowserTelemetry', () => {
       expect(await models.LocalSystemFact.get(FACT_BROWSER_TELEMETRY_ROLLUP_BUCKET_MINUTES)).toBe(
         '15',
       );
+    });
+
+    it('finishes buckets of the previous size until the first boundary of a larger one', async () => {
+      // An hour boundary that is not a two-hour boundary, at least five hours back.
+      const oddHour = new Date(
+        floorToBucket(new Date(Date.now() - 7 * HOUR_MS), 120).getTime() + HOUR_MS,
+      );
+      await models.LocalSystemFact.set(FACT_BROWSER_TELEMETRY_ROLLED_UP_TO, oddHour.toISOString());
+      await models.LocalSystemFact.set(FACT_BROWSER_TELEMETRY_ROLLUP_BUCKET_MINUTES, '60');
+      await createSpan({ receivedAt: new Date(oddHour.getTime() + 10 * MINUTE_MS) });
+      await createSpan({ receivedAt: new Date(oddHour.getTime() + 70 * MINUTE_MS) });
+      aggregationSettings.bucketMinutes = 120;
+
+      await runRollup();
+
+      const trends = await findTrends({});
+      expect(
+        trends.map(trend => [new Date(trend.bucketStart).getTime(), trend.bucketMinutes]),
+      ).toEqual([
+        [oddHour.getTime(), 60],
+        [oddHour.getTime() + HOUR_MS, 120],
+      ]);
     });
   });
 
@@ -431,6 +490,33 @@ describe('RollupBrowserTelemetry', () => {
           startOffsetMs: 300,
         },
       ]);
+    });
+
+    it('rolls up a slow navigation whose request is dated weeks away', async () => {
+      const startedAt = new Date(bucketStart.getTime() + 10 * MINUTE_MS);
+      await createSpan({
+        traceId: 'trace-bad-clock',
+        spanId: 'nav-bad-clock',
+        kind: 'navigation',
+        route: '/patients',
+        method: null,
+        statusCode: null,
+        durationMs: 9000,
+        outcome: 'settled',
+        occurredAt: startedAt,
+      });
+      await createSpan({
+        traceId: 'trace-bad-clock',
+        parentId: 'nav-bad-clock',
+        spanId: 'req-bad-clock',
+        occurredAt: new Date(startedAt.getTime() + 40 * 24 * HOUR_MS),
+      });
+
+      await runRollup();
+
+      const [request] = await models.BrowserTelemetrySlowEventRequest.findAll();
+      expect(request.startOffsetMs).toBe(2147483647);
+      expect(await models.LocalSystemFact.get(FACT_BROWSER_TELEMETRY_ROLLED_UP_TO)).not.toBeNull();
     });
   });
 });

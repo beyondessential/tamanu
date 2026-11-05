@@ -40,6 +40,7 @@ export class BrowserTelemetrySlowEvent extends Model {
     super.init(
       {
         id: primaryKey,
+        trendId: { type: DataTypes.STRING, allowNull: false },
         traceId: { type: DataTypes.TEXT, allowNull: false },
         spanId: { type: DataTypes.TEXT, allowNull: false },
         kind: { type: DataTypes.TEXT, allowNull: false },

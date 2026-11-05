@@ -1,4 +1,4 @@
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 
 import {
   FACT_BROWSER_TELEMETRY_ROLLED_UP_TO,
@@ -14,10 +14,18 @@ import { log } from '../services/logging';
 import { floorToBucket, nextBucket } from '../utils/browserTelemetryBuckets';
 
 // A bucket is rolled up only once no further spans can be recorded into it. A
-// span's `created_at` is stamped when its ingest transaction starts, so an
-// insert that began just before the bucket ended can still be committing; this
-// margin comfortably covers that.
+// span's `created_at` is stamped by the ingesting server process before its
+// insert commits, possibly on a different process (or pod) from this task, so an
+// insert stamped just before the bucket ended can still be in flight; this
+// margin comfortably covers that and ordinary clock skew between processes.
 const CLOSED_BUCKET_GRACE_MS = 2 * 60 * 1000;
+
+// When the recorded progress is ahead of the clock, the server's clock ran fast
+// and has since been corrected: spans received since then are stamped behind
+// the progress and would never be counted. The rollup goes back this far and
+// rolls up again. Re-rolling buckets it already rolled up is harmless, as each
+// lands on the same rows with the same counts.
+const CLOCK_CORRECTION_REROLL_MS = 24 * 60 * 60 * 1000;
 
 // Constants interpolated into the SQL below (never user input).
 const BAND_BOUNDS_SQL = `ARRAY[${TELEMETRY_HISTOGRAM_BAND_UPPER_BOUNDS_MS.join(', ')}]::integer[]`;
@@ -195,7 +203,15 @@ const ROLL_UP_SLOW_EVENTS_SQL = `
     md5(json_build_array(navigation.id, request.span_id)::text)::uuid::text,
     navigation.id, request.span_id, request.route, request.method, request.status_code,
     request.outcome, request.duration_ms,
-    round(extract(epoch FROM request.occurred_at - navigation.occurred_at) * 1000)::integer,
+    -- Both times are browser-reported. Clamped so a span dated weeks from its
+    -- navigation cannot overflow the column and fail the bucket.
+    LEAST(
+      GREATEST(
+        round(extract(epoch FROM request.occurred_at - navigation.occurred_at) * 1000),
+        -2147483648
+      ),
+      2147483647
+    )::integer,
     ${pathParametersSql('request')},
     ${queryParameterNamesSql('request')}
   FROM kept navigation
@@ -227,6 +243,11 @@ const ROLL_UP_SLOW_EVENTS_SQL = `
 // advanced in the same transaction as each bucket's aggregates, so each raw span
 // still held is counted exactly once across missed runs, restarts and failures.
 // Spans pruned before they are rolled up (CleanupBrowserTelemetry) go uncounted.
+//
+// Rolling a bucket up again (after a restore from backup, or a clock correction)
+// upserts the rows it produces and removes nothing: a restored facility no
+// longer holds the raw spans for the period it lost, and central's rows are
+// then the only record of it.
 export class RollupBrowserTelemetry extends ScheduledTask {
   getName() {
     return 'RollupBrowserTelemetry';
@@ -244,30 +265,41 @@ export class RollupBrowserTelemetry extends ScheduledTask {
 
   async run() {
     const aggregationSettings = await this.settings.get('telemetry.aggregation');
-    const { LocalSystemFact } = this.models;
+    const { bucketMinutes } = aggregationSettings;
 
-    const progress = await this.#readProgress(aggregationSettings.bucketMinutes);
+    const progress = await this.#readProgress(bucketMinutes);
     if (!progress) return;
 
     let { rolledUpTo, bucketMinutes: previousBucketMinutes } = progress;
-    const closedBefore = Date.now() - CLOSED_BUCKET_GRACE_MS;
+    const now = Date.now();
+    const closedBefore = now - CLOSED_BUCKET_GRACE_MS;
     let bucketsRolledUp = 0;
 
+    if (rolledUpTo.getTime() > now) {
+      const resumeFrom = floorToBucket(new Date(now - CLOCK_CORRECTION_REROLL_MS), bucketMinutes);
+      log.warn(
+        'RollupBrowserTelemetry: recorded progress is ahead of the clock, rolling up again',
+        {
+          rolledUpTo: rolledUpTo.toISOString(),
+          resumeFrom: resumeFrom.toISOString(),
+        },
+      );
+      await this.sequelize.transaction(() => this.#recordProgress(resumeFrom, bucketMinutes));
+      rolledUpTo = resumeFrom;
+      previousBucketMinutes = bucketMinutes;
+    }
+
     for (;;) {
-      const bucket = nextBucket(
+      const bucket = await this.#nextBucketWithSpans(
         rolledUpTo,
         previousBucketMinutes,
-        aggregationSettings.bucketMinutes,
+        bucketMinutes,
       );
-      if (bucket.end.getTime() > closedBefore) break;
+      if (!bucket || bucket.end.getTime() > closedBefore) break;
 
       await this.sequelize.transaction(async () => {
         await this.#rollUpBucket(bucket, aggregationSettings);
-        await LocalSystemFact.set(FACT_BROWSER_TELEMETRY_ROLLED_UP_TO, bucket.end.toISOString());
-        await LocalSystemFact.set(
-          FACT_BROWSER_TELEMETRY_ROLLUP_BUCKET_MINUTES,
-          String(bucket.bucketMinutes),
-        );
+        await this.#recordProgress(bucket.end, bucket.bucketMinutes);
       });
 
       rolledUpTo = bucket.end;
@@ -281,6 +313,32 @@ export class RollupBrowserTelemetry extends ScheduledTask {
         rolledUpTo: rolledUpTo.toISOString(),
       });
     }
+  }
+
+  async #recordProgress(rolledUpTo, bucketMinutes) {
+    const { LocalSystemFact } = this.models;
+    await LocalSystemFact.set(FACT_BROWSER_TELEMETRY_ROLLED_UP_TO, rolledUpTo.toISOString());
+    await LocalSystemFact.set(FACT_BROWSER_TELEMETRY_ROLLUP_BUCKET_MINUTES, String(bucketMinutes));
+  }
+
+  // The next bucket to roll up, skipping straight past any stretch with no raw
+  // spans (after an outage, or between sparse use) rather than rolling up each
+  // empty bucket in it. Null when no span has been received since the progress.
+  async #nextBucketWithSpans(rolledUpTo, previousBucketMinutes, bucketMinutes) {
+    const nextReceivedAt = await this.models.BrowserTelemetrySpan.min('createdAt', {
+      where: { createdAt: { [Op.gte]: rolledUpTo } },
+    });
+    if (!nextReceivedAt) return null;
+
+    const bucket = nextBucket(rolledUpTo, previousBucketMinutes, bucketMinutes);
+    if (new Date(nextReceivedAt) < bucket.end) return bucket;
+
+    // Nothing is received in between, so the next bucket can start on the
+    // configured size's boundary holding the next span. Only skip forward: with a
+    // size change still finishing the previous size's buckets, that boundary can
+    // sit behind the progress, and the empty bucket is rolled up as normal.
+    const skipTo = floorToBucket(new Date(nextReceivedAt), bucketMinutes);
+    return skipTo > rolledUpTo ? nextBucket(skipTo, bucketMinutes, bucketMinutes) : bucket;
   }
 
   // Where the rollup got to, or, on the first run, the start of the bucket

@@ -27,6 +27,7 @@ export class BrowserTelemetrySlowEventRequest extends Model {
     super.init(
       {
         id: primaryKey,
+        slowEventId: { type: DataTypes.STRING, allowNull: false },
         spanId: { type: DataTypes.TEXT, allowNull: false },
         route: { type: DataTypes.TEXT, allowNull: false },
         method: { type: DataTypes.TEXT, allowNull: true },
