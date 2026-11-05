@@ -59,6 +59,8 @@ The receipt prints on 80 mm thermal roll paper, as one strip the length of the i
 - [ ] The patient total due, both its label and its amount, is set in bold capitals a little larger
       than the section titles.
 - [ ] Every amount is right-aligned, including each line item's line total.
+- [ ] Line items are spaced further apart than the lines of a wrapped item name, so each item
+      stands apart from the next.
 
 ### Content
 

@@ -60,6 +60,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: 'right',
   },
+  // Space between line items only, wider than the gap between the lines of a wrapped item name, so
+  // each item stands apart from the next
+  lineItems: {
+    rowGap: 4,
+  },
   itemName: {
     flex: 1,
     paddingRight: 8,
@@ -174,19 +179,23 @@ const getItemQuantityText = (item, getEnumTranslation) => {
 
 const LineItemRows = ({ items }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
-  return items.map(item => (
-    <View key={item.id} style={styles.row}>
-      <Text style={styles.itemName}>
-        {getTranslation('pdf.invoiceReceipt.itemWithQuantity', ':itemName x :quantity', {
-          replacements: {
-            itemName: item.product?.name,
-            quantity: getItemQuantityText(item, getEnumTranslation),
-          },
-        })}
-      </Text>
-      <Text style={styles.itemTotal}>{getInvoiceItemPriceDisplay(item)}</Text>
+  return (
+    <View style={styles.lineItems}>
+      {items.map(item => (
+        <View key={item.id} style={styles.row}>
+          <Text style={styles.itemName}>
+            {getTranslation('pdf.invoiceReceipt.itemWithQuantity', ':itemName x :quantity', {
+              replacements: {
+                itemName: item.product?.name,
+                quantity: getItemQuantityText(item, getEnumTranslation),
+              },
+            })}
+          </Text>
+          <Text style={styles.itemTotal}>{getInvoiceItemPriceDisplay(item)}</Text>
+        </View>
+      ))}
     </View>
-  ));
+  );
 };
 
 const TotalRows = ({ totals }) => {
