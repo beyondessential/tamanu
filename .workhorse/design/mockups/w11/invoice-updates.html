@@ -561,6 +561,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .w11-states strong { font-weight: 500; color: #888888; /* midText */ }
 /* Mockup state: invoice editing actions hidden from users who cannot edit invoices */
 body.w11-no-invoice-edit [data-requires-invoice-edit] { display: none !important; }
+/* Mockup state: insurance plan prompts hidden while the insurance plan field is hidden */
+body.w11-no-plan-field [data-requires-plan-field] { display: none !important; }
 .w11-states label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
 </style>
 <style>
@@ -1492,8 +1494,10 @@ document.addEventListener('click', event => {
     saveButton.classList.toggle('Mui-disabled', !mockupStates.canEditPatient);
     insurancePlan.field.hidden = !mockupStates.isPlanFieldShown;
     document.body.classList.toggle('w11-no-invoice-edit', !mockupStates.canEditInvoices);
+    document.body.classList.toggle('w11-no-plan-field', !mockupStates.isPlanFieldShown);
   });
   insuranceButton.dataset.requiresInvoiceEdit = '';
+  insuranceButton.dataset.requiresPlanField = '';
   [...document.querySelectorAll('button')].find(button => button.textContent.trim() === 'Add item').dataset.requiresInvoiceEdit = '';
 
   // Insurance plan: the picker, or a prompt to record a plan when the patient has none
@@ -1515,7 +1519,7 @@ document.addEventListener('click', event => {
   // Record payment: confirm before going on when the invoice has no insurance plan
   const noPlanModal = byId('w11-no-plan-modal');
   recordPaymentButton.addEventListener('click', () => {
-    if (state.invoicePlans.length) {
+    if (state.invoicePlans.length || !mockupStates.isPlanFieldShown) {
       openPayment();
       return;
     }
