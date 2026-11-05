@@ -169,10 +169,10 @@ export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
   const { facilityId, ability } = useAuth();
-  // Without list permission the table shows its own no-permission message instead. ability and
-  // ability.can are briefly unset while auth reloads.
-  const canListPatients = ability?.can?.('list', 'Patient') ?? false;
-  const isAwaitingSearch = canListPatients && !hasSearchCriteria(searchParameters);
+  // Without list permission the table shows its own no-permission message instead. While auth
+  // reloads, ability is briefly unset, and the empty state holds rather than loading every patient.
+  const isListingDenied = ability?.can?.('list', 'Patient') === false;
+  const isAwaitingSearch = !isListingDenied && !hasSearchCriteria(searchParameters);
 
   return (
     <PageContainer data-testid="pagecontainer-bbim">

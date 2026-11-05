@@ -8,12 +8,12 @@ import { replaceStringVariables } from '@tamanu/shared/utils/translation';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 
-const auth = vi.hoisted(() => ({ canListPatients: true }));
+const auth = vi.hoisted(() => ({ canListPatients: true, isLoaded: true }));
 
 vi.mock('../../../app/contexts/Auth', () => ({
   useAuth: () => ({
     facilityId: 'facility-1',
-    ability: { can: () => auth.canListPatients },
+    ability: auth.isLoaded ? { can: () => auth.canListPatients } : null,
   }),
 }));
 
@@ -70,6 +70,7 @@ const renderView = () =>
 describe('PatientListingView', () => {
   beforeEach(() => {
     auth.canListPatients = true;
+    auth.isLoaded = true;
   });
 
   it('shows the guided empty state, not the table, before a search', () => {
@@ -122,5 +123,13 @@ describe('PatientListingView', () => {
 
     expect(screen.getByTestId('patient-table')).toBeTruthy();
     expect(screen.queryByText('Search for a patient')).toBeNull();
+  });
+
+  it('holds the empty state while auth is still loading, rather than listing every patient', () => {
+    auth.isLoaded = false;
+    renderView();
+
+    expect(screen.getByText('Search for a patient')).toBeTruthy();
+    expect(screen.queryByTestId('patient-table')).toBeNull();
   });
 });

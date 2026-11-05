@@ -18,6 +18,15 @@ test.describe('All patient table tests', () => {
       await expect(allPatientsPage.patientTable.rows).toHaveCount(0);
       await expect(allPatientsPage.searchBtn).toBeDisabled();
       await expect(allPatientsPage.clearSearchBtn).toBeDisabled();
+      await expect(allPatientsPage.pagination).toBeHidden();
+      await expect(allPatientsPage.downloadButton).toBeHidden();
+
+      await allPatientsPage.advanceSearchIcon.click();
+      await allPatientsPage.includeDeceasedChk.check();
+      await expect(allPatientsPage.searchBtn).toBeDisabled();
+      await expect(allPatientsPage.clearSearchBtn).toBeDisabled();
+      await allPatientsPage.includeDeceasedChk.uncheck();
+      await allPatientsPage.advanceSearchIcon.click();
 
       await allPatientsPage.searchTable({ NHN: newPatient.displayId, advancedSearch: false });
       await allPatientsPage.validateFirstRowContainsNHN(newPatient.displayId);
