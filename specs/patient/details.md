@@ -66,7 +66,8 @@ The details used to bill the patient, grouped together so they are found in one 
       band is chosen in its place.
 - [ ] Payor 1 and Payor 2 are each chosen by searching existing patient records, the
       same way as the patient's mother and father. Each match shows the patient's name,
-      display ID, sex and date of birth. Deceased patients are not offered.
+      display ID, sex and date of birth. Deceased patients are not offered. The
+      patient being edited can be chosen as their own payor.
 - [ ] Each payor's reference number is a free-text field.
 - [ ] Annual income, family size, both payors and their reference numbers are recorded on
       the patient's record and editable from the Details tab.
