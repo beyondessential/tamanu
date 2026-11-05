@@ -6,7 +6,7 @@ id: BTEL
 
 The web clients measure how the application performs from the user's seat — how long each page takes to become usable, and how long every API request takes — and record those measurements on the Tamanu server the client talks to for later analysis. For the clinical client that is its facility server; for the admin panel and the patient portal, which both talk to central, it is the central server. Measurement is done in the browser with OpenTelemetry; the raw events are stored locally on the receiving server and pruned on a retention schedule.
 
-This spec covers collecting the measurements and storing the raw events. Rolling them up into anonymised statistics that are kept long-term and reported to central is covered in `platform/browser-telemetry-aggregation.md`; the raw store described here is its source.
+This spec covers collecting the measurements and storing the raw events. Rolling them up into statistics that are kept long-term and reported to central is covered in `platform/browser-telemetry-aggregation.md`; the raw store described here is its source.
 
 ## What is measured
 
@@ -30,15 +30,18 @@ A page is considered loaded when the burst of API activity triggered by navigati
 - [ ] Background and polling requests (those that recur independently of navigating, such as live-updating queries and server-alive checks) are excluded from the quiet calculation, so a page with ongoing background activity still settles.
 - [ ] If the user navigates away before the page settles, the in-progress navigation is abandoned rather than recorded as a completed load, and its measurement is not attributed to the next route.
 - [ ] A navigation that never goes quiet is ended by a hard time cap, and recorded as having hit the cap.
+- [ ] A navigational request still in flight when its navigation is abandoned or capped is ended with it, and records that it was cut off by the navigation's outcome.
 
 ## What each event records
 
-Each event carries enough context to both bucket it by page downstream and drill into a single slow request. Record identifiers that appear in paths are UUIDs and carry no patient-identifying meaning; query parameters may contain patient-identifying values (such as a search term), which is acceptable here because the raw events never leave the server that received them and are anonymised before they are reported onward.
+Each event carries enough context to both bucket it by page downstream and drill into a single slow request. Record identifiers that appear in paths are UUIDs and carry no patient-identifying meaning; query parameters may contain patient-identifying values (such as a search term), which is acceptable here because the raw events never leave the server that received them, and query values are stripped from anything reported onward.
 
 - [ ] Each event records the trace it belongs to, so a navigation and its request spans can be tied together, and whether it is a navigation or a request.
 - [ ] Each event records the generic route pattern (for example `/patients/:patientId/encounter/:encounterId`) as its grouping key, and records the resolved parameters separately — the path parameters (such as `patientId` and `encounterId`) apart from the query parameters — so the downstream step groups by pattern and can still drill into a specific patient, encounter, or search without parsing a concrete path.
 - [ ] A navigation event records its outcome: settled normally, abandoned, or capped.
+- [ ] A request made while a navigation is loading records the route pattern of that navigation.
 - [ ] Each event records the interface it came from (clinical web, admin, or patient portal), the application version, the device, and the time it occurred. The interface is determined by the receiving server's ingest endpoint — each is reached by exactly one interface — rather than reported by the client.
+- [ ] Each event records the facility of the server that received it and when that server received it. A server hosting several facilities attributes every event to its primary facility, and events received by central carry no facility.
 - [ ] The device is identified by the client's stable per-workstation identifier, which persists across logins and sessions on that browser, so a consistently slow machine or location can be isolated independently of which user was signed in.
 - [ ] An event records the user and session once a user has signed in; an event produced before sign-in is attributed to the device alone.
 - [ ] Parameter values, including query parameters, are recorded as-is; no patient-identifying information is stripped in the browser.
