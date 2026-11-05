@@ -130,4 +130,26 @@ describe('PatientSearch context', () => {
       JSON.stringify({ departmentId: 'department-3' }),
     );
   });
+
+  it("doesn't save before the user's preferences load", async () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    preferences.data = undefined;
+    render(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    await userEvent.click(screen.getByRole('button', { name: `search-${searchKey}` }));
+
+    expect(preferences.mutate).not.toHaveBeenCalled();
+  });
+
+  it("clears the last user's parameters at logout", async () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    const { rerender } = render(<Harness isConsumerMounted searchKey={searchKey} />);
+    await userEvent.click(screen.getByRole('button', { name: `search-${searchKey}` }));
+
+    preferences.user = null;
+    preferences.data = undefined;
+    rerender(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    expect(screen.getByTestId(`parameters-${searchKey}`).textContent).toBe(JSON.stringify({}));
+  });
 });

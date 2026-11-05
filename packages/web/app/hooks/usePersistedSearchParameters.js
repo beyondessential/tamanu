@@ -15,28 +15,32 @@ const LOOKUP_FIELDS = ['displayId', 'firstName', 'lastName', 'requestId', 'reque
  */
 export const usePersistedSearchParameters = (preferenceKey, initialValue) => {
   const { currentUser, facilityId } = useAuth();
-  const { data: userPreferences } = useUserPreferencesQuery({
-    enabled: Boolean(currentUser && facilityId),
-  });
+  const session = currentUser && facilityId ? `${currentUser.id}:${facilityId}` : null;
+  const { data: userPreferences } = useUserPreferencesQuery({ enabled: Boolean(session) });
   const { mutate: saveUserPreference } = useUserPreferencesMutation(facilityId);
   const [searchParameters, setSearchParametersState] = useState(initialValue);
-  const loadedForUserId = useRef(null);
+  const loadedForSession = useRef(null);
 
   useEffect(() => {
-    if (!userPreferences || loadedForUserId.current === currentUser?.id) return;
-    loadedForUserId.current = currentUser?.id;
+    if (loadedForSession.current === session) return;
+    loadedForSession.current = null;
+    setSearchParametersState(initialValue);
+    if (!session || !userPreferences) return;
+    loadedForSession.current = session;
     setSearchParametersState({ ...initialValue, ...userPreferences[preferenceKey] });
-  }, [userPreferences, currentUser?.id, preferenceKey, initialValue]);
+  }, [session, userPreferences, preferenceKey, initialValue]);
 
   const setSearchParameters = useCallback(
     value => {
       setSearchParametersState(value);
+      // Saving holds the whole map, so before the saved one loads it would overwrite it.
+      if (loadedForSession.current !== session) return;
       saveUserPreference({
         key: preferenceKey,
         value: mapValues(value, tableParameters => omit(tableParameters, LOOKUP_FIELDS)),
       });
     },
-    [preferenceKey, saveUserPreference],
+    [session, preferenceKey, saveUserPreference],
   );
 
   return [searchParameters, setSearchParameters];
