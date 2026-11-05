@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { format } from 'date-fns';
 import { routes } from '../../config/routes';
 import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
 import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
@@ -182,9 +183,15 @@ export class AllPatientsPage extends BasePatientListPage {
   async searchAllPatients(): Promise<void> {
     await this.searchTable({
       DOBFrom: '1900-01-01',
-      DOBTo: new Date().toISOString().split('T')[0],
+      DOBTo: format(new Date(), 'yyyy-MM-dd'),
       advancedSearch: true,
     });
+  }
+
+  // Clear swaps the results for the guided empty state rather than reloading the table.
+  async clearSearch() {
+    await this.clearSearchBtn.click();
+    await expect(this.emptyState).toBeVisible();
   }
 
   async searchTable(searchCriteria: PatientSearchCriteria): Promise<void> {

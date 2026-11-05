@@ -9,9 +9,10 @@ test.describe('All patient table tests', () => {
   });
 
   test.describe('before a search', () => {
-    test('shows the guided empty state until a search with criteria runs', async ({
+    test('[AT-0142]Shows the guided empty state until a search with criteria runs', async ({
       newPatient,
       allPatientsPage,
+      patientDetailsPage,
     }) => {
       await expect(allPatientsPage.emptyState).toBeVisible();
       await expect(allPatientsPage.patientTable.rows).toHaveCount(0);
@@ -24,6 +25,11 @@ test.describe('All patient table tests', () => {
 
       await allPatientsPage.clearSearch();
       await expect(allPatientsPage.emptyState).toBeVisible();
+
+      await allPatientsPage.navigateToPatientDetailsPage(newPatient.displayId);
+      await patientDetailsPage.navigateToAllPatientsPage();
+      await expect(allPatientsPage.emptyState).toBeVisible();
+      await expect(allPatientsPage.NHNInput).toHaveValue('');
     });
   });
 
