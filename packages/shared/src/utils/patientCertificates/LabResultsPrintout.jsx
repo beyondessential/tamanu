@@ -33,7 +33,9 @@ const generalStyles = StyleSheet.create({
     paddingBottom: 50,
   },
   container: {
-    marginVertical: 6,
+    // react-pdf doesn't collapse margins, so adjacent sections would otherwise stack both of
+    // theirs and leave a gap above every heading twice the size it looks in the source.
+    marginVertical: 3,
   },
   interimBannerText: {
     border: '1px solid black',
@@ -61,7 +63,7 @@ const generalStyles = StyleSheet.create({
     fontSize: 9,
   },
   detailsContainer: {
-    marginBottom: 5,
+    marginBottom: 2,
   },
   resultsInterpretationContainer: {
     border: '1px solid black',

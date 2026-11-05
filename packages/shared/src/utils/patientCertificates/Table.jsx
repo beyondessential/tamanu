@@ -50,8 +50,11 @@ const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );
 
+// Keeps its own top border rather than borrowing the previous row's: with hideRowDividers the
+// row above has no bottom border, so a section heading after one would otherwise float free of
+// the rule above it. The shared -1 margin collapses it against a border that is there.
 const SectionRow = ({ label, columnStyle }) => (
-  <TR style={{ borderTopWidth: 0 }}>
+  <TR>
     <TD customStyles={[columnStyle, { borderLeft: basicBorder }]} bold>
       {label}
     </TD>
@@ -71,7 +74,11 @@ export const Table = ({
   const visibleColumns = columns.filter(({ key }) => getSetting(`fields.${key}.hidden`) !== true);
   return (
     <View style={tableStyles.table}>
-      <TR fixed>
+      {/* Fixed so it repeats when the table runs onto another page. A fixed row is exempt from
+          pagination, so a table starting in a sliver at the page foot gets its header clipped —
+          and its bottom border then lands across its own text. Where section rows supply that
+          line themselves (they carry a top border), drop it here so a clip can't draw through. */}
+      <TR fixed style={getRowSectionLabel ? { borderBottomWidth: 0 } : undefined}>
         {visibleColumns.map(({ title, key, customStyles }, index) => (
           <TH
             key={key}
