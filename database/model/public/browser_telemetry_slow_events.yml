@@ -1,0 +1,162 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: browser_telemetry_slow_events
+        description: "{{ doc('table__browser_telemetry_slow_events') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers:
+              - set_browser_telemetry_slow_events_updated_at
+              - set_browser_telemetry_slow_events_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in browser_telemetry_slow_events."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in browser_telemetry_slow_events."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in browser_telemetry_slow_events."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in browser_telemetry_slow_events."
+          - name: trend_id
+            data_type: character varying(255)
+            description: "{{ doc('browser_telemetry_slow_events__trend_id') }}"
+            data_tests:
+              - not_null
+          - name: trace_id
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__trace_id') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: span_id
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__span_id') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: kind
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__kind') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: route
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__route') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: navigation_route
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__navigation_route') }}"
+            config:
+              meta:
+                masking: text
+          - name: method
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__method') }}"
+            config:
+              meta:
+                masking: text
+          - name: status_code
+            data_type: integer
+            description: "{{ doc('browser_telemetry_slow_events__status_code') }}"
+          - name: outcome
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__outcome') }}"
+            config:
+              meta:
+                masking: text
+          - name: duration_ms
+            data_type: integer
+            description: "{{ doc('browser_telemetry_slow_events__duration_ms') }}"
+            data_tests:
+              - not_null
+          - name: occurred_at
+            data_type: timestamp with time zone
+            description: "{{ doc('browser_telemetry_slow_events__occurred_at') }}"
+            data_tests:
+              - not_null
+          - name: received_at
+            data_type: timestamp with time zone
+            description: "{{ doc('browser_telemetry_slow_events__received_at') }}"
+            data_tests:
+              - not_null
+          - name: interface
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__interface') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: facility_id
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__facility_id') }}"
+            config:
+              meta:
+                masking: text
+          - name: app_version
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__app_version') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: device_id
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__device_id') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: user_id
+            data_type: text
+            description: "{{ doc('browser_telemetry_slow_events__user_id') }}"
+            config:
+              meta:
+                masking: text
+          - name: path_parameters
+            data_type: jsonb
+            description: "{{ doc('browser_telemetry_slow_events__path_parameters') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: empty
+          - name: query_parameter_names
+            data_type: array
+            description: "{{ doc('browser_telemetry_slow_events__query_parameter_names') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in browser_telemetry_slow_events."
+            data_tests:
+              - not_null

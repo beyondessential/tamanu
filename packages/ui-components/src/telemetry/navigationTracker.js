@@ -57,7 +57,15 @@ export class TelemetryNavigationTracker {
     const span = this.tracer.startSpan(TELEMETRY_SPAN_KINDS.NAVIGATION);
     this.navSeq += 1;
     const navId = this.navSeq;
-    this.activeNav = { span, navId, inFlight: 0, ended: false, quietTimer: null, capTimer: null };
+    this.activeNav = {
+      span,
+      navId,
+      route,
+      inFlight: 0,
+      ended: false,
+      quietTimer: null,
+      capTimer: null,
+    };
 
     this.#applyContext(span, {
       [SPAN_ATTR.KIND]: TELEMETRY_SPAN_KINDS.NAVIGATION,
@@ -95,6 +103,10 @@ export class TelemetryNavigationTracker {
       [SPAN_ATTR.ROUTE]: route,
       [SPAN_ATTR.PARAMETERS]: JSON.stringify({ path: pathParams, query: event.query ?? {} }),
       [SPAN_ATTR.METHOD]: event.method,
+      // spec: BTEL. Stamped here rather than joined from the navigation span
+      // downstream: the navigation ends (and is sent) after its requests, so the
+      // aggregation could otherwise look for a parent that has not arrived yet.
+      [SPAN_ATTR.NAVIGATION_ROUTE]: nav?.route,
     });
     this.requestSpans.set(event.id, {
       span,
@@ -152,9 +164,12 @@ export class TelemetryNavigationTracker {
     if (nav.capTimer) this.cancelTimer(nav.capTimer);
 
     // End any foreground request spans still open under this navigation so they
-    // aren't leaked; background (polling) spans are left to end on their own.
+    // aren't leaked; background (polling) spans are left to end on their own. A
+    // request ended this way is cut off: its duration is truncated, so it records
+    // the navigation's outcome to keep it out of downstream duration statistics.
     for (const [id, entry] of this.requestSpans) {
       if (entry.navId === nav.navId && !entry.background) {
+        entry.span.setAttribute(SPAN_ATTR.OUTCOME, outcome);
         entry.span.end();
         this.requestSpans.delete(id);
       }
