@@ -10,5 +10,20 @@ With split encounters the invoice table gains a header row per encounter type (w
 
 ## Scope
 
-- This card covers the on-screen invoice: grouping, the Add items and Edit invoice windows, per-group insurance plans and insurer balances, and the Split invoice by encounter type setting. The printed invoice is covered by separate work
-- Tech design is still to come. Open questions for it: how an item records its group, where per-group insurance plans and insurer payments are stored, and how a group's period is worked out from the encounter's type history
+- This card covers the on-screen invoice: grouping, the Add items and Edit invoice windows, per-group insurance plans, and the Split invoice by encounter type setting
+- The printed invoice is covered by separate work
+- Splitting insurer payments and balances by group is covered by a separate ticket, so this card leaves the insurer payments table invoice-wide. Only the per-group insurance coverage lines in the invoice summary come from here
+- Tech design is still to come. Open questions for it: how an item records its group, and where per-group insurance plans are stored
+
+## Group boundaries
+
+Every category crossing is an admission, so a boundary is the Admission date & time entered on the move. Two traps in the encounter code:
+
+- `MoveModal.jsx` sends `submittedTime: getCurrentDateTime()`, and `EncounterHistory.createSnapshot` stamps the history row with that — the time the move was *recorded*, not the admission time the clinician entered. The history row's `date` is therefore the wrong source for a boundary
+- The same submit writes the entered admission time onto `encounter.startDate`, overwriting the original check-in time. The first group's start has to come from the first `encounter_history` row, not from `encounter.startDate`. The same applies to the "backdate as far as the encounter's start" limit on the current group
+
+The admission time stays editable afterwards (`EncounterForm.jsx` disables `encounterType` but not `startDate`), so a boundary can move under items that are already placed. Items keep the group they were recorded against; only the displayed period moves.
+
+## Setting
+
+Grouping reads the setting at display time, with nothing recorded per invoice about how it was created. Items and insurance plans are recorded against a group either way, so an invoice groups and ungroups without rework. The setting is expected to be configured once per deployment, so the switch-over case is not designed for.

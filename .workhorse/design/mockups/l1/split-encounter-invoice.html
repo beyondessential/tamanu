@@ -767,7 +767,6 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     triage: { name: 'Emergency', start: '2025-10-01', end: '2025-10-02' },
     admission: { name: 'Inpatient', start: '2025-10-02', end: null },
   };
-  const encounterStart = '2025-10-01';
   const supervisingClinician = 'Ana Sinapati';
   const pad = number => String(number).padStart(2, '0');
   // The mockup's today, fixed to sit with the invoice's dates so future dates are visibly blocked
@@ -790,8 +789,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     return Number.isNaN(date.getTime()) || date.getDate() !== Number(day) ? null : iso;
   };
   const periodEnd = period => period.end ?? todayIso();
-  // An ended period holds its items to its own dates; the current period can backdate to the encounter's start
-  const earliestDate = period => (period.end ? period.start : encounterStart);
+  // Every period holds its items to its own dates
+  const earliestDate = period => period.start;
 
   const CALENDAR_ICON = '<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-nr5bo9" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CalendarIcon"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"></path></svg>';
   const EXPAND_ICON = '<svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" class="sc-esYiGF iomYDi" aria-hidden="true"><path d="M4.99992 5.85523C4.84367 5.85523 4.69398 5.79242 4.58367 5.67992L0.171797 1.20555C-0.0572656 0.972422 -0.0572656 0.595234 0.171797 0.362422C0.401484 0.129609 0.775234 0.129609 1.00367 0.362422L4.99992 4.41555L8.99523 0.362109C9.22523 0.129297 9.59836 0.129297 9.82773 0.362109C10.0571 0.594609 10.0571 0.972422 9.82773 1.20555L5.41617 5.68055C5.30523 5.79242 5.15555 5.85523 4.99992 5.85523Z" fill="#b8b8b8"></path></svg>';
