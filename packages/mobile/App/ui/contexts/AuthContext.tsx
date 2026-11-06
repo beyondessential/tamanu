@@ -12,6 +12,7 @@ import React, {
 import { compose } from 'redux';
 import type { User } from '~/models/User';
 import { readConfig } from '~/services/config';
+import { SYNC_REASONS } from '~/services/sync';
 import type { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { withAuth } from '~/ui/containers/Auth';
 import { BackendContext } from '~/ui/contexts/BackendContext';
@@ -107,7 +108,7 @@ const Provider = ({
     };
     setPreventSignOutOnFailure(true);
     await remoteSignIn(payload);
-    backend.syncManager.triggerSync();
+    backend.syncManager.triggerSync(SYNC_REASONS.RECONNECT);
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
@@ -129,7 +130,7 @@ const Provider = ({
     // When user first sign in and has not chosen a facility, don't start the sync service yet
     const facilityId = await readConfig('facilityId', '');
     if (facilityId) {
-      backend.syncManager.triggerSync(); // we deliberately don't await this
+      backend.syncManager.triggerSync(SYNC_REASONS.SIGN_IN); // we deliberately don't await this
     }
   };
 

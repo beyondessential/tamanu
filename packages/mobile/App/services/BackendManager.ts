@@ -7,7 +7,7 @@ import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
 import { SettingsService } from './settings';
-import { CentralServerConnection, MobileSyncManager } from './sync';
+import { CentralServerConnection, MobileSyncManager, SYNC_REASONS } from './sync';
 
 const SYNC_PERIOD_MINUTES = 5;
 
@@ -97,7 +97,7 @@ export class BackendManager {
         // Don't start the sync service yet until the facility for the device is selected
         const facilityId = await readConfig('facilityId', '');
         if (facilityId) {
-          await this.syncManager.triggerSync();
+          await this.syncManager.triggerSync(SYNC_REASONS.SCHEDULED);
         }
       } catch (e) {
         if (e instanceof AuthenticationError) {
