@@ -23,6 +23,10 @@ import type { InitOptions, Models } from '../types/model';
 
 const BASE_DEVICE_REGISTRATION_ADVISORY_KEY = 'deviceRegistrationAdvisoryLock';
 
+// A device that contacts central often (the changes-pending check) only has its last-seen time
+// written this often, so the change log is not flooded. See specs/sync/changes-pending-check.md.
+export const DEVICE_LAST_SEEN_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+
 export class Device extends Model {
   declare id: string;
   declare lastSeenAt: Date;
@@ -96,6 +100,37 @@ export class Device extends Model {
     await this.update({
       lastSeenAt: Sequelize.fn('now'),
     });
+  }
+
+  /**
+   * Like markSeen, but writes only when the stored last-seen time is older than
+   * DEVICE_LAST_SEEN_REFRESH_INTERVAL_MS. Returns whether it wrote.
+   */
+  async markSeenIfStale(): Promise<boolean> {
+    // cheap check against the loaded value first, so a frequent caller costs no query at all
+    const loadedAgeMs = Date.now() - new Date(this.lastSeenAt).getTime();
+    if (loadedAgeMs < DEVICE_LAST_SEEN_REFRESH_INTERVAL_MS) return false;
+
+    // the loaded value may be stale itself: the database's own clock and row decide, so a
+    // concurrent caller that just wrote leaves this a no-op that touches no row
+    const [updatedCount] = await Device.update(
+      { lastSeenAt: Sequelize.fn('now') },
+      {
+        where: {
+          id: this.id,
+          lastSeenAt: {
+            [Op.lt]: Sequelize.literal(
+              `now() - interval '${Math.trunc(DEVICE_LAST_SEEN_REFRESH_INTERVAL_MS)} milliseconds'`,
+            ),
+          },
+        },
+      },
+    );
+    if (updatedCount === 0) return false;
+
+    // keep the loaded instance in step without marking the attribute as changed
+    this.set('lastSeenAt', new Date(), { raw: true });
+    return true;
   }
 
   requiresQuota(): boolean {

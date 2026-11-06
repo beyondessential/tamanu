@@ -1,10 +1,11 @@
 import _config from 'config';
 
-import { SYNC_FACILITY_RUN_STATUSES } from '@tamanu/constants';
+import { SYNC_FACILITY_RUN_STATUSES, SYNC_TRIGGER_TYPES } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+  FACT_SETTINGS_PSK,
 } from '@tamanu/constants/facts';
 import {
   createSnapshotTable,
@@ -21,13 +22,20 @@ import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getSyncConfig } from '../serverConfig';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
-import { convergeSyncUser } from './convergeSyncUser';
+import { convergeSyncUser, hasSyncUserToConverge } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { applyBootstrap } from './facilityBootstrap';
+import { hasUnpushedChanges } from './hasUnpushedChanges';
 import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
+
+const outcomeStatus = ({ queued, upToDate }) => {
+  if (queued) return SYNC_FACILITY_RUN_STATUSES.QUEUED;
+  if (upToDate) return SYNC_FACILITY_RUN_STATUSES.UP_TO_DATE;
+  return SYNC_FACILITY_RUN_STATUSES.SUCCEEDED;
+};
 
 export class FacilitySyncManager {
   static config = _config;
@@ -58,9 +66,6 @@ export class FacilitySyncManager {
 
   /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   nextSyncPromise = null;
-
-  /** @type {string | null} */
-  reason = null;
 
   lastDurationMs = 0;
 
@@ -110,8 +115,7 @@ export class FacilitySyncManager {
     this.nextSyncPromise = null;
 
     // set up a common sync promise to avoid double sync
-    this.reason = reason;
-    this.currentSyncPromise = this.runSync();
+    this.currentSyncPromise = this.runSync(reason);
 
     // make sure sync promise gets cleared when finished, even if there's an error
     try {
@@ -120,12 +124,16 @@ export class FacilitySyncManager {
     } finally {
       this.currentSyncPromise = null;
       this.nextSyncPromise = null;
-      this.reason = '';
       this.currentStartTime = 0;
     }
   }
 
-  async runSync() {
+  /**
+   * @param {{ type?: string, urgent?: boolean } | undefined} reason what asked for this sync. Its
+   * `type` is one of `SYNC_TRIGGER_TYPES`; a follow-up sync run on behalf of callers that arrived
+   * mid-sync has none.
+   */
+  async runSync(reason) {
     if (this.currentSyncPromise) {
       throw new Error(
         'It should not be possible to call "runSync" while an existing run is active',
@@ -136,16 +144,13 @@ export class FacilitySyncManager {
     // Recorded before anything else so that an attempt which hangs, or whose
     // process dies, still leaves a running row for alerting to find.
     const syncRun = await this.models.SyncFacilityRun.create({
-      triggerType: this.reason?.type,
-      urgent: Boolean(this.reason?.urgent),
+      triggerType: reason?.type,
+      urgent: Boolean(reason?.urgent),
     });
 
     try {
-      const result = await this.runSyncSession(syncRun);
-      await this.recordSyncRunOutcome(
-        syncRun,
-        result.queued ? SYNC_FACILITY_RUN_STATUSES.QUEUED : SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
-      );
+      const result = await this.runSyncSession(syncRun, reason);
+      await this.recordSyncRunOutcome(syncRun, outcomeStatus(result));
       return result;
     } catch (error) {
       await this.recordSyncRunOutcome(syncRun, SYNC_FACILITY_RUN_STATUSES.FAILED, {
@@ -174,7 +179,7 @@ export class FacilitySyncManager {
     }
   }
 
-  async runSyncSession(syncRun) {
+  async runSyncSession(syncRun, reason) {
     const { email, password } = getSyncConfig();
     if (!email || !password) {
       throw new Error('Sync credentials are not configured');
@@ -184,7 +189,7 @@ export class FacilitySyncManager {
     this.currentStartTime = startTime;
 
     log.info('FacilitySyncManager.attemptStart', {
-      reason: JSON.stringify(this.reason),
+      reason: JSON.stringify(reason),
       startTime,
     });
 
@@ -194,13 +199,25 @@ export class FacilitySyncManager {
       await this.bootstrap();
     }
 
+    if (await this.shouldCheckChangesPending(reason)) {
+      // spec: SYNCHK#the-check
+      const changesToPull = await this.centralServer.checkChangesPending(
+        pullSince === -1 ? undefined : pullSince,
+      );
+      if (!changesToPull) {
+        log.info('FacilitySyncManager.upToDate', { pullSince });
+        this.markSyncCompleted(startTime);
+        return { queued: false, ran: true, upToDate: true };
+      }
+    }
+
     // the first step of sync is to start a session and retrieve the session id
     const {
       status,
       sessionId,
       startedAtTick: newSyncClockTime,
     } = await this.centralServer.startSyncSession({
-      urgent: this.reason?.urgent,
+      urgent: reason?.urgent,
       lastSyncedTick: pullSince,
     });
 
@@ -256,14 +273,39 @@ export class FacilitySyncManager {
       log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
     }
 
-    const durationMs = Date.now() - startTime;
+    this.markSyncCompleted(startTime);
     log.info('FacilitySyncManager.completedSession', {
-      durationMs,
+      durationMs: this.lastDurationMs,
     });
-    this.lastDurationMs = durationMs;
-    this.lastCompletedAt = new Date();
 
     return { queued: false, ran: true };
+  }
+
+  // Moves the facility's last successful sync time, which monitoring and the sync status read.
+  // Deliberately not the pull cursor: that moves only when a session pulls.
+  markSyncCompleted(startTime) {
+    this.lastDurationMs = Date.now() - startTime;
+    this.lastCompletedAt = new Date();
+  }
+
+  // spec: SYNCHK#facility-servers
+  // Only a scheduled sync asks central whether there is anything to pull before opening a
+  // session. Every other trigger opens one regardless, as does a scheduled sync that has
+  // something central's answer cannot account for: local changes to push, no settings PSK yet, or
+  // a sync user still to be swapped. Ordered cheapest first, and the last needs a login, so it
+  // comes last.
+  async shouldCheckChangesPending(reason) {
+    if (reason?.type !== SYNC_TRIGGER_TYPES.SCHEDULED) return false;
+
+    if (!(await this.models.LocalSystemSecret.get(FACT_SETTINGS_PSK))) return false;
+    if (await hasUnpushedChanges(this.models)) return false;
+
+    // Who we are syncing as is only known once authenticated
+    await this.centralServer.loginData();
+    return !(await hasSyncUserToConverge({
+      models: this.models,
+      centralServer: this.centralServer,
+    }));
   }
 
   // spec: FBOOT#when-a-facility-bootstraps

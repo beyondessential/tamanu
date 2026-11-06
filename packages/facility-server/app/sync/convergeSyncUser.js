@@ -9,24 +9,31 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { initServerConfig } from '../serverConfig';
 
+// Whether this facility still syncs as a user other than its dedicated sync user, so that
+// `convergeSyncUser` has a swap to make. Needs the connection to have authenticated, as it
+// reads who central says the facility is.
+export async function hasSyncUserToConverge({ models, centralServer }) {
+  // Provisioning rotates the password, so only act on a positive answer: an
+  // unknown kind means try again next sync, not rotate now.
+  const { kind, email: authenticatedAs } = centralServer.user ?? {};
+  if (!kind || kind === USER_KINDS.SYNC) return false;
+
+  // Facts holding a different account means the swap already happened and this
+  // process is just behind (a restart picks it up). Provisioning again would
+  // rotate the password for nothing, once per sync.
+  const recordedEmail = await models.LocalSystemFact.get(FACT_SYNC_EMAIL);
+  return !recordedEmail || recordedEmail === authenticatedAs;
+}
+
 // Facilities configured before the setup wizard sync as a human admin, whose
 // credentials came from config. Swap them for the dedicated per-device sync user
 // central mints, so the deployment can tell a facility server apart from a person:
 // central serves the settings PSK to kind:sync only. Runs on sync rather than on
 // upgrade so a facility that was offline during its upgrade still converges.
 export async function convergeSyncUser({ sequelize, models, centralServer }) {
-  // Provisioning rotates the password, so only act on a positive answer: an
-  // unknown kind means try again next sync, not rotate now.
-  const { kind, email: authenticatedAs } = centralServer.user ?? {};
-  if (!kind || kind === USER_KINDS.SYNC) return;
+  if (!(await hasSyncUserToConverge({ models, centralServer }))) return;
 
   const { LocalSystemFact, LocalSystemSecret } = models;
-
-  // Facts holding a different account means the swap already happened and this
-  // process is just behind (a restart picks it up). Provisioning again would
-  // rotate the password for nothing, once per sync.
-  const recordedEmail = await LocalSystemFact.get(FACT_SYNC_EMAIL);
-  if (recordedEmail && recordedEmail !== authenticatedAs) return;
 
   const deviceId = await LocalSystemFact.get(FACT_DEVICE_ID);
   const storedFacilityIds = await LocalSystemFact.get(FACT_FACILITY_IDS);

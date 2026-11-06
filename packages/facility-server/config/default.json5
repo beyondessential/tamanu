@@ -33,6 +33,15 @@
       "maxAttempts": 15,
       "maxWaitMs": 10000
     },
+    // While a sleeping central wakes it answers 503 with a Retry-After: the facility waits and asks
+    // again, rather than failing the sync. The fallback is for a 503 without a usable Retry-After,
+    // and each wait is capped so that a long Retry-After still gets asked again in good time.
+    // Past the total the attempt fails.
+    "centralWake": {
+      "defaultRetryAfterSeconds": 10,
+      "maxRetryAfterSeconds": 60,
+      "maxTotalWaitSeconds": 1800,
+    },
     "dynamicLimiter": {
       "initialLimit": 10, // start relatively low then grow upward
       "minLimit": 1,
