@@ -5,7 +5,7 @@ import {
   invalidTokenMessage,
   OutdatedVersionError,
 } from '../error';
-import { CentralServerConnection } from './CentralServerConnection';
+import { CentralServerConnection, CentralWakingError } from './CentralServerConnection';
 import axios from 'axios';
 import { sleepAsync } from './utils';
 import { ERROR_TYPE } from '@tamanu/errors';
@@ -86,6 +86,127 @@ describe('CentralServerConnection', () => {
       expect(pollUntilTrueSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId));
       expect(getSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), {});
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
+    });
+  });
+  describe('checkForChangesToPull', () => {
+    it('asks central with the pull cursor and returns its answer', async () => {
+      const getSpy = jest
+        .spyOn(centralServerConnection, 'get')
+        .mockResolvedValue({ changesToPull: false });
+
+      await expect(centralServerConnection.checkForChangesToPull(42)).resolves.toBe(false);
+      expect(getSpy).toHaveBeenCalledWith('sync/pending', { since: 42 });
+    });
+
+    it('leaves out since for a device that never pulled', async () => {
+      const getSpy = jest
+        .spyOn(centralServerConnection, 'get')
+        .mockResolvedValue({ changesToPull: true });
+
+      await expect(centralServerConnection.checkForChangesToPull()).resolves.toBe(true);
+      expect(getSpy).toHaveBeenCalledWith('sync/pending', {});
+    });
+
+    it('treats an answer that is not a clear "nothing" as changes to pull', async () => {
+      jest.spyOn(centralServerConnection, 'get').mockResolvedValue({});
+
+      await expect(centralServerConnection.checkForChangesToPull(1)).resolves.toBe(true);
+    });
+
+    it('waits for the Retry-After seconds and asks again while central answers 503', async () => {
+      mockAxiosRequest
+        .mockRejectedValueOnce({ response: { status: 503, headers: { 'retry-after': '7' } } })
+        .mockRejectedValueOnce({ response: { status: 503, headers: { 'retry-after': '3' } } })
+        .mockResolvedValueOnce({ data: { changesToPull: false } });
+
+      await expect(centralServerConnection.checkForChangesToPull(5)).resolves.toBe(false);
+
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(3);
+      expect(mockSleepAsync).toHaveBeenNthCalledWith(1, 7000);
+      expect(mockSleepAsync).toHaveBeenNthCalledWith(2, 3000);
+    });
+
+    it('does not retry other failures', async () => {
+      mockAxiosRequest.mockRejectedValueOnce({ message: 'Network Error' });
+
+      await expect(centralServerConnection.checkForChangesToPull(5)).rejects.toMatchObject({
+        title: 'Network Error',
+      });
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      expect(mockSleepAsync).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('waking central', () => {
+    const wakingResponse = (retryAfter?: string): object => ({
+      response: { status: 503, headers: retryAfter === undefined ? {} : { 'retry-after': retryAfter } },
+    });
+
+    it('retries session start on 503 with Retry-After, then carries on', async () => {
+      jest.spyOn(centralServerConnection, 'pollUntilTrue').mockResolvedValue(true);
+      mockAxiosRequest
+        .mockRejectedValueOnce(wakingResponse('4'))
+        .mockResolvedValueOnce({ data: { sessionId: mockSessionId } })
+        .mockResolvedValueOnce({ data: { startedAtTick: 9 } });
+
+      const result = await centralServerConnection.startSyncSession({
+        urgent: false,
+        lastSyncedTick: 3,
+      });
+
+      expect(result).toEqual({ sessionId: mockSessionId, startedAtTick: 9 });
+      expect(mockSleepAsync).toHaveBeenCalledTimes(1);
+      expect(mockSleepAsync).toHaveBeenCalledWith(4000);
+      expect(mockAxiosRequest).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ method: 'POST', url: `${mockHost}/api/sync` }),
+      );
+      expect(mockAxiosRequest).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ method: 'POST', url: `${mockHost}/api/sync` }),
+      );
+    });
+
+    it('waits the default time when Retry-After is not a number', async () => {
+      mockAxiosRequest
+        .mockRejectedValueOnce(wakingResponse('soon'))
+        .mockResolvedValueOnce({ data: { changesToPull: true } });
+
+      await centralServerConnection.checkForChangesToPull(1);
+
+      expect(mockSleepAsync).toHaveBeenCalledWith(5000);
+    });
+
+    it('caps a long Retry-After', async () => {
+      mockAxiosRequest
+        .mockRejectedValueOnce(wakingResponse('3600'))
+        .mockResolvedValueOnce({ data: { changesToPull: true } });
+
+      await centralServerConnection.checkForChangesToPull(1);
+
+      expect(mockSleepAsync).toHaveBeenCalledWith(30000);
+    });
+
+    it('does not treat a 503 without Retry-After as central waking', async () => {
+      mockAxiosRequest.mockRejectedValueOnce(wakingResponse());
+
+      await expect(centralServerConnection.checkForChangesToPull(1)).rejects.not.toBeInstanceOf(
+        CentralWakingError,
+      );
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      expect(mockSleepAsync).not.toHaveBeenCalled();
+    });
+
+    it('gives up once the waits add up to ten minutes, failing the request', async () => {
+      mockAxiosRequest.mockRejectedValue(wakingResponse('30'));
+
+      await expect(centralServerConnection.checkForChangesToPull(1)).rejects.toBeInstanceOf(
+        CentralWakingError,
+      );
+
+      // 20 waits of 30 seconds fill the ten minutes, so the 21st request is the last
+      expect(mockSleepAsync).toHaveBeenCalledTimes(20);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(21);
     });
   });
   describe('initiatePull', () => {

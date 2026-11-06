@@ -32,7 +32,45 @@ interface RefreshResponse {
 
 const API_PREFIX = 'api';
 
+/** How long to wait when a waking central gives no usable `Retry-After` */
+const DEFAULT_WAKE_RETRY_SECONDS = 5;
+/** Longest single wait, so a large `Retry-After` can't park the sync for long between attempts */
+const MAX_WAKE_RETRY_SECONDS = 30;
+/** Most time one request spends waiting for central to wake, after which the sync fails */
+const MAX_WAKE_WAIT_MS = 10 * 60 * 1000;
+
+/**
+ * Central answered `503 Service Unavailable` with a `Retry-After` header, as it does while it is
+ * waking from sleep. Not a failure of the sync: the request is retried after `retryAfterSeconds`.
+ * spec: SYNCHK#while-central-wakes
+ */
+export class CentralWakingError extends Error {
+  constructor(public retryAfterSeconds: number) {
+    super('Central server is waking up and not ready yet');
+    this.name = 'CentralWakingError';
+  }
+}
+
+const readRetryAfterHeader = (headers: AxiosError['response']['headers']): unknown => {
+  if (!headers) return undefined;
+  // axios gives either a plain object (lower-cased keys) or an AxiosHeaders instance
+  return typeof headers.get === 'function' ? headers.get('retry-after') : headers['retry-after'];
+};
+
+const parseRetryAfterSeconds = (header: unknown): number => {
+  const seconds = Number(header);
+  if (!Number.isFinite(seconds) || seconds < 0) return DEFAULT_WAKE_RETRY_SECONDS;
+  return Math.min(Math.max(seconds, 1), MAX_WAKE_RETRY_SECONDS);
+};
+
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
+  if (err.response?.status === 503) {
+    const retryAfter = readRetryAfterHeader(err.response.headers);
+    if (retryAfter !== undefined && retryAfter !== null) {
+      return new CentralWakingError(parseRetryAfterSeconds(retryAfter));
+    }
+  }
+
   const problemJson = err.response?.data || {};
   const problem = Problem.fromJSON(problemJson);
 
@@ -202,20 +240,58 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
+  /**
+   * Run a request, and run it again each time central answers that it is waking, for as long as
+   * it does so. Gives up with the last `CentralWakingError` once the waits add up to
+   * `MAX_WAKE_WAIT_MS`, so a wake that never finishes fails the sync rather than hanging it.
+   */
+  async retryWhileCentralWakes<T>(request: () => Promise<T>): Promise<T> {
+    let waitedMs = 0;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        return await request();
+      } catch (error) {
+        if (!(error instanceof CentralWakingError)) throw error;
+        const waitMs = error.retryAfterSeconds * 1000;
+        if (waitedMs + waitMs > MAX_WAKE_WAIT_MS) throw error;
+        console.log(`Central is waking, trying again in ${error.retryAfterSeconds}s`);
+        await sleepAsync(waitMs);
+        waitedMs += waitMs;
+      }
+    }
+  }
+
+  /**
+   * Ask central whether anything that syncs has changed since the device's last pull.
+   * @param since the tick the last successful pull reached; leave out if the device never pulled
+   * spec: SYNCHK#the-check
+   */
+  async checkForChangesToPull(since?: number): Promise<boolean> {
+    const query = since === undefined ? {} : { since };
+    const response = await this.retryWhileCentralWakes(() =>
+      this.get<{ changesToPull?: boolean }>('sync/pending', query),
+    );
+    // anything but a clear "nothing" opens a session, which is always safe
+    return response?.changesToPull !== false;
+  }
+
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    const { sessionId, status } = (await this.post(
-      'sync',
-      {},
-      {
-        urgent,
-        lastSyncedTick,
-        facilityIds: [facilityId],
-        deviceId: this.deviceId,
-        isMobile: true,
-      },
+    const { sessionId, status } = (await this.retryWhileCentralWakes(() =>
+      this.post(
+        'sync',
+        {},
+        {
+          urgent,
+          lastSyncedTick,
+          facilityIds: [facilityId],
+          deviceId: this.deviceId,
+          isMobile: true,
+        },
+      ),
     )) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
