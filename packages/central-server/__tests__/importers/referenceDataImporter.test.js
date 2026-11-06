@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import { Op } from 'sequelize';
-import { write, utils } from 'xlsx';
+import { readFile, utils, write, writeFile } from 'xlsx';
 
 import { fake } from '@tamanu/fake-data/fake';
 import {
@@ -1165,5 +1165,114 @@ describe('Import from an exported file', () => {
       await models.ScheduledVaccine.destroy({ where: {}, force: true });
       await models.PatientFacility.destroy({ where: {}, force: true });
     }
+  });
+
+  describe('administered vaccine circumstances', () => {
+    let scheduledVaccine;
+    let circumstances;
+
+    beforeAll(async () => {
+      // The encounter test above may already have created this.
+      if (!(await models.Location.findOne({ where: { code: 'TESTLOCATION' } }))) {
+        await createDataForEncounter(models);
+      }
+      scheduledVaccine = await createVaccine(models, { label: 'Circ', doseLabel: 'Dose 1' });
+    });
+
+    // The outer afterEach clears all reference data.
+    beforeEach(async () => {
+      circumstances = await Promise.all(
+        ['circumstance-a', 'circumstance-b'].map(id =>
+          models.ReferenceData.create({
+            id,
+            code: id,
+            name: id,
+            type: REFERENCE_TYPES.VACCINE_CIRCUMSTANCE,
+          }),
+        ),
+      );
+    });
+
+    afterEach(async () => {
+      await models.AdministeredVaccine.destroy({ where: {}, force: true });
+      await models.EncounterHistory.destroy({ where: {}, force: true });
+      await models.Encounter.destroy({ where: {}, force: true });
+      await models.PatientFacility.destroy({ where: {}, force: true });
+    });
+
+    afterAll(async () => {
+      await models.ScheduledVaccine.destroy({ where: {}, force: true });
+    });
+
+    const createVaccineWithCircumstances = async circumstanceIds => {
+      const patient = await models.Patient.create(createDummyPatient(models));
+      const encounter = await models.Encounter.create(
+        await createDummyEncounter(models, { patientId: patient.id }),
+      );
+      return models.AdministeredVaccine.create(
+        await createAdministeredVaccine(models, {
+          scheduledVaccineId: scheduledVaccine.id,
+          encounterId: encounter.id,
+          circumstanceIds,
+        }),
+      );
+    };
+
+    const exportAndReimport = async ({ editSheet } = {}) => {
+      const fileName = await exporter(
+        { models },
+        { 1: 'administeredVaccine' },
+        {},
+        path.join(await tmpdir(), `exported-circumstances-${Date.now()}.xlsx`),
+      );
+      try {
+        if (editSheet) {
+          const workbook = readFile(fileName);
+          editSheet(workbook.Sheets[workbook.SheetNames[0]]);
+          writeFile(workbook, fileName);
+        }
+        return await importerTransaction({
+          importer: referenceDataImporter,
+          file: fileName,
+          models,
+          includedDataTypes: ['administeredVaccine'],
+          checkPermission: () => true,
+        });
+      } finally {
+        await rm(fileName, { force: true });
+      }
+    };
+
+    it('round-trips circumstances through export and import', async () => {
+      const circumstanceIds = circumstances.map(({ id }) => id);
+      const withCircumstances = await createVaccineWithCircumstances(circumstanceIds);
+      const withNone = await createVaccineWithCircumstances([]);
+
+      const { errors, stats } = await exportAndReimport();
+
+      expect(errors).toHaveLength(0);
+      expect(stats.AdministeredVaccine.errored).toBe(0);
+      expect((await withCircumstances.reload()).circumstanceIds).toEqual(circumstanceIds);
+      expect((await withNone.reload()).circumstanceIds).toEqual([]);
+    });
+
+    it.each([
+      ['not JSON', 'circumstance-a', 'must be a JSON array'],
+      ['an unknown id', '["circumstance-a","nope"]', 'do not exist: nope'],
+    ])('rejects %s', async (_description, cellValue, expectedMessage) => {
+      await createVaccineWithCircumstances([]);
+
+      const { errors } = await exportAndReimport({
+        editSheet: sheet => {
+          const [header] = utils.sheet_to_json(sheet, { header: 1 });
+          const column = header.indexOf('circumstanceIds');
+          sheet[utils.encode_cell({ r: 1, c: column })] = { t: 's', v: cellValue };
+        },
+      });
+
+      expect(errors.map(({ message }) => message)).toEqual([
+        expect.stringContaining(expectedMessage),
+      ]);
+    });
   });
 });

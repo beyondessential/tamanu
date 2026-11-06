@@ -28,6 +28,7 @@ import {
   SAFE_CODE_REGEX,
   SAFE_ID_ERROR_MESSAGE,
   SAFE_CODE_ERROR_MESSAGE,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 import {
   configString,
@@ -426,8 +427,42 @@ export const ProgramRegistryCondition = Base.shape({
   visibilityStatus,
 });
 
+// The exporter writes this array as JSON text, e.g. ["circumstance-1"].
+const circumstanceIds = yup
+  .mixed()
+  .nullable()
+  .transform(value => {
+    if (typeof value !== 'string') return value;
+    if (value.trim() === '') return null;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  })
+  .test(
+    'is-id-array',
+    'circumstanceIds must be a JSON array of vaccine circumstance IDs, e.g. ["circumstance-1"]',
+    value => value == null || (Array.isArray(value) && value.every(id => typeof id === 'string')),
+  )
+  .test('circumstances-exist', async (value, { options, createError, path }) => {
+    if (!Array.isArray(value) || value.length === 0) return true;
+    const found = await options.context.models.ReferenceData.findAll({
+      where: { type: REFERENCE_TYPES.VACCINE_CIRCUMSTANCE, id: value },
+      attributes: ['id'],
+    });
+    const foundIds = new Set(found.map(({ id }) => id));
+    const missingIds = value.filter(id => !foundIds.has(id));
+    if (missingIds.length === 0) return true;
+    return createError({
+      path,
+      message: `${path} refers to vaccine circumstances that do not exist: ${missingIds.join(', ')}`,
+    });
+  });
+
 export const AdministeredVaccine = Base.shape({
   batch: yup.string(),
+  circumstanceIds,
   consent: yup.boolean().required(),
   status: yup.string().oneOf(Object.values(VACCINE_STATUS)).required(),
   reason: yup.string(),
