@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
-import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined';
 import { TranslatedText } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants/styles';
@@ -71,7 +71,7 @@ export const PatientSearchEmptyState = () => {
   return (
     <Container data-testid="patientsearchemptystate">
       <Badge>
-        <PersonSearchIcon aria-hidden />
+        <PersonSearchOutlinedIcon aria-hidden />
       </Badge>
       <Title>
         <TranslatedText stringId="patientList.emptyState.title" fallback="Search for a patient" />
