@@ -31,6 +31,7 @@ test.describe('All patient table tests', () => {
       await allPatientsPage.searchTable({ NHN: newPatient.displayId, advancedSearch: false });
       await allPatientsPage.validateFirstRowContainsNHN(newPatient.displayId);
       await expect(allPatientsPage.emptyState).toBeHidden();
+      await expect(allPatientsPage.downloadButton).toBeVisible();
 
       await allPatientsPage.clearSearch();
       await expect(allPatientsPage.emptyState).toBeVisible();

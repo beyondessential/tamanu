@@ -71,7 +71,7 @@ export class AllPatientsPage extends BasePatientListPage {
       // Override base locators with AllPatients-specific test IDs
       searchTitle: 'searchtabletitle-09n6',
       tableFooter: 'styledtablefooter-0eff',
-      downloadButton: 'downloadbutton-0eff',
+      downloadButton: 'download-data-button',
       hideAdvancedSearchBtn: 'iconbutton-zrkv',
       searchButton: 'searchbutton-nt24',
       clearButton: 'clearbutton-z9x3',
