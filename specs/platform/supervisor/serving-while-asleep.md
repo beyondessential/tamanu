@@ -31,6 +31,7 @@ This applies to central's supervisor. A facility server's supervisor wakes its s
 - [ ] A login or refresh served from the copy gives the same response as central would give against the real database: the same role, permissions, allowed facilities, localisation and settings.
 - [ ] Access and refresh tokens issued by the supervisor work against central after the hand-back, with no new login.
 - [ ] Failed logins are recorded in the copy and count towards lockout as they would at central.
+- [ ] A write to the copy is on durable storage before the request that made it is answered, so a crash of the supervisor or its host loses nothing awaiting hand-back.
 - [ ] A login from a device that is not in the copy would register a new device, and that device needs an initial sync anyway, so such a login wakes central. The request gets the same response as any request during a wake.
 - [ ] Every other request that counts as activity wakes central (see `platform/supervisor/sleep-and-wake.md#waking`).
 

@@ -15,8 +15,8 @@ Infra's side (actuator, pod, sleep state on the Argo Application) is infra card 
 ### The supervisor's Postgres
 
 - Real PostgreSQL, not PGlite (PGlite alone needs 256 to 400 MB). Contrib extensions `fuzzystrmatch` and `uuid-ossp` must be available.
-- Settings that reach the floor: `max_connections=5`, `shared_buffers=1MB`, `work_mem=1MB`, `maintenance_work_mem=1MB`, `temp_buffers=800kB`, `wal_buffers=32kB`, `wal_level=minimal`, `max_wal_senders=0`, `max_wal_size=32MB`, `min_wal_size=32MB`, `autovacuum=off`, `max_worker_processes=0`, parallel workers off, `io_method=sync` (on 18), `track_activities=off`, `track_counts=off`, `fsync=off`.
-- `fsync=off` is fine for the copy but not for the written rows awaiting hand-back, which must survive a crash. Either turn `fsync` on (cost to measure) or keep the written rows and the held values (tick, cursor, next task time) somewhere durable outside Postgres. To decide when building.
+- Settings that reach the floor: `max_connections=5`, `shared_buffers=1MB`, `work_mem=1MB`, `maintenance_work_mem=1MB`, `temp_buffers=800kB`, `wal_buffers=32kB`, `wal_level=minimal`, `max_wal_senders=0`, `max_wal_size=32MB`, `min_wal_size=32MB`, `autovacuum=off`, `max_worker_processes=0`, parallel workers off, `io_method=sync` (on 18), `track_activities=off`, `track_counts=off`.
+- `fsync` stays on (the spike ran with it off), because the rows awaiting hand-back and the held values (tick, cursor, next task time) must survive a crash. Re-check the memory floor and copy time with it on.
 - The small lock table means: create and fill tables one statement at a time.
 - Data directory on the supervisor's durable storage.
 
