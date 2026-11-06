@@ -759,6 +759,30 @@ describe('CentralSyncManager.updateLookupTable', () => {
     });
   });
 
+  it('records how long each model and pass took in debug log', async () => {
+    await models.Patient.create(fake(models.Patient));
+
+    const centralSyncManager = await initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    await centralSyncManager.updateLookupTable();
+
+    const [debugLog] = await models.DebugLog.findAll({});
+    expect(debugLog.info.modelTimings).toContainEqual({
+      model: 'patients',
+      rows: 1,
+      durationMs: expect.any(Number),
+    });
+    expect(debugLog.info.modelTimings.map(({ model }) => model)).not.toContain('encounters');
+    expect(debugLog.info.selfHealDurationMs).toEqual(expect.any(Number));
+  });
+
   it('records error thrown when updating sync_lookup in debug log', async () => {
     const centralSyncManager = await initializeCentralSyncManager({
       sync: {

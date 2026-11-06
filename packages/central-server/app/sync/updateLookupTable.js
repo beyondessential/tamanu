@@ -15,6 +15,9 @@ export const isConcurrentHardDeleteConflict = error =>
     error.parent?.code === SERIALIZATION_FAILURE_SQLSTATE ||
     isConcurrentHardDeleteConflict(error.cause));
 
+// A rebuild runs every few seconds, so its debug log keeps only the models that did some work.
+const MIN_RECORDED_MODEL_DURATION_MS = 1000;
+
 const HARD_DELETE_DURING_BUILD_MESSAGE =
   'an underlying record was hard deleted during this build. This will self heal in the next build';
 
@@ -375,6 +378,7 @@ export const updateLookupTable = withConfig(
     const sessionConfig = {};
 
     let changesCount = 0;
+    const modelTimings = [];
 
     const maxFlaggedPatientsPerBuild = await new ReadSettings(models).get(
       'sync.maxFlaggedPatientsPerBuild',
@@ -387,6 +391,7 @@ export const updateLookupTable = withConfig(
         const shouldRebuildModel = await models.LocalSystemFact.isLookupRebuildingModel(
           model.tableName,
         );
+        const modelStartedAt = performance.now();
         const modelChangesCount = await updateLookupTableForModel(
           model,
           config,
@@ -395,6 +400,10 @@ export const updateLookupTable = withConfig(
           syncLookupTick,
           shouldRebuildModel,
         );
+        const durationMs = Math.round(performance.now() - modelStartedAt);
+        if (modelChangesCount || durationMs >= MIN_RECORDED_MODEL_DURATION_MS) {
+          modelTimings.push({ model: model.tableName, rows: modelChangesCount, durationMs });
+        }
 
         if (shouldRebuildModel) {
           await models.LocalSystemFact.markLookupModelRebuilt(model.tableName);
@@ -415,7 +424,9 @@ export const updateLookupTable = withConfig(
       }
     }
 
+    let flaggedPatientsDurationMs;
     if (patientIdsToRebuild.length) {
+      const flaggedStartedAt = performance.now();
       try {
         changesCount += await rebuildLookupRowsForFlaggedPatients(
           models,
@@ -437,6 +448,7 @@ export const updateLookupTable = withConfig(
           cause: e,
         });
       }
+      flaggedPatientsDurationMs = Math.round(performance.now() - flaggedStartedAt);
       if (patientIdsToRebuild.length < flaggedPatientIds.length) {
         log.info('updateLookupTable.deferredFlaggedPatients', {
           deferredCount: flaggedPatientIds.length - patientIdsToRebuild.length,
@@ -444,7 +456,7 @@ export const updateLookupTable = withConfig(
       }
     }
 
-    await debugObject.addInfo({ changesCount });
+    await debugObject.addInfo({ changesCount, modelTimings, flaggedPatientsDurationMs });
     log.info('updateLookupTable.countedAll', { count: changesCount, since });
 
     // cleared by the caller after commit: clearing here would write the fact row a concurrent
@@ -457,6 +469,7 @@ export const healFlaggedLookupRows = withConfig(
   async (outgoingModels, since, config, debugObject) => {
     let healedCount = 0;
     let deletedCount = 0;
+    const startedAt = performance.now();
 
     for (const model of Object.values(outgoingModels)) {
       try {
@@ -477,7 +490,11 @@ export const healFlaggedLookupRows = withConfig(
       }
     }
 
-    await debugObject?.addInfo({ healedCount, deletedCount });
+    await debugObject?.addInfo({
+      healedCount,
+      deletedCount,
+      selfHealDurationMs: Math.round(performance.now() - startedAt),
+    });
     log.info('updateLookupTable.selfHeal', { healedCount, deletedCount, since });
 
     return { healedCount, deletedCount };
