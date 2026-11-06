@@ -115,6 +115,15 @@ describe('waking central before a socket message', () => {
     expect(calls.log[1][1]).toBe(WS_EVENTS.PATIENT_CONTACT_INSERT);
   });
 
+  it('rejects a patient contact insert from a role that cannot write patients', async () => {
+    const app = await baseApp.asNewRole([['read', 'Patient']]);
+
+    const result = await app.post('/api/patient/reminderContact').send({});
+
+    expect(result).toBeForbidden();
+    expect(calls.log).toEqual([]);
+  });
+
   it('rejects an unauthenticated patient contact insert', async () => {
     const result = await baseApp.post('/api/patient/reminderContact').send({});
 
