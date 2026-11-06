@@ -99,7 +99,10 @@ function parseCircumstanceIds(circumstanceIds) {
   if (text.startsWith('[')) {
     try {
       const parsed = JSON.parse(text);
-      if (Array.isArray(parsed)) return parsed.map(id => String(id).trim()).filter(Boolean);
+      const isListOfIds =
+        Array.isArray(parsed) &&
+        parsed.every(id => typeof id === 'string' || typeof id === 'number');
+      if (isListOfIds) return parsed.map(id => String(id).trim()).filter(Boolean);
     } catch {
       // Fall through to throw an error below.
     }

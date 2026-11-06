@@ -73,10 +73,13 @@ describe('Administered vaccine circumstances', () => {
     expect(pushError).not.toHaveBeenCalled();
   });
 
-  it.each(['[not json', '[{"a":1}'])(
-    'rejects the row for an unreadable list %j',
-    async circumstanceIds => {
-      await expect(loadedVaccine({ circumstanceIds })).rejects.toThrow('circumstanceIds');
-    },
-  );
+  it.each([
+    '[not json',
+    '[{"a":1}',
+    '[{"a":1}]',
+    '["circumstance-a",null]',
+    '[["circumstance-a"]]',
+  ])('rejects the row for an unreadable list %j', async circumstanceIds => {
+    await expect(loadedVaccine({ circumstanceIds })).rejects.toThrow('circumstanceIds');
+  });
 });
