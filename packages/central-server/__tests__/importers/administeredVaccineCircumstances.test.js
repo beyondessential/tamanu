@@ -73,12 +73,10 @@ describe('Administered vaccine circumstances', () => {
     expect(pushError).not.toHaveBeenCalled();
   });
 
-  it.each(['[not json', '[{"a":1}'])('reports an unreadable list %j', async circumstanceIds => {
-    const pushError = vi.fn();
-    await loadedVaccine({ circumstanceIds }, pushError);
-    expect(pushError).toHaveBeenCalledWith(
-      expect.stringContaining('circumstanceIds'),
-      'AdministeredVaccine',
-    );
-  });
+  it.each(['[not json', '[{"a":1}'])(
+    'rejects the row for an unreadable list %j',
+    async circumstanceIds => {
+      await expect(loadedVaccine({ circumstanceIds })).rejects.toThrow('circumstanceIds');
+    },
+  );
 });

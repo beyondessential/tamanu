@@ -91,7 +91,8 @@ function parseConsent(consent, pushError) {
 
 // The export writes the array as JSON (`["a","b"]`); a hand-filled sheet is more likely to use a
 // comma-separated list. Either way the column needs an array, which the raw cell text is not.
-function parseCircumstanceIds(circumstanceIds, pushError) {
+// An unreadable list throws, which skips the row rather than clearing the record's circumstances.
+function parseCircumstanceIds(circumstanceIds) {
   if (Array.isArray(circumstanceIds)) return circumstanceIds;
   const text = String(circumstanceIds ?? '').trim();
   if (text === '') return [];
@@ -100,13 +101,11 @@ function parseCircumstanceIds(circumstanceIds, pushError) {
       const parsed = JSON.parse(text);
       if (Array.isArray(parsed)) return parsed.map(id => String(id).trim()).filter(Boolean);
     } catch {
-      // reported below
+      // Fall through to throw an error below.
     }
-    pushError(
+    throw new Error(
       `Unrecognised circumstanceIds value "${circumstanceIds}", expected a list of ids`,
-      'AdministeredVaccine',
     );
-    return [];
   }
   return text
     .split(',')
@@ -171,7 +170,7 @@ export async function administeredVaccineLoader(item, { models, pushError }) {
         // An absent column leaves the record's circumstances as they are.
         ...(circumstanceIds === undefined
           ? {}
-          : { circumstanceIds: parseCircumstanceIds(circumstanceIds, pushError) }),
+          : { circumstanceIds: parseCircumstanceIds(circumstanceIds) }),
         ...data,
 
         // relationships
