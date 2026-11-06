@@ -2,12 +2,21 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { Op } from 'sequelize';
 import { readFile, utils } from 'xlsx';
 
 import { writeExcelFile } from '../../app/utils/excelUtils';
 import { administeredVaccineLoader } from '../../app/admin/referenceDataImporter/loaders';
 
-const models = { Encounter: { count: async () => 1 } };
+const KNOWN_CIRCUMSTANCE_IDS = ['circumstance-a', 'circumstance-b'];
+
+const models = {
+  Encounter: { count: async () => 1 },
+  ReferenceData: {
+    findAll: async ({ where }) =>
+      where.id[Op.in].filter(id => KNOWN_CIRCUMSTANCE_IDS.includes(id)).map(id => ({ id })),
+  },
+};
 
 const loadedVaccine = async (item, pushError = vi.fn()) => {
   const rows = await administeredVaccineLoader(item, { models, pushError });
@@ -81,5 +90,14 @@ describe('Administered vaccine circumstances', () => {
     '[["circumstance-a"]]',
   ])('rejects the row for an unreadable list %j', async circumstanceIds => {
     await expect(loadedVaccine({ circumstanceIds })).rejects.toThrow('circumstanceIds');
+  });
+
+  it('reports circumstances that are not in the reference data', async () => {
+    const pushError = vi.fn();
+    await loadedVaccine({ circumstanceIds: 'circumstance-a, circumstance-typo' }, pushError);
+    expect(pushError).toHaveBeenCalledWith(
+      'Vaccine circumstances circumstance-typo not found',
+      'AdministeredVaccine',
+    );
   });
 });

@@ -116,6 +116,21 @@ function parseCircumstanceIds(circumstanceIds) {
     .filter(Boolean);
 }
 
+async function loadCircumstanceIds(circumstanceIds, { models, pushError }) {
+  const ids = parseCircumstanceIds(circumstanceIds);
+  if (ids.length === 0) return ids;
+
+  const existingIds = await models.ReferenceData.findAll({
+    attributes: ['id'],
+    where: { id: { [Op.in]: ids }, type: REFERENCE_TYPES.VACCINE_CIRCUMSTANCE },
+  }).then(circumstances => circumstances.map(({ id }) => id));
+  const unknownIds = ids.filter(id => !existingIds.includes(id));
+  if (unknownIds.length > 0) {
+    pushError(`Vaccine circumstances ${unknownIds.join(', ')} not found`, 'AdministeredVaccine');
+  }
+  return ids;
+}
+
 export async function administeredVaccineLoader(item, { models, pushError }) {
   const {
     encounterId,
@@ -173,7 +188,7 @@ export async function administeredVaccineLoader(item, { models, pushError }) {
         // An absent column leaves the record's circumstances as they are.
         ...(circumstanceIds === undefined
           ? {}
-          : { circumstanceIds: parseCircumstanceIds(circumstanceIds) }),
+          : { circumstanceIds: await loadCircumstanceIds(circumstanceIds, { models, pushError }) }),
         ...data,
 
         // relationships
