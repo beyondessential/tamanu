@@ -46,8 +46,8 @@ mockups, implementing UI, and auditing both.
 |---|---|---|
 | Wordmark · light | `assets/logo-tamanu-long-blue.svg` | White / light surfaces |
 | Wordmark · dark | `assets/logo-tamanu-long-white.svg` | Navy / dark surfaces |
-| Icon mark · light | `assets/logo-tamanu-icon-dark.png` | White / light surfaces |
-| Icon mark · dark | `assets/logo-tamanu-icon-light.png` | Navy / dark surfaces (collapsed sidebar, favicons) |
+| Icon mark · light | `assets/logo-tamanu-icon-dark.svg` | White / light surfaces |
+| Icon mark · dark | `assets/logo-tamanu-icon-light.svg` | Navy / dark surfaces (collapsed sidebar, favicons) |
 
 - **Wordmark** includes the "tamanu" text; used in the expanded sidebar header, login, and splash.
 - **Icon mark** is the pin + medical-cross symbol; used where horizontal space is constrained
@@ -341,6 +341,7 @@ colors_and_type.css          ← tokens + @font-face + typography primitives
 design-system.md             ← this document
 foundations/                 ← colour, type, spacing, elevation, icon, logo preview cards
 components/                   ← one HTML preview card per component
+assets/                      ← logo marks, brand section icons, chevron (SVG)
 designs/ · snapshots/        ← persisted mockups and captured screens
 ```
 

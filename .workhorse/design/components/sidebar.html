@@ -79,7 +79,7 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
 .side.collapsed .sec:hover::before{opacity:1}
 .sec:hover{background:rgba(255,255,255,.06)}
 .sec .ico{width:24px;height:24px;flex-shrink:0;display:block}
-.sec .ico img{width:100%;height:100%;display:block}
+.sec .ico img{width:100%;height:100%;display:block;filter:brightness(0) invert(1)}
 .sec .name{flex:1}
 .sec .caret{opacity:.85;transition:transform .15s}
 .sec.open .caret{transform:rotate(180deg)}
@@ -153,8 +153,8 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
 <body>
 <nav class="side" id="side">
   <div class="top">
-    <img class="wordmark" src="../assets/logo-tamanu-long-white.png" alt="tamanu">
-    <img class="iconmark" src="../assets/logo-tamanu-icon-light.png" alt="tamanu">
+    <img class="wordmark" src="../assets/logo-tamanu-long-white.svg" alt="tamanu">
+    <img class="iconmark" src="../assets/logo-tamanu-icon-light.svg" alt="tamanu">
   </div>
   <button class="collapse" aria-label="Collapse" id="collapseBtn">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -163,13 +163,13 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
   <div class="nav">
     <!-- Dashboard (no submenu) -->
     <div class="sec nocaret" data-label="Dashboard">
-      <span class="ico"><img src="../assets/icons/brand/dashboard.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/dashboard.svg" alt=""></span>
       <span class="name">Dashboard</span>
     </div>
 
     <!-- Patients (expanded) -->
     <div class="sec open" data-toggle="patients" data-label="Patients">
-      <span class="ico"><img src="../assets/icons/brand/patient.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/patient.svg" alt=""></span>
       <span class="name">Patients</span>
       <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -183,7 +183,7 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
     </div>
 
     <div class="sec" data-toggle="scheduling" data-label="Scheduling">
-      <span class="ico"><img src="../assets/icons/brand/scheduling.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/scheduling.svg" alt=""></span>
       <span class="name">Scheduling</span>
       <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -195,7 +195,7 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
     </div>
 
     <div class="sec" data-toggle="medication" data-label="Medication">
-      <span class="ico"><img src="../assets/icons/brand/medication.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/medication.svg" alt=""></span>
       <span class="name">Medication</span>
       <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -207,7 +207,7 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
     </div>
 
     <div class="sec" data-toggle="imaging" data-label="Imaging">
-      <span class="ico"><img src="../assets/icons/brand/imaging.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/imaging.svg" alt=""></span>
       <span class="name">Imaging</span>
       <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -219,7 +219,7 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
     </div>
 
     <div class="sec" data-toggle="labs" data-label="Labs">
-      <span class="ico"><img src="../assets/icons/brand/labs.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/labs.svg" alt=""></span>
       <span class="name">Labs</span>
       <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -231,7 +231,7 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
     </div>
 
     <div class="sec" data-toggle="immunisation" data-label="Immunisation">
-      <span class="ico"><img src="../assets/icons/brand/immunisation.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/immunisation.svg" alt=""></span>
       <span class="name">Immunisation</span>
       <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -242,7 +242,7 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
     </div>
 
     <div class="sec" data-toggle="programs" data-label="Program registry">
-      <span class="ico"><img src="../assets/icons/brand/programs.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/programs.svg" alt=""></span>
       <span class="name">Program registry</span>
       <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -260,7 +260,7 @@ body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
     <div class="sep"></div>
 
     <div class="sec" data-toggle="admin" data-label="Facility admin">
-      <span class="ico"><img src="../assets/icons/brand/admin.png" alt=""></span>
+      <span class="ico"><img src="../assets/icons/brand/admin.svg" alt=""></span>
       <span class="name">Facility admin</span>
       <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
