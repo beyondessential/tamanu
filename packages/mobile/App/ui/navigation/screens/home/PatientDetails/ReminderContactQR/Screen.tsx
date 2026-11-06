@@ -16,7 +16,7 @@ import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
-// Central may need to wake up and start before it can answer
+// Central may still be starting up when the request reaches it
 const BOT_INFO_TIMEOUT_MS = 30_000;
 
 interface IReminderContactQR extends BaseAppProps {
@@ -39,17 +39,20 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
 
   useEffect(() => {
     if (!socket) return;
+    let isCancelled = false;
+    let timeout: ReturnType<typeof setTimeout>;
     const handleBotInfo = botInfo => {
-      clearTimeout(timeout);
       if (botInfo?.username && contactId) {
+        clearTimeout(timeout);
         setEmbedUrl(`https://t.me/${botInfo.username}?start=${contactId}`);
       }
     };
-    let isCancelled = false;
-    const timeout = setTimeout(() => setHasTimedOut(true), BOT_INFO_TIMEOUT_MS);
     socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
     wakeCentral(centralServer).then(() => {
-      if (!isCancelled) socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
+      if (isCancelled) return;
+      socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
+      // The wait is for central's reply, so it starts once the request has gone out
+      timeout = setTimeout(() => setHasTimedOut(true), BOT_INFO_TIMEOUT_MS);
     });
     return () => {
       isCancelled = true;
