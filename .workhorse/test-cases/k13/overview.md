@@ -17,7 +17,7 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 - [x] A smaller bucket size applies from the next boundary; a larger one waits for its first boundary, with no gap (verifies spec: BTAG)
 - [x] The rollup rolls up with a new bucket size from its first boundary end to end (verifies spec: BTAG)
 - [ ] A bucket-size setting that does not divide a day is rejected in the settings editor (verifies spec: BTAG)
-- [ ] A settings change (e.g. thresholds) applies on the next run without restarting the server (verifies spec: BTAG)
+- [x] A settings change (e.g. thresholds) applies on the next run without restarting the server (verifies spec: BTAG)
 - [ ] The rollup still runs with telemetry collection switched off (verifies spec: BTAG)
 - [ ] Raw spans pruned before being rolled up are simply absent from the aggregates (verifies spec: BTAG)
 
@@ -44,11 +44,14 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 - [x] A request still in flight when its navigation is abandoned or capped is ended with it and records that outcome; a late settle is ignored (verifies spec: BTEL)
 - [x] A navigational request carries its navigation's route; a standalone request carries none (verifies spec: BTEL)
 - [x] The ingest stores the navigation route sent with a request (verifies spec: BTEL)
-- [ ] On a fresh deployment with the telemetry setting untouched, the web client and patient portal collect from the first load, including the login screen; switching the setting off stops them (verifies spec: BTEL)
+- [x] On a fresh deployment with the telemetry setting untouched, the web client collects from the first load, including the login screen (verifies spec: BTEL)
+- [ ] On a fresh deployment with the telemetry setting untouched, the patient portal collects from the first load (verifies spec: BTEL)
+- [ ] Switching the telemetry setting off stops the web client and patient portal collecting (verifies spec: BTEL)
 
 ## Storage and reporting
 
 - [x] Central accepts and stores trend rows, slow events and slow-event requests pushed from a facility (verifies spec: BTAG)
-- [ ] Aggregates created on a facility push to central on the next real sync, and are not pulled by other facilities or mobile (verifies spec: BTAG)
+- [x] Aggregates created on a facility push to central on the next real sync, and are not pulled by other facilities or mobile (verifies spec: BTAG)
 - [ ] Aggregates are untouched by the raw telemetry prune (verifies spec: BTAG)
-- [ ] Smoke: with telemetry enabled on a deployed facility, trend rows appear on central within a sync of a bucket closing
+- [x] Smoke: with telemetry enabled on a deployed facility, trend rows appear on central within a sync of a bucket closing
+- [ ] The rollup finishes a busy facility's hourly bucket (hundreds of thousands of raw spans) in reasonable time
