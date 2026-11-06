@@ -4,14 +4,14 @@ id: INVGRP
 
 # Invoice encounter type groups
 
-An encounter can move between encounter categories part way through, for example a patient who arrives through triage and is then admitted to hospital. With invoice splitting turned on, the encounter's invoice groups its items by the category the patient was in, so staff and patients can see which part of the stay each charge belongs to. Each group also carries its own insurance plans.
+An encounter can move between encounter categories part way through, for example a patient who arrives through triage and is then admitted to hospital. With invoice splitting turned on, the encounter's invoice groups its items by the category the patient was in, so staff and patients can see which part of the stay each charge belongs to.
 
 ## Setting
 
 Grouping is a display rule read from the setting as it currently stands, and a facility sets it once when the deployment is configured.
 
 - [ ] Grouping is controlled by the global Split invoice by encounter type setting, in the Invoice category, which is off by default.
-- [ ] With the setting off, every invoice shows its items without group headers and its insurance plans apply to the whole invoice.
+- [ ] With the setting off, every invoice shows its items without group headers.
 - [ ] Every invoice follows the setting as it currently stands, finalised invoices included.
 
 ## Groups
@@ -33,11 +33,10 @@ Grouping is a display rule read from the setting as it currently stands, and a f
 - [ ] Each group opens with a header row showing the category name and the period's date range.
 - [ ] The date range of a period that is still running reads as its start date followed by "Current".
 - [ ] Each group header is marked with the colour its category's encounter types carry in the encounter view, Outpatient carrying the clinic colour.
-- [ ] Invoice-wide actions sit in a single overflow menu for the invoice. Each group header carries only its own Insurance plan action.
+- [ ] Invoice-wide actions sit in a single overflow menu for the invoice; a group header carries no actions of its own.
 - [ ] Each group ends with its own Add item action. A group whose period holds no items shows its header and that action alone.
 - [ ] Invoice totals cover every group.
-- [ ] The invoice summary on a grouped invoice shows one insurance coverage line per group, each reading "Insurance coverage" followed by the category name in brackets, for example "Insurance coverage (Emergency)".
-- [ ] The rest of the invoice summary — item adjustments, the sliding fee scale adjustment, patient payments and the patient total due — covers the whole invoice.
+- [ ] The invoice summary covers the whole invoice, groups included.
 
 ## Adding and editing items
 
@@ -48,11 +47,4 @@ Grouping is a display rule read from the setting as it currently stands, and a f
 - [ ] In the group for the current period, a new item's date starts at today and can be backdated as far as the group's start, which on an encounter that has never moved is the encounter's start.
 - [ ] Editing an item's date in the Edit invoice window follows the same limits as the group it belongs to, so an item dated outside its group's period is brought back inside the period when it is saved.
 - [ ] A date typed outside the allowed range shows an inline error giving the first and last allowed dates, and the items cannot be saved until it is corrected.
-
-## Insurance plans by period
-
-- [ ] The insurance plans window opened from a group names that group's category and shows the plans already set on it.
-- [ ] An item's insurance coverage comes from the plans set on its group.
-- [ ] When an encounter first moves to another category, the plans already set on the invoice stay with the first group.
-- [ ] A group for a new period starts with no insurance plans.
 
