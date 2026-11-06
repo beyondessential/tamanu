@@ -109,6 +109,12 @@
       "tokenExpiry": 20
     }
   },
+  "supervisor": {
+    // bearer token central's own supervisor presents to the /api/supervisor routes (on-demand
+    // sync lookup refresh, busy check). Unset or empty rejects every request to those routes.
+    // Prefer the SUPERVISOR_TOKEN environment variable
+    "token": null
+  },
   "export": {
     "maxFileSizeInMB": 50
   },

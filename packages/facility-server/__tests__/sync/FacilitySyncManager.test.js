@@ -6,8 +6,10 @@ import {
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
   FACT_SETTINGS_PSK,
+  FACT_SYNC_EMAIL,
 } from '@tamanu/constants/facts';
-import { SYNC_FACILITY_RUN_STATUSES, USER_KINDS } from '@tamanu/constants';
+import { SYNC_FACILITY_RUN_STATUSES, SYNC_TRIGGER_TYPES, USER_KINDS } from '@tamanu/constants';
+import { fakeReferenceData } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
@@ -380,6 +382,217 @@ describe('FacilitySyncManager', () => {
       await Promise.all([first, second, third]);
 
       expect(await models.SyncFacilityRun.count()).toBe(2);
+    });
+  });
+
+  // spec: SYNCHK#facility-servers
+  describe('changes-pending check', () => {
+    const SYNC_EMAIL = 'sync.abc@sync.tamanu';
+    const PULL_CURSOR = '50';
+    const scheduled = { type: SYNC_TRIGGER_TYPES.SCHEDULED, urgent: false };
+
+    let originalPullCursor;
+    let originalPushCursor;
+    let originalSyncTick;
+    let pskSpy;
+
+    const makeSyncManager = centralServerOverrides => {
+      const syncManager = new FacilitySyncManager({
+        models,
+        sequelize: {
+          getQueryInterface: () => ({ dropSchema: vi.fn(), createSchema: vi.fn() }),
+          query: () => true,
+        },
+        centralServer: {
+          streaming: () => false,
+          user: { kind: USER_KINDS.SYNC, email: SYNC_EMAIL },
+          loginData: vi.fn(async () => ({})),
+          checkChangesPending: vi.fn(async () => false),
+          startSyncSession: vi.fn(async () => ({ sessionId: TEST_SESSION_ID, startedAtTick: 1 })),
+          endSyncSession: vi.fn(),
+          markSessionErrored: vi.fn(),
+          fetch: vi.fn(async () => ({})),
+          ...centralServerOverrides,
+        },
+      });
+      vi.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
+      vi.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
+      syncManager.hasBootstrapped = true;
+      return syncManager;
+    };
+
+    const latestSyncRun = () => models.SyncFacilityRun.findOne({ order: [['startTime', 'DESC']] });
+
+    // Moves the local clock on and marks everything so far as pushed, so there is nothing to push
+    const markEverythingPushed = async () => {
+      const tick = await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, String(tick));
+    };
+
+    beforeEach(async () => {
+      originalPullCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL);
+      originalPushCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH);
+      originalSyncTick = await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, PULL_CURSOR);
+      await markEverythingPushed();
+      pskSpy = vi.spyOn(models.LocalSystemSecret, 'get').mockResolvedValue('ab'.repeat(32));
+      await models.SyncFacilityRun.destroy({ where: {}, force: true });
+    });
+
+    afterEach(async () => {
+      pskSpy.mockRestore();
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, originalPullCursor);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, originalPushCursor);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, originalSyncTick);
+    });
+
+    describe('when central answers there is nothing to pull', () => {
+      it('records the run as up to date, with no session', async () => {
+        const syncManager = makeSyncManager();
+
+        const result = await syncManager.triggerSync(scheduled);
+
+        expect(result).toMatchObject({ enabled: true, ran: true, upToDate: true });
+        expect(syncManager.centralServer.startSyncSession).not.toHaveBeenCalled();
+        const syncRun = await latestSyncRun();
+        expect(syncRun).toMatchObject({
+          status: SYNC_FACILITY_RUN_STATUSES.UP_TO_DATE,
+          sessionId: null,
+          triggerType: SYNC_TRIGGER_TYPES.SCHEDULED,
+          error: null,
+        });
+        expect(syncRun.completedAt).toBeInstanceOf(Date);
+      });
+
+      it('moves the last successful sync time but not the pull cursor', async () => {
+        const syncManager = makeSyncManager();
+        expect(syncManager.lastCompletedAt).toBe(0);
+
+        await syncManager.triggerSync(scheduled);
+
+        expect(syncManager.lastCompletedAt).toBeInstanceOf(Date);
+        expect(await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)).toBe(PULL_CURSOR);
+        expect(syncManager.pullChanges).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when central answers there are changes to pull', () => {
+      it('sends the pull cursor with the check, and opens a session', async () => {
+        const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => true) });
+
+        await syncManager.triggerSync(scheduled);
+
+        expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledWith(Number(PULL_CURSOR));
+        expect(syncManager.centralServer.startSyncSession).toHaveBeenCalledTimes(1);
+        expect(syncManager.pullChanges).toHaveBeenCalledTimes(1);
+        expect(await latestSyncRun()).toMatchObject({
+          status: SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
+          sessionId: TEST_SESSION_ID,
+        });
+      });
+
+      it.each([
+        ['has never pulled', null],
+        ['has a pull cursor of -1', '-1'],
+      ])('leaves the cursor out of the check when the facility %s', async (_, cursor) => {
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, cursor);
+        const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => true) });
+
+        await syncManager.triggerSync(scheduled);
+
+        expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledWith(undefined);
+        expect(syncManager.centralServer.startSyncSession).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('when the check cannot be answered', () => {
+      it('is a failed sync, with no session opened', async () => {
+        const syncManager = makeSyncManager({
+          checkChangesPending: vi.fn(async () => {
+            throw new Error('central unreachable');
+          }),
+        });
+
+        await expect(syncManager.triggerSync(scheduled)).rejects.toThrow('central unreachable');
+
+        expect(syncManager.centralServer.startSyncSession).not.toHaveBeenCalled();
+        const syncRun = await latestSyncRun();
+        expect(syncRun).toMatchObject({
+          status: SYNC_FACILITY_RUN_STATUSES.FAILED,
+          error: 'central unreachable',
+        });
+        expect(syncRun.completedAt).toBeInstanceOf(Date);
+        expect(syncManager.lastCompletedAt).toBe(0);
+      });
+    });
+
+    describe('opens a session without checking', () => {
+      const expectSessionWithoutCheck = async (syncManager, reason) => {
+        await syncManager.triggerSync(reason);
+
+        expect(syncManager.centralServer.checkChangesPending).not.toHaveBeenCalled();
+        expect(syncManager.centralServer.startSyncSession).toHaveBeenCalledTimes(1);
+        expect(await latestSyncRun()).toMatchObject({
+          status: SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
+          sessionId: TEST_SESSION_ID,
+        });
+      };
+
+      it('when the facility has local changes to push', async () => {
+        const tick = await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, String(tick - 1));
+        const row = await models.ReferenceData.create(fakeReferenceData());
+
+        try {
+          await expectSessionWithoutCheck(makeSyncManager(), scheduled);
+        } finally {
+          // the local clock is reset after each test, which must not leave a row ahead of it
+          await row.destroy({ force: true });
+        }
+      });
+
+      it('when the facility has not yet obtained the settings PSK', async () => {
+        pskSpy.mockResolvedValue(null);
+
+        await expectSessionWithoutCheck(makeSyncManager(), scheduled);
+      });
+
+      it('when the facility still syncs as a user other than its sync user', async () => {
+        const syncManager = makeSyncManager({
+          user: { kind: USER_KINDS.USER, email: 'someone@example.com' },
+        });
+
+        await expectSessionWithoutCheck(syncManager, scheduled);
+      });
+
+      it.each([
+        ['a user asks for the sync', { type: SYNC_TRIGGER_TYPES.USER_REQUESTED, urgent: true }],
+        [
+          'a patient is marked for sync',
+          { type: SYNC_TRIGGER_TYPES.PATIENT_MARKED_FOR_SYNC, urgent: true },
+        ],
+        ['the sync subcommand runs', { type: SYNC_TRIGGER_TYPES.SUBCOMMAND, urgent: true }],
+        ['a follow-up sync runs for callers that arrived mid-sync', null],
+      ])('when %s', async (_, reason) => {
+        await expectSessionWithoutCheck(makeSyncManager(), reason);
+      });
+    });
+
+    it('checks when the sync user has already been swapped for the dedicated one', async () => {
+      // central reports the legacy account, but the facts already record a different one: the
+      // swap happened and this process is only behind, so there is nothing left to converge
+      await models.LocalSystemFact.set(FACT_SYNC_EMAIL, SYNC_EMAIL);
+      const syncManager = makeSyncManager({
+        user: { kind: USER_KINDS.USER, email: 'legacy@example.com' },
+      });
+
+      try {
+        await syncManager.triggerSync(scheduled);
+      } finally {
+        await models.LocalSystemFact.set(FACT_SYNC_EMAIL, null);
+      }
+
+      expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledTimes(1);
     });
   });
 

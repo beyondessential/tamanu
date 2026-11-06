@@ -201,8 +201,9 @@ export class FacilitySyncManager {
 
     if (await this.shouldCheckChangesPending(reason)) {
       // spec: SYNCHK#the-check
+      const pullCursor = Number(pullSince);
       const changesToPull = await this.centralServer.checkChangesPending(
-        pullSince === -1 ? undefined : pullSince,
+        pullCursor === -1 ? undefined : pullCursor,
       );
       if (!changesToPull) {
         log.info('FacilitySyncManager.upToDate', { pullSince });

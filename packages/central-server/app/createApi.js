@@ -15,6 +15,7 @@ import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
 import { patientPortalApi } from './patientPortalApi';
+import { supervisorRoutes } from './supervisor';
 
 import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
@@ -50,6 +51,9 @@ function api(ctx, limiters) {
       }
     }),
   );
+  // authenticated by the supervisor credential rather than a user, so before the user auth.
+  // Failures count against the auth limiter, as other credential checks do.
+  apiRoutes.use('/supervisor', limiters.authLimiter, supervisorRoutes(ctx));
   apiRoutes.use(authModule(limiters));
   apiRoutes.use(attachAuditUserToDbSession);
   apiRoutes.use('/translation', translationRoutes);

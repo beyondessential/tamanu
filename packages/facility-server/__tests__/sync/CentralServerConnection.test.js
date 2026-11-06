@@ -16,6 +16,7 @@ import {
   ValidationError,
 } from '@tamanu/errors';
 import * as jose from 'jose';
+import config from 'config';
 
 const { CentralServerConnection } = (await vi.importActual('../../app/sync/CentralServerConnection'));
 
@@ -262,6 +263,147 @@ describe('CentralServerConnection', () => {
       const connectPromise = centralServer.connect();
       vi.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');
+    });
+  });
+  // spec: SYNCHK#while-central-wakes
+  describe('changes-pending check and waking central', () => {
+    const { defaultRetryAfterSeconds, maxRetryAfterSeconds, maxTotalWaitSeconds } =
+      config.sync.centralWake;
+    const waking = retryAfter =>
+      fakeFailure(503, {}, retryAfter === undefined ? {} : { 'retry-after': retryAfter });
+
+    let fetch;
+    let centralServer;
+
+    // Calls made after the login and the user lookup that precede the first request
+    const requestCalls = () => fetch.mock.calls.slice(2);
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      fetch = vi.spyOn(global, 'fetch');
+      centralServer = new CentralServerConnection({ deviceId: 'test' });
+      centralServer.fetchImplementation = fetch;
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      fetch.mockReset();
+      fetch.mockRestore();
+    });
+
+    it('asks central for changes since the pull cursor', async () => {
+      fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: true }));
+
+      expect(await centralServer.checkChangesPending(42)).toBe(true);
+
+      const [[url]] = requestCalls();
+      expect(new URL(url).pathname).toMatch(/\/sync\/pending$/);
+      expect(new URL(url).searchParams.get('since')).toBe('42');
+    });
+
+    it('leaves the cursor out when the device has never pulled', async () => {
+      fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: false }));
+
+      expect(await centralServer.checkChangesPending(undefined)).toBe(false);
+
+      expect(new URL(requestCalls()[0][0]).searchParams.has('since')).toBe(false);
+    });
+
+    it('rejects an answer without the changesToPull flag', async () => {
+      fetch.mockReturnValueOnce(fakeSuccess({}));
+
+      await expect(centralServer.checkChangesPending(1)).rejects.toThrow(/changesToPull/);
+    });
+
+    it('does not retry other failures', async () => {
+      fetch.mockReturnValueOnce(fakeFailure(500));
+
+      await expect(centralServer.checkChangesPending(1)).rejects.toBeProblemOfType(
+        ERROR_TYPE.REMOTE,
+      );
+      expect(requestCalls()).toHaveLength(1);
+    });
+
+    it('waits for as long as Retry-After says, then asks again, for the check', async () => {
+      fetch.mockReturnValueOnce(waking('7')).mockReturnValueOnce(waking('7'));
+      fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: false }));
+
+      const answer = centralServer.checkChangesPending(1);
+      await vi.advanceTimersByTimeAsync(6999);
+      expect(requestCalls()).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(requestCalls()).toHaveLength(2);
+      await vi.advanceTimersByTimeAsync(7000);
+
+      expect(await answer).toBe(false);
+      expect(requestCalls()).toHaveLength(3);
+      // the retry still carries the cursor
+      expect(new URL(requestCalls()[2][0]).searchParams.get('since')).toBe('1');
+    });
+
+    it('waits for as long as Retry-After says, then asks again, for session start', async () => {
+      fetch.mockReturnValueOnce(waking('3'));
+      fetch.mockReturnValueOnce(fakeSuccess({ status: 'waitingInQueue' }));
+
+      const started = centralServer.startSyncSession({ urgent: false, lastSyncedTick: 5 });
+      await vi.advanceTimersByTimeAsync(2999);
+      expect(requestCalls()).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(await started).toEqual({ status: 'waitingInQueue' });
+      expect(requestCalls()).toHaveLength(2);
+      expect(JSON.parse(requestCalls()[1][1].body)).toMatchObject({ lastSyncedTick: 5 });
+    });
+
+    it.each([
+      ['has no Retry-After', undefined],
+      ['has a Retry-After that is not a number of seconds', 'soon'],
+    ])('waits the default when a 503 %s', async (_, retryAfter) => {
+      fetch.mockReturnValueOnce(waking(retryAfter));
+      fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: true }));
+
+      const answer = centralServer.checkChangesPending(1);
+      await vi.advanceTimersByTimeAsync(defaultRetryAfterSeconds * 1000 - 1);
+      expect(requestCalls()).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(await answer).toBe(true);
+    });
+
+    it('caps a long Retry-After', async () => {
+      fetch.mockReturnValueOnce(waking('100000'));
+      fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: true }));
+
+      const answer = centralServer.checkChangesPending(1);
+      await vi.advanceTimersByTimeAsync(maxRetryAfterSeconds * 1000);
+
+      expect(await answer).toBe(true);
+    });
+
+    it('does not spin on a Retry-After of zero', async () => {
+      fetch.mockReturnValueOnce(waking('0'));
+      fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: true }));
+
+      const answer = centralServer.checkChangesPending(1);
+      await vi.advanceTimersByTimeAsync(999);
+      expect(requestCalls()).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(await answer).toBe(true);
+    });
+
+    it('gives up with the last 503 once central has been waking for too long', async () => {
+      fetch.mockReturnValue(waking('100000'));
+
+      const outcome = expect(centralServer.checkChangesPending(1)).rejects.toMatchObject({
+        status: 503,
+      });
+      await vi.advanceTimersByTimeAsync(maxTotalWaitSeconds * 1000 * 2);
+      await outcome;
+
+      // one request per wait that fitted within the bound, and the one that found no more fits
+      expect(requestCalls()).toHaveLength(Math.floor(maxTotalWaitSeconds / maxRetryAfterSeconds) + 1);
     });
   });
 });
