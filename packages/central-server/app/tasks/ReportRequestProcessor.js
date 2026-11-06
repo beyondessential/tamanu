@@ -9,6 +9,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { ReportRunner } from '../report/ReportRunner';
 import { getLocalisation } from '../localisation';
 import { getDefaultFromAddress } from '../services/mailConfig';
+import { countReceivedReportRequests } from './pendingWork';
 
 export class ReportRequestProcessor extends ScheduledTask {
   getName() {
@@ -182,11 +183,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   };
 
   async countQueue() {
-    return this.context.store.models.ReportRequest.count({
-      where: {
-        status: REPORT_REQUEST_STATUSES.RECEIVED,
-      },
-    });
+    return countReceivedReportRequests(this.context);
   }
 
   async runReports() {
