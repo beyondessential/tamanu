@@ -21,6 +21,7 @@ The patient listing is where facility staff find a patient record from across al
 - [ ] "Include deceased patients" widens a search to include deceased patients but does not count as search criteria on its own
 - [ ] A field containing only spaces counts as blank
 - [ ] Search and Clear are disabled until at least one search field has a value. Ticking "Include deceased patients" on its own leaves them disabled
+- [ ] Once a search has run, Search and Clear stay enabled even if the fields are emptied. Searching with the fields empty does the same as Clear, and both are disabled again afterwards
 - [ ] A search that matches no patients shows "No patients found"
 - [ ] Clear empties the search fields and returns the listing to the empty state
 

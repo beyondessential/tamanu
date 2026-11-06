@@ -40,7 +40,7 @@ describe('CustomisableSearchBar', () => {
       expect(clearButton()).toHaveProperty('disabled', false);
     });
 
-    it('keeps Clear available after a search, even once the fields are emptied', async () => {
+    it('keeps Search and Clear available after a search, even once the fields are emptied', async () => {
       renderSearchBar({ canSearch: hasSearchCriteria });
       const firstName = screen.getByRole('textbox', { name: 'First name' });
       await userEvent.type(firstName, 'Ana');
@@ -48,8 +48,23 @@ describe('CustomisableSearchBar', () => {
 
       await userEvent.clear(firstName);
 
-      expect(searchButton()).toHaveProperty('disabled', true);
+      expect(searchButton()).toHaveProperty('disabled', false);
       expect(clearButton()).toHaveProperty('disabled', false);
+    });
+
+    it('clears when searching with the fields emptied', async () => {
+      const onSearch = vi.fn();
+      renderSearchBar({ canSearch: hasSearchCriteria, onSearch });
+      const firstName = screen.getByRole('textbox', { name: 'First name' });
+      await userEvent.type(firstName, 'Ana');
+      await userEvent.click(searchButton());
+      await userEvent.clear(firstName);
+
+      await userEvent.click(searchButton());
+
+      expect(onSearch).toHaveBeenLastCalledWith({});
+      expect(searchButton()).toHaveProperty('disabled', true);
+      expect(clearButton()).toHaveProperty('disabled', true);
     });
   });
 });

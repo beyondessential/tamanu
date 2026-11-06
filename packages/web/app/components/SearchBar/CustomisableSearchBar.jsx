@@ -93,10 +93,17 @@ export const CustomisableSearchBar = ({
     setIsExpanded(previous => !previous);
   }, [setIsExpanded]);
 
-  // Clear stays available once a search has run, so emptying the fields can't strand its results.
+  // Search and Clear stay available once a search has run, so emptying the fields can't strand its
+  // results. Searching with nothing filled in then clears.
   const [hasSearched, setHasSearched] = useState(false);
+  const isBlank = values => Boolean(canSearch) && !canSearch(values);
 
   const handleSubmit = values => {
+    if (isBlank(values)) {
+      setHasSearched(false);
+      onSearch({});
+      return;
+    }
     setHasSearched(true);
     onSearch({ ...values });
   };
@@ -134,7 +141,7 @@ export const CustomisableSearchBar = ({
               <SearchButton
                 type="submit"
                 hasPermission={hasPermission}
-                disabled={canSearch && !canSearch(values)}
+                disabled={isBlank(values) && !hasSearched}
                 data-testid="searchbutton-nt24"
               >
                 <TranslatedText
@@ -144,7 +151,7 @@ export const CustomisableSearchBar = ({
                 />
               </SearchButton>
               <ClearButton
-                disabled={canSearch && !canSearch(values) && !hasSearched}
+                disabled={isBlank(values) && !hasSearched}
                 onClick={() => {
                   // Cant check for dirty as form is reinitialized with persisted values
                   if (Object.keys(values).length === 0) return;
