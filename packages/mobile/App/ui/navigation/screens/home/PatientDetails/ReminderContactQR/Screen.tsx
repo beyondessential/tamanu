@@ -9,7 +9,9 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
+import { useBackend } from '~/ui/hooks';
 import { useSocket } from '~/ui/hooks/useSocket';
+import { wakeCentral } from '~/ui/helpers/wakeCentral';
 import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
@@ -26,6 +28,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   const { getTranslation } = useTranslation();
   const [embedUrl, setEmbedUrl] = useState('');
   const { socket } = useSocket();
+  const { centralServer } = useBackend();
   const contactId = route.params.contactId;
 
   const patientName = joinNames(selectedPatient);
@@ -37,10 +40,16 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
         setEmbedUrl(`https://t.me/${botInfo.username}?start=${contactId}`);
       }
     };
-    socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
+    let isCancelled = false;
     socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
-    return () => void socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
-  }, [contactId, socket]);
+    wakeCentral(centralServer).then(() => {
+      if (!isCancelled) socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
+    });
+    return () => {
+      isCancelled = true;
+      socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
+    };
+  }, [contactId, socket, centralServer]);
 
   const onNavigateBack = () => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);

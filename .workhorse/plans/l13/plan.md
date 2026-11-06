@@ -63,11 +63,11 @@ The work lands as three pull requests: phase 1, phase 2, then phases 3 to 9.
 No changes under sync code-owned paths: the call sites use the existing `whoami()` and `fetch` on each `CentralServerConnection`.
 
 
-- [ ] Remove `SendStatusToMetaServer`: `packages/shared/src/tasks/SendStatusToMetaServer.js`, its export in `packages/shared/src/tasks/index.js`, its registration in `packages/central-server/app/tasks/index.js` and `packages/facility-server/app/tasks/index.js`, the `sendStatusToMetaServer` schedule and `FACT_META_SERVER_ID` if nothing else uses them, and its tests. Keep `metaServer.updateUrls` (used by `versionCompatibility`)
-- [ ] Facility `packages/facility-server/app/routes/apiv1/patient/patientContact.js`: make an HTTP request to central (the existing `CentralServerConnection.whoami()`) before emitting `PATIENT_CONTACT_INSERT`
-- [ ] Facility `packages/facility-server/app/routes/apiv1/telegram/telegramRoutes.js`: same before `TELEGRAM_GET_BOT_INFO`, and time out the wait for the bot info reply with an error
-- [ ] Mobile `App/ui/contexts/ReminderContactContext.tsx` and `App/ui/navigation/screens/home/PatientDetails/ReminderContactQR/Screen.tsx`: same before each emit, through the existing `CentralServerConnection.fetch`
-- [ ] Tests for the facility routes: the HTTP request precedes the emit; the bot info route errors on timeout
+- [x] Remove `SendStatusToMetaServer`: `packages/shared/src/tasks/SendStatusToMetaServer.js`, its export in `packages/shared/src/tasks/index.js`, its registration in `packages/central-server/app/tasks/index.js` and `packages/facility-server/app/tasks/index.js`, the `sendStatusToMetaServer` schedule, and its tests. `FACT_META_SERVER_ID` stays: it is in `SERVER_IDENTITY_FACTS`, which `forget_server_identity()` clears, and changing that list needs a migration. `metaServer.hosts`, `serverId` and `timeoutMs` stay, since the upgrade step reads the hosts. Keep `metaServer.updateUrls` (used by `versionCompatibility`)
+- [x] Facility `packages/facility-server/app/routes/apiv1/patient/patientContact.js`: make an HTTP request to central (`wakeCentral`, in `app/utils`, over the existing `CentralServerConnection.whoami()`; a failure is logged and the emit goes ahead, since socket.io buffers it) before emitting `PATIENT_CONTACT_INSERT`, without holding up the response
+- [x] Facility `packages/facility-server/app/routes/apiv1/telegram/telegramRoutes.js`: same before `TELEGRAM_GET_BOT_INFO`, and time out the wait for the bot info reply with an error
+- [x] Mobile `App/ui/contexts/ReminderContactContext.tsx` and `App/ui/navigation/screens/home/PatientDetails/ReminderContactQR/Screen.tsx`: same before each emit, through the existing `CentralServerConnection.fetch`
+- [x] Tests for the facility routes: the HTTP request precedes the emit; the bot info route errors on timeout
 
 ### 2. Changes-pending check (SYNCHK, LOOKUP, SYNRUN) (PR 2, then pause)
 
