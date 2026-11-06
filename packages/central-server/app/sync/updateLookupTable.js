@@ -391,7 +391,7 @@ export const updateLookupTable = withConfig(
         const shouldRebuildModel = await models.LocalSystemFact.isLookupRebuildingModel(
           model.tableName,
         );
-        const modelStartedAt = Date.now();
+        const modelStartedAt = performance.now();
         const modelChangesCount = await updateLookupTableForModel(
           model,
           config,
@@ -400,7 +400,7 @@ export const updateLookupTable = withConfig(
           syncLookupTick,
           shouldRebuildModel,
         );
-        const durationMs = Date.now() - modelStartedAt;
+        const durationMs = Math.round(performance.now() - modelStartedAt);
         if (modelChangesCount || durationMs >= MIN_RECORDED_MODEL_DURATION_MS) {
           modelTimings.push({ model: model.tableName, rows: modelChangesCount, durationMs });
         }
@@ -426,7 +426,7 @@ export const updateLookupTable = withConfig(
 
     let flaggedPatientsDurationMs;
     if (patientIdsToRebuild.length) {
-      const flaggedStartedAt = Date.now();
+      const flaggedStartedAt = performance.now();
       try {
         changesCount += await rebuildLookupRowsForFlaggedPatients(
           models,
@@ -448,7 +448,7 @@ export const updateLookupTable = withConfig(
           cause: e,
         });
       }
-      flaggedPatientsDurationMs = Date.now() - flaggedStartedAt;
+      flaggedPatientsDurationMs = Math.round(performance.now() - flaggedStartedAt);
       if (patientIdsToRebuild.length < flaggedPatientIds.length) {
         log.info('updateLookupTable.deferredFlaggedPatients', {
           deferredCount: flaggedPatientIds.length - patientIdsToRebuild.length,
@@ -469,7 +469,7 @@ export const healFlaggedLookupRows = withConfig(
   async (outgoingModels, since, config, debugObject) => {
     let healedCount = 0;
     let deletedCount = 0;
-    const startedAt = Date.now();
+    const startedAt = performance.now();
 
     for (const model of Object.values(outgoingModels)) {
       try {
@@ -493,7 +493,7 @@ export const healFlaggedLookupRows = withConfig(
     await debugObject?.addInfo({
       healedCount,
       deletedCount,
-      selfHealDurationMs: Date.now() - startedAt,
+      selfHealDurationMs: Math.round(performance.now() - startedAt),
     });
     log.info('updateLookupTable.selfHeal', { healedCount, deletedCount, since });
 
