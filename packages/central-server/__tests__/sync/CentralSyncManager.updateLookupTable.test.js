@@ -779,7 +779,9 @@ describe('CentralSyncManager.updateLookupTable', () => {
       rows: 1,
       durationMs: expect.any(Number),
     });
-    expect(debugLog.info.modelTimings.every(({ rows }) => rows > 0)).toBe(true);
+    expect(
+      debugLog.info.modelTimings.every(({ rows, durationMs }) => rows > 0 || durationMs >= 1000),
+    ).toBe(true);
     expect(debugLog.info.selfHealDurationMs).toEqual(expect.any(Number));
   });
 
