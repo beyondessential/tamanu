@@ -15,6 +15,7 @@ import { tmpdir } from '@tamanu/shared/utils';
 
 import { getRandomBase64String } from '../../auth/utils';
 import { generateIPSBundle } from '@tamanu/shared/routes/fhir/patientSummary/bundleGenerator';
+import { countQueuedIpsRequests } from '../pendingWork';
 import { QRCodeToFileAsync } from './helpers';
 
 // SHL flag reference: https://docs.smarthealthit.org/smart-health-links/spec/#construct-a-shlink-payload
@@ -35,11 +36,7 @@ export class IPSRequestProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    return this.context.store.models.IPSRequest.count({
-      where: {
-        status: IPS_REQUEST_STATUSES.QUEUED,
-      },
-    });
+    return countQueuedIpsRequests(this.context);
   }
 
   async run() {
