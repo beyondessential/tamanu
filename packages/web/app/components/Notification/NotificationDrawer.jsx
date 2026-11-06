@@ -206,17 +206,19 @@ const Card = ({ notification }) => {
     if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
       await dispatch(reloadImagingRequest(metadata.id));
     }
-    await loadEncounter(encounterId);
-
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+      // Not awaited: the encounter view shows a loading indicator until this resolves
+      loadEncounter(encounterId);
       navigate(
         `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,
       );
     } else if (type === NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED) {
+      loadEncounter(encounterId);
       navigate(
         `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openNotDispensedId=${pharmacyOrderPrescriptionId}`,
       );
     } else {
+      await loadEncounter(encounterId);
       navigate(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
     }
   };
