@@ -53,19 +53,100 @@ Infra's side (actuator, pod, sleep state on the Argo Application) is infra card 
 
 ## Order of work
 
-- [ ] Remove `SendStatusToMetaServer` (central and facility) and its config and settings
+Phases 1 and 2 are independent Tamanu changes that are useful on their own and can land first. The supervisor (phases 3 onwards) builds on them.
 
-- [ ] Changes-pending check on central, with last-seen recording, and the facility and mobile clients using it; the up-to-date run outcome
-- [ ] On-demand lookup refresh endpoint returning the highest real-change tick
-- [ ] Socket call sites: HTTP request to central before `patient-contact:insert` and `telegram:get-bot-info`; timeout on the facility's bot info route
-- [ ] Supervisor skeleton: config, embedded Caddy, routing, Tamanu's server block, status endpoints, no actuator (routing only)
-- [ ] Actuator contract OpenAPI file, and a fake actuator for tests
-- [ ] Activity tracking from Caddy's log, idle timer, sleep and wake sequences
-- [ ] Supervisor Postgres, schema artefact in CI, copy, login and refresh from the copy, changes-pending check from the copy
-- [ ] Hand-back, checksums, restart recovery
-- [ ] Rollouts: hand-back by common columns, database-clear status
-- [ ] Facility partial wakes
-- [ ] Scheduled tasks: classification, timed wakes, catch-up
-- [ ] Login test suite against the allowlist copy in CI
-- [ ] Supervisor container image bundling Caddy and Postgres
+### 1. Clean-up and socket call sites
+
+- [ ] Remove `SendStatusToMetaServer`: `packages/shared/src/tasks/SendStatusToMetaServer.js`, its export in `packages/shared/src/tasks/index.js`, its registration in `packages/central-server/app/tasks/index.js` and `packages/facility-server/app/tasks/index.js`, the `sendStatusToMetaServer` schedule and `FACT_META_SERVER_ID` if nothing else uses them, and its tests. Keep `metaServer.updateUrls` (used by `versionCompatibility`)
+- [ ] Facility `packages/facility-server/app/routes/apiv1/patient/patientContact.js`: make an HTTP request to central (a cheap authenticated GET through `CentralServerConnection`) before emitting `PATIENT_CONTACT_INSERT`
+- [ ] Facility `packages/facility-server/app/routes/apiv1/telegram/telegramRoutes.js`: same before `TELEGRAM_GET_BOT_INFO`, and time out the wait for the bot info reply with an error
+- [ ] Mobile `App/ui/contexts/ReminderContactContext.tsx` and `App/ui/navigation/screens/home/PatientDetails/ReminderContactQR/Screen.tsx`: same before each emit
+- [ ] Tests for the facility routes: the HTTP request precedes the emit; the bot info route errors on timeout
+
+### 2. Changes-pending check (SYNCHK, LOOKUP, SYNRUN)
+
+Central:
+- [ ] `getHighestRealChangeTick` in `packages/central-server/app/sync/`: max settled `updated_at_sync_tick` from `sync_lookup` (excluding the pending-update flag), served by the existing index; confirm with `EXPLAIN`
+- [ ] Route `GET /api/sync/pending` in `buildSyncRoutes.js` (path to settle), taking the pull cursor, requiring a device with the sync client scope, answering pull or nothing; always pull when `config.sync.lookupTable.enabled` is false
+- [ ] Throttled last-seen: `Device.markSeenIfStale()` in `packages/database/src/models/Device.ts`, called from the check and from session start (`POST /api/sync`)
+- [ ] Supervisor-only routes on central's api, behind a supervisor credential from config: on-demand lookup build returning the tick (serialised against the scheduled `SyncLookupRefresher`, which runs in another process, so via an advisory lock), next due time of time-driven tasks, and busy (sum of `countQueue()` across queue-backed tasks plus report requests and FHIR jobs)
+- [ ] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull; last-seen throttled; on-demand build waits for a running build and errors on abort
+
+Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
+- [ ] Carry the trigger kind into `runSync` (schedule including start-up, user, patient marked, subcommand)
+- [ ] For scheduled syncs: skip the check when there are unpushed local changes (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`), when the settings PSK is missing, or when `convergeSyncUser` still has work; otherwise call the check and stop on "nothing"
+- [ ] `CentralServerConnection`: add the check call; on `503` with `Retry-After`, wait and retry within the attempt for the check and for session start
+- [ ] Run history: new `up_to_date` outcome on `sync_facility_runs` (constant, model, migration if the column is constrained, dbt model docs); "nothing to pull" moves the last successful sync time but not the pull cursor
+- [ ] Tests: each skip rule, the up-to-date outcome, the retry on `503`
+
+Mobile (`packages/mobile/App/services/sync/`):
+- [ ] Replace `triggerSync({ urgent })` with a reason (scheduled, sign-in, reconnect, initial, manual, urgent) and pass it from `BackendManager`, `AuthContext`, facility selection and the sync screen
+- [ ] For scheduled syncs: skip the check when there are outgoing changes or `tablesForFullResync` is set; otherwise check and stop on "nothing", updating the displayed last-synced time only
+- [ ] `CentralServerConnection.ts`: the check call, and `503` with `Retry-After` handling for the check and session start
+- [ ] Tests in `MobileSyncManager.test.ts`
+
+### 3. Supervisor package skeleton (SUPV)
+
+- [ ] New workspace package `packages/supervisor` (`@tamanu/supervisor`), added to the root `workspaces`; entry point and config through `config` like the servers
+- [ ] Config: role (central or facility), listen address, part upstreams, actuator URL (optional), Caddy and Postgres binary paths, data directory, idle time (default 30 minutes), database connection for its own role, supervisor credential for central's api
+- [ ] Caddy child process: generate the JSON config (Tamanu's server block: paths per part, rate limits, error and waking pages), start Caddy with the admin API on a Unix socket, reload routes through it; h1 and h2c on one listener
+- [ ] Port the routing from `packages/web/Caddyfile.docker` and the infra Linux templates' server block (paths only; TLS and WAF stay with the platform)
+- [ ] Request log on a pipe: parse start and end of each request, classify exempt requests (health, monitoring, `/api/sync/pending`, timesync, central login and refresh, supervisor probes)
+- [ ] Status endpoints: server state, per-part state, last sleep or wake failure, database clear for writers, supervisor health
+- [ ] Without an actuator: route only, never start Postgres
+- [ ] Tests: routing switch without dropping in-flight connections; activity classification
+
+### 4. Actuator contract (SLPWK#actuator-contract)
+
+- [ ] `packages/supervisor/actuator/v1.openapi.yaml`: `PUT`/`GET /v1/state`, per-part desired and observed state
+- [ ] Typed client in the supervisor, with polling until ready or stopped
+- [ ] Fake actuator for tests and local runs: drives `npm` processes or just records state
+- [ ] Let infra (card Y3) know the contract file exists
+
+### 5. Sleep and wake (SLPWK)
+
+- [ ] Idle timer from the activity stream, counting in-flight requests
+- [ ] State machine persisted on the data directory: awake, going to sleep (with the step reached), asleep, waking, partial wake; every step idempotent
+- [ ] Sleep sequence: close the door, busy check, stop tasks, fhir and sync, central final build and next due time, facility reads (cursor, unpushed, next due time, sync credentials), stop api and web, central copy, stop database; cancel and roll forward to a wake on activity or a failed step
+- [ ] Migration state check before sleeping (compare `SequelizeMeta` to the release's migrations)
+- [ ] Wake sequence: database, central hand-back, other parts, forward per part as each is ready; retry a stalled wake
+- [ ] Waking responses: `503` with `Retry-After` for API paths, the waking page (polls supervisor status, then reloads), `503` for websocket upgrades
+- [ ] Between-states serving on central (forward to api when up; held tick; waking response for logins while the copy is unavailable)
+- [ ] Graceful stop for the tasks process: finish the running task on `SIGTERM` (check `startTasks.js` and `ScheduledTask`)
+- [ ] Tests with the fake actuator: each sequence, cancellation at each step, restart at each step
+
+### 6. Supervisor Postgres and the copy (ASLEEP)
+
+- [ ] Postgres child process: `initdb` on first start in the data directory, the tuned settings above with `fsync` on, contrib extensions
+- [ ] CI step (in `ci.yml` and the release build): migrate an empty database, prune to the allowlist (`logs` schema structure only), `pg_dump -s --no-owner --no-privileges` with the oldest supported major's `pg_dump`, shipped in the supervisor package
+- [ ] Copy at sleep: load schema, then each table in its own `COPY` with triggers off; checksums of the seven read-only tables; then install the change-tracking trigger on the three written tables
+- [ ] Central context against the copy: `initDatabase` on the copy, settings reader, auth secret from config; mount central's `login` and `refresh` handlers from `packages/central-server/app/auth/` on the supervisor's Express app unchanged
+- [ ] Changes-pending check from the copy: token check via `loginFromToken` against the copy, held tick, last-seen into the copy
+- [ ] Logins from unknown devices and logins with no device get the waking response and start a wake
+- [ ] CI drift guard: run `__tests__/auth/login.test.js`, `refresh.test.js`, `jwt-validation.test.js` and the check's tests against a database built from the allowlist schema
+- [ ] Measure the memory floor and copy time again with `fsync` on
+
+### 7. Hand-back and restarts (ASLEEP#handing-back, SUPV#resilience)
+
+- [ ] Hand-back: upsert tracked rows by common columns (devices by id, refresh tokens by user and device, login attempts insert only; last-seen only when later), triggers on, one transaction; then delete the copy
+- [ ] Checksum comparison before hand-back, reported on mismatch
+- [ ] Supervisor database role: migration creating it is infra's, but ship the grants as SQL in the package (read allowlist and migration state; write the three tables; on facilities read the sync facts and secrets)
+- [ ] On start: resume from the persisted state; a different release than the copy's means wake; finish an interrupted hand-back
+- [ ] Database-clear status for migrations
+- [ ] Tests: hand-back after login, refresh rotation, failed logins and new last-seen; repeated hand-back; hand-back from a copy with an extra or missing column
+
+### 8. Partial wakes and scheduled tasks (SLPWK#partial-wakes, #scheduled-tasks)
+
+- [ ] Facility: on the sync schedule, partial wake when unpushed changes were held; otherwise the check against central with the held credentials and cursor; end when the facility's last successful sync is after the wake started, or on no progress
+- [ ] Classify every task in `packages/central-server/app/tasks/` and `packages/facility-server/app/tasks/` (a `kind` on each `ScheduledTask` subclass); time-driven tasks expose their next due time (cron next fire, or from the database for `ReportRequestScheduler`)
+- [ ] Last-ran bookkeeping per task (a `local_system_facts` key per task, or a small table) and run-once-on-start for missed runs in `ScheduledTask`
+- [ ] Timed partial wake: database and tasks (plus api on central); end once due tasks have run and their queues are empty
+- [ ] Facility time-driven next due time read at sleep from the facility database
+- [ ] Tests: catch-up runs once; bed fee charger does not drop days across a sleep; timed wake ends with empty queues
+
+### 9. Packaging and docs
+
+- [ ] `Dockerfile`: `supervisor` target with Node, Caddy (with `rate_limit`), Postgres server and contrib
+- [ ] `cd-package-servers.yml`: Linux and Windows bundles of the supervisor (Caddy and Postgres provided by the installation)
 - [ ] Support pack: `docs/runbooks/sync-facility-stale.md` and `docs/healthchecks.md` for facilities that open no session when idle, and for sleeping servers
+- [ ] Hand infra (Y3) the image name, config keys, the contract file and the database role grants
