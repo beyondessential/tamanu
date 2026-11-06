@@ -5,7 +5,7 @@ if [ "$node_major" != "$wanted_major" ]; then
   exit 1
 fi
 
-SERVER_CONFIG='"rateLimit": { "enabled": false }, "schedules": { "sendStatusToMetaServer": { "enabled": false } }'
+SERVER_CONFIG='"rateLimit": { "enabled": false }'
 # The servers bind PORT over their config's port, and the rig sets PORT to the lease's.
 unset PORT
 export NODE_CONFIG="{ $SERVER_CONFIG }"
