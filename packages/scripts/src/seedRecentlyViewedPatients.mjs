@@ -10,6 +10,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 const PATIENT_COUNT = 5;
 const WAIT_FOR_FIRST_SYNC_MS = 20 * 60 * 1000;
 const POLL_MS = 15 * 1000;
+const SEED_ATTEMPTS = 5;
 
 const [deployName, facilityCount] = process.argv.slice(2);
 const { version } = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url)));
@@ -46,11 +47,7 @@ async function waitForFirstSync(api, facilityId) {
   );
 }
 
-async function seedFacility(facilityNumber) {
-  const facilityId = `facility-${facilityNumber}`;
-  const api = `https://${facilityId}.${deployName}.cd.tamanu.app/api`;
-  await waitForFirstSync(api, facilityId);
-
+async function recordRecentlyViewed(api, facilityId) {
   const { token } = await request(`${api}/login`, {
     method: 'POST',
     headers,
@@ -65,14 +62,33 @@ async function seedFacility(facilityNumber) {
     `${api}/patient?facilityId=${facilityId}&isAllPatientsListing=true&rowsPerPage=${PATIENT_COUNT}`,
     { headers: authorised },
   );
-  if (patients.length === 0) throw new Error(`${facilityId}: no patients to seed after first sync`);
+  if (patients.length === 0) throw new Error('no patients to seed after first sync');
   for (const { id } of patients) {
     await request(`${api}/user/recently-viewed-patients/${id}`, {
       method: 'POST',
       headers: authorised,
     });
   }
-  console.log(`${facilityId}: seeded ${patients.length} recently viewed patients`);
+  return patients.length;
+}
+
+async function seedFacility(facilityNumber) {
+  const facilityId = `facility-${facilityNumber}`;
+  const api = `https://${facilityId}.${deployName}.cd.tamanu.app/api`;
+  await waitForFirstSync(api, facilityId);
+
+  // Logins can be refused for a short while after the first sync finishes.
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const seeded = await recordRecentlyViewed(api, facilityId);
+      console.log(`${facilityId}: seeded ${seeded} recently viewed patients`);
+      return;
+    } catch (error) {
+      if (attempt === SEED_ATTEMPTS) throw new Error(`${facilityId}: ${error.message}`);
+      console.log(`${facilityId}: seeding failed, retrying (${error.message})`);
+      await sleep(POLL_MS);
+    }
+  }
 }
 
 const facilityNumbers = Array.from({ length: Number(facilityCount) }, (_, index) => index + 1);
