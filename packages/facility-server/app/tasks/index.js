@@ -15,6 +15,7 @@ import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
 import { CleanupIdempotencyKeys } from './CleanupIdempotencyKeys';
 import { CleanupBrowserTelemetry } from '@tamanu/shared/tasks/CleanupBrowserTelemetry';
+import { RollupBrowserTelemetry } from '@tamanu/shared/tasks/RollupBrowserTelemetry';
 
 export { startFhirWorkerTasks };
 
@@ -29,6 +30,7 @@ const DEFAULT_TASK_CLASSES = [
   BedFeeCharger,
   CleanupIdempotencyKeys,
   CleanupBrowserTelemetry,
+  RollupBrowserTelemetry,
 ];
 
 // Resolved once at startup (idempotent); schedule changes apply on server restart.
@@ -48,6 +50,8 @@ export async function resolveSchedules(context) {
   context.telemetrySettings ??= primaryFacilityId
     ? await context.settings[primaryFacilityId].get('telemetry')
     : globalDefaults.telemetry;
+  // Server-wide settings for tasks that read them on every run (RollupBrowserTelemetry).
+  context.globalSettings ??= context.settings.global;
   return context.schedules;
 }
 
