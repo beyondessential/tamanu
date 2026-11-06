@@ -28,11 +28,8 @@ The supervisor is part of Tamanu and ships with each Tamanu release. It knows no
 
 ## Database access
 
-- [ ] The supervisor connects to its server's database with its own role, not the application's.
-- [ ] On every server, that role can read the database's migration state, which the supervisor checks before putting the server to sleep.
-- [ ] On central, that role can also read the tables copied at sleep, and write `devices`, `refresh_tokens` and `user_login_attempts` for the hand-back (see `platform/supervisor/serving-while-asleep.md`).
-- [ ] On a facility server, that role can also read the facility's central address, device id and sync credentials. The supervisor is given the facility's key file, so it can decrypt the sync password.
-- [ ] The role has no access beyond what this section lists.
+- [ ] The supervisor connects to its server's database as the server's other parts do: with the same role, from the same connection configuration, a `DATABASE_URL` environment variable when one is set.
+- [ ] On a facility server, the supervisor is given the facility's key file, so it can decrypt the sync password it reads at sleep.
 
 ## Resilience
 

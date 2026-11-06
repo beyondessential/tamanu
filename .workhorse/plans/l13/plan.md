@@ -30,7 +30,7 @@ Infra's side (actuator, pod, sleep state on the Argo Application) is infra card 
 - Copy: `pg_dump -a --disable-triggers` of the allowlist piped into the copy, or streamed `COPY` from Node. About 0.3 s for 25,000 rows in the spike.
 - Changed rows are tracked inside the copy (a trigger on the three written tables, added after the load, recording each row's key in a side table), not by timestamp: copied rows keep central's `updated_at`, which can be ahead of the supervisor's clock, and handing back unchanged rows would bump their sync ticks and make every device re-pull them.
 - Hand-back upserts the tracked rows into the real database with triggers on.
-- Supervisor's role on the real database: not yet tested. Loading with triggers off happens in the supervisor's own Postgres, so the real-database role needs no trigger privilege.
+- The supervisor uses the application's database role and connection configuration (`connectionConfig.js` in `@tamanu/database`, so `DATABASE_URL` when set). A narrower role was considered and dropped: the supervisor holds the token signing secret, so a compromised supervisor can already act as any user through the api, and a separate role would need grants kept in step with the schema and its triggers, plus provisioning on every platform.
 
 ### Scheduled tasks
 
@@ -101,7 +101,7 @@ From here on, nothing changes under sync code-owned paths.
 
 
 - [ ] New workspace package `packages/supervisor` (`@tamanu/supervisor`), added to the root `workspaces`; entry point and config through `config` like the servers
-- [ ] Config: role (central or facility), listen address, part upstreams, actuator URL (optional), Caddy and Postgres binary paths, data directory, idle time (default 30 minutes), database connection for its own role, supervisor credential for central's api
+- [ ] Config: role (central or facility), listen address, part upstreams, actuator URL (optional), Caddy and Postgres binary paths, data directory, idle time (default 30 minutes), supervisor credential for central's api; the database connection through `@tamanu/database`'s `connectionConfig.js`, as the servers do
 - [ ] Caddy child process: generate the JSON config (Tamanu's server block: paths per part, rate limits, error and waking pages), start Caddy with the admin API on a Unix socket, reload routes through it; h1 and h2c on one listener
 - [ ] Port the routing from `packages/web/Caddyfile.docker` and the infra Linux templates' server block (paths only; TLS and WAF stay with the platform)
 - [ ] Request log on a pipe: parse start and end of each request, classify exempt requests (health, monitoring, `/api/sync/pending`, timesync, central login and refresh, supervisor probes)
@@ -143,7 +143,6 @@ From here on, nothing changes under sync code-owned paths.
 
 - [ ] Hand-back: upsert tracked rows by common columns (devices by id, refresh tokens by user and device, login attempts insert only; last-seen only when later), triggers on, one transaction; then delete the copy
 - [ ] Checksum comparison before hand-back, reported on mismatch
-- [ ] Supervisor database role: migration creating it is infra's, but ship the grants as SQL in the package (read allowlist and migration state; write the three tables; on facilities read the sync facts and secrets)
 - [ ] On start: resume from the persisted state; a different release than the copy's means wake; finish an interrupted hand-back
 - [ ] Database-clear status for migrations
 - [ ] Tests: hand-back after login, refresh rotation, failed logins and new last-seen; repeated hand-back; hand-back from a copy with an extra or missing column
@@ -162,4 +161,4 @@ From here on, nothing changes under sync code-owned paths.
 - [ ] `Dockerfile`: `supervisor` target with Node, Caddy (with `rate_limit`), Postgres server and contrib
 - [ ] `cd-package-servers.yml`: Linux and Windows bundles of the supervisor (Caddy and Postgres provided by the installation)
 - [ ] Support pack: `docs/runbooks/sync-facility-stale.md` and `docs/healthchecks.md` for facilities that open no session when idle, and for sleeping servers
-- [ ] Hand infra (Y3) the image name, config keys, the contract file and the database role grants
+- [ ] Hand infra (Y3) the image name, config keys, the contract file, and that the facility supervisor needs the facility's key file
