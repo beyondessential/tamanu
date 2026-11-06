@@ -16,6 +16,9 @@ import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
+// Central may need to wake up and start before it can answer
+const BOT_INFO_TIMEOUT_MS = 30_000;
+
 interface IReminderContactQR extends BaseAppProps {
   route: {
     params: {
@@ -27,6 +30,7 @@ interface IReminderContactQR extends BaseAppProps {
 const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   const { getTranslation } = useTranslation();
   const [embedUrl, setEmbedUrl] = useState('');
+  const [hasTimedOut, setHasTimedOut] = useState(false);
   const { socket } = useSocket();
   const { centralServer } = useBackend();
   const contactId = route.params.contactId;
@@ -36,17 +40,20 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   useEffect(() => {
     if (!socket) return;
     const handleBotInfo = botInfo => {
+      clearTimeout(timeout);
       if (botInfo?.username && contactId) {
         setEmbedUrl(`https://t.me/${botInfo.username}?start=${contactId}`);
       }
     };
     let isCancelled = false;
+    const timeout = setTimeout(() => setHasTimedOut(true), BOT_INFO_TIMEOUT_MS);
     socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
     wakeCentral(centralServer).then(() => {
       if (!isCancelled) socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
     });
     return () => {
       isCancelled = true;
+      clearTimeout(timeout);
       socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
     };
   }, [contactId, socket, centralServer]);
@@ -112,6 +119,17 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
       </StyledText>
       <StyledView alignSelf="center">
         {embedUrl && <QRCode value={embedUrl} size={250} color="black" backgroundColor="white" />}
+        {!embedUrl && hasTimedOut && (
+          <StyledText
+            fontSize={screenPercentageToDP(2, Orientation.Height)}
+            color={theme.colors.TEXT_DARK}
+          >
+            <TranslatedText
+              stringId="patient.details.reminderContactQr.timedOut"
+              fallback="The QR code could not be loaded. Go back and try again."
+            />
+          </StyledText>
+        )}
       </StyledView>
     </FullView>
   );
