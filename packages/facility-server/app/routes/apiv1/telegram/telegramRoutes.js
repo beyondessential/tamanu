@@ -32,6 +32,7 @@ export const getTelegramBotInfo = async ws => {
       ws?.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
     } catch (e) {
       clearTimeout(timeout);
+      ws?.removeListener(WS_EVENTS.TELEGRAM_BOT_INFO, onBotInfo);
       reject(e);
     }
   });
