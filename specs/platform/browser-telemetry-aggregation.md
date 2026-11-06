@@ -44,7 +44,7 @@ A trend row summarises every event for one page or endpoint in one bucket. Rows 
 
 Slow events keep enough detail to trace an acute issue to the record, device or user involved, while carrying nothing patient-identifying beyond record identifiers.
 
-- [ ] For each trend row, the job keeps as slow events the slowest events up to a configured number, plus every event over the configured slow threshold for its kind, with the total kept for one trend row limited by a configured cap. When more events qualify than the cap allows, the slowest are kept.
+- [ ] For each trend row, the job keeps as slow events every event over the configured slow threshold for its kind, with the total kept for one trend row limited by a configured cap. When more events qualify than the cap allows, the slowest are kept. A page or endpoint whose events all fall within the threshold keeps no slow events for that bucket.
 - [ ] Navigations and requests each have their own slow threshold.
 - [ ] Abandoned navigations and cut-off requests are never kept as slow events.
 - [ ] A slow event records the time the browser reported for it and the time the server received it, its duration, its route pattern, method and response status (for a request) or outcome (for a navigation), the interface, facility, application version, device and user, along with the trend row it belongs to.
@@ -64,6 +64,5 @@ Slow events keep enough detail to trace an acute issue to the record, device or 
 Aggregation settings apply server-wide, like the other telemetry settings, since both facility and central servers roll up. They are read only by the servers, and the job reads them on every run, so a change applies without a restart.
 
 - [ ] A setting defines the bucket size, defaulting to one hour; a size that does not divide a day evenly is rejected.
-- [ ] A setting defines how many of the slowest events are kept for each trend row, defaulting to five.
 - [ ] Separate settings define the slow threshold for navigations, defaulting to five seconds, and for requests, defaulting to two seconds.
 - [ ] A setting defines the cap on slow events kept for each trend row, defaulting to twenty.

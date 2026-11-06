@@ -31,8 +31,8 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 
 ## Slow events
 
-- [x] The slowest N plus everything over the threshold are kept, limited by the cap, keeping the slowest (verifies spec: BTAG)
-- [x] A fast route still keeps its slowest N (verifies spec: BTAG)
+- [x] Everything over the threshold is kept, limited by the cap, keeping the slowest (verifies spec: BTAG)
+- [x] A route whose events are all within the threshold keeps no slow events, though its trend row is still written (verifies spec: BTAG)
 - [x] Abandoned navigations and cut-off requests are never kept (verifies spec: BTAG)
 - [x] Path parameter values and query parameter names are kept; query values never are (verifies spec: BTAG)
 - [x] A slow request keeps the route of the page that was loading (verifies spec: BTAG)
