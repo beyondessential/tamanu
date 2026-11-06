@@ -25,7 +25,7 @@ const BASE_DEVICE_REGISTRATION_ADVISORY_KEY = 'deviceRegistrationAdvisoryLock';
 
 // A device that contacts central often (the changes-pending check) only has its last-seen time
 // written this often, so the change log is not flooded. See specs/sync/changes-pending-check.md.
-export const DEVICE_LAST_SEEN_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const DEVICE_LAST_SEEN_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 export class Device extends Model {
   declare id: string;

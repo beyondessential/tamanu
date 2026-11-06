@@ -5,7 +5,8 @@ import asyncHandler from 'express-async-handler';
 
 import { InvalidCredentialError } from '@tamanu/errors';
 
-import { CentralSyncManager, getHighestRealChangeTick } from '../sync';
+import { CentralSyncManager } from '../sync/CentralSyncManager';
+import { getHighestRealChangeTick } from '../sync/getHighestRealChangeTick';
 import { countPendingWork } from '../tasks/pendingWork';
 
 const sha256 = value => createHash('sha256').update(value).digest();
