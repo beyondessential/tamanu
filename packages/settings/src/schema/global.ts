@@ -501,13 +501,6 @@ export const globalSettings = {
               defaultValue: 60,
               unit: 'minutes',
             },
-            slowestPerRow: {
-              name: 'Slowest events kept',
-              description:
-                'How many of the slowest events are kept in detail for each page or endpoint in each bucket, however fast they were',
-              type: yup.number().integer().min(0),
-              defaultValue: 5,
-            },
             navigationSlowThresholdMs: {
               name: 'Slow page load threshold',
               description: 'Page loads slower than this are kept in detail, up to the cap',

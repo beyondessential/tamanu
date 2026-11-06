@@ -149,9 +149,10 @@ const ROLL_UP_TRENDS_SQL = `
     deleted_at = NULL
 `;
 
-// For each trend row: the slowest timed events up to `slowestPerRow`, plus every
-// timed event over its kind's threshold, never more than `cap`. Ranking by
-// duration makes both sets a prefix of the ranking, so the cap keeps the slowest.
+// For each trend row: every timed event over its kind's threshold, never more
+// than the cap. Ranking by duration makes the over-threshold events a prefix of
+// the ranking, so the cap keeps the slowest. A row whose events are all quick
+// keeps none; its trend row still records its spread and maximum.
 // Each kept navigation also keeps every request made while it was loading.
 const ROLL_UP_SLOW_EVENTS_SQL = `
   WITH ${BUCKET_SPANS_CTE},
@@ -177,13 +178,10 @@ const ROLL_UP_SLOW_EVENTS_SQL = `
       ${queryParameterNamesSql('r')}
     FROM ranked r
     WHERE r.slowness_rank <= :slowEventCapPerRow
-      AND (
-        r.slowness_rank <= :slowestPerRow
-        OR r.duration_ms > CASE r.kind
-          WHEN '${NAVIGATION}' THEN :navigationSlowThresholdMs
-          ELSE :requestSlowThresholdMs
-        END
-      )
+      AND r.duration_ms > CASE r.kind
+        WHEN '${NAVIGATION}' THEN :navigationSlowThresholdMs
+        ELSE :requestSlowThresholdMs
+      END
     ON CONFLICT (id) DO UPDATE SET
       navigation_route = EXCLUDED.navigation_route,
       status_code = EXCLUDED.status_code,
@@ -375,7 +373,6 @@ export class RollupBrowserTelemetry extends ScheduledTask {
       bucketEnd: bucket.end.toISOString(),
       bucketStartEpoch: bucket.start.getTime() / 1000,
       bucketMinutes: bucket.bucketMinutes,
-      slowestPerRow: aggregationSettings.slowestPerRow,
       slowEventCapPerRow: aggregationSettings.slowEventCapPerRow,
       navigationSlowThresholdMs: aggregationSettings.navigationSlowThresholdMs,
       requestSlowThresholdMs: aggregationSettings.requestSlowThresholdMs,

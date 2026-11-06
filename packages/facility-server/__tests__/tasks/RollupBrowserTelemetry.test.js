@@ -345,7 +345,6 @@ describe('RollupBrowserTelemetry', () => {
     beforeEach(() => {
       aggregationSettings = {
         ...aggregationSettings,
-        slowestPerRow: 2,
         slowEventCapPerRow: 3,
         requestSlowThresholdMs: 1000,
         navigationSlowThresholdMs: 5000,
@@ -360,18 +359,29 @@ describe('RollupBrowserTelemetry', () => {
       return events.map(event => event.durationMs);
     };
 
-    it('keeps the slowest events plus those over the threshold, up to the cap', async () => {
-      for (const durationMs of [100, 200, 300, 1500, 2500, 3500, 4500]) {
+    it('keeps the events over the threshold, slowest first up to the cap', async () => {
+      for (const durationMs of [100, 1000, 1500, 2500, 3500, 4500]) {
         await createSpan({ route: 'slow/:id', durationMs });
       }
-      for (const durationMs of [10, 20, 30]) {
-        await createSpan({ route: 'fast/:id', durationMs });
+      for (const durationMs of [1001, 1200]) {
+        await createSpan({ route: 'some-slow/:id', durationMs });
       }
 
       await runRollup();
 
       expect(await slowEventDurations('slow/:id')).toEqual([4500, 3500, 2500]);
-      expect(await slowEventDurations('fast/:id')).toEqual([30, 20]);
+      expect(await slowEventDurations('some-slow/:id')).toEqual([1200, 1001]);
+    });
+
+    it('keeps nothing for a route whose events are all within the threshold', async () => {
+      for (const durationMs of [10, 20, 1000]) {
+        await createSpan({ route: 'fast/:id', durationMs });
+      }
+
+      await runRollup();
+
+      expect(await slowEventDurations('fast/:id')).toEqual([]);
+      expect(await findTrends({ route: 'fast/:id' })).toHaveLength(1);
     });
 
     it('never keeps abandoned navigations or cut-off requests', async () => {

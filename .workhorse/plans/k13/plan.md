@@ -7,11 +7,11 @@ Roll the raw `logs.browser_telemetry_spans` rows (M9, spec BTEL) up into long-li
 - Duration stats are a fixed-band histogram plus exact p50/p95/p99/max per row, so percentiles can be combined across any range
 - Trend data is hourly by default (bucket size is a setting) and kept forever
 - Facility aggregates are pushed to central; raw data never leaves its server
-- Slow events are the top N per trend row plus anything over a per-kind threshold, capped per row; N, the thresholds and the cap are settings
+- Slow events are the events over a per-kind threshold, slowest first up to a cap per row; the thresholds and the cap are settings. An earlier "slowest N per row however fast" rule was dropped after deployment testing: on quiet endpoints it kept nearly every call forever, and fast endpoints aren't of interest. Overall server performance comes from summing trend-row histograms across endpoints, not from slow events
 - Slow events keep path parameter values and query parameter names only (no query values), plus device and user
 - Slow events are kept forever
 - Abandoned navigations are counted but kept out of the duration stats; capped ones are included at their capped duration
-- Defaults: 5s navigation and 2s request slow thresholds, slowest 5 and a cap of 20 per row, histogram bands as below
+- Defaults: 5s navigation and 2s request slow thresholds and a cap of 20 per row, histogram bands as below
 - Collection (`telemetry.enabled`) is on by default from this card, now that it has passed testing. The web and portal clients collect until they have read the setting, matching the default
 
 ## Technical design notes
@@ -37,14 +37,13 @@ Roll the raw `logs.browser_telemetry_spans` rows (M9, spec BTEL) up into long-li
 **SQL.** Two statements per bucket, sharing a `bucket_spans` CTE that dedupes repeated spans (`DISTINCT ON (trace_id, span_id)`) and ignores unknown kinds:
 
 - Trends: `GROUP BY` for counts, `percentile_disc` (nearest-rank) for headline stats, and the histogram built from `width_bucket`
-- Slow events: `row_number()` by duration per trend, keeping `rank <= cap AND (rank <= N OR duration > threshold)`, inserted with `RETURNING`. Kept navigations then pull their child requests from the raw table by `trace_id` and `parent_id`
+- Slow events: `row_number()` by duration per trend, keeping `rank <= cap AND duration > threshold`, inserted with `RETURNING`. Kept navigations then pull their child requests from the raw table by `trace_id` and `parent_id`
 
 **Raw retention interplay.** The rollup runs every 15 minutes by default and only lags by one bucket, so it finishes well within the 30-day raw retention. Spans pruned before rollup go uncounted (agreed).
 
 **Settings** (global `telemetry.aggregation`, server-wide, read on every run through `context.globalSettings`: `settings.global` on facility, the central reader on central):
 
 - `bucketMinutes`: default 60, must divide 1440
-- `slowestPerRow`: default 5
 - `navigationSlowThresholdMs`: default 5000
 - `requestSlowThresholdMs`: default 2000
 - `slowEventCapPerRow`: default 20
