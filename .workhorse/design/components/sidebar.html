@@ -1,0 +1,332 @@
+<!doctype html>
+<!-- @dsCard group="Components" name="Sidebar" subtitle="Full navigation tree with accordion" viewport="260x1120" -->
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+*{box-sizing:border-box;font-family:'Roboto',sans-serif}
+body{margin:0;padding:0;background:#F9FAFB;font-family:'Roboto',sans-serif}
+
+.side{
+  width:260px;background:#2F4358;color:#fff;
+  display:flex;flex-direction:column;height:1120px;
+  transition:width .22s ease;
+  position:relative;
+}
+.side.collapsed{width:64px}
+
+/* Top: logo + collapse */
+.top{display:flex;align-items:center;justify-content:space-between;padding:22px 20px 10px;gap:8px}
+.top img.wordmark{height:32px;display:block;transition:opacity .15s}
+.top img.iconmark{display:none;width:36px;height:36px}
+.side.collapsed .top{padding:18px 8px 10px;justify-content:center}
+.side.collapsed .top img.wordmark{display:none}
+.side.collapsed .top img.iconmark{display:block}
+
+/* Floating yellow collapse button — yellow chevron on navy when expanded; yellow circle when collapsed */
+.collapse{
+  position:absolute;top:28px;right:16px;
+  width:24px;height:24px;border-radius:50%;
+  background:transparent;border:none;color:#F4C220;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;padding:0;
+  z-index:10;transition:background .15s, right .22s, box-shadow .15s;
+}
+.collapse:hover{background:rgba(244,194,32,.12)}
+.collapse svg{transition:transform .22s}
+.side.collapsed .collapse{
+  right:-14px;background:#2F4358;color:#F4C220;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  border:1px solid rgba(244,194,32,.4);
+}
+.side.collapsed .collapse:hover{background:#2F4358}
+.side.collapsed .collapse svg{transform:rotate(180deg)}
+
+/* Sections */
+.nav{padding:8px 12px 12px;display:flex;flex-direction:column;gap:2px;flex:1;overflow:hidden}
+.side.collapsed .nav{padding:8px 8px 12px;align-items:center;overflow:visible}
+.sec{
+  display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:4px;
+  font-family:'Roboto',sans-serif;font-weight:500;font-size:14px;line-height:18px;
+  color:#fff;cursor:pointer;position:relative
+}
+.side.collapsed .sec{justify-content:center;width:48px;height:48px;padding:0}
+.side.collapsed .sec .name,
+.side.collapsed .sec .caret{display:none}
+.side.collapsed .sub{display:none}
+.side.collapsed .sep{margin:6px 8px}
+
+/* Tooltip on hover when collapsed — matches library Tooltips (dark-blue + notch) */
+.side.collapsed{overflow:visible}
+.side.collapsed .sec::after{
+  content:attr(data-label);
+  position:absolute;left:60px;top:50%;transform:translateY(-50%);
+  background:#2F4358;color:#fff;
+  font:400 11px/15px Roboto;
+  padding:8px 12px;border-radius:4px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .12s;
+  z-index:30;
+}
+/* Notch — left side, points at the icon */
+.side.collapsed .sec::before{
+  content:"";position:absolute;
+  left:55px;top:50%;margin-top:-5px;
+  width:10px;height:10px;background:#2F4358;
+  transform:rotate(45deg);
+  opacity:0;pointer-events:none;transition:opacity .12s;
+  z-index:29;
+}
+.side.collapsed .sec:hover::after,
+.side.collapsed .sec:hover::before{opacity:1}
+.sec:hover{background:rgba(255,255,255,.06)}
+.sec .ico{width:24px;height:24px;flex-shrink:0;display:block}
+.sec .ico img{width:100%;height:100%;display:block}
+.sec .name{flex:1}
+.sec .caret{opacity:.85;transition:transform .15s}
+.sec.open .caret{transform:rotate(180deg)}
+
+/* Submenu — collapsible */
+.sub{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s ease;margin:0}
+.sub.open{grid-template-rows:1fr;margin:2px 0 6px}
+.sub > .sub-inner{overflow:hidden;display:flex;flex-direction:column}
+.sec.nocaret{cursor:pointer}
+.sub .s{
+  display:flex;align-items:center;gap:12px;padding:8px 10px 8px 46px;
+  font-family:'Roboto',sans-serif;font-weight:400;font-size:14px;line-height:18px;
+  color:#fff;border-radius:4px;cursor:pointer;position:relative
+}
+.sub .s:hover{background:rgba(255,255,255,.06)}
+.sub .s.active{background:rgba(255,255,255,.1)}
+.sub .s .dot{width:6px;height:6px;border-radius:50%;position:absolute;left:32px;top:50%;transform:translateY(-50%)}
+
+/* Separator */
+.sep{height:1px;background:rgba(255,255,255,.14);margin:8px 10px}
+
+/* User footer */
+.foot{
+  border-top:1px solid rgba(255,255,255,.14);margin-top:auto;
+  padding:14px 16px 10px;display:flex;flex-direction:column;gap:8px
+}
+.side.collapsed .foot{padding:14px 8px 10px;align-items:center}
+.side.collapsed .fuser .meta,
+.side.collapsed .fuser .kebab,
+.side.collapsed .version{display:none}
+.side.collapsed .fuser{justify-content:center}
+.fuser{display:flex;align-items:center;gap:10px}
+.avatar{
+  width:40px;height:40px;border-radius:50%;background:#E7B091;color:#2F4358;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Roboto',sans-serif;font-weight:500;font-size:14px;line-height:18px;
+  flex-shrink:0
+}
+.fuser .meta{flex:1;min-width:0}
+.fuser .name{
+  font-family:'Roboto',sans-serif;font-weight:500;font-size:13px;line-height:16px;color:#fff
+}
+.fuser .role{
+  font-family:'Roboto',sans-serif;font-weight:400;font-size:11px;line-height:15px;color:#C8D1DA
+}
+.fuser .kebab{color:#C8D1DA;background:none;border:none;cursor:pointer;padding:4px}
+
+/* Kebab overflow menu */
+.fuser{position:relative}
+.kebab-menu{
+  position:absolute;right:28px;bottom:32px;
+  background:#2F4358;border:1px solid rgba(255,255,255,.18);
+  border-radius:4px;box-shadow:0 8px 32px rgba(0,0,0,.35);
+  padding:12px 14px;display:none;flex-direction:column;gap:10px;
+  min-width:170px;z-index:20
+}
+.kebab-menu.open{display:flex}
+.kebab-menu a{
+  color:#fff;font:400 13px/16px Roboto;text-decoration:none;
+  display:flex;align-items:center;gap:6px;white-space:nowrap
+}
+.kebab-menu a.with-link{text-decoration:underline;text-underline-offset:2px}
+.kebab-menu a svg{width:12px;height:12px;flex-shrink:0}
+.version{
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:'Roboto',sans-serif;font-weight:400;font-size:10px;line-height:14px;color:#C8D1DA;
+  padding-top:6px;border-top:1px solid rgba(255,255,255,.14)
+}
+.version a{color:#C8D1DA;text-decoration:underline}
+</style></head>
+<body>
+<nav class="side" id="side">
+  <div class="top">
+    <img class="wordmark" src="../assets/logo-tamanu-long-white.png" alt="tamanu">
+    <img class="iconmark" src="../assets/logo-tamanu-icon-light.png" alt="tamanu">
+  </div>
+  <button class="collapse" aria-label="Collapse" id="collapseBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <div class="nav">
+    <!-- Dashboard (no submenu) -->
+    <div class="sec nocaret" data-label="Dashboard">
+      <span class="ico"><img src="../assets/icons/brand/dashboard.png" alt=""></span>
+      <span class="name">Dashboard</span>
+    </div>
+
+    <!-- Patients (expanded) -->
+    <div class="sec open" data-toggle="patients" data-label="Patients">
+      <span class="ico"><img src="../assets/icons/brand/patient.png" alt=""></span>
+      <span class="name">Patients</span>
+      <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sub open" data-sub="patients">
+      <div class="sub-inner">
+        <div class="s active"><span class="dot" style="background:#4DA9F7"></span>All patients</div>
+        <div class="s"><span class="dot" style="background:#47CA80"></span>Inpatients</div>
+        <div class="s"><span class="dot" style="background:#F76853"></span>Emergency patients</div>
+        <div class="s"><span class="dot" style="background:#F4C220"></span>Outpatients</div>
+      </div>
+    </div>
+
+    <div class="sec" data-toggle="scheduling" data-label="Scheduling">
+      <span class="ico"><img src="../assets/icons/brand/scheduling.png" alt=""></span>
+      <span class="name">Scheduling</span>
+      <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sub" data-sub="scheduling">
+      <div class="sub-inner">
+        <div class="s">Outpatient appointments</div>
+        <div class="s">Location bookings</div>
+      </div>
+    </div>
+
+    <div class="sec" data-toggle="medication" data-label="Medication">
+      <span class="ico"><img src="../assets/icons/brand/medication.png" alt=""></span>
+      <span class="name">Medication</span>
+      <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sub" data-sub="medication">
+      <div class="sub-inner">
+        <div class="s">Active requests</div>
+        <div class="s">Dispensed medications</div>
+      </div>
+    </div>
+
+    <div class="sec" data-toggle="imaging" data-label="Imaging">
+      <span class="ico"><img src="../assets/icons/brand/imaging.png" alt=""></span>
+      <span class="name">Imaging</span>
+      <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sub" data-sub="imaging">
+      <div class="sub-inner">
+        <div class="s">Active requests</div>
+        <div class="s">Completed</div>
+      </div>
+    </div>
+
+    <div class="sec" data-toggle="labs" data-label="Labs">
+      <span class="ico"><img src="../assets/icons/brand/labs.png" alt=""></span>
+      <span class="name">Labs</span>
+      <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sub" data-sub="labs">
+      <div class="sub-inner">
+        <div class="s">Active requests</div>
+        <div class="s">Completed</div>
+      </div>
+    </div>
+
+    <div class="sec" data-toggle="immunisation" data-label="Immunisation">
+      <span class="ico"><img src="../assets/icons/brand/immunisation.png" alt=""></span>
+      <span class="name">Immunisation</span>
+      <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sub" data-sub="immunisation">
+      <div class="sub-inner">
+        <div class="s">Immunisation register</div>
+      </div>
+    </div>
+
+    <div class="sec" data-toggle="programs" data-label="Program registry">
+      <span class="ico"><img src="../assets/icons/brand/programs.png" alt=""></span>
+      <span class="name">Program registry</span>
+      <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sub" data-sub="programs">
+      <div class="sub-inner">
+        <div class="s">Endoscopy registry</div>
+        <div class="s">Maternal health registry</div>
+        <div class="s">NNDSS Registry</div>
+        <div class="s">National HIV Registry (Demo)</div>
+        <div class="s">TB program registry</div>
+        <div class="s">Wound Management Registry</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="sec" data-toggle="admin" data-label="Facility admin">
+      <span class="ico"><img src="../assets/icons/brand/admin.png" alt=""></span>
+      <span class="name">Facility admin</span>
+      <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sub" data-sub="admin">
+      <div class="sub-inner">
+        <div class="s">Reports</div>
+        <div class="s">Bed management</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="fuser">
+      <div class="avatar">CJ</div>
+      <div class="meta">
+        <div class="name">Catherine Jennings</div>
+        <div class="role">Nurse</div>
+        <div class="role">Etta Clinic</div>
+      </div>
+      <button class="kebab" aria-label="More" id="kebabBtn">
+        <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor"><circle cx="2" cy="2" r="1.5"/><circle cx="2" cy="8" r="1.5"/><circle cx="2" cy="14" r="1.5"/></svg>
+      </button>
+      <div class="kebab-menu" id="kebabMenu">
+        <a href="#">Change language</a>
+        <a href="#" class="with-link" target="_blank">
+          Support centre
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="version"><span>Version 1.12.0</span><a href="#">Log out</a></div>
+  </div>
+</nav>
+<script>
+// Accordion nav sections
+document.querySelectorAll('.sec[data-toggle]').forEach(sec => {
+  sec.addEventListener('click', () => {
+    // Don't expand submenus when rail is collapsed
+    if (document.getElementById('side').classList.contains('collapsed')) return;
+    const key = sec.dataset.toggle;
+    const sub = document.querySelector(`.sub[data-sub="${key}"]`);
+    const willOpen = !sec.classList.contains('open');
+    document.querySelectorAll('.sec[data-toggle].open').forEach(s => s.classList.remove('open'));
+    document.querySelectorAll('.sub.open').forEach(s => s.classList.remove('open'));
+    if (willOpen) {
+      sec.classList.add('open');
+      if (sub) sub.classList.add('open');
+    }
+  });
+});
+
+// Collapse toggle
+const side = document.getElementById('side');
+document.getElementById('collapseBtn').addEventListener('click', () => {
+  side.classList.toggle('collapsed');
+});
+
+// Kebab overflow menu
+const kBtn = document.getElementById('kebabBtn');
+const kMenu = document.getElementById('kebabMenu');
+kBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  kMenu.classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  if (!kMenu.contains(e.target) && e.target !== kBtn) kMenu.classList.remove('open');
+});
+</script>
+</body></html>

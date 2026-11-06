@@ -1,0 +1,124 @@
+<!doctype html>
+<!-- @dsCard group="Components" name="Menu Dropdown" subtitle="Popover menu · 1–7 items, editable labels" viewport="1000x600" -->
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:40px 40px 40px 40px;background:#F9FAFB;font-family:'Roboto',sans-serif;color:#444;display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;min-height:100vh}
+
+/* ============ STAGE ============ */
+.stage{display:flex;align-items:center;justify-content:center;min-height:520px;padding:40px}
+
+/* ============ MENU DROPDOWN ============ */
+.menu{
+  background:#fff;
+  border:1px solid #DEDEDE;
+  border-radius:5px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  display:inline-block;
+  padding:8px 0;
+  overflow:hidden;
+}
+.menu-item{
+  display:flex;align-items:center;
+  padding:8px 16px;
+  font:400 14px/18px Roboto;
+  color:#666;
+  background:#fff;
+  border:0;
+  width:100%;text-align:left;cursor:pointer;
+}
+.menu-item:hover{background:var(--hover-2)}
+
+/* ============ TWEAKS PANEL ============ */
+.tweaks{position:sticky;top:24px;background:#fff;border:1px solid #DEDEDE;border-radius:5px;padding:16px;font:400 13px/16px Roboto;max-height:calc(100vh - 48px);overflow:auto}
+.tweaks h3{font:500 14px/18px Roboto;color:#444;margin:0 0 4px}
+.tweaks .hint{font:400 11px/15px Roboto;color:#888;margin:0 0 14px}
+.tweaks .group{margin-top:14px;padding-top:14px;border-top:1px solid #EBEBEB}
+.tweaks .group:first-of-type{margin-top:0;padding-top:0;border-top:0}
+.tweaks h4{font:500 11px/15px Roboto;color:#888;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}
+
+.slider-row{display:flex;align-items:center;gap:12px}
+.slider-row input[type="range"]{flex:1;accent-color:#326699}
+.count-val{font:500 14px/18px Roboto;color:#326699;min-width:20px;text-align:right}
+
+.label-row{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:center;padding:4px 0;border-bottom:1px dashed #F3F5F7}
+.label-row:last-child{border-bottom:0}
+.label-row .num{font:500 11px/15px Roboto;color:#888;text-align:center}
+.label-row input{width:100%;height:28px;border:1px solid #DEDEDE;border-radius:3px;padding:0 8px;font:400 12px/16px Roboto;color:#444;background:#fff}
+.label-row input:focus{outline:0;border-color:#326699}
+.label-row.disabled{opacity:.35;pointer-events:none}
+</style>
+</head>
+<body>
+
+<!-- =============== MENU =============== -->
+<div class="stage">
+  <div class="menu" id="menu"></div>
+</div>
+
+<!-- =============== TWEAKS =============== -->
+<aside class="tweaks">
+  <h3>Menu dropdown</h3>
+  <p class="hint">Popover surface that appears on trigger (kebab, chevron button, etc). Items are stacked and separated by dividers.</p>
+
+  <div class="group">
+    <h4>Item count</h4>
+    <div class="slider-row">
+      <input type="range" id="count" min="1" max="7" value="5">
+      <span class="count-val" id="countVal">5</span>
+    </div>
+  </div>
+
+  <div class="group">
+    <h4>Item labels</h4>
+    <div id="labels"></div>
+  </div>
+</aside>
+
+<script>
+const DEFAULT_LABELS = ['Lorem ipsum','Lorem ipsum','Lorem ipsum','Lorem ipsum','Lorem ipsum','Lorem ipsum','Lorem ipsum'];
+const state = {
+  count: 5,
+  labels: [...DEFAULT_LABELS],
+};
+
+function renderMenu(){
+  const menu = document.getElementById('menu');
+  menu.innerHTML = '';
+  for (let i=0; i<state.count; i++){
+    const b = document.createElement('button');
+    b.className = 'menu-item';
+    b.textContent = state.labels[i] || '';
+    menu.appendChild(b);
+  }
+}
+
+function renderLabels(){
+  const box = document.getElementById('labels');
+  box.innerHTML = '';
+  for (let i=0; i<7; i++){
+    const row = document.createElement('div');
+    row.className = 'label-row' + (i >= state.count ? ' disabled' : '');
+    row.innerHTML = `<span class="num">${i+1}</span><input type="text" value="${escapeHtml(state.labels[i] ?? '')}">`;
+    row.querySelector('input').addEventListener('input', e => {
+      state.labels[i] = e.target.value;
+      renderMenu();
+    });
+    box.appendChild(row);
+  }
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+document.getElementById('count').addEventListener('input', e => {
+  state.count = +e.target.value;
+  document.getElementById('countVal').textContent = state.count;
+  renderMenu();
+  renderLabels();
+});
+
+renderMenu();
+renderLabels();
+</script>
+</body></html>

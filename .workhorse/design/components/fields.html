@@ -1,0 +1,79 @@
+<!doctype html>
+<!-- @dsCard group="Components" name="Fields" subtitle="Label · Input · Select (opens below) · Inline error" viewport="700x460" -->
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:20px;background:#fff;font-family:'Roboto'}
+.field{margin-bottom:14px;max-width:360px;position:relative}
+.field label{display:block;font:500 14px/18px Roboto;color:#666666;margin-bottom:4px}
+.field label .req{color:#F76853;margin-left:2px;font-weight:500}
+.input{width:100%;border:1px solid #DEDEDE;border-radius:3px;padding:10px 16px;font:400 14px/18px Roboto;color:#444444;background:#fff;box-sizing:border-box}
+.input::placeholder{color:#B8B8B8}
+.input:focus{outline:none;border-color:#326699}
+.err{border-color:#F76853}
+.msg{font:400 11px/15px Roboto;color:#F76853;margin-top:4px}
+.msg.hide{display:none}
+
+/* Dropdown */
+.select{width:100%;border:1px solid #DEDEDE;border-radius:3px;padding:10px 40px 10px 16px;font:400 14px/18px Roboto;color:#B8B8B8;background:#fff url('../assets/icons/chevron-down.svg') no-repeat right 12px center;background-size:16px;box-sizing:border-box;text-align:left;cursor:pointer;position:relative}
+.select.has-value{color:#444444}
+.select.open{border-color:#326699}
+.menu{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #326699;border-radius:3px;box-shadow:0 4px 16px 0 rgba(0,0,0,0.1),0 2px 2px 0 rgba(0,0,0,0.1);z-index:10;max-height:220px;overflow-y:auto;display:none}
+.menu.open{display:block}
+.menu .opt{padding:10px 16px;font:400 14px/18px Roboto;color:#444444;cursor:pointer}
+.menu .opt:hover{background:#F4F9FF}
+.menu .opt[aria-selected="true"]{background:#F4F9FF;color:#326699}
+</style></head>
+<body>
+<div class="field"><label>Patient name <span class="req">*</span></label>
+  <input class="input" placeholder="Enter patient name"></div>
+<div class="field"><label>Date of birth</label>
+  <input class="input" value="12/03/1987"></div>
+<div class="field" id="deptField"><label>Department <span class="req">*</span></label>
+  <button type="button" class="select" id="deptSel" aria-haspopup="listbox" aria-expanded="false">
+    <span id="deptLabel">Select</span>
+  </button>
+  <div class="menu" id="deptMenu" role="listbox">
+    <div class="opt" data-v="Emergency">Emergency</div>
+    <div class="opt" data-v="Outpatient">Outpatient</div>
+    <div class="opt" data-v="Maternity">Maternity</div>
+    <div class="opt" data-v="General">General</div>
+    <div class="opt" data-v="Imaging">Imaging</div>
+  </div>
+</div>
+<div class="field"><label>NHN</label>
+  <input id="nhnInput" class="input err" value="NHN-00-032">
+  <div id="nhnMsg" class="msg">Invalid NHN format</div></div>
+
+<script>
+  // Inline error clears on edit
+  const inp = document.getElementById('nhnInput');
+  const msg = document.getElementById('nhnMsg');
+  inp.addEventListener('input', () => {
+    inp.classList.remove('err');
+    msg.classList.add('hide');
+  });
+
+  // Custom dropdown that opens below the field
+  const sel = document.getElementById('deptSel');
+  const menu = document.getElementById('deptMenu');
+  const label = document.getElementById('deptLabel');
+  const open = (o) => {
+    sel.classList.toggle('open', o);
+    menu.classList.toggle('open', o);
+    sel.setAttribute('aria-expanded', String(o));
+  };
+  sel.addEventListener('click', (e) => {
+    e.stopPropagation();
+    open(!menu.classList.contains('open'));
+  });
+  menu.querySelectorAll('.opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      label.textContent = opt.dataset.v;
+      sel.classList.add('has-value');
+      menu.querySelectorAll('.opt').forEach(o => o.setAttribute('aria-selected', o === opt));
+      open(false);
+    });
+  });
+  document.addEventListener('click', () => open(false));
+</script>
+</body></html>

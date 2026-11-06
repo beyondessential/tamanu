@@ -1,0 +1,228 @@
+/* ==========================================================================
+   Tamanu Desktop — Colors & Typography
+   Source: Tamanu Design System.fig (Tamanu Desktop EMR)
+   ========================================================================== */
+
+/* --- Font --- */
+/* Primary: Roboto (Variable wdth/wght — Regular 400, Medium 500 used). Self-hosted. */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-display: swap;
+  src: url('fonts/Roboto-VariableFont_wdth_wght.ttf') format('truetype-variations'),
+       url('fonts/Roboto-VariableFont_wdth_wght.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-display: swap;
+  src: url('fonts/Roboto-Italic-VariableFont_wdth_wght.ttf') format('truetype-variations'),
+       url('fonts/Roboto-Italic-VariableFont_wdth_wght.ttf') format('truetype');
+}
+
+:root {
+  /* ========== PRIMARY — Tamanu Blue ========== */
+  --tamanu-blue-100:        rgb(50, 102, 153);   /* #326699 — primary brand blue */
+  --tamanu-blue-30:         rgb(194, 210, 225);  /* #C2D2E1 — 30% tint */
+  --tamanu-blue-10:         rgb(235, 240, 245);  /* #EBF0F5 — 10% tint (surface) */
+  --tamanu-dark-blue:       rgb(47, 67, 88);     /* #2F4358 — deep navy */
+
+  /* Primary hover/active derived from Tamanu Blue 100 */
+  --tamanu-blue-hover:      rgb(34, 72, 109);    /* primary button hover */
+  --tamanu-blue-surface:    rgb(244, 249, 255);  /* secondary button hover bg */
+
+  /* ========== SECONDARY (Status) ========== */
+  --green-100:              rgb(71, 202, 128);   /* #47CA80 success */
+  --green-20:               rgb(218, 244, 230);  /* #DAF4E6 */
+  --green-10:               rgb(237, 250, 243);  /* #EDFAF3 */
+
+  --red-100:                rgb(47, 67, 88);     /* error dark (matches dark-blue) */
+  --red-alert-100:          rgb(247, 104, 83);   /* #F76853 — alert/destructive */
+  --red-20:                 rgb(253, 225, 221);  /* #FDE1DD */
+  --red-10:                 rgb(255, 240, 238);  /* #FFF0EE */
+
+  --orange-100:             rgb(50, 102, 153);   /* (fig labels "Orange-S" but uses blue) */
+  --orange-accent:          rgb(247, 104, 83);
+  --orange-20:              rgb(251, 226, 218);
+  --orange-10:              rgb(253, 240, 236);
+
+  --yellow-100:             rgb(255, 204, 36);   /* #FFCC24 */
+  --yellow-20:              rgb(255, 245, 211);  /* #FFF5D3 */
+  --yellow-10:              rgb(255, 250, 234);  /* #FFFAEA */
+
+  /* ========== TERTIARY (Data / Tag colors, 100/20/10) ========== */
+  --green-t-100:            rgb(25, 147, 78);    /* #19934E */
+  --green-t-20:             rgb(209, 233, 220);  /* #D1E9DC */
+  --green-t-10:             rgb(233, 245, 238);  /* #E9F5EE */
+
+  --blue-t-100:             rgb(17, 114, 209);   /* #1172D1 */
+  --blue-t-20:              rgb(207, 227, 246);  /* #CFE3F6 */
+  --blue-t-10:              rgb(232, 241, 251);  /* #E8F1FB */
+
+  --purple-t-100:           rgb(65, 1, 201);     /* #4101C9 */
+  --purple-t-20:            rgb(217, 204, 244);  /* #D9CCF4 */
+  --purple-t-10:            rgb(236, 230, 250);  /* #ECE6FA */
+
+  --pink-t-100:             rgb(209, 5, 128);    /* #D10580 */
+  --pink-t-20:              rgb(246, 205, 230);  /* #F6CDE6 */
+  --pink-t-10:              rgb(251, 231, 243);  /* #FBE7F3 */
+
+  --orange-t-100:           rgb(203, 97, 0);     /* #CB6100 */
+  --orange-t-20:            rgb(245, 223, 204);  /* #F5DFCC */
+  --orange-t-10:            rgb(250, 240, 230);  /* #FAF0E6 */
+
+  --yellow-t-100:           rgb(189, 149, 3);    /* #BD9503 */
+  --yellow-t-20:            rgb(242, 234, 205);  /* #F2EACD */
+  --yellow-t-10:            rgb(249, 245, 230);  /* #F9F5E6 */
+
+  --brown-t-100:            rgb(103, 54, 27);    /* #67361B */
+  --brown-t-20:             rgb(225, 215, 209);  /* #E1D7D1 */
+  --brown-t-10:             rgb(240, 235, 233);  /* #F0EBE9 */
+
+  --teal-t-100:             rgb(18, 94, 126);    /* #125E7E */
+  --teal-t-20:              rgb(208, 223, 229);  /* #D0DFE5 */
+  --teal-t-10:              rgb(232, 239, 243);  /* #E8EFF3 */
+
+  /* ========== FONT (Grayscale text) ========== */
+  --font-80:                rgb(68, 68, 68);     /* #444444 super dark (primary headings) */
+  --font-60:                rgb(102, 102, 102);  /* #666666 dark (body text) */
+  --font-40:                rgb(136, 136, 136);  /* #888888 mid (labels, meta) */
+  --font-20:                rgb(184, 184, 184);  /* #B8B8B8 light */
+
+  /* ========== MISC (surfaces / chrome) ========== */
+  --white:                  rgb(255, 255, 255);
+  --black:                  rgb(0, 0, 0);
+  --hover-1:                rgb(50, 141, 229);   /* #328DE5 hover tint blue */
+  --hover-2:                rgb(232, 241, 251);  /* #E8F1FB very light hover */
+  --background:             rgb(243, 245, 247);  /* #F3F5F7 app background */
+  --background-2:           rgb(249, 250, 251);  /* #F9FAFB panel background */
+  --default-off:            rgb(235, 235, 235);  /* #EBEBEB disabled fill */
+  --box-outline:            rgb(222, 222, 222);  /* #DEDEDE borders */
+
+  /* ========== SEMANTIC TOKENS ========== */
+  --fg-1:                   var(--font-80);
+  --fg-2:                   var(--font-60);
+  --fg-3:                   var(--font-40);
+  --fg-4:                   var(--font-20);
+  --fg-on-dark:             var(--white);
+
+  --bg-app:                 var(--background);
+  --bg-surface:             var(--white);
+  --bg-panel:               var(--background-2);
+  --bg-sidebar:             rgb(46, 47, 51);     /* dark sidebar */
+
+  --border-default:         var(--box-outline);
+  --border-strong:          var(--default-off);
+
+  --link:                   var(--tamanu-blue-100);
+  --link-hover:             var(--tamanu-blue-hover);
+
+  --success:                var(--green-100);
+  --success-bg:             var(--green-10);
+  --danger:                 var(--red-alert-100);
+  --danger-bg:              var(--red-10);
+  --warning:                var(--yellow-100);
+  --warning-bg:             var(--yellow-10);
+  --info:                   var(--hover-1);
+  --info-bg:                var(--hover-2);
+
+  /* ========== ELEVATION / EFFECTS ========== */
+  --shadow-flush:           0 1px 1px 0 rgba(0,0,0,0.05), 0 2px 4px 0 rgba(0,0,0,0.10);
+  --shadow-raised:          0 2px 2px 0 rgba(0,0,0,0.10), 0 4px 16px 0 rgba(0,0,0,0.10);
+  --shadow-float:           0 8px 32px 0 rgba(0,0,0,0.15);
+  --shadow-inset:           inset 0 2px 4px 0 rgba(0,0,0,0.10), inset 0 1px 1px 0 rgba(0,0,0,0.05);
+
+  /* ========== RADIUS ========== */
+  --radius-xs:              2px;
+  --radius-sm:              3px;   /* buttons, fields, cards */
+  --radius-md:              4px;   /* nav items */
+  --radius-lg:              5px;   /* design containers */
+  --radius-pill:            999px;
+
+  /* ========== SPACING ========== */
+  --space-1:                2px;
+  --space-2:                4px;
+  --space-3:                8px;
+  --space-4:                12px;
+  --space-5:                16px;
+  --space-6:                20px;
+  --space-7:                24px;
+  --space-8:                32px;
+  --space-9:                40px;
+
+  /* ========== TYPOGRAPHY ========== */
+  --font-family-base:       'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Scale (from Figma /Font frames) */
+  --text-h1-size:           24px;  --text-h1-line: 32px;
+  --text-h2-size:           20px;  --text-h2-line: 28px;
+  --text-h3-size:           18px;  --text-h3-line: 24px;
+  --text-h4-size:           16px;  --text-h4-line: 21px;
+  --text-body-size:         14px;  --text-body-line: 18px;
+  --text-small-size:        11px;  --text-small-line: 15px;
+
+  --weight-regular:         400;
+  --weight-medium:          500;
+}
+
+/* ==========================================================================
+   Base typography primitives
+   ========================================================================== */
+
+html, body { font-family: var(--font-family-base); color: var(--fg-2); background: var(--bg-app); }
+
+.t-h1-m, h1 {
+  font-size: var(--text-h1-size); line-height: var(--text-h1-line);
+  font-weight: var(--weight-medium); color: var(--font-80); margin: 0;
+}
+.t-h1-r {
+  font-size: var(--text-h1-size); line-height: var(--text-h1-line);
+  font-weight: var(--weight-regular); color: var(--font-80);
+}
+.t-h2-m, h2 {
+  font-size: var(--text-h2-size); line-height: var(--text-h2-line);
+  font-weight: var(--weight-medium); color: var(--font-80); margin: 0;
+}
+.t-h2-r {
+  font-size: var(--text-h2-size); line-height: var(--text-h2-line);
+  font-weight: var(--weight-regular); color: var(--font-80);
+}
+.t-h3-m, h3 {
+  font-size: var(--text-h3-size); line-height: var(--text-h3-line);
+  font-weight: var(--weight-medium); color: var(--font-80); margin: 0;
+}
+.t-h3-r {
+  font-size: var(--text-h3-size); line-height: var(--text-h3-line);
+  font-weight: var(--weight-regular); color: var(--font-80);
+}
+.t-h4-m, h4 {
+  font-size: var(--text-h4-size); line-height: var(--text-h4-line);
+  font-weight: var(--weight-medium); color: var(--font-80); margin: 0;
+}
+.t-h4-r {
+  font-size: var(--text-h4-size); line-height: var(--text-h4-line);
+  font-weight: var(--weight-regular); color: var(--font-80);
+}
+.t-body-m, p.medium {
+  font-size: var(--text-body-size); line-height: var(--text-body-line);
+  font-weight: var(--weight-medium); color: var(--fg-2);
+}
+.t-body-r, p {
+  font-size: var(--text-body-size); line-height: var(--text-body-line);
+  font-weight: var(--weight-regular); color: var(--fg-2); margin: 0;
+}
+.t-small-m {
+  font-size: var(--text-small-size); line-height: var(--text-small-line);
+  font-weight: var(--weight-medium); color: var(--fg-3);
+}
+.t-small-r, small {
+  font-size: var(--text-small-size); line-height: var(--text-small-line);
+  font-weight: var(--weight-regular); color: var(--fg-3);
+}
+
+a { color: var(--link); text-decoration: none; }
+a:hover { color: var(--link-hover); text-decoration: underline; }

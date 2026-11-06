@@ -3,282 +3,369 @@ title: Tamanu design system
 ---
 # Tamanu Design System
 
-Tamanu is an electronic medical record for hospitals and clinics in low-resource,
-often low-connectivity settings. The interface is a clinical workhorse: staff use
-it all day, under load, to make decisions about real patients. It should be dense,
-legible, calm, and unsurprising. The patient record is the product; the chrome
-around it should recede.
+Tamanu is an open-source electronic medical record (EMR) used in resource-constrained
+clinical settings. The desktop app is used by clinicians at nursing stations, reception
+desks, and admin offices — so the system prioritises **information density,
+scannability, calm medical hierarchy, and accessibility in bright or varied lighting**.
 
-This is the lineage to aim for — the quiet competence of a well-built line-of-business
-tool, not the flourish of a consumer app. No decoration that doesn't carry
-information. No novelty for its own sake.
+## How this is sourced
 
-## Design philosophy
+This document mirrors the designer-authored **"Tamanu Design System"** on Claude Design
+(the Figma source, crystallised in `colors_and_type.css` and the preview cards). It is
+the agreed design direction and the source of truth for design work in Tamanu — producing
+mockups, implementing UI, and auditing both.
 
-**Clarity is safety.** A misread dose, a status glanced at wrong, a label that
-could mean two things — in a clinical record these are not cosmetic faults. Every
-value must be legible at a glance and every state unambiguous. When a choice is
-between "prettier" and "clearer", clearer wins every time.
+- Tokens live in [`colors_and_type.css`](./colors_and_type.css); read colours, spacing, radius
+  and type from the CSS variables — never hardcode a value.
+- Rendered previews live under [`./foundations/`](./foundations/) (colour, type, spacing, elevation)
+  and [`./components/`](./components/) (one card per component).
+- **The design system leads the code in places.** The shipped code (`TAMANU_COLORS` in
+  `packages/ui-components/src/constants/colors.js`, `packages/web/app/theme/theme.jsx`) implements
+  a subset: a single button size, no tertiary tag families, no elevation scale, a coarser
+  spacing ladder, and `primaryDark #2f4358` where this system uses `bg-sidebar #2E2F33`. Treat
+  this document as the target; adopt these tokens as code catches up, and flag any divergence
+  rather than silently following one or the other.
 
-**Density, done calmly.** Clinicians need a lot on screen at once — a table of
-results, a card of patient details, a form with twenty fields. The answer is not
-to hide information behind clicks, but to organise it: consistent grouping,
-alignment, and whitespace so a dense screen still reads as orderly rather than
-noisy. Compact where it must be, never cramped.
+## Principles
 
-**The data is the interface.** Colour, weight, and chrome are spent on the
-clinical content, not on the frame around it. The accent blue is an accent — it
-marks what is interactive or selected, and little else. A screen where everything
-is coloured or boxed is a screen where nothing stands out.
-
-**Every colour means something.** The palette is semantic, not decorative. Blue is
-interactive (primary actions, links, selection). Red is error. Green is safe /
-complete. Orange is warning / urgent. Don't reach for a colour because a region
-"needs" one; reach for it because it carries that meaning here. See
-[Colour palette](#colour-palette).
-
-**Boring is a feature.** Prefer the conventional pattern over the clever one. A
-form is a form, a table is a table, a modal confirms before it destroys. Staff are
-trained once and then trusted to move fast; surprise is a tax on that. New
-interaction patterns need to earn their place against the cost of re-teaching them.
-
-**Consistency across surfaces.** The same concept should look the same in the
-facility server, the central admin panel, and (as far as the platform allows)
-mobile. A status chip, a label/value pair, a primary button — one treatment each,
-reused, not re-invented per screen.
-
-**Everything visible is translatable.** Tamanu is deployed in many countries and
-languages. All user-facing copy — labels, buttons, placeholders, toasts, table
-headings — goes through `TranslatedText` / `TranslatedEnum` / `TranslatedReferenceData`.
-Hardcoded English is a defect, not a detail.
-
-## How to use this document
-
-This is the source of truth for design work in Tamanu — for producing mockups,
-for implementing UI, and for auditing both. It is grounded in the shipped code
-(`packages/ui-components` and `packages/web`), with file paths cited so you can
-confirm against the implementation.
-
-- When this document disagrees with something shipped elsewhere in the codebase,
-  **this document represents the agreed direction** — but say so, rather than
-  silently following one or the other.
-- The values here are extracted from code, not from Figma. A programmatic
-  cross-check against the Figma *Tamanu Design System* file was only partially
-  possible this pass (the file exposed a cover page and a single confirmed token,
-  `Background 2 = #F9FAFB`, which matches the code). Treat the code as
-  authoritative; a fuller Figma reconciliation is follow-up work.
-- **Component docs and previews live in [`./components/`](./components/)** — each
-  of the six components below has a markdown doc and a rendered HTML preview.
+- **Clarity is safety.** Every value legible at a glance, every state unambiguous. When the
+  choice is "prettier" vs "clearer", clearer wins.
+- **Density, done calmly.** A lot on screen, organised — consistent grouping, alignment and
+  whitespace so a dense screen still reads as orderly.
+- **Every colour means something.** The palette is semantic, not decorative (blue = interactive,
+  red = alert, green = success, yellow = warning). Reach for a colour because it carries that
+  meaning here.
 
 ---
 
-## Colour palette
+## Brand
 
-A cool, blue-grey system. The single source of truth is `TAMANU_COLORS` in
-`packages/ui-components/src/constants/colors.js`, re-exported as `Colors`. Read
-colours from that object (`Colors.primary`) — never hardcode a hex in a component.
+### Logos
 
-The MUI theme (`packages/web/app/theme/theme.jsx`) maps these tokens onto the
-standard MUI palette slots (noted below), so MUI components inherit them.
-
-### Brand / interactive
-
-Blue is the interactive colour: primary actions, links, selected/active states,
-focus. Spend it sparingly — it only reads as "interactive" if most of the screen
-isn't blue.
-
-| Token | Value | Usage |
+| Variant | File | Use on |
 |---|---|---|
-| `primary` | `#326699` | Primary buttons, active tabs, selected rows/borders, links. MUI `primary.main` |
-| `primaryDark` | `#2f4358` | Dark sidebar, tooltip backgrounds. MUI `primary.dark` |
-| `primary30` | `#C2D2E1` | Disabled primary button fill/border (30% presence) |
-| `primary10` | `#EBF0F5` | Faint primary tint for backgrounds/highlights |
-| `blue` | `#1172D1` | Secondary link/info blue (distinct from brand `primary`) |
-| `brightBlue` | `#67A6E3` | Lighter accent blue |
-| `veryLightBlue` | `#F4F9FF` | Row hover tint on clickable tables. MUI `action.hover` |
+| Wordmark · light | `assets/logo-tamanu-long-blue.svg` | White / light surfaces |
+| Wordmark · dark | `assets/logo-tamanu-long-white.svg` | Navy / dark surfaces |
+| Icon mark · light | `assets/logo-tamanu-icon-dark.png` | White / light surfaces |
+| Icon mark · dark | `assets/logo-tamanu-icon-light.png` | Navy / dark surfaces (collapsed sidebar, favicons) |
 
-### Text ramp
+- **Wordmark** includes the "tamanu" text; used in the expanded sidebar header, login, and splash.
+- **Icon mark** is the pin + medical-cross symbol; used where horizontal space is constrained
+  (collapsed rail, tabs, favicons).
+- Preview: [`./foundations/logos.html`](./foundations/logos.html).
 
-Four weights of grey, darkest for primary reading down to faint. Use the ramp;
-don't invent intermediate greys.
+---
 
-| Token | Value | Usage |
+## Colour
+
+Every colour is a CSS custom property in `colors_and_type.css` (RGB; hex shown here for
+readability). Read from the token — never hardcode a hex.
+
+### Primary — Tamanu Blue
+
+| Token | Hex | Use |
 |---|---|---|
-| `darkestText` | `#444444` | Primary text — headings, labels, body. MUI `text.primary` |
-| `darkText` | `#666666` | Secondary text — values, descriptions |
-| `midText` | `#888888` | Tertiary / de-emphasised — placeholders, helper text, disabled, card labels. MUI `text.tertiary` |
-| `softText` | `#b8b8b8` | Lowest emphasis — disabled controls, faint captions, version strings |
+| `--tamanu-blue-100` | `#326699` | Primary brand blue — primary buttons, active nav, links |
+| `--tamanu-blue-30` | `#C2D2E1` | 30% tint — disabled states, secondary strokes |
+| `--tamanu-blue-10` | `#EBF0F5` | 10% tint — selected-row fill, hover surfaces |
+| `--tamanu-dark-blue` | `#2F4358` | Deep navy — sidebar, tooltip fill, dark headers |
+| `--tamanu-blue-hover` | `#22486D` | Primary-button hover |
+| `--tamanu-blue-surface` | `#F4F9FF` | Secondary-button hover fill |
 
-### Semantic
+Preview: [`./foundations/color-primary.html`](./foundations/color-primary.html).
 
-Each carries one meaning. Use them for that meaning, not as decoration.
+### Status
 
-| Token | Value | Meaning |
+| Token | Hex | Use |
 |---|---|---|
-| `alert` | `#f76853` | **Error** — validation failures, destructive confirmation, error toasts. MUI `error.main` |
-| `lightAlert` | `#fff0ee` | Light tint background behind an error/alert region |
-| `safe` | `#47ca80` | **Success / complete** — completed items, positive status, inpatient. MUI `success.main` |
-| `green` | `#19934E` | Deeper success green (text/icons where `safe` is too light) |
-| `orange` | `#f17f16` | **Warning / urgent** — triage, emergency/observation states |
-| `darkOrange` | `#CB6100` | Darker warning — in-progress, no-show |
-| `secondary` | `#ffcc24` | Attention yellow (secondary accent). MUI `secondary.main` |
+| `--green-100` | `#47CA80` | Success (admitted, completed, OK) |
+| `--green-10` | `#EDFAF3` | Success surface |
+| `--red-alert-100` | `#F76853` | Destructive, urgent alerts |
+| `--red-10` | `#FFF0EE` | Danger surface |
+| `--yellow-100` | `#FFCC24` | Warning, pending attention, outpatient markers |
+| `--yellow-10` | `#FFFAEA` | Warning surface |
 
-### Surfaces & lines
+Preview: [`./foundations/color-status.html`](./foundations/color-status.html).
 
-| Token | Value | Usage |
+### Tertiary (tag / data colours)
+
+Each family has three stops: `-100` (solid chip), `-20` (tag fill), `-10` (subtle background).
+
+| Family | -100 | -20 | -10 |
+|---|---|---|---|
+| Green `--green-t-*` | `#19934E` | `#D1E9DC` | `#E9F5EE` |
+| Blue `--blue-t-*` | `#1172D1` | `#CFE3F6` | `#E8F1FB` |
+| Purple `--purple-t-*` | `#4101C9` | `#D9CCF4` | `#ECE6FA` |
+| Pink `--pink-t-*` | `#D10580` | `#F6CDE6` | `#FBE7F3` |
+| Orange `--orange-t-*` | `#CB6100` | `#F5DFCC` | `#FAF0E6` |
+| Yellow `--yellow-t-*` | `#BD9503` | `#F2EACD` | `#F9F5E6` |
+| Brown `--brown-t-*` | `#67361B` | `#E1D7D1` | `#F0EBE9` |
+| Teal `--teal-t-*` | `#125E7E` | `#D0DFE5` | `#E8EFF3` |
+
+Preview: [`./foundations/color-tertiary.html`](./foundations/color-tertiary.html).
+
+### Neutrals (text, surface, chrome)
+
+| Token | Hex | Use |
 |---|---|---|
-| `white` | `#ffffff` | Cards, panels, inputs, table bodies |
-| `offWhite` | `#fafafa` | Subtle off-white surface |
-| `background` | `#f3f5f7` | App/page background, modal body, table header, disabled fields. MUI `background.default` |
-| `background2` | `#f9fafb` | Lighter alternate panel (summary panels). Confirmed against Figma `Background 2` |
-| `hoverGrey` | `#f3f5f7` | Neutral hover fill (same hex as `background`) |
-| `outline` | `#dedede` | Default borders — inputs, cards, table container, dividers. MUI `divider` |
-| `softOutline` | `#ebebeb` | Subtle borders — section dividers, modal header rule, card header rule |
-| `searchTintColor` | `#d2dae3` | Search field tint |
+| `--font-80` | `#444444` | Primary text / headings |
+| `--font-60` | `#666666` | Body text |
+| `--font-40` | `#888888` | Labels, meta, secondary text |
+| `--font-20` | `#B8B8B8` | Disabled text, placeholders |
+| `--white` | `#FFFFFF` | Base surface |
+| `--background` | `#F3F5F7` | App background |
+| `--background-2` | `#F9FAFB` | Panel background |
+| `--bg-sidebar` | `#2E2F33` | Sidebar background (alt navy) |
+| `--box-outline` | `#DEDEDE` | Default borders |
+| `--default-off` | `#EBEBEB` | Disabled fills |
+| `--hover-1` | `#328DE5` | Info / hover accent blue |
+| `--hover-2` | `#E8F1FB` | Very-light hover fill |
 
-### Occasional
+Preview: [`./foundations/color-neutrals.html`](./foundations/color-neutrals.html).
 
-Reserved, narrow-use hues. Don't reach for these for general UI.
+### Semantic tokens (preferred in components)
 
-| Token | Value | Usage |
-|---|---|---|
-| `pink` | `#D10580` | Category/identity accent |
-| `purple` | `#4101C9` | Category/identity accent |
-| `metallicYellow` | `#BD9503` | Category/identity accent |
+Alias the raw tokens above; prefer these in component CSS so intent is explicit.
 
-### Rules
+```css
+--fg-1 / --fg-2 / --fg-3 / --fg-4          /* text scale, dark → light */
+--bg-app / --bg-surface / --bg-panel
+--border-default / --border-strong
+--link / --link-hover
+--success / --danger / --warning / --info  (+ *-bg surface variants)
+```
 
-- **Read from `Colors`.** Never inline a hex. If a value you need isn't in the
-  palette, that's a palette decision — raise it, don't fork a one-off shade.
-- **Don't recolour chrome.** Borders are `outline`/`softOutline`, backgrounds are
-  `white`/`background`. Resist tinting panels to "group" them; alignment and
-  spacing do that job.
-- **Semantic colours keep their meaning.** Don't use `alert` red for emphasis, or
-  `safe` green for a non-success accent.
-- **Contrast.** Body text is `darkestText`/`darkText` on white or `background`.
-  `midText` is for de-emphasised secondary content, not long-form reading;
-  `softText` is for disabled/faint only.
+---
 
 ## Typography
 
-### Font
+### Family
 
-**Roboto** is the UI typeface, bundled with the app (via the `typeface-roboto`
-package, imported once in `App.jsx`) — not loaded from a CDN. The CSS fallback
-stack is `'Roboto', 'Helvetica', 'Arial', sans-serif`. **Fira Code** is loaded as
-a monospace face **only** for the SQL/JSON editor — it is not a general UI font.
+**Roboto** — a humanist neo-grotesque chosen for legibility at small sizes and strong tabular
+numeric alignment (critical for medical data). Self-hosted as variable TTFs; in this repo the
+`@font-face` falls back to the system Roboto Tamanu already ships (`typeface-roboto`).
 
-There is no monospace treatment for IDs or codes in Tamanu (unlike some design
-systems); identifiers render in Roboto like everything else.
+Only two weights are used in practice:
 
-### Type scale
+- **Regular (400)** — body text, field values, table cells
+- **Medium (500)** — headings, button labels, nav labels, emphasis
 
-Tamanu's type scale is **not** expressed through MUI typography variants — the
-theme only sets `fontFamily: 'Roboto'` and leaves the MUI variant scale at its
-defaults. The real scale is eight styled components in
-`packages/web/app/components/Typography.js`. Use these components for text rather
-than raw MUI `Typography` or ad-hoc `font-size`.
+### Scale
 
-| Component | Size | Line-height | Weight | Element |
-|---|---|---|---|---|
-| `Heading1` | 24px | 32px | 500 | `h1` |
-| `Heading2` | 20px | 28px | 500 | `h2` |
-| `Heading3` | 18px | 24px | 500 | `h3` |
-| `Heading4` | 16px | 21px | 500 | `h4` |
-| `Heading5` | 14px | 18px | 500 | `h5` |
-| `LargeBodyText` | 16px | 21px | 400 | `div` |
-| `BodyText` | 14px | 18px | 400 | `div` |
-| `SmallBodyText` | 11px | 15px | 400 | `div` |
+| Style | Size / line-height | Weight | CSS class |
+|---|---|---|---|
+| H1 | 24 / 32 | 500 / 400 | `.t-h1-m` / `.t-h1-r`, `h1` |
+| H2 | 20 / 28 | 500 / 400 | `.t-h2-m` / `.t-h2-r`, `h2` |
+| H3 | 18 / 24 | 500 / 400 | `.t-h3-m` / `.t-h3-r`, `h3` |
+| H4 | 16 / 21 | 500 / 400 | `.t-h4-m` / `.t-h4-r`, `h4` |
+| Body | 14 / 18 | 500 / 400 | `.t-body-m` / `.t-body-r`, `p` |
+| Small | 11 / 15 | 500 / 400 | `.t-small-m` / `.t-small-r`, `small` |
 
-`BodyText` (14px) is the default body size — it matches the base control text
-(inputs, buttons, table cells are all 14px). `SmallBodyText` (11px) is for
-helper text, captions, and metadata. Headings step 24 → 20 → 18 → 16 → 14, all at
-weight 500 (medium); there is no 700/bold heading weight in the scale.
+Preview: [`./foundations/type-scale.html`](./foundations/type-scale.html).
 
-### The `color` prop gotcha (important)
+---
 
-The shared base of these components maps **only** `color="textTertiary"` →
-`midText` (`#888`). **Any other `color` value — including `textPrimary` and
-`textSecondary` — is a silent no-op**: the component applies no colour and inherits
-the ambient text colour (effectively `darkestText` `#444`).
+## Spacing & radius
 
-```jsx
-<BodyText color="textSecondary">…</BodyText>   // ❌ no-op — renders #444, not #666
-<BodyText color={Colors.darkText}>…</BodyText> // ✅ explicit token
-```
+### Spacing scale
 
-To set anything other than the tertiary grey, pass an explicit `Colors.*` value.
-Don't trust `textPrimary`/`textSecondary` on these components.
+Base unit is 4px; the scale is **not** a strict multiple-of-4 — it also uses 2px for
+ultra-tight alignments.
 
-### Other type set in the theme
-
-| Context | Treatment | Source |
+| Token | Value | Typical use |
 |---|---|---|
-| Form helper text | 11px, line-height 1.4, `midText` | `MuiFormHelperText` |
-| Menu item | 11px, letter-spacing 0.02em | `MuiMenuItem` |
-| Tabs | `text-transform: none`, min-height 48px | `MuiTab` |
-| Button | 14px, weight 500, `text-transform: none` | `StyledButton` |
+| `--space-1` | 2px | Icon / text micro-nudges |
+| `--space-2` | 4px | Tag padding, tight gaps |
+| `--space-3` | 8px | Default internal padding, gap |
+| `--space-4` | 12px | Row padding |
+| `--space-5` | 16px | Card padding |
+| `--space-6` | 20px | Section gap |
+| `--space-7` | 24px | Large section gap |
+| `--space-8` | 32px | Page section gap |
+| `--space-9` | 40px | Top-level layout gap |
 
-Note: buttons and tabs **never uppercase** their text (MUI's default is overridden).
+### Corner radius
 
-## Spacing
-
-Base unit: **8px** (`MUI_SPACING_UNIT` in `packages/web/app/constants/styles.js`).
-Note that `theme.spacing()` is **not** used — spacing is applied by importing the
-constant and multiplying inline (`spacing * 2` → 16px, `spacing / 2` → 4px).
-
-The canonical ladder derived from the unit:
-
-| Value | Multiple | Typical usage |
+| Token | Value | Use |
 |---|---|---|
-| 4px | ½ | Tight inline gaps (label-to-ornament, icon-to-text) |
-| 8px | 1× | Small gaps between elements |
-| 16px | 2× | Standard block padding, section gaps |
-| 24px | 3× | Page/layout horizontal padding, large section gaps |
+| `--radius-xs` | 2px | Table cell highlight, dense chips |
+| `--radius-sm` | 3px | Buttons, fields, cards, most surfaces |
+| `--radius-md` | 4px | Nav items, tooltips |
+| `--radius-lg` | 5px | Large containers, modals |
+| `--radius-pill` | 999px | Tag pills, avatars |
 
-A fair amount of component CSS also uses off-grid literals (5, 10, 12, 20, 30px) —
-these exist, but **new work should prefer the 4 / 8 / 16 / 24 ladder** rather than
-adding more off-grid values.
+Preview: [`./foundations/spacing-radius.html`](./foundations/spacing-radius.html).
 
-Form layout spacing is owned by `FormGrid` (column gap `0.7rem`, row gap `1.2rem`) —
-see [the FormGrid doc](./components/form-grid.md); don't hand-space fields.
+---
 
-## Border radius
+## Elevation
 
-The base UI radius is **3px** (`theme.shape.borderRadius`), inherited by buttons,
-inputs, and most containers. Larger surfaces round a little more; chips, tags, and
-status pills are fully rounded.
+Four shadow tokens.
 
-| Radius | Usage |
-|---|---|
-| `3px` | **Base** — buttons, inputs, autocomplete, generic containers (`theme.shape.borderRadius`) |
-| `2px` | Tight inputs (date field, settings rows) |
-| `4px–5px` | Feature cards, panels, invoice/medication cards (`InfoCard` uses 5px) |
-| `10px` | Larger rounded cards and popovers |
-| `16px` | Select / dropdown menu containers |
-| `20px` / `25px` | Chips & tags (`FormFieldTag` 20px, `TableCellTag` 25px) |
-| `50px` / `100px` / `999px` / `calc(infinity * 1px)` | Fully-rounded pills — status pills, toggles, badges |
-| `20%` / `50%` | Icon buttons (`20%`), circular avatars/spinners (`50%`) |
+| Token | Shadow | Use |
+|---|---|---|
+| `--shadow-flush` | `0 1px 1px rgba(0,0,0,.05), 0 2px 4px rgba(0,0,0,.10)` | Cards, rows at rest |
+| `--shadow-raised` | `0 2px 2px rgba(0,0,0,.10), 0 4px 16px rgba(0,0,0,.10)` | Dropdowns, popovers |
+| `--shadow-float` | `0 8px 32px rgba(0,0,0,.15)` | Modals, dialogs |
+| `--shadow-inset` | `inset 0 2px 4px rgba(0,0,0,.10), inset 0 1px 1px rgba(0,0,0,.05)` | Pressed / active inputs |
 
-Rule of thumb: **square-ish (3px)** for controls and containers, **fully-round**
-for status pills and chips. Avoid introducing new mid-range values (6/8/9px appear
-occasionally but aren't a deliberate step).
+Preview: [`./foundations/elevation.html`](./foundations/elevation.html).
+
+---
+
+## Iconography
+
+Tamanu Desktop uses **three distinct icon sets**, each with its own role.
+
+- **Lucide (general UI)** — outline stroke icons for action affordances, controls, table cells,
+  inline metadata. Stroke width 2, 24×24 viewport, `currentColor`. Default size 16px or 20px.
+- **MUI Material Icons (clinical filled)** — filled glyphs where a solid, recognised clinical
+  metaphor helps (medical services, vaccines, biotech). Filled by default; `BedOutlined` is the one
+  intentional outline.
+- **Brand nav icons (sidebar)** — yellow-filled circular glyphs used **only** in the primary sidebar
+  to identify top-level destinations. Not for inline use.
+
+Preview: [`./foundations/icons.html`](./foundations/icons.html) (loads the Lucide and MUI sets live).
 
 ---
 
 ## Components
 
-The six most-used building blocks in the web app live in
-[`./components/`](./components/) — each has a markdown doc and a rendered HTML
-preview:
+The component spine, matched to the Claude Design system. Each has a rendered preview under
+[`./components/`](./components/). Build with the real Tamanu components where they exist
+(`@tamanu/ui-components`), and treat the specs below as the target.
 
-- [Button](./components/button.md) — the action control (primary / secondary / tertiary)
-- [Field](./components/field.md) — the form field system (label, input, validation)
-- [FormGrid](./components/form-grid.md) — the form layout grid
-- [Modal](./components/modal.md) — dialogs (Modal / FormModal / ConfirmModal)
-- [Table](./components/table.md) — lists and data grids
-- [Card](./components/card.md) — InfoCard panels and Tile stats
+### Buttons
 
-When implementing, **use these components** — don't rebuild a button, field, or
-modal from MUI primitives. Import from `@tamanu/ui-components` (shared) or the web
-`components/` directory as noted in each doc.
+Four sizes × four variants. Preview: [`./components/buttons.html`](./components/buttons.html).
+
+| Size | Height | Padding (v / h) | Font |
+|---|---|---|---|
+| Large (`L`) | 44 | 0 / 20 | 14 / 18 · 500 |
+| Medium (`M`) | 40 | 0 / 20 | 14 / 18 · 500 |
+| Small (`S`) | 36 | 0 / 16 | 14 / 18 · 500 |
+| XSmall (`XS`) | 32 | 0 / 12 | 11 / 15 · 500 |
+
+- **Primary** — filled `--tamanu-blue-100`, white text. Hover → `--tamanu-blue-hover`.
+- **Secondary** — 1px `--tamanu-blue-100` border, transparent fill, blue text. Hover → `--tamanu-blue-surface`.
+- **Tertiary** — no border, blue text, transparent fill. Hover → `--tamanu-blue-surface`.
+- **Link** — blue text, underline on hover. No padding when inline.
+- **States:** default · hover · focus (2px `--tamanu-blue-30` outline, offset 1) · disabled
+  (30% blue, or `--default-off` fill / `--font-20` text) · loading (spinner, label retained).
+
+### Fields
+
+All inputs share the "large label" pattern. Preview: [`./components/fields.html`](./components/fields.html).
+
+- **Label** above the field — Small Medium, `--font-60`. **Required** marker `*` in `--red-alert-100`.
+- **Field** — 1px `--box-outline` border, `--radius-sm`, 8/12–16 padding, Body Regular value, 36px height.
+- **Helper / error** beneath — Small Regular; error text and border in `--red-alert-100`.
+- Types: text, number, search (leading icon), select (trailing chevron, menu opens below),
+  multi-select (chips in the input), date, date-range, time, textarea.
+- States: default · focus (blue border) · filled · disabled (`--default-off`) · error · read-only.
+
+### Selection controls
+
+Preview: [`./components/selection-controls.html`](./components/selection-controls.html).
+
+- **Checkbox** — 16×16, 1px border at rest; filled `--tamanu-blue-100` + white check when checked; `--radius-xs`. Partial (indeterminate) shows a dash.
+- **Radio** — 16×16 circle, 1px border; filled disc `--tamanu-blue-100` when selected.
+- **Toggle** — 32×18 track, 14px knob; `--default-off` off / `--tamanu-blue-100` on.
+
+### Tags
+
+Pill-shaped (`--radius-pill`), tertiary colour families. Preview: [`./components/tags.html`](./components/tags.html).
+
+| Size | Height | Font |
+|---|---|---|
+| Large (`L`) | 28 | Body Regular 14/18 |
+| XSmall (`XS`) | 24 | Small Regular 11/15 |
+
+Fill is the tertiary `-10`/`-20`; text is the matching `-100`. An outlined variant uses a
+`--tamanu-blue-100` border on white. Example: an "Outpatient" tag → `--yellow-t-10` fill, `--yellow-t-100` text.
+
+### Toasts
+
+Short inline confirmation. Preview: [`./components/toasts.html`](./components/toasts.html).
+
+- `--radius-md`, flex row, padding 12/16, Body Regular.
+- Statuses success / error / info (extendable to warning): background is the status `-10` surface,
+  text and leading icon the matching `-100`.
+- Trailing close (×) in the current colour.
+
+### Table
+
+Preview: [`./components/table.html`](./components/table.html) (a live template — edit columns, fields, menu and rows).
+
+- **Search** header above the table: a field grid with an optional **Advanced** dropdown, a primary
+  **Search** and a **Clear** link.
+- **Header row** — `--background-2` / white fill, Body Medium, `--font-80`; sortable columns show a
+  chevron.
+- **Cell** — Body Regular, `--font-80`, 12/16 padding, 1px bottom border.
+- **Row states**: default · hover (`--background-2` / `--tamanu-blue-10`) · selected
+  (`--tamanu-blue-10` + left accent).
+- **Overflow** kebab per row opens a menu; optional checkbox-selection column.
+- **Footer** — Export button, rows-per-page, and pagination (chevron · "1–10 of 103" · chevron).
+
+### Sidebar
+
+Two states: **expanded (260px)** and **collapsed (64px)**. Preview: [`./components/sidebar.html`](./components/sidebar.html).
+
+- **Expanded** — wordmark header; accordion sections with 24×24 brand icons, Body Medium labels, a
+  caret that rotates on open; submenu rows indent to 46px, with a coloured dot for the Patients
+  sub-categories (blue / green / red / yellow for All / Inpatient / Emergency / Outpatient); user
+  footer with 40px avatar, name / role / facility, kebab, version and log-out.
+- **Collapsed** — icon mark header; only circular brand icons, centred; a navy toggle with a yellow
+  chevron on the right edge expands it; hovering an icon shows a Tooltip with the section label.
+
+### Tooltips
+
+Dark-blue (`--tamanu-dark-blue`) surface with a 10×10 notch rotated 45°, Roboto Small (11/15),
+white text. Eight notch positions cover the common anchor combinations (top-left/top/top-right,
+left/right, bottom-left/bottom/bottom-right). Preview: [`./components/tooltips.html`](./components/tooltips.html).
+
+### Menu / dropdown
+
+Popover surface on a trigger (kebab, chevron button): white, 1px `--box-outline`, `--radius-lg`,
+`--shadow-raised`, 8px vertical padding; stacked items, Body Regular `--font-60`, hover `--hover-2`.
+Preview: [`./components/menu-dropdown.html`](./components/menu-dropdown.html).
+
+---
+
+## Code usage
+
+### Layout
+
+```
+colors_and_type.css          ← tokens + @font-face + typography primitives
+design-system.md             ← this document
+foundations/                 ← colour, type, spacing, elevation, icon, logo preview cards
+components/                   ← one HTML preview card per component
+designs/ · snapshots/        ← persisted mockups and captured screens
+```
+
+### Consuming tokens
+
+Import `colors_and_type.css` once and use the CSS variables directly — never hardcode a hex.
+
+```html
+<link rel="stylesheet" href="colors_and_type.css">
+
+<button style="
+  background: var(--tamanu-blue-100);
+  color: var(--white);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
+  font: 500 14px/18px var(--font-family-base);
+">
+  Admit patient
+</button>
+```
+
+### In the Tamanu app
+
+Implement against the real components in `@tamanu/ui-components` (`packages/ui-components`) and
+`packages/web/app`. Where this system is ahead of the code — the four button sizes, the tertiary tag
+families, the elevation scale, the finer spacing/radius scales — it is the agreed direction: adopt
+these tokens as components are built or revised, and call out any place the shipped code still
+diverges rather than treating the code as canonical.
