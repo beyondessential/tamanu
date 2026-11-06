@@ -1,3 +1,4 @@
+import config from 'config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { wakeCentral } from '../../app/utils/wakeCentral';
@@ -9,23 +10,26 @@ vi.mock('../../app/sync/CentralServerConnection', () => ({
 
 describe('wakeCentral', () => {
   const fetch = vi.fn();
+  const connect = vi.fn();
 
   beforeEach(() => {
     vi.resetAllMocks();
     CentralServerConnection.mockImplementation(function () {
       this.fetch = fetch;
+      this.connect = connect;
     });
   });
 
-  it('makes one attempt at an ordinary request to central, login included', async () => {
+  it('makes one bounded attempt at the login and at the request that wakes central', async () => {
     fetch.mockResolvedValue({});
 
     await wakeCentral('device-1');
 
     expect(CentralServerConnection).toHaveBeenCalledWith({ deviceId: 'device-1' });
+    expect(connect).toHaveBeenCalledExactlyOnceWith(false, config.sync.timeout);
     expect(fetch).toHaveBeenCalledExactlyOnceWith('whoami', {
       backoff: false,
-      preserveBackoffForAuthAttempt: true,
+      retryAuth: false,
     });
   });
 
@@ -33,6 +37,13 @@ describe('wakeCentral', () => {
     fetch.mockRejectedValue(new Error('central is down'));
 
     await expect(wakeCentral('device-1')).resolves.toBeUndefined();
+  });
+
+  it('swallows a failed login', async () => {
+    connect.mockRejectedValue(new Error('central is down'));
+
+    await expect(wakeCentral('device-1')).resolves.toBeUndefined();
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('swallows a failure to build the connection', async () => {
