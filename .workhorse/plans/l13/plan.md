@@ -28,21 +28,32 @@ Infra's side (actuator, pod, sleep state on the Argo Application) is infra card 
 ### Copy and hand-back
 
 - Copy: `pg_dump -a --disable-triggers` of the allowlist piped into the copy, or streamed `COPY` from Node. About 0.3 s for 25,000 rows in the spike.
-- Hand-back selects rows with `updated_at` (or `created_at`) after the copy time, by the copy's clock, and upserts into the real database with triggers on.
+- Changed rows are tracked inside the copy (a trigger on the three written tables, added after the load, recording each row's key in a side table), not by timestamp: copied rows keep central's `updated_at`, which can be ahead of the supervisor's clock, and handing back unchanged rows would bump their sync ticks and make every device re-pull them.
+- Hand-back upserts the tracked rows into the real database with triggers on.
 - Supervisor's role on the real database: not yet tested. Loading with triggers off happens in the supervisor's own Postgres, so the real-database role needs no trigger privilege.
 
 ### Scheduled tasks
 
-- Classify each task in `packages/central-server/app/tasks/` (and facility tasks, if a facility's tasks part sleeps) as time-driven or activity-driven. Each task declares it.
+- Classify every task in `packages/central-server/app/tasks/` and `packages/facility-server/app/tasks/` as time-driven or activity-driven. Each task declares it. Check that catch-up "runs once" is right for each time-driven task (the bed fee charger must not drop days).
+- Time-driven tasks feed queues (vaccination reminders feed the email processor, the report scheduler feeds report requests); a timed wake ends only once those queues are empty.
+- Busy check at sleep: an api endpoint, for the supervisor only, reporting whether a task is running or any work queue has pending items.
 - Time-driven tasks report their next due time, including report schedules stored in the database. The sleep-time endpoint returns the earliest.
 - `node-schedule` skips runs missed while down: add last-ran bookkeeping per task, and a run-once-on-start for tasks whose due time passed.
 
 ### Facility partial wake
 
-- The facility supervisor authenticates to central with the facility's own sync credentials from config. If central is asleep, central's supervisor serves that login.
+- The facility supervisor authenticates to central with the facility's sync credentials, read at sleep from `local_system_facts` (`FACT_SYNC_EMAIL`, `FACT_DEVICE_ID`, central host) and `local_system_secrets` (password, decrypted with the facility's key file, which is mounted into the supervisor). If central is asleep, central's supervisor serves that login.
 - The partial wake ends when the facility's last successful sync completed after the wake started (read from the facility database), or at the time bound.
 
+### Other notes
+
+- Last-seen writes are throttled: update only when the stored value is older than a few minutes.
+- `SendStatusToMetaServer` is dead in every deployment: remove it rather than have the supervisor stand in for it while asleep.
+- A forgotten web tab keeps a facility awake through its polling unless idle logout logs it out; card V13 pauses polling while the tab is hidden.
+
 ## Order of work
+
+- [ ] Remove `SendStatusToMetaServer` (central and facility) and its config and settings
 
 - [ ] Changes-pending check on central, with last-seen recording, and the facility and mobile clients using it; the up-to-date run outcome
 - [ ] On-demand lookup refresh endpoint returning the highest real-change tick
@@ -57,3 +68,4 @@ Infra's side (actuator, pod, sleep state on the Argo Application) is infra card 
 - [ ] Scheduled tasks: classification, timed wakes, catch-up
 - [ ] Login test suite against the allowlist copy in CI
 - [ ] Supervisor container image bundling Caddy and Postgres
+- [ ] Support pack: `docs/runbooks/sync-facility-stale.md` and `docs/healthchecks.md` for facilities that open no session when idle, and for sleeping servers
