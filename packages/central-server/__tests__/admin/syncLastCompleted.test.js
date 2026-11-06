@@ -1,5 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
+import { DEVICE_SCOPES } from '@tamanu/constants';
+import { fake } from '@tamanu/fake-data/fake';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { createTestContext } from '../utilities';
@@ -92,5 +94,79 @@ describe('GET /admin/sync/lastCompleted', () => {
     const row = result.body.data.find(r => r.facilityIds?.[0] === facilityIds[0]);
     expect(row).toBeTruthy();
     expect(new Date(row.completedAt)).toEqual(new Date('2024-06-01'));
+  });
+
+  // spec: CEND
+  describe('central endpoint', () => {
+    const createDevice = async fields => {
+      const user = await models.User.create(fake(models.User));
+      return models.Device.create(
+        fake(models.Device, {
+          registeredById: user.id,
+          scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+          // fake() fills nullable columns, so say explicitly that nothing was reported
+          centralEndpoint: null,
+          centralEndpointReportedAt: null,
+          ...fields,
+        }),
+      );
+    };
+
+    const createSessionFor = async ({ device, isMobile = false }) => {
+      const facilityIds = [`facility-${fakeUUID()}`];
+      const completedAt = new Date('2024-06-01');
+      await models.SyncSession.create({
+        startTime: completedAt,
+        lastConnectionTime: completedAt,
+        completedAt,
+        debugInfo: { totalToPull: 0 },
+        parameters: { facilityIds, deviceId: device.id, isMobile },
+      });
+      return facilityIds;
+    };
+
+    const fetchRow = async facilityIds => {
+      const app = await baseApp.asRole('admin');
+      const result = await app.get(ENDPOINT);
+      expect(result).toHaveSucceeded();
+      return result.body.data.find(r => r.facilityIds?.[0] === facilityIds[0]);
+    };
+
+    it('shows the endpoint most recently reported by the row’s device, and when', async () => {
+      const reportedAt = new Date('2024-07-01T00:00:00Z');
+      const device = await createDevice({
+        centralEndpoint: 'https://central.example.com',
+        centralEndpointReportedAt: reportedAt,
+      });
+      const facilityIds = await createSessionFor({ device });
+
+      const row = await fetchRow(facilityIds);
+      expect(row.endpoint).toBe('https://central.example.com');
+      expect(new Date(row.endpointReportedAt)).toEqual(reportedAt);
+    });
+
+    it('shows neither for a device that has never reported', async () => {
+      const device = await createDevice({});
+      const facilityIds = await createSessionFor({ device });
+
+      const row = await fetchRow(facilityIds);
+      expect(row.endpoint).toBeNull();
+      expect(row.endpointReportedAt).toBeNull();
+    });
+
+    it('shows neither for a mobile device that has never reported', async () => {
+      const device = await createDevice({});
+      const facilityIds = await createSessionFor({ device, isMobile: true });
+
+      const row = await fetchRow(facilityIds);
+      expect(row.deviceType).toBe('mobile');
+      expect(row.endpoint).toBeNull();
+    });
+
+    it.each(['endpoint', 'endpointReportedAt'])('can sort by %s', async orderBy => {
+      const app = await baseApp.asRole('admin');
+      const result = await app.get(ENDPOINT).query({ orderBy });
+      expect(result).toHaveSucceeded();
+    });
   });
 });

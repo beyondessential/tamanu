@@ -133,14 +133,14 @@ export class CentralSyncManager {
     return { tick: tock - 1, tock };
   }
 
-  async startSession({ deviceId, facilityIds, isMobile, ...debugInfo } = {}) {
+  async startSession({ deviceId, facilityIds, isMobile, endpoint, ...debugInfo } = {}) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
 
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
-    const parameters = { deviceId, facilityIds, isMobile };
+    const parameters = { deviceId, facilityIds, isMobile, endpoint };
 
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
     let syncSession;

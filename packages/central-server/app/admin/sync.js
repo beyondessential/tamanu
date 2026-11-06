@@ -7,7 +7,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
 
   const { store, query } = req;
   const {
-    models: { SyncSession },
+    models: { Device, SyncSession },
   } = store;
 
   const { page, rowsPerPage, order, orderBy } = await z
@@ -35,6 +35,8 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
           'deviceId',
           'deviceType',
           'duration',
+          'endpoint',
+          'endpointReportedAt',
           'facilityIds',
           'recordsPulled',
           'tick',
@@ -70,6 +72,14 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
     }),
   );
 
+  // spec: CEND
+  // The endpoint is the one the row's device most recently reported, which can be newer than the
+  // session itself: a queued or failed session still updates the device.
+  const devices = await Device.findAll({
+    where: { id: sessions.map(session => session.parameters.deviceId).filter(Boolean) },
+  });
+  const devicesById = new Map(devices.map(device => [device.id, device]));
+
   res.send({
     data: sessions
       .map(session => ({
@@ -81,6 +91,9 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
         deviceType: session.parameters.isMobile ? 'mobile' : 'facility',
         recordsPulled: session.debugInfo.totalToPull ?? 0,
         tick: session.pullSince ?? 0,
+        endpoint: devicesById.get(session.parameters.deviceId)?.centralEndpoint ?? null,
+        endpointReportedAt:
+          devicesById.get(session.parameters.deviceId)?.centralEndpointReportedAt ?? null,
       }))
       .sort((oa, ob) => {
         const [a, b] = order === 'desc' ? [ob, oa] : [oa, ob];
@@ -92,6 +105,10 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
           return a.deviceType?.localeCompare(b.deviceType ?? '') ?? 0;
         } else if (orderBy === 'duration') {
           return a.duration - b.duration;
+        } else if (orderBy === 'endpoint') {
+          return (a.endpoint ?? '').localeCompare(b.endpoint ?? '');
+        } else if (orderBy === 'endpointReportedAt') {
+          return (a.endpointReportedAt?.getTime() ?? 0) - (b.endpointReportedAt?.getTime() ?? 0);
         } else if (orderBy === 'facilityIds') {
           return a.facilityIds?.[0]?.localeCompare(b.facilityIds?.[0] ?? '') ?? 0;
         } else if (orderBy === 'recordsPulled') {

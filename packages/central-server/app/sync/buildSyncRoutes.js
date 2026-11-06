@@ -12,6 +12,7 @@ import { buildFacilityBootstrap } from './buildFacilityBootstrap';
 import { CentralSyncManager } from './CentralSyncManager';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import { parseCentralEndpoint } from '@tamanu/utils/centralEndpoint';
 
 // Whether the requesting user may sync each of these facilities, for anything that serves a
 // facility's share of central.
@@ -30,6 +31,19 @@ const assertUserCanSyncFacilities = async (req, facilityIds) => {
 /**
  * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
  */
+
+function parseReportedEndpoint(endpoint, deviceId) {
+  if (endpoint === undefined || endpoint === null) return undefined;
+  const result = parseCentralEndpoint(endpoint);
+  if (!result.isValid) {
+    log.warn('Ignoring unreadable central endpoint reported by device', {
+      deviceId,
+      reason: result.reason,
+    });
+    return undefined;
+  }
+  return result.endpoint;
+}
 
 /** @param ctx {ApplicationContext} */
 export const buildSyncRoutes = ctx => {
@@ -59,7 +73,7 @@ export const buildSyncRoutes = ctx => {
         store,
         user,
         device,
-        body: { lastSyncedTick = 0, urgent = false, facilityIds, isMobile },
+        body: { lastSyncedTick = 0, urgent = false, facilityIds, isMobile, endpoint },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
@@ -68,6 +82,15 @@ export const buildSyncRoutes = ctx => {
       }
 
       await assertUserCanSyncFacilities(req, facilityIds);
+
+      // spec: CEND
+      // Facility servers report the central endpoint they are using, because a reverse proxy can
+      // hide the name a request arrived on. It is informational, so one that cannot be read is
+      // ignored rather than allowed to block sync.
+      const reportedEndpoint = parseReportedEndpoint(endpoint, device.id);
+      if (reportedEndpoint) {
+        await device.reportCentralEndpoint(reportedEndpoint);
+      }
 
       // first check if our device has any stale sessions...
       const staleSessions = await SyncSession.findAll({
@@ -141,6 +164,7 @@ export const buildSyncRoutes = ctx => {
           deviceId: device.id,
           facilityIds,
           isMobile,
+          endpoint: reportedEndpoint,
         });
 
         res.json({ status: 'goodToGo', sessionId, tick });

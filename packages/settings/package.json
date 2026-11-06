@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@tamanu/constants": "*",
+    "@tamanu/utils": "*",
     "config": "^3.3.9",
     "date-fns": "^2.25.0",
     "es-toolkit": "^1.48.1",

@@ -3,6 +3,8 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 import {
+  FACT_CENTRAL_ENDPOINT_IN_USE,
+  FACT_CENTRAL_ENDPOINTS,
   FACT_CENTRAL_HOST,
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
@@ -11,13 +13,19 @@ import {
 
 import { ApplicationContext } from '../ApplicationContext';
 
-const SYNC_CONFIG_FACTS = [FACT_CENTRAL_HOST, FACT_SYNC_EMAIL, FACT_FACILITY_IDS];
+const SYNC_CONFIG_FACTS = [
+  FACT_CENTRAL_HOST,
+  FACT_CENTRAL_ENDPOINTS,
+  FACT_CENTRAL_ENDPOINT_IN_USE,
+  FACT_SYNC_EMAIL,
+  FACT_FACILITY_IDS,
+];
 
 const confirmReset = async () => {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
     const answer = await rl.question(
-      'This clears the sync host, credentials and facility IDs so the server must be set up again.\nAre you really sure? (yes/no) ',
+      'This clears the sync host and any recorded central endpoints, credentials and facility IDs so the server must be set up again.\nAre you really sure? (yes/no) ',
     );
     return answer.trim().toLowerCase() === 'yes';
   } finally {
