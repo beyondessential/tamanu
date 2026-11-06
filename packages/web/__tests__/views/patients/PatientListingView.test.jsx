@@ -58,13 +58,13 @@ const translationContext = {
   translations: {},
 };
 
-const renderView = () =>
+const renderView = (context = translationContext) =>
   renderElementWithTranslatedText(
     <AuthContext.Provider value={{ ability: { can: () => auth.canListPatients } }}>
       <PatientListingView />
     </AuthContext.Provider>,
     undefined,
-    translationContext,
+    context,
   );
 
 describe('PatientListingView', () => {
@@ -88,6 +88,20 @@ describe('PatientListingView', () => {
     expect(hint).toContain('for more advanced search options.');
     expect(hint).not.toContain(':advancedSearchIcon');
     expect(screen.getByTitle('advanced search')).toBeTruthy();
+  });
+
+  it("uses the deployment's own label for the patient identifier in the hint", () => {
+    renderView({
+      ...translationContext,
+      getTranslation: (stringId, fallback, options) =>
+        stringId === 'general.localisedField.displayId.label.short'
+          ? 'Patient ID'
+          : replaceStringVariables(fallback, options),
+    });
+
+    expect(screen.getByTestId('patientsearchemptystate').textContent).toContain(
+      'Search by Patient ID, name or date of birth.',
+    );
   });
 
   it('lists patients once a search with criteria runs', async () => {
