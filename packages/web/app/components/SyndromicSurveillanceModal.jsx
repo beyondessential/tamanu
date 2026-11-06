@@ -16,6 +16,7 @@ import { useSurveyResponseEditValues } from '../views/programs/useSurveyResponse
 import { FormModal } from './FormModal';
 import { LoadingIndicator } from './LoadingIndicator';
 import { SurveyResponseChangelogModal } from './SurveyResponseChangelogModal';
+import { TranslatedReferenceData } from './Translation';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const SubmitSyndromicSurveillanceForm = ({ encounterId, patient, onClose }) => {
@@ -131,6 +132,21 @@ const EditSyndromicSurveillanceForm = ({ surveyResponseId, patient, onClose }) =
   );
 };
 
+// Titled with the form's name, which each deployment configures. Mounted only while the modal is
+// open, and shares its request with the form being completed.
+const SyndromicSurveillanceModalTitle = () => {
+  const { data: survey } = useSurveyQuery(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+  if (!survey) return null;
+  return (
+    <TranslatedReferenceData
+      category="survey"
+      value={survey.id}
+      fallback={survey.name}
+      data-testid="translatedreferencedata-syndromic-surveillance-title"
+    />
+  );
+};
+
 /**
  * Completes the encounter's syndromic surveillance form, or edits its existing response when one is
  * given.
@@ -146,13 +162,7 @@ export const SyndromicSurveillanceModal = ({
 }) => (
   <FormModal
     width="md"
-    title={
-      <TranslatedText
-        stringId="syndromicSurveillance.modal.title"
-        fallback="Syndromic surveillance"
-        data-testid="translatedtext-syndromic-surveillance-title"
-      />
-    }
+    title={<SyndromicSurveillanceModalTitle />}
     open={open}
     onClose={onClose}
     data-testid="formmodal-syndromic-surveillance"
