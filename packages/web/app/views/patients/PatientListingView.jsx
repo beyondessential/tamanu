@@ -107,7 +107,9 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       verb="list"
       noun="Patient"
       columns={columns}
-      noDataMessage="No patients found"
+      noDataMessage={
+        <TranslatedText stringId="patientList.table.noData" fallback="No patients found" />
+      }
       onRowClick={handleViewPatient}
       rowStyle={({ dateOfDeath }) => {
         // Style rows for deceased patients red
