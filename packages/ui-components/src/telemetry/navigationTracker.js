@@ -18,6 +18,8 @@ export class TelemetryNavigationTracker {
     maxDurationMs = 30000,
     scheduleTimer = (fn, ms) => setTimeout(fn, ms),
     cancelTimer = id => clearTimeout(id),
+    // A performance timestamp, which the span reads relative to its own start.
+    now = () => performance.now(),
   }) {
     this.tracer = tracer;
     this.getContextAttributes = getContextAttributes;
@@ -25,6 +27,7 @@ export class TelemetryNavigationTracker {
     this.maxDurationMs = maxDurationMs;
     this.scheduleTimer = scheduleTimer;
     this.cancelTimer = cancelTimer;
+    this.now = now;
 
     this.activeNav = null;
     this.navSeq = 0;
@@ -64,6 +67,8 @@ export class TelemetryNavigationTracker {
       inFlight: 0,
       ended: false,
       quietTimer: null,
+      // When the quiet window was last armed, which is when activity went quiet.
+      quietSince: null,
       capTimer: null,
     };
 
@@ -143,6 +148,7 @@ export class TelemetryNavigationTracker {
   #armQuiet() {
     this.#clearQuiet();
     if (!this.activeNav) return;
+    this.activeNav.quietSince = this.now();
     this.activeNav.quietTimer = this.scheduleTimer(
       () => this.#endNavigation(TELEMETRY_NAV_OUTCOMES.SETTLED),
       this.quietWindowMs,
@@ -176,7 +182,10 @@ export class TelemetryNavigationTracker {
     }
 
     nav.span.setAttribute(SPAN_ATTR.OUTCOME, outcome);
-    nav.span.end();
+    // spec: BTEL. A settled page loaded when activity went quiet; the quiet window
+    // after it only confirms that, so is not part of the load. Capped and abandoned
+    // navigations end now.
+    nav.span.end(outcome === TELEMETRY_NAV_OUTCOMES.SETTLED ? nav.quietSince : undefined);
     this.activeNav = null;
   }
 }

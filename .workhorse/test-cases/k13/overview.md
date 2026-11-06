@@ -43,6 +43,7 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 
 - [x] A request still in flight when its navigation is abandoned or capped is ended with it and records that outcome; a late settle is ignored (verifies spec: BTEL)
 - [x] A navigational request carries its navigation's route; a standalone request carries none (verifies spec: BTEL)
+- [x] A settled page load ends when its activity went quiet, not when the quiet window runs out; a page with no requests records no load time, and capped and abandoned loads end when they happen (verifies spec: BTEL)
 - [x] The ingest stores the navigation route sent with a request (verifies spec: BTEL)
 - [x] On a fresh deployment with the telemetry setting untouched, the web client collects from the first load, including the login screen (verifies spec: BTEL)
 - [ ] On a fresh deployment with the telemetry setting untouched, the patient portal collects from the first load (verifies spec: BTEL)
