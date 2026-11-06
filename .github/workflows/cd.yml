@@ -655,29 +655,6 @@ jobs:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
 
-  recently-viewed-patients:
-    needs:
-      - config
-      - deploy-up
-    if: ${{ !cancelled() && needs.deploy-up.result != 'skipped' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.config.outputs.up) }}
-    name: Seed recently viewed patients on ${{ matrix.name }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.config.outputs.ref }}
-      # Without facility sync no patients arrive to seed, and custom facility names don't follow
-      # the facility-N pattern the script addresses.
-      - if: fromJson(matrix.options).facilitytasks != 0 && !fromJson(matrix.options).facilitynames
-        run: node packages/scripts/src/seedRecentlyViewedPatients.mjs "$DEPLOY" "$FACILITIES"
-        env:
-          DEPLOY: ${{ matrix.name }}
-          FACILITIES: ${{ fromJson(matrix.options).facilities }}
-
   # Fake data adds a round on every deploy while ticked, so a PR's seed runs once per tick.
   # Edits made with the workflow token don't start another run.
   uncheck-fake-data:
