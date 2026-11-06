@@ -5,10 +5,19 @@ import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/c
 
 import { ERROR_TYPE } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
+
+// Retry-After is a whole number of seconds (or an HTTP date, which central does not send). Anything
+// else, or nothing, waits the default. Always at least a second, so a zero cannot spin.
+function parseRetryAfterSeconds(header, { defaultRetryAfterSeconds, maxRetryAfterSeconds }) {
+  const trimmed = header?.trim() ?? '';
+  const seconds = /^\d+$/.test(trimmed) ? Number.parseInt(trimmed, 10) : defaultRetryAfterSeconds;
+  return Math.min(Math.max(seconds, 1), maxRetryAfterSeconds);
+}
 
 export class CentralServerConnection extends TamanuApi {
   #loginData;
@@ -125,9 +134,59 @@ export class CentralServerConnection extends TamanuApi {
     return records;
   }
 
+  // spec: SYNCHK#while-central-wakes
+  // A sleeping central answers requests that need its database with 503 and a Retry-After while
+  // it wakes. That is not a failure: wait as long as it says and ask again, for as long as it keeps
+  // answering that way, up to `sync.centralWake.maxTotalWaitSeconds` in all so that a wake that
+  // never finishes eventually fails the attempt with the last 503.
+  async #fetchWhileCentralWakes(endpoint, options) {
+    const { defaultRetryAfterSeconds, maxRetryAfterSeconds, maxTotalWaitSeconds } =
+      config.sync.centralWake;
+    let waitedSeconds = 0;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        // fetch() consumes some of its options, so each attempt gets its own copy
+        return await this.fetch(endpoint, { ...options });
+      } catch (error) {
+        if (error.response?.status !== 503) throw error;
+
+        const retryAfterSeconds = parseRetryAfterSeconds(
+          error.response.headers?.get('retry-after'),
+          { defaultRetryAfterSeconds, maxRetryAfterSeconds },
+        );
+        if (waitedSeconds + retryAfterSeconds > maxTotalWaitSeconds) {
+          log.warn('CentralServerConnection.centralWakeTimedOut', { endpoint, waitedSeconds });
+          throw error;
+        }
+
+        log.info('CentralServerConnection.centralWaking', {
+          endpoint,
+          retryAfterSeconds,
+          waitedSeconds,
+        });
+        await sleepAsync(retryAfterSeconds * 1000);
+        waitedSeconds += retryAfterSeconds;
+      }
+    }
+  }
+
+  // spec: SYNCHK#the-check
+  // Asks central whether anything that syncs has changed since the tick our last pull reached.
+  // Leave `since` undefined when we have never pulled.
+  async checkChangesPending(since) {
+    const query = since === undefined ? {} : { since };
+    const { changesToPull } = await this.#fetchWhileCentralWakes('sync/pending', { query });
+    if (typeof changesToPull !== 'boolean') {
+      throw new Error('Central answered the changes-pending check without a changesToPull flag');
+    }
+    return changesToPull;
+  }
+
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityIds = getServerFacilityIds();
-    const { sessionId, status } = await this.fetch('sync', {
+    const { sessionId, status } = await this.#fetchWhileCentralWakes('sync', {
       method: 'POST',
       body: {
         facilityIds,

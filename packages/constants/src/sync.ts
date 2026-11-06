@@ -36,7 +36,19 @@ export const SYNC_FACILITY_RUN_STATUSES = {
   RUNNING: 'running',
   SUCCEEDED: 'succeeded',
   QUEUED: 'queued',
+  // The changes-pending check (SYNCHK) found nothing to pull, so no session was opened
+  UP_TO_DATE: 'up_to_date',
   FAILED: 'failed',
+} as const;
+
+// spec: SYNRUN
+// What asked a facility server to sync. Recorded as `trigger_type` on the run, and decides whether
+// the attempt checks for pending changes first (only a scheduled sync does, see SYNCHK).
+export const SYNC_TRIGGER_TYPES = {
+  SCHEDULED: 'scheduled', // the schedule, including the sync at start-up
+  USER_REQUESTED: 'userRequested',
+  PATIENT_MARKED_FOR_SYNC: 'patientMarkedForSync',
+  SUBCOMMAND: 'subcommand',
 } as const;
 
 // spec: FBOOT#contents
