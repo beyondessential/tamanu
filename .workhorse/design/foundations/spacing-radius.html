@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- @dsCard group="Spacing" name="Spacing & Radius" subtitle="2px base scale + radius tokens" viewport="700x200" -->
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:20px;background:#fff;font-family:'Roboto';font-size:11px;color:#666}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.box{background:#326699;border-radius:3px}
+.tok{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#888}
+.lbl{font-weight:500;color:#2E2F33;font-size:11px}
+.row2{display:flex;gap:12px;align-items:center;margin-top:20px;font-size:12px}
+.chip{background:#E6EBF0;border-radius:3px;padding:4px 10px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#326699}
+</style></head>
+<body>
+<div class="grid">
+  <div class="item"><div class="box" style="width:2px;height:2px"></div><div class="lbl">space-1</div><div class="tok">2px</div></div>
+  <div class="item"><div class="box" style="width:4px;height:4px"></div><div class="lbl">space-2</div><div class="tok">4px</div></div>
+  <div class="item"><div class="box" style="width:8px;height:8px"></div><div class="lbl">space-3</div><div class="tok">8px</div></div>
+  <div class="item"><div class="box" style="width:12px;height:12px"></div><div class="lbl">space-4</div><div class="tok">12px</div></div>
+  <div class="item"><div class="box" style="width:16px;height:16px"></div><div class="lbl">space-5</div><div class="tok">16px</div></div>
+  <div class="item"><div class="box" style="width:20px;height:20px"></div><div class="lbl">space-6</div><div class="tok">20px</div></div>
+  <div class="item"><div class="box" style="width:24px;height:24px"></div><div class="lbl">space-7</div><div class="tok">24px</div></div>
+  <div class="item"><div class="box" style="width:32px;height:32px"></div><div class="lbl">space-8</div><div class="tok">32px</div></div>
+  <div class="item"><div class="box" style="width:40px;height:40px"></div><div class="lbl">space-9</div><div class="tok">40px</div></div>
+  <div class="item"></div>
+</div>
+<div class="row2">
+  <span class="chip">xs 2</span><span class="chip">sm 3</span><span class="chip">md 4</span><span class="chip">lg 5</span><span class="chip">pill 999</span>
+  <span style="margin-left:8px;color:#888">— border radius</span>
+</div>
+</body></html>
