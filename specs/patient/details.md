@@ -32,10 +32,10 @@ billing information is recorded and edited. Fields are grouped into headed secti
 
 The details used to bill the patient, grouped together so they are found in one place.
 
-- [ ] Billing information holds, in order: insurer and insurance policy number (where
-      patient insurers are enabled), insurance plan, patient type, family size, annual
-      income, Payor 1, Payor 1 reference number, Payor 2, and Payor 2 reference number.
-      Each payor's reference number sits beside it.
+- [ ] Billing information holds, in order: insurance policy number (where patient insurers
+      are enabled), insurance plan, patient type, family size, annual income, Payor 1,
+      Payor 1 reference number, Payor 2, and Payor 2 reference number. Each payor's
+      reference number sits beside it.
 - [ ] Insurance plan accepts more than one plan, chosen from the insurance plans
       available to patients.
 - [ ] An insurance plan that is on one of the patient's in-progress invoices cannot be
@@ -49,6 +49,9 @@ The details used to bill the patient, grouped together so they are found in one 
       and the highest band as anything above its lower bound.
 - [ ] Annual income cannot be chosen until a family size is selected. Changing the family
       size clears the annual income, since its bands no longer apply.
+- [ ] The sliding fee scale plan is recognised by its plan code, which a deployment names
+      in its settings, so the requirement holds whatever the plan is called and whatever
+      language it is read in.
 - [ ] When the patient's insurance plans include Sliding fee scale, family size and annual
       income are required, and the patient's details are not saved until both are chosen.
       Both are marked as required as soon as Sliding fee scale is selected.

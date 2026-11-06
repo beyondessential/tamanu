@@ -1110,14 +1110,6 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
-        insurerId: {
-          name: 'Insurer',
-          description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
-        },
         insurerPolicyNumber: {
           name: 'Insurer policy number',
           description: '_',
@@ -1179,6 +1171,78 @@ export const globalSettings = {
           description: '_',
           properties: generateFieldSchema({
             isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        adoptionNumber: {
+          name: 'Adoption number',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            defaultHidden: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        marriageLicence: {
+          name: 'Marriage licence',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            defaultHidden: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        familySize: {
+          name: 'Family size',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            defaultHidden: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        annualIncome: {
+          name: 'Annual income',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            defaultHidden: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        payor1Id: {
+          name: 'Payor 1',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            defaultHidden: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        payor1ReferenceNumber: {
+          name: 'Payor 1 reference number',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            defaultHidden: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        payor2Id: {
+          name: 'Payor 2',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            defaultHidden: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        payor2ReferenceNumber: {
+          name: 'Payor 2 reference number',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            defaultHidden: true,
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
@@ -1479,6 +1543,13 @@ export const globalSettings = {
           description: '_',
           type: yup.array(yup.array(yup.number())),
           defaultValue: slidingFeeScaleDefault,
+        },
+        slidingFeeScalePlanCode: {
+          name: 'Sliding fee scale insurance plan code',
+          description:
+            'Code of the insurance plan that makes family size and annual income required on patient details',
+          type: yup.string(),
+          defaultValue: 'sliding-fee-scale',
         },
       },
     },

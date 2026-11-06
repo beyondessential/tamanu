@@ -8,6 +8,10 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
   const fieldsToShow = useMemo(() => {
     const checkCondition = (fieldName) =>
       !fields[fieldName].condition || fields[fieldName].condition();
+    // LocalisedField renders nothing for a hidden field anyway; dropping it here as well lets a
+    // caller ask whether the group has anything left to show, so an all-hidden section can leave
+    // out its heading rather than printing one over an empty grid.
+    const checkHidden = (fieldName) => !getSetting(`fields.${fieldName}.hidden`);
     const checkMandatory = (fieldName) => {
       const requiredConfiguration = getSetting(`fields.${fieldName}.requiredPatientData`);
       return (
@@ -18,13 +22,18 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
     };
 
     return Object.keys(fields)
-      .filter((fieldName) => checkMandatory(fieldName) && checkCondition(fieldName))
+      .filter(
+        (fieldName) =>
+          checkMandatory(fieldName) && checkCondition(fieldName) && checkHidden(fieldName),
+      )
       .map((fieldName) => {
         // eslint-disable-next-line no-unused-vars
         const { condition, ...rest } = fields[fieldName];
         return {
           ...rest,
-          required: !!getSetting(`fields.${fieldName}.requiredPatientData`),
+          // A group can mark a field required for a reason of its own (the sliding fee scale
+          // fields do), which stands whatever the deployment configured.
+          required: rest.required ?? !!getSetting(`fields.${fieldName}.requiredPatientData`),
           name: fieldName,
         };
       });

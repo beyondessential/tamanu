@@ -4,7 +4,7 @@ import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
-export const GenericContactFields = ({ filterByMandatory }) => {
+export const GenericContactFields = ({ filterByMandatory, heading }) => {
   const CONTACT_FIELDS = {
     primaryContactNumber: {
       component: TextField,
@@ -54,6 +54,7 @@ export const GenericContactFields = ({ filterByMandatory }) => {
     <ConfiguredMandatoryPatientFields
       fields={CONTACT_FIELDS}
       filterByMandatory={filterByMandatory}
+      heading={heading}
       data-testid="configuredmandatorypatientfields-0kxw"
     />
   );

@@ -14,7 +14,7 @@ Your details, on the dashboard (see `patient-portal/overview.md`), shows the sig
   - Contact: Mobile phone, Other phone, Email
   - Address: Street address, Town or city
   - Emergency contact: Name, Phone
-  - Insurance: Health insurer, Policy number
+  - Insurance: Policy number
   - Other: Occupation
 - [ ] Each detail shows its label beside its value, with every value lined up in one column.
 - [ ] Details with no value are left out, as is a group with none recorded. With nothing beyond the basic details recorded, More details does not appear.
@@ -26,7 +26,7 @@ Your details, on the dashboard (see `patient-portal/overview.md`), shows the sig
 - [ ] An Edit button beside the Your details heading opens the edit screen.
 - [ ] The edit screen lists the recorded identifying details first (Patient ID, names, date of birth, sex and village), which are never editable, saying to talk to the clinic to change them. Beneath them, every detail the patient can change is an input prefilled with its current value, under the same group headings as the details.
 - [ ] Title is chosen from the standard list of titles.
-- [ ] Ethnicity, Health insurer and Occupation are chosen from the deployment's current reference data for that type. A patient's existing choice that has since been retired still shows as chosen, and can be changed or set to None.
+- [ ] Ethnicity and Occupation are chosen from the deployment's current reference data for that type. A patient's existing choice that has since been retired still shows as chosen, and can be changed or set to None.
 - [ ] Every chosen detail can be set to None, and every typed detail can be cleared, removing its value from the patient record.
 - [ ] Phone and email inputs bring up the phone's matching keyboard, and inputs offer the browser's saved contact and address details.
 - [ ] Save and Cancel sit in a bar fixed to the bottom of the screen, so they are in view however long the form is.

@@ -949,24 +949,24 @@ const trimAndConcat = (col1, col2) =>
     ' ',
     Sequelize.fn('trim', Sequelize.col(col2)),
   );
-createSuggester(
-  'patient',
-  'Patient',
-  ({ search }) => ({
-    [Op.or]: [
-      Sequelize.where(trimAndConcat('first_name', 'last_name'), { [Op.iLike]: search }),
-      Sequelize.where(trimAndConcat('last_name', 'first_name'), { [Op.iLike]: search }),
-      { displayId: { [Op.iLike]: search } },
-    ],
-  }),
-  {
-    mapper: patient => patient,
-    searchColumn: 'first_name',
-    orderBuilder: req => {
-      const searchQuery = (req.query.q || '').trim().toLowerCase();
-      const escapedQuery = req.db.escape(searchQuery);
-      const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
-      return Sequelize.literal(`
+const patientNameOrDisplayIdMatches = ({ search }) => ({
+  [Op.or]: [
+    Sequelize.where(trimAndConcat('first_name', 'last_name'), { [Op.iLike]: search }),
+    Sequelize.where(trimAndConcat('last_name', 'first_name'), { [Op.iLike]: search }),
+    { displayId: { [Op.iLike]: search } },
+  ],
+});
+
+// An exact display id first, then a display id or name the search starts, so typing an id lands
+// on that patient rather than on whoever happens to sort first.
+const PATIENT_SUGGESTER_OPTIONS = {
+  mapper: patient => patient,
+  searchColumn: 'first_name',
+  orderBuilder: req => {
+    const searchQuery = (req.query.q || '').trim().toLowerCase();
+    const escapedQuery = req.db.escape(searchQuery);
+    const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
+    return Sequelize.literal(`
           CASE
             WHEN LOWER(display_id) = ${escapedQuery} THEN 0
             WHEN LOWER(display_id) LIKE ${escapedPartialMatch} THEN 1
@@ -975,8 +975,21 @@ createSuggester(
             ELSE 4
           END
         `);
-    },
   },
+};
+
+createSuggester('patient', 'Patient', patientNameOrDisplayIdMatches, PATIENT_SUGGESTER_OPTIONS);
+
+// Payors on a patient's billing details. A deceased patient cannot be billed, so they are not
+// offered; the patient being edited is, since a patient can pay for themselves.
+createSuggester(
+  'patientPayor',
+  'Patient',
+  args => ({
+    ...patientNameOrDisplayIdMatches(args),
+    dateOfDeath: null,
+  }),
+  PATIENT_SUGGESTER_OPTIONS,
 );
 
 createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', ({ endpoint, modelName }) => {

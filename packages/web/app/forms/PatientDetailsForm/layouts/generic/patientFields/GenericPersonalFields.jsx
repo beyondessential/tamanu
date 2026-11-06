@@ -12,7 +12,6 @@ import {
 import {
   TextField,
   AutocompleteField,
-  SuggesterSelectField,
   TranslatedSelectField,
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
@@ -23,6 +22,7 @@ export const GenericPersonalFields = ({
   patientRegistryType,
   filterByMandatory,
   isEdit,
+  heading,
 }) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -157,17 +157,6 @@ export const GenericPersonalFields = ({
         />
       ),
     },
-    patientBillingTypeId: {
-      component: SuggesterSelectField,
-      endpoint: 'patientBillingType',
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.patientBillingTypeId.label"
-          fallback="Patient type"
-          data-testid="translatedtext-c6cp"
-        />
-      ),
-    },
     motherId: {
       component: AutocompleteField,
       suggester: motherSuggester,
@@ -190,24 +179,13 @@ export const GenericPersonalFields = ({
         />
       ),
     },
-    invoiceInsurancePlanId: {
-      component: SuggesterSelectField,
-      endpoint: 'invoiceInsurancePlan',
-      isMulti: true,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.invoiceInsurancePlanId.label"
-          fallback="Insurance plan"
-          data-testid="translatedtext-73e2"
-        />
-      ),
-    },
   };
 
   return (
     <ConfiguredMandatoryPatientFields
       fields={PERSONAL_FIELDS}
       filterByMandatory={filterByMandatory}
+      heading={heading}
       data-testid="configuredmandatorypatientfields-vhzu"
     />
   );

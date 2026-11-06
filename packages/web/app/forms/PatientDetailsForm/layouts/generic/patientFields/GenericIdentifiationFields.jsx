@@ -2,17 +2,19 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { AutocompleteField, DisplayIdField, TextField } from '../../../../../components';
+import { DisplayIdField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
-import { useSuggester } from '../../../../../api';
 import { useSettings } from '../../../../../contexts/Settings';
 
-export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
+export const GenericIdentificationFields = ({
+  isEdit,
+  patientRegistryType,
+  filterByMandatory,
+  heading,
+}) => {
   const { getSetting } = useSettings();
-  const insurerSuggester = useSuggester('insurer');
   const canEditDisplayId = isEdit && getSetting('features.editPatientDisplayId');
-  const enablePatientInsurer = getSetting('features.enablePatientInsurer');
 
   const IDENTIFICATION_FIELDS = {
     displayId: {
@@ -28,29 +30,6 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
           data-testid="translatedtext-3f67"
         />
       ),
-    },
-    insurerId: {
-      component: AutocompleteField,
-      suggester: insurerSuggester,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.insurer.label"
-          fallback="Insurer"
-          data-testid="translatedtext-b91c"
-        />
-      ),
-      condition: () => !!enablePatientInsurer,
-    },
-    insurerPolicyNumber: {
-      component: TextField,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.insurerPolicyNumber.label"
-          fallback="Insurance policy number"
-          data-testid="translatedtext-kpjh"
-        />
-      ),
-      condition: () => !!enablePatientInsurer,
     },
     drivingLicense: {
       component: TextField,
@@ -73,12 +52,31 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         />
       ),
     },
+    adoptionNumber: {
+      component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.adoptionNumber.label"
+          fallback="Adoption number"
+        />
+      ),
+    },
+    marriageLicence: {
+      component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.marriageLicence.label"
+          fallback="Marriage licence"
+        />
+      ),
+    },
   };
 
   return (
     <ConfiguredMandatoryPatientFields
       fields={IDENTIFICATION_FIELDS}
       filterByMandatory={filterByMandatory}
+      heading={heading}
       data-testid="configuredmandatorypatientfields-y6v9"
     />
   );

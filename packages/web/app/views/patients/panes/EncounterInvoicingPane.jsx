@@ -308,7 +308,7 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
           />
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />
-            <InvoiceSummaryPanel invoice={invoice} />
+            <InvoiceSummaryPanel invoice={invoice} patientId={encounter.patientId} />
             {!isInProgress && <InsurancePlanPaymentsTable invoice={invoice} />}
           </PaymentsSection>
         </InvoiceContainer>

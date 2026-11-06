@@ -21,6 +21,7 @@ import { LoadingIndicator } from '../components/LoadingIndicator';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { Colors } from '../constants/styles';
 import { getPatientDetailsValidation } from '../validations';
+import { useSlidingFeeScalePlanId } from '../api/queries/useInvoiceInsurancePlansQuery';
 import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
 import { useLayoutComponents } from './PatientDetailsForm';
 
@@ -76,6 +77,7 @@ export const NewPatientForm = memo(
 
     const { getSetting } = useSettings();
     const { getTranslation } = useTranslation();
+    const slidingFeeScalePlanId = useSlidingFeeScalePlanId();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
     const isRequiredPatientData = fieldName =>
@@ -233,6 +235,8 @@ export const NewPatientForm = memo(
           patientRegistryType,
           getSetting,
           getTranslation,
+          [],
+          slidingFeeScalePlanId,
         )}
         data-testid="form-60mo"
       />

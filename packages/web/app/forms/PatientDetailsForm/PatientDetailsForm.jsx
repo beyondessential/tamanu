@@ -13,6 +13,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 import { usePatientInsurancePlansInUseQuery } from '../../api/queries/usePatientInsurancePlansInUseQuery';
+import { useSlidingFeeScalePlanId } from '../../api/queries/useInvoiceInsurancePlansQuery';
 import { useTranslation } from '../../contexts/Translation';
 import { useSettings } from '../../contexts/Settings';
 import { route } from '@tamanu/api-client';
@@ -118,6 +119,8 @@ export const PatientDetailsForm = ({
   const { data: insurancePlansInUse, error: insurancePlansInUseError } =
     usePatientInsurancePlansInUseQuery({ patientId: patient.id });
 
+  const slidingFeeScalePlanId = useSlidingFeeScalePlanId();
+
   const errors = [fieldDefError, fieldValError, insurancePlansInUseError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
@@ -180,6 +183,7 @@ export const PatientDetailsForm = ({
         getSetting,
         getTranslation,
         insurancePlansInUse,
+        slidingFeeScalePlanId,
       )}
       data-testid="form-9v1j"
     />

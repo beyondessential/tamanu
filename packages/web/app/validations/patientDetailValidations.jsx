@@ -40,7 +40,36 @@ const requiredBirthFieldWhenConfiguredMandatory = (
     otherwise: baseType,
   });
 
-export const getPatientDetailsValidation = (patientRegistryType, getSetting, getTranslation, insurancePlansInUse = []) => {
+export const getPatientDetailsValidation = (
+  patientRegistryType,
+  getSetting,
+  getTranslation,
+  insurancePlansInUse = [],
+  slidingFeeScalePlanId = null,
+) => {
+  // Family size and annual income only answer the sliding fee scale, so they are required exactly
+  // when that plan is selected. The plan is matched by id, resolved from the code the deployment
+  // names in its settings, so neither the plan's name nor its translation is load-bearing.
+  const isSlidingFeeScaleSelected = planIds =>
+    Boolean(slidingFeeScalePlanId) && (planIds || []).includes(slidingFeeScalePlanId);
+
+  const slidingFeeScaleField = (field, stringId, fallback, message, dependsOn, isRequired) => {
+    const labelled = schema =>
+      schema.translatedLabel(<TranslatedText stringId={stringId} fallback={fallback} />);
+    return yup.string().when(dependsOn, {
+      is: isRequired,
+      then: schema => labelled(schema).required(message),
+      otherwise: schema =>
+        requiredWhenConfiguredMandatory(
+          getSetting,
+          getTranslation,
+          field,
+          labelled(schema),
+          fallback,
+        ),
+    });
+  };
+
   const patientDetailsValidationSchema = yup.object().shape({
     firstName: yup
       .string()
@@ -374,17 +403,6 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
           />,
         ),
       'Birth certificate',
-    ),
-    insurerId: requiredWhenConfiguredMandatory(
-      getSetting,
-      getTranslation,
-      'insurerId',
-      yup
-        .string()
-        .translatedLabel(
-          <TranslatedText stringId="general.localisedField.insurer.label" fallback="Insurer" />,
-        ),
-      'Insurer',
     ),
     insurerPolicyNumber: requiredWhenConfiguredMandatory(
       getSetting,
@@ -838,6 +856,109 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
           },
         ),
       'Insurance plan',
+    ),
+    adoptionNumber: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'adoptionNumber',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.adoptionNumber.label"
+            fallback="Adoption number"
+          />,
+        ),
+      'Adoption number',
+    ),
+    marriageLicence: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'marriageLicence',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.marriageLicence.label"
+            fallback="Marriage licence"
+          />,
+        ),
+      'Marriage licence',
+    ),
+    familySize: slidingFeeScaleField(
+      'familySize',
+      'general.localisedField.familySize.label',
+      'Family size',
+      getTranslation(
+        'patient.validation.familySizeRequiredForSlidingFeeScale',
+        'Family size is required for sliding fee scale',
+      ),
+      'invoiceInsurancePlanId',
+      isSlidingFeeScaleSelected,
+    ),
+    // The income bands belong to a family size, so annual income cannot be answered — and is
+    // disabled on the form — until one is chosen. Asking for it before then would put a message
+    // on a field the user cannot yet fill in, so the two are asked for in turn.
+    annualIncome: slidingFeeScaleField(
+      'annualIncome',
+      'general.localisedField.annualIncome.label',
+      'Annual income',
+      getTranslation(
+        'patient.validation.annualIncomeRequiredForSlidingFeeScale',
+        'Annual income is required for sliding fee scale',
+      ),
+      ['invoiceInsurancePlanId', 'familySize'],
+      (planIds, familySize) => isSlidingFeeScaleSelected(planIds) && Boolean(familySize),
+    ),
+    payor1Id: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'payor1Id',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.payor1Id.label" fallback="Payor 1" />,
+        ),
+      'Payor 1',
+    ),
+    payor1ReferenceNumber: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'payor1ReferenceNumber',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.payor1ReferenceNumber.label"
+            fallback="Payor 1 reference number"
+          />,
+        ),
+      'Payor 1 reference number',
+    ),
+    payor2Id: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'payor2Id',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.payor2Id.label" fallback="Payor 2" />,
+        ),
+      'Payor 2',
+    ),
+    payor2ReferenceNumber: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'payor2ReferenceNumber',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.payor2ReferenceNumber.label"
+            fallback="Payor 2 reference number"
+          />,
+        ),
+      'Payor 2 reference number',
     ),
   });
 
