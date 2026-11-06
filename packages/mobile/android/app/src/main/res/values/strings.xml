@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Tamanu Mobile</string>
+    <string name="update_notification_channel_name">App updates</string>
+    <string name="update_notification_channel_description">Tells you when Tamanu has finished updating itself</string>
+    <string name="update_notification_title">Tamanu has been updated</string>
+    <string name="update_notification_body">Tap to open Tamanu</string>
 </resources>
