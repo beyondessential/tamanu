@@ -77,7 +77,7 @@ Central:
 - [ ] `getHighestRealChangeTick` in `packages/central-server/app/sync/`: max settled `updated_at_sync_tick` from `sync_lookup` (excluding the pending-update flag), served by the existing index; confirm with `EXPLAIN`
 - [ ] Route `GET /api/sync/pending` in `buildSyncRoutes.js` (path to settle), taking the pull cursor, requiring a device with the sync client scope, answering pull or nothing; always pull when `config.sync.lookupTable.enabled` is false
 - [ ] Throttled last-seen: `Device.markSeenIfStale()` in `packages/database/src/models/Device.ts`, called from the check and from session start (`POST /api/sync`)
-- [ ] Supervisor-only routes on central's api, behind a supervisor credential from config: on-demand lookup build returning the tick (serialised against the scheduled `SyncLookupRefresher`, which runs in another process, so via an advisory lock), next due time of time-driven tasks, and busy (sum of `countQueue()` across queue-backed tasks plus report requests and FHIR jobs)
+- [ ] Supervisor-only routes on central's api, behind a supervisor credential from config: on-demand lookup build returning the tick (serialised against the scheduled `SyncLookupRefresher`, which runs in another process, so via an advisory lock), and busy (sum of `countQueue()` across queue-backed tasks plus report requests and FHIR jobs; a task running in the tasks process is not visible to the api, and is covered by the graceful stop in phase 5). The next-due-time route is built in phase 8, with the task classification it reads
 - [ ] Shape the check's handler and the tick read so the supervisor can mount them unchanged against its copy (handler takes models and the tick source from context, not module state)
 - [ ] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull; last-seen throttled; on-demand build waits for a running build and errors on abort
 
@@ -151,6 +151,7 @@ From here on, nothing changes under sync code-owned paths.
 
 - [ ] Facility: on the sync schedule, partial wake when unpushed changes were held; otherwise the check against central with the held credentials and cursor; end when the facility's last successful sync is after the wake started, or on no progress
 - [ ] Classify every task in `packages/central-server/app/tasks/` and `packages/facility-server/app/tasks/` (a `kind` on each `ScheduledTask` subclass); time-driven tasks expose their next due time (cron next fire, or from the database for `ReportRequestScheduler`)
+- [ ] Supervisor-only next-due-time route on central's api (beside phase 2's lookup-refresh and busy routes, same credential), returning the earliest next due time of the time-driven tasks
 - [ ] Last-ran bookkeeping per task (a `local_system_facts` key per task, or a small table) and run-once-on-start for missed runs in `ScheduledTask`
 - [ ] Timed partial wake: database and tasks (plus api on central); end once due tasks have run and their queues are empty
 - [ ] Facility time-driven next due time read at sleep from the facility database
