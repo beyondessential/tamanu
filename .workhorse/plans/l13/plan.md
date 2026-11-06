@@ -53,28 +53,38 @@ Infra's side (actuator, pod, sleep state on the Argo Application) is infra card 
 
 ## Order of work
 
-Phases 1 and 2 are independent Tamanu changes that are useful on their own and can land first. The supervisor (phases 3 onwards) builds on them.
+The work lands as three pull requests: phase 1, phase 2, then phases 3 to 9.
 
-### 1. Clean-up and socket call sites
+- **Pause after phase 1 and after phase 2.** Stop once the phase is built and pushed, and wait for the user before starting the next phase, so each lands as its own PR.
+- **Every sync code-owner change is in phase 2**, so the sync owners review one PR. The code-owned paths are `packages/shared/src/sync/`, `packages/facility-server/app/sync/`, `packages/central-server/app/sync/`, `packages/mobile/App/services/sync/` and `packages/database/src/sync/` (see `CODEOWNERS`). Phases 1 and 3 to 9 change nothing under them. Anything later phases need from that code is built in phase 2 and only called afterwards.
+
+### 1. Clean-up and socket call sites (PR 1, then pause)
+
+No changes under sync code-owned paths: the call sites use the existing `whoami()` and `fetch` on each `CentralServerConnection`.
+
 
 - [ ] Remove `SendStatusToMetaServer`: `packages/shared/src/tasks/SendStatusToMetaServer.js`, its export in `packages/shared/src/tasks/index.js`, its registration in `packages/central-server/app/tasks/index.js` and `packages/facility-server/app/tasks/index.js`, the `sendStatusToMetaServer` schedule and `FACT_META_SERVER_ID` if nothing else uses them, and its tests. Keep `metaServer.updateUrls` (used by `versionCompatibility`)
-- [ ] Facility `packages/facility-server/app/routes/apiv1/patient/patientContact.js`: make an HTTP request to central (a cheap authenticated GET through `CentralServerConnection`) before emitting `PATIENT_CONTACT_INSERT`
+- [ ] Facility `packages/facility-server/app/routes/apiv1/patient/patientContact.js`: make an HTTP request to central (the existing `CentralServerConnection.whoami()`) before emitting `PATIENT_CONTACT_INSERT`
 - [ ] Facility `packages/facility-server/app/routes/apiv1/telegram/telegramRoutes.js`: same before `TELEGRAM_GET_BOT_INFO`, and time out the wait for the bot info reply with an error
-- [ ] Mobile `App/ui/contexts/ReminderContactContext.tsx` and `App/ui/navigation/screens/home/PatientDetails/ReminderContactQR/Screen.tsx`: same before each emit
+- [ ] Mobile `App/ui/contexts/ReminderContactContext.tsx` and `App/ui/navigation/screens/home/PatientDetails/ReminderContactQR/Screen.tsx`: same before each emit, through the existing `CentralServerConnection.fetch`
 - [ ] Tests for the facility routes: the HTTP request precedes the emit; the bot info route errors on timeout
 
-### 2. Changes-pending check (SYNCHK, LOOKUP, SYNRUN)
+### 2. Changes-pending check (SYNCHK, LOOKUP, SYNRUN) (PR 2, then pause)
+
+All sync code-owned changes for the card, including what the supervisor will later call.
 
 Central:
 - [ ] `getHighestRealChangeTick` in `packages/central-server/app/sync/`: max settled `updated_at_sync_tick` from `sync_lookup` (excluding the pending-update flag), served by the existing index; confirm with `EXPLAIN`
 - [ ] Route `GET /api/sync/pending` in `buildSyncRoutes.js` (path to settle), taking the pull cursor, requiring a device with the sync client scope, answering pull or nothing; always pull when `config.sync.lookupTable.enabled` is false
 - [ ] Throttled last-seen: `Device.markSeenIfStale()` in `packages/database/src/models/Device.ts`, called from the check and from session start (`POST /api/sync`)
 - [ ] Supervisor-only routes on central's api, behind a supervisor credential from config: on-demand lookup build returning the tick (serialised against the scheduled `SyncLookupRefresher`, which runs in another process, so via an advisory lock), next due time of time-driven tasks, and busy (sum of `countQueue()` across queue-backed tasks plus report requests and FHIR jobs)
+- [ ] Shape the check's handler and the tick read so the supervisor can mount them unchanged against its copy (handler takes models and the tick source from context, not module state)
 - [ ] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull; last-seen throttled; on-demand build waits for a running build and errors on abort
 
 Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
 - [ ] Carry the trigger kind into `runSync` (schedule including start-up, user, patient marked, subcommand)
-- [ ] For scheduled syncs: skip the check when there are unpushed local changes (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`), when the settings PSK is missing, or when `convergeSyncUser` still has work; otherwise call the check and stop on "nothing"
+- [ ] Export a `hasUnpushedChanges(models)` helper from `packages/facility-server/app/sync/` (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`); the facility supervisor calls it at sleep in phase 5
+- [ ] For scheduled syncs: skip the check when `hasUnpushedChanges`, when the settings PSK is missing, or when `convergeSyncUser` still has work; otherwise call the check and stop on "nothing"
 - [ ] `CentralServerConnection`: add the check call; on `503` with `Retry-After`, wait and retry within the attempt for the check and for session start
 - [ ] Run history: new `up_to_date` outcome on `sync_facility_runs` (constant, model, migration if the column is constrained, dbt model docs); "nothing to pull" moves the last successful sync time but not the pull cursor
 - [ ] Tests: each skip rule, the up-to-date outcome, the retry on `503`
@@ -85,7 +95,10 @@ Mobile (`packages/mobile/App/services/sync/`):
 - [ ] `CentralServerConnection.ts`: the check call, and `503` with `Retry-After` handling for the check and session start
 - [ ] Tests in `MobileSyncManager.test.ts`
 
-### 3. Supervisor package skeleton (SUPV)
+### 3. Supervisor package skeleton (SUPV) (PR 3 starts)
+
+From here on, nothing changes under sync code-owned paths.
+
 
 - [ ] New workspace package `packages/supervisor` (`@tamanu/supervisor`), added to the root `workspaces`; entry point and config through `config` like the servers
 - [ ] Config: role (central or facility), listen address, part upstreams, actuator URL (optional), Caddy and Postgres binary paths, data directory, idle time (default 30 minutes), database connection for its own role, supervisor credential for central's api
@@ -107,7 +120,7 @@ Mobile (`packages/mobile/App/services/sync/`):
 
 - [ ] Idle timer from the activity stream, counting in-flight requests
 - [ ] State machine persisted on the data directory: awake, going to sleep (with the step reached), asleep, waking, partial wake; every step idempotent
-- [ ] Sleep sequence: close the door, busy check, stop tasks, fhir and sync, central final build and next due time, facility reads (cursor, unpushed, next due time, sync credentials), stop api and web, central copy, stop database; cancel and roll forward to a wake on activity or a failed step
+- [ ] Sleep sequence: close the door, busy check, stop tasks, fhir and sync, central final build and next due time, facility reads (cursor, phase 2's `hasUnpushedChanges`, next due time, sync credentials through `serverConfig.js`), stop api and web, central copy, stop database; cancel and roll forward to a wake on activity or a failed step
 - [ ] Migration state check before sleeping (compare `SequelizeMeta` to the release's migrations)
 - [ ] Wake sequence: database, central hand-back, other parts, forward per part as each is ready; retry a stalled wake
 - [ ] Waking responses: `503` with `Retry-After` for API paths, the waking page (polls supervisor status, then reloads), `503` for websocket upgrades
@@ -121,7 +134,7 @@ Mobile (`packages/mobile/App/services/sync/`):
 - [ ] CI step (in `ci.yml` and the release build): migrate an empty database, prune to the allowlist (`logs` schema structure only), `pg_dump -s --no-owner --no-privileges` with the oldest supported major's `pg_dump`, shipped in the supervisor package
 - [ ] Copy at sleep: load schema, then each table in its own `COPY` with triggers off; checksums of the seven read-only tables; then install the change-tracking trigger on the three written tables
 - [ ] Central context against the copy: `initDatabase` on the copy, settings reader, auth secret from config; mount central's `login` and `refresh` handlers from `packages/central-server/app/auth/` on the supervisor's Express app unchanged
-- [ ] Changes-pending check from the copy: token check via `loginFromToken` against the copy, held tick, last-seen into the copy
+- [ ] Changes-pending check from the copy: mount phase 2's handler with the copy's models and the held tick; last-seen goes into the copy
 - [ ] Logins from unknown devices and logins with no device get the waking response and start a wake
 - [ ] CI drift guard: run `__tests__/auth/login.test.js`, `refresh.test.js`, `jwt-validation.test.js` and the check's tests against a database built from the allowlist schema
 - [ ] Measure the memory floor and copy time again with `fsync` on
