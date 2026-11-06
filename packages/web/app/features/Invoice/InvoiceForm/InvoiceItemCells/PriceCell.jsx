@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { Field, ThemedTooltip } from '@tamanu/ui-components';
 import {
-  getInvoiceItemCoveragePercentage,
+  calculateInvoiceItem,
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
 } from '@tamanu/utils/invoice';
@@ -57,30 +57,27 @@ const DiscountRows = styled.div`
   align-self: stretch;
 `;
 
-const calculateCoverageValue = (discountedPrice, coverageValue) => {
-  return new Decimal(discountedPrice).times(coverageValue / 100).toNumber() * -1;
-};
-
-const InsuranceSection = ({ item, discountedPrice }) => {
+const InsuranceSection = ({ item }) => {
   if (!item) return null;
 
   const { insurancePlanItems, product, productId } = item;
   if (!product?.insurable || !insurancePlanItems?.length || !productId) return null;
 
+  const { coverageByPlan } = calculateInvoiceItem(item);
+  const coverageByPlanId = new Map(
+    coverageByPlan.map(({ insurancePlanId, coverage }) => [insurancePlanId, coverage]),
+  );
+
   return (
     <Box mt={1}>
-      {insurancePlanItems.map(insurancePlanItem => {
-        const appliedCoverage = getInvoiceItemCoveragePercentage(item, insurancePlanItem);
-        const coverageForRow = calculateCoverageValue(discountedPrice, appliedCoverage);
-        return (
-          <Row key={insurancePlanItem.id}>
-            <RowName>{insurancePlanItem.label}</RowName>
-            <RowValue>
-              <Price price={coverageForRow} />
-            </RowValue>
-          </Row>
-        );
-      })}
+      {insurancePlanItems.map(insurancePlanItem => (
+        <Row key={insurancePlanItem.id}>
+          <RowName>{insurancePlanItem.label}</RowName>
+          <RowValue>
+            <Price price={-coverageByPlanId.get(insurancePlanItem.id)} />
+          </RowValue>
+        </Row>
+      ))}
     </Box>
   );
 };
@@ -172,7 +169,7 @@ export const PriceCell = ({
         </MainContent>
         {!isEditing && (
           <Collapse in={isExpanded}>
-            <InsuranceSection item={item} discountedPrice={discountedPrice} />
+            <InsuranceSection item={item} />
           </Collapse>
         )}
       </Container>

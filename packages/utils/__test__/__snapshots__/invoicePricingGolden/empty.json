@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 0,
+    "invoiceItemsTotal": 0,
+    "insuranceCoverageTotal": 0,
+    "patientTotal": 0,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": 0,
+    "patientSubtotal": 0,
+    "patientPaymentsTotal": 0,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 0,
+    "patientPaymentRemainingBalance": 0,
+    "insurancePlanPaymentRemainingBalance": 0
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "0.00",
+    "invoiceItemsTotal": "0.00",
+    "insuranceCoverageTotal": "0.00",
+    "patientTotal": "0.00",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "0.00",
+    "patientSubtotal": "0.00",
+    "patientPaymentsTotal": "0.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "0.00",
+    "patientPaymentRemainingBalance": "0.00",
+    "insurancePlanPaymentRemainingBalance": "0.00"
+  },
+  "insuranceCoverageTotal": "0",
+  "coverageByPlan": [],
+  "items": [],
+  "patientPayments": [],
+  "insurancePlanPayments": []
+}

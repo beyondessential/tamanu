@@ -37,7 +37,7 @@ export const isFixedPriceItem = (invoiceItem: InvoiceItem): boolean => {
  */
 export const getInvoiceItemTotalPrice = (invoiceItem: InvoiceItem): number => {
   const price = getInvoiceItemPrice(invoiceItem) || 0;
-  const quantity = isFixedPriceItem(invoiceItem) ? 1 : invoiceItem.quantity ?? 0;
+  const quantity = isFixedPriceItem(invoiceItem) ? 1 : (invoiceItem.quantity ?? 0);
   return new Decimal(price).times(quantity).toNumber();
 };
 
@@ -57,11 +57,8 @@ export const getInvoiceItemTotalDiscountedPrice = (invoiceItem: InvoiceItem): nu
  * Calculate the item adjustment amount (difference between original and discounted price)
  * Returns a negative number for discounts, positive for markups
  */
-export const getItemAdjustmentAmount = (item: InvoiceItem): number => {
-  const originalPrice = getInvoiceItemTotalPrice(item) || 0;
-  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-  return new Decimal(discountedPrice).minus(originalPrice).toNumber();
-};
+export const getItemAdjustmentAmount = (item: InvoiceItem): number =>
+  calculateInvoiceItem(item).adjustment;
 
 /**
  * Check if an item has any adjustment (markup or discount)
@@ -70,28 +67,89 @@ export const hasItemAdjustment = (item: InvoiceItem): boolean => {
   return getItemAdjustmentAmount(item) !== 0;
 };
 
+export interface InvoiceItemPlanCoverage {
+  insurancePlanId: string;
+  /** The coverage percentage applied: the finalised snapshot where there is one, else the plan's */
+  percentage: number;
+  /** This plan's share of the line, before the line's coverage is capped */
+  coverage: number;
+}
+
+export interface InvoiceItemPricing {
+  totalPrice: number;
+  discountedPrice: number;
+  /** Discounted price minus total price: negative for a discount, positive for a markup */
+  adjustment: number;
+  coverageByPlan: InvoiceItemPlanCoverage[];
+  /**
+   * Insurance coverage of the line, capped at its discounted price. An insurable line with an
+   * empty plan list has none here, though the invoice total still caps it (see `calculateInvoice`)
+   */
+  insuranceCoverage: number;
+  netCost: number;
+}
+
+/**
+ * Each plan's coverage of a line. Only lines whose product is explicitly insurable are covered.
+ */
+export const getInvoiceItemPlanCoverages = (
+  item: InvoiceItem,
+  discountedPrice: number,
+): InvoiceItemPlanCoverage[] => {
+  if (!item?.product?.insurable || !item.insurancePlanItems) {
+    return [];
+  }
+  return item.insurancePlanItems.map(insurancePlanItem => ({
+    insurancePlanId: insurancePlanItem.id,
+    percentage: getInvoiceItemCoveragePercentage(item, insurancePlanItem),
+    coverage: getItemSingleInsuranceCoverageAmount(discountedPrice, item, insurancePlanItem),
+  }));
+};
+
+/**
+ * The total of the plans' coverage of a line, capped at the line's discounted price so that
+ * overlapping plans can never cover more than the line costs.
+ */
+export const capInsuranceCoverage = (
+  coverageByPlan: InvoiceItemPlanCoverage[],
+  discountedPrice: number,
+): Decimal => {
+  const totalCoverage = coverageByPlan.reduce(
+    (sum, planCoverage) => sum.plus(planCoverage.coverage),
+    new Decimal(0),
+  );
+  return totalCoverage.toNumber() > discountedPrice ? new Decimal(discountedPrice) : totalCoverage;
+};
+
+/**
+ * Every figure derived from a single invoice line. This is the one place a line is priced; the
+ * per-figure helpers below and the invoice-level calculation all read from it.
+ */
+export const calculateInvoiceItem = (item: InvoiceItem): InvoiceItemPricing => {
+  const totalPrice = getInvoiceItemTotalPrice(item) || 0;
+  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+  const coverageByPlan = getInvoiceItemPlanCoverages(item, discountedPrice);
+  const insuranceCoverage =
+    coverageByPlan.length > 0
+      ? capInsuranceCoverage(coverageByPlan, discountedPrice).toNumber()
+      : 0;
+
+  return {
+    totalPrice,
+    discountedPrice,
+    adjustment: new Decimal(discountedPrice).minus(totalPrice).toNumber(),
+    coverageByPlan,
+    insuranceCoverage,
+    netCost: new Decimal(discountedPrice).minus(insuranceCoverage).toNumber(),
+  };
+};
+
 /**
  * Calculate the total insurance coverage amount (from all insurance plans) for an invoice item
  * @returns {number} - The total insurance coverage amount for the item
  */
-export const getItemTotalInsuranceCoverageAmount = (item: InvoiceItem): number => {
-  if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
-    return 0;
-  }
-
-  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-  const totalCoverage = item.insurancePlanItems.reduce((sum, insurancePlanItem) => {
-    const coverageForRow = getItemSingleInsuranceCoverageAmount(
-      discountedPrice,
-      item,
-      insurancePlanItem,
-    );
-    return sum.plus(coverageForRow);
-  }, new Decimal(0));
-
-  // Cap coverage at the discounted price
-  return Math.min(totalCoverage.toNumber(), discountedPrice);
-};
+export const getItemTotalInsuranceCoverageAmount = (item: InvoiceItem): number =>
+  calculateInvoiceItem(item).insuranceCoverage;
 
 /**
  * Calculate the insurance coverage amount for a single insurance plan item
@@ -114,11 +172,8 @@ export const getItemSingleInsuranceCoverageAmount = (
  * @param {InvoiceItem} item - The invoice item object
  * @returns {number} - The net cost of the item
  */
-export const getInvoiceItemNetCost = (item: InvoiceItem): number => {
-  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-  const insuranceCoverage = getItemTotalInsuranceCoverageAmount(item);
-  return new Decimal(discountedPrice).minus(insuranceCoverage).toNumber();
-};
+export const getInvoiceItemNetCost = (item: InvoiceItem): number =>
+  calculateInvoiceItem(item).netCost;
 
 /**
  * The invoice's insurance plans as they apply to one item: a plan with no item of its own for

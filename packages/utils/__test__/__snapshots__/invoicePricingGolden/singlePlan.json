@@ -1,0 +1,88 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 300,
+    "invoiceItemsTotal": 300,
+    "insuranceCoverageTotal": 60,
+    "patientTotal": 240,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": 0,
+    "patientSubtotal": 240,
+    "patientPaymentsTotal": 0,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 0,
+    "patientPaymentRemainingBalance": 240,
+    "insurancePlanPaymentRemainingBalance": 60
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "300.00",
+    "invoiceItemsTotal": "300.00",
+    "insuranceCoverageTotal": "60.00",
+    "patientTotal": "240.00",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "0.00",
+    "patientSubtotal": "240.00",
+    "patientPaymentsTotal": "0.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "0.00",
+    "patientPaymentRemainingBalance": "240.00",
+    "insurancePlanPaymentRemainingBalance": "60.00"
+  },
+  "insuranceCoverageTotal": "60",
+  "coverageByPlan": [
+    {
+      "id": "plan-a",
+      "name": "Plan A",
+      "code": "PA",
+      "totalCoverage": "-60.00"
+    }
+  ],
+  "items": [
+    {
+      "id": "insured",
+      "totalPrice": 100,
+      "discountedPrice": 100,
+      "adjustment": 0,
+      "coverage": 60,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 60
+        }
+      ],
+      "netCost": 40,
+      "formattedCoverage": "-60.00",
+      "formattedNetCost": "40.00"
+    },
+    {
+      "id": "not-insurable",
+      "totalPrice": 100,
+      "discountedPrice": 100,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 60
+        }
+      ],
+      "netCost": 100,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "100.00"
+    },
+    {
+      "id": "no-plan-items",
+      "totalPrice": 100,
+      "discountedPrice": 100,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": 100,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "100.00"
+    }
+  ],
+  "patientPayments": [],
+  "insurancePlanPayments": []
+}

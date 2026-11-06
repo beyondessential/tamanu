@@ -1,0 +1,88 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 10.31,
+    "invoiceItemsTotal": 10.31,
+    "insuranceCoverageTotal": 6.772656,
+    "patientTotal": 3.537344,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": 0,
+    "patientSubtotal": 3.537344,
+    "patientPaymentsTotal": 0,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 0,
+    "patientPaymentRemainingBalance": 3.537344,
+    "insurancePlanPaymentRemainingBalance": 6.772656
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "10.31",
+    "invoiceItemsTotal": "10.31",
+    "insuranceCoverageTotal": "6.77",
+    "patientTotal": "3.54",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "0.00",
+    "patientSubtotal": "3.54",
+    "patientPaymentsTotal": "0.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "0.00",
+    "patientPaymentRemainingBalance": "3.54",
+    "insurancePlanPaymentRemainingBalance": "6.77"
+  },
+  "insuranceCoverageTotal": "6.772656",
+  "coverageByPlan": [
+    {
+      "id": "plan-c",
+      "name": "Plan C",
+      "code": "PC",
+      "totalCoverage": "-3.44"
+    },
+    {
+      "id": "plan-a",
+      "name": "Plan A",
+      "code": "PA",
+      "totalCoverage": "-3.34"
+    }
+  ],
+  "items": [
+    {
+      "id": "thirds",
+      "totalPrice": 10.01,
+      "discountedPrice": 10.01,
+      "adjustment": 0,
+      "coverage": 6.672666,
+      "coverageByPlan": [
+        {
+          "id": "plan-c",
+          "percentage": 33.33,
+          "coverage": 3.336333
+        },
+        {
+          "id": "plan-a",
+          "percentage": 33.33,
+          "coverage": 3.336333
+        }
+      ],
+      "netCost": 3.337334,
+      "formattedCoverage": "-6.67",
+      "formattedNetCost": "3.34"
+    },
+    {
+      "id": "float-sum",
+      "totalPrice": 0.3,
+      "discountedPrice": 0.3,
+      "adjustment": 0,
+      "coverage": 0.09999,
+      "coverageByPlan": [
+        {
+          "id": "plan-c",
+          "percentage": 33.33,
+          "coverage": 0.09999
+        }
+      ],
+      "netCost": 0.20001,
+      "formattedCoverage": "-0.10",
+      "formattedNetCost": "0.20"
+    }
+  ],
+  "patientPayments": [],
+  "insurancePlanPayments": []
+}
