@@ -46,7 +46,7 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 - [x] The ingest stores the navigation route sent with a request (verifies spec: BTEL)
 - [x] On a fresh deployment with the telemetry setting untouched, the web client collects from the first load, including the login screen (verifies spec: BTEL)
 - [ ] On a fresh deployment with the telemetry setting untouched, the patient portal collects from the first load (verifies spec: BTEL)
-- [ ] Switching the telemetry setting off stops the web client and patient portal collecting (verifies spec: BTEL)
+- [x] Switching the telemetry setting off stops the web client and patient portal collecting (verifies spec: BTEL)
 
 ## Storage and reporting
 
@@ -54,4 +54,6 @@ Scenarios for the browser telemetry rollup (spec: BTAG) and the browser and inge
 - [x] Aggregates created on a facility push to central on the next real sync, and are not pulled by other facilities or mobile (verifies spec: BTAG)
 - [ ] Aggregates are untouched by the raw telemetry prune (verifies spec: BTAG)
 - [x] Smoke: with telemetry enabled on a deployed facility, trend rows appear on central within a sync of a bucket closing
-- [ ] The rollup finishes a busy facility's hourly bucket (hundreds of thousands of raw spans) in reasonable time
+- [ ] The rollup finishes a busy facility's hourly bucket (hundreds of thousands of raw spans) in reasonable time (covered in release regression testing)
+
+The unticked rolling-up cases (bucket-size validation, rollup with collection off, prune-before-rollup) and the prune case under Storage and reporting were judged not to need dedicated tests.
