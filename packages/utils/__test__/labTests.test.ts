@@ -1,4 +1,4 @@
-import { SEX_VALUES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SEX_VALUES } from '@tamanu/constants';
 import { describe, expect, it } from 'vitest';
 import {
   getLabTestValidationCriteria,
@@ -6,6 +6,8 @@ import {
   getReferenceRange,
   getReferenceRangeWithUnit,
   getLabRequestTestAndPanelNames,
+  hasInterimLabResults,
+  isInterimLabRequest,
   parseLabTestResult,
 } from '../src/labTests';
 
@@ -354,5 +356,31 @@ describe('getLabRequestTestAndPanelNames', () => {
     ).toEqual(['Full blood count']);
     expect(getLabRequestTestAndPanelNames({})).toEqual([]);
     expect(getLabRequestTestAndPanelNames()).toEqual([]);
+  });
+});
+
+describe('interim lab requests', () => {
+  it('treats a request short of Verified or Published as interim', () => {
+    expect(isInterimLabRequest({ status: LAB_REQUEST_STATUSES.INTERIM_RESULTS })).toBe(true);
+    expect(isInterimLabRequest({ status: LAB_REQUEST_STATUSES.RECEPTION_PENDING })).toBe(true);
+    expect(isInterimLabRequest({ status: LAB_REQUEST_STATUSES.RESULTS_PENDING })).toBe(true);
+    expect(isInterimLabRequest({ status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED })).toBe(true);
+  });
+
+  it('does not treat a verified or published request as interim', () => {
+    expect(isInterimLabRequest({ status: LAB_REQUEST_STATUSES.VERIFIED })).toBe(false);
+    expect(isInterimLabRequest({ status: LAB_REQUEST_STATUSES.PUBLISHED })).toBe(false);
+    expect(isInterimLabRequest({})).toBe(false);
+    expect(isInterimLabRequest()).toBe(false);
+  });
+
+  it('reports interim results when any request in the set is interim', () => {
+    const published = { status: LAB_REQUEST_STATUSES.PUBLISHED };
+    const interim = { status: LAB_REQUEST_STATUSES.INTERIM_RESULTS };
+
+    expect(hasInterimLabResults([published, interim])).toBe(true);
+    expect(hasInterimLabResults([published])).toBe(false);
+    expect(hasInterimLabResults([])).toBe(false);
+    expect(hasInterimLabResults()).toBe(false);
   });
 });
