@@ -3,7 +3,6 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { InvalidConfigError } from '.';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { countPendingCommunications } from './pendingWork';
 
 export class PatientTelegramCommunicationProcessor extends ScheduledTask {
   constructor(context) {
@@ -19,7 +18,12 @@ export class PatientTelegramCommunicationProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    return countPendingCommunications(this.context, PATIENT_COMMUNICATION_CHANNELS.TELEGRAM);
+    const { PatientCommunication } = this.context.store.models;
+    const retryThreshold = await this.context.settings.get('patientCommunication.retryThreshold');
+    return PatientCommunication.countPendingMessages(
+      PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+      retryThreshold,
+    );
   }
 
   async run() {

@@ -2,7 +2,6 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { removeFile } from '../utils/files';
 import { getDefaultFromAddress } from '../services/mailConfig';
-import { countPendingCommunications } from './pendingWork';
 
 const maskMiddle = s => s.slice(0, 1) + s.slice(1, -1).replace(/./g, '*') + s.slice(-1);
 const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
@@ -23,7 +22,9 @@ export class BaseCommunicationProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    return countPendingCommunications(this.context, this.channel);
+    const { PatientCommunication } = this.context.store.models;
+    const retryThreshold = await this.context.settings.get('patientCommunication.retryThreshold');
+    return PatientCommunication.countPendingMessages(this.channel, retryThreshold);
   }
 
   async transformContent(emailRecord) {

@@ -48,7 +48,6 @@ const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 const CREATE_SESSION_ADVISORY_LOCK = stringToStableInteger('createSessionAdvisoryLock');
-const LOOKUP_BUILD_ADVISORY_LOCK = stringToStableInteger('syncLookupBuildAdvisoryLock');
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
@@ -105,46 +104,6 @@ export class CentralSyncManager {
       }
 
       // Releases the lock
-      return async () => {
-        await transaction.commit();
-      };
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
-  }
-
-  /**
-   * Waits for any lookup table build to finish, then takes the lock that stops another starting.
-   * Returns a function that releases it.
-   *
-   * Builds run in two processes (the scheduled one in tasks, the on-demand one in the api), so the
-   * lock lives in the database. It is a transaction-level advisory lock held by a transaction
-   * opened just for it, like the create-session lock, rather than a session-level lock. A
-   * session-level lock must be unlocked on the connection that took it, which a pool does not
-   * promise to hand back, and one that is not unlocked outlives its caller on a pooled
-   * connection. Ending the transaction releases this lock, as does losing its connection. The
-   * transaction is unmanaged, so it is not the one CLS binds the build's own queries to.
-   *
-   * @returns {Promise<() => Promise<void>>}
-   */
-  async waitForLookupBuildLock() {
-    const { sequelize } = this.store;
-    const transaction = await sequelize.transaction();
-    try {
-      const replacements = { lockId: LOOKUP_BUILD_ADVISORY_LOCK };
-      const [[row]] = await sequelize.query(
-        'SELECT pg_try_advisory_xact_lock(:lockId) AS acquired;',
-        { replacements, transaction },
-      );
-      if (!row?.acquired) {
-        log.info('CentralSyncManager.updateLookupTable waiting for a running build to finish');
-        await sequelize.query('SELECT pg_advisory_xact_lock(:lockId);', {
-          replacements,
-          transaction,
-        });
-      }
-
       return async () => {
         await transaction.commit();
       };
@@ -363,27 +322,7 @@ export class CentralSyncManager {
     }
   }
 
-  // spec: LOOKUP#refreshing-on-demand
-  // Runs both passes of a lookup table build, once any build already running (here or in another
-  // process) has finished, and returns once the build's rows have settled ticks. Throws if the
-  // build aborts, such as on a concurrent hard delete.
   async updateLookupTable() {
-    const releaseLookupBuildLock = await this.waitForLookupBuildLock();
-    try {
-      await this.buildLookupTable();
-    } finally {
-      try {
-        await releaseLookupBuildLock();
-      } catch (error) {
-        // the lock goes with its connection, so this cannot hold up the next build
-        log.warn('CentralSyncManager.updateLookupTable failed to release the build lock', {
-          error: error.message,
-        });
-      }
-    }
-  }
-
-  async buildLookupTable() {
     const { store } = this;
 
     const debugObject = await store.models.DebugLog.create({
