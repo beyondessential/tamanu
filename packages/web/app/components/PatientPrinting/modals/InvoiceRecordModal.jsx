@@ -1,9 +1,12 @@
 import React from 'react';
-import { ASSET_NAMES } from '@tamanu/constants';
+import { ASSET_NAMES, INVOICE_PRINT_LAYOUTS } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
 import { useDateTime } from '@tamanu/ui-components';
 
-import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
+import {
+  InvoiceReceiptPrintout,
+  InvoiceRecordPrintout,
+} from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
@@ -33,6 +36,8 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const { getSetting } = useSettings();
   const { primaryTimeZone } = useDateTime();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
+  // spec: INVPRT#print-layout-setting
+  const isReceiptLayout = getSetting('invoicing.printLayout') === INVOICE_PRINT_LAYOUTS.RECEIPT;
   const { data: certificateData } = certificateQuery;
 
   const { encounter } = useEncounter();
@@ -47,13 +52,24 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const patientQuery = usePatientDataQuery(invoice.encounter.patientId);
   const patient = patientQuery.data;
 
-  const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
+  // Only the A4 layout prints the patient's additional data and village, so the receipt doesn't
+  // fetch them and isn't held up waiting on them
+  const padDataQuery = usePatientAdditionalDataQuery(isReceiptLayout ? null : patient?.id);
   const { data: additionalData } = padDataQuery;
 
-  const villageQuery = useReferenceDataQuery(patient?.villageId);
+  const villageQuery = useReferenceDataQuery(isReceiptLayout ? null : patient?.villageId);
   const village = villageQuery.data;
 
   const allQueries = combineQueries([patientQuery, certificateQuery, villageQuery, padDataQuery]);
+
+  // What both layouts need, so neither can drop a prop the other is given
+  const printoutProps = {
+    certificateData,
+    getSetting,
+    invoice: printableInvoice,
+    translations,
+    primaryTimeZone,
+  };
 
   const modalProps = {
     title: (
@@ -66,7 +82,8 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     color: Colors.white,
     open,
     onClose,
-    maxWidth: 'md',
+    // The preview fills the modal's width, so a narrow receipt needs a narrow modal to stay legible
+    maxWidth: isReceiptLayout ? 'xs' : 'md',
     printable: !allQueries.isError && !allQueries.isFetching, // do not show print button when there is error or is fetching
   };
 
@@ -86,18 +103,24 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   return (
     <Modal {...modalProps} onPrint={() => printPDF('invoice-record')} data-testid="modal-gylm">
       <PDFLoader isLoading={allQueries.isFetching} id="invoice-record" data-testid="pdfloader-yikw">
-        <InvoiceRecordPrintout
-          patientData={{ ...patient, additionalData, village }}
-          encounter={encounter}
-          certificateData={certificateData}
-          getSetting={getSetting}
-          clinicianText={clinicianText}
-          invoice={printableInvoice}
-          enablePatientInsurer={enablePatientInsurer}
-          translations={translations}
-          primaryTimeZone={primaryTimeZone}
-          data-testid="invoicerecordprintout-0r2o"
-        />
+        {isReceiptLayout ? (
+          <InvoiceReceiptPrintout
+            {...printoutProps}
+            // A failed patient fetch still renders the preview, without a print button, so give
+            // the receipt an empty patient as the A4 effectively gets
+            patientData={patient ?? {}}
+            data-testid="invoicereceiptprintout-k4vd"
+          />
+        ) : (
+          <InvoiceRecordPrintout
+            {...printoutProps}
+            patientData={{ ...patient, additionalData, village }}
+            encounter={encounter}
+            clinicianText={clinicianText}
+            enablePatientInsurer={enablePatientInsurer}
+            data-testid="invoicerecordprintout-0r2o"
+          />
+        )}
       </PDFLoader>
     </Modal>
   );

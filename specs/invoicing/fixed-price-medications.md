@@ -38,7 +38,8 @@ A medication can be charged a flat fee regardless of the quantity dispensed, ins
 
 ## Display on the invoice
 
-- [x] A fixed-price medication line shows the dispensed quantity and a line total equal to the flat fee, on both the invoice form and the printed invoice.
+- [x] A fixed-price medication line shows the dispensed quantity and a line total equal to the flat fee, on both the invoice form and the A4 printed invoice.
+- [ ] On a printed receipt, a fixed-price medication line shows the dispensed quantity and a line total equal to the flat fee (see `printing.md`).
 
 ## Configuring charging type
 
