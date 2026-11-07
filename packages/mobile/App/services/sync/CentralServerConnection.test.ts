@@ -187,14 +187,26 @@ describe('CentralServerConnection', () => {
       expect(mockSleepAsync).toHaveBeenCalledWith(30000);
     });
 
-    it('does not treat a 503 without Retry-After as central waking', async () => {
-      mockAxiosRequest.mockRejectedValueOnce(wakingResponse());
+    it.each([
+      ['without Retry-After', undefined],
+      ['whose Retry-After is empty', '  '],
+    ])('does not treat a 503 %s as central waking', async (_, retryAfter) => {
+      mockAxiosRequest.mockRejectedValueOnce(wakingResponse(retryAfter));
 
       await expect(centralServerConnection.checkForChangesToPull(1)).rejects.not.toBeInstanceOf(
         CentralWakingError,
       );
       expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
       expect(mockSleepAsync).not.toHaveBeenCalled();
+    });
+
+    // spec: SYNCHK#the-check
+    it('opens a session when central is too old to have the check', async () => {
+      mockAxiosRequest.mockRejectedValueOnce({
+        response: { status: 404, headers: {}, data: {} },
+      });
+
+      expect(await centralServerConnection.checkForChangesToPull(1)).toBe(true);
     });
 
     it('gives up once the waits add up to ten minutes, failing the request', async () => {
