@@ -16,7 +16,6 @@ import {
   makeVaccineCertificate,
 } from '../../utils/makePatientCertificate';
 
-import { countQueuedCertificateNotifications } from '../pendingWork';
 import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerator';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
@@ -34,7 +33,11 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    return countQueuedCertificateNotifications(this.context);
+    return this.context.store.models.CertificateNotification.count({
+      where: {
+        status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
+      },
+    });
   }
 
   async run() {

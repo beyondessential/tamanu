@@ -7,9 +7,6 @@
     "port": "CONFIG_SYNC_DB_PORT",
     "verbose": "CONFIG_SYNC_DB_VERBOSE"
   },
-  "supervisor": {
-    "token": "SUPERVISOR_TOKEN"
-  },
   // local_system_secrets encryption is mandatory, so the key file must resolve
   // wherever the server boots. Deploys mount it and set CRYPTO_KEY_FILE.
   "crypto": {
