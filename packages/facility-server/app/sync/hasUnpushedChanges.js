@@ -28,17 +28,12 @@ export const hasUnpushedChanges = async models => {
   const since = (await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) || -1;
   const modelsToCheck = Object.values(getModelsForPush(models));
 
-  // One generator shared by the workers, so each model is taken by exactly one of them, and the
-  // first to find a change returns out of its loop, closing the generator and stopping the rest
-  const unchecked = (function* () {
-    yield* modelsToCheck;
-  })();
-  const worker = async () => {
-    for (const model of unchecked) {
-      if (await modelHasChangesSince(model, since)) return true;
-    }
-    return false;
-  };
-  const found = await Promise.all(Array.from({ length: MAX_CONCURRENT_QUERIES }, worker));
-  return found.some(Boolean);
+  // A batch at a time, so the whole set of models cannot take a connection each, and so the
+  // first batch holding a change stops the rest
+  for (let from = 0; from < modelsToCheck.length; from += MAX_CONCURRENT_QUERIES) {
+    const batch = modelsToCheck.slice(from, from + MAX_CONCURRENT_QUERIES);
+    const found = await Promise.all(batch.map(model => modelHasChangesSince(model, since)));
+    if (found.some(Boolean)) return true;
+  }
+  return false;
 };
