@@ -27,6 +27,25 @@ reference range is flagged for clinicians.
 - [ ] Sex-based ranges use the patient's recorded sex; where the patient's sex has no configured range, the numeric flag does not apply.
 - [ ] The reference range displayed in the lab request results table and the out-of-range flag are derived from the same resolution, so they always agree.
 
+## Searching the patient's results
+
+- [x] The patient's results table is filtered by a Test category field and a Test or panel field, and the table shows once either field has a value.
+- [x] Test category is single-select and offers only categories the patient has published results in.
+- [x] Test or panel is a multi-select that suggests individual tests and panels together by name, listed the same way whichever kind they are.
+- [x] Test or panel suggests only tests the patient has published results for, and panels the patient has a published lab request ordered under. A panel is not suggested merely because it contains a test the patient has results for.
+- [x] With one test or panel picked, the field shows its name. With more than one, it shows how many are picked, such as "5 selected".
+- [x] The suggestions list stays open while items are picked, so several can be picked in a row, and closes when the user clicks away from the field.
+- [x] Picked items are ticked in the suggestions list, and picking a ticked item again removes it. Clearing the field removes every pick at once.
+- [x] There is no limit on how many tests and panels can be picked.
+- [x] The two fields are mutually exclusive: picking a test category clears any picked tests and panels, and picking a test or panel clears the test category.
+- [x] A picked test category lists the category's tests as a flat list, alphabetical by name, with no heading rows and no test category column.
+- [x] A picked panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
+- [x] Picked panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
+- [x] Individually picked tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
+- [x] The heading rows show however few items are picked: a single picked panel still sits under its heading, and individually picked tests still sit under "Individual tests" when no panel is picked.
+- [x] A test appears under every picked panel that contains it, and again under "Individual tests" when it is also picked on its own.
+- [x] The table lists each test with its unit and normal range, followed by one column per sample date.
+
 ## Displaying results in a lab request
 
 - [ ] The lab request results table shows each test's result, unit, reference range, method, lab officer, verification and completed date.
