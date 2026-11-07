@@ -163,6 +163,39 @@ describe('Auth - Login', () => {
       expect(response.body).not.toHaveProperty('user.hashedPassword');
     });
 
+    it('Should match the email case-insensitively', async () => {
+      const response = await baseApp.post('/api/login').send({
+        email: TEST_EMAIL.toUpperCase(),
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('user.email', TEST_EMAIL);
+    });
+
+    it('Should match an account whose stored email has stray whitespace', async () => {
+      const { User, Device } = store.models;
+      const paddedUser = await User.create({
+        email: 'padded@bes.au',
+        password: TEST_PASSWORD,
+        displayName: 'Padded BES',
+      });
+      await Device.create({ id: 'padded-device-id', registeredById: paddedUser.id });
+      // Simulate legacy data written before emails were trimmed, bypassing model normalisation.
+      await User.sequelize.query('UPDATE users SET email = :email WHERE id = :id', {
+        replacements: { email: '  Padded@bes.au  ', id: paddedUser.id },
+      });
+
+      const response = await baseApp.post('/api/login').send({
+        email: 'padded@bes.au',
+        password: TEST_PASSWORD,
+        deviceId: 'padded-device-id',
+      });
+
+      expect(response).toHaveSucceeded();
+    });
+
     it('Should return localised field settings in the login response', async () => {
       const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
