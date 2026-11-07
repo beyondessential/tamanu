@@ -12,6 +12,7 @@ import {
   RemoteCallError,
 } from '@tamanu/errors';
 import { BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch';
+import { retryWhileWaking, type WakeRetryOptions } from './retryWhileWaking';
 import { type Endpoint, isRouteDescriptor, resolveEndpoint } from './route';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
 import {
@@ -105,6 +106,11 @@ interface TamanuApiConfig {
   defaultRequestConfig?: RequestInit;
   logger?: LoggerType;
   telemetrySink?: TelemetrySink;
+  /**
+   * Wait out a server that answers that it is waking from sleep, rather than failing on its 503.
+   * Only requests made through `whileServerWakes` wait; without this they fail as they always did.
+   */
+  wakeRetry?: WakeRetryOptions;
 }
 
 interface FetchOptions extends BaseFetchOptions {
@@ -180,6 +186,8 @@ export class TamanuApi {
   lastRefreshed: number | null = null;
   user: User | null = null;
   logger: LoggerType = console;
+
+  #wakeRetry?: WakeRetryOptions;
   fetchImplementation: typeof fetch = fetch;
   telemetrySink?: TelemetrySink;
   #telemetryRequestSeq = 0;
@@ -199,6 +207,7 @@ export class TamanuApi {
     defaultRequestConfig = {},
     logger,
     telemetrySink,
+    wakeRetry,
   }: TamanuApiConfig) {
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
@@ -216,6 +225,22 @@ export class TamanuApi {
       this.logger = logger;
     }
     this.telemetrySink = telemetrySink;
+    this.#wakeRetry = wakeRetry;
+  }
+
+  /**
+   * Run a request, waiting out a Tamanu server that answers `503 Service Unavailable` with a
+   * `Retry-After` while it wakes from sleep (see `specs/platform/supervisor/sleep-and-wake.md`).
+   * Anything the request throws for another reason is thrown as it is.
+   *
+   * Wrap whatever the caller treats as one attempt, rather than a single request: a login this
+   * makes for itself is inside it too, and so waits as well.
+   *
+   * Without `wakeRetry` on the connection, the request runs once, as it otherwise would.
+   */
+  async whileServerWakes<T>(label: string, run: () => Promise<T>): Promise<T> {
+    if (!this.#wakeRetry) return run();
+    return retryWhileWaking(run, this.#wakeRetry, { label, logger: this.logger });
   }
 
   get host(): string {
