@@ -74,26 +74,34 @@ No changes under sync code-owned paths: the call sites use the existing `whoami(
 All sync code-owned changes for the card, including what the supervisor will later call.
 
 Central:
-- [ ] `getHighestRealChangeTick` in `packages/central-server/app/sync/`: max settled `updated_at_sync_tick` from `sync_lookup` (excluding the pending-update flag), served by the existing index; confirm with `EXPLAIN`
-- [ ] Route `GET /api/sync/pending` in `buildSyncRoutes.js` (path to settle), taking the pull cursor, requiring a device with the sync client scope, answering pull or nothing; always pull when `config.sync.lookupTable.enabled` is false
-- [ ] Throttled last-seen: `Device.markSeenIfStale()` in `packages/database/src/models/Device.ts`, called from the check and from session start (`POST /api/sync`)
-- [ ] Supervisor-only routes on central's api, behind a supervisor credential from config: on-demand lookup build returning the tick (serialised against the scheduled `SyncLookupRefresher`, which runs in another process, so via an advisory lock), and busy (sum of `countQueue()` across queue-backed tasks plus report requests and FHIR jobs; a task running in the tasks process is not visible to the api, and is covered by the graceful stop in phase 5). The next-due-time route is built in phase 8, with the task classification it reads
-- [ ] Shape the check's handler and the tick read so the supervisor can mount them unchanged against its copy (handler takes models and the tick source from context, not module state)
-- [ ] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull; last-seen throttled; on-demand build waits for a running build and errors on abort
+- [x] `getHighestRealChangeTick` in `packages/central-server/app/sync/`: max settled `updated_at_sync_tick` from `sync_lookup` (excluding the pending-update flag), served by the existing index; confirm with `EXPLAIN`
+- [x] Route `GET /api/sync/pending?since=<tick>` in `buildSyncRoutes.js`, answering `{ changesToPull }`, taking the pull cursor, requiring a device with the sync client scope, answering pull or nothing; always pull when `config.sync.lookupTable.enabled` is false
+- [x] Throttled last-seen: `Device.markSeenIfStale()` in `packages/database/src/models/Device.ts`, called from the check and from session start (`POST /api/sync`)
+- [x] Supervisor-only routes on central's api, behind a supervisor credential from config: on-demand lookup build returning the tick (serialised against the scheduled `SyncLookupRefresher`, which runs in another process, so via an advisory lock), and busy (sum of `countQueue()` across queue-backed tasks plus report requests and FHIR jobs; a task running in the tasks process is not visible to the api, and is covered by the graceful stop in phase 5). The next-due-time route is built in phase 8, with the task classification it reads
+- [x] Shape the check's handler and the tick read so the supervisor can mount them unchanged against its copy (handler takes models and the tick source from context, not module state)
+- [x] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull; last-seen throttled; on-demand build waits for a running build and errors on abort
 
 Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
-- [ ] Carry the trigger kind into `runSync` (schedule including start-up, user, patient marked, subcommand)
-- [ ] Export a `hasUnpushedChanges(models)` helper from `packages/facility-server/app/sync/` (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`); the facility supervisor calls it at sleep in phase 5
-- [ ] For scheduled syncs: skip the check when `hasUnpushedChanges`, when the settings PSK is missing, or when `convergeSyncUser` still has work; otherwise call the check and stop on "nothing"
-- [ ] `CentralServerConnection`: add the check call; on `503` with `Retry-After`, wait and retry within the attempt for the check and for session start
-- [ ] Run history: new `up_to_date` outcome on `sync_facility_runs` (constant, model, migration if the column is constrained, dbt model docs); "nothing to pull" moves the last successful sync time but not the pull cursor
-- [ ] Tests: each skip rule, the up-to-date outcome, the retry on `503`
+- [x] Carry the trigger kind into `runSync` (schedule including start-up, user, patient marked, subcommand)
+- [x] Export a `hasUnpushedChanges(models)` helper from `packages/facility-server/app/sync/` (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`); the facility supervisor calls it at sleep in phase 5
+- [x] For scheduled syncs: skip the check when `hasUnpushedChanges`, when the settings PSK is missing, or when `convergeSyncUser` still has work; otherwise call the check and stop on "nothing"
+- [x] `CentralServerConnection`: add the check call; on `503` with `Retry-After`, wait and retry within the attempt for the check and for session start
+- [x] Run history: new `up_to_date` outcome on `sync_facility_runs` (constant, model, migration if the column is constrained, dbt model docs); "nothing to pull" moves the last successful sync time but not the pull cursor
+- [x] Tests: each skip rule, the up-to-date outcome, the retry on `503`
 
 Mobile (`packages/mobile/App/services/sync/`):
-- [ ] Replace `triggerSync({ urgent })` with a reason (scheduled, sign-in, reconnect, initial, manual, urgent) and pass it from `BackendManager`, `AuthContext`, facility selection and the sync screen
-- [ ] For scheduled syncs: skip the check when there are outgoing changes or `tablesForFullResync` is set; otherwise check and stop on "nothing", updating the displayed last-synced time only
-- [ ] `CentralServerConnection.ts`: the check call, and `503` with `Retry-After` handling for the check and session start
-- [ ] Tests in `MobileSyncManager.test.ts`
+- [x] Replace `triggerSync({ urgent })` with a reason (scheduled, sign-in, reconnect, initial, manual, urgent) and pass it from `BackendManager`, `AuthContext`, facility selection and the sync screen
+- [x] For scheduled syncs: skip the check when there are outgoing changes or `tablesForFullResync` is set; otherwise check and stop on "nothing", updating the displayed last-synced time only
+- [x] `CentralServerConnection.ts`: the check call, and `503` with `Retry-After` handling for the check and session start
+- [x] Tests in `MobileSyncManager.test.ts`
+
+Decisions made while building:
+- A 503 counts as central waking only when it carries `Retry-After`; one without is an ordinary error. Facility waits up to 60 s per retry and 30 minutes in all (`sync.centralWake` config); mobile waits 1 to 30 s per retry and 10 minutes in all.
+- The supervisor credential is `supervisor.token` (`SUPERVISOR_TOKEN`), a bearer token; unset rejects every request. Routes: `POST /api/supervisor/lookup-refresh` and `GET /api/supervisor/busy`.
+- The lookup build lock is a transaction-level advisory lock held by a transaction opened for it, taken inside `CentralSyncManager.updateLookupTable`, so the scheduled and on-demand builds share it.
+- The tick read is a backward index-only scan of the existing `updated_at_sync_tick` index; no migration.
+- `up_to_date` runs move the facility's last completed time but not the pull cursor. `sync_facility_runs.status` is plain text, so no migration.
+- Mobile: the "Manual sync" button keeps the urgent path (the queue polling depends on it) and sends `urgent` to central, with the reason `manual`.
 
 ### 3. Supervisor package skeleton (SUPV) (PR 3 starts)
 
