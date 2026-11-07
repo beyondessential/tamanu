@@ -1,5 +1,5 @@
 import React, { type ReactElement, useCallback, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text } from 'react-native';
 import { Button } from 'react-native-paper';
 import type { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
@@ -15,11 +15,11 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
     backgroundColor: theme.colors.BACKGROUND_GREY,
     flex: 1,
-    justifyContent: 'space-between',
   },
+  autocompleteContainer: { flex: 1 },
+  resultsContainer: { flex: 1 },
   lightItemText: {
     color: theme.colors.TEXT_DARK,
     backgroundColor: theme.colors.WHITE,
@@ -30,12 +30,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.LIGHT_GREY,
     padding: 12,
   },
-  backButton: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    borderRadius: 0,
-  },
+  backButton: { borderRadius: 0 },
 });
 
 type AutocompleteModalScreenProps = {
@@ -88,7 +83,7 @@ export const AutocompleteModalScreen = ({
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       {modalTitle && (
         <EmptyStackHeader
           title={modalTitle}
@@ -106,8 +101,12 @@ export const AutocompleteModalScreen = ({
         data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus
+        containerStyle={styles.autocompleteContainer}
+        listContainerStyle={styles.resultsContainer}
         flatListProps={{
           keyExtractor: item => item.value,
+          // Select on the first tap, rather than spending it on dismissing the keyboard
+          keyboardShouldPersistTaps: 'handled',
           renderItem: ({ item, index }): ReactElement => {
             const useDarkBackground = index % 2 === 0;
             return (
@@ -126,6 +125,6 @@ export const AutocompleteModalScreen = ({
       <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
