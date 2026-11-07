@@ -115,7 +115,10 @@ export class CentralServerConnection extends TamanuApi {
 
   async loginData() {
     if (!this.hasToken() || !this.#loginData) {
-      await this.connect();
+      // A login of our own, rather than one a request makes for itself inside fetch(), so it
+      // needs the waking wrapper here: a sync that logs in before it asks central anything would
+      // otherwise fail on the 503 a waking central answers with.
+      await this.#whileCentralWakes('login', () => this.connect());
     }
 
     return this.#loginData;
@@ -139,7 +142,7 @@ export class CentralServerConnection extends TamanuApi {
   // it wakes. That is not a failure: wait as long as it says and ask again, for as long as it keeps
   // answering that way, up to `sync.centralWake.maxTotalWaitSeconds` in all so that a wake that
   // never finishes eventually fails the attempt with the last 503.
-  async #fetchWhileCentralWakes(endpoint, options) {
+  async #whileCentralWakes(label, run) {
     const { defaultRetryAfterSeconds, maxRetryAfterSeconds, maxTotalWaitSeconds } =
       config.sync.centralWake;
     let waitedSeconds = 0;
@@ -147,8 +150,7 @@ export class CentralServerConnection extends TamanuApi {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       try {
-        // fetch() consumes some of its options, so each attempt gets its own copy
-        return await this.fetch(endpoint, { ...options });
+        return await run();
       } catch (error) {
         if (error.response?.status !== 503) throw error;
 
@@ -157,12 +159,12 @@ export class CentralServerConnection extends TamanuApi {
           { defaultRetryAfterSeconds, maxRetryAfterSeconds },
         );
         if (waitedSeconds + retryAfterSeconds > maxTotalWaitSeconds) {
-          log.warn('CentralServerConnection.centralWakeTimedOut', { endpoint, waitedSeconds });
+          log.warn('CentralServerConnection.centralWakeTimedOut', { label, waitedSeconds });
           throw error;
         }
 
         log.info('CentralServerConnection.centralWaking', {
-          endpoint,
+          label,
           retryAfterSeconds,
           waitedSeconds,
         });
@@ -170,6 +172,11 @@ export class CentralServerConnection extends TamanuApi {
         waitedSeconds += retryAfterSeconds;
       }
     }
+  }
+
+  // fetch() consumes some of its options, so each attempt gets its own copy
+  async #fetchWhileCentralWakes(endpoint, options) {
+    return this.#whileCentralWakes(endpoint, () => this.fetch(endpoint, { ...options }));
   }
 
   // spec: SYNCHK#the-check
