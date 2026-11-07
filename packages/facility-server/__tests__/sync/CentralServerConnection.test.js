@@ -393,6 +393,22 @@ describe('CentralServerConnection', () => {
       expect(await answer).toBe(true);
     });
 
+    // A scheduled sync logs in before it decides whether to check, so that login meets a waking
+    // central too, and waiting for it is not a failed sync either.
+    it('waits for a waking central when it logs in of its own accord', async () => {
+      fetch.mockReset();
+      fetch.mockReturnValueOnce(waking('4'));
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
+
+      const loggedIn = centralServer.loginData();
+      await vi.advanceTimersByTimeAsync(3999);
+      expect(fetch).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(await loggedIn).toMatchObject({ user: { displayName: 'Not Real' } });
+      expect(fetch).toHaveBeenCalledTimes(3);
+    });
+
     it('gives up with the last 503 once central has been waking for too long', async () => {
       fetch.mockReturnValue(waking('100000'));
 
