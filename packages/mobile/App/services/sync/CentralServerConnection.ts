@@ -57,17 +57,24 @@ const readRetryAfterHeader = (headers: AxiosError['response']['headers']): unkno
   return typeof headers.get === 'function' ? headers.get('retry-after') : headers['retry-after'];
 };
 
-const parseRetryAfterSeconds = (header: unknown): number => {
-  const seconds = Number(header);
+/** null when the header is absent or blank, which is an ordinary 503 rather than a waking central */
+const parseRetryAfterSeconds = (header: unknown): number | null => {
+  const trimmed = typeof header === 'string' ? header.trim() : header;
+  if (trimmed === undefined || trimmed === null || trimmed === '') return null;
+
+  const seconds = Number(trimmed);
+  // present but unreadable still means waking, so wait the default rather than failing
   if (!Number.isFinite(seconds) || seconds < 0) return DEFAULT_WAKE_RETRY_SECONDS;
   return Math.min(Math.max(seconds, 1), MAX_WAKE_RETRY_SECONDS);
 };
 
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   if (err.response?.status === 503) {
-    const retryAfter = readRetryAfterHeader(err.response.headers);
-    if (retryAfter !== undefined && retryAfter !== null) {
-      return new CentralWakingError(parseRetryAfterSeconds(retryAfter));
+    // Only a usable Retry-After marks central as waking. A bare 503, from an overloaded central
+    // or a proxy with nothing behind it, falls through and fails the sync as any error would.
+    const retryAfterSeconds = parseRetryAfterSeconds(readRetryAfterHeader(err.response.headers));
+    if (retryAfterSeconds !== null) {
+      return new CentralWakingError(retryAfterSeconds);
     }
   }
 
@@ -269,9 +276,19 @@ export class CentralServerConnection {
    */
   async checkForChangesToPull(since?: number): Promise<boolean> {
     const query = since === undefined ? {} : { since };
-    const response = await this.retryWhileCentralWakes(() =>
-      this.get<{ changesToPull?: boolean }>('sync/pending', query),
-    );
+    let response: { changesToPull?: boolean } | undefined;
+    try {
+      response = await this.retryWhileCentralWakes(() =>
+        this.get<{ changesToPull?: boolean }>('sync/pending', query),
+      );
+    } catch (error) {
+      // A central that does not have the check yet, because this device was upgraded first,
+      // answers 404. The check only ever saves a session that would have found nothing, so open
+      // one rather than failing every scheduled sync until central catches up.
+      if ((error as Problem)?.status !== 404) throw error;
+      console.log('CentralServerConnection: central has no changes-pending check, syncing anyway');
+      return true;
+    }
     // anything but a clear "nothing" opens a session, which is always safe
     return response?.changesToPull !== false;
   }
