@@ -1,0 +1,457 @@
+<!-- spec: none yet (card X13, Linear TAM-6857) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fee schedule</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; font: 400 14px/18px var(--font-family-base); color: var(--font-80); background: var(--white); }
+button { font: inherit; }
+
+/* ---------- Sidebar (unchanged, central admin) ---------- */
+.sidebar { width: 260px; flex-shrink: 0; background: #2f4358; color: #fff; display: flex; flex-direction: column; }
+.sidebar .logo { padding: 22px 20px 26px; }
+.sidebar .logo img { height: 30px; display: block; }
+.nav { flex: 1; overflow-y: auto; padding: 0 10px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 4px; color: #fff; text-decoration: none; font-weight: 500; }
+.nav a:hover { background: rgba(255,255,255,.1); }
+.nav a.active { background: rgba(255,255,255,.2); }
+.nav svg { width: 22px; height: 22px; fill: #ffcc24; flex-shrink: 0; }
+.nav .dot { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; }
+.nav .dot::before { content: ''; width: 16px; height: 16px; border-radius: 50%; background: #ffcc24; opacity: .9; }
+.user { border-top: 1px solid rgba(255,255,255,.2); padding: 16px 20px; display: flex; gap: 12px; align-items: center; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: #ffcc24; color: #2f4358; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+.user small { display: block; color: #b8b8b8; font-size: 11px; line-height: 15px; }
+
+/* ---------- Page ---------- */
+main { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100vh; }
+.title { padding: 20px 30px; }
+.title h1 { margin: 0; font-size: 24px; line-height: 32px; font-weight: 500; }
+.panel { margin: 0 20px 20px; padding: 20px; border: 1px solid var(--box-outline); display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; }
+
+.filters { display: flex; gap: 16px; align-items: flex-end; padding-bottom: 16px; border-bottom: 1px solid var(--box-outline); }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field > label { font: 500 11px/15px var(--font-family-base); color: var(--font-60); }
+.inp { height: 36px; border: 1px solid var(--box-outline); border-radius: 3px; background: #fff; padding: 0 12px; display: flex; align-items: center; gap: 8px; color: var(--font-80); }
+.inp select, .inp input { border: 0; outline: 0; background: transparent; font: 400 14px/18px var(--font-family-base); color: var(--font-80); flex: 1; min-width: 0; }
+.inp svg { width: 16px; height: 16px; stroke: var(--font-40); fill: none; stroke-width: 2; flex-shrink: 0; }
+.inp:focus-within { border-color: var(--tamanu-blue-100); }
+
+/* ---------- Grid ---------- */
+.grid-wrap { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--box-outline); border-radius: 3px; }
+table { border-collapse: separate; border-spacing: 0; width: 100%; }
+th, td { padding: 12px; border-bottom: 1px solid #F3F5F7; white-space: nowrap; text-align: left; }
+thead th { position: sticky; z-index: 2; background: #fff; font-weight: 500; color: var(--font-80); }
+thead tr:first-child th { top: 0; height: 33px; padding-top: 8px; padding-bottom: 0; border-bottom: 0; font: 500 11px/15px var(--font-family-base); color: var(--font-40); }
+thead tr:nth-child(2) th { top: 33px; border-bottom: 1px solid var(--box-outline); }
+th.group { text-align: center; }
+th.group span { display: block; border-bottom: 1px solid var(--box-outline); padding-bottom: 6px; }
+th.num, td.num { text-align: right; }
+th.sticky, td.sticky { position: sticky; left: 0; background: #fff; z-index: 1; border-right: 1px solid var(--box-outline); }
+thead th.sticky { z-index: 3; }
+th .hint { display: inline-flex; vertical-align: -3px; margin-left: 4px; color: var(--font-40); cursor: help; position: relative; }
+th .hint svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+th .hint:hover::after { content: attr(data-tip); position: absolute; top: 22px; left: 50%; transform: translateX(-50%); background: #2f4358; color: #fff; font: 400 11px/15px var(--font-family-base); padding: 6px 8px; border-radius: 4px; white-space: nowrap; z-index: 10; }
+tbody tr:hover td { background: var(--background-2); }
+tbody tr:hover td.sticky { background: var(--background-2); }
+
+.cat { color: var(--font-60); }
+.product-name { font-weight: 400; }
+
+/* Editable cells */
+.cell { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 76px; height: 28px; margin: -5px -8px; padding: 0 8px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
+.cell.left { justify-content: flex-start; min-width: 220px; }
+.cell:hover { border-color: var(--tamanu-blue-30); background: #fff; }
+.cell:focus-visible { outline: 2px solid var(--tamanu-blue-30); outline-offset: 1px; }
+.cell.changed { background: var(--yellow-10); border-color: var(--yellow-100); }
+.muted { color: var(--font-40); }
+.tag { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 999px; font: 400 11px/15px var(--font-family-base); background: var(--blue-t-20); color: var(--blue-t-100); }
+.na { color: var(--font-20); }
+
+/* Toggle */
+.toggle { all: unset; cursor: pointer; width: 32px; height: 18px; border-radius: 999px; background: var(--default-off); position: relative; display: inline-block; vertical-align: middle; }
+.toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: left .12s; }
+.toggle[aria-checked="true"] { background: var(--tamanu-blue-100); }
+.toggle[aria-checked="true"]::after { left: 16px; }
+.toggle:focus-visible { outline: 2px solid var(--tamanu-blue-30); outline-offset: 2px; }
+.toggle-wrap { display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid transparent; }
+.toggle-wrap.changed { background: var(--yellow-10); border-color: var(--yellow-100); }
+
+/* Price editor popover */
+.popover { position: fixed; z-index: 20; width: 260px; background: #fff; border: 1px solid var(--box-outline); border-radius: 5px; box-shadow: 0 2px 2px rgba(0,0,0,.10), 0 4px 16px rgba(0,0,0,.10); padding: 16px; display: none; flex-direction: column; gap: 14px; }
+.popover.open { display: flex; }
+.popover h3 { margin: 0; font: 500 14px/18px var(--font-family-base); }
+.popover .sub { margin: 2px 0 0; font: 400 11px/15px var(--font-family-base); color: var(--font-40); }
+.radios { display: flex; gap: 16px; }
+.radio, .check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.radio input, .check input { accent-color: var(--tamanu-blue-100); width: 16px; height: 16px; margin: 0; }
+.pop-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* Buttons */
+.btn { height: 36px; padding: 0 16px; border-radius: 3px; font-weight: 500; cursor: pointer; border: 1px solid var(--tamanu-blue-100); }
+.btn.primary { background: var(--tamanu-blue-100); color: #fff; }
+.btn.primary:hover { background: var(--tamanu-blue-hover); }
+.btn.secondary { background: #fff; color: var(--tamanu-blue-100); }
+.btn.secondary:hover { background: var(--tamanu-blue-surface); }
+.btn.xs { height: 32px; padding: 0 12px; }
+
+/* Save bar */
+.savebar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--background-2); border: 1px solid var(--box-outline); border-radius: 3px; }
+.savebar[hidden] { display: none; }
+.savebar .actions { display: flex; gap: 12px; align-items: center; }
+.pager { display: flex; justify-content: flex-end; align-items: center; gap: 14px; color: var(--font-80); font-size: 13px; }
+
+/* Modal */
+.backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; z-index: 30; }
+.backdrop.open { display: flex; }
+.modal { width: 520px; background: #fff; border-radius: 5px; box-shadow: 0 8px 32px rgba(0,0,0,.15); }
+.modal header { padding: 20px 32px; border-bottom: 1px solid var(--box-outline); font: 500 18px/24px var(--font-family-base); }
+.modal .body { padding: 32px; color: var(--font-60); }
+.modal .body p { margin: 0 0 12px; }
+.modal .body p:last-child { margin: 0; }
+.modal footer { padding: 16px 32px; border-top: 1px solid var(--box-outline); display: flex; justify-content: flex-end; gap: 12px; background: var(--background-2); border-radius: 0 0 5px 5px; }
+</style>
+</head>
+<body>
+
+<nav class="sidebar" aria-label="Admin">
+  <div class="logo"><img src="../../assets/logo-tamanu-long-white.svg" alt="Tamanu"></div>
+  <div class="nav">
+    <a href="#"><span class="dot"></span>Reference data</a>
+    <a href="#"><span class="dot"></span>Permissions</a>
+    <a href="#"><span class="dot"></span>Programs</a>
+    <a href="#"><span class="dot"></span>Survey responses</a>
+    <a href="#"><span class="dot"></span>Patient data</a>
+    <a href="#"><span class="dot"></span>Users</a>
+    <a href="#"><span class="dot"></span>Patient merge</a>
+    <a href="#"><span class="dot"></span>Templates</a>
+    <a href="#"><span class="dot"></span>Translation</a>
+    <a href="#"><span class="dot"></span>Asset upload</a>
+    <a href="#"><span class="dot"></span>Sync status</a>
+    <a href="#"><span class="dot"></span>Settings</a>
+    <a href="#"><span class="dot"></span>FHIR job stats</a>
+    <a href="#"><span class="dot"></span>Reports</a>
+    <a href="#" class="active" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 3.5 18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V2l-1.5 1.5zM19 19c0 .55-.45 1-1 1s-1-.45-1-1v-3H8V5h11v14z"/><path d="M9 7h6v2H9zm7 0h2v2h-2zm-7 3h6v2H9zm7 0h2v2h-2z"/></svg>
+      Fee schedule
+    </a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      Insurance plan payments
+    </a>
+  </div>
+  <div class="user">
+    <div class="avatar">MT</div>
+    <div>Maria Tamag<small>Cashier · Yap State Hospital</small></div>
+  </div>
+</nav>
+
+<main>
+  <div class="title"><h1>Fee schedule</h1></div>
+
+  <section class="panel">
+    <div class="filters">
+      <div class="field" style="width: 260px">
+        <label for="facility">Facility</label>
+        <div class="inp"><select id="facility"><option>Yap State Hospital</option></select></div>
+      </div>
+      <div class="field" style="width: 220px">
+        <label for="category">Category</label>
+        <div class="inp">
+          <select id="category">
+            <option value="">All categories</option>
+            <option>Drug</option>
+            <option>Lab test type</option>
+            <option>Lab test panel</option>
+            <option>Imaging area</option>
+            <option>Procedure type</option>
+            <option>Encounter fee</option>
+            <option>Bed fee</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="width: 300px">
+        <label for="search">Product</label>
+        <div class="inp">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="search" type="search" placeholder="Search products">
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-wrap">
+      <table id="grid">
+        <thead>
+          <tr>
+            <th class="sticky"></th>
+            <th></th>
+            <th></th>
+            <th class="group" colspan="4"><span>Price</span></th>
+            <th class="group"><span>Insurance</span></th>
+          </tr>
+          <tr>
+            <th class="sticky">Product
+              <span class="hint" data-tip="Applies at all facilities"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>
+            </th>
+            <th>Category</th>
+            <th>Available</th>
+            <th class="num">Yap 0-12</th>
+            <th class="num">Yap Non-Resident</th>
+            <th class="num">Yap Resident</th>
+            <th class="num">Yap Senior</th>
+            <th class="num">Micare
+              <span class="hint" data-tip="Applies at all facilities"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div class="savebar" id="savebar" hidden>
+      <span id="change-count"></span>
+      <div class="actions">
+        <button class="btn secondary" id="discard">Discard</button>
+        <button class="btn primary" id="save">Save changes</button>
+      </div>
+    </div>
+
+    <div class="pager">
+      <span>Rows per page: 50</span>
+      <span>1–10 of 412</span>
+    </div>
+  </section>
+</main>
+
+<!-- Price editor -->
+<div class="popover" id="popover" role="dialog" aria-labelledby="pop-title">
+  <div>
+    <h3 id="pop-title"></h3>
+    <p class="sub" id="pop-sub"></p>
+  </div>
+  <div class="field">
+    <label for="pop-price">Price</label>
+    <div class="inp"><input id="pop-price" inputmode="decimal"></div>
+  </div>
+  <div class="field" id="pop-charging">
+    <label>Charge</label>
+    <div class="radios">
+      <label class="radio"><input type="radio" name="charging" value="perUnit"> Per unit</label>
+      <label class="radio"><input type="radio" name="charging" value="flat"> Flat fee</label>
+    </div>
+  </div>
+  <label class="check"><input type="checkbox" id="pop-hidden"> Not charged</label>
+  <div class="pop-actions">
+    <button class="btn secondary xs" id="pop-cancel">Cancel</button>
+    <button class="btn primary xs" id="pop-apply">Apply</button>
+  </div>
+</div>
+
+<!-- Save confirmation -->
+<div class="backdrop" id="confirm">
+  <div class="modal" role="dialog" aria-labelledby="confirm-title">
+    <header id="confirm-title">Save changes</header>
+    <div class="body">
+      <p id="confirm-summary"></p>
+      <p id="confirm-invoices">Invoices that are not finalised will use the new prices.</p>
+    </div>
+    <footer>
+      <button class="btn secondary" id="confirm-cancel">Cancel</button>
+      <button class="btn primary" id="confirm-save">Save changes</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+const PRICE_LISTS = ['Yap 0-12', 'Yap Non-Resident', 'Yap Resident', 'Yap Senior'];
+
+// price: number, or null when not charged. flat: fixed price (drugs only).
+// available: true / false, or null when the product has nothing orderable behind it.
+// coverage: percentage, or null when the product is not insurable.
+const products = [
+  { name: '1HR Post Parandial Blood Sugar', category: 'Lab test type', available: true, prices: [{ price: 0 }, { price: 11 }, { price: 5 }, { price: 2.5 }], coverage: 100 },
+  { name: 'Abdomen | AXR-LD/RD', category: 'Imaging area', available: true, prices: [{ price: 10 }, { price: 10 }, { price: 10 }, { price: 10 }], coverage: 100 },
+  { name: 'Amoxicillin 500mg capsule', category: 'Drug', available: true, prices: [{ price: 2, flat: true }, { price: 0.4 }, { price: 0.2 }, { price: 2, flat: true }], coverage: 80 },
+  { name: 'Appendicectomy', category: 'Procedure type', available: true, prices: [{ price: null }, { price: 450 }, { price: 150 }, { price: 75 }], coverage: 100 },
+  { name: 'Chest X-ray PA', category: 'Imaging area', available: true, prices: [{ price: 8 }, { price: 25 }, { price: 12 }, { price: 6 }], coverage: 100 },
+  { name: 'Clinic visit, standard hours', category: 'Encounter fee', available: null, prices: [{ price: 2 }, { price: 10 }, { price: 5 }, { price: 2 }], coverage: null },
+  { name: 'Full blood count', category: 'Lab test panel', available: true, prices: [{ price: 0 }, { price: 15 }, { price: 6 }, { price: 3 }], coverage: 100 },
+  { name: 'ICU bed', category: 'Bed fee', available: null, prices: [{ price: 40 }, { price: 120 }, { price: 60 }, { price: 30 }], coverage: 100 },
+  { name: 'Paracetamol 500mg tablet', category: 'Drug', available: false, prices: [{ price: 0.05 }, { price: 0.1 }, { price: 0.05 }, { price: 0.05 }], coverage: 100 },
+  { name: '25% Burn', category: null, available: null, prices: [{ price: 50 }, { price: 50 }, { price: 50 }, { price: 50 }], coverage: null },
+];
+
+// Pending edits, keyed by cell. Pre-seeded so the mockup opens mid-edit.
+const pending = new Map();
+const original = JSON.parse(JSON.stringify(products));
+function setPending(key, isChanged) { isChanged ? pending.set(key, true) : pending.delete(key); }
+
+products[1].prices[1].price = 12; setPending('1:p1', true);
+products[1].prices[2].price = 11; setPending('1:p2', true);
+
+const fmt = n => n.toFixed(2);
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function priceCell(p, row, col) {
+  const key = `${row}:p${col}`;
+  const label = p.price == null
+    ? '<span class="muted">Not charged</span>'
+    : `${p.flat ? '<span class="tag">Flat fee</span>' : ''}${fmt(p.price)}`;
+  return `<td class="num"><button class="cell ${pending.has(key) ? 'changed' : ''}" data-row="${row}" data-col="${col}">${label}</button></td>`;
+}
+
+function render() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const category = document.getElementById('category').value;
+  document.getElementById('rows').innerHTML = products.map((product, row) => {
+    if (query && !product.name.toLowerCase().includes(query)) return '';
+    if (category && product.category !== category) return '';
+    const nameKey = `${row}:name`;
+    const availKey = `${row}:avail`;
+    const covKey = `${row}:cov`;
+    const available = product.available == null
+      ? '<span class="na" title="Not orderable">—</span>'
+      : `<span class="toggle-wrap ${pending.has(availKey) ? 'changed' : ''}"><button class="toggle" role="switch" aria-checked="${product.available}" aria-label="Available at Yap State Hospital" data-avail="${row}"></button></span>`;
+    const coverage = product.coverage == null
+      ? '<span class="na" title="Not insurable">—</span>'
+      : `<button class="cell ${pending.has(covKey) ? 'changed' : ''}" data-cov="${row}">${product.coverage}%</button>`;
+    return `<tr>
+      <td class="sticky"><button class="cell left ${pending.has(nameKey) ? 'changed' : ''}" data-name="${row}">${esc(product.name)}</button></td>
+      <td class="cat">${product.category ?? '<span class="na">—</span>'}</td>
+      <td>${available}</td>
+      ${product.prices.map((p, col) => priceCell(p, row, col)).join('')}
+      <td class="num">${coverage}</td>
+    </tr>`;
+  }).join('');
+  const count = pending.size;
+  document.getElementById('savebar').hidden = count === 0;
+  document.getElementById('change-count').textContent = `${count} unsaved ${count === 1 ? 'change' : 'changes'}`;
+}
+
+// ---- Price editor ----
+const popover = document.getElementById('popover');
+let editing = null;
+
+function openPriceEditor(button) {
+  const row = Number(button.dataset.row);
+  const col = Number(button.dataset.col);
+  const product = products[row];
+  const cell = product.prices[col];
+  editing = { row, col };
+  document.getElementById('pop-title').textContent = product.name;
+  document.getElementById('pop-sub').textContent = PRICE_LISTS[col];
+  document.getElementById('pop-price').value = cell.price == null ? '' : fmt(cell.price);
+  document.getElementById('pop-hidden').checked = cell.price == null;
+  document.getElementById('pop-price').disabled = cell.price == null;
+  const isDrug = product.category === 'Drug';
+  document.getElementById('pop-charging').style.display = isDrug ? '' : 'none';
+  document.querySelector(`input[name="charging"][value="${cell.flat ? 'flat' : 'perUnit'}"]`).checked = true;
+  const rect = button.getBoundingClientRect();
+  popover.classList.add('open');
+  const left = Math.min(rect.right - 260, window.innerWidth - 276);
+  popover.style.left = `${Math.max(16, left)}px`;
+  popover.style.top = `${Math.min(rect.bottom + 6, window.innerHeight - popover.offsetHeight - 16)}px`;
+  if (cell.price != null) document.getElementById('pop-price').select();
+}
+
+function closePriceEditor() { popover.classList.remove('open'); editing = null; }
+
+document.getElementById('pop-hidden').addEventListener('change', e => {
+  document.getElementById('pop-price').disabled = e.target.checked;
+});
+document.getElementById('pop-cancel').addEventListener('click', closePriceEditor);
+document.getElementById('pop-apply').addEventListener('click', () => {
+  const { row, col } = editing;
+  const cell = products[row].prices[col];
+  const before = original[row].prices[col];
+  const isHidden = document.getElementById('pop-hidden').checked;
+  cell.price = isHidden ? null : Number(document.getElementById('pop-price').value || 0);
+  cell.flat = products[row].category === 'Drug' && document.querySelector('input[name="charging"]:checked').value === 'flat';
+  setPending(`${row}:p${col}`, cell.price !== before.price || Boolean(cell.flat) !== Boolean(before.flat));
+  closePriceEditor();
+  render();
+});
+
+// ---- Inline edits for name and coverage ----
+function inlineEdit(button, current, onCommit) {
+  const input = document.createElement('input');
+  input.value = current;
+  input.className = 'cell left';
+  input.style.cssText = 'border-color: var(--tamanu-blue-100); background: #fff; cursor: text;';
+  button.replaceWith(input);
+  input.focus();
+  input.select();
+  const commit = () => { onCommit(input.value.trim()); render(); };
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { input.removeEventListener('blur', commit); render(); }
+  });
+}
+
+document.getElementById('rows').addEventListener('click', e => {
+  const target = e.target.closest('button');
+  if (!target) return;
+  if (target.dataset.col !== undefined) return openPriceEditor(target);
+  if (target.dataset.avail !== undefined) {
+    const row = Number(target.dataset.avail);
+    products[row].available = !products[row].available;
+    setPending(`${row}:avail`, products[row].available !== original[row].available);
+    return render();
+  }
+  if (target.dataset.name !== undefined) {
+    const row = Number(target.dataset.name);
+    return inlineEdit(target, products[row].name, value => {
+      if (value) products[row].name = value;
+      setPending(`${row}:name`, products[row].name !== original[row].name);
+    });
+  }
+  if (target.dataset.cov !== undefined) {
+    const row = Number(target.dataset.cov);
+    return inlineEdit(target, String(products[row].coverage), value => {
+      const coverage = Number(value.replace('%', ''));
+      if (!Number.isNaN(coverage)) products[row].coverage = Math.min(100, Math.max(0, coverage));
+      setPending(`${row}:cov`, products[row].coverage !== original[row].coverage);
+    });
+  }
+});
+
+document.addEventListener('mousedown', e => {
+  if (popover.classList.contains('open') && !popover.contains(e.target) && !e.target.closest('.cell')) closePriceEditor();
+});
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('category').addEventListener('change', render);
+
+// ---- Save and discard ----
+const confirmModal = document.getElementById('confirm');
+document.getElementById('save').addEventListener('click', () => {
+  const keys = [...pending.keys()];
+  const priceChanges = keys.filter(k => k.includes(':p')).length;
+  const otherChanges = keys.length - priceChanges;
+  const parts = [];
+  if (priceChanges) parts.push(`${priceChanges} ${priceChanges === 1 ? 'price' : 'prices'}`);
+  if (otherChanges) parts.push(`${otherChanges} other ${otherChanges === 1 ? 'change' : 'changes'}`);
+  document.getElementById('confirm-summary').textContent = `You are saving ${parts.join(' and ')}.`;
+  document.getElementById('confirm-invoices').style.display = priceChanges ? '' : 'none';
+  confirmModal.classList.add('open');
+});
+document.getElementById('confirm-cancel').addEventListener('click', () => confirmModal.classList.remove('open'));
+document.getElementById('confirm-save').addEventListener('click', () => {
+  original.splice(0, original.length, ...JSON.parse(JSON.stringify(products)));
+  pending.clear();
+  confirmModal.classList.remove('open');
+  render();
+});
+document.getElementById('discard').addEventListener('click', () => {
+  products.splice(0, products.length, ...JSON.parse(JSON.stringify(original)));
+  pending.clear();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
