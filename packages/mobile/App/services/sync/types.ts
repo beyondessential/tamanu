@@ -56,3 +56,25 @@ export const SYNC_EVENT_ACTIONS = {
 } as const;
 
 export type SYNC_EVENT_ACTIONS = (typeof SYNC_EVENT_ACTIONS)[keyof typeof SYNC_EVENT_ACTIONS];
+
+/**
+ * Why a sync was started. Only a scheduled sync asks central whether there is anything to pull
+ * before opening a session; every other reason opens one straight away.
+ * spec: SYNCHK#mobile-devices
+ */
+export const SYNC_REASONS = {
+  /** The periodic background sync */
+  SCHEDULED: 'scheduled',
+  /** The user signed in */
+  SIGN_IN: 'signIn',
+  /** The user signed back in with their password after the connection to central was lost */
+  RECONNECT: 'reconnect',
+  /** The user chose the device's facility, which runs its first sync */
+  INITIAL: 'initial',
+  /** The user pressed the sync button */
+  MANUAL: 'manual',
+  /** A sync that the user is waiting on, such as after marking a patient for sync */
+  URGENT: 'urgent',
+} as const;
+
+export type SyncReason = (typeof SYNC_REASONS)[keyof typeof SYNC_REASONS];

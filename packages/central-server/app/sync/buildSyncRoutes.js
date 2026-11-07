@@ -10,6 +10,7 @@ import { DEVICE_SCOPES } from '@tamanu/constants';
 
 import { buildFacilityBootstrap } from './buildFacilityBootstrap';
 import { CentralSyncManager } from './CentralSyncManager';
+import { buildLookupChangesPendingSource, changesPendingHandler } from './changesPending';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -51,6 +52,23 @@ export const buildSyncRoutes = ctx => {
     next();
   });
 
+  // spec: SYNCHK#the-check
+  // ask whether anything has changed since the device's last pull, so it can skip opening a
+  // session. Defined before the /:sessionId routes, which would otherwise capture it.
+  syncRoutes.get(
+    '/pending',
+    (req, _res, next) => {
+      // read per request (not at route build time) so the handler stays portable and a config
+      // override applies
+      req.changesPendingSource = buildLookupChangesPendingSource(
+        req.models,
+        CentralSyncManager.config.sync.lookupTable.enabled,
+      );
+      next();
+    },
+    changesPendingHandler,
+  );
+
   // create new sync session or join/update the queue for one
   syncRoutes.post(
     '/',
@@ -68,6 +86,9 @@ export const buildSyncRoutes = ctx => {
       }
 
       await assertUserCanSyncFacilities(req, facilityIds);
+
+      // spec: SYNCHK#recording-the-device-as-seen
+      await device.markSeenIfStale();
 
       // first check if our device has any stale sessions...
       const staleSessions = await SyncSession.findAll({

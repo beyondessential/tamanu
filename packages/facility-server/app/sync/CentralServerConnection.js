@@ -32,6 +32,8 @@ export class CentralServerConnection extends TamanuApi {
         waitForAuth: true,
         backoff: true,
       },
+      // spec: SYNCHK#while-central-wakes
+      wakeRetry: config.sync.centralWake,
     });
 
     if (process.env.TAMANU_DISABLE_FAITH_FETCH !== 'true') {
@@ -106,7 +108,10 @@ export class CentralServerConnection extends TamanuApi {
 
   async loginData() {
     if (!this.hasToken() || !this.#loginData) {
-      await this.connect();
+      // A login of our own, rather than one a request makes for itself inside fetch(), so it
+      // needs the waking wrapper here: a sync that logs in before it asks central anything would
+      // otherwise fail on the 503 a waking central answers with.
+      await this.whileServerWakes('login', () => this.connect());
     }
 
     return this.#loginData;
@@ -125,9 +130,40 @@ export class CentralServerConnection extends TamanuApi {
     return records;
   }
 
+  // fetch() consumes some of its options, so each attempt gets its own copy
+  async #fetchWhileCentralWakes(endpoint, options) {
+    return this.whileServerWakes(endpoint, () => this.fetch(endpoint, { ...options }));
+  }
+
+  // spec: SYNCHK#the-check
+  // Asks central whether anything that syncs has changed since the tick our last pull reached.
+  // Leave `since` undefined when we have never pulled.
+  async checkChangesPending(since) {
+    const query = since === undefined ? {} : { since };
+
+    let answer;
+    try {
+      answer = await this.#fetchWhileCentralWakes('sync/pending', { query });
+    } catch (error) {
+      // A central that does not have the check yet, because this facility was upgraded first,
+      // answers 404. The check only ever saves a session that would have found nothing, so open
+      // one rather than failing every scheduled sync until central catches up.
+      if (error.response?.status !== 404) throw error;
+      log.info('CentralServerConnection.changesPendingNotSupported');
+      return true;
+    }
+
+    // anything but a clear "nothing" opens a session, which is always safe
+    if (typeof answer?.changesToPull !== 'boolean') {
+      log.warn('CentralServerConnection.changesPendingUnreadable');
+      return true;
+    }
+    return answer.changesToPull;
+  }
+
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityIds = getServerFacilityIds();
-    const { sessionId, status } = await this.fetch('sync', {
+    const { sessionId, status } = await this.#fetchWhileCentralWakes('sync', {
       method: 'POST',
       body: {
         facilityIds,

@@ -1,6 +1,7 @@
 import React, { type ReactElement, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import * as Yup from 'yup';
+import { SYNC_REASONS } from '~/services/sync';
 import Form from '~/ui/components/Forms/Form';
 import { Field } from '~/ui/components/Forms/FormField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -135,7 +136,7 @@ export const SelectFacilityScreen = ({ navigation }: SignInProps) => {
     if (settings) await backend.settings.setSettings(settings);
     await assignFacility(values.facilityId, values.facilityName);
     // trigger sync when user finish selecting the facility for the device
-    await backend.syncManager.triggerSync();
+    await backend.syncManager.triggerSync(SYNC_REASONS.INITIAL);
   };
 
   return (

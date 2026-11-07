@@ -20,6 +20,7 @@ Before a facility server or a mobile device opens a scheduled sync session with 
 - [ ] The answer is that there are changes to pull when the highest real-change tick is above the device's pull cursor, and when the device has never pulled.
 - [ ] The answer is that there is nothing to pull otherwise.
 - [ ] The check is answered at the same address whether central is awake or asleep. While central is asleep, its supervisor answers it (see `platform/supervisor/serving-while-asleep.md#changes-pending-check`).
+- [ ] The check only ever saves a session that would have found nothing, so anything other than a clear answer of nothing to pull opens a session. A central server old enough not to have the check, which a device upgraded ahead of it meets, therefore keeps syncing rather than failing every scheduled sync.
 - [ ] A device's own pushes can bring the highest real-change tick above its pull cursor, so the check can answer that there are changes for one session that then pulls nothing. The next check after that session answers that there is nothing to pull.
 
 ## Recording the device as seen
@@ -45,5 +46,6 @@ Before a facility server or a mobile device opens a scheduled sync session with 
 
 ## While central wakes
 
-- [ ] A sync client whose check or session start gets `503 Service Unavailable` with a `Retry-After` header, as a waking central answers (see `platform/supervisor/sleep-and-wake.md#waking`), waits for that long and tries again within the same sync, for as long as central keeps answering that it is waking.
+- [ ] A sync client whose check or session start gets `503 Service Unavailable` with a `Retry-After` header, as a waking central answers (see `platform/supervisor/sleep-and-wake.md#waking`), waits for that long and tries again within the same sync, for as long as central keeps answering that it is waking. A login the client makes for itself during the check or session start waits in the same way.
+- [ ] The `Retry-After` header is what marks central as waking. A `503` without one is an ordinary failure, so an overloaded central, or an address with nothing behind it, fails the sync instead of holding it for the whole waiting time.
 - [ ] Waiting for a waking central is not a failed sync.

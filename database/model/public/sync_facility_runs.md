@@ -13,7 +13,8 @@ Rows are kept indefinitely.
 {% docs sync_facility_runs__status %}
 Outcome of the attempt: `running` while in progress (or if it never completed),
 `succeeded`, `queued` if the central server asked the facility to wait for a later
-turn, or `failed`.
+turn, `up_to_date` if the central server answered the changes-pending check with
+nothing to pull so no session was opened, or `failed`.
 {% enddocs %}
 
 {% docs sync_facility_runs__start_time %}
@@ -37,7 +38,7 @@ never completed.
 
 {% docs sync_facility_runs__session_id %}
 The sync session the central server issued for this attempt. Null if the attempt
-failed or was queued before a session was started.
+failed, was queued or found nothing to pull before a session was started.
 {% enddocs %}
 
 {% docs sync_facility_runs__trigger_type %}

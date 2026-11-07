@@ -1,4 +1,5 @@
 import express from 'express';
+import { SYNC_TRIGGER_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 
 export const patientFacility = express.Router();
@@ -25,7 +26,7 @@ patientFacility.post('/', async (req, res) => {
   // trigger a sync to immediately start pulling data for this patient
   await syncConnection.runSync({
     urgent: true,
-    type: 'patientMarkedForSync',
+    type: SYNC_TRIGGER_TYPES.PATIENT_MARKED_FOR_SYNC,
     patientId: patient.id,
     patientDisplayId: patient.displayId,
   });

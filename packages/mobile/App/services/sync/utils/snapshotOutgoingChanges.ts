@@ -53,3 +53,24 @@ export const snapshotOutgoingChanges = async (
     return outgoingChanges;
   });
 };
+
+/**
+ * Whether any record has been updated since the last successful push, without building the
+ * snapshot that a push needs. It selects the same rows as `snapshotOutgoingChanges`, but reads
+ * only each row's id and stops at the first one it finds.
+ */
+export const hasOutgoingChanges = async (
+  outgoingModels: Partial<typeof MODELS_MAP>,
+  since: number,
+): Promise<boolean> => {
+  for (const model of Object.values(outgoingModels)) {
+    const changedRecord = await model.findOne({
+      where: { updatedAtSyncTick: MoreThan(since) },
+      select: { id: true },
+      withDeleted: true,
+      loadEagerRelations: false,
+    });
+    if (changedRecord) return true;
+  }
+  return false;
+};
