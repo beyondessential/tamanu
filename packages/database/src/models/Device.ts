@@ -10,6 +10,7 @@ import {
 } from '@tamanu/constants';
 import {
   AuthPermissionError,
+  ForbiddenError,
   InvalidOperationError,
   MissingCredentialError,
   QuotaExceededError,
@@ -139,7 +140,8 @@ export class Device extends Model {
 
   ensureHasScope(scope: DeviceScope) {
     if (!this.scopes.includes(scope)) {
-      throw new Error('Device must have the required scope.');
+      // the device authenticated, it just may not do this: a client error, not a server one
+      throw new ForbiddenError('Device must have the required scope.');
     }
   }
 

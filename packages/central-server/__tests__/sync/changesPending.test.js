@@ -123,10 +123,15 @@ describe('Changes-pending check', () => {
       expect(response).toHaveRequestError();
     });
 
+    it('answers a cursor that is not a sync tick with a client error', async () => {
+      const response = await check(syncToken, 'soon');
+      expect(response).toHaveRequestError();
+    });
+
     it('rejects a device without the sync client scope', async () => {
       await addLookupRow('real-1', 50);
       const response = await check(otherToken, 0);
-      expect(response).not.toHaveSucceeded();
+      expect(response).toHaveRequestError();
     });
 
     it('answers that there are changes when the device has never pulled', async () => {
