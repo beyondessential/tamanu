@@ -310,12 +310,6 @@ describe('CentralServerConnection', () => {
       expect(new URL(requestCalls()[0][0]).searchParams.has('since')).toBe(false);
     });
 
-    it('rejects an answer without the changesToPull flag', async () => {
-      fetch.mockReturnValueOnce(fakeSuccess({}));
-
-      await expect(centralServer.checkChangesPending(1)).rejects.toThrow(/changesToPull/);
-    });
-
     it('does not retry other failures', async () => {
       fetch.mockReturnValueOnce(fakeFailure(500));
 
@@ -356,11 +350,8 @@ describe('CentralServerConnection', () => {
       expect(JSON.parse(requestCalls()[1][1].body)).toMatchObject({ lastSyncedTick: 5 });
     });
 
-    it.each([
-      ['has no Retry-After', undefined],
-      ['has a Retry-After that is not a number of seconds', 'soon'],
-    ])('waits the default when a 503 %s', async (_, retryAfter) => {
-      fetch.mockReturnValueOnce(waking(retryAfter));
+    it('waits the default when a 503 has a Retry-After that is not a number of seconds', async () => {
+      fetch.mockReturnValueOnce(waking('soon'));
       fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: true }));
 
       const answer = centralServer.checkChangesPending(1);
@@ -369,6 +360,31 @@ describe('CentralServerConnection', () => {
       await vi.advanceTimersByTimeAsync(1);
 
       expect(await answer).toBe(true);
+    });
+
+    // Only a Retry-After says the server is waking. An ordinary 503, from an overloaded central or
+    // a proxy with nothing behind it, has to fail rather than park the sync for the wait budget.
+    it.each([
+      ['has no Retry-After', undefined],
+      ['has an empty Retry-After', '  '],
+    ])('fails at once when a 503 %s', async (_, retryAfter) => {
+      fetch.mockReturnValueOnce(waking(retryAfter));
+
+      await expect(centralServer.checkChangesPending(1)).rejects.toMatchObject({ status: 503 });
+      expect(requestCalls()).toHaveLength(1);
+    });
+
+    // spec: SYNCHK#the-check
+    it('opens a session when central is too old to have the check', async () => {
+      fetch.mockReturnValueOnce(fakeFailure(404));
+
+      expect(await centralServer.checkChangesPending(1)).toBe(true);
+    });
+
+    it('opens a session when central answers the check with no flag', async () => {
+      fetch.mockReturnValueOnce(fakeSuccess({}));
+
+      expect(await centralServer.checkChangesPending(1)).toBe(true);
     });
 
     it('caps a long Retry-After', async () => {

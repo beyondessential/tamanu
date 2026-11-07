@@ -5,19 +5,10 @@ import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/c
 
 import { ERROR_TYPE } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
-
-// Retry-After is a whole number of seconds (or an HTTP date, which central does not send). Anything
-// else, or nothing, waits the default. Always at least a second, so a zero cannot spin.
-function parseRetryAfterSeconds(header, { defaultRetryAfterSeconds, maxRetryAfterSeconds }) {
-  const trimmed = header?.trim() ?? '';
-  const seconds = /^\d+$/.test(trimmed) ? Number.parseInt(trimmed, 10) : defaultRetryAfterSeconds;
-  return Math.min(Math.max(seconds, 1), maxRetryAfterSeconds);
-}
 
 export class CentralServerConnection extends TamanuApi {
   #loginData;
@@ -41,6 +32,8 @@ export class CentralServerConnection extends TamanuApi {
         waitForAuth: true,
         backoff: true,
       },
+      // spec: SYNCHK#while-central-wakes
+      wakeRetry: config.sync.centralWake,
     });
 
     if (process.env.TAMANU_DISABLE_FAITH_FETCH !== 'true') {
@@ -118,7 +111,7 @@ export class CentralServerConnection extends TamanuApi {
       // A login of our own, rather than one a request makes for itself inside fetch(), so it
       // needs the waking wrapper here: a sync that logs in before it asks central anything would
       // otherwise fail on the 503 a waking central answers with.
-      await this.#whileCentralWakes('login', () => this.connect());
+      await this.whileServerWakes('login', () => this.connect());
     }
 
     return this.#loginData;
@@ -137,46 +130,9 @@ export class CentralServerConnection extends TamanuApi {
     return records;
   }
 
-  // spec: SYNCHK#while-central-wakes
-  // A sleeping central answers requests that need its database with 503 and a Retry-After while
-  // it wakes. That is not a failure: wait as long as it says and ask again, for as long as it keeps
-  // answering that way, up to `sync.centralWake.maxTotalWaitSeconds` in all so that a wake that
-  // never finishes eventually fails the attempt with the last 503.
-  async #whileCentralWakes(label, run) {
-    const { defaultRetryAfterSeconds, maxRetryAfterSeconds, maxTotalWaitSeconds } =
-      config.sync.centralWake;
-    let waitedSeconds = 0;
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      try {
-        return await run();
-      } catch (error) {
-        if (error.response?.status !== 503) throw error;
-
-        const retryAfterSeconds = parseRetryAfterSeconds(
-          error.response.headers?.get('retry-after'),
-          { defaultRetryAfterSeconds, maxRetryAfterSeconds },
-        );
-        if (waitedSeconds + retryAfterSeconds > maxTotalWaitSeconds) {
-          log.warn('CentralServerConnection.centralWakeTimedOut', { label, waitedSeconds });
-          throw error;
-        }
-
-        log.info('CentralServerConnection.centralWaking', {
-          label,
-          retryAfterSeconds,
-          waitedSeconds,
-        });
-        await sleepAsync(retryAfterSeconds * 1000);
-        waitedSeconds += retryAfterSeconds;
-      }
-    }
-  }
-
   // fetch() consumes some of its options, so each attempt gets its own copy
   async #fetchWhileCentralWakes(endpoint, options) {
-    return this.#whileCentralWakes(endpoint, () => this.fetch(endpoint, { ...options }));
+    return this.whileServerWakes(endpoint, () => this.fetch(endpoint, { ...options }));
   }
 
   // spec: SYNCHK#the-check
@@ -184,11 +140,25 @@ export class CentralServerConnection extends TamanuApi {
   // Leave `since` undefined when we have never pulled.
   async checkChangesPending(since) {
     const query = since === undefined ? {} : { since };
-    const { changesToPull } = await this.#fetchWhileCentralWakes('sync/pending', { query });
-    if (typeof changesToPull !== 'boolean') {
-      throw new Error('Central answered the changes-pending check without a changesToPull flag');
+
+    let answer;
+    try {
+      answer = await this.#fetchWhileCentralWakes('sync/pending', { query });
+    } catch (error) {
+      // A central that does not have the check yet, because this facility was upgraded first,
+      // answers 404. The check only ever saves a session that would have found nothing, so open
+      // one rather than failing every scheduled sync until central catches up.
+      if (error.response?.status !== 404) throw error;
+      log.info('CentralServerConnection.changesPendingNotSupported');
+      return true;
     }
-    return changesToPull;
+
+    // anything but a clear "nothing" opens a session, which is always safe
+    if (typeof answer?.changesToPull !== 'boolean') {
+      log.warn('CentralServerConnection.changesPendingUnreadable');
+      return true;
+    }
+    return answer.changesToPull;
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
