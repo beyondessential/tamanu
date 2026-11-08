@@ -192,17 +192,19 @@ outstanding shots across all Tamanu documentation are found by one search.
 - **Every image has a thin black border**, drawn into the image itself
 - **Outline in red the action buttons the reader should find**, drawn into the image. Which buttons
   are outlined is the author's call, so ask
-- **Show each image centred and smaller than the text column**, at a `width` of about 0.31 times
-  its pixel width, which matches the user guides
 - **Every image has alt text** describing what the shot shows, including any red outline
-- **Every image has a caption** in small text beneath it: one short sentence describing what the
+- **Every image has a caption**: one short sentence describing what the
   image shows or the action it illustrates, with Tamanu front-end text word for word in bold
 
 ```html
-<p align="center">
-  <img src="images/settings-frequencies-enabled.png" alt="Frequencies enabled in Settings, with Save changes outlined in red" width="712"><br>
-  <sub>Turn a frequency off, then select <b>Save changes</b>.</sub>
-</p>
+<figure>
+  <img
+    src="images/settings-frequencies-enabled.png"
+    alt="Frequencies enabled in Settings, with Save changes outlined in red"
+    width="712"
+  />
+  <figcaption>Turn a frequency off, then select <b>Save changes</b>.</figcaption>
+</figure>
 ```
 
 Screenshots are published, so they are taken against demonstration or test data and never show a real

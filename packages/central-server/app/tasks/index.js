@@ -1,5 +1,4 @@
 import { log } from '@tamanu/shared/services/logging';
-import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 import { CleanupBrowserTelemetry } from '@tamanu/shared/tasks/CleanupBrowserTelemetry';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
@@ -80,7 +79,6 @@ export async function startScheduledTasks(context) {
     AutoDeleteMedicationRequests,
     DHIS2IntegrationProcessor,
     ProgramRegistryPltfuFlagger,
-    SendStatusToMetaServer,
     // spec: BTEL — central stores telemetry from the admin panel and the patient
     // portal, so it needs the same retention prune as a facility server.
     CleanupBrowserTelemetry,
