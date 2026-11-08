@@ -17,6 +17,7 @@ import { useSettings } from '../../../../../contexts/Settings';
 import {
   getAnnualIncomeOptions,
   getFamilySizeOptions,
+  isSlidingFeeScalePlanSelected,
   withSavedAnnualIncome,
 } from '../../../../../utils/slidingFeeScale';
 
@@ -34,9 +35,10 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
   // Choosing the sliding fee scale plan is what makes these two an answer the patient owes, so
   // they are marked required the moment it is selected rather than only on Save.
   const { slidingFeeScalePlanId } = useSlidingFeeScalePlanId();
-  const isSlidingFeeScaleSelected =
-    Boolean(slidingFeeScalePlanId) &&
-    (invoiceInsurancePlanId || []).includes(slidingFeeScalePlanId);
+  const isSlidingFeeScaleSelected = isSlidingFeeScalePlanSelected(
+    slidingFeeScalePlanId,
+    invoiceInsurancePlanId,
+  );
 
   const familySizeOptions = useMemo(() => getFamilySizeOptions(slidingFeeScale), [slidingFeeScale]);
   const annualIncomeOptions = useMemo(

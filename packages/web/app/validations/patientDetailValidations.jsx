@@ -11,7 +11,10 @@ import {
 } from '@tamanu/constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { yupAttemptTransformToNumber } from '../utils';
-import { isSlidingFeeScaleFieldShown } from '../utils/slidingFeeScale';
+import {
+  isSlidingFeeScaleFieldShown,
+  isSlidingFeeScalePlanSelected,
+} from '../utils/slidingFeeScale';
 
 const requiredWhenConfiguredMandatory = (getSetting, getTranslation, name, baseType) => {
   return baseType.when([], {
@@ -48,10 +51,9 @@ export const getPatientDetailsValidation = (
   { insurancePlansInUse = [], slidingFeeScalePlanId = null } = {},
 ) => {
   // Family size and annual income only answer the sliding fee scale, so they are required exactly
-  // when that plan is selected. The plan is matched by id, resolved from the code the deployment
-  // names in its settings, so neither the plan's name nor its translation is load-bearing.
+  // when that plan is selected.
   const isSlidingFeeScaleSelected = planIds =>
-    Boolean(slidingFeeScalePlanId) && (planIds || []).includes(slidingFeeScalePlanId);
+    isSlidingFeeScalePlanSelected(slidingFeeScalePlanId, planIds);
 
   // A deployment that hides a field is not collecting it, so requiring it would make the patient
   // unsavable with no field to answer. Visibility and the requirement have to agree.

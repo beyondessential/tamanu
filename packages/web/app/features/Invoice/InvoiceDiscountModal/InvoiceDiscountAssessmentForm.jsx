@@ -8,6 +8,7 @@ import { Field, TranslatedText, BodyText } from '../../../components';
 import { useSettings } from '../../../contexts/Settings';
 import { useTranslation } from '../../../contexts/Translation';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { getAnnualIncomeOptions, getFamilySizeOptions } from '../../../utils/slidingFeeScale';
 
 const StyledDivider = styled(Divider)`
@@ -92,7 +93,8 @@ export const InvoiceDiscountAssessmentForm = ({
   const { getSetting } = useSettings();
   const slidingFeeScale = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE);
 
-  const { data: additionalData } = usePatientAdditionalDataQuery(patientId);
+  const { data: additionalData, isLoading: isLoadingPatient } =
+    usePatientAdditionalDataQuery(patientId);
 
   const familySizesOptions = useMemo(
     () => getFamilySizeOptions(slidingFeeScale),
@@ -124,6 +126,13 @@ export const InvoiceDiscountAssessmentForm = ({
     );
   };
 
+  // The form takes its initial values once, when it mounts. Rendering it before the patient's
+  // saved answers arrive would either strand it on empty values or, with enableReinitialize,
+  // reset it underneath someone who had already started answering.
+  if (isLoadingPatient) {
+    return <LoadingIndicator data-testid="loadingindicator-assessment" />;
+  }
+
   return (
     <>
       <BodyText mb="16px" color="textSecondary" data-testid="bodytext-7ki0">
@@ -134,8 +143,6 @@ export const InvoiceDiscountAssessmentForm = ({
         />
       </BodyText>
       <Form
-        // The patient's saved answers arrive after the first render
-        enableReinitialize
         initialValues={initialValues}
         onSubmit={handleSubmit}
         render={({ submitForm, setFieldValue, values }) => {

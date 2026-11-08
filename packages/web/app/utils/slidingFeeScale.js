@@ -57,3 +57,11 @@ export const isSlidingFeeScaleFieldShown = (getSetting, field) =>
 
 export const areAnySlidingFeeScaleFieldsShown = getSetting =>
   SLIDING_FEE_SCALE_FIELDS.some(field => isSlidingFeeScaleFieldShown(getSetting, field));
+
+/**
+ * Whether the patient's chosen insurance plans include the deployment's sliding fee scale plan,
+ * which is what puts its two questions in play. Matched on the plan's id, resolved from the code
+ * named in settings, so the plan's name and its translation are not load-bearing.
+ */
+export const isSlidingFeeScalePlanSelected = (slidingFeeScalePlanId, invoiceInsurancePlanIds) =>
+  Boolean(slidingFeeScalePlanId) && (invoiceInsurancePlanIds || []).includes(slidingFeeScalePlanId);
