@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Colors } from '../constants';
 
 const CardBody = styled.div`
@@ -17,6 +17,14 @@ const CardCell = styled.div`
   position: relative;
   color: ${props => props.theme.palette.text.tertiary};
   white-space: ${props => (props.$whiteSpace ? props.$whiteSpace : 'nowrap')};
+  ${props =>
+    props.$whiteSpace === 'normal' &&
+    css`
+      /* A value that wraps follows on from its label, rather than starting a line of its own. */
+      && ${CardValue} {
+        display: inline;
+      }
+    `}
 `;
 
 const CardIcon = styled.img`
