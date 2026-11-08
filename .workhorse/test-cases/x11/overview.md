@@ -52,7 +52,7 @@ Scenarios that verify this card. Web only; mobile has no patient billing UI.
 
 - [ ] Payor 1 and Payor 2 search existing patients, each match showing name, display ID, sex
       and date of birth (verifies spec: PDET)
-- [ ] A deceased patient is not offered as a payor (verifies spec: PDET)
+- [x] A deceased patient is not offered as a payor (verifies spec: PDET)
 - [ ] The patient being edited can be chosen as their own payor (verifies spec: PDET)
 - [ ] Each payor's reference number saves as free text (verifies spec: PDET)
 
@@ -77,12 +77,15 @@ Scenarios that verify this card. Web only; mobile has no patient billing UI.
       patient's details unchanged (verifies spec: INVOICING)
 - [x] The discount is the remainder of the proportion the chosen band pays
 
+- [x] Annual income marked required-when-creating while family size is hidden does not block the
+      save against a permanently disabled field (verifies spec: PDET)
+
 ## Removing the patient insurer
 
 - [ ] Insurer no longer appears on the Details tab or the new patient form
 - [ ] Insurance policy number still appears, in Billing information, and is still gated by
       features.enablePatientInsurer
-- [ ] The patient portal's details and edit screens no longer offer Health insurer, and still
+- [x] The patient portal's details and edit screens no longer offer Health insurer, and still
       offer Policy number (verifies spec: PPDET)
 - [ ] An invoice record printout shows the invoice's insurance plans, and no longer falls back
       to the patient's insurer when the invoice has none
@@ -90,10 +93,10 @@ Scenarios that verify this card. Web only; mobile has no patient billing UI.
 
 ## Importing
 
-- [ ] A patient import sheet carrying adoption number, marriage licence, family size, annual
+- [x] A patient import sheet carrying adoption number, marriage licence, family size, annual
       income, both payor ids and both reference numbers saves them onto the patient
       (verifies spec: PTDATA)
-- [ ] An annual income the current sliding fee scale does not cover imports as given rather
+- [x] An annual income the current sliding fee scale does not cover imports as given rather
       than erroring (verifies spec: PTDATA)
 
 ## Migration and sync
@@ -101,5 +104,5 @@ Scenarios that verify this card. Web only; mobile has no patient billing UI.
 - [x] The new columns are added and insurer_id dropped, and both migrations reverse cleanly
 - [ ] A facility server syncing against a central server that has dropped insurer_id applies
       patient additional data without error
-- [ ] Mobile, which carries neither the new columns nor insurer_id, can still push a patient
+- [x] Mobile, which carries neither the new columns nor insurer_id, can still push a patient
       additional data edit without clearing the billing fields on central

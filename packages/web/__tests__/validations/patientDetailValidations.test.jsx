@@ -18,19 +18,22 @@ const getTranslation = (_stringId, fallback) => fallback;
 // The real defaults, so this also holds getPatientDetailsValidation to its own rule that every
 // configurable patient field has a validation entry. `hiddenFields` overrides the handful of
 // field settings a case cares about.
-const makeGetSetting = (hiddenFields = []) => path => {
+const makeGetSetting = (hiddenFields = [], requiredWhenCreatingFields = []) => path => {
   if (path === 'fields') return globalDefaults.fields;
-  const hidden = hiddenFields.find(field => path === `fields.${field}.hidden`);
-  return hidden ? true : undefined;
+  if (hiddenFields.some(field => path === `fields.${field}.hidden`)) return true;
+  if (requiredWhenCreatingFields.some(field => path === `fields.${field}.requiredPatientData`))
+    return true;
+  return undefined;
 };
 
 const buildSchema = ({
   slidingFeeScalePlanId = SLIDING_FEE_SCALE_PLAN_ID,
   hiddenFields = [],
+  requiredWhenCreatingFields = [],
 } = {}) =>
   getPatientDetailsValidation(
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-    makeGetSetting(hiddenFields),
+    makeGetSetting(hiddenFields, requiredWhenCreatingFields),
     getTranslation,
     { slidingFeeScalePlanId },
   );
@@ -128,6 +131,26 @@ describe('getPatientDetailsValidation', () => {
           familySize: '3',
         }),
       ).not.toThrow();
+    });
+
+    // Annual income is disabled until a family size is chosen, so requiring it while family size
+    // is hidden would leave a permanently disabled field blocking the save, with no way to fix it.
+    it('does not require an annual income the deployment marked mandatory while family size is hidden', () => {
+      expect(() =>
+        validate(
+          buildSchema({
+            hiddenFields: ['familySize'],
+            requiredWhenCreatingFields: ['annualIncome'],
+          }),
+          {},
+        ),
+      ).not.toThrow();
+    });
+
+    it('still requires a mandatory annual income when family size is available', () => {
+      expect(() =>
+        validate(buildSchema({ requiredWhenCreatingFields: ['annualIncome'] }), {}),
+      ).toThrow();
     });
 
     // The plan is matched by the id resolved from the configured code. Until the plans load, or

@@ -13,9 +13,12 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
     // out its heading rather than printing one over an empty grid.
     const checkHidden = (fieldName) => !getSetting(`fields.${fieldName}.hidden`);
     const checkMandatory = (fieldName) => {
-      // A group can pin one of its fields onto every form regardless of this filter — the sliding
-      // fee scale pair does, once that plan is selected, since they are required from then on and
-      // would otherwise be required but absent on the new patient form, leaving nothing to answer.
+      // A group can pin one of its fields onto a form that would otherwise filter it out — the
+      // sliding fee scale pair does, since they are required once that plan is selected and would
+      // otherwise be required but absent on the new patient form, leaving nothing to answer.
+      // It only bypasses this filter: checkHidden still applies after it, so a field the
+      // deployment hides stays hidden. What keeps that safe is the validation refusing to require
+      // a field it cannot show (see isShown in patientDetailValidations).
       // Kept separate from `required` so marking a field required never moves it on its own.
       if (fields[fieldName].alwaysShow) return true;
 

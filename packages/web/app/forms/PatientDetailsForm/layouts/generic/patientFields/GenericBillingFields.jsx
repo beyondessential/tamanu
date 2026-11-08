@@ -40,6 +40,11 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
     invoiceInsurancePlanId,
   );
 
+  // Annual income is disabled until a family size is chosen, so wherever it is required family
+  // size has to be on the form too — otherwise the form cannot be saved and cannot be fixed.
+  const isAnnualIncomeRequired =
+    isSlidingFeeScaleSelected || Boolean(getSetting('fields.annualIncome.requiredPatientData'));
+
   const familySizeOptions = useMemo(() => getFamilySizeOptions(slidingFeeScale), [slidingFeeScale]);
   const annualIncomeOptions = useMemo(
     () => withSavedAnnualIncome(getAnnualIncomeOptions(slidingFeeScale, familySize), annualIncome),
@@ -85,7 +90,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
       component: SelectField,
       options: familySizeOptions,
       required: isSlidingFeeScaleSelected || undefined,
-      alwaysShow: isSlidingFeeScaleSelected || undefined,
+      alwaysShow: isAnnualIncomeRequired || undefined,
       // The bands belong to a family size, so an income chosen against the old one is no longer
       // an answer to this question.
       onChange: () => setFieldValue('annualIncome', ''),

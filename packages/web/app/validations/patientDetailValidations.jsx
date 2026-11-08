@@ -59,20 +59,38 @@ export const getPatientDetailsValidation = (
   // unsavable with no field to answer. Visibility and the requirement have to agree.
   const isShown = field => isSlidingFeeScaleFieldShown(getSetting, field);
 
-  const slidingFeeScaleField = (field, stringId, fallback, message, dependsOn, isRequired) => {
+  const slidingFeeScaleField = (
+    field,
+    stringId,
+    fallback,
+    message,
+    dependsOn,
+    isRequired,
+    enabledBy,
+  ) => {
     const labelled = schema =>
       schema.translatedLabel(<TranslatedText stringId={stringId} fallback={fallback} />);
+
+    // A field can only be required if it can actually be answered: it has to be on the form, and
+    // annual income additionally needs family size there, since its bands belong to one and it
+    // stays disabled until one is chosen. Requiring it otherwise — whether for the sliding fee
+    // scale or because a deployment marked it mandatory — leaves the patient unsavable against a
+    // field that cannot be filled in.
+    const isAnswerable = isShown(field) && (!enabledBy || isShown(enabledBy));
+
     return yup.string().when(dependsOn, {
-      is: (...args) => isShown(field) && isRequired(...args),
+      is: (...args) => isAnswerable && isRequired(...args),
       then: schema => labelled(schema).required(message),
       otherwise: schema =>
-        requiredWhenConfiguredMandatory(
-          getSetting,
-          getTranslation,
-          field,
-          labelled(schema),
-          fallback,
-        ),
+        isAnswerable
+          ? requiredWhenConfiguredMandatory(
+              getSetting,
+              getTranslation,
+              field,
+              labelled(schema),
+              fallback,
+            )
+          : labelled(schema),
     });
   };
 
@@ -915,6 +933,7 @@ export const getPatientDetailsValidation = (
       ),
       ['invoiceInsurancePlanId', 'familySize'],
       (planIds, familySize) => isSlidingFeeScaleSelected(planIds) && Boolean(familySize),
+      'familySize',
     ),
     payor1Id: requiredWhenConfiguredMandatory(
       getSetting,
