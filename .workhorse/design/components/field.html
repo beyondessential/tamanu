@@ -1,0 +1,208 @@
+<!-- component: Field -->
+<!-- Preview for the Tamanu design system — see ../design-system.md (#field) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field — Tamanu design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#326699;--primary-dark:#2f4358;--primary30:#C2D2E1;--primary10:#EBF0F5;
+  --blue:#1172D1;--bright-blue:#67A6E3;--very-light-blue:#F4F9FF;
+  --darkest:#444444;--dark:#666666;--mid:#888888;--soft:#b8b8b8;
+  --alert:#f76853;--light-alert:#fff0ee;--safe:#47ca80;--green:#19934E;
+  --orange:#f17f16;--dark-orange:#CB6100;--secondary:#ffcc24;
+  --white:#ffffff;--off-white:#fafafa;--bg:#f3f5f7;--bg2:#f9fafb;
+  --outline:#dedede;--soft-outline:#ebebeb;
+}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--darkest);background:var(--bg);line-height:1.4;}
+.page{max-width:980px;margin:0 auto;padding:40px 32px 80px;}
+.ds-title{font-size:24px;font-weight:500;line-height:32px;margin:0 0 4px;}
+.ds-sub{font-size:14px;color:var(--mid);margin:0 0 36px;}
+.ds-sub code{font-family:ui-monospace,monospace;font-size:12px;color:var(--dark);}
+.ds-section{margin-bottom:44px;}
+.ds-h{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mid);margin:0 0 18px;border-bottom:1px solid var(--soft-outline);padding-bottom:8px;}
+.ds-row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;}
+.ds-cell{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+.ds-caption{font-size:11px;line-height:15px;color:var(--mid);}
+
+/* Field component */
+.field{display:flex;flex-direction:column;gap:6px;width:260px;}
+.field-label{font-size:14px;font-weight:500;color:#444;}
+.field-required{color:#f76853;}
+.field-input{
+  width:100%;height:40px;border:1px solid #dedede;border-radius:3px;
+  padding:0 12px;font:14px 'Roboto','Helvetica','Arial',sans-serif;color:#444;
+  background:#fff;display:flex;align-items:center;
+}
+input.field-input{line-height:40px;}
+.field-input::placeholder{color:#b8b8b8;}
+.field-placeholder{color:#b8b8b8;}
+.field-help{font-size:11px;line-height:1.4;color:#888;}
+
+/* Focus */
+.field-input.is-focus{border-color:#326699;outline:none;box-shadow:0 0 0 1px #326699 inset;}
+
+/* Error */
+.field-input.is-error{border-color:#f76853;}
+.field-help.is-error{color:#f76853;}
+
+/* Disabled */
+.field-input.is-disabled{background:#f3f5f7;color:#b8b8b8;border-color:#dedede;cursor:not-allowed;}
+.field-label.is-disabled{color:#888;}
+
+/* Adornments inside the input box */
+.field-input .adorn{margin-left:auto;display:flex;align-items:center;color:#888;font-size:14px;line-height:1;}
+.field-input .chevron{margin-left:auto;color:#888;font-size:12px;line-height:1;}
+.field-input .unit{margin-left:auto;color:#b8b8b8;font-size:13px;}
+
+/* Multiline */
+.field-input.is-multiline{height:auto;min-height:80px;align-items:flex-start;padding:10px 12px;}
+
+/* Check field (horizontal) */
+.check-field{display:flex;align-items:center;gap:10px;width:auto;}
+.check-box{
+  width:16px;height:16px;border:1px solid #dedede;border-radius:3px;
+  background:#fff;flex:0 0 auto;
+}
+.check-box.is-checked{
+  background:#326699;border-color:#326699;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;
+}
+.check-field .field-label{font-weight:400;}
+
+/* Validation note card */
+.note-card{
+  background:#fff;border:1px solid #dedede;border-radius:5px;
+  padding:16px 20px;max-width:620px;font-size:14px;color:#666;line-height:1.5;
+}
+.note-card .red{color:#f76853;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 class="ds-title">Field</h1>
+  <p class="ds-sub">The form field system — label, input, required ornament, helper/error text. Grounded in <code>packages/ui-components/src/components/Field/</code></p>
+
+  <!-- 1. Text field — states -->
+  <section class="ds-section">
+    <h2 class="ds-h">Text field — states</h2>
+    <div class="ds-row">
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label">First name</span>
+          <input class="field-input" type="text" placeholder="e.g. Jane">
+          <span class="field-help">As it appears on ID</span>
+        </div>
+        <span class="ds-caption">Default</span>
+      </div>
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label">Email address <span class="field-required">*</span></span>
+          <input class="field-input" type="text" value="jane@">
+          <span class="field-help">Enter a valid email</span>
+        </div>
+        <span class="ds-caption">Required</span>
+      </div>
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label">Surname</span>
+          <input class="field-input is-focus" type="text" value="Smith">
+          <span class="field-help">As it appears on ID</span>
+        </div>
+        <span class="ds-caption">Focused</span>
+      </div>
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label">Email address</span>
+          <input class="field-input is-error" type="text" value="jane@">
+          <span class="field-help is-error">Please enter a valid email address</span>
+        </div>
+        <span class="ds-caption">Error</span>
+      </div>
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label is-disabled">Patient ID</span>
+          <input class="field-input is-disabled" type="text" value="PAT0001" disabled>
+          <span class="field-help">Allocated automatically</span>
+        </div>
+        <span class="ds-caption">Disabled</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 2. Input types -->
+  <section class="ds-section">
+    <h2 class="ds-h">Input types</h2>
+    <div class="ds-row">
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label">Sex</span>
+          <div class="field-input">Female<span class="chevron">▾</span></div>
+          <span class="field-help">Select from the list</span>
+        </div>
+        <span class="ds-caption">SelectField</span>
+      </div>
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label">Date of birth</span>
+          <div class="field-input">15/05/1990<span class="adorn">📅</span></div>
+          <span class="field-help">Format: DD/MM/YYYY</span>
+        </div>
+        <span class="ds-caption">DateField</span>
+      </div>
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label">Weight</span>
+          <div class="field-input">72<span class="unit">kg</span></div>
+          <span class="field-help">To one decimal place</span>
+        </div>
+        <span class="ds-caption">NumberField</span>
+      </div>
+
+      <div class="ds-cell">
+        <div class="field">
+          <span class="field-label">Clinical notes</span>
+          <div class="field-input is-multiline"><span class="field-placeholder">Add notes…</span></div>
+          <span class="field-help">Visible to the care team</span>
+        </div>
+        <span class="ds-caption">MultilineTextField</span>
+      </div>
+
+      <div class="ds-cell">
+        <div class="field check-field">
+          <span class="check-box is-checked">✓</span>
+          <span class="field-label">Patient consents to data sharing</span>
+        </div>
+        <span class="ds-caption">CheckField</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. Validation behaviour -->
+  <section class="ds-section">
+    <h2 class="ds-h">Validation behaviour</h2>
+    <div class="note-card">
+      Validation errors appear only after the first submit attempt. After that, the field re-validates on every change — the input turns <span class="red">red (#f76853)</span> and the error message replaces the helper text.
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
