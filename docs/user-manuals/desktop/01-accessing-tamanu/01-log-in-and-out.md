@@ -13,10 +13,14 @@ system administrator gives you these.
    The **Log in** screen opens. If you ticked **Remember me** last time, the heading says
    **Welcome back** and your email address is already filled in.
 
-   <p align="center">
-     <img src="images/log-in-and-out-empty-form.png" alt="The empty Log in screen" width="289"><br>
-     <sub>The <b>Log in</b> screen.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/log-in-and-out-empty-form.png"
+       alt="The empty Log in screen"
+       width="289"
+     />
+     <figcaption>The <b>Log in</b> screen.</figcaption>
+   </figure>
 
 2. Enter your email address in **Email** and your password in **Password**.
 
@@ -27,10 +31,14 @@ system administrator gives you these.
 
 4. Select **Log in**.
 
-   <p align="center">
-     <img src="images/log-in-and-out-filled-form.png" alt="The Log in screen with an email address and password entered, with the Log in button outlined in red" width="289"><br>
-     <sub>Enter your email address and password, then select <b>Log in</b>.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/log-in-and-out-filled-form.png"
+       alt="The Log in screen with an email address and password entered, with the Log in button outlined in red"
+       width="289"
+     />
+     <figcaption>Enter your email address and password, then select <b>Log in</b>.</figcaption>
+   </figure>
 
    If your email address or password is wrong, a message appears under the heading. It may tell you
    how many attempts you have left before you are locked out. If you are locked out, the message
@@ -57,9 +65,13 @@ log out straight away.
 
    You cannot log out while you have a note open. Save or close the note first.
 
-   <p align="center">
-     <img src="images/log-in-and-out-log-out.png" alt="The bottom of the expanded sidebar, with the Log out button outlined in red" width="262"><br>
-     <sub>Select <b>Log out</b> at the bottom of the sidebar.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/log-in-and-out-log-out.png"
+       alt="The bottom of the expanded sidebar, with the Log out button outlined in red"
+       width="262"
+     />
+     <figcaption>Select <b>Log out</b> at the bottom of the sidebar.</figcaption>
+   </figure>
 
    The **Log in** screen opens.

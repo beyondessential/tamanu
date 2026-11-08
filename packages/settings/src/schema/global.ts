@@ -371,7 +371,7 @@ export const globalSettings = {
     metaServer: {
       highRisk: true,
       name: 'Meta server',
-      description: 'The Tamanu meta server this deployment reports status to',
+      description: 'The Tamanu meta server this deployment fetches shared data from',
       properties: {
         updateUrls: {
           description: 'Where outdated clients are sent to update',

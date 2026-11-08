@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -144,6 +145,7 @@ export const EditVitalCellForm = ({
   const api = useApi();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const patient = useSelector(state => state.patient);
   const { ability, facilityId } = useAuth();
 
   const { getSetting } = useSettings();
@@ -241,6 +243,7 @@ export const EditVitalCellForm = ({
           <Box style={{ gridColumn: '1 / 3' }}>
             <SurveyQuestion
               component={dataPoint.component}
+              patient={patient}
               getComponentForQuestionType={getComponentForQuestionType}
               disabled={isDeleted || !hasPermission}
               data-testid="surveyquestion-2f43"
