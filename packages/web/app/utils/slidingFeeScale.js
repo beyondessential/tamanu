@@ -1,3 +1,5 @@
+import { isPatientFieldShown } from './patientFields';
+
 // The sliding fee scale setting is a row per family size, each row listing the lower bound of
 // that family size's income bands. Both the patient's billing details and the invoice discount
 // assessment ask the same two questions of it, and the assessment pre-fills from the answers
@@ -52,8 +54,7 @@ export const SLIDING_FEE_SCALE_FIELDS = ['familySize', 'annualIncome'];
  * rule from here: were they to encode it separately and drift, the requirement would quietly stop
  * applying rather than fail.
  */
-export const isSlidingFeeScaleFieldShown = (getSetting, field) =>
-  !getSetting(`fields.${field}.hidden`);
+export const isSlidingFeeScaleFieldShown = isPatientFieldShown;
 
 export const areAnySlidingFeeScaleFieldsShown = getSetting =>
   SLIDING_FEE_SCALE_FIELDS.some(field => isSlidingFeeScaleFieldShown(getSetting, field));

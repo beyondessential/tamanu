@@ -4,8 +4,10 @@ Scenarios that verify this card. Web only; mobile has no patient billing UI.
 
 ## Section layout
 
-- [ ] The Details tab shows Billing information below Location information, and above any
+- [x] The Details tab shows Billing information below Location information, and above any
       custom patient field groups (verifies spec: PDET)
+- [x] Patient type is shown in Billing information rather than Personal information, and
+      saves and reads back from there (verifies spec: PDET)
 - [ ] Billing information holds, in order: insurance policy number, insurance plan, patient
       type, family size, annual income, Payor 1, Payor 1 reference number, Payor 2, Payor 2
       reference number (verifies spec: PDET)

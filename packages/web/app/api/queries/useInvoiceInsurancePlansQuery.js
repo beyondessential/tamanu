@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { route } from '@tamanu/api-client';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -43,10 +44,19 @@ export const useSlidingFeeScalePlanId = () => {
   // indistinguishable from a deployment with no sliding fee scale plan, and would quietly let a
   // patient save without the answers that plan requires. A failed fetch is surfaced as an error
   // rather than silently switching the requirement off.
+  const slidingFeeScalePlanId =
+    plans?.find(({ code }) => code === slidingFeeScalePlanCode)?.id ?? null;
+
+  // A code matching no plan reads exactly like a deployment that has not configured one, so the
+  // requirement stops applying with nothing to show for it. Say so where a mistyped or retired
+  // code can be found, rather than leaving it to turn up in unbilled assessments.
+  useEffect(() => {
+    if (!isNeeded || isLoading || error || slidingFeeScalePlanId) return;
+    console.warn(
+      `No insurance plan carries the configured sliding fee scale plan code "${slidingFeeScalePlanCode}", so family size and annual income are not required on patient details.`,
+    );
+  }, [isNeeded, isLoading, error, slidingFeeScalePlanId, slidingFeeScalePlanCode]);
+
   if (!isNeeded) return { slidingFeeScalePlanId: null, isLoading: false, error: null };
-  return {
-    slidingFeeScalePlanId: plans?.find(({ code }) => code === slidingFeeScalePlanCode)?.id ?? null,
-    isLoading,
-    error,
-  };
+  return { slidingFeeScalePlanId, isLoading, error };
 };

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { isBoolean } from 'es-toolkit/compat';
 import { useSettings } from '../../contexts/Settings';
+import { isPatientFieldShown } from '../../utils/patientFields';
 
 export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
   const { getSetting } = useSettings();
@@ -11,14 +12,14 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
     // LocalisedField renders nothing for a hidden field anyway; dropping it here as well lets a
     // caller ask whether the group has anything left to show, so an all-hidden section can leave
     // out its heading rather than printing one over an empty grid.
-    const checkHidden = (fieldName) => !getSetting(`fields.${fieldName}.hidden`);
+    const checkHidden = (fieldName) => isPatientFieldShown(getSetting, fieldName);
     const checkMandatory = (fieldName) => {
       // A group can pin one of its fields onto a form that would otherwise filter it out — the
       // sliding fee scale pair does, since they are required once that plan is selected and would
       // otherwise be required but absent on the new patient form, leaving nothing to answer.
       // It only bypasses this filter: checkHidden still applies after it, so a field the
       // deployment hides stays hidden. What keeps that safe is the validation refusing to require
-      // a field it cannot show (see isShown in patientDetailValidations).
+      // a field it cannot show, off the same isPatientFieldShown this filter uses.
       // Kept separate from `required` so marking a field required never moves it on its own.
       if (fields[fieldName].alwaysShow) return true;
 
