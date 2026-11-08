@@ -24,6 +24,7 @@ export class BrowserTelemetrySpan extends Model {
   declare parentId?: string;
   declare kind: string;
   declare route: string;
+  declare navigationRoute?: string;
   declare parameters: Record<string, unknown>;
   declare method?: string;
   declare statusCode?: number;
@@ -52,6 +53,9 @@ export class BrowserTelemetrySpan extends Model {
         // The generic route/endpoint pattern, e.g. '/patients/:patientId/encounter/:encounterId'.
         // This is the grouping key for downstream aggregation.
         route: { type: DataTypes.TEXT, allowNull: false },
+        // Request spans made while a navigation was loading: that navigation's route
+        // pattern, stamped by the browser.
+        navigationRoute: { type: DataTypes.TEXT, allowNull: true },
         // Resolved values behind the pattern: { path: {...}, query: {...} }. Query values may
         // hold patient-identifying search terms; acceptable here (local store, anonymised
         // downstream before anything leaves the facility).
@@ -61,7 +65,9 @@ export class BrowserTelemetrySpan extends Model {
         statusCode: { type: DataTypes.INTEGER, allowNull: true },
         // Page-load time for a navigation; request latency for a request.
         durationMs: { type: DataTypes.INTEGER, allowNull: false },
-        // Navigation spans only: 'settled' | 'abandoned' | 'capped' (TELEMETRY_NAV_OUTCOMES).
+        // Navigation spans: 'settled' | 'abandoned' | 'capped' (TELEMETRY_NAV_OUTCOMES).
+        // Request spans: the outcome of the navigation that cut the request off, if it
+        // was still in flight when its navigation was abandoned or capped.
         outcome: { type: DataTypes.TEXT, allowNull: true },
         // Which web client it came from (TELEMETRY_INTERFACES).
         interface: { type: DataTypes.TEXT, allowNull: false },

@@ -78,6 +78,11 @@ export const NON_LOGGED_TABLES = [
 
   // facility sync attempt history — operational, written on every sync
   'public.sync_facility_runs',
+
+  // browser telemetry aggregates — operational, rewritten whenever a bucket is rolled up again
+  'public.browser_telemetry_trends',
+  'public.browser_telemetry_slow_events',
+  'public.browser_telemetry_slow_event_requests',
 ];
 
 // Tables with a `table_changed` listener on central: the settings cache and admin SettingsRefresher.

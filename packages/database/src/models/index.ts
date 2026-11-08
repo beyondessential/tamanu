@@ -162,6 +162,9 @@ export * from './SyncFacilityRun';
 
 export * from './AccessLog';
 export * from './BrowserTelemetrySpan';
+export * from './BrowserTelemetryTrend';
+export * from './BrowserTelemetrySlowEvent';
+export * from './BrowserTelemetrySlowEventRequest';
 export * from './ChangeLog';
 export * from './UserLeave';
 

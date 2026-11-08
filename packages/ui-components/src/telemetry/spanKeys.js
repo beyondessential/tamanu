@@ -5,6 +5,7 @@
 export const SPAN_ATTR = {
   KIND: 'tamanu.kind',
   ROUTE: 'tamanu.route',
+  NAVIGATION_ROUTE: 'tamanu.navigation_route',
   PARAMETERS: 'tamanu.parameters',
   METHOD: 'tamanu.method',
   STATUS_CODE: 'tamanu.status_code',
