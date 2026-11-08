@@ -36,7 +36,7 @@ export const LabRequestMultiStepForm = ({
   const [samples, setSamples] = useState([]);
 
   // Categories with no sample time are created as "sample not collected"; the sample-details table
-  // keeps a row's other values while its time is blank/invalid, so drop those entries on submit.
+  // still holds an entry for them, so drop those entries on submit.
   const handleSubmit = useCallback(
     (values, ...rest) => {
       const sampleDetails = Object.fromEntries(
