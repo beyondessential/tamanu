@@ -9,6 +9,7 @@ export async function generatePatientPayload(context: any, _events: any): Promis
     facilityId: context.vars.facilityId,
     registeredById: context.vars.userId,
     patientRegistryType: 'new_patient',
+    isOtherSexAllowed: context.vars.isOtherSexAllowed,
   });
 
   context.vars.patientPayload = testBody;

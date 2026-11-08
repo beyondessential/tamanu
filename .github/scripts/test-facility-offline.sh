@@ -31,11 +31,6 @@ test_facility_offline_central_start() {
             "username": "tamanu",
             "password": "tamanu"
         },
-        schedules: {
-            sendStatusToMetaServer: {
-                enabled: false,
-            },
-        },
     }
 EOF
 
@@ -102,11 +97,6 @@ test_facility_offline_facility_start() {
 	        "username": "tamanu",
 	        "password": "tamanu",
 	    },
-        schedules: {
-            sendStatusToMetaServer: {
-                enabled: false,
-            },
-        },
 	}
 	EOF
 	npm run --workspace @tamanu/facility-server start upgrade
@@ -154,11 +144,6 @@ test_facility_offline_first_boot() {
 	        "username": "tamanu",
 	        "password": "tamanu",
 	    },
-        schedules: {
-            sendStatusToMetaServer: {
-                enabled: false,
-            },
-        },
 	}
 	EOF
 	npm run --workspace @tamanu/facility-server start upgrade
