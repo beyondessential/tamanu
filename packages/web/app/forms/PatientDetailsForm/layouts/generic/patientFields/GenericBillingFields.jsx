@@ -83,6 +83,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
       component: SelectField,
       options: familySizeOptions,
       required: isSlidingFeeScaleSelected || undefined,
+      alwaysShow: isSlidingFeeScaleSelected || undefined,
       // The bands belong to a family size, so an income chosen against the old one is no longer
       // an answer to this question.
       onChange: () => setFieldValue('annualIncome', ''),
@@ -95,6 +96,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
       options: annualIncomeOptions,
       disabled: !familySize,
       required: isSlidingFeeScaleSelected || undefined,
+      alwaysShow: isSlidingFeeScaleSelected || undefined,
       label: (
         <TranslatedText
           stringId="general.localisedField.annualIncome.label"

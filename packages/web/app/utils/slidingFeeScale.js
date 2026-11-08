@@ -42,3 +42,18 @@ export const withSavedAnnualIncome = (annualIncomeOptions, savedAnnualIncome) =>
   }
   return [...annualIncomeOptions, { value: savedAnnualIncome, label: savedAnnualIncome }];
 };
+
+/** The two questions the sliding fee scale asks of a patient. */
+export const SLIDING_FEE_SCALE_FIELDS = ['familySize', 'annualIncome'];
+
+/**
+ * A deployment that hides one of these is not collecting it, so it is neither asked for nor
+ * required. The validation and the query that resolves the sliding fee scale plan both read the
+ * rule from here: were they to encode it separately and drift, the requirement would quietly stop
+ * applying rather than fail.
+ */
+export const isSlidingFeeScaleFieldShown = (getSetting, field) =>
+  !getSetting(`fields.${field}.hidden`);
+
+export const areAnySlidingFeeScaleFieldsShown = getSetting =>
+  SLIDING_FEE_SCALE_FIELDS.some(field => isSlidingFeeScaleFieldShown(getSetting, field));

@@ -11,6 +11,7 @@ import {
 } from '@tamanu/constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { yupAttemptTransformToNumber } from '../utils';
+import { isSlidingFeeScaleFieldShown } from '../utils/slidingFeeScale';
 
 const requiredWhenConfiguredMandatory = (getSetting, getTranslation, name, baseType) => {
   return baseType.when([], {
@@ -54,7 +55,7 @@ export const getPatientDetailsValidation = (
 
   // A deployment that hides a field is not collecting it, so requiring it would make the patient
   // unsavable with no field to answer. Visibility and the requirement have to agree.
-  const isShown = field => !getSetting(`fields.${field}.hidden`);
+  const isShown = field => isSlidingFeeScaleFieldShown(getSetting, field);
 
   const slidingFeeScaleField = (field, stringId, fallback, message, dependsOn, isRequired) => {
     const labelled = schema =>

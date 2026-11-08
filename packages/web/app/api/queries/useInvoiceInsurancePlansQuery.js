@@ -4,6 +4,7 @@ import { SETTING_KEYS } from '@tamanu/constants';
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
+import { areAnySlidingFeeScaleFieldsShown } from '../../utils/slidingFeeScale';
 
 /** Every insurance plan available at the current facility, each with its code. */
 export const useInvoiceInsurancePlansQuery = ({ enabled = true } = {}) => {
@@ -34,8 +35,7 @@ export const useSlidingFeeScalePlanId = () => {
   // deployment that hides both, or names no plan, has no reason to fetch the plans at all — the
   // patient details form waits on this query before it renders.
   const isNeeded =
-    Boolean(slidingFeeScalePlanCode) &&
-    (!getSetting('fields.familySize.hidden') || !getSetting('fields.annualIncome.hidden'));
+    Boolean(slidingFeeScalePlanCode) && areAnySlidingFeeScaleFieldsShown(getSetting);
 
   const { data: plans, isLoading, error } = useInvoiceInsurancePlansQuery({ enabled: isNeeded });
 

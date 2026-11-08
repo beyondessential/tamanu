@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
+  areAnySlidingFeeScaleFieldsShown,
   getAnnualIncomeOptions,
   getFamilySizeOptions,
+  isSlidingFeeScaleFieldShown,
   withSavedAnnualIncome,
 } from '../../app/utils/slidingFeeScale';
 
@@ -80,5 +82,28 @@ describe('withSavedAnnualIncome', () => {
   it('adds nothing when the patient has no saved band', () => {
     expect(withSavedAnnualIncome(options, null)).toEqual(options);
     expect(withSavedAnnualIncome(options, '')).toEqual(options);
+  });
+});
+
+// The validation and the query that resolves the plan both read this rule from here, so that
+// hiding the fields cannot switch the requirement off in one place but not the other.
+describe('which sliding fee scale fields are in play', () => {
+  const getSetting = hidden => path => hidden.includes(path.replace(/^fields\.|\.hidden$/g, ''));
+
+  it('treats a field as shown unless the deployment hides it', () => {
+    expect(isSlidingFeeScaleFieldShown(getSetting([]), 'familySize')).toBe(true);
+    expect(isSlidingFeeScaleFieldShown(getSetting(['familySize']), 'familySize')).toBe(false);
+  });
+
+  it('is in play while either field is still shown', () => {
+    expect(areAnySlidingFeeScaleFieldsShown(getSetting([]))).toBe(true);
+    expect(areAnySlidingFeeScaleFieldsShown(getSetting(['familySize']))).toBe(true);
+    expect(areAnySlidingFeeScaleFieldsShown(getSetting(['annualIncome']))).toBe(true);
+  });
+
+  it('is out of play once both are hidden', () => {
+    expect(areAnySlidingFeeScaleFieldsShown(getSetting(['familySize', 'annualIncome']))).toBe(
+      false,
+    );
   });
 });

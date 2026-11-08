@@ -78,16 +78,22 @@ export const NewPatientForm = memo(
 
     const { getSetting } = useSettings();
     const { getTranslation } = useTranslation();
-    const { slidingFeeScalePlanId, isLoading: isLoadingInsurancePlans } =
-      useSlidingFeeScalePlanId();
+    const {
+      slidingFeeScalePlanId,
+      isLoading: isLoadingInsurancePlans,
+      error: insurancePlansError,
+    } = useSlidingFeeScalePlanId();
     const isLoading = isLoadingFieldDefinitions || isLoadingInsurancePlans;
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
     const isRequiredPatientData = fieldName =>
       getSetting(`fields.${fieldName}.requiredPatientData`);
 
-    if (error) {
-      return <pre>{error.stack}</pre>;
+    // A failed plans fetch leaves the sliding fee scale requirement unresolved, so it is shown
+    // rather than letting a patient be created without the answers that plan requires.
+    const loadError = error ?? insurancePlansError;
+    if (loadError) {
+      return <pre>{loadError.stack}</pre>;
     }
 
     const handleSubmit = async data => {

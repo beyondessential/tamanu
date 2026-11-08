@@ -550,7 +550,7 @@ export const globalSettings = {
         },
         enablePatientInsurer: {
           description:
-            'Include insurer and policy number as fields in patient details identification section',
+            'Include insurance policy number as a field in the billing information section of patient details',
           type: yup.boolean(),
           defaultValue: false,
         },
