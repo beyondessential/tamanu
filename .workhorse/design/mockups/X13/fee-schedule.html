@@ -33,22 +33,37 @@ main { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100
 .panel { margin: 0 20px 20px; padding: 20px; border: 1px solid var(--box-outline); display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; }
 
 .filters { display: flex; gap: 16px; align-items: flex-end; padding-bottom: 16px; border-bottom: 1px solid var(--box-outline); }
-.field { display: flex; flex-direction: column; gap: 4px; }
-.field > label { font: 500 11px/15px var(--font-family-base); color: var(--font-60); }
+.field { display: flex; flex-direction: column; gap: 4px; position: relative; }
+.field > label, .field > .label { font: 500 11px/15px var(--font-family-base); color: var(--font-60); }
 .inp { height: 36px; border: 1px solid var(--box-outline); border-radius: 3px; background: #fff; padding: 0 12px; display: flex; align-items: center; gap: 8px; color: var(--font-80); }
 .inp select, .inp input { border: 0; outline: 0; background: transparent; font: 400 14px/18px var(--font-family-base); color: var(--font-80); flex: 1; min-width: 0; }
 .inp svg { width: 16px; height: 16px; stroke: var(--font-40); fill: none; stroke-width: 2; flex-shrink: 0; }
 .inp:focus-within { border-color: var(--tamanu-blue-100); }
 
+/* Multi-select */
+.multi { all: unset; box-sizing: border-box; cursor: pointer; height: 36px; border: 1px solid var(--box-outline); border-radius: 3px; background: #fff; padding: 0 12px; display: flex; align-items: center; gap: 6px; width: 100%; overflow: hidden; }
+.multi:focus-visible, .multi[aria-expanded="true"] { border-color: var(--tamanu-blue-100); }
+.multi .chips { flex: 1; display: flex; gap: 4px; overflow: hidden; }
+.chip { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 999px; background: var(--tamanu-blue-10); color: var(--font-80); font-size: 11px; line-height: 15px; white-space: nowrap; }
+.multi svg { width: 16px; height: 16px; stroke: var(--font-60); fill: none; stroke-width: 2; flex-shrink: 0; }
+.menu { position: absolute; top: 62px; left: 0; width: 100%; background: #fff; border: 1px solid var(--box-outline); border-radius: 5px; box-shadow: 0 2px 2px rgba(0,0,0,.10), 0 4px 16px rgba(0,0,0,.10); padding: 8px 0; z-index: 25; display: none; }
+.menu.open { display: block; }
+.menu label { display: flex; align-items: center; gap: 10px; padding: 8px 16px; color: var(--font-60); cursor: pointer; }
+.menu label:hover { background: var(--hover-2); }
+.menu input { accent-color: var(--tamanu-blue-100); width: 16px; height: 16px; margin: 0; }
+.menu hr { border: 0; border-top: 1px solid var(--box-outline); margin: 8px 0; }
+
 /* ---------- Grid ---------- */
 .grid-wrap { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--box-outline); border-radius: 3px; }
-table { border-collapse: separate; border-spacing: 0; width: 100%; }
+table { border-collapse: separate; border-spacing: 0; }
 th, td { padding: 12px; border-bottom: 1px solid #F3F5F7; white-space: nowrap; text-align: left; }
 thead th { position: sticky; z-index: 2; background: #fff; font-weight: 500; color: var(--font-80); }
 thead tr:first-child th { top: 0; height: 33px; padding-top: 8px; padding-bottom: 0; border-bottom: 0; font: 500 11px/15px var(--font-family-base); color: var(--font-40); }
 thead tr:nth-child(2) th { top: 33px; border-bottom: 1px solid var(--box-outline); }
 th.group { text-align: center; }
 th.group span { display: block; border-bottom: 1px solid var(--box-outline); padding-bottom: 6px; }
+th.group.yours span { color: var(--font-80); }
+.divide { border-left: 1px solid var(--box-outline); }
 th.num, td.num { text-align: right; }
 th.sticky, td.sticky { position: sticky; left: 0; background: #fff; z-index: 1; border-right: 1px solid var(--box-outline); }
 thead th.sticky { z-index: 3; }
@@ -56,17 +71,16 @@ th .hint { display: inline-flex; vertical-align: -3px; margin-left: 4px; color: 
 th .hint svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
 th .hint:hover::after { content: attr(data-tip); position: absolute; top: 22px; left: 50%; transform: translateX(-50%); background: #2f4358; color: #fff; font: 400 11px/15px var(--font-family-base); padding: 6px 8px; border-radius: 4px; white-space: nowrap; z-index: 10; }
 tbody tr:hover td { background: var(--background-2); }
-tbody tr:hover td.sticky { background: var(--background-2); }
 
 .cat { color: var(--font-60); }
-.product-name { font-weight: 400; }
 
 /* Editable cells */
-.cell { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 76px; height: 28px; margin: -5px -8px; padding: 0 8px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
+.cell { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 64px; height: 28px; margin: -5px -8px; padding: 0 8px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
 .cell.left { justify-content: flex-start; min-width: 220px; }
 .cell:hover { border-color: var(--tamanu-blue-30); background: #fff; }
 .cell:focus-visible { outline: 2px solid var(--tamanu-blue-30); outline-offset: 1px; }
 .cell.changed { background: var(--yellow-10); border-color: var(--yellow-100); }
+.readonly { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; color: var(--font-60); }
 .muted { color: var(--font-40); }
 .tag { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 999px; font: 400 11px/15px var(--font-family-base); background: var(--blue-t-20); color: var(--blue-t-100); }
 .na { color: var(--font-20); }
@@ -76,6 +90,7 @@ tbody tr:hover td.sticky { background: var(--background-2); }
 .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: left .12s; }
 .toggle[aria-checked="true"] { background: var(--tamanu-blue-100); }
 .toggle[aria-checked="true"]::after { left: 16px; }
+.toggle:disabled { cursor: default; opacity: .45; }
 .toggle:focus-visible { outline: 2px solid var(--tamanu-blue-30); outline-offset: 2px; }
 .toggle-wrap { display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid transparent; }
 .toggle-wrap.changed { background: var(--yellow-10); border-color: var(--yellow-100); }
@@ -154,9 +169,13 @@ tbody tr:hover td.sticky { background: var(--background-2); }
 
   <section class="panel">
     <div class="filters">
-      <div class="field" style="width: 260px">
-        <label for="facility">Facility</label>
-        <div class="inp"><select id="facility"><option>Yap State Hospital</option></select></div>
+      <div class="field" style="width: 320px">
+        <span class="label" id="facility-label">Facilities</span>
+        <button class="multi" id="facility-button" aria-haspopup="true" aria-expanded="false" aria-labelledby="facility-label">
+          <span class="chips" id="facility-chips"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="menu" id="facility-menu" role="group" aria-labelledby="facility-label"></div>
       </div>
       <div class="field" style="width: 220px">
         <label for="category">Category</label>
@@ -184,29 +203,7 @@ tbody tr:hover td.sticky { background: var(--background-2); }
 
     <div class="grid-wrap">
       <table id="grid">
-        <thead>
-          <tr>
-            <th class="sticky"></th>
-            <th></th>
-            <th></th>
-            <th class="group" colspan="4"><span>Price</span></th>
-            <th class="group"><span>Insurance</span></th>
-          </tr>
-          <tr>
-            <th class="sticky">Product
-              <span class="hint" data-tip="Applies at all facilities"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>
-            </th>
-            <th>Category</th>
-            <th>Available</th>
-            <th class="num">Yap 0-12</th>
-            <th class="num">Yap Non-Resident</th>
-            <th class="num">Yap Resident</th>
-            <th class="num">Yap Senior</th>
-            <th class="num">Micare
-              <span class="hint" data-tip="Applies at all facilities"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>
-            </th>
-          </tr>
-        </thead>
+        <thead id="head"></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
@@ -237,7 +234,7 @@ tbody tr:hover td.sticky { background: var(--background-2); }
     <div class="inp"><input id="pop-price" inputmode="decimal"></div>
   </div>
   <div class="field" id="pop-charging">
-    <label>Charge</label>
+    <span class="label">Charge</span>
     <div class="radios">
       <label class="radio"><input type="radio" name="charging" value="perUnit"> Per unit</label>
       <label class="radio"><input type="radio" name="charging" value="flat"> Flat fee</label>
@@ -266,64 +263,149 @@ tbody tr:hover td.sticky { background: var(--background-2); }
 </div>
 
 <script>
-const PRICE_LISTS = ['Yap 0-12', 'Yap Non-Resident', 'Yap Resident', 'Yap Senior'];
+const FACILITIES = [
+  { id: 'chuuk', name: 'Chuuk State Hospital' },
+  { id: 'kosrae', name: 'Kosrae State Hospital' },
+  { id: 'pohnpei', name: 'Pohnpei State Hospital' },
+  { id: 'yap', name: 'Yap State Hospital' },
+];
+// The signed-in cashier's allowed facilities. A price list is editable when it covers any of them.
+const USER_FACILITIES = ['yap'];
 
-// price: number, or null when not charged. flat: fixed price (drugs only).
-// available: true / false, or null when the product has nothing orderable behind it.
-// coverage: percentage, or null when the product is not insurable.
-const products = [
-  { name: '1HR Post Parandial Blood Sugar', category: 'Lab test type', available: true, prices: [{ price: 0 }, { price: 11 }, { price: 5 }, { price: 2.5 }], coverage: 100 },
-  { name: 'Abdomen | AXR-LD/RD', category: 'Imaging area', available: true, prices: [{ price: 10 }, { price: 10 }, { price: 10 }, { price: 10 }], coverage: 100 },
-  { name: 'Amoxicillin 500mg capsule', category: 'Drug', available: true, prices: [{ price: 2, flat: true }, { price: 0.4 }, { price: 0.2 }, { price: 2, flat: true }], coverage: 80 },
-  { name: 'Appendicectomy', category: 'Procedure type', available: true, prices: [{ price: null }, { price: 450 }, { price: 150 }, { price: 75 }], coverage: 100 },
-  { name: 'Chest X-ray PA', category: 'Imaging area', available: true, prices: [{ price: 8 }, { price: 25 }, { price: 12 }, { price: 6 }], coverage: 100 },
-  { name: 'Clinic visit, standard hours', category: 'Encounter fee', available: null, prices: [{ price: 2 }, { price: 10 }, { price: 5 }, { price: 2 }], coverage: null },
-  { name: 'Full blood count', category: 'Lab test panel', available: true, prices: [{ price: 0 }, { price: 15 }, { price: 6 }, { price: 3 }], coverage: 100 },
-  { name: 'ICU bed', category: 'Bed fee', available: null, prices: [{ price: 40 }, { price: 120 }, { price: 60 }, { price: 30 }], coverage: 100 },
-  { name: 'Paracetamol 500mg tablet', category: 'Drug', available: false, prices: [{ price: 0.05 }, { price: 0.1 }, { price: 0.05 }, { price: 0.05 }], coverage: 100 },
-  { name: '25% Burn', category: null, available: null, prices: [{ price: 50 }, { price: 50 }, { price: 50 }, { price: 50 }], coverage: null },
+// Each group is one facility (its Available toggle plus its own price lists), or a set of
+// facilities sharing price lists.
+const PRICE_LISTS = [
+  { code: 'chuukNR', name: 'Chuuk Non-Resident', facilities: ['chuuk'], factor: 2 },
+  { code: 'chuukR', name: 'Chuuk Resident', facilities: ['chuuk'], factor: 1 },
+  { code: 'kosraeNR', name: 'Kosrae Non-Resident', facilities: ['kosrae'], factor: 2 },
+  { code: 'kosraeR', name: 'Kosrae Resident', facilities: ['kosrae'], factor: 1 },
+  { code: 'pohnpei', name: 'Pohnpei', facilities: ['pohnpei'], factor: 1 },
+  { code: 'pohnpeiS', name: 'Pohnpei Senior', facilities: ['pohnpei'], factor: 0.5 },
+  { code: 'yap012', name: 'Yap 0-12', facilities: ['yap'], factor: 0.25 },
+  { code: 'yapNR', name: 'Yap Non-Resident', facilities: ['yap'], factor: 2 },
+  { code: 'yapR', name: 'Yap Resident', facilities: ['yap'], factor: 1 },
+  { code: 'yapS', name: 'Yap Senior', facilities: ['yap'], factor: 0.5 },
+  { code: 'referral', name: 'Outer island referral', facilities: ['pohnpei', 'yap'], factor: 0.5 },
 ];
 
-// Pending edits, keyed by cell. Pre-seeded so the mockup opens mid-edit.
-const pending = new Map();
-const original = JSON.parse(JSON.stringify(products));
-function setPending(key, isChanged) { isChanged ? pending.set(key, true) : pending.delete(key); }
+const products = [
+  { name: '1HR Post Parandial Blood Sugar', category: 'Lab test type', base: 5, coverage: 100, unavailable: [] },
+  { name: 'Abdomen | AXR-LD/RD', category: 'Imaging area', base: 10, coverage: 100, unavailable: ['kosrae'] },
+  { name: 'Amoxicillin 500mg capsule', category: 'Drug', base: 0.2, coverage: 80, unavailable: [], flatAt: { yap012: 2, yapS: 2, pohnpeiS: 1.5 } },
+  { name: 'Appendicectomy', category: 'Procedure type', base: 150, coverage: 100, unavailable: ['kosrae'], notChargedAt: ['yap012'] },
+  { name: 'Chest X-ray PA', category: 'Imaging area', base: 12, coverage: 100, unavailable: [] },
+  { name: 'Clinic visit, standard hours', category: 'Encounter fee', base: 5, coverage: null, notOrderable: true },
+  { name: 'Full blood count', category: 'Lab test panel', base: 6, coverage: 100, unavailable: [] },
+  { name: 'ICU bed', category: 'Bed fee', base: 60, coverage: 100, notOrderable: true },
+  { name: 'Paracetamol 500mg tablet', category: 'Drug', base: 0.05, coverage: 100, unavailable: ['yap'] },
+  { name: '25% Burn', category: null, base: 50, coverage: null, notOrderable: true },
+].map(p => ({
+  name: p.name,
+  category: p.category,
+  coverage: p.coverage,
+  availability: p.notOrderable ? null : Object.fromEntries(FACILITIES.map(f => [f.id, !p.unavailable.includes(f.id)])),
+  prices: Object.fromEntries(PRICE_LISTS.map(list => {
+    if (p.notChargedAt?.includes(list.code)) return [list.code, { price: null }];
+    if (p.flatAt?.[list.code] != null) return [list.code, { price: p.flatAt[list.code], flat: true }];
+    return [list.code, { price: Math.round(p.base * list.factor * 100) / 100 }];
+  })),
+}));
 
-products[1].prices[1].price = 12; setPending('1:p1', true);
-products[1].prices[2].price = 11; setPending('1:p2', true);
+const original = JSON.parse(JSON.stringify(products));
+const pending = new Set();
+const setPending = (key, isChanged) => (isChanged ? pending.add(key) : pending.delete(key));
+
+// Open mid-edit
+products[1].prices.yapNR.price = 22; setPending('1:yapNR', true);
+products[1].prices.yapR.price = 11; setPending('1:yapR', true);
+
+let selectedFacilities = FACILITIES.map(f => f.id);
 
 const fmt = n => n.toFixed(2);
 const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const facilityName = id => FACILITIES.find(f => f.id === id).name;
+const canEditList = list => list.facilities.some(id => USER_FACILITIES.includes(id));
+const hintIcon = tip => `<span class="hint" data-tip="${tip}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>`;
 
-function priceCell(p, row, col) {
-  const key = `${row}:p${col}`;
-  const label = p.price == null
+// Column groups for the selected facilities: one per facility, then one per shared set.
+function buildGroups() {
+  const groups = FACILITIES.filter(f => selectedFacilities.includes(f.id)).map(f => ({
+    label: f.name,
+    facilityId: f.id,
+    lists: PRICE_LISTS.filter(l => l.facilities.length === 1 && l.facilities[0] === f.id),
+  }));
+  const shared = PRICE_LISTS.filter(l => l.facilities.length > 1 && l.facilities.some(id => selectedFacilities.includes(id)));
+  const sharedSets = [...new Set(shared.map(l => l.facilities.join(',')))];
+  for (const set of sharedSets) {
+    groups.push({
+      label: set.split(',').map(id => facilityName(id).replace(' State Hospital', '')).join(', '),
+      lists: shared.filter(l => l.facilities.join(',') === set),
+    });
+  }
+  return groups;
+}
+
+function renderHead(groups) {
+  const top = groups.map(g => {
+    const span = g.lists.length + (g.facilityId ? 1 : 0);
+    const isYours = g.facilityId ? USER_FACILITIES.includes(g.facilityId) : g.lists.some(canEditList);
+    return `<th class="group divide ${isYours ? 'yours' : ''}" colspan="${span}"><span>${g.label}</span></th>`;
+  }).join('');
+  const bottom = groups.map(g => [
+    g.facilityId ? '<th class="divide">Available</th>' : '',
+    ...g.lists.map((l, i) => `<th class="num ${!g.facilityId && i === 0 ? 'divide' : ''}">${l.name}</th>`),
+  ].join('')).join('');
+  document.getElementById('head').innerHTML = `
+    <tr><th class="sticky"></th><th></th><th class="group divide"><span>Insurance</span></th>${top}</tr>
+    <tr>
+      <th class="sticky">Product ${hintIcon('Applies at all facilities')}</th>
+      <th>Category</th>
+      <th class="num divide">Micare ${hintIcon('Applies at all facilities')}</th>
+      ${bottom}
+    </tr>`;
+}
+
+function priceCell(product, row, list, extraClass) {
+  const cell = product.prices[list.code];
+  const key = `${row}:${list.code}`;
+  const label = cell.price == null
     ? '<span class="muted">Not charged</span>'
-    : `${p.flat ? '<span class="tag">Flat fee</span>' : ''}${fmt(p.price)}`;
-  return `<td class="num"><button class="cell ${pending.has(key) ? 'changed' : ''}" data-row="${row}" data-col="${col}">${label}</button></td>`;
+    : `${cell.flat ? '<span class="tag">Flat fee</span>' : ''}${fmt(cell.price)}`;
+  const content = canEditList(list)
+    ? `<button class="cell ${pending.has(key) ? 'changed' : ''}" data-row="${row}" data-list="${list.code}">${label}</button>`
+    : `<span class="readonly">${label}</span>`;
+  return `<td class="num ${extraClass}">${content}</td>`;
+}
+
+function availabilityCell(product, row, facilityId) {
+  if (product.availability == null) return '<td class="divide"><span class="na" title="Not orderable">—</span></td>';
+  const key = `${row}:avail:${facilityId}`;
+  const canEdit = USER_FACILITIES.includes(facilityId);
+  return `<td class="divide"><span class="toggle-wrap ${pending.has(key) ? 'changed' : ''}"><button class="toggle" role="switch"
+    aria-checked="${product.availability[facilityId]}" aria-label="Available at ${facilityName(facilityId)}"
+    data-avail="${row}" data-facility="${facilityId}" ${canEdit ? '' : 'disabled'}></button></span></td>`;
 }
 
 function render() {
+  const groups = buildGroups();
+  renderHead(groups);
   const query = document.getElementById('search').value.toLowerCase();
   const category = document.getElementById('category').value;
   document.getElementById('rows').innerHTML = products.map((product, row) => {
     if (query && !product.name.toLowerCase().includes(query)) return '';
     if (category && product.category !== category) return '';
-    const nameKey = `${row}:name`;
-    const availKey = `${row}:avail`;
-    const covKey = `${row}:cov`;
-    const available = product.available == null
-      ? '<span class="na" title="Not orderable">—</span>'
-      : `<span class="toggle-wrap ${pending.has(availKey) ? 'changed' : ''}"><button class="toggle" role="switch" aria-checked="${product.available}" aria-label="Available at Yap State Hospital" data-avail="${row}"></button></span>`;
     const coverage = product.coverage == null
       ? '<span class="na" title="Not insurable">—</span>'
-      : `<button class="cell ${pending.has(covKey) ? 'changed' : ''}" data-cov="${row}">${product.coverage}%</button>`;
+      : `<button class="cell ${pending.has(`${row}:cov`) ? 'changed' : ''}" data-cov="${row}">${product.coverage}%</button>`;
+    const facilityCells = groups.map(g => [
+      g.facilityId ? availabilityCell(product, row, g.facilityId) : '',
+      ...g.lists.map((list, i) => priceCell(product, row, list, !g.facilityId && i === 0 ? 'divide' : '')),
+    ].join('')).join('');
     return `<tr>
-      <td class="sticky"><button class="cell left ${pending.has(nameKey) ? 'changed' : ''}" data-name="${row}">${esc(product.name)}</button></td>
+      <td class="sticky"><button class="cell left ${pending.has(`${row}:name`) ? 'changed' : ''}" data-name="${row}">${esc(product.name)}</button></td>
       <td class="cat">${product.category ?? '<span class="na">—</span>'}</td>
-      <td>${available}</td>
-      ${product.prices.map((p, col) => priceCell(p, row, col)).join('')}
-      <td class="num">${coverage}</td>
+      <td class="num divide">${coverage}</td>
+      ${facilityCells}
     </tr>`;
   }).join('');
   const count = pending.size;
@@ -331,28 +413,62 @@ function render() {
   document.getElementById('change-count').textContent = `${count} unsaved ${count === 1 ? 'change' : 'changes'}`;
 }
 
+// ---- Facility multi-select ----
+const facilityButton = document.getElementById('facility-button');
+const facilityMenu = document.getElementById('facility-menu');
+
+function renderFacilityFilter() {
+  const isAll = selectedFacilities.length === FACILITIES.length;
+  document.getElementById('facility-chips').innerHTML = isAll
+    ? 'All facilities'
+    : selectedFacilities.map(id => `<span class="chip">${facilityName(id)}</span>`).join('');
+  facilityMenu.innerHTML = `
+    <label><input type="checkbox" data-all ${isAll ? 'checked' : ''}> All facilities</label>
+    <hr>
+    ${FACILITIES.map(f => `<label><input type="checkbox" value="${f.id}" ${selectedFacilities.includes(f.id) ? 'checked' : ''}> ${f.name}</label>`).join('')}`;
+}
+
+facilityButton.addEventListener('click', () => {
+  const isOpen = facilityMenu.classList.toggle('open');
+  facilityButton.setAttribute('aria-expanded', isOpen);
+});
+facilityMenu.addEventListener('change', e => {
+  if (e.target.dataset.all !== undefined) {
+    selectedFacilities = e.target.checked ? FACILITIES.map(f => f.id) : [];
+  } else {
+    const checked = [...facilityMenu.querySelectorAll('input[value]:checked')].map(i => i.value);
+    selectedFacilities = FACILITIES.map(f => f.id).filter(id => checked.includes(id));
+  }
+  renderFacilityFilter();
+  render();
+});
+document.addEventListener('mousedown', e => {
+  if (!e.target.closest('#facility-menu, #facility-button')) {
+    facilityMenu.classList.remove('open');
+    facilityButton.setAttribute('aria-expanded', 'false');
+  }
+});
+
 // ---- Price editor ----
 const popover = document.getElementById('popover');
 let editing = null;
 
 function openPriceEditor(button) {
   const row = Number(button.dataset.row);
-  const col = Number(button.dataset.col);
+  const list = PRICE_LISTS.find(l => l.code === button.dataset.list);
   const product = products[row];
-  const cell = product.prices[col];
-  editing = { row, col };
+  const cell = product.prices[list.code];
+  editing = { row, code: list.code };
   document.getElementById('pop-title').textContent = product.name;
-  document.getElementById('pop-sub').textContent = PRICE_LISTS[col];
+  document.getElementById('pop-sub').textContent = list.name;
   document.getElementById('pop-price').value = cell.price == null ? '' : fmt(cell.price);
   document.getElementById('pop-hidden').checked = cell.price == null;
   document.getElementById('pop-price').disabled = cell.price == null;
-  const isDrug = product.category === 'Drug';
-  document.getElementById('pop-charging').style.display = isDrug ? '' : 'none';
+  document.getElementById('pop-charging').style.display = product.category === 'Drug' ? '' : 'none';
   document.querySelector(`input[name="charging"][value="${cell.flat ? 'flat' : 'perUnit'}"]`).checked = true;
   const rect = button.getBoundingClientRect();
   popover.classList.add('open');
-  const left = Math.min(rect.right - 260, window.innerWidth - 276);
-  popover.style.left = `${Math.max(16, left)}px`;
+  popover.style.left = `${Math.max(16, Math.min(rect.right - 260, window.innerWidth - 276))}px`;
   popover.style.top = `${Math.min(rect.bottom + 6, window.innerHeight - popover.offsetHeight - 16)}px`;
   if (cell.price != null) document.getElementById('pop-price').select();
 }
@@ -364,15 +480,17 @@ document.getElementById('pop-hidden').addEventListener('change', e => {
 });
 document.getElementById('pop-cancel').addEventListener('click', closePriceEditor);
 document.getElementById('pop-apply').addEventListener('click', () => {
-  const { row, col } = editing;
-  const cell = products[row].prices[col];
-  const before = original[row].prices[col];
-  const isHidden = document.getElementById('pop-hidden').checked;
-  cell.price = isHidden ? null : Number(document.getElementById('pop-price').value || 0);
+  const { row, code } = editing;
+  const cell = products[row].prices[code];
+  const before = original[row].prices[code];
+  cell.price = document.getElementById('pop-hidden').checked ? null : Number(document.getElementById('pop-price').value || 0);
   cell.flat = products[row].category === 'Drug' && document.querySelector('input[name="charging"]:checked').value === 'flat';
-  setPending(`${row}:p${col}`, cell.price !== before.price || Boolean(cell.flat) !== Boolean(before.flat));
+  setPending(`${row}:${code}`, cell.price !== before.price || Boolean(cell.flat) !== Boolean(before.flat));
   closePriceEditor();
   render();
+});
+document.addEventListener('mousedown', e => {
+  if (popover.classList.contains('open') && !popover.contains(e.target) && !e.target.closest('.cell')) closePriceEditor();
 });
 
 // ---- Inline edits for name and coverage ----
@@ -395,11 +513,12 @@ function inlineEdit(button, current, onCommit) {
 document.getElementById('rows').addEventListener('click', e => {
   const target = e.target.closest('button');
   if (!target) return;
-  if (target.dataset.col !== undefined) return openPriceEditor(target);
+  if (target.dataset.list !== undefined) return openPriceEditor(target);
   if (target.dataset.avail !== undefined) {
     const row = Number(target.dataset.avail);
-    products[row].available = !products[row].available;
-    setPending(`${row}:avail`, products[row].available !== original[row].available);
+    const facilityId = target.dataset.facility;
+    products[row].availability[facilityId] = !products[row].availability[facilityId];
+    setPending(`${row}:avail:${facilityId}`, products[row].availability[facilityId] !== original[row].availability[facilityId]);
     return render();
   }
   if (target.dataset.name !== undefined) {
@@ -419,17 +538,15 @@ document.getElementById('rows').addEventListener('click', e => {
   }
 });
 
-document.addEventListener('mousedown', e => {
-  if (popover.classList.contains('open') && !popover.contains(e.target) && !e.target.closest('.cell')) closePriceEditor();
-});
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('category').addEventListener('change', render);
 
 // ---- Save and discard ----
 const confirmModal = document.getElementById('confirm');
+const isPriceKey = key => PRICE_LISTS.some(l => key.endsWith(`:${l.code}`));
 document.getElementById('save').addEventListener('click', () => {
-  const keys = [...pending.keys()];
-  const priceChanges = keys.filter(k => k.includes(':p')).length;
+  const keys = [...pending];
+  const priceChanges = keys.filter(isPriceKey).length;
   const otherChanges = keys.length - priceChanges;
   const parts = [];
   if (priceChanges) parts.push(`${priceChanges} ${priceChanges === 1 ? 'price' : 'prices'}`);
@@ -451,6 +568,7 @@ document.getElementById('discard').addEventListener('click', () => {
   render();
 });
 
+renderFacilityFilter();
 render();
 </script>
 </body>
