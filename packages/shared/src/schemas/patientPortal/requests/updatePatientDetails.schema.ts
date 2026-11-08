@@ -40,6 +40,7 @@ export const UpdatePatientDetailsRequestSchema = z
     emergencyContactNumber: phoneNumber,
     insurerPolicyNumber: text,
     ethnicityId: referenceDataId,
+    insurerId: referenceDataId,
     occupationId: referenceDataId,
   })
   .partial()

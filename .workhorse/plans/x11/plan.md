@@ -65,3 +65,23 @@ additional data, so it has no import path. That is a follow-up card, not this on
 - [ ] Insurer removal across web, portal, schemas, constants, printout and seed data
 - [ ] dbt source model regenerated
 - [ ] Tests
+
+## Split into two pull requests
+
+The work ships as two PRs, because removing the patient insurer is independent of the
+billing section and belongs on `main` rather than in the epic.
+
+- **Remove the patient insurer** → `main`. The insurer reference across web, portal,
+  schemas, printout, settings, dbt and the reference data type, plus the `insurer_id` drop
+  and the migration that clears the settings it orphans.
+- **Billing information section** → `epic-palau-invoicing`. Everything else.
+
+They are independent: `insurerId` lived in Identification information, not the billing
+section, so the billing work neither moves nor needs it. Only the insurance *policy*
+number moves into Billing information, and it survives the insurer removal.
+
+Three files carry an insurer reference that only the billing branch can hold, because they
+do not exist on `main`: the Identification information criterion in `specs/patient/details.md`,
+the field coverage assertion in `patientDetailValidations.test.jsx`, and the
+`GenericIdentifiationFields` insurer entry. When the insurer removal lands on `main` and the
+epic takes `main` in, those three are what the merge has to resolve.

@@ -43,6 +43,7 @@ export class PatientAdditionalData extends Model {
   declare religionId?: string;
   declare patientBillingTypeId?: string;
   declare countryOfBirthId?: string;
+  declare insurerId?: string;
   declare adoptionNumber?: string;
   declare marriageLicence?: string;
   declare familySize?: string;
@@ -170,6 +171,7 @@ export class PatientAdditionalData extends Model {
     referenceRelation('religion');
     referenceRelation('patientBillingType');
     referenceRelation('countryOfBirth');
+    referenceRelation('insurer');
   }
 
   static getFullReferenceAssociations() {
@@ -178,6 +180,7 @@ export class PatientAdditionalData extends Model {
       'country',
       'nationality',
       'ethnicity',
+      'insurer',
       'division',
       'subdivision',
     ];

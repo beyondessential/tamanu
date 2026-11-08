@@ -44,9 +44,17 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
   const hasInvoicePlans = invoiceInsurancePlans.length > 0;
   const insurancePlanNames = invoiceInsurancePlans.map(p => p.name || p.code).join(', ');
 
+  // Fall back to legacy patient-level insurer when no invoice plans are present
   const {
-    additionalData: { insurerPolicyNumber },
+    additionalData: { insurer, insurerPolicyNumber },
   } = patient;
+
+  const showInsurer = hasInvoicePlans || enablePatientInsurer;
+  const insurerDisplayValue = hasInvoicePlans ? insurancePlanNames : insurer?.name;
+  // The one row covers two different things, so it has to say which it is showing.
+  const insurerLabel = hasInvoicePlans
+    ? getTranslation('invoice.insurancePlan.label', 'Insurance plan')
+    : getTranslation('general.localisedField.insurer.label', 'Insurer');
 
   const discountReason = getInvoiceDiscountReason(invoice?.discount);
   const discountReasonValue =
@@ -66,11 +74,8 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('general.date.label', 'Date')}
             value={formatShort(invoice.date)}
           />
-          {hasInvoicePlans && (
-            <DataItem
-              label={getTranslation('invoice.insurancePlan.label', 'Insurance plan')}
-              value={insurancePlanNames}
-            />
+          {showInsurer && (
+            <DataItem label={insurerLabel} value={insurerDisplayValue} />
           )}
           <DataItem
             label={getTranslation('invoice.invoiceStatus.label', 'Invoice status')}

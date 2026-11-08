@@ -68,7 +68,6 @@ describe('getPatientDetailsValidation', () => {
         'payor2ReferenceNumber',
       ]),
     );
-    expect(validated).not.toContain('insurerId');
   });
 
   describe('the sliding fee scale requirement', () => {

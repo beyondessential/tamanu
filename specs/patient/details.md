@@ -22,8 +22,8 @@ billing information is recorded and edited. Fields are grouped into headed secti
 ## Identification information
 
 - [ ] Identification information holds, in order: display ID (where editing it is
-      enabled), birth certificate, driving licence (for patients not registered through
-      the birth registry), passport number,
+      enabled), birth certificate, insurer (where patient insurers are enabled), driving
+      licence (for patients not registered through the birth registry), passport number,
       adoption number, and marriage licence.
 - [ ] Adoption number and marriage licence are free-text fields, recorded on the
       patient's record and editable from the Details tab.

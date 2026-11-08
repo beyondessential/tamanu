@@ -7,6 +7,7 @@ export * from './diagnoses';
 export * from './dispositions';
 export * from './drugs';
 export * from './facilities';
+export * from './insurers';
 export * from './labRequests';
 export * from './labTestTypes';
 export * from './locations';

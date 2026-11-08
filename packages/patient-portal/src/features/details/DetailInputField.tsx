@@ -83,7 +83,7 @@ const ReferenceDataControl = ({
   type,
   relation,
   ...props
-}: ControlProps & { type: string; relation: 'ethnicity' | 'occupation' }) => {
+}: ControlProps & { type: string; relation: 'ethnicity' | 'insurer' | 'occupation' }) => {
   const { getReferenceDataTranslation } = useTranslation();
   const { data: currentOptions = [] } = useReferenceDataOptionsQuery(type);
   const recorded = useCurrentUser().additionalData?.[relation];

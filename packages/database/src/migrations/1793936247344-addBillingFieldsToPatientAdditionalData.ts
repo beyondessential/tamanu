@@ -45,8 +45,8 @@ export async function up(query: QueryInterface): Promise<void> {
 
   // No sync_lookup rebuild: every new column starts null, so a lookup row that predates them
   // describes the same record. Both consumers drop keys they don't know (the facility server
-  // restricts updates to the model's attributes, mobile picks its own columns), so the rebuild
-  // the insurer_id drop does next is the only one this table needs.
+  // restricts updates to the model's attributes, mobile picks its own columns), so nothing
+  // reads a stale row as missing data.
 }
 
 export async function down(query: QueryInterface): Promise<void> {

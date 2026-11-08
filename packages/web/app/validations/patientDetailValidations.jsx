@@ -428,6 +428,17 @@ export const getPatientDetailsValidation = (
         ),
       'Birth certificate',
     ),
+    insurerId: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'insurerId',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.insurer.label" fallback="Insurer" />,
+        ),
+      'Insurer',
+    ),
     insurerPolicyNumber: requiredWhenConfiguredMandatory(
       getSetting,
       getTranslation,

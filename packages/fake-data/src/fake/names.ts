@@ -197,6 +197,15 @@ export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
     'Colonoscopy',
     'Angiogram',
   ],
+  [REFERENCE_TYPES.INSURER]: [
+    'National Health Insurance',
+    'Public Service Scheme',
+    'Pacific Health Cover',
+    'Island Mutual',
+    'Seafarers Fund',
+    'Teachers Health Fund',
+    'Veterans Scheme',
+  ],
   [REFERENCE_TYPES.LAB_TEST_CATEGORY]: [
     'Haematology',
     'Biochemistry',

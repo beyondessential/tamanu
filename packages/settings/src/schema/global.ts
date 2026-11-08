@@ -550,7 +550,7 @@ export const globalSettings = {
         },
         enablePatientInsurer: {
           description:
-            'Include insurance policy number as a field in the billing information section of patient details',
+            'Include insurer as a field in patient details identification section, and insurance policy number in the billing information section',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -1104,6 +1104,14 @@ export const globalSettings = {
         },
         birthCertificate: {
           name: 'Birth certificate',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        insurerId: {
+          name: 'Insurer',
           description: '_',
           properties: generateFieldSchema({
             isPatientDetails: true,
