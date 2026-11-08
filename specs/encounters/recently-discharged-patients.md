@@ -44,7 +44,8 @@ Applies to the listing, under the Facility admin section of the sidebar, of pati
 - Department matches the department the encounter was assigned to when it was discharged, and suggests departments from the current facility.
 - Discharging clinician matches the clinician recorded as discharging the encounter.
 - Search applies to every discharge in the window before each patient's most recent one is picked. A patient whose most recent discharge doesn't match is listed for their most recent earlier discharge in the window that does.
-- Search parameters are retained when the user leaves the view and returns to it, until the app is reloaded.
+- Encounter type, Area, Department, and Discharging clinician are remembered for each user at each facility, so they still apply after the user leaves the view, reloads the app, or logs out and back in.
+- Patient ID, First name, and Last name are kept when the user leaves the view and returns to it, and cleared when the app is reloaded or the user logs out, since they look up a single patient.
 
 ## Permissions
 
