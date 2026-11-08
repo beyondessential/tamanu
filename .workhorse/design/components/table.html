@@ -1,451 +1,246 @@
-<!doctype html>
-<!-- @dsCard group="Components" name="Table" subtitle="Template — edit columns, fields, menu items, and row data live" viewport="1360x900" -->
-<html><head><meta charset="utf-8">
-<link rel="stylesheet" href="../colors_and_type.css">
+<!-- component: Table -->
+<!-- Preview for the Tamanu design system — see ../design-system.md (#table) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table — Tamanu design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}
-body{margin:0;padding:20px;background:#F9FAFB;font-family:'Roboto',sans-serif;color:#444;display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+:root{
+  --primary:#326699;--primary-dark:#2f4358;--primary30:#C2D2E1;--primary10:#EBF0F5;
+  --blue:#1172D1;--bright-blue:#67A6E3;--very-light-blue:#F4F9FF;
+  --darkest:#444444;--dark:#666666;--mid:#888888;--soft:#b8b8b8;
+  --alert:#f76853;--light-alert:#fff0ee;--safe:#47ca80;--green:#19934E;
+  --orange:#f17f16;--dark-orange:#CB6100;--secondary:#ffcc24;
+  --white:#ffffff;--off-white:#fafafa;--bg:#f3f5f7;--bg2:#f9fafb;
+  --outline:#dedede;--soft-outline:#ebebeb;
+}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--darkest);background:var(--bg);line-height:1.4;}
+.page{max-width:980px;margin:0 auto;padding:40px 32px 80px;}
+.ds-title{font-size:24px;font-weight:500;line-height:32px;margin:0 0 4px;}
+.ds-sub{font-size:14px;color:var(--mid);margin:0 0 36px;}
+.ds-sub code{font-family:ui-monospace,monospace;font-size:12px;color:var(--dark);}
+.ds-section{margin-bottom:44px;}
+.ds-h{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mid);margin:0 0 18px;border-bottom:1px solid var(--soft-outline);padding-bottom:8px;}
+.ds-row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;}
+.ds-cell{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+.ds-caption{font-size:11px;line-height:15px;color:var(--mid);}
 
-/* ============ TABLE CARD ============ */
-.card{background:#fff;border:1px solid #DEDEDE;border-radius:5px;overflow:visible}
-.search{padding:20px 24px;border-bottom:1px solid #EBEBEB}
-.search-grid{display:grid;grid-template-columns:repeat(var(--fcols,4),1fr);gap:14px 20px}
-.field{display:flex;flex-direction:column;gap:4px;min-width:0}
-.field label{font:500 11px/15px Roboto;color:#444}
-.field .inp{height:36px;border:1px solid #DEDEDE;border-radius:3px;background:#fff;padding:0 10px;display:flex;align-items:center;gap:8px;font:400 14px/18px Roboto;color:#444}
-.field .inp:focus-within{border-color:#326699}
-.field input,.field .fake-inp{flex:1;min-width:0;border:0;outline:0;background:transparent;font:400 14px/18px Roboto;color:#444}
-.field .fake-inp.empty{color:#B8B8B8}
-.field .inp svg{width:14px;height:14px;color:#888;flex-shrink:0}
-.field .inp .chev{margin-left:auto}
-.search-actions{display:flex;justify-content:flex-end;gap:14px;align-items:center;align-self:end;justify-self:end;height:36px}
-.adv-toggle{display:inline-flex;align-items:center;justify-content:center;background:none;border:0;color:#326699;cursor:pointer;padding:6px;border-radius:3px}
-.adv-toggle:hover{background:#EBF0F5}
-.adv-toggle svg{width:20px;height:20px;transition:transform .15s}
-.adv-toggle.open svg{transform:rotate(180deg)}
-.adv-panel{display:none;margin-top:14px;padding:14px;background:#F9FAFB;border:1px solid #EBEBEB;border-radius:3px}
-.adv-panel.open{display:block}
-.adv-panel .search-grid{--fcols:var(--advcols, 4)}
-.btn-primary{height:36px;padding:0 20px;border:0;border-radius:3px;background:#326699;color:#fff;font:500 14px/18px Roboto;cursor:pointer}
-.btn-primary:hover{background:#22486D}
-.link-btn{background:none;border:0;color:#444;font:400 14px/18px Roboto;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
-.link-btn:hover{color:#326699;font-weight:500}
+/* ---- Table ---- */
+.tbl-container{border:1px solid #dedede;border-radius:5px;background:#fff;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);max-width:860px;width:100%;}
+table{width:100%;border-collapse:collapse;font-size:14px;color:#444;}
+thead th{background:#f3f5f7;text-align:left;padding:12px 15px;font-weight:500;color:#444;white-space:nowrap;border-bottom:1px solid #dedede;}
+thead th:first-child{padding-left:20px;}
+thead th:last-child{padding-right:20px;}
+tbody td{padding:20px 15px;line-height:1.3;border-bottom:1px solid #dedede;}
+tbody td:first-child{padding-left:20px;}
+tbody td:last-child{padding-right:20px;}
 
-table{width:100%;border-collapse:collapse;font:400 14px/18px Roboto}
-thead th{font:500 14px/18px Roboto;color:#444;text-align:left;padding:12px 16px;background:#fff;border-bottom:1px solid #EBEBEB;white-space:nowrap}
-thead th.sortable{cursor:pointer;user-select:none}
-thead th .sort{display:inline-block;margin-left:4px;color:#888;vertical-align:middle}
-thead th .sort svg{width:12px;height:12px;vertical-align:middle}
-tbody td{padding:12px 16px;color:#444;border-bottom:1px solid #F3F5F7;vertical-align:top}
-tbody tr:hover td{background:#F9FAFB}
-tbody td.cbcol,thead th.cbcol{width:40px;padding-right:4px}
-tbody td.actions,thead th.actions{width:44px;text-align:right;padding-right:12px}
-.kebab-wrap{position:relative;display:inline-block}
-.kebab{background:none;border:0;width:28px;height:28px;border-radius:999px;cursor:pointer;color:#888;display:inline-flex;align-items:center;justify-content:center}
-.kebab:hover{background:var(--hover-2);color:#326699}
-.kmenu{position:absolute;right:0;top:32px;background:#fff;border:1px solid #DEDEDE;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:8px 0;z-index:40;display:none;text-align:left;overflow:hidden;white-space:nowrap}
-.kmenu.open{display:block}
-.kmenu button{display:block;width:100%;text-align:left;padding:8px 16px;border:0;background:#fff;font:400 14px/18px Roboto;color:#666;cursor:pointer}
-.kmenu button:hover{background:var(--hover-2)}
-.cb{width:16px;height:16px;border:1px solid #DEDEDE;border-radius:3px;background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;vertical-align:middle}
-.cb.on{background:#326699;border-color:#326699;color:#fff}
-.cb svg{width:12px;height:12px}
+.th-sort{display:inline-flex;align-items:center;gap:4px;cursor:pointer;}
+.sort-arrow{font-size:11px;line-height:1;}
+.sort-active{color:#326699;}
+.sort-inactive{color:#b8b8b8;}
 
-.foot{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;padding:14px 20px;border-top:1px solid #EBEBEB}
-.foot-left .export{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1px solid #326699;border-radius:3px;background:#fff;color:#326699;font:500 13px/16px Roboto;cursor:pointer}
-.foot-left .export svg{width:14px;height:14px}
-.foot-right{display:flex;align-items:center;gap:14px;justify-self:end}
-.page-size{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 8px;border:1px solid #DEDEDE;border-radius:3px;background:#fff;font:400 13px/16px Roboto;color:#444;cursor:pointer}
-.page-size svg{width:12px;height:12px;color:#888}
-.page-info{font:400 13px/16px Roboto;color:#444}
-.pager{display:inline-flex;align-items:center;gap:4px}
-.pager button{width:28px;height:28px;border-radius:999px;border:0;background:transparent;font:400 13px/16px Roboto;color:#444;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
-.pager button:hover{background:#EBF0F5;color:#326699}
-.pager button.active{background:#326699;color:#fff}
-.pager button.nav svg{width:12px;height:12px}
-.pager .dots{padding:0 4px;color:#888}
+tbody tr.clickable:hover{background:#F4F9FF;cursor:pointer;}
+tbody tr.hovered{background:#F4F9FF;cursor:pointer;}
 
-/* ============ TWEAKS PANEL ============ */
-.tweaks{position:sticky;top:20px;background:#fff;border:1px solid #DEDEDE;border-radius:5px;padding:16px;font:400 13px/16px Roboto;max-height:calc(100vh - 40px);overflow:auto}
-.tweaks h3{font:500 14px/18px Roboto;color:#444;margin:0 0 4px}
-.tweaks .hint{font:400 11px/15px Roboto;color:#888;margin:0 0 14px}
-.tweaks .group{margin-top:14px;padding-top:14px;border-top:1px solid #EBEBEB}
-.tweaks .group:first-of-type{margin-top:0;padding-top:0;border-top:0}
-.tweaks .group-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.tweaks h4{font:500 11px/15px Roboto;color:#888;text-transform:uppercase;letter-spacing:.06em;margin:0}
-.tw-add{background:#EBF0F5;border:0;color:#326699;font:500 11px/15px Roboto;cursor:pointer;padding:4px 8px;border-radius:3px}
-.tw-add:hover{background:#326699;color:#fff}
-.tw-item{display:grid;grid-template-columns:16px 1fr auto;gap:6px;align-items:center;padding:4px 0;border-bottom:1px dashed #F3F5F7}
-.tw-item:last-child{border-bottom:0}
-.tw-drag{cursor:grab;color:#B8B8B8;font:400 14px/1 Roboto;user-select:none;text-align:center}
-.tw-drag:hover{color:#326699}
-.tw-fields{display:flex;gap:4px;align-items:center;min-width:0}
-.tw-fields input[type="text"],.tw-fields select{height:26px;border:1px solid #DEDEDE;border-radius:3px;padding:0 6px;font:400 12px/16px Roboto;color:#444;background:#fff;min-width:0}
-.tw-fields input[type="text"]{flex:1;min-width:60px}
-.tw-fields select{flex-shrink:0}
-.tw-fields label.mini{display:inline-flex;align-items:center;gap:3px;font:400 10px/14px Roboto;color:#888;cursor:pointer}
-.tw-fields label.mini input{accent-color:#326699;margin:0}
-.tw-del{background:none;border:0;color:#B8B8B8;cursor:pointer;font:400 14px/1 Roboto;padding:2px 4px;border-radius:3px}
-.tw-del:hover{color:#F76853;background:#FFF2F0}
-.tw-row{display:flex;align-items:center;gap:8px;padding:4px 0;font:400 12px/16px Roboto;color:#444;cursor:pointer}
-.tw-row input[type="checkbox"]{accent-color:#326699}
-.small{font:400 11px/15px Roboto;color:#888;margin-top:6px}
-.data-grid{width:100%;border-collapse:collapse;font:400 11px/14px Roboto;margin-top:6px}
-.data-grid td{padding:2px}
-.data-grid input{width:100%;height:22px;border:1px solid #DEDEDE;border-radius:2px;padding:0 4px;font:400 11px/14px Roboto;color:#444}
-.data-grid th{font:500 10px/14px Roboto;color:#888;text-align:left;padding:2px 4px;white-space:nowrap}
-.row-tools{display:flex;gap:4px;margin-top:6px}
-.row-tools button{flex:1;background:#EBF0F5;border:0;color:#326699;font:500 11px/15px Roboto;cursor:pointer;padding:4px;border-radius:3px}
-.row-tools button:hover{background:#326699;color:#fff}
-.tw-item.dragging{opacity:.4}
-.tw-item.drop-target{border-top:2px solid #326699}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:500;}
+.pill-safe{background:rgba(71,202,128,0.15);color:#19934E;}
+.pill-warn{background:rgba(241,127,22,0.15);color:#CB6100;}
+.pill-alert{background:rgba(247,104,83,0.15);color:#f76853;}
+
+.tbl-footer{display:flex;align-items:center;justify-content:space-between;background:#f3f5f7;padding:10px 20px;border-top:1px solid #dedede;font-size:13px;color:#666;}
+.tbl-footer-left{display:flex;align-items:center;gap:10px;}
+.rows-per-page{display:inline-flex;align-items:center;gap:6px;border:1px solid #dedede;border-radius:20px;padding:2px 10px;background:#fff;color:#444;}
+.tbl-footer-right{display:flex;align-items:center;}
+.page-btn{min-width:28px;height:28px;border:1px solid #dedede;background:#fff;border-radius:3px;font-size:13px;color:#444;margin-left:4px;cursor:pointer;}
+.page-btn.active{background:#326699;color:#fff;border-color:#326699;}
+
+/* Dense variant */
+.tbl-dense{max-width:860px;width:100%;background:#fff;}
+.tbl-dense table{border:0;}
+.tbl-dense thead th{background:transparent;color:#888;font-weight:400;padding-top:4px;padding-bottom:4px;border-bottom:1px solid #dedede;}
+.tbl-dense thead th:first-child{padding-left:0;}
+.tbl-dense tbody td{padding-top:4px;padding-bottom:4px;border-bottom:1px solid #ebebeb;}
+.tbl-dense tbody td:first-child{padding-left:0;}
+
+/* States */
+.states-row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;}
+.state-cell{padding:60px;text-align:center;color:#888;}
 </style>
 </head>
 <body>
+<div class="page">
+  <h1 class="ds-title">Table</h1>
+  <p class="ds-sub">Lists &amp; data grids — Table and DataFetchingTable. Grounded in <code>packages/web/app/components/Table/</code></p>
 
-<!-- =============== TABLE =============== -->
-<div class="card">
-  <div class="search" id="search">
-    <div class="search-grid" id="searchGrid"></div>
-    <div class="adv-panel" id="advPanel">
-      <div class="search-grid" id="advGrid"></div>
-    </div>
-  </div>
-  <table>
-    <thead><tr id="thead"></tr></thead>
-    <tbody id="tbody"></tbody>
-  </table>
-  <div class="foot">
-    <div class="foot-left">
-      <button class="export">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Export
-      </button>
-    </div>
-    <div></div>
-    <div class="foot-right">
-      <button class="page-size">10 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
-      <span class="page-info" id="pageInfo">1-10 of 103</span>
-      <div class="pager">
-        <button class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <button class="active">1</button><button>2</button><button>3</button>
-        <span class="dots">…</span><button>11</button>
-        <button class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+  <!-- 1. Standard table -->
+  <section class="ds-section">
+    <h2 class="ds-h">Standard table</h2>
+    <div class="ds-cell">
+      <div class="tbl-container">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <span class="th-sort">Patient ID<span class="sort-arrow sort-inactive">⇅</span></span>
+              </th>
+              <th>
+                <span class="th-sort">Name<span class="sort-arrow sort-inactive">⇅</span></span>
+              </th>
+              <th>
+                <span class="th-sort">Date of birth<span class="sort-arrow sort-inactive">⇅</span></span>
+              </th>
+              <th>
+                <span class="th-sort">Status<span class="sort-arrow sort-active">▼</span></span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="clickable">
+              <td>RGPL847201</td>
+              <td>Marla Thornbury</td>
+              <td>14/03/1987</td>
+              <td><span class="pill pill-alert">Urgent</span></td>
+            </tr>
+            <tr class="hovered">
+              <td>RGPL112904</td>
+              <td>Desmond Oliveira</td>
+              <td>02/11/1963</td>
+              <td><span class="pill pill-warn">Triage</span></td>
+            </tr>
+            <tr class="clickable">
+              <td>RGPL556018</td>
+              <td>Priya Valentine</td>
+              <td>28/06/1995</td>
+              <td><span class="pill pill-safe">Admitted</span></td>
+            </tr>
+            <tr class="clickable">
+              <td>RGPL390447</td>
+              <td>Hamish Bellweather</td>
+              <td>09/01/1978</td>
+              <td><span class="pill pill-safe">Admitted</span></td>
+            </tr>
+            <tr class="clickable">
+              <td>RGPL204883</td>
+              <td>Teuila Fonoti</td>
+              <td>21/09/2001</td>
+              <td><span class="pill pill-warn">Triage</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="tbl-footer">
+          <div class="tbl-footer-left">
+            <span>Rows per page</span>
+            <span class="rows-per-page">10 <span class="sort-arrow sort-inactive">▾</span></span>
+          </div>
+          <div class="tbl-footer-right">
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+          </div>
+        </div>
       </div>
+      <p class="ds-caption">Header #f3f5f7; body cells 20px 15px; clickable rows hover #F4F9FF; selected page = primary. Status shown as fully-rounded pills in semantic colours.</p>
     </div>
-  </div>
+  </section>
+
+  <!-- 2. Dense variant -->
+  <section class="ds-section">
+    <h2 class="ds-h">Dense variant (denseTableStyle)</h2>
+    <div class="ds-cell">
+      <div class="tbl-dense">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient ID</th>
+              <th>Name</th>
+              <th>Date of birth</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>RGPL847201</td>
+              <td>Marla Thornbury</td>
+              <td>14/03/1987</td>
+              <td>Urgent</td>
+            </tr>
+            <tr>
+              <td>RGPL112904</td>
+              <td>Desmond Oliveira</td>
+              <td>02/11/1963</td>
+              <td>Triage</td>
+            </tr>
+            <tr>
+              <td>RGPL556018</td>
+              <td>Priya Valentine</td>
+              <td>28/06/1995</td>
+              <td>Admitted</td>
+            </tr>
+            <tr>
+              <td>RGPL390447</td>
+              <td>Hamish Bellweather</td>
+              <td>09/01/1978</td>
+              <td>Admitted</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="ds-caption">denseTableStyle — borderless, tighter padding (4px), muted non-bold header. For compact embedded tables.</p>
+    </div>
+  </section>
+
+  <!-- 3. States -->
+  <section class="ds-section">
+    <h2 class="ds-h">States</h2>
+    <div class="ds-cell">
+      <div class="states-row">
+        <div class="tbl-container" style="max-width:400px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Date of birth</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="4" class="state-cell">No data found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tbl-container" style="max-width:400px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Date of birth</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="4" class="state-cell">Loading…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="ds-caption">Every table handles loading, error, and empty states — never a blank table.</p>
+    </div>
+  </section>
+
 </div>
-
-<!-- =============== TWEAKS =============== -->
-<aside class="tweaks">
-  <h3>Table template editor</h3>
-  <p class="hint">Edit the schema — the table re-renders live. Drag <span style="color:#444">⋮⋮</span> to reorder.</p>
-
-  <div class="group">
-    <div class="group-head"><h4>Search fields</h4><button class="tw-add" data-add="field">+ Add field</button></div>
-    <div id="fieldEditor"></div>
-    <p class="small">Types: text · dropdown · date. Tick <b>adv</b> to move a field into the Advanced dropdown.</p>
-  </div>
-
-  <div class="group">
-    <div class="group-head"><h4>Columns</h4><button class="tw-add" data-add="col">+ Add column</button></div>
-    <div id="colEditor"></div>
-  </div>
-
-  <div class="group">
-    <div class="group-head"><h4>Overflow menu</h4><button class="tw-add" data-add="menu">+ Add item</button></div>
-    <div id="menuEditor"></div>
-    <label class="tw-row"><input type="checkbox" id="t-overflow" checked> Show overflow column</label>
-  </div>
-
-  <div class="group">
-    <h4>Features</h4>
-    <label class="tw-row"><input type="checkbox" id="t-advanced" checked> Advanced dropdown</label>
-    <label class="tw-row"><input type="checkbox" id="t-selection"> Checkbox selection column</label>
-    <label class="tw-row"><input type="checkbox" id="t-export" checked> Export button</label>
-    <label class="tw-row"><input type="checkbox" id="t-pagination" checked> Pagination</label>
-  </div>
-
-  <div class="group">
-    <div class="group-head"><h4>Row data</h4><button class="tw-add" data-add="row">+ Add row</button></div>
-    <div id="dataEditor"></div>
-  </div>
-</aside>
-
-<script>
-/* ============================================
-   Template schema — everything here is editable
-   live via the Tweaks panel on the right.
-   ============================================ */
-const schema = {
-  fields: [
-    { key:'pid',   label:'Patient ID',     kind:'text',     advanced:false },
-    { key:'first', label:'First name',     kind:'text',     advanced:false },
-    { key:'last',  label:'Last name',      kind:'text',     advanced:false },
-    { key:'med',   label:'Medication',     kind:'dropdown', advanced:false },
-    { key:'date',  label:'Date dispensed', kind:'date',     advanced:false },
-    { key:'by',    label:'Dispensed by',   kind:'dropdown', advanced:false },
-    { key:'facility', label:'Facility',    kind:'dropdown', advanced:true },
-    { key:'status',   label:'Status',      kind:'dropdown', advanced:true },
-  ],
-  columns: [
-    { key:'id',   label:'Patient ID',     sortable:true  },
-    { key:'name', label:'Patient name',   sortable:true  },
-    { key:'med',  label:'Medication',     sortable:true  },
-    { key:'dose', label:'Dose',           sortable:false },
-    { key:'freq', label:'Frequency',      sortable:false },
-    { key:'date', label:'Date dispensed', sortable:true  },
-    { key:'qty',  label:'Qty dispensed',  sortable:false },
-    { key:'by',   label:'Dispensed by',   sortable:true  },
-  ],
-  menu: [
-    { label:'View' },
-    { label:'Edit' },
-    { label:'Discontinue' },
-  ],
-  rows: [
-    {id:'TEMP001',name:'Jane Smith',med:'Abacavir (abs) (sulfate) 300mg tablet',dose:'1 tab PRN',freq:'Daily',date:'01/10/25',qty:'16',by:'Bethany Peters'},
-    {id:'TEMP001',name:'John Doe',med:'Acarbose 50mg tablet',dose:'1 tab PRN',freq:'Daily',date:'01/10/25',qty:'16',by:'Bethany Peters'},
-    {id:'TEMP001',name:'Emily Johnson',med:'Adalimumab 40mg injection',dose:'1 tab PRN',freq:'Daily',date:'01/10/25',qty:'16',by:'Bethany Peters'},
-    {id:'TEMP001',name:'Michael Brown',med:'Albuterol (salbutamol) 90mcg inhaler',dose:'1 tab PRN',freq:'Daily',date:'01/10/25',qty:'16',by:'Bethany Peters'},
-    {id:'TEMP001',name:'Sarah Davis',med:'Allopurinol 100mg tablet',dose:'1 tab PRN',freq:'Daily',date:'01/10/25',qty:'16',by:'Bethany Peters'},
-    {id:'TEMP001',name:'David Wilson',med:'Amoxicillin 500mg capsule',dose:'1 tab PRN',freq:'Daily',date:'01/10/25',qty:'16',by:'Bethany Peters'},
-    {id:'TEMP001',name:'Laura Garcia',med:'Atenolol 50mg tablet',dose:'1 tab PRN',freq:'Daily',date:'01/10/25',qty:'16',by:'Bethany Peters'},
-    {id:'TEMP001',name:'James Martinez',med:'Atorvastatin 20mg tablet',dose:'1 tab PRN',freq:'Daily',date:'01/10/25',qty:'16',by:'Bethany Peters'},
-  ],
-  selection:false, overflow:true, export:true, pagination:true,
-  advanced:true,
-  advancedOpen:false,
-};
-
-/* ============ Render: search ============ */
-function renderSearch(){
-  const grid = document.getElementById('searchGrid');
-  const adv  = document.getElementById('advGrid');
-  const advPanel = document.getElementById('advPanel');
-  grid.innerHTML = ''; adv.innerHTML = '';
-
-  const mainFields = schema.fields.filter(f => !f.advanced || !schema.advanced);
-  const advFields  = schema.advanced ? schema.fields.filter(f =>  f.advanced) : [];
-  const hasAdv = advFields.length > 0;
-
-  const cols = Math.min(4, Math.max(1, mainFields.length || 1));
-  grid.style.setProperty('--fcols', cols);
-  mainFields.forEach(f => {
-    const el = document.createElement('div'); el.className='field';
-    el.innerHTML = `<label>${escapeHtml(f.label||' ')}</label>${fieldMarkup(f.kind)}`;
-    grid.appendChild(el);
-  });
-
-  // Action row (right-aligned) — always present; holds "Advanced" toggle + Search + Clear
-  const actions = document.createElement('div');
-  actions.className = 'search-actions';
-  const lastRowCount = mainFields.length % cols;
-  const fillers = mainFields.length === 0 ? cols : (lastRowCount === 0 ? cols - 1 : cols - lastRowCount - 1);
-  actions.style.gridColumn = `span ${Math.max(1, fillers + 1)}`;
-  const advBtn = hasAdv
-    ? `<button class="adv-toggle ${schema.advancedOpen?'open':''}" id="advToggle" aria-label="Toggle advanced filters"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.59 7.41 12 12l-4.59-4.59L6 8.83l6 6 6-6z"/><path d="M16.59 13.41 12 18l-4.59-4.59L6 14.83l6 6 6-6z"/></svg></button>`
-    : '';
-  actions.innerHTML = `${advBtn}<button class="btn-primary">Search</button><button class="link-btn">Clear</button>`;
-  grid.appendChild(actions);
-
-  // Advanced panel content
-  if (hasAdv) {
-    const advCols = Math.min(4, Math.max(1, advFields.length));
-    adv.style.setProperty('--fcols', advCols);
-    advFields.forEach(f => {
-      const el = document.createElement('div'); el.className='field';
-      el.innerHTML = `<label>${escapeHtml(f.label||' ')}</label>${fieldMarkup(f.kind)}`;
-      adv.appendChild(el);
-    });
-    advPanel.classList.toggle('open', schema.advancedOpen);
-    const btn = document.getElementById('advToggle');
-    if (btn) btn.addEventListener('click', () => {
-      schema.advancedOpen = !schema.advancedOpen;
-      renderSearch();
-    });
-  } else {
-    advPanel.classList.remove('open');
-  }
-}
-function fieldMarkup(kind){
-  const s = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.6" y2="16.6"/></svg>`;
-  const cal = `<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
-  const ch = `<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
-  const dbl = `<span class="chev" style="display:inline-flex;flex-direction:column;line-height:0;color:#888;margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;margin-bottom:-2px"><polyline points="6 9 12 15 18 9"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px"><polyline points="6 9 12 15 18 9"/></svg></span>`;
-  if (kind==='text')     return `<span class="inp">${s}<input placeholder="Search..."></span>`;
-  if (kind==='dropdown') return `<span class="inp"><span class="fake-inp empty">Search...</span>${ch}</span>`;
-  if (kind==='advanced') return `<span class="inp"><span class="fake-inp empty">Search...</span>${dbl}</span>`;
-  if (kind==='date')     return `<span class="inp"><span class="fake-inp empty">dd/mm/yy</span>${cal}</span>`;
-  return `<span class="inp"><input></span>`;
-}
-
-/* ============ Render: table ============ */
-function renderTable(){
-  const thead = document.getElementById('thead');
-  const tbody = document.getElementById('tbody');
-  thead.innerHTML = ''; tbody.innerHTML = '';
-
-  if (schema.selection) thead.insertAdjacentHTML('beforeend', `<th class="cbcol"></th>`);
-  schema.columns.forEach(c => {
-    thead.insertAdjacentHTML('beforeend', `<th class="${c.sortable?'sortable':''}">${escapeHtml(c.label||' ')}${c.sortable?' <span class="sort"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span>':''}</th>`);
-  });
-  if (schema.overflow) thead.insertAdjacentHTML('beforeend', `<th class="actions"></th>`);
-
-  schema.rows.forEach((row, rIdx) => {
-    const tr = document.createElement('tr');
-    if (schema.selection) tr.insertAdjacentHTML('beforeend', `<td class="cbcol"><span class="cb" data-row="${rIdx}"></span></td>`);
-    schema.columns.forEach(c => tr.insertAdjacentHTML('beforeend', `<td>${escapeHtml(row[c.key] ?? '')}</td>`));
-    if (schema.overflow) {
-      const menu = schema.menu.map(m => `<button>${escapeHtml(m.label||' ')}</button>`).join('') || '<button disabled style="color:#888">No actions</button>';
-      tr.insertAdjacentHTML('beforeend', `<td class="actions"><span class="kebab-wrap"><button class="kebab" type="button"><svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor"><circle cx="2" cy="2" r="1.5"/><circle cx="2" cy="8" r="1.5"/><circle cx="2" cy="14" r="1.5"/></svg></button><div class="kmenu">${menu}</div></span></td>`);
-    }
-    tbody.appendChild(tr);
-  });
-
-  tbody.querySelectorAll('.cb[data-row]').forEach(cb => cb.addEventListener('click', e => {
-    e.stopPropagation(); cb.classList.toggle('on');
-    cb.innerHTML = cb.classList.contains('on') ? `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2 4.8 12 3.4 13.4 9 19 21 7l-1.4-1.4L9 16.2z"/></svg>` : '';
-  }));
-  tbody.querySelectorAll('.kebab').forEach(k => k.addEventListener('click', e => {
-    e.stopPropagation();
-    const myMenu = k.parentElement.querySelector('.kmenu');
-    document.querySelectorAll('.kmenu.open').forEach(m => { if (m !== myMenu) m.classList.remove('open'); });
-    myMenu?.classList.toggle('open');
-  }));
-}
-document.addEventListener('click', () => document.querySelectorAll('.kmenu.open').forEach(m => m.classList.remove('open')));
-
-/* ============ Footer ============ */
-function renderFoot(){
-  document.querySelector('.foot-left').style.visibility  = schema.export     ? 'visible' : 'hidden';
-  document.querySelector('.foot-right').style.visibility = schema.pagination ? 'visible' : 'hidden';
-}
-
-/* ============ Tweaks editors ============ */
-function escapeHtml(s){return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function uid(){return Math.random().toString(36).slice(2,8)}
-
-function renderFieldEditor(){
-  const box = document.getElementById('fieldEditor'); box.innerHTML='';
-  schema.fields.forEach((f,i) => {
-    const el = document.createElement('div'); el.className='tw-item'; el.draggable=true; el.dataset.list='fields'; el.dataset.idx=i;
-    el.innerHTML = `
-      <span class="tw-drag">⋮⋮</span>
-      <span class="tw-fields">
-        <input type="text" value="${escapeHtml(f.label)}" data-k="label">
-        <select data-k="kind">
-          ${['text','dropdown','date'].map(k=>`<option ${k===f.kind?'selected':''}>${k}</option>`).join('')}
-        </select>
-        <label class="mini" title="Show in advanced dropdown"><input type="checkbox" ${f.advanced?'checked':''} data-k="advanced"> adv</label>
-      </span>
-      <button class="tw-del">×</button>`;
-    el.querySelector('[data-k="label"]').addEventListener('input', e => { f.label=e.target.value; renderSearch(); });
-    el.querySelector('[data-k="kind"]').addEventListener('change', e => { f.kind=e.target.value; renderSearch(); });
-    el.querySelector('[data-k="advanced"]').addEventListener('change', e => { f.advanced=e.target.checked; renderSearch(); });
-    el.querySelector('.tw-del').addEventListener('click', () => { schema.fields.splice(i,1); renderFieldEditor(); renderSearch(); });
-    box.appendChild(el);
-  });
-  wireDrag(box, 'fields', () => { renderFieldEditor(); renderSearch(); });
-}
-
-function renderColEditor(){
-  const box = document.getElementById('colEditor'); box.innerHTML='';
-  schema.columns.forEach((c,i) => {
-    const el = document.createElement('div'); el.className='tw-item'; el.draggable=true; el.dataset.list='columns'; el.dataset.idx=i;
-    el.innerHTML = `
-      <span class="tw-drag">⋮⋮</span>
-      <span class="tw-fields">
-        <input type="text" value="${escapeHtml(c.label)}" data-k="label">
-        <input type="text" value="${escapeHtml(c.key)}" data-k="key" style="max-width:60px" title="data key">
-        <label class="mini"><input type="checkbox" ${c.sortable?'checked':''} data-k="sortable"> sort</label>
-      </span>
-      <button class="tw-del">×</button>`;
-    el.querySelector('[data-k="label"]').addEventListener('input', e => { c.label=e.target.value; renderTable(); });
-    el.querySelector('[data-k="key"]').addEventListener('input', e => { c.key=e.target.value; renderTable(); renderDataEditor(); });
-    el.querySelector('[data-k="sortable"]').addEventListener('change', e => { c.sortable=e.target.checked; renderTable(); });
-    el.querySelector('.tw-del').addEventListener('click', () => { schema.columns.splice(i,1); renderColEditor(); renderTable(); renderDataEditor(); });
-    box.appendChild(el);
-  });
-  wireDrag(box, 'columns', () => { renderColEditor(); renderTable(); renderDataEditor(); });
-}
-
-function renderMenuEditor(){
-  const box = document.getElementById('menuEditor'); box.innerHTML='';
-  schema.menu.forEach((m,i) => {
-    const el = document.createElement('div'); el.className='tw-item'; el.draggable=true; el.dataset.list='menu'; el.dataset.idx=i;
-    el.innerHTML = `
-      <span class="tw-drag">⋮⋮</span>
-      <span class="tw-fields">
-        <input type="text" value="${escapeHtml(m.label)}" data-k="label">
-      </span>
-      <button class="tw-del">×</button>`;
-    el.querySelector('[data-k="label"]').addEventListener('input', e => { m.label=e.target.value; renderTable(); });
-    el.querySelector('.tw-del').addEventListener('click', () => { schema.menu.splice(i,1); renderMenuEditor(); renderTable(); });
-    box.appendChild(el);
-  });
-  wireDrag(box, 'menu', () => { renderMenuEditor(); renderTable(); });
-}
-
-function renderDataEditor(){
-  const box = document.getElementById('dataEditor'); box.innerHTML='';
-  const tbl = document.createElement('table'); tbl.className='data-grid';
-  const thr = document.createElement('tr');
-  thr.innerHTML = schema.columns.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join('') + '<th></th>';
-  tbl.appendChild(thr);
-  schema.rows.forEach((row,ri) => {
-    const tr = document.createElement('tr');
-    schema.columns.forEach(c => {
-      const td = document.createElement('td');
-      td.innerHTML = `<input value="${escapeHtml(row[c.key] ?? '')}" data-key="${escapeHtml(c.key)}">`;
-      td.querySelector('input').addEventListener('input', e => { row[c.key]=e.target.value; renderTable(); });
-      tr.appendChild(td);
-    });
-    const del = document.createElement('td');
-    del.innerHTML = `<button class="tw-del">×</button>`;
-    del.querySelector('button').addEventListener('click', () => { schema.rows.splice(ri,1); renderDataEditor(); renderTable(); });
-    tr.appendChild(del);
-    tbl.appendChild(tr);
-  });
-  box.appendChild(tbl);
-}
-
-/* ============ Drag-reorder ============ */
-function wireDrag(box, listName, onDrop){
-  let from = null;
-  box.querySelectorAll('.tw-item').forEach(el => {
-    el.addEventListener('dragstart', e => { from = +el.dataset.idx; el.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
-    el.addEventListener('dragend', () => { el.classList.remove('dragging'); box.querySelectorAll('.tw-item').forEach(x=>x.classList.remove('drop-target')); });
-    el.addEventListener('dragover', e => { e.preventDefault(); box.querySelectorAll('.tw-item').forEach(x=>x.classList.remove('drop-target')); el.classList.add('drop-target'); });
-    el.addEventListener('drop', e => {
-      e.preventDefault();
-      const to = +el.dataset.idx;
-      if (from===null || from===to) return;
-      const arr = schema[listName];
-      const [it] = arr.splice(from,1); arr.splice(to,0,it);
-      onDrop();
-    });
-  });
-}
-
-/* ============ Add-new buttons ============ */
-document.querySelectorAll('[data-add]').forEach(btn => btn.addEventListener('click', () => {
-  const kind = btn.dataset.add;
-  if (kind==='field'){ schema.fields.push({key:uid(),label:'New field',kind:'text'}); renderFieldEditor(); renderSearch(); }
-  if (kind==='col'){   schema.columns.push({key:uid(),label:'New column',sortable:false}); renderColEditor(); renderTable(); renderDataEditor(); }
-  if (kind==='menu'){  schema.menu.push({label:'New action'}); renderMenuEditor(); renderTable(); }
-  if (kind==='row'){   const r={}; schema.columns.forEach(c=>r[c.key]=''); schema.rows.push(r); renderDataEditor(); renderTable(); }
-}));
-
-/* ============ Feature toggles ============ */
-document.getElementById('t-selection') .addEventListener('change', e => { schema.selection =e.target.checked; renderTable(); });
-document.getElementById('t-overflow')  .addEventListener('change', e => { schema.overflow  =e.target.checked; renderTable(); });
-document.getElementById('t-export')    .addEventListener('change', e => { schema.export    =e.target.checked; renderFoot(); });
-document.getElementById('t-pagination').addEventListener('change', e => { schema.pagination=e.target.checked; renderFoot(); });
-document.getElementById('t-advanced')  .addEventListener('change', e => { schema.advanced  =e.target.checked; if(!schema.advanced) schema.advancedOpen=false; renderSearch(); });
-
-/* ============ Initial paint ============ */
-renderSearch(); renderTable(); renderFoot();
-renderFieldEditor(); renderColEditor(); renderMenuEditor(); renderDataEditor();
-</script>
-</body></html>
+</body>
+</html>

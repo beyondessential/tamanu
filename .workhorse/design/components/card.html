@@ -1,0 +1,167 @@
+<!-- component: Card -->
+<!-- Preview for the Tamanu design system — see ../design-system.md (#card) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card — Tamanu design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#326699;--primary-dark:#2f4358;--primary30:#C2D2E1;--primary10:#EBF0F5;
+  --blue:#1172D1;--bright-blue:#67A6E3;--very-light-blue:#F4F9FF;
+  --darkest:#444444;--dark:#666666;--mid:#888888;--soft:#b8b8b8;
+  --alert:#f76853;--light-alert:#fff0ee;--safe:#47ca80;--green:#19934E;
+  --orange:#f17f16;--dark-orange:#CB6100;--secondary:#ffcc24;
+  --white:#ffffff;--off-white:#fafafa;--bg:#f3f5f7;--bg2:#f9fafb;
+  --outline:#dedede;--soft-outline:#ebebeb;
+}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--darkest);background:var(--bg);line-height:1.4;}
+.page{max-width:980px;margin:0 auto;padding:40px 32px 80px;}
+.ds-title{font-size:24px;font-weight:500;line-height:32px;margin:0 0 4px;}
+.ds-sub{font-size:14px;color:var(--mid);margin:0 0 36px;}
+.ds-sub code{font-family:ui-monospace,monospace;font-size:12px;color:var(--dark);}
+.ds-section{margin-bottom:44px;}
+.ds-h{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mid);margin:0 0 18px;border-bottom:1px solid var(--soft-outline);padding-bottom:8px;}
+.ds-row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;}
+.ds-cell{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+.ds-caption{font-size:11px;line-height:15px;color:var(--mid);}
+
+/* InfoCard */
+.info-card{background:#fff;border:1px solid #dedede;border-radius:5px;padding:32px;max-width:720px;width:100%;}
+.info-card.elevated{box-shadow:2px 2px 25px rgba(0,0,0,0.1);}
+.info-card-header{border-bottom:1px solid #ebebeb;padding-bottom:10px;margin-bottom:15px;font-size:16px;color:#888;display:flex;justify-content:space-between;}
+.info-card-body{display:grid;grid-template-columns:repeat(2,1fr);grid-column-gap:30px;grid-row-gap:18px;}
+.info-item{line-height:21px;font-size:16px;color:#888;}
+.info-value{font-weight:500;color:#666;}
+.info-item.divider{border-left:1px solid #ebebeb;padding-left:30px;}
+/* Stacked (default) */
+.info-item .info-label{display:block;margin-bottom:8px;}
+/* Inline */
+.inline .info-label{display:inline;margin-right:6px;margin-bottom:0;}
+.inline .info-label::after{content:":";}
+
+/* Tile */
+.tile-row{display:flex;gap:8px;flex-wrap:wrap;}
+.tile{background:#fff;border:1px solid #ebebeb;border-radius:5px;padding:10px 10px 8px;width:150px;overflow:hidden;}
+.tile-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
+.tile-icon{width:20px;height:20px;border-radius:5px;background:#326699;flex:none;}
+.tile-kebab{font-size:16px;line-height:1;color:#888;}
+.tile-text{font-size:14px;color:#888;margin-bottom:4px;}
+.tile-main{font-size:14px;font-weight:500;color:#444;}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:500;background:rgba(71,202,128,0.15);color:#19934E;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 class="ds-title">Card</h1>
+  <p class="ds-sub">Grouping surfaces for read-only info — InfoCard panels and Tile stats. Grounded in <code>packages/web/app/components/InfoCard.jsx</code>, <code>Tile.jsx</code></p>
+
+  <section class="ds-section">
+    <h2 class="ds-h">InfoCard — stacked</h2>
+    <div class="ds-cell">
+      <div class="info-card">
+        <div class="info-card-header">
+          <span>Patient details</span>
+          <span>PAT0001</span>
+        </div>
+        <div class="info-card-body">
+          <div class="info-item">
+            <span class="info-label">First name</span>
+            <span class="info-value">Jane</span>
+          </div>
+          <div class="info-item divider">
+            <span class="info-label">Surname</span>
+            <span class="info-value">Smith</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Date of birth</span>
+            <span class="info-value">15/05/1990</span>
+          </div>
+          <div class="info-item divider">
+            <span class="info-label">Sex</span>
+            <span class="info-value">Female</span>
+          </div>
+        </div>
+      </div>
+      <p class="ds-caption">InfoCard — white panel, border #dedede, radius 5px, padding 32px. Labels #888, values #666 medium; vertical divider #ebebeb between columns.</p>
+    </div>
+  </section>
+
+  <section class="ds-section">
+    <h2 class="ds-h">InfoCard — inline values + elevated</h2>
+    <div class="ds-cell">
+      <div class="info-card elevated">
+        <div class="info-card-header">
+          <span>Patient details</span>
+          <span>PAT0001</span>
+        </div>
+        <div class="info-card-body inline">
+          <div class="info-item">
+            <span class="info-label">First name</span>
+            <span class="info-value">Jane</span>
+          </div>
+          <div class="info-item divider">
+            <span class="info-label">Surname</span>
+            <span class="info-value">Smith</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Date of birth</span>
+            <span class="info-value">15/05/1990</span>
+          </div>
+          <div class="info-item divider">
+            <span class="info-label">Sex</span>
+            <span class="info-value">Female</span>
+          </div>
+        </div>
+      </div>
+      <p class="ds-caption">inlineValues — compact label: value. elevated adds a soft shadow (2px 2px 25px rgba(0,0,0,0.1)).</p>
+    </div>
+  </section>
+
+  <section class="ds-section">
+    <h2 class="ds-h">Tile row</h2>
+    <div class="ds-cell">
+      <div class="tile-row">
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icon"></span>
+          </div>
+          <div class="tile-text">Category</div>
+          <div class="tile-main">Full blood count</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icon"></span>
+          </div>
+          <div class="tile-text">Priority</div>
+          <div class="tile-main">Urgent</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icon"></span>
+          </div>
+          <div class="tile-text">Status</div>
+          <div class="tile-main"><span class="pill">Published</span></div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icon"></span>
+            <span class="tile-kebab">&#8942;</span>
+          </div>
+          <div class="tile-text">Samples</div>
+          <div class="tile-main">3</div>
+        </div>
+      </div>
+      <p class="ds-caption">Tile — compact stat block, 150px wide, radius 5px. Icon (primary) top-left, caption #888, value medium. Lay out in a row with TileContainer. In-app the white sits on grey.</p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

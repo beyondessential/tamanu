@@ -1,0 +1,169 @@
+<!-- component: Button -->
+<!-- Preview for the Tamanu design system — see ../design-system.md (#button) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Button — Tamanu design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#326699;--primary-dark:#2f4358;--primary30:#C2D2E1;--primary10:#EBF0F5;
+  --blue:#1172D1;--bright-blue:#67A6E3;--very-light-blue:#F4F9FF;
+  --darkest:#444444;--dark:#666666;--mid:#888888;--soft:#b8b8b8;
+  --alert:#f76853;--light-alert:#fff0ee;--safe:#47ca80;--green:#19934E;
+  --orange:#f17f16;--dark-orange:#CB6100;--secondary:#ffcc24;
+  --white:#ffffff;--off-white:#fafafa;--bg:#f3f5f7;--bg2:#f9fafb;
+  --outline:#dedede;--soft-outline:#ebebeb;
+}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--darkest);background:var(--bg);line-height:1.4;}
+.page{max-width:980px;margin:0 auto;padding:40px 32px 80px;}
+.ds-title{font-size:24px;font-weight:500;line-height:32px;margin:0 0 4px;}
+.ds-sub{font-size:14px;color:var(--mid);margin:0 0 36px;}
+.ds-sub code{font-family:ui-monospace,monospace;font-size:12px;color:var(--dark);}
+.ds-section{margin-bottom:44px;}
+.ds-h{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mid);margin:0 0 18px;border-bottom:1px solid var(--soft-outline);padding-bottom:8px;}
+.ds-row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;}
+.ds-cell{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+.ds-caption{font-size:11px;line-height:15px;color:var(--mid);}
+
+/* ---- Button base (shared by all variants) ---- */
+.btn{
+  font-family:'Roboto','Helvetica','Arial',sans-serif;
+  font-weight:500;font-size:14px;line-height:16px;text-transform:none;
+  cursor:pointer;
+  padding:11px 18px 12px;min-width:100px;
+  border-radius:3px;box-shadow:none;
+  border:1px solid transparent;text-align:center;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+}
+
+/* ---- Variants ---- */
+.btn--primary{background:var(--primary);color:var(--white);border-color:var(--primary);}
+.btn--secondary{background:transparent;color:var(--primary);border:1px solid var(--primary);}
+.btn--tertiary{background:none;border:none;color:#5b84ad;padding:0;min-width:0;}
+.btn--grey-outlined{background:transparent;color:var(--dark);border:1px solid var(--outline);}
+.btn--red-outlined{background:transparent;color:var(--alert);border:1px solid var(--alert);}
+.btn--delete{background:#d32f2f;color:var(--white);border-color:#d32f2f;}
+.btn--large{background:var(--primary);color:var(--white);border-color:var(--primary);font-size:16px;padding:14px 22px;}
+
+/* ---- States ---- */
+.btn--disabled-primary{background:var(--primary30);color:var(--white);cursor:not-allowed;border-color:var(--primary30);}
+.btn--disabled-outlined{background:transparent;color:var(--soft);border:1px solid var(--soft);cursor:not-allowed;}
+.btn--small{background:var(--primary);color:var(--white);border-color:var(--primary);padding:7px 14px;}
+.btn--locked{background:transparent;color:var(--soft);border:1px solid var(--soft);cursor:not-allowed;}
+.btn--locked svg{fill:var(--soft);}
+
+.spinner{
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.4);
+  border-top:2px solid var(--white);
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ---- Form footer card ---- */
+.form-card{max-width:600px;background:var(--white);border:1px solid var(--outline);border-radius:5px;padding:20px;}
+.form-footer{display:flex;justify-content:flex-end;gap:16px;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 class="ds-title">Button</h1>
+  <p class="ds-sub">The action control — primary / secondary / tertiary weight ladder. Grounded in <code>packages/ui-components/src/components/Button/Button.jsx</code></p>
+
+  <!-- 1. Weight ladder -->
+  <section class="ds-section">
+    <h2 class="ds-h">Weight ladder</h2>
+    <div class="ds-row">
+      <div class="ds-cell">
+        <button class="btn btn--primary">Save</button>
+        <span class="ds-caption">Primary · <code>Button</code></span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--secondary">Cancel</button>
+        <span class="ds-caption">Secondary · <code>OutlinedButton</code></span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--tertiary">View details</button>
+        <span class="ds-caption">Tertiary · <code>TextButton</code> (hover #23476b)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Variants -->
+  <section class="ds-section">
+    <h2 class="ds-h">Variants</h2>
+    <div class="ds-row">
+      <div class="ds-cell">
+        <button class="btn btn--grey-outlined">Back</button>
+        <span class="ds-caption"><code>GreyOutlinedButton</code></span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--red-outlined">Remove</button>
+        <span class="ds-caption"><code>RedOutlinedButton</code></span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--delete">Delete</button>
+        <span class="ds-caption"><code>DeleteButton</code></span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--large">Admit patient</button>
+        <span class="ds-caption"><code>LargeButton</code></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. States -->
+  <section class="ds-section">
+    <h2 class="ds-h">States</h2>
+    <div class="ds-row">
+      <div class="ds-cell">
+        <button class="btn btn--disabled-primary" disabled>Save</button>
+        <span class="ds-caption">Disabled · primary</span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--disabled-outlined" disabled>Cancel</button>
+        <span class="ds-caption">Disabled · outlined</span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--primary" aria-label="Loading" aria-busy="true"><span class="spinner"></span></button>
+        <span class="ds-caption">Loading · primary</span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--small">Add</button>
+        <span class="ds-caption">Small size</span>
+      </div>
+      <div class="ds-cell">
+        <button class="btn btn--locked" disabled>
+          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3H9z"/></svg>
+          Edit
+        </button>
+        <span class="ds-caption">Permission-locked</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Form footer -->
+  <section class="ds-section">
+    <h2 class="ds-h">Form footer (FormSubmitCancelRow)</h2>
+    <div class="ds-row">
+      <div class="ds-cell" style="width:100%;">
+        <div class="form-card">
+          <div class="form-footer">
+            <button class="btn btn--secondary">Cancel</button>
+            <button class="btn btn--primary">Save</button>
+          </div>
+        </div>
+        <span class="ds-caption">The standard form footer — Cancel (outlined) left of Save (primary), right-aligned.</span>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
