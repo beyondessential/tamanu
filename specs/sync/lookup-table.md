@@ -41,6 +41,13 @@ The sync lookup table (`sync_lookup`) is a central-server-only denormalised snap
 - [ ] A source record that is soft-deleted is rebuilt normally, with its lookup row marked as deleted.
 - [ ] If the self-heal pass finds a flagged row whose source record no longer exists, it deletes the lookup row. This is where a hard-deleted record's lookup row is removed, and it also covers any row flagged for another reason (for example, a migration) whose source was separately removed.
 
+## Refreshing on demand
+
+- [ ] Central's api can run a lookup table build (both passes) on demand, for central's own supervisor only, and answers once the build has committed and its rows have settled ticks.
+- [ ] The answer carries the highest real-change sync tick as it stands after the build (see `sync/changes-pending-check.md#highest-real-change-tick`).
+- [ ] An on-demand build and a scheduled build never run at the same time. One that is asked for while another runs waits for it, then runs.
+- [ ] An on-demand build that aborts, such as on a concurrent hard delete, answers with an error.
+
 ## Blocking upgrades until the lookup table is consistent
 
 - [ ] The central-server migration process runs the lookup table rebuild process — both passes — as its final step.

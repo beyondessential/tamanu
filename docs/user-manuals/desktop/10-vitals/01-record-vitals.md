@@ -1,10 +1,14 @@
 Record a patient's observations against the encounter they are admitted under. Start from
 the patient's encounter.
 
-<p align="center">
-  <img src="images/record-vitals-vitals-tab.png" alt="The encounter's Vitals tab, with the Record vitals button outlined in red" width="479"><br>
-  <sub>Select <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</sub>
-</p>
+<figure>
+  <img
+    src="images/record-vitals-vitals-tab.png"
+    alt="The encounter's Vitals tab, with the Record vitals button outlined in red"
+    width="479"
+  />
+  <figcaption>Select <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</figcaption>
+</figure>
 
 # Steps
 
@@ -17,10 +21,14 @@ the patient's encounter.
 
    The **Record vitals** window opens.
 
-   <p align="center">
-     <img src="images/record-vitals-empty-form.png" alt="The empty Record vitals window, with the date and time filled in" width="372"><br>
-     <sub>The <b>Record vitals</b> window opens with the date and time filled in.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/record-vitals-empty-form.png"
+       alt="The empty Record vitals window, with the date and time filled in"
+       width="372"
+     />
+     <figcaption>The <b>Record vitals</b> window opens with the date and time filled in.</figcaption>
+   </figure>
 
 3. Check the date and time at the top of the form.
 
@@ -41,7 +49,11 @@ the patient's encounter.
    A reading outside the normal range for the patient's age is highlighted. Rest your
    pointer on it to see the normal range.
 
-   <p align="center">
-     <img src="images/record-vitals-new-reading.png" alt="The vitals table with the new reading as its first column" width="478"><br>
-     <sub>Your new reading appears as the first column of the table.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/record-vitals-new-reading.png"
+       alt="The vitals table with the new reading as its first column"
+       width="478"
+     />
+     <figcaption>Your new reading appears as the first column of the table.</figcaption>
+   </figure>

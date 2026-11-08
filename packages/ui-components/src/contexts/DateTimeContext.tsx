@@ -74,7 +74,7 @@ const DateTimeProviderInner = ({
   locale,
 }: {
   children: React.ReactNode;
-  primaryTimeZone: string;
+  primaryTimeZone?: string | null;
   facilityTimeZone?: string | null;
   locale?: string | null;
 }) => {
@@ -85,20 +85,27 @@ const DateTimeProviderInner = ({
   );
 
   const value = useMemo(
-    (): DateTimeContextValue => ({
-      primaryTimeZone,
-      facilityTimeZone,
-      locale: locale ?? runtimeLocale,
-      ...(mapValues(dateTimeFormatters, bindTimeZones) as WrappedFormatters),
-      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? primaryTimeZone),
-      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
-      getFacilityNowDate: () => getFacilityNowDate(primaryTimeZone, facilityTimeZone),
-      getDayBoundaries: date => getDayBoundaries(date, primaryTimeZone, facilityTimeZone),
-      toStoredDateTime: value => toStoredDateTime(value, primaryTimeZone, facilityTimeZone),
-      toFacilityDateTime: value => toFacilityDateTime(value, primaryTimeZone, facilityTimeZone),
-      storedDateTimeToEpochMilliseconds: storedValue =>
-        storedDateTimeToEpochMilliseconds(storedValue, primaryTimeZone),
-    }),
+    // Null before login, rather than skipping the provider, so signing in or out keeps the
+    // tree beneath it mounted.
+    (): DateTimeContextValue | null =>
+      primaryTimeZone
+        ? {
+            primaryTimeZone,
+            facilityTimeZone,
+            locale: locale ?? runtimeLocale,
+            ...(mapValues(dateTimeFormatters, bindTimeZones) as WrappedFormatters),
+            getCurrentDate: () =>
+              getCurrentDateStringInTimezone(facilityTimeZone ?? primaryTimeZone),
+            getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
+            getFacilityNowDate: () => getFacilityNowDate(primaryTimeZone, facilityTimeZone),
+            getDayBoundaries: date => getDayBoundaries(date, primaryTimeZone, facilityTimeZone),
+            toStoredDateTime: value => toStoredDateTime(value, primaryTimeZone, facilityTimeZone),
+            toFacilityDateTime: value =>
+              toFacilityDateTime(value, primaryTimeZone, facilityTimeZone),
+            storedDateTimeToEpochMilliseconds: storedValue =>
+              storedDateTimeToEpochMilliseconds(storedValue, primaryTimeZone),
+          }
+        : null,
     [primaryTimeZone, facilityTimeZone, locale, bindTimeZones],
   );
 
@@ -116,13 +123,6 @@ export const DateTimeProvider = ({
   const usePropsMode = primaryTimeZoneProp !== undefined;
 
   const primaryTimeZone = usePropsMode ? primaryTimeZoneProp : authPrimaryTimeZone;
-
-  // Pre-login: primaryTimeZone not yet available — render children without
-  // the DateTime context. Post-login screens that call useDateTime() are
-  // behind auth gates and will always have the context available.
-  if (!primaryTimeZone) {
-    return <>{children}</>;
-  }
 
   const facilityTimeZone = usePropsMode
     ? facilityTimeZoneProp

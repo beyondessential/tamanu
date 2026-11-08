@@ -12,10 +12,14 @@ You need access to the email inbox for your Tamanu account, because Tamanu sends
    The **Forgot password** screen opens. If you ticked **Remember me** when you last logged in, your
    email address is already filled in.
 
-   <p align="center">
-     <img src="images/reset-password-forgot-password.png" alt="The Forgot password screen, with the Send reset code button outlined in red" width="289"><br>
-     <sub>Enter your email address, then select <b>Send reset code</b>.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/reset-password-forgot-password.png"
+       alt="The Forgot password screen, with the Send reset code button outlined in red"
+       width="289"
+     />
+     <figcaption>Enter your email address, then select <b>Send reset code</b>.</figcaption>
+   </figure>
 
 2. Enter your email address in **Email**, then select **Send reset code**.
 
@@ -33,15 +37,23 @@ You need access to the email inbox for your Tamanu account, because Tamanu sends
 
 5. Select **Reset password**.
 
-   <p align="center">
-     <img src="images/reset-password-filled-form.png" alt="The Reset password screen with a new password entered in both password fields, with the Reset password button outlined in red" width="289"><br>
-     <sub>Enter the reset code and your new password, then select <b>Reset password</b>.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/reset-password-filled-form.png"
+       alt="The Reset password screen with a new password entered in both password fields, with the Reset password button outlined in red"
+       width="289"
+     />
+     <figcaption>Enter the reset code and your new password, then select <b>Reset password</b>.</figcaption>
+   </figure>
 
    **Password successfully reset** appears. Select **Back to login**, then log in with your new
    password, as described in [Log in and out](01-log-in-and-out.md).
 
-   <p align="center">
-     <img src="images/reset-password-success.png" alt="The Password successfully reset screen, with the Back to login button outlined in red" width="289"><br>
-     <sub>Select <b>Back to login</b> to log in with your new password.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/reset-password-success.png"
+       alt="The Password successfully reset screen, with the Back to login button outlined in red"
+       width="289"
+     />
+     <figcaption>Select <b>Back to login</b> to log in with your new password.</figcaption>
+   </figure>

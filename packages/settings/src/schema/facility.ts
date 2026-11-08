@@ -254,7 +254,6 @@ export const facilitySettings = {
             ...batchingProperties(1000, 100),
           },
         ),
-        sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
         timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
         mSupplyMedIntegrationProcessor: scheduledTaskSchema(
           { schedule: '0 2 * * *', enabled: false },

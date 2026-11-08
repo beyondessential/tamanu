@@ -9,10 +9,15 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
+import { useBackend } from '~/ui/hooks';
 import { useSocket } from '~/ui/hooks/useSocket';
+import { wakeCentral } from '~/ui/helpers/wakeCentral';
 import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
+
+// Central may still be starting up when the request reaches it
+const BOT_INFO_TIMEOUT_MS = 30_000;
 
 interface IReminderContactQR extends BaseAppProps {
   route: {
@@ -25,22 +30,36 @@ interface IReminderContactQR extends BaseAppProps {
 const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   const { getTranslation } = useTranslation();
   const [embedUrl, setEmbedUrl] = useState('');
+  const [hasTimedOut, setHasTimedOut] = useState(false);
   const { socket } = useSocket();
+  const { centralServer } = useBackend();
   const contactId = route.params.contactId;
 
   const patientName = joinNames(selectedPatient);
 
   useEffect(() => {
     if (!socket) return;
+    let isCancelled = false;
+    let timeout: ReturnType<typeof setTimeout>;
     const handleBotInfo = botInfo => {
       if (botInfo?.username && contactId) {
+        clearTimeout(timeout);
         setEmbedUrl(`https://t.me/${botInfo.username}?start=${contactId}`);
       }
     };
-    socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
     socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
-    return () => void socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
-  }, [contactId, socket]);
+    wakeCentral(centralServer).then(() => {
+      if (isCancelled) return;
+      socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
+      // The wait is for central's reply, so it starts once the request has gone out
+      timeout = setTimeout(() => setHasTimedOut(true), BOT_INFO_TIMEOUT_MS);
+    });
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeout);
+      socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
+    };
+  }, [contactId, socket, centralServer]);
 
   const onNavigateBack = () => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
@@ -103,6 +122,17 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
       </StyledText>
       <StyledView alignSelf="center">
         {embedUrl && <QRCode value={embedUrl} size={250} color="black" backgroundColor="white" />}
+        {!embedUrl && hasTimedOut && (
+          <StyledText
+            fontSize={screenPercentageToDP(2, Orientation.Height)}
+            color={theme.colors.TEXT_DARK}
+          >
+            <TranslatedText
+              stringId="patient.details.reminderContactQr.timedOut"
+              fallback="The QR code could not be loaded. Go back and try again."
+            />
+          </StyledText>
+        )}
       </StyledView>
     </FullView>
   );

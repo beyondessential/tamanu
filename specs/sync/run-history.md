@@ -22,6 +22,7 @@ An attempt is recorded before it contacts the central server, and updated with i
 
 - [ ] An attempt that completes is recorded as succeeded, with its completion time.
 - [ ] An attempt that the central server queues for a later turn is recorded as queued, with its completion time and no session.
+- [ ] An attempt whose changes-pending check is answered with nothing to pull (see `sync/changes-pending-check.md`) is recorded as up to date, with its completion time and no session.
 - [ ] An attempt that fails is recorded as failed, with its completion time and error message. The failure is still reported to whatever triggered the sync.
 - [ ] If the outcome itself cannot be recorded, the attempt still succeeds or fails as it would have, and its run record stays marked as running.
 

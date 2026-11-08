@@ -17,10 +17,14 @@ from the **Dashboard**, or a patient list under **Patients** in the sidebar.
 
    The patient's record opens.
 
-   <p align="center">
-     <img src="images/move-around-patient-record-recently-viewed.png" alt="Recently viewed on the Dashboard, showing one patient, with the patient outlined in red" width="331"><br>
-     <sub>Select a patient in <b>Recently viewed</b> to open their record.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/move-around-patient-record-recently-viewed.png"
+       alt="Recently viewed on the Dashboard, showing one patient, with the patient outlined in red"
+       width="331"
+     />
+     <figcaption>Select a patient in <b>Recently viewed</b> to open their record.</figcaption>
+   </figure>
 
 # Move between the levels of a record
 
@@ -35,7 +39,11 @@ record you are in, such as an encounter. The last item is the page you are on.
    leave it shows **Cannot navigate away from patient with unsaved note**. Save or close the note
    first.
 
-   <p align="center">
-     <img src="images/move-around-patient-record-breadcrumbs.png" alt="The bar at the top of an encounter, showing Back then All Patients, Roy Antonini and Clinic, with the patient's name outlined in red" width="399"><br>
-     <sub>Select a level in the bar, or select <b>Back</b>.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/move-around-patient-record-breadcrumbs.png"
+       alt="The bar at the top of an encounter, showing Back then All Patients, Roy Antonini and Clinic, with the patient's name outlined in red"
+       width="399"
+     />
+     <figcaption>Select a level in the bar, or select <b>Back</b>.</figcaption>
+   </figure>

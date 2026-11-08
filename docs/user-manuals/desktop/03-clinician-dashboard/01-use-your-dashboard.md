@@ -3,10 +3,14 @@ what you need for your shift: the patients you have looked at recently, your upc
 appointments and bookings, and your notifications. To return to it, select **Dashboard** in the
 sidebar.
 
-<p align="center">
-  <img src="images/use-your-dashboard-overview.png" alt="The dashboard showing Recently viewed, Upcoming tasks, Today's appointments and Today's bookings, with Dashboard in the sidebar outlined in red" width="600"><br>
-  <sub>Select <b>Dashboard</b> in the sidebar to open your dashboard.</sub>
-</p>
+<figure>
+  <img
+    src="images/use-your-dashboard-overview.png"
+    alt="The dashboard showing Recently viewed, Upcoming tasks, Today's appointments and Today's bookings, with Dashboard in the sidebar outlined in red"
+    width="600"
+  />
+  <figcaption>Select <b>Dashboard</b> in the sidebar to open your dashboard.</figcaption>
+</figure>
 
 # Before you start
 
@@ -31,19 +35,27 @@ administrator if you believe you should see a section that is missing.
    Each card shows the patient's name, ID, sex and date of birth. If there are more patients than fit,
    select the arrows at either end of the row to see the rest.
 
-   <p align="center">
-     <img src="images/use-your-dashboard-highlight-recently-viewed.png" alt="The dashboard with the Recently viewed row outlined in red" width="492"><br>
-     <sub><b>Recently viewed</b> runs across the top of the dashboard.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-your-dashboard-highlight-recently-viewed.png"
+       alt="The dashboard with the Recently viewed row outlined in red"
+       width="492"
+     />
+     <figcaption><b>Recently viewed</b> runs across the top of the dashboard.</figcaption>
+   </figure>
 
 2. Select the patient's card.
 
    The patient's record opens.
 
-   <p align="center">
-     <img src="images/use-your-dashboard-recently-viewed.png" alt="A patient's card in Recently viewed, outlined in red" width="244"><br>
-     <sub>Select a patient's card to open their record.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-your-dashboard-recently-viewed.png"
+       alt="A patient's card in Recently viewed, outlined in red"
+       width="244"
+     />
+     <figcaption>Select a patient's card to open their record.</figcaption>
+   </figure>
 
 # Check today's appointments
 
@@ -56,17 +68,25 @@ administrator if you believe you should see a section that is missing.
    If you have no appointments today, the pane says so. Select **Outpatient appointments** to see
    other appointments.
 
-   <p align="center">
-     <img src="images/use-your-dashboard-highlight-todays-appointments.png" alt="The dashboard with the Today's appointments pane outlined in red" width="492"><br>
-     <sub><b>Today’s appointments</b> sits at the top right of the dashboard.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-your-dashboard-highlight-todays-appointments.png"
+       alt="The dashboard with the Today's appointments pane outlined in red"
+       width="492"
+     />
+     <figcaption><b>Today’s appointments</b> sits at the top right of the dashboard.</figcaption>
+   </figure>
 
 2. Select **View all…** to open the outpatient appointments calendar, grouped by clinician.
 
-   <p align="center">
-     <img src="images/use-your-dashboard-todays-appointments.png" alt="The Today's appointments pane listing four appointments, one seen, with View all… outlined in red" width="309"><br>
-     <sub>Select <b>View all…</b> to open the outpatient appointments calendar.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-your-dashboard-todays-appointments.png"
+       alt="The Today's appointments pane listing four appointments, one seen, with View all… outlined in red"
+       width="309"
+     />
+     <figcaption>Select <b>View all…</b> to open the outpatient appointments calendar.</figcaption>
+   </figure>
 
 # Check today's bookings
 
@@ -77,17 +97,25 @@ administrator if you believe you should see a section that is missing.
 
    If you have no bookings today, the pane says so. Select **Location bookings** to see all bookings.
 
-   <p align="center">
-     <img src="images/use-your-dashboard-highlight-todays-bookings.png" alt="The dashboard with the Today's bookings pane outlined in red" width="492"><br>
-     <sub><b>Today's bookings</b> sits below <b>Today’s appointments</b>.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-your-dashboard-highlight-todays-bookings.png"
+       alt="The dashboard with the Today's bookings pane outlined in red"
+       width="492"
+     />
+     <figcaption><b>Today's bookings</b> sits below <b>Today’s appointments</b>.</figcaption>
+   </figure>
 
 2. Select **View all…** to open the location bookings calendar, showing only your bookings.
 
-   <p align="center">
-     <img src="images/use-your-dashboard-todays-bookings.png" alt="The Today's bookings pane listing three bookings, with View all… outlined in red" width="309"><br>
-     <sub>Select <b>View all…</b> to open the location bookings calendar.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-your-dashboard-todays-bookings.png"
+       alt="The Today's bookings pane listing three bookings, with View all… outlined in red"
+       width="309"
+     />
+     <figcaption>Select <b>View all…</b> to open the location bookings calendar.</figcaption>
+   </figure>
 
 # Check your notifications
 
@@ -103,20 +131,28 @@ Tamanu notifies you when:
 
    A red dot on the bell means you have unread notifications.
 
-   <p align="center">
-     <img src="images/use-your-dashboard-highlight-notifications.png" alt="The dashboard with the notification bell outlined in red, showing a red dot" width="492"><br>
-     <sub>Select the bell at the top right of the dashboard.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-your-dashboard-highlight-notifications.png"
+       alt="The dashboard with the notification bell outlined in red, showing a red dot"
+       width="492"
+     />
+     <figcaption>Select the bell at the top right of the dashboard.</figcaption>
+   </figure>
 
    The **Notifications** panel opens on the right. Unread notifications are listed first, under
    **Unread**. Below them, **Recent (last 48 hours)** lists the notifications you have read that
    arrived in the last 48 hours. Your site can set a different period, and the heading shows the one
    that applies.
 
-   <p align="center">
-     <img src="images/use-your-dashboard-notifications.png" alt="The Notifications panel with four unread notifications and one recent one, with Mark all as read outlined in red" width="300"><br>
-     <sub>The <b>Notifications</b> panel lists <b>Unread</b> notifications above <b>Recent (last 48 hours)</b>.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-your-dashboard-notifications.png"
+       alt="The Notifications panel with four unread notifications and one recent one, with Mark all as read outlined in red"
+       width="300"
+     />
+     <figcaption>The <b>Notifications</b> panel lists <b>Unread</b> notifications above <b>Recent (last 48 hours)</b>.</figcaption>
+   </figure>
 
 2. Select a notification to open it.
 
