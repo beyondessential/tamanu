@@ -9,6 +9,10 @@ export const USER_PREFERENCES_KEYS = {
   OUTPATIENT_APPOINTMENT_FILTERS: 'outpatientAppointmentFilters',
   OUTPATIENT_APPOINTMENT_GROUP_BY: 'outpatientAppointmentGroupBy',
   LOCATION_ASSIGNMENT_SELECTED_FACILITY: 'locationAssignmentSelectedFacility',
+  PATIENT_SEARCH_PARAMETERS: 'patientSearchParameters',
+  LAB_REQUEST_SEARCH_PARAMETERS: 'labRequestSearchParameters',
+  IMAGING_REQUEST_SEARCH_PARAMETERS: 'imagingRequestSearchParameters',
+  MEDICATION_SEARCH_PARAMETERS: 'medicationSearchParameters',
 };
 
 // spec: TPAGE#remembered-page-size

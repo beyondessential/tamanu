@@ -31,11 +31,6 @@ e2e_test_setup_setup_central() {
             "username": "tamanu",
             "password": "tamanu"
         },
-        "schedules": {
-            "sendStatusToMetaServer": {
-                "enabled": false
-            }
-        },
         "localisation": {
             "data": {
                 "country": {
@@ -203,11 +198,6 @@ e2e_test_setup_setup_facility() {
 	        "name": "facility",
 	        "username": "tamanu",
 	        "password": "tamanu"
-        },
-        schedules: {
-            sendStatusToMetaServer: {
-                enabled: false,
-            },
         },
     }
 EOF
