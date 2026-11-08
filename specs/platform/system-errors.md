@@ -22,6 +22,7 @@ Applies to API errors on the clinical web client that give the user nothing to a
 - The System errors view is titled "System errors" and is listed under the Facility admin section of the sidebar for any authenticated user, regardless of role or permissions.
 - The view's table has two sortable columns: date & time, and error message.
 - Rows default to sorting by date & time, most recent first.
+- The table offers the [large page sizes](table-pagination.md#large-page-sizes) and [remembers each user's choice of size](table-pagination.md#remembered-page-size).
 - When there are no system errors to show, the table displays "No system errors to display" instead of rows.
 - The list of system errors is scoped to the current login session: it starts empty whenever a session begins (a fresh login or an existing session being resumed, such as on a page reload) and is cleared on logout, regardless of how the previous session ended.
 

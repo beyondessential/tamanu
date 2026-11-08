@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { ENCOUNTER_TYPE_PATIENT_STATUSES } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_PATIENT_STATUSES, MAX_ROWS_PER_PAGE } from '@tamanu/constants';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   getWhereClausesAndReplacementsFromFilters,
@@ -13,8 +13,6 @@ import {
 export const recentlyDischargedPatients = express.Router();
 
 const DEFAULT_ROWS_PER_PAGE = 10;
-// The largest page size the web table offers
-const MAX_ROWS_PER_PAGE = 50;
 
 const SORT_KEYS = {
   firstName: 'UPPER(patients.first_name)',

@@ -2,7 +2,7 @@ import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { SYSTEM_DATA_TYPES } from '@tamanu/constants';
+import { SYSTEM_DATA_TYPES, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import {
   Button,
   SelectInput,
@@ -223,7 +223,7 @@ export const ManageReferenceDataTab = () => {
               endpoint={ENDPOINT}
               columns={tableColumns}
               fetchOptions={fetchOptions}
-              defaultRowsPerPage={10}
+              pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.REFERENCE_DATA}
               initialSort={{ orderBy: 'createdAt', order: 'asc' }}
               fixedHeader
               refreshCount={refreshCount}
