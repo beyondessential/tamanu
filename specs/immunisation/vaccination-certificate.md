@@ -2,11 +2,11 @@
 id: VACC_CERT
 ---
 
-# Vaccination Certificate
+# Vaccination certificate
 
 Applies to the patient details shown on a vaccination certificate, and the setting controlling whether the birth certificate number is among them.
 
-## Feature Flag: Display Birth Certificate Number
+## Feature flag: display birth certificate number
 
 - Global-level feature flag available under the 'Vaccinations' settings category
 - Flag titled 'Display birth certificate number'
@@ -14,7 +14,7 @@ Applies to the patient details shown on a vaccination certificate, and the setti
 - When disabled, the birth certificate number field is not shown on the vaccination certificate
 - When enabled, the birth certificate number field is shown on the vaccination certificate
 
-## Display Birth Certificate Number Enabled Behavior
+## Display birth certificate number enabled behaviour
 
 - Vaccination certificate displays the patient's birth certificate number when it has been recorded in patient details
 - Birth certificate number appears in the patient details section of the certificate
