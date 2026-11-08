@@ -19,14 +19,21 @@ export const useInvoiceInsurancePlansQuery = () => {
 /**
  * The plan the deployment has named as its sliding fee scale plan, which is what makes family size
  * and annual income required on a patient's billing details. Matched on the plan's code rather
- * than its name, which is translated and worded differently between deployments. Null while the
- * plans are loading, and when no plan carries the configured code.
+ * than its name, which is translated and worded differently between deployments. The id is null
+ * while the plans are loading and when no plan carries the configured code, so `isLoading` is what
+ * tells those two apart.
  */
 export const useSlidingFeeScalePlanId = () => {
   const { getSetting } = useSettings();
-  const { data: plans } = useInvoiceInsurancePlansQuery();
+  const { data: plans, isLoading } = useInvoiceInsurancePlansQuery();
   const slidingFeeScalePlanCode = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE_PLAN_CODE);
 
-  if (!slidingFeeScalePlanCode) return null;
-  return plans?.find(({ code }) => code === slidingFeeScalePlanCode)?.id ?? null;
+  // A caller that validates against the id has to wait for the plans, since an unresolved id is
+  // indistinguishable from a deployment with no sliding fee scale plan, and would quietly let a
+  // patient save without the answers that plan requires.
+  if (!slidingFeeScalePlanCode) return { slidingFeeScalePlanId: null, isLoading: false };
+  return {
+    slidingFeeScalePlanId: plans?.find(({ code }) => code === slidingFeeScalePlanCode)?.id ?? null,
+    isLoading,
+  };
 };

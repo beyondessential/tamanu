@@ -44,8 +44,7 @@ export const getPatientDetailsValidation = (
   patientRegistryType,
   getSetting,
   getTranslation,
-  insurancePlansInUse = [],
-  slidingFeeScalePlanId = null,
+  { insurancePlansInUse = [], slidingFeeScalePlanId = null } = {},
 ) => {
   // Family size and annual income only answer the sliding fee scale, so they are required exactly
   // when that plan is selected. The plan is matched by id, resolved from the code the deployment
@@ -53,11 +52,15 @@ export const getPatientDetailsValidation = (
   const isSlidingFeeScaleSelected = planIds =>
     Boolean(slidingFeeScalePlanId) && (planIds || []).includes(slidingFeeScalePlanId);
 
+  // A deployment that hides a field is not collecting it, so requiring it would make the patient
+  // unsavable with no field to answer. Visibility and the requirement have to agree.
+  const isShown = field => !getSetting(`fields.${field}.hidden`);
+
   const slidingFeeScaleField = (field, stringId, fallback, message, dependsOn, isRequired) => {
     const labelled = schema =>
       schema.translatedLabel(<TranslatedText stringId={stringId} fallback={fallback} />);
     return yup.string().when(dependsOn, {
-      is: isRequired,
+      is: (...args) => isShown(field) && isRequired(...args),
       then: schema => labelled(schema).required(message),
       otherwise: schema =>
         requiredWhenConfiguredMandatory(

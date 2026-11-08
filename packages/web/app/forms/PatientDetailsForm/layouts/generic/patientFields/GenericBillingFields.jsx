@@ -33,7 +33,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading }) => {
 
   // Choosing the sliding fee scale plan is what makes these two an answer the patient owes, so
   // they are marked required the moment it is selected rather than only on Save.
-  const slidingFeeScalePlanId = useSlidingFeeScalePlanId();
+  const { slidingFeeScalePlanId } = useSlidingFeeScalePlanId();
   const isSlidingFeeScaleSelected =
     Boolean(slidingFeeScalePlanId) && (invoiceInsurancePlanId || []).includes(slidingFeeScalePlanId);
 

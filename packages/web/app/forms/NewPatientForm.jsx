@@ -73,11 +73,14 @@ export const NewPatientForm = memo(
     const [patientRegistryType, setPatientRegistryType] = useState(
       PATIENT_REGISTRY_TYPES.NEW_PATIENT,
     );
-    const { data: fieldDefinitions, error, isLoading } = usePatientFieldDefinitionQuery();
+    const { data: fieldDefinitions, error, isLoading: isLoadingFieldDefinitions } =
+      usePatientFieldDefinitionQuery();
 
     const { getSetting } = useSettings();
     const { getTranslation } = useTranslation();
-    const slidingFeeScalePlanId = useSlidingFeeScalePlanId();
+    const { slidingFeeScalePlanId, isLoading: isLoadingInsurancePlans } =
+      useSlidingFeeScalePlanId();
+    const isLoading = isLoadingFieldDefinitions || isLoadingInsurancePlans;
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
     const isRequiredPatientData = fieldName =>
@@ -235,8 +238,7 @@ export const NewPatientForm = memo(
           patientRegistryType,
           getSetting,
           getTranslation,
-          [],
-          slidingFeeScalePlanId,
+          { slidingFeeScalePlanId },
         )}
         data-testid="form-60mo"
       />

@@ -13,18 +13,26 @@ const OTHER_PLAN_ID = 'plan-something-else';
 const FAMILY_SIZE_MESSAGE = 'Family size is required for sliding fee scale';
 const ANNUAL_INCOME_MESSAGE = 'Annual income is required for sliding fee scale';
 
-// The real defaults, so this also holds getPatientDetailsValidation to its own rule that every
-// configurable patient field has a validation entry.
-const getSetting = path => (path === 'fields' ? globalDefaults.fields : undefined);
 const getTranslation = (_stringId, fallback) => fallback;
 
-const buildSchema = (slidingFeeScalePlanId = SLIDING_FEE_SCALE_PLAN_ID) =>
+// The real defaults, so this also holds getPatientDetailsValidation to its own rule that every
+// configurable patient field has a validation entry. `hiddenFields` overrides the handful of
+// field settings a case cares about.
+const makeGetSetting = (hiddenFields = []) => path => {
+  if (path === 'fields') return globalDefaults.fields;
+  const hidden = hiddenFields.find(field => path === `fields.${field}.hidden`);
+  return hidden ? true : undefined;
+};
+
+const buildSchema = ({
+  slidingFeeScalePlanId = SLIDING_FEE_SCALE_PLAN_ID,
+  hiddenFields = [],
+} = {}) =>
   getPatientDetailsValidation(
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-    getSetting,
+    makeGetSetting(hiddenFields),
     getTranslation,
-    [],
-    slidingFeeScalePlanId,
+    { slidingFeeScalePlanId },
   );
 
 const REQUIRED_PATIENT = {
@@ -103,11 +111,30 @@ describe('getPatientDetailsValidation', () => {
       ).toThrow(FAMILY_SIZE_MESSAGE);
     });
 
+    // A deployment that hides these fields is not collecting them. Requiring them anyway would
+    // make the patient unsavable with no field on the form to answer.
+    it('does not require a hidden family size', () => {
+      expect(() =>
+        validate(buildSchema({ hiddenFields: ['familySize'] }), {
+          invoiceInsurancePlanId: [SLIDING_FEE_SCALE_PLAN_ID],
+        }),
+      ).not.toThrow();
+    });
+
+    it('does not require a hidden annual income', () => {
+      expect(() =>
+        validate(buildSchema({ hiddenFields: ['annualIncome'] }), {
+          invoiceInsurancePlanId: [SLIDING_FEE_SCALE_PLAN_ID],
+          familySize: '3',
+        }),
+      ).not.toThrow();
+    });
+
     // The plan is matched by the id resolved from the configured code. Until the plans load, or
     // where no plan carries that code, there is nothing to key the requirement on.
     it('does not fire when no sliding fee scale plan is configured', () => {
       expect(() =>
-        validate(buildSchema(null), {
+        validate(buildSchema({ slidingFeeScalePlanId: null }), {
           invoiceInsurancePlanId: [SLIDING_FEE_SCALE_PLAN_ID],
         }),
       ).not.toThrow();

@@ -89,6 +89,17 @@ export const InvoiceDiscountAssessmentForm = ({
     };
   }, [additionalData, slidingFeeScale]);
 
+  // Formik re-validates whenever the schema's identity changes, so building it inline would
+  // re-run validation on every render.
+  const validationSchema = useMemo(
+    () =>
+      getAssessmentValidationSchema(
+        slidingFeeScale,
+        getTranslation('validation.required.inline', '*Required'),
+      ),
+    [slidingFeeScale, getTranslation],
+  );
+
   const handleSubmit = async values => {
     await handleUpdateDiscount(
       getAssessmentDiscount(
@@ -156,10 +167,7 @@ export const InvoiceDiscountAssessmentForm = ({
             </>
           );
         }}
-        validationSchema={getAssessmentValidationSchema(
-          slidingFeeScale,
-          getTranslation('validation.required.inline', '*Required'),
-        )}
+        validationSchema={validationSchema}
         data-testid="form-6cak"
       />
     </>

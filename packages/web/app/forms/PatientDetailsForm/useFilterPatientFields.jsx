@@ -13,6 +13,12 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
     // out its heading rather than printing one over an empty grid.
     const checkHidden = (fieldName) => !getSetting(`fields.${fieldName}.hidden`);
     const checkMandatory = (fieldName) => {
+      // A field the group has made required for a reason of its own (the sliding fee scale pair,
+      // once that plan is selected) is shown wherever it is required — including the new patient
+      // form, which otherwise shows only the fields a deployment marks required when creating.
+      // Without this it could be required but absent, leaving nothing to answer.
+      if (fields[fieldName].required) return true;
+
       const requiredConfiguration = getSetting(`fields.${fieldName}.requiredPatientData`);
       return (
         !isBoolean(filterByMandatory) ||

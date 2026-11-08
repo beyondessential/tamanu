@@ -192,6 +192,8 @@ Patient marriage licence number.
 
 {% docs patient_additional_data__family_size %}
 Number of people in the patient's family, as answered for the sliding fee scale. One of the family sizes the deployment's sliding fee scale covers, counted from 1.
+
+Left unmasked as a demographic category, in the same way as blood type and educational attainment. The household's income band is masked; see [`annual_income`](#!/source/source.tamanu.tamanu.patient_additional_data).
 {% enddocs %}
 
 {% docs patient_additional_data__annual_income %}

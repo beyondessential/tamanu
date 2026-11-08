@@ -9,22 +9,31 @@ import { PatientDetailsHeading, SecondaryDetailsFormGrid } from './PatientDetail
  * Pass `heading` to render the group as a headed section of the details form. The heading and its
  * grid go with the fields, so a group a deployment has hidden entirely leaves no empty section
  * behind.
+ *
+ * `extraFields` are already-built field elements the group renders itself rather than configuring
+ * here — Location information's address hierarchy. They count towards whether the section has
+ * anything to show, so the empty-section rule lives in one place for every section.
  */
-export const ConfiguredMandatoryPatientFields = ({ heading, ...props }) => {
+export const ConfiguredMandatoryPatientFields = ({ heading, extraFields = null, ...props }) => {
   const { fieldsToShow } = useFilterPatientFields(props);
 
-  if (!fieldsToShow.length) return null;
+  if (!fieldsToShow.length && !extraFields) return null;
 
-  const fields = fieldsToShow.map(field => (
-    <NoteModalActionBlocker key={field.name}>
-      <LocalisedField
-        key={field.name}
-        enablePasting
-        {...field}
-        data-testid={`localisedfield-0jtf-${field.name}`}
-      />
-    </NoteModalActionBlocker>
-  ));
+  const fields = (
+    <>
+      {extraFields}
+      {fieldsToShow.map(field => (
+        <NoteModalActionBlocker key={field.name}>
+          <LocalisedField
+            key={field.name}
+            enablePasting
+            {...field}
+            data-testid={`localisedfield-0jtf-${field.name}`}
+          />
+        </NoteModalActionBlocker>
+      ))}
+    </>
+  );
 
   if (!heading) return fields;
 

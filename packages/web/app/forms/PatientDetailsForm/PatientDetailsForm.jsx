@@ -119,13 +119,14 @@ export const PatientDetailsForm = ({
   const { data: insurancePlansInUse, error: insurancePlansInUseError } =
     usePatientInsurancePlansInUseQuery({ patientId: patient.id });
 
-  const slidingFeeScalePlanId = useSlidingFeeScalePlanId();
+  const { slidingFeeScalePlanId, isLoading: isLoadingInsurancePlans } =
+    useSlidingFeeScalePlanId();
 
   const errors = [fieldDefError, fieldValError, insurancePlansInUseError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
-  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
+  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues || isLoadingInsurancePlans;
 
   if (isLoading) {
     return <LoadingIndicator data-testid="loadingindicator-6mh5" />;
@@ -178,13 +179,10 @@ export const PatientDetailsForm = ({
         ),
       }}
       onSubmit={handleSubmit}
-      validationSchema={getPatientDetailsValidation(
-        patientRegistryType,
-        getSetting,
-        getTranslation,
+      validationSchema={getPatientDetailsValidation(patientRegistryType, getSetting, getTranslation, {
         insurancePlansInUse,
         slidingFeeScalePlanId,
-      )}
+      })}
       data-testid="form-9v1j"
     />
   );

@@ -220,6 +220,9 @@ sources:
           - name: annual_income
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__annual_income') }}"
+            config:
+              meta:
+                masking: string
           - name: payor1_id
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__payor1_id') }}"
