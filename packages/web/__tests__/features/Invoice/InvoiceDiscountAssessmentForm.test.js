@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getAnnualIncomeOptions,
   getAssessmentDiscount,
+  getAssessmentInitialValues,
   getAssessmentValidationSchema,
 } from '../../../app/features/Invoice/InvoiceDiscountModal/InvoiceDiscountAssessmentForm';
 
@@ -83,5 +84,41 @@ describe('getAssessmentValidationSchema', () => {
 
   it('requires a family size', () => {
     expect(() => validate({ annualIncome: '> 17,000' })).toThrow();
+  });
+});
+
+describe('getAssessmentInitialValues', () => {
+  it('opens on the answers saved against the patient', () => {
+    expect(
+      getAssessmentInitialValues(SLIDING_FEE_SCALE, {
+        familySize: FAMILY_SIZE_OF_THREE,
+        annualIncome: '7,400 - 17,000',
+      }),
+    ).toEqual({ familySize: FAMILY_SIZE_OF_THREE, annualIncome: '7,400 - 17,000' });
+  });
+
+  it('asks both questions afresh when the patient has no saved family size', () => {
+    expect(getAssessmentInitialValues(SLIDING_FEE_SCALE, {})).toEqual({});
+    expect(getAssessmentInitialValues(SLIDING_FEE_SCALE, undefined)).toEqual({});
+  });
+
+  it('keeps the family size but drops a band the scale no longer lists', () => {
+    expect(
+      getAssessmentInitialValues(SLIDING_FEE_SCALE, {
+        familySize: FAMILY_SIZE_OF_THREE,
+        annualIncome: '1 - 2',
+      }),
+    ).toEqual({ familySize: FAMILY_SIZE_OF_THREE });
+  });
+
+  // A shrunk scale would otherwise show a family size that is not on offer, with no income bands
+  // to go with it and nothing valid to choose.
+  it('drops a saved family size the scale no longer covers', () => {
+    expect(
+      getAssessmentInitialValues(SLIDING_FEE_SCALE, {
+        familySize: '12',
+        annualIncome: '7,400 - 17,000',
+      }),
+    ).toEqual({});
   });
 });

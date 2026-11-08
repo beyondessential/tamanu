@@ -14,7 +14,14 @@ import { PatientDetailsHeading, SecondaryDetailsFormGrid } from './PatientDetail
  * here — Location information's address hierarchy. They count towards whether the section has
  * anything to show, so the empty-section rule lives in one place for every section.
  */
-export const ConfiguredMandatoryPatientFields = ({ heading, extraFields = null, ...props }) => {
+export const ConfiguredMandatoryPatientFields = ({
+  heading,
+  // The e2e page objects locate each section by these, so they stay with the section as it moves.
+  headingTestId,
+  gridTestId,
+  extraFields = null,
+  ...props
+}) => {
   const { fieldsToShow } = useFilterPatientFields(props);
 
   if (!fieldsToShow.length && !extraFields) return null;
@@ -39,8 +46,8 @@ export const ConfiguredMandatoryPatientFields = ({ heading, extraFields = null, 
 
   return (
     <>
-      <PatientDetailsHeading>{heading}</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>{fields}</SecondaryDetailsFormGrid>
+      <PatientDetailsHeading data-testid={headingTestId}>{heading}</PatientDetailsHeading>
+      <SecondaryDetailsFormGrid data-testid={gridTestId}>{fields}</SecondaryDetailsFormGrid>
     </>
   );
 };

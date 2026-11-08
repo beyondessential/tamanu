@@ -115,7 +115,7 @@ export const GenericPrimaryDetailsLayout = ({
                 data-testid="translatedtext-o7gm"
               />
             }
-            max={getCurrentDate()}  
+            max={getCurrentDate()}
             component={DateField}
             required
             data-testid="localisedfield-oafl"
@@ -221,6 +221,8 @@ export const GenericSecondaryDetailsLayout = ({
             data-testid="translatedtext-w4iq"
           />
         }
+        headingTestId="patientdetailsheading-u9ma"
+        gridTestId="secondarydetailsformgrid-zpjh"
         data-testid="genericbirthfields-3wv2"
       />
     )}
@@ -236,6 +238,8 @@ export const GenericSecondaryDetailsLayout = ({
           data-testid="translatedtext-nskp"
         />
       }
+      headingTestId="patientdetailsheading-hkyy"
+      gridTestId="secondarydetailsformgrid-8o1s"
       data-testid="genericidentificationfields-uh67"
     />
 
@@ -248,6 +252,8 @@ export const GenericSecondaryDetailsLayout = ({
           data-testid="translatedtext-tq75"
         />
       }
+      headingTestId="patientdetailsheading-pipb"
+      gridTestId="secondarydetailsformgrid-g8w7"
       data-testid="genericcontactfields-dfh4"
     />
 
@@ -262,6 +268,8 @@ export const GenericSecondaryDetailsLayout = ({
           data-testid="translatedtext-bc5w"
         />
       }
+      headingTestId="patientdetailsheading-vd0y"
+      gridTestId="secondarydetailsformgrid-qrkb"
       data-testid="genericpersonalfields-hmrm"
     />
 
@@ -274,6 +282,8 @@ export const GenericSecondaryDetailsLayout = ({
           data-testid="translatedtext-wy6z"
         />
       }
+      headingTestId="patientdetailsheading-ccov"
+      gridTestId="secondarydetailsformgrid-x46r"
       data-testid="genericlocationfields-z71v"
     />
 
@@ -285,6 +295,8 @@ export const GenericSecondaryDetailsLayout = ({
           fallback="Billing information"
         />
       }
+      headingTestId="patientdetailsheading-bill"
+      gridTestId="secondarydetailsformgrid-bill"
       data-testid="genericbillingfields-x11a"
     />
   </SecondaryDetailsGroup>

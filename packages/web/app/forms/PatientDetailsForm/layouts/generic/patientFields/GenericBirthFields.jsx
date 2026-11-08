@@ -24,7 +24,13 @@ const extractTime = value => value?.replace(/^\d{4}-\d{2}-\d{2}[T ]/, '') ?? '';
 
 const hasDatePrefix = value => /^\d{4}-\d{2}-\d{2}[T ]/.test(value ?? '');
 
-export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace, heading }) => {
+export const GenericBirthFields = ({
+  filterByMandatory,
+  registeredBirthPlace,
+  heading,
+  headingTestId,
+  gridTestId,
+}) => {
   const facilitySuggester = useSuggester('facility');
   const { values, setFieldValue } = useFormikContext();
   const { dateOfBirth, timeOfBirth } = values;
@@ -215,6 +221,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace, he
       fields={BIRTH_FIELDS}
       filterByMandatory={filterByMandatory}
       heading={heading}
+      headingTestId={headingTestId}
+      gridTestId={gridTestId}
       data-testid="configuredmandatorypatientfields-dsxk"
     />
   );

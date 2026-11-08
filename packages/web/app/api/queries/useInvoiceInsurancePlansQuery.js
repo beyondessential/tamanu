@@ -6,13 +6,16 @@ import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
 
 /** Every insurance plan available at the current facility, each with its code. */
-export const useInvoiceInsurancePlansQuery = () => {
+export const useInvoiceInsurancePlansQuery = ({ enabled = true } = {}) => {
   const api = useApi();
   const { facilityId } = useAuth();
-  return useQuery(['invoiceInsurancePlans', facilityId], () =>
-    api.get(route('suggestions/:endpoint/all', { endpoint: 'invoiceInsurancePlan' }), {
-      facilityId,
-    }),
+  return useQuery(
+    ['invoiceInsurancePlans', facilityId],
+    () =>
+      api.get(route('suggestions/:endpoint/all', { endpoint: 'invoiceInsurancePlan' }), {
+        facilityId,
+      }),
+    { enabled },
   );
 };
 
@@ -25,15 +28,25 @@ export const useInvoiceInsurancePlansQuery = () => {
  */
 export const useSlidingFeeScalePlanId = () => {
   const { getSetting } = useSettings();
-  const { data: plans, isLoading } = useInvoiceInsurancePlansQuery();
   const slidingFeeScalePlanCode = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE_PLAN_CODE);
+
+  // The id is only ever used to decide whether family size and annual income are required, so a
+  // deployment that hides both, or names no plan, has no reason to fetch the plans at all — the
+  // patient details form waits on this query before it renders.
+  const isNeeded =
+    Boolean(slidingFeeScalePlanCode) &&
+    (!getSetting('fields.familySize.hidden') || !getSetting('fields.annualIncome.hidden'));
+
+  const { data: plans, isLoading, error } = useInvoiceInsurancePlansQuery({ enabled: isNeeded });
 
   // A caller that validates against the id has to wait for the plans, since an unresolved id is
   // indistinguishable from a deployment with no sliding fee scale plan, and would quietly let a
-  // patient save without the answers that plan requires.
-  if (!slidingFeeScalePlanCode) return { slidingFeeScalePlanId: null, isLoading: false };
+  // patient save without the answers that plan requires. A failed fetch is surfaced as an error
+  // rather than silently switching the requirement off.
+  if (!isNeeded) return { slidingFeeScalePlanId: null, isLoading: false, error: null };
   return {
     slidingFeeScalePlanId: plans?.find(({ code }) => code === slidingFeeScalePlanCode)?.id ?? null,
     isLoading,
+    error,
   };
 };

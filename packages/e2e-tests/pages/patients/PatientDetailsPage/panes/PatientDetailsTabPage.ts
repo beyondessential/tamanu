@@ -54,6 +54,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
   readonly contactInformationHeading!: Locator;
   readonly personalInformationHeading!: Locator;
   readonly locationInformationHeading!: Locator;
+  readonly billingInformationHeading!: Locator;
 
   readonly sexMaleRadio!: Locator;
   readonly sexFemaleRadio!: Locator;
@@ -111,6 +112,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       contactInformationHeading: 'patientdetailsheading-pipb',
       personalInformationHeading: 'patientdetailsheading-vd0y',
       locationInformationHeading: 'patientdetailsheading-ccov',
+      billingInformationHeading: 'patientdetailsheading-bill',
       sexMaleRadio: 'radio-il3t-male',
       sexFemaleRadio: 'radio-il3t-female',
       sexOtherRadio: 'radio-il3t-other',
@@ -154,7 +156,10 @@ export class PatientDetailsTabPage extends BasePatientPane {
       (this as any)[key] = page.getByTestId(testId);
     }
     this.divisionInput = page.getByTestId('autocompleteinput-input').locator('input[name="divisionId"]');
-    this.patientTypeSelect=page.getByTestId('secondarydetailsformgrid-qrkb').getByTestId('selectinput-phtg-select');
+    this.patientTypeSelect = page
+      .getByTestId('secondarydetailsformgrid-bill')
+      .getByTestId('selectinput-phtg-select')
+      .first();
   }
 
   async updatePatientDetailsFields(patientDetails: Partial<PatientDetails>): Promise<{

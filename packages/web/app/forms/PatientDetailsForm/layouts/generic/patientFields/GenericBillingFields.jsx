@@ -20,7 +20,7 @@ import {
   withSavedAnnualIncome,
 } from '../../../../../utils/slidingFeeScale';
 
-export const GenericBillingFields = ({ filterByMandatory, heading }) => {
+export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId, gridTestId }) => {
   const { getSetting } = useSettings();
   const { values, setFieldValue } = useFormikContext();
   const payor1Suggester = usePatientPayorSuggester();
@@ -35,7 +35,8 @@ export const GenericBillingFields = ({ filterByMandatory, heading }) => {
   // they are marked required the moment it is selected rather than only on Save.
   const { slidingFeeScalePlanId } = useSlidingFeeScalePlanId();
   const isSlidingFeeScaleSelected =
-    Boolean(slidingFeeScalePlanId) && (invoiceInsurancePlanId || []).includes(slidingFeeScalePlanId);
+    Boolean(slidingFeeScalePlanId) &&
+    (invoiceInsurancePlanId || []).includes(slidingFeeScalePlanId);
 
   const familySizeOptions = useMemo(() => getFamilySizeOptions(slidingFeeScale), [slidingFeeScale]);
   const annualIncomeOptions = useMemo(
@@ -86,10 +87,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading }) => {
       // an answer to this question.
       onChange: () => setFieldValue('annualIncome', ''),
       label: (
-        <TranslatedText
-          stringId="general.localisedField.familySize.label"
-          fallback="Family size"
-        />
+        <TranslatedText stringId="general.localisedField.familySize.label" fallback="Family size" />
       ),
     },
     annualIncome: {
@@ -107,9 +105,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading }) => {
     payor1Id: {
       component: AutocompleteField,
       suggester: payor1Suggester,
-      label: (
-        <TranslatedText stringId="general.localisedField.payor1Id.label" fallback="Payor 1" />
-      ),
+      label: <TranslatedText stringId="general.localisedField.payor1Id.label" fallback="Payor 1" />,
     },
     payor1ReferenceNumber: {
       component: TextField,
@@ -123,9 +119,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading }) => {
     payor2Id: {
       component: AutocompleteField,
       suggester: payor2Suggester,
-      label: (
-        <TranslatedText stringId="general.localisedField.payor2Id.label" fallback="Payor 2" />
-      ),
+      label: <TranslatedText stringId="general.localisedField.payor2Id.label" fallback="Payor 2" />,
     },
     payor2ReferenceNumber: {
       component: TextField,
@@ -143,6 +137,8 @@ export const GenericBillingFields = ({ filterByMandatory, heading }) => {
       fields={BILLING_FIELDS}
       filterByMandatory={filterByMandatory}
       heading={heading}
+      headingTestId={headingTestId}
+      gridTestId={gridTestId}
       data-testid="configuredmandatorypatientfields-billing"
     />
   );

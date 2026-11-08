@@ -56,6 +56,32 @@ export const getAssessmentValidationSchema = (slidingFeeScale, requiredMessage) 
       ),
   });
 
+/**
+ * The assessment opens on what the patient's billing details already say, so the common case is
+ * confirming rather than re-answering.
+ *
+ * Both answers belong to the scale as it stood when they were saved. A deployment can edit the
+ * scale since, so an answer it no longer offers is dropped rather than shown as chosen: a family
+ * size the scale no longer covers would come with no income bands to pick from, and an income
+ * band it no longer lists is not something this assessment can price.
+ */
+export const getAssessmentInitialValues = (slidingFeeScale, additionalData) => {
+  const familySize = additionalData?.familySize ?? '';
+  if (!familySize) return {};
+
+  const annualIncomeOptions = getAnnualIncomeOptions(slidingFeeScale, familySize);
+  if (!annualIncomeOptions.length) return {};
+
+  const savedAnnualIncome = additionalData?.annualIncome;
+  const isSavedIncomeStillOffered = annualIncomeOptions.some(
+    option => option.value === savedAnnualIncome,
+  );
+  return {
+    familySize,
+    ...(isSavedIncomeStillOffered ? { annualIncome: savedAnnualIncome } : {}),
+  };
+};
+
 export const InvoiceDiscountAssessmentForm = ({
   patientId,
   onClose,
@@ -73,21 +99,10 @@ export const InvoiceDiscountAssessmentForm = ({
     [slidingFeeScale],
   );
 
-  // The assessment opens on what the patient's billing details already say, so the common case is
-  // confirming rather than re-answering. A saved income band the scale no longer covers for that
-  // family size is left unselected, since it is not an answer this assessment can price.
-  const initialValues = useMemo(() => {
-    const familySize = additionalData?.familySize ?? '';
-    if (!familySize) return {};
-    const savedAnnualIncome = additionalData?.annualIncome;
-    const isSavedIncomeStillOffered = getAnnualIncomeOptions(slidingFeeScale, familySize).some(
-      option => option.value === savedAnnualIncome,
-    );
-    return {
-      familySize,
-      ...(isSavedIncomeStillOffered ? { annualIncome: savedAnnualIncome } : {}),
-    };
-  }, [additionalData, slidingFeeScale]);
+  const initialValues = useMemo(
+    () => getAssessmentInitialValues(slidingFeeScale, additionalData),
+    [slidingFeeScale, additionalData],
+  );
 
   // Formik re-validates whenever the schema's identity changes, so building it inline would
   // re-run validation on every render.

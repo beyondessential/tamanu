@@ -12,6 +12,8 @@ export const GenericIdentificationFields = ({
   patientRegistryType,
   filterByMandatory,
   heading,
+  headingTestId,
+  gridTestId,
 }) => {
   const { getSetting } = useSettings();
   const canEditDisplayId = isEdit && getSetting('features.editPatientDisplayId');
@@ -77,6 +79,8 @@ export const GenericIdentificationFields = ({
       fields={IDENTIFICATION_FIELDS}
       filterByMandatory={filterByMandatory}
       heading={heading}
+      headingTestId={headingTestId}
+      gridTestId={gridTestId}
       data-testid="configuredmandatorypatientfields-y6v9"
     />
   );

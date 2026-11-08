@@ -9,11 +9,7 @@ import {
   TITLE_LABELS,
 } from '@tamanu/constants';
 
-import {
-  TextField,
-  AutocompleteField,
-  TranslatedSelectField,
-} from '../../../../../components';
+import { TextField, AutocompleteField, TranslatedSelectField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
@@ -23,6 +19,8 @@ export const GenericPersonalFields = ({
   filterByMandatory,
   isEdit,
   heading,
+  headingTestId,
+  gridTestId,
 }) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -186,6 +184,8 @@ export const GenericPersonalFields = ({
       fields={PERSONAL_FIELDS}
       filterByMandatory={filterByMandatory}
       heading={heading}
+      headingTestId={headingTestId}
+      gridTestId={gridTestId}
       data-testid="configuredmandatorypatientfields-vhzu"
     />
   );

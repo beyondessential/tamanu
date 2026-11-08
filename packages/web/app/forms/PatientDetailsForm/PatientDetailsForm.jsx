@@ -119,10 +119,18 @@ export const PatientDetailsForm = ({
   const { data: insurancePlansInUse, error: insurancePlansInUseError } =
     usePatientInsurancePlansInUseQuery({ patientId: patient.id });
 
-  const { slidingFeeScalePlanId, isLoading: isLoadingInsurancePlans } =
-    useSlidingFeeScalePlanId();
+  const {
+    slidingFeeScalePlanId,
+    isLoading: isLoadingInsurancePlans,
+    error: insurancePlansError,
+  } = useSlidingFeeScalePlanId();
 
-  const errors = [fieldDefError, fieldValError, insurancePlansInUseError].filter(e => Boolean(e));
+  const errors = [
+    fieldDefError,
+    fieldValError,
+    insurancePlansInUseError,
+    insurancePlansError,
+  ].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
