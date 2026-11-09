@@ -29,23 +29,31 @@ reference range is flagged for clinicians.
 
 ## Searching the patient's results
 
-- [ ] The patient's results table is filtered by a Test category field and a Test or panel field, and the table shows once either field has a value.
+The patient's results table is filtered by a Test category field and a Test or panel field. The table shows once either field has a value.
+
+### Search fields
+
 - [ ] Test category is single-select and offers only categories the patient has published results in.
 - [ ] Test or panel is a multi-select that suggests individual tests and panels together by name, listed the same way whichever kind they are.
 - [ ] Test or panel suggests only tests the patient has published results for, and panels the patient has a published lab request ordered under. A panel is not suggested merely because it contains a test the patient has results for.
+- [ ] A picked test category narrows Test or panel to suggest only tests and panels whose configured category is that category. Clearing the test category brings back suggestions from every category.
+- [ ] Picking a test or panel leaves the test category in place. Changing the test category clears any picked tests and panels, and clearing the test category keeps them.
 - [ ] With one test or panel picked, the field shows its name. With more than one, it shows how many are picked, such as "5 selected".
 - [ ] The suggestions list stays open while items are picked, so several can be picked in a row, and closes when the user clicks away from the field.
 - [ ] Picked items are ticked in the suggestions list, and picking a ticked item again removes it. Clearing the field removes every pick at once.
 - [ ] There is no limit on how many tests and panels can be picked.
-- [ ] A picked test category narrows Test or panel to suggest only tests and panels whose configured category is that category. Clearing the test category brings back suggestions from every category.
-- [ ] Changing the test category clears any picked tests and panels. Clearing the test category keeps them. Picking a test or panel leaves the test category in place.
-- [ ] A picked test category with no tests or panels picked shows the category's panels that the patient has a published lab request ordered under, followed by the category's remaining tests as individual tests, laid out as below.
-- [ ] Once tests or panels are picked, the table shows only the picks, laid out as below, whether or not a test category is picked.
-- [ ] A panel in the table shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
+
+### Results table
+
+- [ ] With a test category picked and no tests or panels picked, the table shows the category's panels that the patient has a published lab request ordered under, and, as individual tests, the category's other tests the patient has results for that are not in any of those panels.
+- [ ] Once tests or panels are picked, the table shows only the picks, whether or not a test category is picked.
 - [ ] Panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
+- [ ] A panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
 - [ ] Individual tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
 - [ ] The heading rows show however few items there are: a single panel still sits under its heading, and individual tests still sit under "Individual tests" when there is no panel.
-- [ ] A test appears under every panel in the table that contains it. A test picked on its own that is also in a picked panel shows only under the panel, whichever was picked first. It stays picked, and moves back under "Individual tests" if the panel is unpicked.
+- [ ] A test appears under every panel in the table that contains it.
+- [ ] A test picked on its own that is also in a picked panel shows only under the panel, regardless of which was picked first. It stays picked, and moves back under "Individual tests" if the panel is unpicked.
+- [ ] The "Individual tests" heading row shows only when at least one test sits under it.
 - [ ] The table lists each test with its unit and normal range, followed by one column per sample date.
 - [ ] A test with no result on a sample date shows "n/a" in that column.
 
