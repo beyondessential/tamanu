@@ -42,7 +42,10 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - A **Sub total** row sits at the top of each ward's table, carrying that ward's counts.
 - Wards are ordered alphabetically, and the patients within a ward by bed in natural order, so Bed 2 precedes Bed 10.
 - A ward whose table runs past a page break continues on the next page under "{Ward} (continued)", with the column headers repeated.
-- The Hospital total row, the Sub total rows and the ward headings are set in a medium weight.
+- The Hospital total row, the Sub total rows and the ward headings are set in bold, so they read apart from the patient rows.
+
+> [!NOTE]
+> The fonts the sheet is rendered with carry a regular and a bold face and nothing between, so bold is the only weight that sets these rows apart.
 - Diet column headers are rotated to vertical, and zero counts are left blank.
 - The diet columns share the width left over from the patient columns, and narrow as the number of diets grows, so the sheet is never more than one page wide.
 - Where no patient matches, the sheet prints its letterhead, title and footer with a line reporting that there are no patients to show.
@@ -55,6 +58,7 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - A patient with no diet recorded is counted under the regular meal column.
 - A regular meal column appears whenever a patient on the sheet has no diet recorded, even where no patient has that diet recorded against them.
 - A patient with several diets is ticked under each of them, and counted in each, so a ward's counts can come to more than the number of patients in it.
+- A diet that is no longer offered for new records still takes its column where a patient on the sheet is on it.
 - A ward's Sub total counts the patients in that ward under each diet, and the Hospital total is the sum of the ward sub totals.
 
 ## Configuration
