@@ -20,10 +20,12 @@ const MAX_DIET_COLUMN_WIDTH = 34;
 const HEADER_HEIGHT = 72;
 
 // Enough room for a ward's heading, its column headers, its Sub total and its first patient row,
-// so a ward only starts on a page that can show something of its table. Approximate heights are
-// fine: the number only decides which page a ward opens on.
+// so a ward only starts on a page that can show something of its table. The row height is the
+// tallest a row is measured at — a name long enough to wrap — rather than the plain 19pt, because
+// an estimate that is too small strands a ward's heading with no patient under it. Being generous
+// only moves a ward to the next page; being mean reproduces the bug.
 const WARD_HEADING_HEIGHT = 15;
-const ROW_HEIGHT = 19;
+const ROW_HEIGHT = 36;
 const MIN_WARD_PRESENCE = WARD_HEADING_HEIGHT + HEADER_HEIGHT + 2 + 2 * ROW_HEIGHT;
 
 const pageStyles = StyleSheet.create({
@@ -66,7 +68,6 @@ const styles = StyleSheet.create({
   },
   table: {
     flexDirection: 'column',
-    marginBottom: 14,
   },
   row: {
     flexDirection: 'row',
@@ -182,12 +183,18 @@ const DietHeaderRowCells = ({ dietColumns, columnWidth }) => (
   </>
 );
 
+// A diet id of `__proto__` or `constructor` is one the importer and the admin panel both accept,
+// and the totals arrive as plain JSON however the server built them, so a ward with nobody on such
+// a diet would read Object's own member here. React refuses that as a child and the whole sheet
+// fails to render, where the worst a missing count should cost is a blank cell.
+const countFor = (totals, key) => (Object.hasOwn(totals, key) ? totals[key] : 0);
+
 const TotalCells = ({ dietColumns, columnWidth, totals }) => (
   <>
     {dietColumns.map(({ key }) => (
       <View key={key} style={[styles.cell, styles.countCell, { width: columnWidth }]}>
         <Text bold style={styles.totalText}>
-          {totals[key] || ''}
+          {countFor(totals, key) || ''}
         </Text>
       </View>
     ))}
@@ -281,7 +288,7 @@ const WardSection = ({ area, wardName, dietColumns, columnWidth }) => {
           would be stranded at the foot of a page whose remaining space the Sub total row can't
           use. This spacer is an ordinary node, so react-pdf does honour its minPresenceAhead and
           carries the whole ward over instead. */}
-      <View minPresenceAhead={MIN_WARD_PRESENCE} />
+      <View minPresenceAhead={MIN_WARD_PRESENCE} style={{ height: 14 }} />
       <View style={styles.table}>
         <View fixed>
           <WardHeading wardName={wardName} />
