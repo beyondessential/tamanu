@@ -1,11 +1,12 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
-import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
+import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
+import { GoneError } from '@tamanu/errors';
 import {
   createTestContext,
-  waitForSession,
   initializeCentralSyncManagerWithContext,
+  waitForSession,
 } from '../utilities';
 
 describe('CentralSyncManager.endSession', () => {
@@ -56,6 +57,6 @@ describe('CentralSyncManager.endSession', () => {
     await waitForSession(centralSyncManager, sessionId);
 
     await centralSyncManager.endSession(sessionId);
-    await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow();
+    await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(GoneError);
   });
 });
