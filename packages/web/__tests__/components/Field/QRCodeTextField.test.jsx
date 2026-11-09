@@ -30,6 +30,7 @@ vi.mock('../../../app/utils', async importOriginal => ({
 }));
 
 const SCANNED_VALUE = 'screening-123';
+let scannedValue;
 const VALUE_PROBE = 'value-probe';
 
 const renderField = fieldProps =>
@@ -52,8 +53,9 @@ const renderField = fieldProps =>
 
 describe('QRCodeTextField', () => {
   beforeEach(() => {
+    scannedValue = SCANNED_VALUE;
     window.BarcodeDetector = class {
-      detect = async () => [{ rawValue: ` ${SCANNED_VALUE} ` }];
+      detect = async () => [{ rawValue: ` ${scannedValue} ` }];
     };
   });
 
@@ -78,5 +80,14 @@ describe('QRCodeTextField', () => {
 
     await waitFor(() => expect(screen.getByTestId(VALUE_PROBE).textContent).toBe(SCANNED_VALUE));
     expect(notifyError).not.toHaveBeenCalled();
+  });
+
+  it('accepts a long scan when the display ID pattern is not required', async () => {
+    scannedValue = 'x'.repeat(80);
+    renderField({ matchDisplayIdPattern: false });
+
+    await userEvent.click(screen.getByTestId('qr-scanner-button'));
+
+    await waitFor(() => expect(screen.getByTestId(VALUE_PROBE).textContent).toBe(scannedValue));
   });
 });

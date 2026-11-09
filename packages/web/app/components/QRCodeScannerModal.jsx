@@ -24,9 +24,11 @@ const useQrValueValidation = matchDisplayIdPattern => {
   }, [pattern]);
 
   return value => {
-    if (!value || value.length > MAX_QR_LENGTH) return false;
+    if (!value) return false;
 
     if (!matchDisplayIdPattern) return true;
+
+    if (value.length > MAX_QR_LENGTH) return false;
 
     // No pattern configured: allow any non-empty value within length bound
     if (!pattern) return true;
