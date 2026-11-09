@@ -176,6 +176,11 @@ describe('sync process env', () => {
     expect(getSyncApiConnection()).toEqual({ host: 'http://sync.internal', port: 3000 });
   });
 
+  it('treats an empty SYNC_API_HOST as unset', () => {
+    process.env.SYNC_API_HOST = '';
+    expect(getSyncApiConnection().host).toBe('http://localhost');
+  });
+
   it('refuses a sync flag other than true or false', () => {
     process.env.SYNC_ENABLED = '1';
     expect(() => isSyncEnabled({ enabled: true })).toThrow('SYNC_ENABLED');

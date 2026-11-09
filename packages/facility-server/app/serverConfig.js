@@ -204,7 +204,7 @@ export function getSyncApiConnection() {
     throw new Error(`${source} must be a port number, got "${rawPort ?? port}"`);
   }
   return {
-    host: process.env.SYNC_API_HOST ?? config.sync.syncApiConnection.host,
+    host: process.env.SYNC_API_HOST || config.sync.syncApiConnection.host,
     port,
   };
 }
