@@ -1,24 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
 import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { DietSummaryModal } from './DietSummaryModal';
+import { PrintActionButton } from './PrintActionButton';
 
-const PrintActionButton = styled(Button)`
-  font-weight: 500;
-  text-transform: none;
-  text-decoration: underline;
-  color: ${Colors.primary};
-  margin-top: auto;
-  margin-bottom: auto;
-  &:hover {
-    text-decoration: underline;
-  }
-  &.Mui-disabled {
-    pointer-events: auto;
-  }
+// InsertChartOutlinedIcon is a MUI icon, so size it via .MuiSvgIcon-root; HandoverNotesIcon is hand-drawn and never matches this rule
+const DietSummaryPrintActionButton = styled(PrintActionButton)`
   .MuiSvgIcon-root {
     font-size: 18px;
   }
@@ -39,7 +28,7 @@ export const DietSummaryButton = React.memo(({ area }) => {
 
   return (
     <>
-      <PrintActionButton
+      <DietSummaryPrintActionButton
         startIcon={<InsertChartOutlinedIcon htmlColor={Colors.primary} />}
         onClick={handleDietSummaryButtonClick}
         data-testid="dietsummarybutton-x3qa"
@@ -49,7 +38,7 @@ export const DietSummaryButton = React.memo(({ area }) => {
           fallback="Diet summary"
           data-testid="translatedtext-dietsummary"
         />
-      </PrintActionButton>
+      </DietSummaryPrintActionButton>
       <DietSummaryModal
         open={dietSummaryModalShown}
         onClose={handleDietSummaryModalClose}
