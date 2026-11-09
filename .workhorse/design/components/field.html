@@ -73,12 +73,49 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 .tag svg{width:14px;height:14px;color:var(--dark);}
 .field--xsmall .tag{padding:0 4px 0 6px;}
 
-/* Validation note card */
-.note-card{
-  background:#fff;border:1px solid #dedede;border-radius:5px;
-  padding:16px 20px;max-width:620px;font-size:14px;color:#666;line-height:1.5;
-}
-.note-card .red{color:#f76853;}
+
+/* ---- Interactive controls ---- */
+.field-input{position:relative;}
+.field-control{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;padding:0;font:inherit;color:inherit;}
+.field-control::placeholder{color:var(--soft);opacity:1;}
+.field-control:disabled{-webkit-text-fill-color:var(--darkest);color:var(--darkest);cursor:not-allowed;}
+.field-control:disabled::placeholder{-webkit-text-fill-color:var(--soft);}
+.field-control[type=number]{-moz-appearance:textfield;}
+.field-control[type=number]::-webkit-inner-spin-button,.field-control[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.field-input.is-disabled{cursor:not-allowed;}
+[data-select]{cursor:pointer;outline:0;}
+[data-select].is-disabled{cursor:not-allowed;}
+.clear-btn{display:none;border:0;background:none;padding:0;cursor:pointer;color:var(--mid);}
+.clear-btn.is-shown{display:flex;}
+.tag-remove{display:flex;border:0;background:none;padding:0;cursor:pointer;color:var(--dark);}
+
+/* Tag fields grow to fit wrapped tags */
+.field-input.is-tags{height:auto;min-height:40px;padding-top:7px;padding-bottom:7px;}
+.field--large .field-input.is-tags{min-height:44px;}
+.is-tags .tags{flex-wrap:wrap;}
+
+/* Dropdown menu */
+.menu{display:none;position:absolute;left:-1px;right:-1px;top:calc(100% + 2px);z-index:10;margin:0;padding:4px 0;list-style:none;
+  background:var(--white);border:1px solid var(--primary);border-radius:3px;max-height:190px;overflow:auto;}
+.is-open .menu{display:block;}
+.menu li{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:14px;line-height:18px;color:var(--darkest);cursor:pointer;}
+.menu li:hover,.menu li.is-highlighted,.menu li[aria-selected=true]{background:var(--bg);}
+.menu .tick{width:12px;flex:none;display:flex;}
+.menu .tick svg{width:8px;height:6px;}
+
+/* Help tooltip */
+.field-help-icon{position:relative;cursor:help;}
+.field-help-icon .tip{display:none;position:absolute;bottom:calc(100% + 6px);right:-8px;white-space:nowrap;
+  background:var(--primary-dark);color:var(--white);font-size:11px;line-height:15px;font-weight:400;padding:6px 8px;border-radius:3px;}
+.field-help-icon:hover .tip{display:block;}
+
+/* Mini form */
+.mini-form{background:var(--white);border:1px solid var(--box-outline);border-radius:5px;padding:24px;display:flex;flex-direction:column;gap:16px;width:fit-content;}
+.mini-form-actions{display:flex;justify-content:flex-end;}
+.btn{font-family:inherit;font-weight:500;font-size:14px;line-height:18px;height:40px;padding:8px 20px;border-radius:3px;border:none;cursor:pointer;background:var(--primary);color:var(--white);}
+.btn:hover{background:#22486D;}
+.form-status{font-size:11px;line-height:15px;color:var(--mid);}
+.form-status:empty{display:none;}
 </style>
 </head>
 <body>
@@ -91,19 +128,19 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     <h2 class="ds-h">Sizes</h2>
     <div class="ds-row ds-row--fields">
       <div class="ds-cell">
-        <div class="field field--large"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg></span></span><div class="field-input"><span class="ph">Placeholder</span></div><span class="field-msg">Max 50 characters.</span></div>
+        <div class="field field--large"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper="Max 50 characters.">Max 50 characters.</span></div>
         <span class="ds-caption">Large · 44px</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg></span></span><div class="field-input"><span class="ph">Placeholder</span></div><span class="field-msg">Max 50 characters.</span></div>
+        <div class="field field--medium"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper="Max 50 characters.">Max 50 characters.</span></div>
         <span class="ds-caption">Medium · 40px</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--small"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg></span></span><div class="field-input"><span class="ph">Placeholder</span></div><span class="field-msg">Max 50 characters.</span></div>
+        <div class="field field--small"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper="Max 50 characters.">Max 50 characters.</span></div>
         <span class="ds-caption">Small · 36px</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--xsmall"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg></span></span><div class="field-input"><span class="ph">Placeholder</span></div><span class="field-msg">Max 50 characters.</span></div>
+        <div class="field field--xsmall"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper="Max 50 characters.">Max 50 characters.</span></div>
         <span class="ds-caption">XSmall · 32px</span>
       </div>
     </div>
@@ -114,32 +151,32 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     <h2 class="ds-h">States</h2>
     <div class="ds-row ds-row--fields">
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input"><span class="ph">Placeholder</span></div></div>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div></div>
         <span class="ds-caption">Default</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input"><span class="val">Value</span></div></div>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" value="Value" aria-label="Label"></div></div>
         <span class="ds-caption">Completed</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input is-disabled"><span class="ph">Placeholder</span></div></div>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input is-disabled"><input class="field-control" type="text" placeholder="Placeholder" disabled aria-label="Label"></div></div>
         <span class="ds-caption">Disabled</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input is-disabled"><span class="val">Value</span></div></div>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input is-disabled"><input class="field-control" type="text" placeholder="Placeholder" value="Value" disabled aria-label="Label"></div></div>
         <span class="ds-caption">Disabled completed</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input is-active has-end-icon"><span class="ph">Select</span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div></div>
-        <span class="ds-caption">Active dropdown · empty</span>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon" data-select="single" data-values="" tabindex="0" role="combobox" aria-expanded="false" aria-label="Label"><span class="ph">Select</span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span><ul class="menu" role="listbox"><li role="option" data-value="Option one"><span class="tick"></span>Option one</li><li role="option" data-value="Option two"><span class="tick"></span>Option two</li><li role="option" data-value="Option three"><span class="tick"></span>Option three</li><li role="option" data-value="Option four"><span class="tick"></span>Option four</li><li role="option" data-value="Option five"><span class="tick"></span>Option five</li><li role="option" data-value="Option six"><span class="tick"></span>Option six</li></ul></div></div>
+        <span class="ds-caption">Dropdown · empty (open it to see the active state)</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input is-active has-end-icon"><span class="val">Option one</span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div></div>
-        <span class="ds-caption">Active dropdown · completed</span>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon" data-select="single" data-values="Option one" tabindex="0" role="combobox" aria-expanded="false" aria-label="Label"><span class="ph">Select</span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span><ul class="menu" role="listbox"><li role="option" data-value="Option one"><span class="tick"></span>Option one</li><li role="option" data-value="Option two"><span class="tick"></span>Option two</li><li role="option" data-value="Option three"><span class="tick"></span>Option three</li><li role="option" data-value="Option four"><span class="tick"></span>Option four</li><li role="option" data-value="Option five"><span class="tick"></span>Option five</li><li role="option" data-value="Option six"><span class="tick"></span>Option six</li></ul></div></div>
+        <span class="ds-caption">Dropdown · completed</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label<span class="field-req">*</span></span><div class="field-input is-error"><span class="ph">Placeholder</span></div><span class="field-msg is-error">*Required</span></div>
-        <span class="ds-caption">Validation</span>
+        <div class="field field--medium" data-required data-validating><span class="field-label">Label<span class="field-req">*</span></span><div class="field-input is-error"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg is-error" data-helper="">*Required</span></div>
+        <span class="ds-caption">Validation · type to clear the error</span>
       </div>
     </div>
   </section>
@@ -149,31 +186,27 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     <h2 class="ds-h">Variants</h2>
     <div class="ds-row ds-row--fields">
       <div class="ds-cell">
-        <div class="field field--medium"><div class="field-input"><span class="icon icon--search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg></span><span class="ph">Search</span></div></div>
+        <div class="field field--medium"><div class="field-input has-end-icon" data-search><span class="icon icon--search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg></span><input class="field-control" type="text" placeholder="Search" aria-label="Search"><button class="clear-btn" type="button" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div></div>
         <span class="ds-caption">Search · default</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><div class="field-input is-disabled"><span class="icon icon--search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg></span><span class="ph">Search</span></div></div>
+        <div class="field field--medium"><div class="field-input has-end-icon is-disabled" data-search><span class="icon icon--search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg></span><input class="field-control" type="text" placeholder="Search" disabled aria-label="Search"><button class="clear-btn" type="button" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div></div>
         <span class="ds-caption">Search · disabled</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon"><span class="tags"><span class="tag">Tag one<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span><span class="tag">Tag two<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span></span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div></div>
-        <span class="ds-caption">Tag · default</span>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon is-tags" data-select="tags" data-values="Option one|Option two" tabindex="0" role="combobox" aria-expanded="false" aria-label="Label"><span class="tags"></span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span><ul class="menu" role="listbox"><li role="option" data-value="Option one"><span class="tick"></span>Option one</li><li role="option" data-value="Option two"><span class="tick"></span>Option two</li><li role="option" data-value="Option three"><span class="tick"></span>Option three</li><li role="option" data-value="Option four"><span class="tick"></span>Option four</li><li role="option" data-value="Option five"><span class="tick"></span>Option five</li><li role="option" data-value="Option six"><span class="tick"></span>Option six</li></ul></div></div>
+        <span class="ds-caption">Tag</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input is-active has-end-icon"><span class="tags"><span class="tag">Tag one<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span><span class="tag">Tag two<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span></span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div></div>
-        <span class="ds-caption">Tag · active dropdown</span>
-      </div>
-      <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon"><span class="tags"><span class="tag">5 selected<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span></span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div></div>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon" data-select="count" data-values="Option one|Option two|Option three|Option four|Option five" tabindex="0" role="combobox" aria-expanded="false" aria-label="Label"><span class="tags"></span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span><ul class="menu" role="listbox"><li role="option" data-value="Option one"><span class="tick"></span>Option one</li><li role="option" data-value="Option two"><span class="tick"></span>Option two</li><li role="option" data-value="Option three"><span class="tick"></span>Option three</li><li role="option" data-value="Option four"><span class="tick"></span>Option four</li><li role="option" data-value="Option five"><span class="tick"></span>Option five</li><li role="option" data-value="Option six"><span class="tick"></span>Option six</li></ul></div></div>
         <span class="ds-caption">Tag · selected count</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--large"><span class="field-label">Weight</span><div class="field-input"><span class="val">72</span><span class="unit">kg</span></div></div>
+        <div class="field field--large"><span class="field-label">Weight</span><div class="field-input"><input class="field-control" type="number" inputmode="decimal" placeholder="0" value="72" aria-label="Weight"><span class="unit">kg</span></div></div>
         <span class="ds-caption">Counter / unit · Large</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><div class="field-input is-disabled"><span class="val">72</span><span class="unit">kg</span></div></div>
+        <div class="field field--medium"><div class="field-input is-disabled"><input class="field-control" type="number" inputmode="decimal" placeholder="0" value="72" disabled aria-label="Weight"><span class="unit">kg</span></div></div>
         <span class="ds-caption">Counter / unit · disabled</span>
       </div>
     </div>
@@ -182,10 +215,153 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
   <!-- 4. Validation behaviour -->
   <section class="ds-section">
     <h2 class="ds-h">Validation behaviour</h2>
-    <div class="note-card">
-      Validation errors appear only after the first submit attempt. After that, the field re-validates on every change. The input border turns <span class="red">red (#F76853)</span> and the validation message replaces the helper text.
+    <div class="ds-cell">
+      <form class="mini-form" novalidate data-form>
+        <div class="field field--medium" data-required><span class="field-label">First name<span class="field-req">*</span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper=""></span></div>
+        <div class="field field--medium" data-required><span class="field-label">Surname<span class="field-req">*</span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper=""></span></div>
+        <div class="mini-form-actions"><button class="btn" type="submit">Submit</button></div>
+        <span class="form-status" data-status></span>
+      </form>
+      <span class="ds-caption">Errors appear only after a submit attempt, then re-validate on every change.</span>
     </div>
   </section>
 </div>
+<script>
+(() => {
+  const CLOSE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+  const TICK = `<svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg>`;
+  const OPTION_COUNT = 6;
+
+  // Required fields: show or clear the error against the field's current value
+  const validate = field => {
+    const input = field.querySelector('.field-control');
+    const box = field.querySelector('.field-input');
+    const msg = field.querySelector('.field-msg');
+    const isEmpty = input.value.trim() === '';
+    box.classList.toggle('is-error', isEmpty);
+    msg.classList.toggle('is-error', isEmpty);
+    msg.textContent = isEmpty ? '*Required' : msg.dataset.helper;
+  };
+  document.querySelectorAll('[data-required]').forEach(field => {
+    field.querySelector('.field-control').addEventListener('input', () => {
+      if (field.hasAttribute('data-validating')) validate(field);
+    });
+  });
+
+  // Mini form: no errors until the first submit attempt
+  document.querySelectorAll('[data-form]').forEach(form => {
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const fields = [...form.querySelectorAll('[data-required]')];
+      fields.forEach(field => { field.setAttribute('data-validating', ''); validate(field); });
+      const hasErrors = fields.some(field => field.querySelector('.field-input').classList.contains('is-error'));
+      form.querySelector('[data-status]').textContent = hasErrors ? '' : 'Submitted.';
+    });
+  });
+
+  // Search: clear control appears once there is a value
+  document.querySelectorAll('[data-search]').forEach(box => {
+    const input = box.querySelector('.field-control');
+    const clear = box.querySelector('.clear-btn');
+    const sync = () => clear.classList.toggle('is-shown', input.value !== '');
+    input.addEventListener('input', sync);
+    clear.addEventListener('click', () => { input.value = ''; sync(); input.focus(); });
+  });
+
+  // Dropdowns: single select, tags, and selected count
+  const closeAll = except => document.querySelectorAll('[data-select].is-open').forEach(box => { if (box !== except) setOpen(box, false); });
+  const setOpen = (box, isOpen) => {
+    box.classList.toggle('is-open', isOpen);
+    box.classList.toggle('is-active', isOpen);
+    box.setAttribute('aria-expanded', String(isOpen));
+    box.querySelectorAll('.menu li').forEach(li => li.classList.remove('is-highlighted'));
+  };
+  const makeTag = (text, onRemove) => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.append(text);
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'tag-remove';
+    remove.setAttribute('aria-label', `Remove ${text}`);
+    remove.innerHTML = CLOSE;
+    remove.addEventListener('click', event => { event.stopPropagation(); onRemove(); });
+    tag.append(remove);
+    return tag;
+  };
+  document.querySelectorAll('[data-select]').forEach(box => {
+    const mode = box.dataset.select;
+    const isDisabled = box.classList.contains('is-disabled');
+    let selected = box.dataset.values ? box.dataset.values.split('|') : [];
+    const options = [...box.querySelectorAll('.menu li')];
+
+    const render = () => {
+      options.forEach(li => {
+        const isSelected = selected.includes(li.dataset.value);
+        li.setAttribute('aria-selected', String(isSelected));
+        li.querySelector('.tick').innerHTML = mode !== 'single' && isSelected ? TICK : '';
+      });
+      if (mode === 'single') {
+        const display = box.querySelector('.ph, .val');
+        display.className = selected.length ? 'val' : 'ph';
+        display.textContent = selected[0] ?? 'Select';
+        return;
+      }
+      const tags = box.querySelector('.tags');
+      tags.replaceChildren();
+      if (!selected.length) {
+        const placeholder = document.createElement('span');
+        placeholder.className = 'ph';
+        placeholder.textContent = 'Select';
+        tags.append(placeholder);
+      } else if (mode === 'tags') {
+        selected.forEach(value => tags.append(makeTag(value, () => { selected = selected.filter(v => v !== value); render(); })));
+      } else {
+        const text = selected.length === 1 ? selected[0]
+          : selected.length === OPTION_COUNT ? 'All selected'
+          : `${selected.length} selected`;
+        tags.append(makeTag(text, () => { selected = []; render(); }));
+      }
+    };
+
+    const choose = value => {
+      if (mode === 'single') { selected = [value]; setOpen(box, false); }
+      else selected = selected.includes(value) ? selected.filter(v => v !== value) : [...selected, value];
+      render();
+    };
+    options.forEach(li => li.addEventListener('click', event => { event.stopPropagation(); choose(li.dataset.value); }));
+
+    box.addEventListener('click', () => {
+      if (isDisabled) return;
+      closeAll(box);
+      setOpen(box, !box.classList.contains('is-open'));
+    });
+    box.addEventListener('keydown', event => {
+      if (isDisabled) return;
+      const isOpen = box.classList.contains('is-open');
+      const index = options.findIndex(li => li.classList.contains('is-highlighted'));
+      const highlight = next => {
+        options.forEach(li => li.classList.remove('is-highlighted'));
+        options[next].classList.add('is-highlighted');
+        options[next].scrollIntoView({ block: 'nearest' });
+      };
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (!isOpen) { closeAll(box); setOpen(box, true); }
+        const step = event.key === 'ArrowDown' ? 1 : -1;
+        highlight(index === -1 ? 0 : (index + step + options.length) % options.length);
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (isOpen && index !== -1) choose(options[index].dataset.value);
+        else { closeAll(box); setOpen(box, !isOpen); }
+      } else if (event.key === 'Escape') {
+        setOpen(box, false);
+      }
+    });
+    render();
+  });
+  document.addEventListener('click', event => { if (!event.target.closest('[data-select]')) closeAll(); });
+})();
+</script>
 </body>
 </html>
