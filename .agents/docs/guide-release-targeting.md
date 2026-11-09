@@ -34,11 +34,7 @@ A demo site used to click the flow through or capture screenshots must run the t
 
 ## Landing the pull request
 
-Open the pull request with the release branch as its base, rebasing the guide commits onto it first
-(`git rebase --onto origin/release/2.xx "$(git merge-base HEAD origin/main)"`), since a branch cut
-from main carries commits the release does not. Expect conflicts, and resolve them as in
-[Resolving conflicts](#resolving-conflicts). The rebase rewrites history, so an open pull request
-needs a force-push with lease and its base changed on GitHub.
+Rebase the guide commits onto the release branch, then open the pull request with it as the base.
 
 ## Carrying it forward
 
@@ -54,8 +50,7 @@ git -C /tmp/tamanu-forward-main cherry-pick <first>^..<last>
 git worktree remove /tmp/tamanu-forward-main
 ```
 
-Resolve conflicts the same way. The author pushes each branch and raises its pull request against its
-base.
+The author pushes each branch and raises its pull request against its base.
 
 ## Resolving conflicts
 
