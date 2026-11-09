@@ -12,9 +12,9 @@ No code change: the demo is an autodeploy dressed as Mercy Hospital Dunedin thro
   - Closing the PR tears the site down a day later.
 - It has two facility servers. Mercy Hospital is facility-1; facility-2 is left as provisioned.
 
-### Down since 2026-11-09
+### Suspended and failed deploy, 2026-11-09
 
-No TTL option is ticked on the PR yet, so the site suspended on its 4-hour TTL and answers 503. The deploy that ran on the 13:32 push woke it but then failed: Pulumi gave up after 30 minutes with the Argo CD application OutOfSync/Progressing, its sync waiting on the `central-migrator` hook job ([run](https://github.com/beyondessential/tamanu/actions/runs/42626375748)). The same branch deployed cleanly at 04:25 with the same migrations, so this is the deploy infrastructure rather than anything in the branch, which carries only this plan. If a re-run hangs the same way, the `central-migrator` job's own logs are the place to look, through Headlamp or `kubectl` against `tamanu-workhorse-y13`.
+No TTL option is ticked on the PR yet, so the site suspends 4 hours after each deploy, and each push to the branch wakes it for another 4. The next deploy, at 15:01 UTC, succeeded, and at 19:12 UTC the facility server still showed Mercy Hospital with its 11 areas, 60 locations and charts, so suspension keeps the data. The deploy that ran on the 13:32 push woke the site but then failed: Pulumi gave up after 30 minutes with the Argo CD application OutOfSync/Progressing, its sync waiting on the `central-migrator` hook job ([run](https://github.com/beyondessential/tamanu/actions/runs/42626375748)). The same branch deployed cleanly at 04:25 with the same migrations, so this is the deploy infrastructure rather than anything in the branch, which carries only this plan. If a re-run hangs the same way, the `central-migrator` job's own logs are the place to look, through Headlamp or `kubectl` against `tamanu-workhorse-y13`.
 
 ### Set aside: a long-lived release/2.66 deploy
 
@@ -46,6 +46,9 @@ Copied from `presentation.demos.tamanu.app` (v2.66.1) with the transfer-deployme
 - **Default areas, locations and departments** that provisioning gave facility-1 are marked historical. 17 default locations shared a code with a presentation location (`THOutpatient`, `THWard1Bed1` and so on), so those were renamed and moved into the Mercy areas rather than duplicated; they keep their default IDs.
 - **Settings**: global, central and facility-1, merged into the deploy's. Disabled reports are the union of both sites' lists. Left out: secrets (Anthropic and Mailgun keys), `patientPortal.baseUrl`, the mobile update channel, the Mailgun mail account and the mSupply integration. Facility-1's dispensing department moves to its own Outpatient department, and the default form location to Marinoto Clinic's Consulting Rooms.
 
+- **Roles**: the presentation demo's three custom roles with their permissions (Admin ICT, Medical Officer, Demo clinician; 465 permission rows). The built-in admin role is left alone. Demo clinician has no permissions at the source either.
+- **Users**: 35 of the presentation demo's 38, all with the shared demo password the user chose, kept out of the repository. Left out: `admin@tamanu.io` (the deploy keeps its own admin) and the two real people's accounts, megan@bes.au and santosh.khanal@msupply.foundation, until the user decides on them. Users who listed specific facilities are limited to Mercy Hospital. Thirteen users hold roles the presentation demo never defined (Reception, Nurse, Pharmacist and so on), so they sign in with no permissions, as they do there.
+
 ### Adjusted or left out on the way in
 
 - Drug routes mapped to v2.69's values (IV to intravenous, IM to intramuscular, Opthalmic to eye, Supp to rectal, and so on), and a triage reason ID's trailing space trimmed.
@@ -66,5 +69,8 @@ The exports and scripts are in `/tmp/y13` on the device this card is checked out
 - [ ] Add `%ttlhours=0` to the deploy line in PR #11627's body (needs GitHub access; this machine has none)
 - [ ] Keep PR #11627 open, with a push or comment at least once a week
 - [ ] Set an Anthropic API key on central if the AI patient summary should work (switched on by the copied settings)
+- [x] Copy roles, permissions and users; sign-in checked on central and facility-1
+- [ ] Once the site is awake, confirm a Medical Officer can list patients on facility-1 (403 before the roles had synced, when the site went to sleep)
+- [ ] Decide whether megan@bes.au and santosh.khanal@msupply.foundation come across
 - [ ] Seed Mercy Hospital patients, clinicians and appointments with the seed-demo-data skill
 - [ ] Share the web address and demo credentials with the card
