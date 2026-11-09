@@ -1,6 +1,5 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 import { Logo } from '../patientCertificates/Layout';
 import { Footer } from '../patientCertificates/printComponents/Footer';
@@ -8,7 +7,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text, TextWithoutContext } from '../pdf/Text';
-import { getReferenceDataStringId } from '../translation/getReferenceDataStringId';
+import { prepareDietSummary } from './prepareDietSummary';
 
 const borderStyle = '1 solid black';
 
@@ -19,6 +18,13 @@ const PATIENT_COLUMNS_WIDTH = NAME_WIDTH + NHN_WIDTH + BED_WIDTH;
 const CONTENT_WIDTH = 742;
 const MAX_DIET_COLUMN_WIDTH = 34;
 const HEADER_HEIGHT = 72;
+
+// Enough room for a ward's heading, its column headers, its Sub total and its first patient row,
+// so a ward only starts on a page that can show something of its table. Approximate heights are
+// fine: the number only decides which page a ward opens on.
+const WARD_HEADING_HEIGHT = 15;
+const ROW_HEIGHT = 19;
+const MIN_WARD_PRESENCE = WARD_HEADING_HEIGHT + HEADER_HEIGHT + 2 + 2 * ROW_HEIGHT;
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -265,62 +271,57 @@ const WardHeading = ({ wardName }) => {
   );
 };
 
-const resolveWardName = (area, getTranslation) =>
-  area.id
-    ? getTranslation(
-        getReferenceDataStringId(area.id, OTHER_REFERENCE_TYPES.LOCATION_GROUP),
-        area.name,
-      )
-    : getTranslation('pdf.dietSummary.noArea', 'No area');
-
 // spec: DIETSUM#layout
 const WardSection = ({ area, wardName, dietColumns, columnWidth }) => {
   const { getTranslation } = useLanguageContext();
 
   return (
-    <View style={styles.table}>
-      <View fixed>
-        <WardHeading wardName={wardName} />
-        <View style={styles.row}>
-          <View style={[styles.headerCell, { width: NAME_WIDTH }]}>
-            <Text style={styles.cellText}>
-              {getTranslation('pdf.dietSummary.column.patientName', 'Patient name')}
-            </Text>
+    <>
+      {/* react-pdf paints a `fixed` node on a page whatever else fits, so the heading block alone
+          would be stranded at the foot of a page whose remaining space the Sub total row can't
+          use. This spacer is an ordinary node, so react-pdf does honour its minPresenceAhead and
+          carries the whole ward over instead. */}
+      <View minPresenceAhead={MIN_WARD_PRESENCE} />
+      <View style={styles.table}>
+        <View fixed>
+          <WardHeading wardName={wardName} />
+          <View style={styles.row}>
+            <View style={[styles.headerCell, { width: NAME_WIDTH }]}>
+              <Text style={styles.cellText}>
+                {getTranslation('pdf.dietSummary.column.patientName', 'Patient name')}
+              </Text>
+            </View>
+            <View style={[styles.headerCell, { width: NHN_WIDTH }]}>
+              <Text style={styles.cellText}>
+                {getTranslation('general.localisedField.displayId.label.short', 'NHN')}
+              </Text>
+            </View>
+            <View style={[styles.headerCell, { width: BED_WIDTH }]}>
+              <Text style={styles.cellText}>
+                {getTranslation('pdf.dietSummary.column.bed', 'Bed')}
+              </Text>
+            </View>
+            <DietHeaderRowCells dietColumns={dietColumns} columnWidth={columnWidth} />
           </View>
-          <View style={[styles.headerCell, { width: NHN_WIDTH }]}>
-            <Text style={styles.cellText}>
-              {getTranslation('general.localisedField.displayId.label.short', 'NHN')}
-            </Text>
-          </View>
-          <View style={[styles.headerCell, { width: BED_WIDTH }]}>
-            <Text style={styles.cellText}>
-              {getTranslation('pdf.dietSummary.column.bed', 'Bed')}
-            </Text>
-          </View>
-          <DietHeaderRowCells dietColumns={dietColumns} columnWidth={columnWidth} />
         </View>
-      </View>
-      <View style={[styles.row, styles.totalRow]} wrap={false}>
-        <View style={[styles.cell, { width: PATIENT_COLUMNS_WIDTH }]}>
-          <Text bold style={styles.totalText}>
-            {getTranslation('pdf.dietSummary.subTotal', 'Sub total')}
-          </Text>
+        <View style={[styles.row, styles.totalRow]} wrap={false}>
+          <View style={[styles.cell, { width: PATIENT_COLUMNS_WIDTH }]}>
+            <Text bold style={styles.totalText}>
+              {getTranslation('pdf.dietSummary.subTotal', 'Sub total')}
+            </Text>
+          </View>
+          <TotalCells dietColumns={dietColumns} columnWidth={columnWidth} totals={area.subTotals} />
         </View>
-        <TotalCells
-          dietColumns={dietColumns}
-          columnWidth={columnWidth}
-          totals={area.subTotals}
-        />
+        {area.patients.map((patient) => (
+          <PatientRow
+            key={patient.encounterId}
+            patient={patient}
+            dietColumns={dietColumns}
+            columnWidth={columnWidth}
+          />
+        ))}
       </View>
-      {area.patients.map((patient) => (
-        <PatientRow
-          key={patient.encounterId}
-          patient={patient}
-          dietColumns={dietColumns}
-          columnWidth={columnWidth}
-        />
-      ))}
-    </View>
+    </>
   );
 };
 
@@ -340,32 +341,8 @@ const DietSummaryPDFComponent = ({
     'Diet summary sheet',
   )} | ${formatShortest(getCurrentDate())}`;
 
-  // The server orders columns and wards against the source-language reference data names, so a
-  // deployment carrying reference data translations needs its own order resolved against the
-  // names actually printed here, rather than inheriting the server's order as-is.
-  const dietColumns = columns
-    .map((column) => ({
-      key: column.key,
-      label: column.name
-        ? getTranslation(getReferenceDataStringId(column.key, REFERENCE_TYPES.DIET), column.name)
-        : getTranslation('pdf.dietSummary.regularDiet', 'Regular'),
-      isRegular: column.isRegular,
-    }))
-    .sort((a, b) => {
-      if (a.isRegular !== b.isRegular) return a.isRegular ? -1 : 1;
-      return a.label.localeCompare(b.label);
-    })
-    .map(({ key, label }) => ({ key, label }));
+  const { dietColumns, wardSections } = prepareDietSummary({ columns, areas, getTranslation });
   const columnWidth = getDietColumnWidth(dietColumns.length);
-
-  const wardSections = areas
-    .map((area) => ({ area, wardName: resolveWardName(area, getTranslation) }))
-    .sort((a, b) => {
-      const aHasArea = Boolean(a.area.id);
-      const bHasArea = Boolean(b.area.id);
-      if (aHasArea !== bHasArea) return aHasArea ? -1 : 1;
-      return a.wardName.localeCompare(b.wardName);
-    });
 
   return (
     <Document>
