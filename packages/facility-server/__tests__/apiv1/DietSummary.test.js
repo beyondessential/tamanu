@@ -432,17 +432,12 @@ describe('Diet summary', () => {
   });
 
   it('counts two patients sharing a bay as separate entries under the same bed', async () => {
-    // maxOccupancy above 1 fails the model's own validation; bypass it to create the bay.
-    const bay = await models.Location.create(
-      fake(models.Location, {
-        facilityId,
-        locationGroupId: cardiology.id,
-        name: 'Bay 1',
-        code: 'diet-summary-bay-1',
-        maxOccupancy: 2,
-      }),
-      { validate: false },
-    );
+    const bay = await createBed({
+      name: 'Bay 1',
+      code: 'diet-summary-bay-1',
+      locationGroupId: cardiology.id,
+      maxOccupancy: null,
+    });
     await admit({ location: bay, diets: [glutenFree] });
     await admit({ location: bay, diets: [diabetic] });
 
