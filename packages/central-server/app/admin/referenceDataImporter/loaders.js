@@ -1,5 +1,4 @@
 import { endOfDay, startOfDay } from 'date-fns';
-import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
 import { ReadSettings } from '@tamanu/settings';
 import {
@@ -19,6 +18,7 @@ import {
 import __cjs_inflection from 'inflection';
 const { pluralize } = __cjs_inflection;
 import { isEmpty, isNil } from 'es-toolkit/compat';
+import { getDateFromExcel } from '../../utils/excelUtils';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -145,7 +145,7 @@ export async function administeredVaccineLoader(item, { models, pushError }) {
     patientId,
     ...data
   } = item;
-  const date = excelDate ? getJsDateFromExcel(excelDate) : null;
+  const date = excelDate ? getDateFromExcel(excelDate) : null;
 
   const startDate = date ? startOfDay(date) : null;
   const endDate = date ? endOfDay(date) : null;
@@ -251,7 +251,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
     model: 'Patient',
     values: {
       id: patientId,
-      dateOfBirth: dateOfBirth && getJsDateFromExcel(dateOfBirth),
+      dateOfBirth: dateOfBirth && getDateFromExcel(dateOfBirth),
       ...otherFields,
     },
   });
