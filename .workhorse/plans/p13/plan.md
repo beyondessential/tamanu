@@ -71,10 +71,9 @@ in the skills themselves rather than in `specs/`.
 - [x] `draft-user-guide`: ask which release in the scope review, before grounding; ground
       in the target branch's code and confirm the demo site runs that version; replace "Land it"
       with the rebase, forward branches and report
-- [x] `draft-config-guide`: same changes. Version flags already come from release branch history, so
-      the target falls out of the same lookup
-- [x] Update the "Land it" report in both skills to name the target branch, why it was chosen, the
-      force-push and base change, and each forward branch
+- [x] `draft-config-guide`: same changes, asking which release alongside the candidate list
+- [x] Update the "Land it" report in both skills to name the pull requests to raise: the one for the
+      named release, and one per forward branch
 - [x] Check `pre-release-checks` and `release-cutoff-checks` still treat guide commits on a release
       branch sensibly. Pre-release checks see them as hotfixes and find them on main by subject via
       the forward branch; cut-off checks already see guide commits with no Linear card. No change
