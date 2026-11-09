@@ -6,7 +6,10 @@ No code change: the demo is an autodeploy dressed as Mercy Hospital Dunedin thro
 
 - **The card's own PR deploy**, PR #11627, at `https://central.workhorse-y13.cd.tamanu.app` and `https://facility-1.workhorse-y13.cd.tamanu.app`. Chosen on 2026-11-09 over the planned `release/2.66` control issue, which was never created.
 - It runs **v2.69.0**, because the card's branch is based on main, not the v2.66 the card asked for.
-- A PR deploy lives only as long as the PR and its TTL allow: the PR must stay open, and its "Stay up (no TTL)" box must be ticked, or the site suspends 4 hours after each deploy. Closing the PR tears the site down a day later.
+- A PR deploy lives only as long as the PR and its TTL allow:
+  - The deploy line in the PR body reads `- [x] **Deploy** <!-- #deploy --> %ttlhours=0`, or the site suspends 4 hours after each deploy. The deploy name stays `workhorse-y13`, so adding the option keeps the existing site and its data.
+  - A daily sweep unticks the deploy box, tearing the site down with its data, once the PR has had no activity for 7 days. Someone pushes to the branch or comments on the PR at least once a week.
+  - Closing the PR tears the site down a day later.
 - It has two facility servers. Mercy Hospital is facility-1; facility-2 is left as provisioned.
 
 ### Set aside: a long-lived release/2.66 deploy
@@ -56,7 +59,8 @@ The exports and scripts are in `/tmp/y13` on the device this card is checked out
 - [x] Hide the default facility-1 areas, locations and departments
 - [x] Merge the settings
 - [x] Check after a sync: the facility server shows Mercy Hospital, its 11 areas and 60 locations, 27 departments, the forms, charts and vitals
-- [ ] Keep PR #11627 open and tick "Stay up (no TTL)" in its body
+- [ ] Add `%ttlhours=0` to the deploy line in PR #11627's body (needs GitHub access; this machine has none)
+- [ ] Keep PR #11627 open, with a push or comment at least once a week
 - [ ] Set an Anthropic API key on central if the AI patient summary should work (switched on by the copied settings)
 - [ ] Seed Mercy Hospital patients, clinicians and appointments with the seed-demo-data skill
 - [ ] Share the web address and demo credentials with the card
