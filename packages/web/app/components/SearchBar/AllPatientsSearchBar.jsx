@@ -32,12 +32,17 @@ const VillageLocalisedField = styled(LocalisedField)`
   font-size: 11px;
 `;
 
+const CulturalNameQRCodeSearchField = props => (
+  <QRCodeSearchField {...props} matchDisplayIdPattern={false} />
+);
+
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const { getCurrentDate } = useDateTime();
   const { getSetting } = useSettings();
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
   const additionalSearchFields = getSetting('patientSearch.additionalSearchFields') ?? [];
+  const isCulturalNameQRCodeScannerEnabled = getSetting('fields.culturalName.enableQRCodeScanner');
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (
@@ -52,7 +57,9 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       hiddenFields={
         <>
           <LocalisedField
-            component={SearchField}
+            component={
+              isCulturalNameQRCodeScannerEnabled ? CulturalNameQRCodeSearchField : SearchField
+            }
             name="culturalName"
             label={
               <TranslatedText

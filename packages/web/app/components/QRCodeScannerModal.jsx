@@ -8,7 +8,7 @@ const MAX_QR_LENGTH = 50;
 
 const normalizeQrValue = value => (typeof value === 'string' ? value.trim() : '');
 
-const useDisplayIdValidation = () => {
+const useQrValueValidation = matchDisplayIdPattern => {
   const { getSetting } = useSettings();
   const pattern = getSetting('fields.displayId.pattern');
 
@@ -26,6 +26,8 @@ const useDisplayIdValidation = () => {
   return value => {
     if (!value || value.length > MAX_QR_LENGTH) return false;
 
+    if (!matchDisplayIdPattern) return true;
+
     // No pattern configured: allow any non-empty value within length bound
     if (!pattern) return true;
 
@@ -36,9 +38,9 @@ const useDisplayIdValidation = () => {
   };
 };
 
-export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
+export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPattern = true }) => {
   const webcamRef = useRef(null);
-  const validateCode = useDisplayIdValidation();
+  const validateCode = useQrValueValidation(matchDisplayIdPattern);
   const [cameraStatus, setCameraStatus] = useState(CAMERA_STATUS.REQUESTING);
   const scannerTimerRef = useRef(null);
 
