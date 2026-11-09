@@ -14,6 +14,9 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - Of the Bed management filters, Area is the one that narrows the sheet.
 - The sheet is a snapshot of the facility at the moment it is opened, and the footer carries the print date and time.
 - Printing it is available to anyone who can list patients and read encounters, locations and areas.
+- The **Diet summary** button appears whether or not the user holds those permissions.
+- A user without them sees a no-permission message in place of the preview, with an action to close the modal, and the print action is not offered.
+- Where the sheet cannot otherwise be loaded, the preview is replaced by a message saying so, and the print action is not offered.
 
 > [!NOTE]
 > The permissions are those handover notes needs, less the note permission, so a ward clerk who can print handover notes can print the diet summary.
@@ -65,7 +68,7 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - A ward's Sub total counts the patients in that ward under each diet, and the Hospital total is the sum of the ward sub totals.
 
 > [!NOTE]
-> These records no longer carry a usable diet, so there is nothing to show a column for, but the patient still needs feeding — the regular meal column is where they land instead of falling off the sheet.
+> A deleted diet, a diet record cancelled against the encounter, and a diet record pointing at reference data that is not a diet no longer carry a usable diet, so there is nothing to show a column for, but the patient still needs feeding — the regular meal column is where they land instead of falling off the sheet.
 
 ## Configuration
 
