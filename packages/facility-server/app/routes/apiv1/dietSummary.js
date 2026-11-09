@@ -29,6 +29,15 @@ const querySchema = z.object({
 // off the sheet; a merely retired one still holds a patient who needs feeding.
 // Nothing constrains encounter_diets.diet_id to diet reference data, so the join checks the type.
 // spec: DIETSUM#who-appears-on-the-sheet
+//
+// The facility and area scope is the set of that facility's own bed ids rather than a filter on
+// the joined location, so the planner reaches the encounters through encounters_location_id
+// instead of walking every open encounter the server holds to return one facility's few hundred:
+// a facility server can host several facilities, and encounters nobody closed accumulate over a
+// deployment's life. ARRAY(...) rather than IN (...), which is flattened into a join and planned
+// from the encounters again; the array is resolved first and used as an index condition. The
+// joined location is the same row by primary key, so it carries the facility, the area and
+// deleted_at the subquery already checked.
 const buildQuery = hasArea => `
   SELECT
     location_groups.id AS area_id,
@@ -50,13 +59,16 @@ const buildQuery = hasArea => `
     LEFT JOIN reference_data diets ON diets.id = encounter_diets.diet_id
       AND diets.type = :dietType
       AND diets.deleted_at IS NULL
-  WHERE encounters.end_date IS NULL
+  WHERE encounters.location_id = ANY(ARRAY(
+      SELECT id FROM locations
+      WHERE facility_id = :facilityId
+        AND deleted_at IS NULL
+        ${hasArea ? 'AND location_group_id = :areaId' : ''}
+    ))
+    AND encounters.end_date IS NULL
     AND encounters.deleted_at IS NULL
     AND encounters.encounter_type IN (:encounterTypes)
-    AND locations.facility_id = :facilityId
-    AND locations.deleted_at IS NULL
     AND patients.deleted_at IS NULL
-    ${hasArea ? 'AND locations.location_group_id = :areaId' : ''}
   ORDER BY location_groups.name NULLS LAST, locations.name, patients.last_name, patients.first_name
 `;
 
