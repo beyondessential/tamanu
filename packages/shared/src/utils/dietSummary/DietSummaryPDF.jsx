@@ -18,7 +18,6 @@ const BED_WIDTH = 35;
 const PATIENT_COLUMNS_WIDTH = NAME_WIDTH + NHN_WIDTH + BED_WIDTH;
 const CONTENT_WIDTH = 742;
 const MAX_DIET_COLUMN_WIDTH = 34;
-const MIN_DIET_COLUMN_WIDTH = 14;
 const HEADER_HEIGHT = 72;
 
 const pageStyles = StyleSheet.create({
@@ -124,11 +123,9 @@ const styles = StyleSheet.create({
 
 const getDietColumnWidth = (columnCount) => {
   if (columnCount === 0) return MAX_DIET_COLUMN_WIDTH;
+  // Diet columns share whatever width the patient columns leave, so the sheet stays one page
+  // wide however many diets there are.
   const available = (CONTENT_WIDTH - PATIENT_COLUMNS_WIDTH) / columnCount;
-  // MIN_DIET_COLUMN_WIDTH is a readability floor, not a hard minimum: the sheet is guaranteed to
-  // never run wider than one page, so once there are too many diet columns to fit even at the
-  // floor, width must keep shrinking below it rather than let the table overflow the page.
-  if (available < MIN_DIET_COLUMN_WIDTH) return available;
   return Math.min(MAX_DIET_COLUMN_WIDTH, available);
 };
 
