@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { ERROR_TYPE } from '@tamanu/errors';
@@ -14,7 +14,7 @@ import { PDFLoader, printPDF } from '../PatientPrinting/PDFLoader';
 import { useAuth } from '../../contexts/Auth';
 import { ForbiddenErrorModalContents } from '../ForbiddenErrorModal';
 
-const ErrorMessage = styled.div`
+const ErrorMessage = styled.p`
   margin: 60px 20px;
 `;
 
@@ -26,7 +26,6 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
   const { facilityId } = useAuth();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const { logo, title, subTitle, printedBy } = certificateData;
-  const errorMessageRef = useRef(null);
 
   const modalTitle = (
     <TranslatedText
@@ -51,14 +50,52 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
   const isLoading = isFetchingCertificate || isFetchingDietSummary;
   const isForbidden = dietSummaryError?.type === ERROR_TYPE.FORBIDDEN;
 
-  // Move focus to the error so a screen-reader user tabbed onto the (now-removed) Print
-  // button isn't dropped silently onto the document body. Covers both error states, since
-  // MUI's Dialog only manages focus when it mounts, not when its contents swap while it stays open.
-  useEffect(() => {
-    if (isDietSummaryError) {
-      errorMessageRef.current?.focus();
+  const renderContents = () => {
+    if (isForbidden) {
+      return (
+        <ForbiddenErrorModalContents
+          onConfirm={props.onClose}
+          confirmText={
+            <TranslatedText
+              stringId="general.action.ok"
+              fallback="OK"
+              data-testid="translatedtext-dietsummary-forbidden-ok"
+            />
+          }
+          data-testid="forbiddenerrormodalcontents-dietsummary"
+        />
+      );
     }
-  }, [isDietSummaryError]);
+
+    if (isDietSummaryError) {
+      return (
+        <ErrorMessage role="alert" data-testid="errormessage-dietsummary">
+          <TranslatedText
+            stringId="bedManagement.modal.dietSummary.error"
+            fallback="Something went wrong loading the diet summary. Please try again."
+            data-testid="translatedtext-dietsummary-error"
+          />
+        </ErrorMessage>
+      );
+    }
+
+    return (
+      <PDFLoader isLoading={isLoading} id="diet-summary" data-testid="pdfloader-dietsummary">
+        <DietSummaryPDF
+          logoSrc={logo}
+          letterheadConfig={{ title, subTitle }}
+          columns={dietSummary?.columns}
+          hospitalTotals={dietSummary?.hospitalTotals}
+          areas={dietSummary?.areas}
+          getSetting={getSetting}
+          translations={translations}
+          primaryTimeZone={primaryTimeZone}
+          printedBy={printedBy}
+          data-testid="dietsummarypdf"
+        />
+      </PDFLoader>
+    );
+  };
 
   return (
     <Modal
@@ -68,53 +105,7 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
       onPrint={() => printPDF('diet-summary')}
       data-testid="modal-dietsummary"
     >
-      {isDietSummaryError ? (
-        <ErrorMessage
-          ref={errorMessageRef}
-          tabIndex={-1}
-          role="alert"
-          data-testid="errormessage-dietsummary"
-        >
-          {isForbidden ? (
-            <ForbiddenErrorModalContents
-              onConfirm={props.onClose}
-              confirmText={
-                <TranslatedText
-                  stringId="general.action.close"
-                  fallback="Close"
-                  data-testid="translatedtext-dietsummary-forbidden-close"
-                />
-              }
-              data-testid="forbiddenerrormodalcontents-dietsummary"
-            />
-          ) : (
-            <TranslatedText
-              stringId="bedManagement.modal.dietSummary.error"
-              fallback="Something went wrong loading the diet summary. Please try again."
-              data-testid="translatedtext-dietsummary-error"
-            />
-          )}
-        </ErrorMessage>
-      ) : (
-        <PDFLoader
-          isLoading={isLoading}
-          id="diet-summary"
-          data-testid="pdfloader-dietsummary"
-        >
-          <DietSummaryPDF
-            logoSrc={logo}
-            letterheadConfig={{ title, subTitle }}
-            columns={dietSummary?.columns}
-            hospitalTotals={dietSummary?.hospitalTotals}
-            areas={dietSummary?.areas}
-            getSetting={getSetting}
-            translations={translations}
-            primaryTimeZone={primaryTimeZone}
-            printedBy={printedBy}
-            data-testid="dietsummarypdf"
-          />
-        </PDFLoader>
-      )}
+      {renderContents()}
     </Modal>
   );
 });
