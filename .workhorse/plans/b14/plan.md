@@ -53,7 +53,7 @@ Beds, bays, chairs, theatres and the cath lab hold one patient. Left out: Mercy 
 
 - [x] Work out how to deploy without standard reference data (`%config=demo`)
 - [x] Build the Mercy Hospital reference data workbook from the website
-- [ ] Tick the deploy box in the PR body, with the line above
+- [x] Tick the deploy box in the PR body, with the line above (checked after deploy: facility-1 only, no reference data, no programs)
 - [ ] Once the site is up, import the workbook on central (admin panel, Reference data, Import)
 - [ ] Set facility-1's `survey.defaultCodes` to `MercyReception` and `GeneralSurgery` (admin panel, Settings, facility scope)
 - [ ] Check after a sync: facility-1 shows Mercy Hospital, its 12 areas, 110 locations and 18 departments, and no other reference data
