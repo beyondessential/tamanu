@@ -6,7 +6,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import {
   ContentUnavailableView,
   TAMANU_COLORS,
@@ -169,6 +169,7 @@ export function ManageProgramSurveysTable({ programId, ...props }) {
     <StyledDataFetchingTable
       columns={programSurveyColumns}
       endpoint={endpoint}
+      pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.PROGRAM_FORMS}
       initialSort={{ orderBy: 'name', order: 'asc' }}
       noDataMessage={
         <ContentUnavailableView

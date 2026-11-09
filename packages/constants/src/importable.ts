@@ -44,7 +44,6 @@ export const REFERENCE_TYPES = {
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
   SPECIMEN_TYPE: 'specimenType',
-  INSURER: 'insurer',
   PAYMENT_METHOD: 'paymentMethod',
   TASK_TEMPLATE: 'taskTemplate',
   TASK_SET: 'taskSet',

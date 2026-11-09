@@ -1,5 +1,5 @@
 ---
-title: Tamanu design system
+title: Tamanu Design System
 ---
 # Tamanu Design System
 
@@ -13,151 +13,139 @@ This is the lineage to aim for — the quiet competence of a well-built line-of-
 tool, not the flourish of a consumer app. No decoration that doesn't carry
 information. No novelty for its own sake.
 
-## Design philosophy
-
-**Clarity is safety.** A misread dose, a status glanced at wrong, a label that
-could mean two things — in a clinical record these are not cosmetic faults. Every
-value must be legible at a glance and every state unambiguous. When a choice is
-between "prettier" and "clearer", clearer wins every time.
-
-**Density, done calmly.** Clinicians need a lot on screen at once — a table of
-results, a card of patient details, a form with twenty fields. The answer is not
-to hide information behind clicks, but to organise it: consistent grouping,
-alignment, and whitespace so a dense screen still reads as orderly rather than
-noisy. Compact where it must be, never cramped.
-
-**The data is the interface.** Colour, weight, and chrome are spent on the
-clinical content, not on the frame around it. The accent blue is an accent — it
-marks what is interactive or selected, and little else. A screen where everything
-is coloured or boxed is a screen where nothing stands out.
-
-**Every colour means something.** The palette is semantic, not decorative. Blue is
-interactive (primary actions, links, selection). Red is error. Green is safe /
-complete. Orange is warning / urgent. Don't reach for a colour because a region
-"needs" one; reach for it because it carries that meaning here. See
-[Colour palette](#colour-palette).
-
-**Boring is a feature.** Prefer the conventional pattern over the clever one. A
-form is a form, a table is a table, a modal confirms before it destroys. Staff are
-trained once and then trusted to move fast; surprise is a tax on that. New
-interaction patterns need to earn their place against the cost of re-teaching them.
-
-**Consistency across surfaces.** The same concept should look the same in the
-facility server, the central admin panel, and (as far as the platform allows)
-mobile. A status chip, a label/value pair, a primary button — one treatment each,
-reused, not re-invented per screen.
-
-**Everything visible is translatable.** Tamanu is deployed in many countries and
-languages. All user-facing copy — labels, buttons, placeholders, toasts, table
-headings — goes through `TranslatedText` / `TranslatedEnum` / `TranslatedReferenceData`.
-Hardcoded English is a defect, not a detail.
-
-## How to use this document
-
-This is the source of truth for design work in Tamanu — for producing mockups,
-for implementing UI, and for auditing both. It is grounded in the shipped code
-(`packages/ui-components` and `packages/web`), with file paths cited so you can
-confirm against the implementation.
-
-- When this document disagrees with something shipped elsewhere in the codebase,
-  **this document represents the agreed direction** — but say so, rather than
-  silently following one or the other.
-- The values here are extracted from code, not from Figma. A programmatic
-  cross-check against the Figma *Tamanu Design System* file was only partially
-  possible this pass (the file exposed a cover page and a single confirmed token,
-  `Background 2 = #F9FAFB`, which matches the code). Treat the code as
-  authoritative; a fuller Figma reconciliation is follow-up work.
-- **Component docs and previews live in [`./components/`](./components/)** — each
-  of the six components below has a markdown doc and a rendered HTML preview.
-
----
-
 ## Colour palette
 
-A cool, blue-grey system. The single source of truth is `TAMANU_COLORS` in
-`packages/ui-components/src/constants/colors.js`, re-exported as `Colors`. Read
-colours from that object (`Colors.primary`) — never hardcode a hex in a component.
+A cool, blue-grey system. The source of truth is the colour styles in the
+[Tamanu Design System Figma library](https://www.figma.com/design/0zuHw8wmEMhEL5IJ0apjBd/Tamanu-Design-System?node-id=748-43).
+In code, `TAMANU_COLORS` in `packages/ui-components/src/constants/colors.js`
+(re-exported as `Colors`) mirrors those styles. Read colours from that object
+(`Colors.primary`), never hardcode a hex in a component.
 
 The MUI theme (`packages/web/app/theme/theme.jsx`) maps these tokens onto the
 standard MUI palette slots (noted below), so MUI components inherit them.
 
-### Brand / interactive
+The tables give each Figma style, its hex, and its `Colors` token. A style with no
+token (—) has not been added to `TAMANU_COLORS` yet; add it there before using it.
+All styles are at full opacity.
+
+Secondary and tertiary hues come as a ramp: **100** is the full colour, and **20**
+and **10** are 20% and 10% value versions of it, for fills and backgrounds behind
+that colour. Each is named after its full colour and its value, e.g. Safe 100%,
+Safe 20%, Safe 10%, with its `Colors` token in brackets where it has one.
+
+### Primary
 
 Blue is the interactive colour: primary actions, links, selected/active states,
-focus. Spend it sparingly — it only reads as "interactive" if most of the screen
+focus. Spend it sparingly. It only reads as "interactive" if most of the screen
 isn't blue.
 
-| Token | Value | Usage |
+| Style | Value | Token | Usage |
+|---|---|---|---|
+| Tamanu Blue 60 | `#326699` | `primary` | Primary buttons, active tabs, selected rows/borders, links. MUI `primary.main` |
+| Tamanu Blue 30 | `#C2D2E1` | `primary30` | Disabled primary button fill/border |
+| Tamanu Blue 10 | `#EBF0F5` | `primary10` | Faint primary tint for backgrounds/highlights |
+| Dark Blue | `#2F4358` | `primaryDark` | Dark sidebar, tooltip backgrounds. MUI `primary.dark` |
+
+### Secondary
+
+The semantic colours. Each carries one meaning; use it for that meaning, not as
+decoration.
+
+| Style | Value | Name | Usage |
+|---|---|---|---|
+| Green-S 100 | `#47CA80` | Safe 100% (`safe`) | **Success / complete**: completed items, positive status, inpatient. MUI `success.main` |
+| Green-S 20 | `#DAF4E6` | Safe 20% | Success tint |
+| Green-S 10 | `#EDFAF3` | Safe 10% | Light background behind a success region |
+| Red-S 100 | `#F76853` | Alert 100% (`alert`) | **Error**: validation failures, destructive confirmation, error toasts. MUI `error.main` |
+| Red-S 20 | `#FDE1DD` | Alert 20% | Error tint |
+| Red-S 10 | `#FFF0EE` | Alert 10% (`lightAlert`) | Light background behind an error/alert region |
+| Orange-S 100 | `#F17F16` | Orange 100% (`orange`) | **Warning / urgent**: triage, emergency/observation states |
+| Orange-S 20 | `#FCE5D0` | Orange 20% | Warning tint |
+| Orange-S 10 | `#FEF3E8` | Orange 10% | Light background behind a warning region |
+| Yellow-S 100 | `#FFCC24` | Secondary 100% (`secondary`) | **Attention**: secondary accent. MUI `secondary.main` |
+| Yellow-S 20 | `#FFF5D3` | Secondary 20% | Attention tint |
+| Yellow-S 10 | `#FFFAEA` | Secondary 10% | Light background behind an attention region |
+
+### Tertiary
+
+Deeper hues for distinguishing categories and statuses, such as appointment
+statuses, bed states and program registry conditions. Don't reach for these for
+general UI. Where a secondary colour is too light for text or icons, the tertiary
+hue of the same family is its darker partner (Green-T for success, Orange-T for
+warning).
+
+| Style | Value | Name |
 |---|---|---|
-| `primary` | `#326699` | Primary buttons, active tabs, selected rows/borders, links. MUI `primary.main` |
-| `primaryDark` | `#2f4358` | Dark sidebar, tooltip backgrounds. MUI `primary.dark` |
-| `primary30` | `#C2D2E1` | Disabled primary button fill/border (30% presence) |
-| `primary10` | `#EBF0F5` | Faint primary tint for backgrounds/highlights |
-| `blue` | `#1172D1` | Secondary link/info blue (distinct from brand `primary`) |
-| `brightBlue` | `#67A6E3` | Lighter accent blue |
-| `veryLightBlue` | `#F4F9FF` | Row hover tint on clickable tables. MUI `action.hover` |
+| Green-T 100 | `#19934E` | Green 100% (`green`) |
+| Green-T 20 | `#D1E9DC` | Green 20% |
+| Green-T 10 | `#E9F5EE` | Green 10% |
+| Blue-T 100 | `#1172D1` | Blue 100% (`blue`) |
+| Blue-T 20 | `#CFE3F6` | Blue 20% |
+| Blue-T 10 | `#E8F1FB` | Blue 10% |
+| Purple-T 100 | `#4101C9` | Purple 100% (`purple`) |
+| Purple-T 20 | `#D9CCF4` | Purple 20% |
+| Purple-T 10 | `#ECE6FA` | Purple 10% |
+| Pink-T 100 | `#D10580` | Pink 100% (`pink`) |
+| Pink-T 20 | `#F6CDE6` | Pink 20% |
+| Pink-T 10 | `#FBE7F3` | Pink 10% |
+| Orange-T 100 | `#CB6100` | Dark orange 100% (`darkOrange`) |
+| Orange-T 20 | `#F5DFCC` | Dark orange 20% |
+| Orange-T 10 | `#FAF0E6` | Dark orange 10% |
+| Yellow-T 100 | `#BD9503` | Metallic yellow 100% (`metallicYellow`) |
+| Yellow-T 20 | `#F2EACD` | Metallic yellow 20% |
+| Yellow-T 10 | `#F9F5E6` | Metallic yellow 10% |
+| Brown-T 100 | `#67361B` | Brown 100% |
+| Brown-T 20 | `#E1D7D1` | Brown 20% |
+| Brown-T 10 | `#F0EBE9` | Brown 10% |
+| Teal-T 100 | `#125E7E` | Teal 100% |
+| Teal-T 20 | `#D0DFE5` | Teal 20% |
+| Teal-T 10 | `#E8EFF3` | Teal 10% |
 
-### Text ramp
+### Font
 
-Four weights of grey, darkest for primary reading down to faint. Use the ramp;
-don't invent intermediate greys.
+Four greys, darkest for primary reading down to faint. Use the ramp; don't invent
+intermediate greys.
 
-| Token | Value | Usage |
-|---|---|---|
-| `darkestText` | `#444444` | Primary text — headings, labels, body. MUI `text.primary` |
-| `darkText` | `#666666` | Secondary text — values, descriptions |
-| `midText` | `#888888` | Tertiary / de-emphasised — placeholders, helper text, disabled, card labels. MUI `text.tertiary` |
-| `softText` | `#b8b8b8` | Lowest emphasis — disabled controls, faint captions, version strings |
+| Style | Value | Token | Usage |
+|---|---|---|---|
+| Super Dark 80 | `#444444` | `darkestText` | Primary text: headings, labels, body. MUI `text.primary` |
+| Dark 60 | `#666666` | `darkText` | Secondary text: values, descriptions |
+| Mid 40 | `#888888` | `midText` | De-emphasised: placeholders, helper text, card labels. MUI `text.tertiary` |
+| Light 20 | `#B8B8B8` | `softText` | Lowest emphasis: disabled controls, faint captions, version strings |
 
-### Semantic
+### Misc
 
-Each carries one meaning. Use them for that meaning, not as decoration.
+Surfaces, lines and hover states.
 
-| Token | Value | Meaning |
-|---|---|---|
-| `alert` | `#f76853` | **Error** — validation failures, destructive confirmation, error toasts. MUI `error.main` |
-| `lightAlert` | `#fff0ee` | Light tint background behind an error/alert region |
-| `safe` | `#47ca80` | **Success / complete** — completed items, positive status, inpatient. MUI `success.main` |
-| `green` | `#19934E` | Deeper success green (text/icons where `safe` is too light) |
-| `orange` | `#f17f16` | **Warning / urgent** — triage, emergency/observation states |
-| `darkOrange` | `#CB6100` | Darker warning — in-progress, no-show |
-| `secondary` | `#ffcc24` | Attention yellow (secondary accent). MUI `secondary.main` |
+| Style | Value | Token | Usage |
+|---|---|---|---|
+| White | `#FFFFFF` | `white` | Cards, panels, inputs, table bodies |
+| Hover 1 | `#F4F9FF` | `veryLightBlue` | Row hover tint on clickable tables. MUI `action.hover` |
+| Hover 2 | `#22486D` | — | Hover colour for blue text buttons (`TextButton` hardcodes the near-identical `#23476b`) |
+| Background | `#F3F5F7` | `background` | App/page background, modal body, table header, disabled fields, neutral hover. MUI `background.default` |
+| Background 2 | `#F9FAFB` | `background2` | Lighter alternate panel (summary panels) |
+| Default Off | `#EBEBEB` | `softOutline` | Subtle borders: section dividers, modal and card header rules |
+| Box Outline | `#DEDEDE` | `outline` | Default borders: inputs, cards, table container, dividers. MUI `divider` |
 
-### Surfaces & lines
+### Tokens outside the Figma library
 
-| Token | Value | Usage |
-|---|---|---|
-| `white` | `#ffffff` | Cards, panels, inputs, table bodies |
-| `offWhite` | `#fafafa` | Subtle off-white surface |
-| `background` | `#f3f5f7` | App/page background, modal body, table header, disabled fields. MUI `background.default` |
-| `background2` | `#f9fafb` | Lighter alternate panel (summary panels). Confirmed against Figma `Background 2` |
-| `hoverGrey` | `#f3f5f7` | Neutral hover fill (same hex as `background`) |
-| `outline` | `#dedede` | Default borders — inputs, cards, table container, dividers. MUI `divider` |
-| `softOutline` | `#ebebeb` | Subtle borders — section dividers, modal header rule, card header rule |
-| `searchTintColor` | `#d2dae3` | Search field tint |
-
-### Occasional
-
-Reserved, narrow-use hues. Don't reach for these for general UI.
-
-| Token | Value | Usage |
-|---|---|---|
-| `pink` | `#D10580` | Category/identity accent |
-| `purple` | `#4101C9` | Category/identity accent |
-| `metallicYellow` | `#BD9503` | Category/identity accent |
+`TAMANU_COLORS` also carries `brightBlue` (`#67A6E3`), `offWhite` (`#fafafa`),
+`searchTintColor` (`#d2dae3`) and `hoverGrey` (`#f3f5f7`, a duplicate of
+`background`). They have no Figma style, so new work uses the nearest style above
+instead.
 
 ### Rules
 
 - **Read from `Colors`.** Never inline a hex. If a value you need isn't in the
-  palette, that's a palette decision — raise it, don't fork a one-off shade.
-- **Don't recolour chrome.** Borders are `outline`/`softOutline`, backgrounds are
-  `white`/`background`. Resist tinting panels to "group" them; alignment and
+  palette, that's a palette decision: raise it, don't fork a one-off shade.
+- **Don't recolour chrome.** Borders are Box Outline / Default Off, backgrounds are
+  White / Background. Resist tinting panels to "group" them; alignment and
   spacing do that job.
-- **Semantic colours keep their meaning.** Don't use `alert` red for emphasis, or
-  `safe` green for a non-success accent.
-- **Contrast.** Body text is `darkestText`/`darkText` on white or `background`.
-  `midText` is for de-emphasised secondary content, not long-form reading;
-  `softText` is for disabled/faint only.
+- **Semantic colours keep their meaning.** Don't use Red-S red for emphasis, or
+  Green-S green for a non-success accent.
+- **Contrast.** Body text is Super Dark 80 / Dark 60 on White or Background.
+  Mid 40 is for de-emphasised secondary content, not long-form reading; Light 20
+  is for disabled/faint only.
 
 ## Typography
 
@@ -173,27 +161,44 @@ systems); identifiers render in Roboto like everything else.
 
 ### Type scale
 
-Tamanu's type scale is **not** expressed through MUI typography variants — the
-theme only sets `fontFamily: 'Roboto'` and leaves the MUI variant scale at its
-defaults. The real scale is eight styled components in
-`packages/web/app/components/Typography.js`. Use these components for text rather
-than raw MUI `Typography` or ad-hoc `font-size`.
+The source of truth is the 14 text styles in the Figma library: six sizes, each in
+Regular (400) and Medium (500), plus an underlined Small. In code the scale is the
+styled components in `packages/web/app/components/Typography.js`. It is **not**
+expressed through MUI typography variants: the theme only sets
+`fontFamily: 'Roboto'` and leaves the MUI variant scale at its defaults. Use these
+components for text rather than raw MUI `Typography` or ad-hoc `font-size`.
 
-| Component | Size | Line-height | Weight | Element |
+| Style | Weight | Size | Line height | Component |
 |---|---|---|---|---|
-| `Heading1` | 24px | 32px | 500 | `h1` |
-| `Heading2` | 20px | 28px | 500 | `h2` |
-| `Heading3` | 18px | 24px | 500 | `h3` |
-| `Heading4` | 16px | 21px | 500 | `h4` |
-| `Heading5` | 14px | 18px | 500 | `h5` |
-| `LargeBodyText` | 16px | 21px | 400 | `div` |
-| `BodyText` | 14px | 18px | 400 | `div` |
-| `SmallBodyText` | 11px | 15px | 400 | `div` |
+| Header 1 - Regular | 400 | 24px | 32px | — |
+| Header 1 - Medium | 500 | 24px | 32px | `Heading1` (`h1`) |
+| Header 2 - Regular | 400 | 20px | 28px | — |
+| Header 2 - Medium | 500 | 20px | 28px | `Heading2` (`h2`) |
+| Header 3 - Regular | 400 | 18px | 24px | — |
+| Header 3 - Medium | 500 | 18px | 24px | `Heading3` (`h3`) |
+| Header 4 - Regular | 400 | 16px | 21px | `LargeBodyText` |
+| Header 4 - Medium | 500 | 16px | 21px | `Heading4` (`h4`) |
+| Body - Regular | 400 | 14px | 18px | `BodyText` |
+| Body - Medium | 500 | 14px | 18px | `Heading5` (`h5`) |
+| Small - Regular | 400 | 11px | 15px | `SmallBodyText` |
+| Small - Medium | 500 | 11px | 15px | — |
+| Small Underline - Regular | 400 | 11px | 15px | — |
+| Small Underline - Medium | 500 | 11px | 15px | — |
 
-`BodyText` (14px) is the default body size — it matches the base control text
-(inputs, buttons, table cells are all 14px). `SmallBodyText` (11px) is for
-helper text, captions, and metadata. Headings step 24 → 20 → 18 → 16 → 14, all at
-weight 500 (medium); there is no 700/bold heading weight in the scale.
+Every style shares the same settings:
+
+```
+font-family: Roboto;  letter-spacing: 0;  text-transform: none;
+paragraph spacing: 0;  indent: 0;  text-decoration: none (underline on the two Small Underline styles);
+```
+
+A style with no component (—) has none in `Typography.js` yet. The Figma file spells the last style "Small Undelrine -
+Medium".
+
+`BodyText` (14px) is the default body size. It matches the base control text
+(inputs, buttons and table cells are all 14px). Small (11px) is for helper text,
+captions and metadata. Sizes step 24 → 20 → 18 → 16 → 14 → 11. There is no
+700/bold weight in the scale.
 
 ### The `color` prop gotcha (important)
 
@@ -215,7 +220,7 @@ Don't trust `textPrimary`/`textSecondary` on these components.
 | Context | Treatment | Source |
 |---|---|---|
 | Form helper text | 11px, line-height 1.4, `midText` | `MuiFormHelperText` |
-| Menu item | 11px, letter-spacing 0.02em | `MuiMenuItem` |
+| Menu item | 11px, letter-spacing 0.02em (differs from the scale's 0) | `MuiMenuItem` |
 | Tabs | `text-transform: none`, min-height 48px | `MuiTab` |
 | Button | 14px, weight 500, `text-transform: none` | `StyledButton` |
 
@@ -263,22 +268,3 @@ status pills are fully rounded.
 Rule of thumb: **square-ish (3px)** for controls and containers, **fully-round**
 for status pills and chips. Avoid introducing new mid-range values (6/8/9px appear
 occasionally but aren't a deliberate step).
-
----
-
-## Components
-
-The six most-used building blocks in the web app live in
-[`./components/`](./components/) — each has a markdown doc and a rendered HTML
-preview:
-
-- [Button](./components/button.md) — the action control (primary / secondary / tertiary)
-- [Field](./components/field.md) — the form field system (label, input, validation)
-- [FormGrid](./components/form-grid.md) — the form layout grid
-- [Modal](./components/modal.md) — dialogs (Modal / FormModal / ConfirmModal)
-- [Table](./components/table.md) — lists and data grids
-- [Card](./components/card.md) — InfoCard panels and Tile stats
-
-When implementing, **use these components** — don't rebuild a button, field, or
-modal from MUI primitives. Import from `@tamanu/ui-components` (shared) or the web
-`components/` directory as noted in each doc.

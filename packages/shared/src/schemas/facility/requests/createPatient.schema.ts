@@ -35,8 +35,6 @@ export const createPatientSchema = z.object({
   birthCertificate: stringWithMaxLength.optional(),
   drivingLicense: stringWithMaxLength.optional(),
   passport: stringWithMaxLength.optional(),
-  // TODO: add max length to insurerId
-  insurerId: foreignKey.optional(),
   adoptionNumber: stringWithMaxLength.optional(),
   marriageLicence: stringWithMaxLength.optional(),
 

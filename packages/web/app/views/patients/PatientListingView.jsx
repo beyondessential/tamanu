@@ -1,6 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useState } from 'react';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { LocationCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import {
@@ -87,7 +87,7 @@ const INPATIENT_COLUMNS = [
   { ...diet, sortable: false },
 ];
 
-const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters, pageSizePreferenceKey }) => {
   const { navigateToPatient } = usePatientNavigation();
   const { facilityId } = useAuth();
   const fetchOptionsWithSearchParameters = {
@@ -113,6 +113,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       }}
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
+      pageSizePreferenceKey={pageSizePreferenceKey}
       data-testid="searchtablewithpermissioncheck-qyht"
     />
   );
@@ -247,6 +248,7 @@ export const AdmittedPatientsView = () => {
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
           columns={INPATIENT_COLUMNS}
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.INPATIENTS}
           data-testid="patienttable-w4sz"
         />
       </ContentPane>
@@ -293,6 +295,7 @@ export const OutpatientsView = () => {
           fetchOptions={{ outpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
           columns={OUTPATIENT_COLUMNS}
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.OUTPATIENTS}
           data-testid="patienttable-18bx"
         />
       </ContentPane>
