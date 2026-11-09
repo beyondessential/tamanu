@@ -25,9 +25,14 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - Patients whose location has no area are grouped under a **No area** section, which follows the named wards.
 - Wards with no patients on the sheet are left off it.
 - Patients are identified by name and NHN.
+- A patient whose bed has been deleted does not appear on the sheet.
+- A patient whose ward has been deleted appears under **No area** rather than dropping off the sheet.
+- A patient in a bed whose visibility status is not current still appears, even where Bed management's own list hides that bed.
 
 > [!NOTE]
 > Emergency patients are fed from the same kitchen as admitted ones, so leaving them off the sheet would under-count meals. A diet is recorded on a hospital admission, so emergency patients are counted as regular meals until they are admitted.
+>
+> A deleted ward still feeds its patients because the sheet's job is to cover everyone with an open encounter, not to mirror Bed management's own ward list. A retired bed is kept for the same reason: the patient in it still needs feeding, whether or not the bed still shows on Bed management's own table.
 
 ## Layout
 
@@ -54,8 +59,9 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 
 ## Configuration
 
-- A facility setting names the diet that stands for a regular meal, chosen from the deployment's diet reference data.
+- A setting names the diet that stands for a regular meal, chosen from the deployment's diet reference data. It is set deployment-wide, and a facility can override it with a diet of its own.
 - Where no diet is named, the sheet carries its own **Regular** column, which holds the patients with no diet recorded.
+- Where the diet configured as the regular meal no longer exists, its column still appears, under the generic **Regular** label.
 
 > [!NOTE]
 > Deployments name their regular meal differently, and several ship a diet of their own for it. Pointing the setting at that diet keeps the patients who have it recorded and the patients who have nothing recorded in one column, rather than splitting one kitchen order across two.
