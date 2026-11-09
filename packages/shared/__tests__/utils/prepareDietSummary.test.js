@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { prepareDietSummary } from './prepareDietSummary';
+import { prepareDietSummary } from '../../src/utils/dietSummary/prepareDietSummary';
 
 // Mirrors the PDF language context: a seeded translation wins, otherwise the fallback shows.
 const makeGetTranslation = (translations = {}) => (stringId, fallback) =>
