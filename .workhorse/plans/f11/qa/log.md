@@ -356,3 +356,14 @@ a generous estimate moves a ward to the next page instead of stranding its headi
 Pages read after the fix: a ward that genuinely spans a break still reads "(continued)" with its
 column headers repeated, and the ward after it starts whole with its Sub total and rows. Shared
 suite 236 passing, eslint clean.
+
+## Round 2
+
+Two adversaries, neither of which wrote what it attacks, because the blocker fix was mine:
+
+- **Pagination (opus)** — sweep ward counts and shapes for another runaway, with every render
+  bounded at 30s so one hang cannot eat the run; hunt a stranded heading or false "(continued)";
+  check the fix costs no pages; attack the `countFor` guard and the `ROW_HEIGHT` estimate.
+- **Endpoint (sonnet)** — get past each of the five guards the first round added, confirm a patient
+  whose ward is missing still appears under No area rather than dropping off, and find a mutation
+  near the new sub total test that it does not catch.
