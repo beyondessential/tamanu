@@ -281,7 +281,7 @@
     microbiology: 'Microbiology',
   };
 
-  // Results line up with DATES; null shows as N/A
+  // Results line up with DATES; null shows as n/a
   const TESTS = {
     hb: { name: 'Haemoglobin', unit: 'g/L', category: 'haematology', min: 115, max: 160, results: [108, 121, 126, 124] },
     wcc: { name: 'White cell count', unit: '×10⁹/L', category: 'haematology', min: 4.0, max: 11.0, results: [13.2, 8.4, 7.9, 6.8] },
@@ -541,7 +541,7 @@
         const cells = dateIndexes
           .map(index => {
             const value = test.results[index];
-            if (value == null) return '<td><span class="result is-na">N/A</span></td>';
+            if (value == null) return '<td><span class="result is-na">n/a</span></td>';
             const flag = isOutOfRange(test, value) ? ' is-out-of-range' : '';
             return `<td><span class="result${flag}">${value}</span></td>`;
           })

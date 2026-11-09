@@ -9,3 +9,7 @@ The patient lab test results query (`/:id/labTestResults` in `patientRelations.j
 ### Category scoping the Test or panel suggestions
 
 The Test or panel suggester takes the picked category as an extra query parameter and filters on the configured category: the panel's own category for panels, and the test type's category for tests. The table's category filter keeps matching on the lab request's category, as it does today. These usually agree, but a test whose type sits in a different category from its request shows in the category table without being suggested under that category.
+
+### Lower-case n/a for missing results
+
+The empty result cell uses the shared `general.fallback.notApplicable` string, whose fallback is "N/A" in a dozen other places. Give this table its own string ID with an "n/a" fallback rather than changing the shared one, so the other screens keep "N/A".
