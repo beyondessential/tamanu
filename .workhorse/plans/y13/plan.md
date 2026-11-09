@@ -16,6 +16,8 @@ No code change: the demo is an autodeploy dressed as Mercy Hospital Dunedin thro
 
 No TTL option is ticked on the PR yet, so the site suspends 4 hours after each deploy, and each push to the branch wakes it for another 4. The next deploy, at 15:01 UTC, succeeded, and at 19:12 UTC the facility server still showed Mercy Hospital with its 11 areas, 60 locations and charts, so suspension keeps the data. The deploy that ran on the 13:32 push woke the site but then failed: Pulumi gave up after 30 minutes with the Argo CD application OutOfSync/Progressing, its sync waiting on the `central-migrator` hook job ([run](https://github.com/beyondessential/tamanu/actions/runs/42626375748)). The same branch deployed cleanly at 04:25 with the same migrations, so this is the deploy infrastructure rather than anything in the branch, which carries only this plan. If a re-run hangs the same way, the `central-migrator` job's own logs are the place to look, through Headlamp or `kubectl` against `tamanu-workhorse-y13`.
 
+A deploy that wakes the site took 13 minutes when it worked (15:01 UTC); the failed one ran to Pulumi's 30-minute limit. Deploys for the branch queue rather than cancel each other, so a push made while one is running acts as a retry if that one hangs.
+
 ### Set aside: a long-lived release/2.66 deploy
 
 If the demo has to be v2.66, the earlier design still applies: a separate control issue titled `Auto-deploy: release/2.66 Mercy Hospital demo`, labelled `auto-deploy`, with `#branch=release/2.66` and `- [x] **Mercy Hospital demo** <!-- #deploy=mercy --> %config=rc %facilities=1 %ttlhours=0 %mobile=never`. It would sit at `release-2-66-mercy.cd.tamanu.app`, and the scripts below would need re-pointing and re-running against it.
