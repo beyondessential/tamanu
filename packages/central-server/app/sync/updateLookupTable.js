@@ -379,6 +379,9 @@ export const updateLookupTable = withConfig(
 
     let changesCount = 0;
     const modelTimings = [];
+    // Held on the instance unsaved: a save here joins the build's transaction and is lost when a
+    // failed build rolls back, while the caller saves the instance again outside it.
+    debugObject.set('info', { ...debugObject.info, modelTimings });
 
     const maxFlaggedPatientsPerBuild = await new ReadSettings(models).get(
       'sync.maxFlaggedPatientsPerBuild',

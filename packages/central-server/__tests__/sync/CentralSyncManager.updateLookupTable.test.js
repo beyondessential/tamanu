@@ -7,7 +7,7 @@ import {
   FACT_LOOKUP_MODELS_TO_REBUILD,
   FACT_SYNC_TRIGGER_CONTROL,
 } from '@tamanu/constants/facts';
-import { SYNC_SESSION_DIRECTION, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
+import { SYNC_SESSION_DIRECTION, SYNC_TICK_FLAGS, getModelsForPull } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
 import { updateLookupTable as runLookupTableBuild } from '../../app/sync/updateLookupTable';
 
@@ -783,6 +783,35 @@ describe('CentralSyncManager.updateLookupTable', () => {
     expect(debugLog.info.selfHealDurationMs).toEqual(expect.any(Number));
   });
 
+  it('keeps the timings of models built before a failure in debug log', async () => {
+    await models.Patient.create(fake(models.Patient));
+
+    const centralSyncManager = await initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    const lastModel = Object.values(getModelsForPull(models)).at(-1);
+    const failing = vi
+      .spyOn(lastModel, 'buildSyncLookupQueryDetails')
+      .mockRejectedValue(new Error('Test error'));
+
+    await expect(centralSyncManager.updateLookupTable()).rejects.toThrow('Test error');
+    failing.mockRestore();
+
+    const [debugLog] = await models.DebugLog.findAll({});
+    expect(debugLog.info.error).toContain('Test error');
+    expect(debugLog.info.modelTimings).toContainEqual({
+      model: 'patients',
+      rows: 1,
+      durationMs: expect.any(Number),
+    });
+  });
+
   it('records error thrown when updating sync_lookup in debug log', async () => {
     const centralSyncManager = await initializeCentralSyncManager({
       sync: {
@@ -1074,7 +1103,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
               previouslyUpToTick,
               centralSyncManager.constructor.config,
               SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE,
-              { addInfo: async () => {} },
+              { addInfo: async () => {}, set: () => {} },
             );
           },
         );
