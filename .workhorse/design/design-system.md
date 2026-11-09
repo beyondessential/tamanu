@@ -164,8 +164,8 @@ systems); identifiers render in Roboto like everything else.
 
 ### Type scale
 
-The source of truth is the 14 text styles in the Figma library: six sizes, each in
-Regular (400) and Medium (500), plus an underlined Small. In code the scale is the
+The source of truth is the 12 text styles in the Figma library: six sizes, each in
+Regular (400) and Medium (500). In code the scale is the
 styled components in `packages/web/app/components/Typography.js`. It is **not**
 expressed through MUI typography variants: the theme only sets
 `fontFamily: 'Roboto'` and leaves the MUI variant scale at its defaults. Use these
@@ -185,18 +185,15 @@ components for text rather than raw MUI `Typography` or ad-hoc `font-size`.
 | Body - Medium | 500 | 14px | 18px | `Heading5` (`h5`) |
 | Small - Regular | 400 | 11px | 15px | `SmallBodyText` |
 | Small - Medium | 500 | 11px | 15px | — |
-| Small Underline - Regular | 400 | 11px | 15px | — |
-| Small Underline - Medium | 500 | 11px | 15px | — |
 
 Every style shares the same settings:
 
 ```
 font-family: Roboto;  letter-spacing: 0;  text-transform: none;
-paragraph spacing: 0;  indent: 0;  text-decoration: none (underline on the two Small Underline styles);
+paragraph spacing: 0;  indent: 0;  text-decoration: none;
 ```
 
-A style with no component (—) has none in `Typography.js` yet. The Figma file spells the last style "Small Undelrine -
-Medium".
+A style with no component (—) has none in `Typography.js` yet.
 
 `BodyText` (14px) is the default body size. It matches the base control text
 (inputs, buttons and table cells are all 14px). Small (11px) is for helper text,
