@@ -5,6 +5,7 @@ import { WebcamCaptureModal, CAMERA_STATUS } from './WebcamCaptureModal';
 import { notifyError } from '../utils/index.js';
 
 const MAX_QR_LENGTH = 50;
+const MAX_FREE_TEXT_QR_LENGTH = 255;
 
 const normalizeQrValue = value => (typeof value === 'string' ? value.trim() : '');
 
@@ -26,7 +27,7 @@ const useQrValueValidation = matchDisplayIdPattern => {
   return value => {
     if (!value) return false;
 
-    if (!matchDisplayIdPattern) return true;
+    if (!matchDisplayIdPattern) return value.length <= MAX_FREE_TEXT_QR_LENGTH;
 
     if (value.length > MAX_QR_LENGTH) return false;
 

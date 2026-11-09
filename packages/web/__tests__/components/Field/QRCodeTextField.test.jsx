@@ -90,4 +90,14 @@ describe('QRCodeTextField', () => {
 
     await waitFor(() => expect(screen.getByTestId(VALUE_PROBE).textContent).toBe(scannedValue));
   });
+
+  it('rejects a scan longer than a free text field can store', async () => {
+    scannedValue = 'x'.repeat(256);
+    renderField({ matchDisplayIdPattern: false });
+
+    await userEvent.click(screen.getByTestId('qr-scanner-button'));
+
+    await waitFor(() => expect(notifyError).toHaveBeenCalled());
+    expect(screen.getByTestId(VALUE_PROBE).textContent).toBe('');
+  });
 });
