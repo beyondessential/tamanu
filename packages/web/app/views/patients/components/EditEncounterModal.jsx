@@ -35,6 +35,27 @@ const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
 `;
 
+const PatientTypeField = props => (
+  <LocalisedField
+    name="patientBillingTypeId"
+    label={
+      <TranslatedText
+        stringId="general.localisedField.patientBillingTypeId.label"
+        fallback="Patient type"
+        data-testid="translatedtext-67v8"
+      />
+    }
+    endpoint="patientBillingType"
+    component={SuggesterSelectField}
+    data-testid="localisedfield-amji"
+    {...props}
+  />
+);
+
+const FirstColumnPatientTypeField = styled(PatientTypeField)`
+  grid-column-start: 1;
+`;
+
 const HospitalAdmissionFields = () => {
   const referralSourceSuggester = useSuggester('referralSource');
 
@@ -64,19 +85,7 @@ const HospitalAdmissionFields = () => {
         }
         data-testid="field-discharge-date"
       />
-      <LocalisedField
-        name="patientBillingTypeId"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.patientBillingTypeId.label"
-            fallback="Patient type"
-            data-testid="translatedtext-67v8"
-          />
-        }
-        endpoint="patientBillingType"
-        component={SuggesterSelectField}
-        data-testid="localisedfield-amji"
-      />
+      <PatientTypeField />
       <Field
         name="referralSourceId"
         component={DynamicSelectField}
@@ -113,10 +122,6 @@ const HospitalAdmissionFields = () => {
   );
 };
 
-const PatientTypeField = styled(LocalisedField)`
-  grid-column-start: 1;
-`;
-
 const ClinicFields = () => {
   const referralSourceSuggester = useSuggester('referralSource');
 
@@ -135,19 +140,7 @@ const ClinicFields = () => {
         saveDateAsString
         data-testid="field-check-in-time"
       />
-      <PatientTypeField
-        name="patientBillingTypeId"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.patientBillingTypeId.label"
-            fallback="Patient type"
-            data-testid="translatedtext-67v8"
-          />
-        }
-        endpoint="patientBillingType"
-        component={SuggesterSelectField}
-        data-testid="localisedfield-amji"
-      />
+      <FirstColumnPatientTypeField />
       <Field
         name="referralSourceId"
         component={DynamicSelectField}
@@ -217,19 +210,7 @@ const TriageFields = () => {
         endpoint="arrivalMode"
         data-testid="localisedfield-hjex"
       />
-      <LocalisedField
-        name="patientBillingTypeId"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.patientBillingTypeId.label"
-            fallback="Patient type"
-            data-testid="translatedtext-67v8"
-          />
-        }
-        endpoint="patientBillingType"
-        component={SuggesterSelectField}
-        data-testid="localisedfield-amji"
-      />
+      <PatientTypeField />
       <Field
         name="score"
         label={
