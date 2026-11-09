@@ -46,6 +46,9 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
   const validateCode = useQrValueValidation(matchDisplayIdPattern);
   const [cameraStatus, setCameraStatus] = useState(CAMERA_STATUS.REQUESTING);
   const scannerTimerRef = useRef(null);
+  // The scan loop reads the latest callbacks through a ref so a parent re-render doesn't restart it
+  const callbacksRef = useRef({ onScan, onClose, validateCode });
+  callbacksRef.current = { onScan, onClose, validateCode };
 
   useEffect(() => {
     if (cameraStatus === CAMERA_STATUS.READY && open) {
@@ -61,6 +64,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
       };
 
       const scan = async () => {
+        const { onScan, onClose, validateCode } = callbacksRef.current;
         if (webcamRef.current && webcamRef.current.video) {
           const video = webcamRef.current.video;
           // Ensure video is ready to be scanned
@@ -120,7 +124,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
         scannerTimerRef.current = null;
       }
     };
-  }, [cameraStatus, open, onScan, onClose, validateCode]);
+  }, [cameraStatus, open]);
 
   const videoConstraints = {
     width: 1280,

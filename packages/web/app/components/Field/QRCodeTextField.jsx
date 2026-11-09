@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { QRCodeIconButton, QRCodeScanButton } from './QRCodeScanButton';
+import { QRCodeScanButton } from './QRCodeScanButton';
 import { TextField } from './TextField';
 
 const Container = styled.div`
@@ -12,22 +12,21 @@ const Container = styled.div`
   }
 `;
 
-const TextFieldIconButton = styled(QRCodeIconButton)`
+const ScanButton = styled(QRCodeScanButton)`
   height: 44px;
   width: 44px;
 `;
 
 export const QRCodeTextField = ({ matchDisplayIdPattern, ...props }) => {
-  const { field: { name } = {}, form: { setFieldValue } = {} } = props;
+  const { field: { name } = {}, onChange } = props;
 
   return (
     <Container>
       <TextField {...props} />
-      <QRCodeScanButton
+      <ScanButton
         name={name}
-        onScan={qrCodeValue => setFieldValue(name, qrCodeValue)}
+        onScan={qrCodeValue => onChange({ target: { name, value: qrCodeValue } })}
         matchDisplayIdPattern={matchDisplayIdPattern}
-        component={TextFieldIconButton}
       />
     </Container>
   );

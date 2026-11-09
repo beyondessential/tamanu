@@ -6,7 +6,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { QRCodeScannerModal } from '../QRCodeScannerModal';
 import { ThemedTooltip } from '../Tooltip';
 
-export const QRCodeIconButton = styled(IconButton)`
+const QRCodeIconButton = styled(IconButton)`
   height: 38px;
   width: 38px;
   margin-left: 5px;
@@ -15,13 +15,7 @@ export const QRCodeIconButton = styled(IconButton)`
   border-radius: 3px;
 `;
 
-export const QRCodeScanButton = ({
-  name,
-  onScan,
-  matchDisplayIdPattern,
-  component: Button = QRCodeIconButton,
-  className,
-}) => {
+export const QRCodeScanButton = ({ name, onScan, matchDisplayIdPattern, className }) => {
   const { getTranslation } = useTranslation();
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const label = getTranslation('general.action.scanQRCode', 'Scan QR code');
@@ -29,14 +23,14 @@ export const QRCodeScanButton = ({
   return (
     <>
       <ThemedTooltip title={label}>
-        <Button
+        <QRCodeIconButton
           className={className}
           aria-label={label}
           onClick={() => setQrModalOpen(true)}
           data-testid={`qr-scanner-button-${name}`}
         >
           <QRCodeIcon aria-hidden />
-        </Button>
+        </QRCodeIconButton>
       </ThemedTooltip>
       <QRCodeScannerModal
         open={qrModalOpen}

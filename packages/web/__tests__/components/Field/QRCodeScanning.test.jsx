@@ -34,6 +34,7 @@ vi.mock('../../../app/utils', async importOriginal => ({
 const SCANNED_VALUE = 'screening-123';
 let scannedValue;
 const VALUE_PROBE = 'value-probe';
+const TOUCHED_PROBE = 'touched-probe';
 
 const renderField = fieldProps =>
   renderElementWithTranslatedText(
@@ -43,10 +44,11 @@ const renderField = fieldProps =>
       }}
     >
       <Formik initialValues={{ code: '' }} initialStatus={{}} onSubmit={() => {}}>
-        {({ values }) => (
+        {({ values, touched }) => (
           <>
             <Field name="code" component={QRCodeTextField} {...fieldProps} />
             <div data-testid={VALUE_PROBE}>{values.code}</div>
+            <div data-testid={TOUCHED_PROBE}>{String(Boolean(touched.code))}</div>
           </>
         )}
       </Formik>
@@ -75,12 +77,13 @@ describe('QRCodeTextField', () => {
     expect(screen.getByTestId(VALUE_PROBE).textContent).toBe('');
   });
 
-  it('fills the field with any scan when the display ID pattern is not required', async () => {
+  it('fills and touches the field with any scan when the display ID pattern is not required', async () => {
     renderField({ matchDisplayIdPattern: false });
 
     await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
 
     await waitFor(() => expect(screen.getByTestId(VALUE_PROBE).textContent).toBe(SCANNED_VALUE));
+    expect(screen.getByTestId(TOUCHED_PROBE).textContent).toBe('true');
     expect(notifyError).not.toHaveBeenCalled();
   });
 
