@@ -4,4 +4,4 @@ id: REPORTS
 
 # Reports
 
-Report definitions, generation, and exports.
+Applies to report definitions, generation, and exports.

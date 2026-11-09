@@ -24,6 +24,10 @@ import { DashboardView } from './views/dashboard/DashboardView';
 import { useSettings } from './contexts/Settings';
 import { KioskView } from './views/kiosk/KioskView';
 import { TelemetryRouteListener } from './telemetry';
+import {
+  AdminPageSizePreferencesProvider,
+  FacilityPageSizePreferencesProvider,
+} from './contexts/PageSizePreferences';
 
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
@@ -58,21 +62,23 @@ const RoutingClinicalApp = () => {
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
       <UserActivityMonitor />
-      <Routes>
-        {isSettingsLoaded ? (
-          <Route path="/" element={<Navigate to={sidebarMenuItems[0].path} replace />} />
-        ) : null}
-        <Route path="/dashboard" element={<DashboardView />} />
-        <Route path="/patients/*" element={<PatientsRoutes />} />
-        <Route path="/appointments/*" element={<AppointmentRoutes />} />
-        <Route path="/imaging-requests/*" element={<ImagingRoutes />} />
-        <Route path="/medication/*" element={<MedicationRoutes />} />
-        <Route path="/lab-requests/*" element={<LabsRoutes />} />
-        <Route path="/invoices/*" element={<BillingRoutes />} />
-        <Route path="/program-registry/*" element={<ProgramRegistryRoutes />} />
-        <Route path="/immunisations/*" element={<ImmunisationRoutes />} />
-        <Route path="/facility-admin/*" element={<FacilityAdminRoutes />} />
-      </Routes>
+      <FacilityPageSizePreferencesProvider>
+        <Routes>
+          {isSettingsLoaded ? (
+            <Route path="/" element={<Navigate to={sidebarMenuItems[0].path} replace />} />
+          ) : null}
+          <Route path="/dashboard" element={<DashboardView />} />
+          <Route path="/patients/*" element={<PatientsRoutes />} />
+          <Route path="/appointments/*" element={<AppointmentRoutes />} />
+          <Route path="/imaging-requests/*" element={<ImagingRoutes />} />
+          <Route path="/medication/*" element={<MedicationRoutes />} />
+          <Route path="/lab-requests/*" element={<LabsRoutes />} />
+          <Route path="/invoices/*" element={<BillingRoutes />} />
+          <Route path="/program-registry/*" element={<ProgramRegistryRoutes />} />
+          <Route path="/immunisations/*" element={<ImmunisationRoutes />} />
+          <Route path="/facility-admin/*" element={<FacilityAdminRoutes />} />
+        </Routes>
+      </FacilityPageSizePreferencesProvider>
     </App>
   );
 };
@@ -81,10 +87,12 @@ export const RoutingAdminApp = React.memo(() => {
   const sidebarMenuItems = useCentralSidebar();
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
-      <Routes>
-        <Route path="/" element={<Navigate to="/admin" replace />} />
-        <Route path="/admin/*" element={<AdministrationRoutes />} />
-      </Routes>
+      <AdminPageSizePreferencesProvider>
+        <Routes>
+          <Route path="/" element={<Navigate to="/admin" replace />} />
+          <Route path="/admin/*" element={<AdministrationRoutes />} />
+        </Routes>
+      </AdminPageSizePreferencesProvider>
     </App>
   );
 });

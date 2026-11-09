@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Button, MultilineDatetimeDisplay, TranslatedText } from '@tamanu/ui-components';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 import { ContentPane, PageContainer, Table, TopBar } from '../../components';
 import { useClientSideTableData } from '../../components/Table/useClientSideTableData';
@@ -53,11 +54,14 @@ export const SystemErrors = React.memo(() => {
     onChangeOrderBy,
     page,
     rowsPerPage,
+    rowsPerPageOptions,
     onChangePage,
     onChangeRowsPerPage,
+    isPageSizeReady,
   } = useClientSideTableData(errors, {
     initialSortKey: 'timestamp',
     initialSortDirection: 'desc',
+    pageSizePreferenceKey: TABLE_PAGE_SIZE_PREFERENCE_KEYS.SYSTEM_ERRORS,
   });
 
   return (
@@ -74,6 +78,7 @@ export const SystemErrors = React.memo(() => {
         <Table
           data={pageData}
           columns={COLUMNS}
+          isLoading={!isPageSizeReady}
           noDataMessage={
             <NoDataContainer data-testid="nodatacontainer-syse">
               <TranslatedText
@@ -89,6 +94,7 @@ export const SystemErrors = React.memo(() => {
           page={page}
           count={count}
           rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={rowsPerPageOptions}
           onChangePage={onChangePage}
           onChangeRowsPerPage={onChangeRowsPerPage}
         />

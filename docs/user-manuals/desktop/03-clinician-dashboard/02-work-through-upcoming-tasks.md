@@ -17,19 +17,27 @@ your system administrator if you believe you should see it.
    A high priority task has a red exclamation mark beside its name. A task to give medication shows as
    **Medication Due**. Rest your pointer on a task to see who requested it and when.
 
-   <p align="center">
-     <img src="images/work-through-upcoming-tasks-highlight.png" alt="The dashboard with the Upcoming tasks pane outlined in red" width="492"><br>
-     <sub><b>Upcoming tasks</b> sits below <b>Recently viewed</b> on your dashboard.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/work-through-upcoming-tasks-highlight.png"
+       alt="The dashboard with the Upcoming tasks pane outlined in red"
+       width="492"
+     />
+     <figcaption><b>Upcoming tasks</b> sits below <b>Recently viewed</b> on your dashboard.</figcaption>
+   </figure>
 
 2. To list only the patients in your care, choose an **Area**, then one or more beds in **Location**.
 
    Tamanu remembers your filters at this facility for next time.
 
-   <p align="center">
-     <img src="images/work-through-upcoming-tasks-filtered.png" alt="Upcoming tasks filtered to the Outpatient area and location, with Area and Location outlined in red" width="477"><br>
-     <sub>Choose an <b>Area</b> and <b>Location</b> to list only those patients' tasks.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/work-through-upcoming-tasks-filtered.png"
+       alt="Upcoming tasks filtered to the Outpatient area and location, with Area and Location outlined in red"
+       width="477"
+     />
+     <figcaption>Choose an <b>Area</b> and <b>Location</b> to list only those patients' tasks.</figcaption>
+   </figure>
 
 3. To list only high priority tasks, tick **High priority only**.
 

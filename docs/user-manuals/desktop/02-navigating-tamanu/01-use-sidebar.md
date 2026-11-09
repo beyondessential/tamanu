@@ -21,10 +21,14 @@ able to open a section you cannot see.
 
    You cannot leave a patient's record while you have a note open. Save or close the note first.
 
-   <p align="center">
-     <img src="images/use-sidebar-patients-open.png" alt="The sidebar with the Patients section open, listing All patients, Inpatients, Emergency patients and Outpatients, with All patients outlined in red" width="162"><br>
-     <sub>Select a section, then select the page you want.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-sidebar-patients-open.png"
+       alt="The sidebar with the Patients section open, listing All patients, Inpatients, Emergency patients and Outpatients, with All patients outlined in red"
+       width="162"
+     />
+     <figcaption>Select a section, then select the page you want.</figcaption>
+   </figure>
 
 # Collapse and expand the sidebar
 
@@ -37,10 +41,14 @@ able to open a section you cannot see.
    Selecting an icon expands the sidebar without leaving the page you are on. If the section has pages
    under it, they are listed.
 
-   <p align="center">
-     <img src="images/use-sidebar-collapsed.png" alt="The collapsed sidebar showing only section icons, with the expand arrow outlined in red" width="68"><br>
-     <sub>Select the arrow to expand the sidebar.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-sidebar-collapsed.png"
+       alt="The collapsed sidebar showing only section icons, with the expand arrow outlined in red"
+       width="68"
+     />
+     <figcaption>Select the arrow to expand the sidebar.</figcaption>
+   </figure>
 
 # Get help
 
@@ -55,10 +63,14 @@ able to open a section you cannot see.
    A menu opens. To change the language Tamanu is shown in, see
    [Change your language](../01-accessing-tamanu/03-change-language.md).
 
-   <p align="center">
-     <img src="images/use-sidebar-menu-button.png" alt="The bottom of the sidebar showing Dr Ruth Kaupa, Medical Officer, Tamanu Hospital and the version number, with the menu button outlined in red" width="162"><br>
-     <sub>Select the menu button beside your name.</sub>
-   </p>
+   <figure>
+     <img
+       src="images/use-sidebar-menu-button.png"
+       alt="The bottom of the sidebar showing Dr Ruth Kaupa, Medical Officer, Tamanu Hospital and the version number, with the menu button outlined in red"
+       width="162"
+     />
+     <figcaption>Select the menu button beside your name.</figcaption>
+   </figure>
 
 3. Select **Support centre**.
 

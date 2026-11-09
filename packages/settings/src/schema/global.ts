@@ -371,7 +371,7 @@ export const globalSettings = {
     metaServer: {
       highRisk: true,
       name: 'Meta server',
-      description: 'The Tamanu meta server this deployment reports status to',
+      description: 'The Tamanu meta server this deployment fetches shared data from',
       properties: {
         updateUrls: {
           description: 'Where outdated clients are sent to update',
@@ -550,7 +550,7 @@ export const globalSettings = {
         },
         enablePatientInsurer: {
           description:
-            'Include insurer and policy number as fields in patient details identification section',
+            'Include insurance policy number as a field in patient details identification section',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -1104,14 +1104,6 @@ export const globalSettings = {
         },
         birthCertificate: {
           name: 'Birth certificate',
-          description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
-        },
-        insurerId: {
-          name: 'Insurer',
           description: '_',
           properties: generateFieldSchema({
             isPatientDetails: true,

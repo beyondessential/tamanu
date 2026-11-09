@@ -976,7 +976,6 @@ export const centralSettings = {
             },
           },
         ),
-        sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
         medicationDiscontinuer: scheduledTaskSchema({ schedule: '0 * * * *' }),
         autoDeleteMedicationRequests: scheduledTaskSchema(
           { schedule: '0 */6 * * *' },
