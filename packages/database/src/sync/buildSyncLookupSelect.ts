@@ -52,6 +52,11 @@ export async function buildSyncLookupSelect(model: typeof Model, columns: Column
       ${sensitiveNetworkId || 'NULL'},
       ${encounterId || 'NULL'},
       ${isLabRequestValue || 'FALSE'},
-      ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'}
+      ${
+        useUpdatedAtByFieldSum
+          ? // per row rather than a joined GROUP BY, which aggregates the whole table on every build
+            `(SELECT sum(value::text::bigint) FROM json_each(${table}.updated_at_by_field))`
+          : 'NULL'
+      }
   `;
 }

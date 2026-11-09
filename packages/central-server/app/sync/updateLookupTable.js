@@ -28,7 +28,6 @@ const buildLookupUpsertQuery = ({
   table,
   selectClause,
   joins,
-  useUpdatedAtByFieldSum,
   avoidRepull,
   whereClause,
   filter,
@@ -64,21 +63,6 @@ const buildLookupUpsertQuery = ({
     false
     FROM
       ${table}
-     ${
-       useUpdatedAtByFieldSum
-         ? `
-    LEFT JOIN (
-      SELECT
-        ${table}.id, sum(value::text::bigint) sum
-      FROM
-        ${table}, json_each(${table}.updated_at_by_field)
-      GROUP BY
-        ${table}.id
-    ) updated_at_by_field_summary
-    ON
-      ${table}.id = updated_at_by_field_summary.id`
-         : ''
-     }
     ${
       avoidRepull
         ? `LEFT JOIN sync_device_ticks
@@ -136,10 +120,8 @@ const updateLookupTableForModel = async (
 
   let fromId = '';
   let totalCount = 0;
-  const attributes = model.getAttributes();
   const { select, joins, where, filter } =
     (await model.buildSyncLookupQueryDetails(sessionConfig)) || {};
-  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -147,7 +129,6 @@ const updateLookupTableForModel = async (
         table,
         selectClause: select || (await buildSyncLookupSelect(model)),
         joins,
-        useUpdatedAtByFieldSum,
         avoidRepull,
         filter,
         whereClause: `
@@ -202,9 +183,7 @@ const rebuildLookupRowsForFlaggedPatientsForModel = async (
 
   let fromId = '';
   let rebuiltCount = 0;
-  const attributes = model.getAttributes();
   const { select, joins, filter } = (await model.buildSyncLookupQueryDetails({})) || {};
-  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -212,7 +191,6 @@ const rebuildLookupRowsForFlaggedPatientsForModel = async (
         table,
         selectClause: select || (await buildSyncLookupSelect(model)),
         joins,
-        useUpdatedAtByFieldSum,
         avoidRepull,
         filter,
         whereClause: `
@@ -299,9 +277,7 @@ const healFlaggedLookupRowsForModel = async (model, config, since) => {
 
   let fromId = '';
   let healedCount = 0;
-  const attributes = model.getAttributes();
   const { select, joins, filter } = (await model.buildSyncLookupQueryDetails({})) || {};
-  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -309,7 +285,6 @@ const healFlaggedLookupRowsForModel = async (model, config, since) => {
         table,
         selectClause: select || (await buildSyncLookupSelect(model)),
         joins,
-        useUpdatedAtByFieldSum,
         avoidRepull,
         filter,
         whereClause: `
