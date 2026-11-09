@@ -17,6 +17,7 @@ The deploy line in the PR body reads:
 - Checked against `parseDeployConfig` in `packages/scripts/src/ghaCdHelpers.mjs`: the line parses to `config: demo`, `facilities: 1`, `ttlhours: 0`, `fakedata: 0`, no snapshot seed.
 - A daily sweep unticks the deploy box, tearing the site down with its data, once the PR has had no activity for 7 days, so the PR needs a push or comment at least weekly. Closing the PR tears the site down a day later.
 - This machine has no GitHub login, so the PR body is edited by hand.
+- The PR shows Check spec format failing. It comes from main, not this branch: `specs/program-registry/form-conditions.md` and `registration.md` write their criteria as checkboxes, and the check runs on the merge with main. This branch changes no spec files. It does not block the deploy.
 - Tick the box by editing the body text, changing `[ ]` to `[x]` and adding the options in the same save. Clicking the rendered checkbox saves at once and starts a deploy with the default options, which provisions the standard reference data before the options can be added.
 - Changing the options on a running deploy redeploys onto the same database, and provisioning only adds. To start clean, untick, wait for the site to stop responding, then tick again.
 
