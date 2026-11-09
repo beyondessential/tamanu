@@ -4,6 +4,8 @@ import { FACT_FACILITY_IDS, FACT_FACILITY_LATE_CONFIG_MIGRATED } from '@tamanu/c
 vi.mock('@tamanu/settings', () => ({
   CONFIG_TO_SETTINGS: [
     { config: 'sync.timeout', scope: 'facility' },
+    { config: 'sync.backoff', scope: 'facility' },
+    { config: 'sync.dynamicLimiter', scope: 'facility' },
     { config: 'tasking.window', scope: 'facility' },
   ],
   configOverridesForScope: vi.fn(),
@@ -55,6 +57,26 @@ describe('1792370000000-migrateLateFacilityConfigToSettings', () => {
       FACT_FACILITY_LATE_CONFIG_MIGRATED,
       '2.99.0',
     );
+  });
+
+  it('carries backoff and dynamicLimiter whole, keyed at the mapping', async () => {
+    configOverridesForScope.mockReturnValue({
+      sync: { backoff: { maxAttempts: 20 }, dynamicLimiter: { maxLimit: 5000 } },
+    });
+    const args = makeArgs();
+    await step.run(args);
+    expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledWith({
+      id: 'f1;sync.backoff',
+      key: 'sync.backoff',
+      value: { maxAttempts: 20 },
+      facilityId: 'f1',
+    });
+    expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledWith({
+      id: 'f1;sync.dynamicLimiter',
+      key: 'sync.dynamicLimiter',
+      value: { maxLimit: 5000 },
+      facilityId: 'f1',
+    });
   });
 
   it('leaves the fact unset to retry when a facility has not synced yet', async () => {
