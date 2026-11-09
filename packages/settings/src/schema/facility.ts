@@ -306,7 +306,7 @@ export const facilitySettings = {
         timeout: {
           name: 'Central request timeout',
           description: 'How long a request to central can take before it fails',
-          type: yup.number().integer().positive(),
+          type: yup.number().integer().min(1000),
           defaultValue: 10000,
           unit: 'ms',
           requiresRestart: true,
