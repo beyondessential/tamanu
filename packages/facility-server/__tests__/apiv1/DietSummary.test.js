@@ -319,6 +319,34 @@ describe('Diet summary', () => {
     expect(hospitalTotals).toEqual({ [glutenFree.id]: 2, [diabetic.id]: 1 });
   });
 
+  // Reference data ids come from the importer and the admin panel's Manage tab, both of which
+  // accept these as ids, and a patient dropped from the totals is one the kitchen does not feed.
+  it('counts diets whose ids are prototype keys', async () => {
+    const [protoDiet, constructorDiet] = await Promise.all(
+      [
+        { id: '__proto__', name: 'Prototype diet' },
+        { id: 'constructor', name: 'Constructor diet' },
+      ].map(({ id, name }) =>
+        models.ReferenceData.create(
+          fake(models.ReferenceData, { id, type: REFERENCE_TYPES.DIET, name }),
+        ),
+      ),
+    );
+    await admit({ location: bed2, diets: [protoDiet] });
+    await admit({ location: bed10, diets: [constructorDiet] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals, areas } = result.body;
+    expect(columns).toEqual([
+      { key: protoDiet.id, name: 'Prototype diet', isRegular: false },
+      { key: constructorDiet.id, name: 'Constructor diet', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ [protoDiet.id]: 1, [constructorDiet.id]: 1 });
+    expect(areas[0].subTotals).toEqual({ [protoDiet.id]: 1, [constructorDiet.id]: 1 });
+  });
+
   it('includes triage, active ED care and emergency encounters, leaving off clinic and closed ones', async () => {
     await admit({ location: bed2, encounterType: ENCOUNTER_TYPES.TRIAGE });
     await admit({ location: bed10, encounterType: ENCOUNTER_TYPES.EMERGENCY });

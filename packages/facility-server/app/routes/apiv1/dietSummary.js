@@ -82,13 +82,17 @@ const lookupDietName = async (models, dietId) => {
   return diet?.name ?? null;
 };
 
+// Keyed by reference data id, and `__proto__` and `constructor` are ids the importer and the
+// admin panel both accept: over a plain object the first silently drops its patients from every
+// total and the second prints Object's source where a count belongs. The counts are the only
+// thing here keyed by id that is not a Map or a Set.
 const countByKey = patients =>
   patients.reduce((totals, { dietKeys }) => {
     for (const key of dietKeys) {
       totals[key] = (totals[key] ?? 0) + 1;
     }
     return totals;
-  }, {});
+  }, Object.create(null));
 
 dietSummary.get(
   '/',
