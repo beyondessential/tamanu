@@ -1,5 +1,5 @@
 ---
-id: DIET
+id: DIETSUM
 ---
 
 # Diet summary sheet
@@ -59,9 +59,13 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - The column for the diet configured as the regular meal comes first, under that diet's own name, and the remaining diets follow alphabetically by the name the sheet shows.
 - A patient with no diet recorded is counted under the regular meal column.
 - A regular meal column appears whenever a patient on the sheet has no diet recorded, even where no patient has that diet recorded against them.
+- A diet that has been deleted, a diet record cancelled against the encounter, or a diet record pointing at reference data that is not a diet, takes no column, and a patient left with no diet by any of these is counted under the regular meal column.
 - A patient with several diets is ticked under each of them, and counted in each, so a ward's counts can come to more than the number of patients in it.
 - A diet that is no longer offered for new records still takes its column where a patient on the sheet is on it.
 - A ward's Sub total counts the patients in that ward under each diet, and the Hospital total is the sum of the ward sub totals.
+
+> [!NOTE]
+> These records no longer carry a usable diet, so there is nothing to show a column for, but the patient still needs feeding — the regular meal column is where they land instead of falling off the sheet.
 
 ## Configuration
 

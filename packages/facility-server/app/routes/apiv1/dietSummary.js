@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 
-// spec: DIET
+// spec: DIETSUM
 export const dietSummary = express.Router();
 
 const DIET_SUMMARY_ENCOUNTER_TYPES = [
@@ -28,7 +28,7 @@ const querySchema = z.object({
 // No area group instead of dropping off the sheet unfed. Only a deleted bed takes its encounter
 // off the sheet; a merely retired one still holds a patient who needs feeding.
 // Nothing constrains encounter_diets.diet_id to diet reference data, so the join checks the type.
-// spec: DIET#who-appears-on-the-sheet
+// spec: DIETSUM#who-appears-on-the-sheet
 const buildQuery = hasArea => `
   SELECT
     location_groups.id AS area_id,
@@ -143,19 +143,18 @@ dietSummary.get(
       patient.dietKeys = patient.dietKeys.size > 0 ? [...patient.dietKeys] : [regularKey];
     }
 
-    // spec: DIET#diet-columns-and-counting
+    // spec: DIETSUM#diet-columns-and-counting
     const areas = [...areasByKey.values()].map(area => ({
       ...area,
       subTotals: countByKey(area.patients),
     }));
     const hospitalTotals = countByKey(allPatients);
 
-    // The sheet sorts the columns by the names it displays, which are translated, so isRegular is
-    // what tells it which column leads rather than the order or the name.
+    // Left unsorted: the sheet sorts the columns by the names it displays, which are translated,
+    // so isRegular is what tells it which column leads rather than the order or the name.
     const columns = Object.keys(hospitalTotals)
       .filter(key => key !== regularKey)
-      .map(key => ({ key, name: dietNamesById.get(key), isRegular: false }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .map(key => ({ key, name: dietNamesById.get(key), isRegular: false }));
 
     if (hospitalTotals[regularKey]) {
       // The rows already name the regular diet wherever a patient is on it, so only a sheet with

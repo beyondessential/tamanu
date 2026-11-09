@@ -276,7 +276,7 @@ const resolveWardName = (area, getTranslation) =>
       )
     : getTranslation('pdf.dietSummary.noArea', 'No area');
 
-// spec: DIET#layout
+// spec: DIETSUM#layout
 const WardSection = ({ area, wardName, dietColumns, columnWidth }) => {
   const { getTranslation } = useLanguageContext();
 
