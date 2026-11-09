@@ -333,7 +333,7 @@ const DietSummaryPDFComponent = ({
   areas = [],
   logoSrc,
   letterheadConfig,
-  getSetting,
+  printedBy,
 }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortest, getCurrentDate } = useDateTime();
@@ -346,14 +346,13 @@ const DietSummaryPDFComponent = ({
   // The server orders columns and wards against the source-language reference data names, so a
   // deployment carrying reference data translations needs its own order resolved against the
   // names actually printed here, rather than inheriting the server's order as-is.
-  const regularDietId = getSetting('bedManagement.dietSummary.regularDietId');
   const dietColumns = columns
     .map((column) => ({
       key: column.key,
       label: column.name
         ? getTranslation(getReferenceDataStringId(column.key, REFERENCE_TYPES.DIET), column.name)
         : getTranslation('pdf.dietSummary.regularDiet', 'Regular'),
-      isRegular: !column.name || column.key === regularDietId,
+      isRegular: column.isRegular,
     }))
     .sort((a, b) => {
       if (a.isRegular !== b.isRegular) return a.isRegular ? -1 : 1;
@@ -398,7 +397,7 @@ const DietSummaryPDFComponent = ({
             ))}
           </>
         )}
-        <Footer />
+        <Footer printedBy={printedBy} />
       </Page>
     </Document>
   );
