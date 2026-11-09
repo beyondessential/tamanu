@@ -3,7 +3,7 @@ name: investigate-and-fix
 description: "Diagnose and fix the bug described on this card"
 label: "Investigate and fix"
 category: build
-workhorse-version: 0.7.9
+workhorse-version: 0.7.14
 ---
 
 ## Your task: Investigate and fix
