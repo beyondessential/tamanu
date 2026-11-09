@@ -367,3 +367,23 @@ Two adversaries, neither of which wrote what it attacks, because the blocker fix
 - **Endpoint (sonnet)** — get past each of the five guards the first round added, confirm a patient
   whose ward is missing still appears under No area rather than dropping off, and find a mutation
   near the new sub total test that it does not catch.
+
+### Round 2 — endpoint (sonnet): 1 medium, 1 low. Could break none of the five guards.
+
+It ran, rather than reasoned about, a genuine two-facility host — mutating `serverFacilityIds` to
+list two real database-backed facilities with their own wards and beds — and confirmed a session
+for the second is accepted with the sheet scoped to that facility alone. It ran all six
+prototype-colliding facility ids. It diffed each of the four code-changing commits against its
+parent and found nothing broken.
+
+- R2-1 (medium, PRE-EXISTING, not this card) a facility whose id collides with an
+  `Object.prototype` member — `constructor`, `__proto__`, `toString`, `hasOwnProperty`, `valueOf`,
+  `isPrototypeOf`, all six confirmed RAN — crashes with a raw TypeError in `auth.js` BEFORE any
+  route runs, because `req.settings` is a plain object and the bracket lookup resolves to the
+  inherited member instead of undefined. So it breaks every facility-scoped endpoint, not only
+  this one, and it makes our own guard's prototype branch unreachable. → FOLLOW-UP CARD for the
+  author; it is the same root as the `req.settings[...]` follow-up already recorded, and the fix
+  is one line in the middleware.
+- R2-2 (low, coverage) no test checks `subTotals` for more than one area when the **No area** group
+  is involved, so a bug misattributing specifically the null-area's sub total is invisible to all
+  37 tests. → fix now, by extending the two-ward sub total test to carry a No area group.
