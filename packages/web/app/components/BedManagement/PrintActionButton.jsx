@@ -15,4 +15,8 @@ export const PrintActionButton = styled(Button)`
   &.Mui-disabled {
     pointer-events: auto;
   }
+
+  .MuiSvgIcon-root {
+    font-size: 18px;
+  }
 `;
