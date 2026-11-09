@@ -310,17 +310,17 @@
 
   // Tests listed in each panel's configured order
   const PANELS = {
-    fbc: { name: 'Full blood count', tests: ['hb', 'wcc', 'plt', 'hct'] },
-    lipids: { name: 'Lipid profile', tests: ['chol', 'hdl', 'ldl', 'trig'] },
-    ue: { name: 'Urea and electrolytes', tests: ['na', 'k', 'urea', 'creat'] },
-    lft: { name: 'Liver function tests', tests: ['alt', 'ast', 'bili', 'alb'] },
+    fbc: { name: 'Full blood count', category: 'haematology', tests: ['hb', 'wcc', 'plt', 'hct'] },
+    lipids: { name: 'Lipid profile', category: 'biochemistry', tests: ['chol', 'hdl', 'ldl', 'trig'] },
+    ue: { name: 'Urea and electrolytes', category: 'biochemistry', tests: ['na', 'k', 'urea', 'creat'] },
+    lft: { name: 'Liver function tests', category: 'biochemistry', tests: ['alt', 'ast', 'bili', 'alb'] },
   };
 
   const byName = (a, b) => a.name.localeCompare(b.name);
 
   const OPTIONS = [
-    ...Object.entries(PANELS).map(([id, panel]) => ({ id: `panel:${id}`, name: panel.name })),
-    ...Object.entries(TESTS).map(([id, test]) => ({ id: `test:${id}`, name: test.name })),
+    ...Object.entries(PANELS).map(([id, panel]) => ({ id: `panel:${id}`, name: panel.name, category: panel.category })),
+    ...Object.entries(TESTS).map(([id, test]) => ({ id: `test:${id}`, name: test.name, category: test.category })),
   ].sort(byName);
 
   const state = {
@@ -369,8 +369,8 @@
     const suggestion = event.target.closest('.suggestion');
     if (!suggestion) return;
     event.preventDefault();
+    if (suggestion.dataset.id !== state.category) state.selected = []; // a new category clears the picks
     state.category = suggestion.dataset.id;
-    state.selected = []; // mutually exclusive with Test or panel
     state.menuOpen = null;
     categoryInput.blur();
     render();
@@ -410,7 +410,11 @@
     }
 
     const search = testOrPanelInput.value.toLowerCase();
-    const matches = OPTIONS.filter(option => option.name.toLowerCase().includes(search));
+    const matches = OPTIONS.filter(
+      option =>
+        (!state.category || option.category === state.category) &&
+        option.name.toLowerCase().includes(search),
+    );
     testOrPanelMenu.hidden = !isOpen || matches.length === 0;
     testOrPanelOptions.innerHTML = matches
       .map(option => {
@@ -444,7 +448,6 @@
     state.selected = state.selected.includes(id)
       ? state.selected.filter(selectedId => selectedId !== id)
       : [...state.selected, id];
-    if (state.selected.length) state.category = null; // mutually exclusive with Test category
     testOrPanelInput.value = '';
     render();
   });
@@ -478,7 +481,7 @@
   }
 
   function buildRows() {
-    if (state.category) {
+    if (state.selected.length === 0) {
       const tests = Object.values(TESTS).filter(test => test.category === state.category).sort(byName);
       return tests.map(test => ({ test }));
     }

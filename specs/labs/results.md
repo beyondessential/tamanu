@@ -37,8 +37,10 @@ reference range is flagged for clinicians.
 - [ ] The suggestions list stays open while items are picked, so several can be picked in a row, and closes when the user clicks away from the field.
 - [ ] Picked items are ticked in the suggestions list, and picking a ticked item again removes it. Clearing the field removes every pick at once.
 - [ ] There is no limit on how many tests and panels can be picked.
-- [ ] The two fields are mutually exclusive: picking a test category clears any picked tests and panels, and picking a test or panel clears the test category.
-- [ ] A picked test category lists the category's tests as a flat list, alphabetical by name, with no heading rows and no test category column.
+- [ ] A picked test category narrows Test or panel to suggest only tests and panels whose configured category is that category. Clearing the test category brings back suggestions from every category.
+- [ ] Changing the test category clears any picked tests and panels. Clearing the test category keeps them. Picking a test or panel leaves the test category in place.
+- [ ] A picked test category with no tests or panels picked lists the category's tests as a flat list, alphabetical by name, with no heading rows and no test category column.
+- [ ] Once tests or panels are picked, the table shows only the picks, laid out as below, whether or not a test category is picked.
 - [ ] A picked panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
 - [ ] Picked panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
 - [ ] Individually picked tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
