@@ -8,7 +8,6 @@ import {
   AutocompleteField,
   TranslatedRadioField,
   NoteModalActionBlocker,
-  QRCodeTextField,
 } from '../../../../components';
 import { TextField, FormGrid, useDateTime } from '@tamanu/ui-components';
 import {
@@ -26,10 +25,7 @@ import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useSettings } from '../../../../contexts/Settings';
-
-const CulturalNameQRCodeTextField = props => (
-  <QRCodeTextField {...props} matchDisplayIdPattern={false} />
-);
+import { Customisations } from '../../../../components/Customisations';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
@@ -43,7 +39,6 @@ export const GenericPrimaryDetailsLayout = ({
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
   const isUsingLocationHierarchy = getSetting('features.patientDetailsLocationHierarchy');
-  const isCulturalNameQRCodeScannerEnabled = getSetting('fields.culturalName.enableQRCodeScanner');
 
   return (
     <>
@@ -101,20 +96,22 @@ export const GenericPrimaryDetailsLayout = ({
             enablePasting
             data-testid="localisedfield-41un"
           />
-          <LocalisedField
-            name="culturalName"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.culturalName.label"
-                fallback="Cultural/traditional name"
-                data-testid="translatedtext-reeu"
-              />
-            }
-            component={isCulturalNameQRCodeScannerEnabled ? CulturalNameQRCodeTextField : TextField}
-            required={isRequiredPatientData('culturalName')}
-            enablePasting
-            data-testid="localisedfield-ew4s"
-          />
+          <Customisations name="CulturalNameTextField">
+            <LocalisedField
+              name="culturalName"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.culturalName.label"
+                  fallback="Cultural/traditional name"
+                  data-testid="translatedtext-reeu"
+                />
+              }
+              component={TextField}
+              required={isRequiredPatientData('culturalName')}
+              enablePasting
+              data-testid="localisedfield-ew4s"
+            />
+          </Customisations>
           <LocalisedField
             name="dateOfBirth"
             label={

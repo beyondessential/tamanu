@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import { useSuggester } from '../../api';
 import { useSettings } from '../../contexts/Settings';
 import { DOBFields, LocalisedField, QRCodeSearchField, SearchField } from '../Field';
+import { Customisations } from '../Customisations';
 import { AdditionalSearchField } from './AdditionalSearchField';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { SearchBarCheckField } from './SearchBarCheckField';
@@ -32,17 +33,12 @@ const VillageLocalisedField = styled(LocalisedField)`
   font-size: 11px;
 `;
 
-const CulturalNameQRCodeSearchField = props => (
-  <QRCodeSearchField {...props} matchDisplayIdPattern={false} />
-);
-
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const { getCurrentDate } = useDateTime();
   const { getSetting } = useSettings();
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
   const additionalSearchFields = getSetting('patientSearch.additionalSearchFields') ?? [];
-  const isCulturalNameQRCodeScannerEnabled = getSetting('fields.culturalName.enableQRCodeScanner');
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (
@@ -56,19 +52,19 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       initialValues={searchParameters}
       hiddenFields={
         <>
-          <LocalisedField
-            component={
-              isCulturalNameQRCodeScannerEnabled ? CulturalNameQRCodeSearchField : SearchField
-            }
-            name="culturalName"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.culturalName.label.short"
-                fallback="Cultural/traditional name"
-              />
-            }
-            data-testid="localisedfield-epbq"
-          />
+          <Customisations name="CulturalNameSearchField">
+            <LocalisedField
+              component={SearchField}
+              name="culturalName"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.culturalName.label.short"
+                  fallback="Cultural/traditional name"
+                />
+              }
+              data-testid="localisedfield-epbq"
+            />
+          </Customisations>
           <TwoColumnsField data-testid="twocolumnsfield-wg4x">
             <DOBFields showExactBirth={false} data-testid="dobfields-k8zn" />
             <SexLocalisedField

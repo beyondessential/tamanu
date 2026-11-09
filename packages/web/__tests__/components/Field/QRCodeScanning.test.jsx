@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsContext } from '@tamanu/ui-components';
-import { Field, QRCodeTextField } from '../../../app/components/Field';
+import { Field } from '../../../app/components/Field';
+import { QRCodeTextField } from '../../../app/components/Field/QRCodeTextField';
+import { IdInput } from '../../../app/components/Field/IdField';
 import { notifyError } from '../../../app/utils';
 import { renderElementWithTranslatedText } from '../../helpers';
 
@@ -67,7 +69,7 @@ describe('QRCodeTextField', () => {
   it('rejects a scan that does not match the display ID pattern', async () => {
     renderField();
 
-    await userEvent.click(screen.getByTestId('qr-scanner-button'));
+    await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
 
     await waitFor(() => expect(notifyError).toHaveBeenCalled());
     expect(screen.getByTestId(VALUE_PROBE).textContent).toBe('');
@@ -76,7 +78,7 @@ describe('QRCodeTextField', () => {
   it('fills the field with any scan when the display ID pattern is not required', async () => {
     renderField({ matchDisplayIdPattern: false });
 
-    await userEvent.click(screen.getByTestId('qr-scanner-button'));
+    await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
 
     await waitFor(() => expect(screen.getByTestId(VALUE_PROBE).textContent).toBe(SCANNED_VALUE));
     expect(notifyError).not.toHaveBeenCalled();
@@ -86,7 +88,7 @@ describe('QRCodeTextField', () => {
     scannedValue = 'x'.repeat(80);
     renderField({ matchDisplayIdPattern: false });
 
-    await userEvent.click(screen.getByTestId('qr-scanner-button'));
+    await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
 
     await waitFor(() => expect(screen.getByTestId(VALUE_PROBE).textContent).toBe(scannedValue));
   });
@@ -95,9 +97,56 @@ describe('QRCodeTextField', () => {
     scannedValue = 'x'.repeat(256);
     renderField({ matchDisplayIdPattern: false });
 
-    await userEvent.click(screen.getByTestId('qr-scanner-button'));
+    await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
 
     await waitFor(() => expect(notifyError).toHaveBeenCalled());
     expect(screen.getByTestId(VALUE_PROBE).textContent).toBe('');
+  });
+});
+
+describe('IdInput', () => {
+  beforeEach(() => {
+    window.BarcodeDetector = class {
+      detect = async () => [{ rawValue: scannedValue }];
+    };
+  });
+
+  afterEach(() => {
+    delete window.BarcodeDetector;
+    vi.mocked(notifyError).mockClear();
+  });
+
+  const renderIdInput = onChange =>
+    renderElementWithTranslatedText(
+      <SettingsContext.Provider
+        value={{
+          getSetting: key => (key === 'fields.displayId.pattern' ? '^[A-Z]{4}\\d{6}$' : undefined),
+        }}
+      >
+        <IdInput name="displayId" value="GENR000001" onChange={onChange} regenerateId={vi.fn()} />
+      </SettingsContext.Provider>,
+    );
+
+  it('replaces the generated display ID with a scanned one', async () => {
+    scannedValue = 'SCAN123456';
+    const onChange = vi.fn();
+    renderIdInput(onChange);
+
+    await userEvent.click(screen.getByTestId('qr-scanner-button-displayId'));
+
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith({ target: { value: 'SCAN123456', name: 'displayId' } }),
+    );
+  });
+
+  it('keeps the generated display ID when the scan does not match the pattern', async () => {
+    scannedValue = SCANNED_VALUE;
+    const onChange = vi.fn();
+    renderIdInput(onChange);
+
+    await userEvent.click(screen.getByTestId('qr-scanner-button-displayId'));
+
+    await waitFor(() => expect(notifyError).toHaveBeenCalled());
+    expect(onChange).not.toHaveBeenCalled();
   });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
-import { QRCodeTextField } from './QRCodeSearchField';
+import { QRCodeTextField } from './QRCodeTextField';
 import { LocalisedField } from './LocalisedField';
 import { useTranslation } from '../../contexts/Translation';
 import { useSettings } from '../../contexts/Settings';

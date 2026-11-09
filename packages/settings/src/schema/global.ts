@@ -899,18 +899,10 @@ export const globalSettings = {
         culturalName: {
           name: 'Cultural name',
           description: '_',
-          properties: {
-            ...generateFieldSchema({
-              isPatientDetails: true,
-              type: LOCALISED_FIELD_TYPES.STRING,
-            }),
-            enableQRCodeScanner: {
-              name: 'Enable QR code scanner',
-              description: 'Show a QR code scan button next to the cultural name field',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
-          },
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
         },
         sex: {
           name: 'Sex',
