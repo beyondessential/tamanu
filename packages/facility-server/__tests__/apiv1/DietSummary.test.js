@@ -239,6 +239,58 @@ describe('Diet summary', () => {
     expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
   });
 
+  it('leaves off a diet a clinician has cancelled, counting its patient as regular', async () => {
+    const { encounter } = await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+    const cancelled = await models.EncounterDiet.findOne({
+      where: { encounterId: encounter.id, dietId: glutenFree.id },
+    });
+    await cancelled.destroy();
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals, areas } = result.body;
+    expect(columns).toEqual([
+      { key: 'regular', name: null },
+      { key: diabetic.id, name: 'Diabetic' },
+    ]);
+    expect(hospitalTotals).toEqual({ regular: 1, [diabetic.id]: 1 });
+    expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
+  });
+
+  it('leaves off reference data that is not a diet, counting its patient as regular', async () => {
+    const village = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.VILLAGE, name: 'Not a diet' }),
+    );
+    await admit({ location: bed2, diets: [village] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals, areas } = result.body;
+    expect(columns).toEqual([
+      { key: 'regular', name: null },
+      { key: diabetic.id, name: 'Diabetic' },
+    ]);
+    expect(hospitalTotals).toEqual({ regular: 1, [diabetic.id]: 1 });
+    expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
+  });
+
+  it('leaves off a patient who has been deleted', async () => {
+    const { patient } = await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+    await markDeleted(models.Patient, patient.id);
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Maternity']);
+    expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
+  });
+
   it('leaves off a patient whose bed has been deleted', async () => {
     const retiredBed = await createBed({
       name: 'Retired bed',

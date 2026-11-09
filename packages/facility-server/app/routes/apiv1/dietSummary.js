@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { z } from 'zod';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 
 // spec: DIET
@@ -25,8 +25,9 @@ const querySchema = z.object({
 });
 
 // A soft-deleted area is left joined away rather than filtered out, so its patients fall into the
-// No area group instead of dropping off the sheet unfed. A soft-deleted bed does take its stale
-// encounter off the sheet, matching what bed management itself shows.
+// No area group instead of dropping off the sheet unfed. Only a deleted bed takes its encounter
+// off the sheet; a merely retired one still holds a patient who needs feeding.
+// Nothing constrains encounter_diets.diet_id to diet reference data, so the join checks the type.
 // spec: DIET#who-appears-on-the-sheet
 const buildQuery = hasArea => `
   SELECT
@@ -47,6 +48,7 @@ const buildQuery = hasArea => `
     LEFT JOIN encounter_diets ON encounter_diets.encounter_id = encounters.id
       AND encounter_diets.deleted_at IS NULL
     LEFT JOIN reference_data diets ON diets.id = encounter_diets.diet_id
+      AND diets.type = :dietType
       AND diets.deleted_at IS NULL
   WHERE encounters.end_date IS NULL
     AND encounters.deleted_at IS NULL
@@ -57,6 +59,11 @@ const buildQuery = hasArea => `
     ${hasArea ? 'AND locations.location_group_id = :areaId' : ''}
   ORDER BY location_groups.name NULLS LAST, locations.name, patients.last_name, patients.first_name
 `;
+
+const lookupDietName = async (models, dietId) => {
+  const diet = await models.ReferenceData.findByPk(dietId, { attributes: ['name'] });
+  return diet?.name ?? null;
+};
 
 const countByKey = patients =>
   patients.reduce((totals, { dietKeys }) => {
@@ -88,6 +95,7 @@ dietSummary.get(
     const rows = await req.db.query(buildQuery(Boolean(areaId)), {
       replacements: {
         facilityId,
+        dietType: REFERENCE_TYPES.DIET,
         encounterTypes: DIET_SUMMARY_ENCOUNTER_TYPES,
         ...(areaId ? { areaId } : {}),
       },
@@ -137,20 +145,18 @@ dietSummary.get(
     }));
     const hospitalTotals = countByKey(allPatients);
 
-    const regularDiet = regularDietId
-      ? await req.models.ReferenceData.findByPk(regularDietId, { attributes: ['id', 'name'] })
-      : null;
     const columns = Object.keys(hospitalTotals)
       .filter(key => key !== regularKey)
       .map(key => ({ key, name: dietNamesById.get(key) }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     if (hospitalTotals[regularKey]) {
-      // A null name is what tells the sheet to print its own translated Regular label
-      columns.unshift({
-        key: regularKey,
-        name: regularDiet?.name ?? dietNamesById.get(regularKey) ?? null,
-      });
+      // The rows already name the regular diet wherever a patient is on it, so only a sheet with
+      // nobody on it costs a lookup. A null name tells the sheet to print its own Regular label.
+      const name =
+        dietNamesById.get(regularKey) ??
+        (regularDietId ? await lookupDietName(req.models, regularDietId) : null);
+      columns.unshift({ key: regularKey, name });
     }
 
     res.send({ columns, hospitalTotals, areas });
