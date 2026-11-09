@@ -117,7 +117,12 @@ dietSummary.get(
     }
     const { areaId } = await querySchema.parseAsync(req.query);
 
-    const regularDietId = await facilitySettings.get('bedManagement.dietSummary.regularDietId');
+    // Clearing the setting in the admin panel leaves an empty string behind rather than the
+    // schema's null, and an empty string is no more a diet id than an unset setting is.
+    const configuredRegularDietId = await facilitySettings.get(
+      'bedManagement.dietSummary.regularDietId',
+    );
+    const regularDietId = configuredRegularDietId || null;
     const regularKey = regularDietId ?? UNCONFIGURED_REGULAR_KEY;
 
     const rows = await req.db.query(buildQuery(Boolean(areaId)), {

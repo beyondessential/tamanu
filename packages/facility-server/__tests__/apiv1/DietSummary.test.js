@@ -173,6 +173,13 @@ describe('Diet summary', () => {
     });
   });
 
+  it('returns an empty sheet when nobody is admitted', async () => {
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    expect(result.body).toEqual({ columns: [], hospitalTotals: {}, areas: [] });
+  });
+
   it('counts a patient with no diet recorded under a Regular column', async () => {
     await admit({ location: bed2 });
     await admit({ location: maternityBed, diets: [glutenFree] });
@@ -232,6 +239,23 @@ describe('Diet summary', () => {
       { key: facilityRegular.id, name: 'Facility regular diet', isRegular: true },
     ]);
     expect(hospitalTotals).toEqual({ [facilityRegular.id]: 1 });
+  });
+
+  it('falls back to its own Regular column when the regular diet setting has been cleared', async () => {
+    await configureRegularDiet('');
+
+    await admit({ location: bed2 });
+    await admit({ location: maternityBed, diets: [glutenFree] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([
+      { key: 'regular', name: null, isRegular: true },
+      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
   });
 
   it('names the regular column when nobody on the sheet has the configured diet recorded', async () => {
