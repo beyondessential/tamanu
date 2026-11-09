@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
   },
   wardHeading: {
     fontSize: 9,
-    fontWeight: 500,
     marginBottom: 4,
   },
   table: {
@@ -86,7 +85,6 @@ const styles = StyleSheet.create({
   },
   totalText: {
     fontSize: 8,
-    fontWeight: 500,
   },
   countCell: {
     alignItems: 'center',
@@ -127,7 +125,11 @@ const styles = StyleSheet.create({
 const getDietColumnWidth = (columnCount) => {
   if (columnCount === 0) return MAX_DIET_COLUMN_WIDTH;
   const available = (CONTENT_WIDTH - PATIENT_COLUMNS_WIDTH) / columnCount;
-  return Math.max(MIN_DIET_COLUMN_WIDTH, Math.min(MAX_DIET_COLUMN_WIDTH, available));
+  // MIN_DIET_COLUMN_WIDTH is a readability floor, not a hard minimum: the sheet is guaranteed to
+  // never run wider than one page, so once there are too many diet columns to fit even at the
+  // floor, width must keep shrinking below it rather than let the table overflow the page.
+  if (available < MIN_DIET_COLUMN_WIDTH) return available;
+  return Math.min(MAX_DIET_COLUMN_WIDTH, available);
 };
 
 const Letterhead = ({ logoSrc, letterheadConfig, title }) => {
