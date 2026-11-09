@@ -10,9 +10,19 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
+
+// spec: DIETSUM#printing-the-sheet — the permissions handover notes needs, less the note
+// permission itself.
+const REQUIRED_PERMISSIONS = [
+  ['list', 'Patient'],
+  ['read', 'LocationGroup'],
+  ['read', 'Location'],
+  ['read', 'Encounter'],
+];
 
 const SUMMARY_URL = '/api/dietSummary';
 const REGULAR_SETTING_KEY = 'bedManagement.dietSummary.regularDietId';
@@ -61,8 +71,9 @@ describe('Diet summary', () => {
   const markDeleted = (model, id) =>
     model.update({ deletedAt: new Date() }, { where: { id }, validate: false });
 
-  const configureRegularDiet = async dietId => {
-    await models.Setting.set(REGULAR_SETTING_KEY, dietId, SETTINGS_SCOPES.FACILITY, facilityId);
+  const configureRegularDiet = async (dietId, scope = SETTINGS_SCOPES.FACILITY) => {
+    const settingFacilityId = scope === SETTINGS_SCOPES.FACILITY ? facilityId : null;
+    await models.Setting.set(REGULAR_SETTING_KEY, dietId, scope, settingFacilityId);
     settingsCache.reset();
   };
 
@@ -112,7 +123,16 @@ describe('Diet summary', () => {
   });
 
   afterEach(async () => {
-    await models.Setting.set(REGULAR_SETTING_KEY, null, SETTINGS_SCOPES.FACILITY, facilityId);
+    // Setting it to null would leave a row behind that explicitly overrides the global value
+    // with "no diet" rather than removing the facility override altogether, which would shadow
+    // the global-scope cases below. Destroying the row is the reset `Setting.set` expects:
+    // it restores a soft-deleted row rather than leaving a stray one around.
+    await models.Setting.destroy({
+      where: { key: REGULAR_SETTING_KEY, scope: SETTINGS_SCOPES.FACILITY, facilityId },
+    });
+    await models.Setting.destroy({
+      where: { key: REGULAR_SETTING_KEY, scope: SETTINGS_SCOPES.GLOBAL, facilityId: null },
+    });
     settingsCache.reset();
   });
 
@@ -159,6 +179,37 @@ describe('Diet summary', () => {
     const { columns, hospitalTotals } = result.body;
     expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
     expect(hospitalTotals).toEqual({ [regularDiet.id]: 2 });
+  });
+
+  it('counts a patient with no diet recorded under the deployment-wide regular diet', async () => {
+    await configureRegularDiet(regularDiet.id, SETTINGS_SCOPES.GLOBAL);
+
+    await admit({ location: bed2 });
+    await admit({ location: maternityBed, diets: [regularDiet] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
+    expect(hospitalTotals).toEqual({ [regularDiet.id]: 2 });
+  });
+
+  it('lets a facility-level regular diet override the deployment-wide one', async () => {
+    const facilityRegular = await createDiet('Facility regular diet');
+    await configureRegularDiet(regularDiet.id, SETTINGS_SCOPES.GLOBAL);
+    await configureRegularDiet(facilityRegular.id, SETTINGS_SCOPES.FACILITY);
+
+    await admit({ location: bed2 });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([
+      { key: facilityRegular.id, name: 'Facility regular diet', isRegular: true },
+    ]);
+    expect(hospitalTotals).toEqual({ [facilityRegular.id]: 1 });
   });
 
   it('names the regular column when nobody on the sheet has the configured diet recorded', async () => {
@@ -428,5 +479,27 @@ describe('Diet summary', () => {
     const noPermissionApp = await baseApp.asRole('base');
     const result = await noPermissionApp.get(SUMMARY_URL);
     expect(result).toBeForbidden();
+  });
+
+  describe('permission boundary', () => {
+    disableHardcodedPermissionsForSuite();
+
+    it('succeeds for a role holding exactly the required permissions', async () => {
+      const minimalApp = await baseApp.asNewRole(REQUIRED_PERMISSIONS);
+      const result = await minimalApp.get(SUMMARY_URL);
+      expect(result).toHaveSucceeded();
+    });
+
+    it.each(REQUIRED_PERMISSIONS)(
+      'is forbidden without %s %s permission',
+      async (verb, noun) => {
+        const permissions = REQUIRED_PERMISSIONS.filter(
+          ([otherVerb, otherNoun]) => !(otherVerb === verb && otherNoun === noun),
+        );
+        const partialApp = await baseApp.asNewRole(permissions);
+        const result = await partialApp.get(SUMMARY_URL);
+        expect(result).toBeForbidden();
+      },
+    );
   });
 });
