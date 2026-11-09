@@ -45,7 +45,7 @@ reference range is flagged for clinicians.
 - [ ] Panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
 - [ ] Individual tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
 - [ ] The heading rows show however few items there are: a single panel still sits under its heading, and individual tests still sit under "Individual tests" when there is no panel.
-- [ ] A test appears under every panel in the table that contains it, and again under "Individual tests" when it is also picked on its own.
+- [ ] A test appears under every panel in the table that contains it. A test picked on its own that is also in a picked panel shows only under the panel, whichever was picked first. It stays picked, and moves back under "Individual tests" if the panel is unpicked.
 - [ ] The table lists each test with its unit and normal range, followed by one column per sample date.
 
 ## Displaying results in a lab request

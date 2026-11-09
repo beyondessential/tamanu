@@ -496,8 +496,10 @@
         .filter(id => id.startsWith('panel:'))
         .map(id => PANELS[id.slice('panel:'.length)])
         .sort(byName);
+      // A picked test already shown under a picked panel is not repeated
+      const panelTestIds = new Set(panels.flatMap(panel => panel.tests));
       individualTests = state.selected
-        .filter(id => id.startsWith('test:'))
+        .filter(id => id.startsWith('test:') && !panelTestIds.has(id.slice('test:'.length)))
         .map(id => TESTS[id.slice('test:'.length)])
         .sort(byName);
     }
