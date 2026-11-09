@@ -5,18 +5,25 @@ import '../../../../app/utils/errorMessages';
 import { renderElementWithTranslatedText } from '../../../helpers';
 import { EditEncounterModal } from '../../../../app/views/patients/components/EditEncounterModal';
 
-const { captured, settings } = vi.hoisted(() => ({ captured: {}, settings: {} }));
+const { captured, settings, apiPut, writeAndViewEncounter } = vi.hoisted(() => ({
+  captured: {},
+  settings: {},
+  apiPut: vi.fn(),
+  writeAndViewEncounter: vi.fn(),
+}));
 
 vi.mock('@tamanu/ui-components', async importOriginal => {
   const actual = await importOriginal();
   return {
     ...actual,
-    useApi: () => ({}),
+    useApi: () => ({ put: apiPut }),
     useSuggester: () => ({}),
     useSettings: () => ({ getSetting: path => settings[path] }),
     useDateTime: () => ({ getCurrentDateTime: () => '2026-07-12 00:00:00' }),
-    Form: ({ validationSchema }) => {
+    Form: ({ validationSchema, initialValues, onSubmit }) => {
       captured.validationSchema = validationSchema;
+      captured.initialValues = initialValues;
+      captured.onSubmit = onSubmit;
       return null;
     },
   };
@@ -28,21 +35,38 @@ vi.mock('../../../../app/contexts/Settings', () => ({
 }));
 
 vi.mock('../../../../app/contexts/Encounter', () => ({
-  useEncounter: () => ({ writeAndViewEncounter: () => {} }),
+  useEncounter: () => ({ writeAndViewEncounter }),
 }));
 
-const getSchema = () => {
-  renderElementWithTranslatedText(
-    <EditEncounterModal open encounter={{ id: 'encounter-1', encounterType: 'admission' }} />,
-  );
-  return captured.validationSchema;
+const renderModal = encounter => {
+  renderElementWithTranslatedText(<EditEncounterModal open encounter={encounter} />);
+  return captured;
 };
 
-describe('EditEncounterModal patient type validation', () => {
-  beforeEach(() => {
-    for (const key of Object.keys(settings)) delete settings[key];
-  });
+const getSchema = () =>
+  renderModal({ id: 'encounter-1', encounterType: 'admission' }).validationSchema;
 
+const emergencyEncounter = {
+  id: 'encounter-1',
+  encounterType: 'emergency',
+  startDate: '2026-07-11 09:00:00',
+  patientBillingTypeId: 'billing-type-private',
+  triages: [{ id: 'triage-1', chiefComplaintId: 'complaint-1', score: '2' }],
+};
+
+const triageFormValues = {
+  startDate: '2026-07-11 09:00:00',
+  chiefComplaintId: 'complaint-1',
+  score: '2',
+};
+
+beforeEach(() => {
+  for (const key of Object.keys(settings)) delete settings[key];
+  apiPut.mockReset();
+  writeAndViewEncounter.mockReset();
+});
+
+describe('EditEncounterModal patient type validation', () => {
   it.each([undefined, null, ''])(
     'rejects a patient type of %j when the field is configured as required',
     async patientBillingTypeId => {
@@ -62,5 +86,58 @@ describe('EditEncounterModal patient type validation', () => {
     await expect(
       getSchema().validate({ patientBillingTypeId: 'billing-type-1' }),
     ).resolves.toBeTruthy();
+  });
+});
+
+describe('EditEncounterModal emergency patient type', () => {
+  it('prefills the patient type from the encounter', () => {
+    expect(renderModal(emergencyEncounter).initialValues.patientBillingTypeId).toBe(
+      'billing-type-private',
+    );
+  });
+
+  it('rejects a missing patient type when the field is configured as required', async () => {
+    settings['fields.patientBillingTypeId'] = { required: true };
+    const { validationSchema } = renderModal(emergencyEncounter);
+
+    await expect(
+      validationSchema.validate({ ...triageFormValues, patientBillingTypeId: null }),
+    ).rejects.toThrow('Required');
+  });
+
+  it('accepts a missing patient type when the field is not required', async () => {
+    const { validationSchema } = renderModal(emergencyEncounter);
+
+    await expect(
+      validationSchema.validate({ ...triageFormValues, patientBillingTypeId: null }),
+    ).resolves.toBeTruthy();
+  });
+
+  it('saves a changed patient type to the encounter', async () => {
+    const { onSubmit } = renderModal(emergencyEncounter);
+
+    await onSubmit({ ...triageFormValues, patientBillingTypeId: 'billing-type-public' });
+
+    expect(apiPut).toHaveBeenCalledWith('encounter/encounter-1', {
+      submittedTime: '2026-07-12 00:00:00',
+      patientBillingTypeId: 'billing-type-public',
+    });
+    expect(apiPut).not.toHaveBeenCalledWith(
+      'triage/triage-1',
+      expect.objectContaining({ patientBillingTypeId: expect.anything() }),
+    );
+  });
+
+  it('does not write the encounter patient type when it is unchanged', async () => {
+    const { onSubmit } = renderModal(emergencyEncounter);
+
+    await onSubmit({ ...triageFormValues, patientBillingTypeId: 'billing-type-private' });
+
+    expect(apiPut).toHaveBeenCalledTimes(1);
+    expect(apiPut).toHaveBeenCalledWith('triage/triage-1', expect.any(Object));
+    expect(writeAndViewEncounter).toHaveBeenCalledWith('encounter-1', {
+      startDate: '2026-07-11 09:00:00',
+      skipSystemNotes: true,
+    });
   });
 });

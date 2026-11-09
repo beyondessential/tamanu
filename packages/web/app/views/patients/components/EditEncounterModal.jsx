@@ -217,6 +217,19 @@ const TriageFields = () => {
         endpoint="arrivalMode"
         data-testid="localisedfield-hjex"
       />
+      <LocalisedField
+        name="patientBillingTypeId"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.patientBillingTypeId.label"
+            fallback="Patient type"
+            data-testid="translatedtext-67v8"
+          />
+        }
+        endpoint="patientBillingType"
+        component={SuggesterSelectField}
+        data-testid="localisedfield-amji"
+      />
       <Field
         name="score"
         label={
@@ -323,6 +336,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
         secondaryComplaintId,
         arrivalTime,
         arrivalModeId,
+        patientBillingTypeId,
         score,
       };
     default:
@@ -346,7 +360,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   // Arrival time is optional and is null when none was recorded, and either field can be '' mid-edit
   // when the user clears it, so both are nullable with an empty-string transform. The triage date
   // (startDate) stays required; neither may be in the future.
-  const triageValidationSchema = yup.object().shape({
+  const triageValidationSchema = encounterValidationSchema.shape({
     arrivalTime: yup
       .date()
       .nullable()
@@ -378,20 +392,28 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     startDate,
     arrivalTime,
     arrivalModeId,
+    patientBillingTypeId,
     score,
     chiefComplaintId,
     secondaryComplaintId,
   }) => {
+    const submittedTime = getCurrentDateTime();
     await api.put(`triage/${triage?.id}`, {
-      submittedTime: getCurrentDateTime(),
+      submittedTime,
       encounterId: encounter.id,
       arrivalTime,
       triageTime: startDate,
       arrivalModeId,
       score,
-      chiefComplaintId, 
+      chiefComplaintId,
       secondaryComplaintId,
     });
+
+    // Patient type lives on the encounter rather than the triage. Save it separately from the start
+    // date below so the change still gets its system note.
+    if ((patientBillingTypeId ?? null) !== (encounter.patientBillingTypeId ?? null)) {
+      await api.put(`encounter/${encounter.id}`, { submittedTime, patientBillingTypeId });
+    }
 
     // Keep the encounter start date in sync with the triage start date when using this form
     await writeAndViewEncounter(encounter.id, { startDate, skipSystemNotes: true });
