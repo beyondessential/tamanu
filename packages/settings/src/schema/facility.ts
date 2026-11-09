@@ -8,7 +8,7 @@ import {
 import { extractDefaults } from './utils';
 import {
   batchingProperties,
-  dietSummaryRegularDietIdSchema,
+  dietSummaryProperties,
   emailSchema,
   letterheadProperties,
   nationalityIdSchema,
@@ -320,10 +320,9 @@ export const facilitySettings = {
       properties: {
         dietSummary: {
           name: 'Diet summary sheet',
-          description: 'Settings for the diet summary sheet printed from bed management',
-          properties: {
-            regularDietId: dietSummaryRegularDietIdSchema,
-          },
+          description:
+            'Settings for the diet summary sheet printed from bed management. Overrides the deployment-wide regular diet for this facility.',
+          properties: dietSummaryProperties,
         },
       },
     },
