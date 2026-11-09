@@ -1,0 +1,105 @@
+# Guide release targeting
+
+Which branch a user guide or configuration guide's pull request targets, and how the guide gets there
+and onwards. The `draft-user-guide` and `draft-config-guide` skills follow it; follow it too when
+raising a guide by hand.
+
+A guide is raised against the release branch it documents, so a deployment's guides match the version
+it runs. Release branches are `release/2.xx` (see `llm/project-rules/release-branches.md`).
+
+## Choosing the target
+
+The target is the release in which the **newest feature the guides document first shipped**. Judge it
+across every guide the run writes or updates, and the whole of each guide, not only the part a change
+touches: a guide is published for one version.
+
+`release/2.68` is the first branch carrying `docs/user-manuals/`, so no guide targets an older one. In
+practice, then:
+
+1. Pick an anchor in the code for each feature the guides document: a label's `fallback`, a setting
+   key, a permission subject, a reference data column, the component that renders the screen
+2. Walk the release branches from `release/2.68` upwards. The target is the **first branch on which
+   every anchor is present** (`git grep` against `origin/release/2.xx`). Check presence rather than
+   commit ancestry, since a feature hotfixed into a release carries a different commit there
+3. The target is **main** when no release branch carries every anchor, or when a guide being updated
+   does not exist on the release branch step 2 chose
+
+Fetch the release branches first, so a newly cut one is not missed.
+
+## Grounding in the target
+
+Once the target is a release branch, read **that branch's code**, not main's, for everything the guide
+states: labels, flows, settings, permissions, reference data. A detached worktree outside the
+repository is the easiest way to read it, removed once the guide is written:
+
+```bash
+git worktree add --detach /tmp/tamanu-release-2.68 origin/release/2.68
+# ... read and grep there ...
+git worktree remove /tmp/tamanu-release-2.68
+```
+
+A demo site used to click the flow through or capture screenshots must run the target version.
+
+## Landing the pull request
+
+Commit the guides on the card branch first. The branch must carry only the guides' commits; if it
+carries anything else, stop and ask the author before moving it.
+
+When the target is main, nothing more is needed. When it is a release branch, **rebase the card's
+commits onto it**:
+
+```bash
+git rebase --onto origin/release/2.68 "$(git merge-base HEAD origin/main)"
+```
+
+Guides often differ between main and a release branch, so expect conflicts, and resolve them as in
+[Resolving conflicts](#resolving-conflicts).
+
+The rebase rewrites history, which the Workhorse daemon does not push, so the author force-pushes
+(`git push --force-with-lease origin <branch>`) and changes the pull request's base to the release
+branch on GitHub.
+
+## Carrying it forward
+
+When the target is a release branch, prepare in the same run a branch for **each newer release branch
+and for main**, carrying the guides' commits cherry-picked with their subjects unchanged. Name it for
+the card and what it carries, ending in its base: `chore/{card-code}/vitals-user-guides-to-main`,
+`chore/{card-code}/vitals-user-guides-to-2.69`. Build each in a temporary worktree, so the card's
+own worktree is untouched:
+
+```bash
+git worktree add -b chore/{card-code}/vitals-user-guides-to-main /tmp/tamanu-forward-main origin/main
+git -C /tmp/tamanu-forward-main cherry-pick <first>^..<last>
+git worktree remove /tmp/tamanu-forward-main
+```
+
+Resolve conflicts the same way. The author pushes each branch and raises its pull request against its
+base.
+
+## Resolving conflicts
+
+- **The run's guides** take the run's version in full (`git checkout --theirs -- <guide>` while the
+  rebase or cherry-pick is stopped). The run verified the whole guide against the target, so its
+  version is right for the target and for the branches after it. Where main changed a guide after
+  the card branch was cut (`git log <merge-base>..origin/main -- <guide>`), keep that change on the
+  forward branch to main
+- **READMEs** keep the branch's rows and add or update only the rows for this run's guides. A row
+  must not link to a guide the branch lacks
+- **Images** a guide references must exist on the branch. Carry across any the branch lacks from the
+  card branch
+
+Then check every link and anchor resolves on that branch.
+
+## Titles
+
+Every pull request carries the same title, in Tamanu's conventional format
+(`llm/project-rules/pull-requests.md`), with no `(HOTFIX 2.xx)` suffix. The pre-release checks match
+the forward cherry-picks to the release's commit by subject, so the subjects stay identical.
+
+## Reporting
+
+Tell the author:
+
+- The target branch, and the feature that decided it, or why it is main
+- On a release target, the force-push and base change to make
+- Each forward branch, its base, and the pull request to raise from it

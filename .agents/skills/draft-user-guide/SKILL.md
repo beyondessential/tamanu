@@ -17,7 +17,8 @@ the guides for the author to review.
 
 Read `.agents/docs/user-guide-format.md` first and follow it for anything about what a guide looks
 like: location, numbering, structure, language, screenshots and accuracy. This file is the procedure
-only.
+only. Read `.agents/docs/guide-release-targeting.md` too: it sets the branch the guides are written
+against and raised against.
 
 One run covers one module on one platform. `docs/user-manuals/desktop/10-vitals/01-record-vitals.md` is
 the worked example, and `.workhorse/design/designs/user-guide-page.html` shows it as a reader meets it.
@@ -32,15 +33,17 @@ The author names the platform and module. Explore that area of the app, and its 
 step 2), and propose the guides, each with a one-line description. If the module has no folder yet,
 propose where it sits in the module order, since adding it renumbers the modules after it.
 
-In the same review, ask for a demo site, a login, the test patient to use, and the go-ahead to record
-data against that patient where a guide's action writes it. Get the list approved before writing.
+Work out the target branch for the proposed guides, per the targeting doc, and name it in the same
+review with the feature that decided it. In that review, also ask for a demo site running the target
+version, a login, the test patient to use, and the go-ahead to record data against that patient where
+a guide's action writes it. Get the list approved before writing.
 
 ### 2. Ground every step
 
-1. **Read the implementation**: `packages/web` for desktop, `packages/mobile` for mobile. On-screen
-   labels are the `fallback` strings on `TranslatedText` and `getTranslation`; copy them exactly.
-   A fallback is only a label if the screen displays it: fields in survey-driven forms, such as
-   vitals, take their labels from the site's configuration, not from the code.
+1. **Read the implementation on the target branch**: `packages/web` for desktop, `packages/mobile`
+   for mobile. On-screen labels are the `fallback` strings on `TranslatedText` and `getTranslation`;
+   copy them exactly. A fallback is only a label if the screen displays it: fields in survey-driven
+   forms, such as vitals, take their labels from the site's configuration, not from the code.
 2. **Read the relevant spec** under `specs/`, but expect it to be thin. Much of the tree is stubs,
    so the code is the source of truth.
 3. **Run the app and click the flow through** on the author's demo site before publishing, to
@@ -79,9 +82,11 @@ If you can't drive a browser, leave the placeholders for a person to fill.
 ### 4. Land it
 
 Write the guides, update the module README and the platform README, check every link still resolves,
-and commit. Do not open the pull request: the author reviews the diff and raises it. Title it to
-Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
+and commit. Then land the commits on the target branch and prepare the forward branches, per the
+targeting doc. Do not open the pull requests: the author reviews the diff and raises them. Title them
+to Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
 type, use `chore`).
 
 Then tell the author what you wrote, anything you couldn't verify, and any screenshot placeholders
-still to be filled and why, so they can go in the pull request description.
+still to be filled and why, so they can go in the pull request description. Report the target branch,
+the force-push and base change, and the forward branches as the targeting doc describes.

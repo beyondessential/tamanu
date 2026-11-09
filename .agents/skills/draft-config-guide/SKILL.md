@@ -19,7 +19,8 @@ commit them for the author to review.
 
 Read `.agents/docs/config-guide-format.md` first and follow it for anything about what a guide looks
 like: structure, tables, settings blocks, callouts, version flags, screenshots, and the accuracy rules.
-This file is the procedure only.
+This file is the procedure only. Read `.agents/docs/guide-release-targeting.md` too: it sets the branch
+the guides are written against and raised against.
 
 Each module has three guides — `01-reference-data.md`, `02-settings.md`, `03-permissions.md` — plus a
 README. The Medications guides (`docs/user-manuals/config-guides/15-medications/`) are the worked
@@ -48,9 +49,11 @@ Discover candidates:
 - **Existing documentation** — the module's Slab posts (see step 2), which can name configuration a
   code search misses
 
-Then **present the candidate list for the author to approve or trim before writing anything**. Do not
-derive scope and proceed. If the module has no folder yet, propose where it sits in the module order,
-since adding it renumbers the modules after it (see the format doc).
+Then **present the candidate list for the author to approve or trim before writing anything**, naming
+with it the target branch for the guides, per the targeting doc, and the feature that decided it. Do
+not derive scope and proceed. Once the target is a release branch, read the code sources above, and
+write every code-derived section, from that branch, not main. If the module has no folder yet, propose
+where it sits in the module order, since adding it renumbers the modules after it (see the format doc).
 
 ### 2. Draft what the code cannot give you
 
@@ -110,9 +113,11 @@ whether to retake them.
 ### 6. Land it
 
 Write the guides, update the module README and the section README, check every link and anchor still
-resolves, and commit. Do not open the pull request: the author reviews the diff and raises it. Title it
-to Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
-type, use `chore`).
+resolves, and commit. Then land the commits on the target branch and prepare the forward branches, per
+the targeting doc. Do not open the pull requests: the author reviews the diff and raises them. Title
+them to Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an
+allowed type, use `chore`).
 
 Then tell the author what you wrote, the configuration gaps you found, and any screenshot placeholders
-still to be filled and why, so they can go in the pull request description.
+still to be filled and why, so they can go in the pull request description. Report the target branch,
+the force-push and base change, and the forward branches as the targeting doc describes.
