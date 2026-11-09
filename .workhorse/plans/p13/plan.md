@@ -42,8 +42,8 @@ in the skills themselves rather than in `specs/`.
   keep their own later edits to the guide and take the run's changes on top; images the guide
   references are carried across where a branch lacks them
 - The rebase rewrites history, so a pull request already open needs a force-push with lease and its
-  base changed on GitHub. The Workhorse daemon does not push rewritten history and the skill has no
-  GitHub login, so the author does both
+  base changed on GitHub. **The skill does both itself**, and raises every pull request, falling back
+  to telling the author what to push and raise only where it has no GitHub access (Ed, PR review)
 - When the target is main, nothing changes from today
 
 ### Carrying it forward
@@ -51,7 +51,7 @@ in the skills themselves rather than in `specs/`.
 - In the **same run**, for each release branch newer than the target and for main, the skill
   prepares a **local branch with the guide's commits cherry-picked onto it**, resolving README
   conflicts against that branch, ready for the author to push and raise
-- The skill's report lists each forward branch, its base, and the PR the author raises from it
+- The skill pushes each forward branch and raises its PR, and its report lists each one with its base
 
 ### PR titles
 
@@ -72,8 +72,9 @@ in the skills themselves rather than in `specs/`.
       in the target branch's code and confirm the demo site runs that version; replace "Land it"
       with the rebase, forward branches and report
 - [x] `draft-config-guide`: same changes, asking which release alongside the candidate list
-- [x] Update the "Land it" report in both skills to name the pull requests to raise: the one for the
+- [x] Update the "Land it" report in both skills to name the pull requests raised: the one for the
       named release, and one per forward branch
+  - [x] The skill pushes and raises them rather than handing the job back to the author (Ed's review)
 - [x] Check `pre-release-checks` and `release-cutoff-checks` still treat guide commits on a release
       branch sensibly. Pre-release checks see them as hotfixes and find them on main by subject via
       the forward branch; cut-off checks already see guide commits with no Linear card. No change

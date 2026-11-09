@@ -34,7 +34,10 @@ A demo site used to click the flow through or capture screenshots must run the t
 
 ## Landing the pull request
 
-Rebase the guide commits onto the release branch, then open the pull request with it as the base.
+Rebase the guide commits onto the release branch, force-push the card's branch with lease, and raise
+the pull request against it, or retarget the open one. Raise every pull request yourself, per
+`llm/project-rules/pull-requests.md`. Where you have no GitHub access, say so and tell the author
+each branch to push and pull request to raise.
 
 ## Carrying it forward
 
@@ -50,7 +53,7 @@ git -C /tmp/tamanu-forward-main cherry-pick <first>^..<last>
 git worktree remove /tmp/tamanu-forward-main
 ```
 
-The author pushes each branch and raises its pull request against its base.
+Push each branch and raise its pull request against its base.
 
 ## Resolving conflicts
 
@@ -76,5 +79,5 @@ the forward cherry-picks to the release's commit by subject, so the subjects sta
 
 ## Reporting
 
-Tell the author the pull request to raise for the release they named, and each forward branch, its
-base, and the pull request to raise from it.
+Tell the author the pull request on the release they named, and each forward branch's pull request
+with its base.

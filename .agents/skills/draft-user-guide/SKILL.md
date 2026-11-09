@@ -81,11 +81,10 @@ If you can't drive a browser, leave the placeholders for a person to fill.
 ### 4. Land it
 
 Write the guides, update the module README and the platform README, check every link still resolves,
-and commit. Then land the commits on the target branch and prepare the forward branches, per the
-targeting doc. Do not open the pull requests: the author reviews the diff and raises them. Title them
-to Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
-type, use `chore`).
+and commit. Then land the commits on the target branch, prepare the forward branches, and raise each
+pull request, per the targeting doc. Title them to Tamanu's conventional commit format
+(`llm/project-rules/pull-requests.md`; `docs` is not an allowed type, use `chore`).
 
-Then tell the author what you wrote, anything you couldn't verify, and any screenshot placeholders
-still to be filled and why, so they can go in the pull request description. Report the pull requests
-to raise as the targeting doc describes.
+Put what you wrote, anything you couldn't verify, and any screenshot placeholders still to be filled
+and why, in each pull request's description, and tell the author the same, with the pull requests as
+the targeting doc describes.
