@@ -1,0 +1,27 @@
+{
+  "sheetName": "Facilities",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "email",
+    "contactNumber",
+    "streetAddress",
+    "cityTown",
+    "division",
+    "type",
+    "visibilityStatus",
+    "catchment_id"
+  ],
+  "data": [
+    {
+      "id": "facility-1",
+      "code": "MercyHospital",
+      "name": "Mercy Hospital",
+      "contactNumber": "03 464 0107",
+      "streetAddress": "72 Newington Avenue, Maori Hill",
+      "cityTown": "Dunedin",
+      "visibilityStatus": "current"
+    }
+  ]
+}

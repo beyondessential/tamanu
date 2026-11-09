@@ -1,0 +1,976 @@
+{
+  "sheetName": "Locations",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus",
+    "maxOccupancy",
+    "facilityId",
+    "locationGroupId"
+  ],
+  "data": [
+    {
+      "id": "location-MercyReception",
+      "code": "MercyReception",
+      "name": "Mercy Hospital Reception",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-Reception"
+    },
+    {
+      "id": "location-ManaakiReception",
+      "code": "ManaakiReception",
+      "name": "Manaaki Reception",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-Reception"
+    },
+    {
+      "id": "location-CoolockBed1",
+      "code": "CoolockBed1",
+      "name": "Bed 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed2",
+      "code": "CoolockBed2",
+      "name": "Bed 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed3",
+      "code": "CoolockBed3",
+      "name": "Bed 3",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed4",
+      "code": "CoolockBed4",
+      "name": "Bed 4",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed5",
+      "code": "CoolockBed5",
+      "name": "Bed 5",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed6",
+      "code": "CoolockBed6",
+      "name": "Bed 6",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed7",
+      "code": "CoolockBed7",
+      "name": "Bed 7",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed8",
+      "code": "CoolockBed8",
+      "name": "Bed 8",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed9",
+      "code": "CoolockBed9",
+      "name": "Bed 9",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed10",
+      "code": "CoolockBed10",
+      "name": "Bed 10",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed11",
+      "code": "CoolockBed11",
+      "name": "Bed 11",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-CoolockBed12",
+      "code": "CoolockBed12",
+      "name": "Bed 12",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CoolockDaySurgeryUnit"
+    },
+    {
+      "id": "location-Theatre1",
+      "code": "Theatre1",
+      "name": "Theatre 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-OperatingTheatres"
+    },
+    {
+      "id": "location-Theatre2",
+      "code": "Theatre2",
+      "name": "Theatre 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-OperatingTheatres"
+    },
+    {
+      "id": "location-Theatre3",
+      "code": "Theatre3",
+      "name": "Theatre 3",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-OperatingTheatres"
+    },
+    {
+      "id": "location-Theatre4",
+      "code": "Theatre4",
+      "name": "Theatre 4",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-OperatingTheatres"
+    },
+    {
+      "id": "location-Theatre5",
+      "code": "Theatre5",
+      "name": "Theatre 5",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-OperatingTheatres"
+    },
+    {
+      "id": "location-Theatre6",
+      "code": "Theatre6",
+      "name": "Theatre 6",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-OperatingTheatres"
+    },
+    {
+      "id": "location-Theatre7",
+      "code": "Theatre7",
+      "name": "Theatre 7",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-OperatingTheatres"
+    },
+    {
+      "id": "location-PACUBay1",
+      "code": "PACUBay1",
+      "name": "Bay 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-PostAnaestheticCareUnit"
+    },
+    {
+      "id": "location-PACUBay2",
+      "code": "PACUBay2",
+      "name": "Bay 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-PostAnaestheticCareUnit"
+    },
+    {
+      "id": "location-PACUBay3",
+      "code": "PACUBay3",
+      "name": "Bay 3",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-PostAnaestheticCareUnit"
+    },
+    {
+      "id": "location-PACUBay4",
+      "code": "PACUBay4",
+      "name": "Bay 4",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-PostAnaestheticCareUnit"
+    },
+    {
+      "id": "location-PACUBay5",
+      "code": "PACUBay5",
+      "name": "Bay 5",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-PostAnaestheticCareUnit"
+    },
+    {
+      "id": "location-PACUBay6",
+      "code": "PACUBay6",
+      "name": "Bay 6",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-PostAnaestheticCareUnit"
+    },
+    {
+      "id": "location-ICUBed1",
+      "code": "ICUBed1",
+      "name": "Bed 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-IntensiveCareUnit"
+    },
+    {
+      "id": "location-ICUBed2",
+      "code": "ICUBed2",
+      "name": "Bed 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-IntensiveCareUnit"
+    },
+    {
+      "id": "location-ICUBed3",
+      "code": "ICUBed3",
+      "name": "Bed 3",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-IntensiveCareUnit"
+    },
+    {
+      "id": "location-ICUBed4",
+      "code": "ICUBed4",
+      "name": "Bed 4",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-IntensiveCareUnit"
+    },
+    {
+      "id": "location-McAuleyBed1",
+      "code": "McAuleyBed1",
+      "name": "Bed 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed2",
+      "code": "McAuleyBed2",
+      "name": "Bed 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed3",
+      "code": "McAuleyBed3",
+      "name": "Bed 3",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed4",
+      "code": "McAuleyBed4",
+      "name": "Bed 4",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed5",
+      "code": "McAuleyBed5",
+      "name": "Bed 5",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed6",
+      "code": "McAuleyBed6",
+      "name": "Bed 6",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed7",
+      "code": "McAuleyBed7",
+      "name": "Bed 7",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed8",
+      "code": "McAuleyBed8",
+      "name": "Bed 8",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed9",
+      "code": "McAuleyBed9",
+      "name": "Bed 9",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed10",
+      "code": "McAuleyBed10",
+      "name": "Bed 10",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed11",
+      "code": "McAuleyBed11",
+      "name": "Bed 11",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed12",
+      "code": "McAuleyBed12",
+      "name": "Bed 12",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed13",
+      "code": "McAuleyBed13",
+      "name": "Bed 13",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed14",
+      "code": "McAuleyBed14",
+      "name": "Bed 14",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed15",
+      "code": "McAuleyBed15",
+      "name": "Bed 15",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed16",
+      "code": "McAuleyBed16",
+      "name": "Bed 16",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed17",
+      "code": "McAuleyBed17",
+      "name": "Bed 17",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed18",
+      "code": "McAuleyBed18",
+      "name": "Bed 18",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed19",
+      "code": "McAuleyBed19",
+      "name": "Bed 19",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-McAuleyBed20",
+      "code": "McAuleyBed20",
+      "name": "Bed 20",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-McAuleyWard"
+    },
+    {
+      "id": "location-CallaghanBed1",
+      "code": "CallaghanBed1",
+      "name": "Bed 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed2",
+      "code": "CallaghanBed2",
+      "name": "Bed 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed3",
+      "code": "CallaghanBed3",
+      "name": "Bed 3",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed4",
+      "code": "CallaghanBed4",
+      "name": "Bed 4",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed5",
+      "code": "CallaghanBed5",
+      "name": "Bed 5",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed6",
+      "code": "CallaghanBed6",
+      "name": "Bed 6",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed7",
+      "code": "CallaghanBed7",
+      "name": "Bed 7",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed8",
+      "code": "CallaghanBed8",
+      "name": "Bed 8",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed9",
+      "code": "CallaghanBed9",
+      "name": "Bed 9",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed10",
+      "code": "CallaghanBed10",
+      "name": "Bed 10",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed11",
+      "code": "CallaghanBed11",
+      "name": "Bed 11",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed12",
+      "code": "CallaghanBed12",
+      "name": "Bed 12",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed13",
+      "code": "CallaghanBed13",
+      "name": "Bed 13",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed14",
+      "code": "CallaghanBed14",
+      "name": "Bed 14",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed15",
+      "code": "CallaghanBed15",
+      "name": "Bed 15",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed16",
+      "code": "CallaghanBed16",
+      "name": "Bed 16",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed17",
+      "code": "CallaghanBed17",
+      "name": "Bed 17",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed18",
+      "code": "CallaghanBed18",
+      "name": "Bed 18",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed19",
+      "code": "CallaghanBed19",
+      "name": "Bed 19",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CallaghanBed20",
+      "code": "CallaghanBed20",
+      "name": "Bed 20",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-CallaghanWard"
+    },
+    {
+      "id": "location-CardiacCathLab",
+      "code": "CardiacCathLab",
+      "name": "Cardiac Catheterisation Lab",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MercyHeartCentre"
+    },
+    {
+      "id": "location-ManaakiTheatre1",
+      "code": "ManaakiTheatre1",
+      "name": "Manaaki Theatre 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-ManaakiDayStayUnit"
+    },
+    {
+      "id": "location-ManaakiTheatre2",
+      "code": "ManaakiTheatre2",
+      "name": "Manaaki Theatre 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-ManaakiDayStayUnit"
+    },
+    {
+      "id": "location-ManaakiRecoveryBay1",
+      "code": "ManaakiRecoveryBay1",
+      "name": "Recovery Bay 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-ManaakiDayStayUnit"
+    },
+    {
+      "id": "location-ManaakiRecoveryBay2",
+      "code": "ManaakiRecoveryBay2",
+      "name": "Recovery Bay 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-ManaakiDayStayUnit"
+    },
+    {
+      "id": "location-ManaakiRecoveryBay3",
+      "code": "ManaakiRecoveryBay3",
+      "name": "Recovery Bay 3",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-ManaakiDayStayUnit"
+    },
+    {
+      "id": "location-ManaakiRecoveryBay4",
+      "code": "ManaakiRecoveryBay4",
+      "name": "Recovery Bay 4",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-ManaakiDayStayUnit"
+    },
+    {
+      "id": "location-ChemoChair1",
+      "code": "ChemoChair1",
+      "name": "Chemotherapy Chair 1",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MercyCancerCare"
+    },
+    {
+      "id": "location-ChemoChair2",
+      "code": "ChemoChair2",
+      "name": "Chemotherapy Chair 2",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MercyCancerCare"
+    },
+    {
+      "id": "location-ChemoChair3",
+      "code": "ChemoChair3",
+      "name": "Chemotherapy Chair 3",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MercyCancerCare"
+    },
+    {
+      "id": "location-ChemoChair4",
+      "code": "ChemoChair4",
+      "name": "Chemotherapy Chair 4",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MercyCancerCare"
+    },
+    {
+      "id": "location-ChemoChair5",
+      "code": "ChemoChair5",
+      "name": "Chemotherapy Chair 5",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MercyCancerCare"
+    },
+    {
+      "id": "location-ChemoChair6",
+      "code": "ChemoChair6",
+      "name": "Chemotherapy Chair 6",
+      "visibilityStatus": "current",
+      "maxOccupancy": 1,
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MercyCancerCare"
+    },
+    {
+      "id": "location-OncologyConsultingRoom",
+      "code": "OncologyConsultingRoom",
+      "name": "Consulting Room",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MercyCancerCare"
+    },
+    {
+      "id": "location-PhysioRoom1",
+      "code": "PhysioRoom1",
+      "name": "Treatment Room 1",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-Physiotherapy"
+    },
+    {
+      "id": "location-PhysioRoom2",
+      "code": "PhysioRoom2",
+      "name": "Treatment Room 2",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-Physiotherapy"
+    },
+    {
+      "id": "location-PhysioRoom3",
+      "code": "PhysioRoom3",
+      "name": "Treatment Room 3",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-Physiotherapy"
+    },
+    {
+      "id": "location-MarinotoSuite1",
+      "code": "MarinotoSuite1",
+      "name": "Suite 1",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite2",
+      "code": "MarinotoSuite2",
+      "name": "Suite 2",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite3",
+      "code": "MarinotoSuite3",
+      "name": "Suite 3",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite4",
+      "code": "MarinotoSuite4",
+      "name": "Suite 4",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite5",
+      "code": "MarinotoSuite5",
+      "name": "Suite 5",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite6",
+      "code": "MarinotoSuite6",
+      "name": "Suite 6",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite7",
+      "code": "MarinotoSuite7",
+      "name": "Suite 7",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite8",
+      "code": "MarinotoSuite8",
+      "name": "Suite 8",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite9",
+      "code": "MarinotoSuite9",
+      "name": "Suite 9",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite10",
+      "code": "MarinotoSuite10",
+      "name": "Suite 10",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite11",
+      "code": "MarinotoSuite11",
+      "name": "Suite 11",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite12",
+      "code": "MarinotoSuite12",
+      "name": "Suite 12",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite13",
+      "code": "MarinotoSuite13",
+      "name": "Suite 13",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite14",
+      "code": "MarinotoSuite14",
+      "name": "Suite 14",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite15",
+      "code": "MarinotoSuite15",
+      "name": "Suite 15",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite16",
+      "code": "MarinotoSuite16",
+      "name": "Suite 16",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite17",
+      "code": "MarinotoSuite17",
+      "name": "Suite 17",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite18",
+      "code": "MarinotoSuite18",
+      "name": "Suite 18",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite19",
+      "code": "MarinotoSuite19",
+      "name": "Suite 19",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite20",
+      "code": "MarinotoSuite20",
+      "name": "Suite 20",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite21",
+      "code": "MarinotoSuite21",
+      "name": "Suite 21",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    },
+    {
+      "id": "location-MarinotoSuite22",
+      "code": "MarinotoSuite22",
+      "name": "Suite 22",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1",
+      "locationGroupId": "locationgroup-MarinotoClinic"
+    }
+  ]
+}
