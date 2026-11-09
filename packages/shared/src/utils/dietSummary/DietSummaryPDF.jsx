@@ -232,36 +232,54 @@ const PatientRow = ({ patient, dietColumns, columnWidth }) => (
   </View>
 );
 
-const WardSection = ({ area, dietColumns, columnWidth }) => {
+// Reads "{ward}" on the ward's first page, and "{ward} (continued)" on every page after, inside a
+// `fixed` node that react-pdf repeats on every page its wrapping parent spans.
+//
+// react-pdf resolves a `fixed` dynamic node's `render` prop twice: `splitPage` calls it with only
+// `pageNumber` while laying out, for every page a ward might still land on, then the final
+// `resolvePageIndices` pass calls it again in page order with `subPageNumber` also set. Only that
+// second pass should count as "the ward starts here", which is what the `subPageNumber` guard
+// picks out — without it, the first (layout) pass would wrongly latch an earlier page as the
+// ward's first page.
+const WardHeading = ({ wardName }) => {
   const { getTranslation, makeIntlStyleSheet, pdfFont, pdfFontBold } = useLanguageContext();
+  const continuedName = getTranslation('pdf.dietSummary.ward.continued', ':ward (continued)', {
+    replacements: { ward: wardName },
+  });
+
+  let firstPageOfWard = Number.MAX_SAFE_INTEGER;
+
+  return (
+    <TextWithoutContext
+      makeIntlStyleSheet={makeIntlStyleSheet}
+      pdfFont={pdfFont}
+      pdfFontBold={pdfFontBold}
+      bold
+      style={styles.wardHeading}
+      render={({ pageNumber, subPageNumber }) => {
+        if (pageNumber < firstPageOfWard && subPageNumber) {
+          firstPageOfWard = pageNumber;
+        }
+        return pageNumber === firstPageOfWard ? wardName : continuedName;
+      }}
+    />
+  );
+};
+
+// spec: DIET#layout
+const WardSection = ({ area, dietColumns, columnWidth }) => {
+  const { getTranslation } = useLanguageContext();
   const wardName = area.id
     ? getTranslation(
         getReferenceDataStringId(area.id, OTHER_REFERENCE_TYPES.LOCATION_GROUP),
         area.name,
       )
     : getTranslation('pdf.dietSummary.noArea', 'No area');
-  const continuedName = `${wardName} ${getTranslation('pdf.dietSummary.continued', '(continued)')}`;
-
-  // react-pdf repeats a `fixed` child on every page its wrapping parent spans, which is what keeps
-  // the ward's heading and column headers above a table that runs over a page break.
-  let firstPageOfWard = Number.MAX_SAFE_INTEGER;
 
   return (
     <View style={styles.table}>
       <View fixed>
-        <TextWithoutContext
-          makeIntlStyleSheet={makeIntlStyleSheet}
-          pdfFont={pdfFont}
-          pdfFontBold={pdfFontBold}
-          bold
-          style={styles.wardHeading}
-          render={({ pageNumber, subPageNumber }) => {
-            if (pageNumber < firstPageOfWard && subPageNumber) {
-              firstPageOfWard = pageNumber;
-            }
-            return pageNumber === firstPageOfWard ? wardName : continuedName;
-          }}
-        />
+        <WardHeading wardName={wardName} />
         <View style={styles.row}>
           <View style={[styles.headerCell, { width: NAME_WIDTH }]}>
             <Text style={styles.cellText}>
