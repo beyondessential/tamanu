@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { getSelectByFieldLabel, selectFieldOption } from '@utils/fieldHelpers';
 
 export class EditEncounterModal {
   readonly page: Page;
@@ -13,6 +14,8 @@ export class EditEncounterModal {
   readonly dietInput: Locator;
   readonly dietOptions: Locator;
 
+  readonly patientTypeSelect: Locator;
+
   constructor(page: Page) {
     this.page = page;
     // The FormModal testId doesn't reach the DOM due to prop overrides in the component chain.
@@ -26,6 +29,8 @@ export class EditEncounterModal {
     this.dietControl = this.modal.locator('.react-select__control');
     this.dietInput = this.modal.locator('.react-select__input input');
     this.dietOptions = this.modal.locator('.react-select__option');
+
+    this.patientTypeSelect = getSelectByFieldLabel(this.modal, 'Patient type');
   }
 
   async waitForModalToLoad(): Promise<void> {
@@ -41,6 +46,16 @@ export class EditEncounterModal {
     await this.dietControl.click();
     await this.dietInput.fill(diet);
     await this.dietOptions.filter({ hasText: diet }).first().click();
+  }
+
+  /**
+   * Select a patient type, returning the text of the option chosen.
+   */
+  async selectPatientType(patientType: string): Promise<string | undefined> {
+    return selectFieldOption(this.page, this.patientTypeSelect, {
+      optionToSelect: patientType,
+      returnOptionText: true,
+    });
   }
 
   async saveChanges(): Promise<void> {
