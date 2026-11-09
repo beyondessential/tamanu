@@ -324,7 +324,7 @@ export const facilitySettings = {
             regularDietId: {
               name: 'Regular diet',
               description:
-                'The diet that stands for a regular meal. Patients with no diet recorded are counted under it on the diet summary sheet. Left unset, the sheet carries its own Regular column for them.',
+                'The diet that stands for a regular meal. Patients with no diet recorded are counted under it on the diet summary sheet. Overrides the global `bedManagement.dietSummary.regularDietId` default for this facility; leave unset to follow the global setting. Left unset anywhere, the sheet carries its own Regular column for them.',
               type: yup.string().nullable(),
               defaultValue: null,
               suggesterEndpoint: 'diet',
