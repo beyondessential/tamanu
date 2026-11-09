@@ -78,11 +78,15 @@ base.
 
 ## Resolving conflicts
 
-- **The run's guides** take the run's version in full (`git checkout --theirs -- <guide>` while the
-  rebase or cherry-pick is stopped). The run verified the whole guide against the target, so its
-  version is right for the target and for the branches after it. Where main changed a guide after
-  the card branch was cut (`git log <merge-base>..origin/main -- <guide>`), keep that change on the
-  forward branch to main
+- **The run's guides**, rebasing onto the target, take the run's version in full
+  (`git checkout --theirs -- <guide>` while the rebase is stopped). The run verified the whole guide
+  against the target, so its version is what the target should carry
+- **The run's guides, cherry-picking forward**, keep what that branch has and take only the run's own
+  changes on top. A newer branch may have edited the guide since the card branch was cut, and
+  `--theirs` would discard that edit. Read the run's change (`git show <commit> -- <guide>`) and the
+  branch's (`git log <merge-base>..<branch> -- <guide>`), and resolve the conflict so the guide holds
+  both. Where the two change the same words, the run's wording wins, since it was verified against
+  the product
 - **READMEs** keep the branch's rows and add or update only the rows for this run's guides. A row
   must not link to a guide the branch lacks
 - **Images** a guide references must exist on the branch. Carry across any the branch lacks from the

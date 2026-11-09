@@ -40,8 +40,9 @@ in the skills themselves rather than in `specs/`.
   section/platform READMEs against the release branch's versions
 - Guides themselves often differ between main and the release (the vitals guide's caption markup
   changed on main after 2.68 was cut), so updates conflict in the guide body too. The run's version
-  of each guide wins, since it was verified whole against the target; images it references are
-  carried across if the branch lacks them
+  of each guide wins on the target, since it was verified whole against it. Forward branches instead
+  keep their own later edits to the guide and take the run's changes on top; images the guide
+  references are carried across where a branch lacks them
 - The Workhorse daemon does not push rewritten history and the skill has no GitHub login, so the
   skill tells the author to **force-push the branch** (`git push --force-with-lease`) and **change
   the PR's base** to the release branch on GitHub
