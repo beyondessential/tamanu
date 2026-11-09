@@ -11,10 +11,9 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
-const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = getSyncTuning();
-
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   const start = Date.now();
+  const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = getSyncTuning();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
@@ -78,6 +77,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
 
 export const streamIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   const start = Date.now();
+  const { persistedCacheBatchSize } = getSyncTuning();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
