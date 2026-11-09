@@ -268,15 +268,17 @@ const WardHeading = ({ wardName }) => {
   );
 };
 
-// spec: DIET#layout
-const WardSection = ({ area, dietColumns, columnWidth }) => {
-  const { getTranslation } = useLanguageContext();
-  const wardName = area.id
+const resolveWardName = (area, getTranslation) =>
+  area.id
     ? getTranslation(
         getReferenceDataStringId(area.id, OTHER_REFERENCE_TYPES.LOCATION_GROUP),
         area.name,
       )
     : getTranslation('pdf.dietSummary.noArea', 'No area');
+
+// spec: DIET#layout
+const WardSection = ({ area, wardName, dietColumns, columnWidth }) => {
+  const { getTranslation } = useLanguageContext();
 
   return (
     <View style={styles.table}>
@@ -331,6 +333,7 @@ const DietSummaryPDFComponent = ({
   areas = [],
   logoSrc,
   letterheadConfig,
+  getSetting,
 }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortest, getCurrentDate } = useDateTime();
@@ -340,13 +343,33 @@ const DietSummaryPDFComponent = ({
     'Diet summary sheet',
   )} | ${formatShortest(getCurrentDate())}`;
 
-  const dietColumns = columns.map((column) => ({
-    key: column.key,
-    label: column.name
-      ? getTranslation(getReferenceDataStringId(column.key, REFERENCE_TYPES.DIET), column.name)
-      : getTranslation('pdf.dietSummary.regularDiet', 'Regular'),
-  }));
+  // The server orders columns and wards against the source-language reference data names, so a
+  // deployment carrying reference data translations needs its own order resolved against the
+  // names actually printed here, rather than inheriting the server's order as-is.
+  const regularDietId = getSetting('bedManagement.dietSummary.regularDietId');
+  const dietColumns = columns
+    .map((column) => ({
+      key: column.key,
+      label: column.name
+        ? getTranslation(getReferenceDataStringId(column.key, REFERENCE_TYPES.DIET), column.name)
+        : getTranslation('pdf.dietSummary.regularDiet', 'Regular'),
+      isRegular: !column.name || column.key === regularDietId,
+    }))
+    .sort((a, b) => {
+      if (a.isRegular !== b.isRegular) return a.isRegular ? -1 : 1;
+      return a.label.localeCompare(b.label);
+    })
+    .map(({ key, label }) => ({ key, label }));
   const columnWidth = getDietColumnWidth(dietColumns.length);
+
+  const wardSections = areas
+    .map((area) => ({ area, wardName: resolveWardName(area, getTranslation) }))
+    .sort((a, b) => {
+      const aHasArea = Boolean(a.area.id);
+      const bHasArea = Boolean(b.area.id);
+      if (aHasArea !== bHasArea) return aHasArea ? -1 : 1;
+      return a.wardName.localeCompare(b.wardName);
+    });
 
   return (
     <Document>
@@ -364,10 +387,11 @@ const DietSummaryPDFComponent = ({
               columnWidth={columnWidth}
               hospitalTotals={hospitalTotals}
             />
-            {areas.map((area) => (
+            {wardSections.map(({ area, wardName }) => (
               <WardSection
                 key={area.id ?? 'no-area'}
                 area={area}
+                wardName={wardName}
                 dietColumns={dietColumns}
                 columnWidth={columnWidth}
               />
