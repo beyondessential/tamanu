@@ -531,6 +531,31 @@ describe('Diet summary', () => {
     expect(areas[1].patients.map(patient => patient.bed)).toEqual(['Bed 1']);
   });
 
+  it('groups a patient whose bed points at another facility’s ward under no area', async () => {
+    const otherFacility = await models.Facility.create(fake(models.Facility));
+    const foreignWard = await models.LocationGroup.create({
+      name: 'Foreign ward',
+      code: 'diet-summary-foreign-ward',
+      facilityId: otherFacility.id,
+    });
+    const bedInForeignWard = await createBed({
+      name: 'Bed 9',
+      code: 'diet-summary-foreign-ward-bed',
+      locationGroupId: foreignWard.id,
+    });
+    await admit({ location: bedInForeignWard, diets: [glutenFree] });
+    await admit({ location: bed2, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', null]);
+    expect(areas.map(area => area.id)).toEqual([cardiology.id, null]);
+    expect(areas[1].patients.map(patient => patient.bed)).toEqual(['Bed 9']);
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 1 });
+  });
+
   it('covers a single ward when an area is given', async () => {
     await admit({ location: bed2, diets: [glutenFree] });
     await admit({ location: maternityBed, diets: [diabetic] });

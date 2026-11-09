@@ -24,9 +24,10 @@ const querySchema = z.object({
   areaId: z.string().min(1).optional(),
 });
 
-// A soft-deleted area is left joined away rather than filtered out, so its patients fall into the
-// No area group instead of dropping off the sheet unfed. Only a deleted bed takes its encounter
-// off the sheet; a merely retired one still holds a patient who needs feeding.
+// A soft-deleted area, or one belonging to another facility, is left joined away rather than
+// filtered out, so its patients fall into the No area group instead of printing a foreign ward's
+// name or dropping off the sheet unfed. Only a deleted bed takes its encounter off the sheet;
+// a merely retired one still holds a patient who needs feeding.
 // Nothing constrains encounter_diets.diet_id to diet reference data, so the join checks the type.
 // spec: DIETSUM#who-appears-on-the-sheet
 //
@@ -53,6 +54,7 @@ const buildQuery = hasArea => `
     INNER JOIN locations ON locations.id = encounters.location_id
     INNER JOIN patients ON patients.id = encounters.patient_id
     LEFT JOIN location_groups ON location_groups.id = locations.location_group_id
+      AND location_groups.facility_id = :facilityId
       AND location_groups.deleted_at IS NULL
     LEFT JOIN encounter_diets ON encounter_diets.encounter_id = encounters.id
       AND encounter_diets.deleted_at IS NULL
