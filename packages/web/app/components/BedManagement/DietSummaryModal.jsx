@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { ForbiddenError } from '@tamanu/errors';
+import { ERROR_TYPE } from '@tamanu/errors';
 import { DietSummaryPDF } from '@tamanu/shared/utils/dietSummary';
 import { useDateTime } from '@tamanu/ui-components';
 import { Modal } from '../Modal';
@@ -14,7 +14,7 @@ import { PDFLoader, printPDF } from '../PatientPrinting/PDFLoader';
 import { useAuth } from '../../contexts/Auth';
 import { ForbiddenErrorModalContents } from '../ForbiddenErrorModal';
 
-const ErrorMessage = styled.p`
+const ErrorMessage = styled.div`
   margin: 60px 20px;
 `;
 
@@ -49,15 +49,16 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
   );
 
   const isLoading = isFetchingCertificate || isFetchingDietSummary;
-  const isForbidden = dietSummaryError instanceof ForbiddenError;
+  const isForbidden = dietSummaryError?.type === ERROR_TYPE.FORBIDDEN;
 
   // Move focus to the error so a screen-reader user tabbed onto the (now-removed) Print
-  // button isn't dropped silently onto the document body.
+  // button isn't dropped silently onto the document body. Covers both error states, since
+  // MUI's Dialog only manages focus when it mounts, not when its contents swap while it stays open.
   useEffect(() => {
-    if (isDietSummaryError && !isForbidden) {
+    if (isDietSummaryError) {
       errorMessageRef.current?.focus();
     }
-  }, [isDietSummaryError, isForbidden]);
+  }, [isDietSummaryError]);
 
   return (
     <Modal
@@ -68,25 +69,32 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
       data-testid="modal-dietsummary"
     >
       {isDietSummaryError ? (
-        isForbidden ? (
-          <ForbiddenErrorModalContents
-            onConfirm={props.onClose}
-            data-testid="forbiddenerrormodalcontents-dietsummary"
-          />
-        ) : (
-          <ErrorMessage
-            ref={errorMessageRef}
-            tabIndex={-1}
-            role="alert"
-            data-testid="errormessage-dietsummary"
-          >
+        <ErrorMessage
+          ref={errorMessageRef}
+          tabIndex={-1}
+          role="alert"
+          data-testid="errormessage-dietsummary"
+        >
+          {isForbidden ? (
+            <ForbiddenErrorModalContents
+              onConfirm={props.onClose}
+              confirmText={
+                <TranslatedText
+                  stringId="general.action.close"
+                  fallback="Close"
+                  data-testid="translatedtext-dietsummary-forbidden-close"
+                />
+              }
+              data-testid="forbiddenerrormodalcontents-dietsummary"
+            />
+          ) : (
             <TranslatedText
               stringId="bedManagement.modal.dietSummary.error"
               fallback="Something went wrong loading the diet summary. Please try again."
               data-testid="translatedtext-dietsummary-error"
             />
-          </ErrorMessage>
-        )
+          )}
+        </ErrorMessage>
       ) : (
         <PDFLoader
           isLoading={isLoading}
