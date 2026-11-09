@@ -11,19 +11,17 @@ in the skills themselves rather than in `specs/`.
 
 ### Choosing the target branch
 
-- The target is the release branch in which the **newest feature the guide documents first
-  shipped**: the earliest `release/2.xx` branch containing that feature's code. The newest feature
-  across all the guide's documented features decides
-- On an update, the **whole guide** decides, not just the content the change touches, since a guide
-  is published for one version
-- **Floor at `release/2.68`**, the first branch carrying `docs/user-manuals/`. A computed target
-  older than that becomes `release/2.68`
-- **Main** is the target when either:
-  - the guide documents something on main that is in no release branch yet, or
-  - the guide being updated exists on main but not on the target release branch (such as guides
-    added after that release was cut). It is treated like unreleased content
-- A run's guides land in one PR, and the newest feature across every guide the run writes or
-  updates decides. For config guides, that is whichever of a module's three guides the run touches
+- **The skill asks the author which release the guides are for**, in the scope review it already
+  runs, and uses their answer. It does not work the release out: the author knows which version the
+  guides are published for, and inferring it from the code was more machinery than the decision
+  warrants (Ed, PR review)
+- It asks **once per run**, since a run's guides go to one release, and offers freshly fetched
+  branches so a newly cut release appears
+- **Main** is a valid answer, for a guide documenting something no release carries yet
+- The skill **says so and asks again rather than proceeding** when the named release lacks a feature
+  the guides document, or a guide being updated does not exist on it
+- `release/2.68` is the first branch carrying `docs/user-manuals/`
+- A run's guides land in one PR
 
 ### Grounding
 
@@ -34,18 +32,18 @@ in the skills themselves rather than in `specs/`.
 
 ### Landing the PR
 
-- Workhorse cuts the card branch from main and opens the card's PR against main. When the target is
-  a release branch, the skill **rebases the card's commits onto the target release branch**
-  (onto `origin/release/2.xx`, from `origin/main`), resolving any conflicts in the module and
-  section/platform READMEs against the release branch's versions
+- The PR opens **with the release branch as its base**. The card branch is cut from main, which
+  carries commits the release does not (34 at the time of writing), so the guide commits are rebased
+  onto the release branch first, resolving conflicts in the module and section/platform READMEs
+  against the release branch's versions
 - Guides themselves often differ between main and the release (the vitals guide's caption markup
   changed on main after 2.68 was cut), so updates conflict in the guide body too. The run's version
   of each guide wins on the target, since it was verified whole against it. Forward branches instead
   keep their own later edits to the guide and take the run's changes on top; images the guide
   references are carried across where a branch lacks them
-- The Workhorse daemon does not push rewritten history and the skill has no GitHub login, so the
-  skill tells the author to **force-push the branch** (`git push --force-with-lease`) and **change
-  the PR's base** to the release branch on GitHub
+- The rebase rewrites history, so a pull request already open needs a force-push with lease and its
+  base changed on GitHub. The Workhorse daemon does not push rewritten history and the skill has no
+  GitHub login, so the author does both
 - When the target is main, nothing changes from today
 
 ### Carrying it forward
@@ -67,10 +65,10 @@ in the skills themselves rather than in `specs/`.
       rebasing, forward cherry-picks, titles) in one place both skills cite:
       `.agents/docs/guide-release-targeting.md`, pointed to from `AGENTS.md` and
       `llm/project-rules/release-branches.md`
-  - [x] Target found by walking release branches from 2.68 up for the first carrying every feature's
-        code anchor (`git grep`), which also catches features hotfixed in under a different commit
+  - [x] Target taken from the author, asked in the scope review (replaced working it out from the
+        code, per Ed's review)
   - [x] Conflict rules for guides, READMEs and images, after a dry run on the vitals guide
-- [x] `draft-user-guide`: work out the target in the scope review, before grounding; ground
+- [x] `draft-user-guide`: ask which release in the scope review, before grounding; ground
       in the target branch's code and confirm the demo site runs that version; replace "Land it"
       with the rebase, forward branches and report
 - [x] `draft-config-guide`: same changes. Version flags already come from release branch history, so

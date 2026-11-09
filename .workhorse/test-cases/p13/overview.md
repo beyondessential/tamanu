@@ -5,13 +5,13 @@ Run each skill on a throwaway card and check where it lands the guide. Each scen
 
 ## Choosing the target
 
-- [ ] A guide whose newest documented feature first shipped in the newest release targets that release branch
-- [ ] A guide whose newest documented feature first shipped before `release/2.68` targets `release/2.68`
-- [ ] Once 2.69 is cut, a guide whose newest feature first shipped in 2.68 targets `release/2.68`, not 2.69
-- [ ] A guide documenting something on main but in no release branch targets main
-- [ ] An update to an existing guide is targeted by the newest feature in the whole guide, even when the change only touches older content
-- [ ] An update to a guide that exists on main but not on the target release branch targets main
-- [ ] Config guides: the newest feature across the module's three guides decides the target
+- [ ] The skill asks which release the guides are for in the scope review, before any guide is written
+- [ ] The releases it offers are freshly fetched, so a newly cut one appears
+- [ ] It asks once for the run, however many guides the run covers
+- [ ] The release the author names is the one the guides are written against and raised against
+- [ ] Naming main is accepted, for a guide documenting something no release has yet
+- [ ] When the named release lacks a feature the guides document, the skill says so and asks again rather than writing it up
+- [ ] When a guide being updated does not exist on the named release, the skill says so and asks again
 
 ## Grounding
 
