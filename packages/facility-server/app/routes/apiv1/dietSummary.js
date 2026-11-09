@@ -102,11 +102,16 @@ dietSummary.get(
     if (!facilityId) {
       throw new InvalidOperationError('A diet summary needs a session signed in to a facility');
     }
+    // `/setFacility` issues a token for any facility the user may access rather than only the
+    // ones this server hosts, so the reader can be missing, a prototype member, or the
+    // server-wide `global` reader. Only a reader for this very facility will do.
+    const facilitySettings = req.settings[facilityId];
+    if (facilitySettings?.facilityId !== facilityId) {
+      throw new InvalidOperationError('A diet summary needs a facility this server hosts');
+    }
     const { areaId } = await querySchema.parseAsync(req.query);
 
-    const regularDietId = await req.settings[facilityId].get(
-      'bedManagement.dietSummary.regularDietId',
-    );
+    const regularDietId = await facilitySettings.get('bedManagement.dietSummary.regularDietId');
     const regularKey = regularDietId ?? UNCONFIGURED_REGULAR_KEY;
 
     const rows = await req.db.query(buildQuery(Boolean(areaId)), {

@@ -13,6 +13,7 @@ import { settingsCache } from '@tamanu/settings';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
+import { buildToken } from '../../app/middleware/auth';
 import { createTestContext } from '../utilities';
 
 // spec: DIETSUM#printing-the-sheet — the permissions handover notes needs, less the note
@@ -79,6 +80,19 @@ describe('Diet summary', () => {
   };
 
   const getSummary = (query = '') => app.get(`${SUMMARY_URL}${query}`);
+
+  // `/setFacility` issues a token for any facility the user may access, which is not only the
+  // ones this server hosts, so a session can arrive signed in to a facility the server has no
+  // settings reader for.
+  const getSummaryAsFacility = async signedInFacilityId => {
+    const token = await buildToken({
+      user: app.user,
+      deviceId: ctx.deviceId,
+      facilityId: signedInFacilityId,
+      expiresIn: '1d',
+    });
+    return baseApp.get(SUMMARY_URL).set('authorization', `Bearer ${token}`);
+  };
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -530,6 +544,30 @@ describe('Diet summary', () => {
     const { areas, hospitalTotals } = result.body;
     expect(areas.map(area => area.name)).toEqual(['Cardiology']);
     expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
+  });
+
+  it('rejects a session signed in to a facility this server does not host', async () => {
+    const otherFacility = await models.Facility.create(fake(models.Facility));
+    await admit({ location: bed2, diets: [glutenFree] });
+
+    const result = await getSummaryAsFacility(otherFacility.id);
+    expect(result).toHaveRequestError();
+    expect(result.body.error.message).not.toContain('Cannot read properties');
+  });
+
+  it('rejects a session signed in to a facility whose id is the server-wide settings key', async () => {
+    const globalFacility = await models.Facility.create(
+      fake(models.Facility, { id: 'global', code: 'diet-summary-global' }),
+    );
+    try {
+      await admit({ location: bed2, diets: [glutenFree] });
+
+      const result = await getSummaryAsFacility(globalFacility.id);
+      expect(result).toHaveRequestError();
+    } finally {
+      // The id collides with the server-wide reader, so it must not outlive this test.
+      await globalFacility.destroy({ force: true });
+    }
   });
 
   it('rejects an unauthenticated request', async () => {
