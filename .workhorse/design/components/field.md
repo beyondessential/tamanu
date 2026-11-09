@@ -103,6 +103,7 @@ The Figma file names the disabled states "Deactive" and "Deactive completed".
 | Standard | All four, labelled and unlabelled | All above | `TextField` |
 | Search | All four | Default, disabled | Search icon at the start. `SearchField` |
 | Tag | All four, labelled and unlabelled | Default, active dropdown | Selected values show as tags inside the input. `MultiselectField` |
+| Tag, selected count | All four, labelled and unlabelled | Default, active dropdown | One selection shows its name as a tag. Two or more collapse into a single "n selected" tag ("All selected" when every option is chosen), and its × clears them all. `MultiAutocompleteField` |
 | Counter / unit | Large labelled, Medium and Small unlabelled | Default, disabled | Unit sits at the end of the input. `NumberField` with `unit` |
 
 Each field can show or hide its label, placeholder, value, helper text, validation
