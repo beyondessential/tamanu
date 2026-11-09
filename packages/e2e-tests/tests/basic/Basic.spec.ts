@@ -82,7 +82,8 @@ test.describe('Basic tests', () => {
     const level1Value = await emergencyPatientsPage.getLevelCardValue(1);
     expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
 
-    // The encounter view doesn't show patient type for emergency encounters, so check the record
+    // This journey ends on the emergency board, so check the patient type was saved to the encounter
+    // through the API rather than opening the encounter view
     const api = await createApiContext({ page: patientDetailsPage.page });
     const triageEncounter = await getCurrentEncounterViaApi(api, newPatient.id);
     await api.dispose();
