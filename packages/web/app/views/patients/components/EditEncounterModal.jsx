@@ -346,7 +346,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
-  const { writeAndViewEncounter } = useEncounter();
+  const { writeAndViewEncounter, loadEncounter } = useEncounter();
   const { getCurrentDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
   const { getLocalisedSchema } = useLocalisedSchema();
@@ -398,25 +398,32 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     secondaryComplaintId,
   }) => {
     const submittedTime = getCurrentDateTime();
-    await api.put(`triage/${triage?.id}`, {
-      submittedTime,
-      encounterId: encounter.id,
-      arrivalTime,
-      triageTime: startDate,
-      arrivalModeId,
-      score,
-      chiefComplaintId,
-      secondaryComplaintId,
-    });
+    // These are separate writes with no shared transaction, so reload the encounter whatever
+    // happens: if a later write fails, the view still shows what was saved before it.
+    try {
+      // Patient type lives on the encounter rather than the triage, and is saved apart from the
+      // start date below so the change still gets its system note. It goes first because it is the
+      // write most likely to be refused, and a refusal then leaves nothing half-saved.
+      if ((patientBillingTypeId ?? null) !== (encounter.patientBillingTypeId ?? null)) {
+        await api.put(`encounter/${encounter.id}`, { submittedTime, patientBillingTypeId });
+      }
 
-    // Patient type lives on the encounter rather than the triage. Save it separately from the start
-    // date below so the change still gets its system note.
-    if ((patientBillingTypeId ?? null) !== (encounter.patientBillingTypeId ?? null)) {
-      await api.put(`encounter/${encounter.id}`, { submittedTime, patientBillingTypeId });
+      await api.put(`triage/${triage?.id}`, {
+        submittedTime,
+        encounterId: encounter.id,
+        arrivalTime,
+        triageTime: startDate,
+        arrivalModeId,
+        score,
+        chiefComplaintId,
+        secondaryComplaintId,
+      });
+
+      // Keep the encounter start date in sync with the triage start date when using this form
+      await api.put(`encounter/${encounter.id}`, { startDate, skipSystemNotes: true });
+    } finally {
+      await loadEncounter(encounter.id);
     }
-
-    // Keep the encounter start date in sync with the triage start date when using this form
-    await writeAndViewEncounter(encounter.id, { startDate, skipSystemNotes: true });
   };
 
   const onSubmitEncounterForm = async ({
