@@ -1,9 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
+import { z } from 'zod';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { InvalidParameterError } from '@tamanu/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 
+// spec: DIET
 export const dietSummary = express.Router();
 
 const DIET_SUMMARY_ENCOUNTER_TYPES = [
@@ -18,9 +20,15 @@ const DIET_SUMMARY_ENCOUNTER_TYPES = [
 // those patients belong anyway.
 const UNCONFIGURED_REGULAR_KEY = 'regular';
 
-const NO_AREA_KEY = '';
+const querySchema = z.object({
+  areaId: z.string().min(1).optional(),
+});
 
-const buildQuery = (hasArea) => `
+// A soft-deleted area is left joined away rather than filtered out, so its patients fall into the
+// No area group instead of dropping off the sheet unfed. A soft-deleted bed does take its stale
+// encounter off the sheet, matching what bed management itself shows.
+// spec: DIET#who-appears-on-the-sheet
+const buildQuery = hasArea => `
   SELECT
     location_groups.id AS area_id,
     location_groups.name AS area_name,
@@ -35,30 +43,25 @@ const buildQuery = (hasArea) => `
     INNER JOIN locations ON locations.id = encounters.location_id
     INNER JOIN patients ON patients.id = encounters.patient_id
     LEFT JOIN location_groups ON location_groups.id = locations.location_group_id
+      AND location_groups.deleted_at IS NULL
     LEFT JOIN encounter_diets ON encounter_diets.encounter_id = encounters.id
       AND encounter_diets.deleted_at IS NULL
     LEFT JOIN reference_data diets ON diets.id = encounter_diets.diet_id
+      AND diets.deleted_at IS NULL
   WHERE encounters.end_date IS NULL
     AND encounters.deleted_at IS NULL
     AND encounters.encounter_type IN (:encounterTypes)
     AND locations.facility_id = :facilityId
+    AND locations.deleted_at IS NULL
     AND patients.deleted_at IS NULL
     ${hasArea ? 'AND locations.location_group_id = :areaId' : ''}
   ORDER BY location_groups.name NULLS LAST, locations.name, patients.last_name, patients.first_name
 `;
 
-const countByKey = (patients) =>
+const countByKey = patients =>
   patients.reduce((totals, { dietKeys }) => {
     for (const key of dietKeys) {
       totals[key] = (totals[key] ?? 0) + 1;
-    }
-    return totals;
-  }, {});
-
-const sumTotals = (areas) =>
-  areas.reduce((totals, { subTotals }) => {
-    for (const [key, count] of Object.entries(subTotals)) {
-      totals[key] = (totals[key] ?? 0) + count;
     }
     return totals;
   }, {});
@@ -71,10 +74,11 @@ dietSummary.get(
     req.checkPermission('read', 'Location');
     req.checkPermission('read', 'Encounter');
 
-    const { facilityId, areaId } = req.query;
+    const { facilityId } = req;
     if (!facilityId) {
-      throw new InvalidParameterError('A facility is required to build a diet summary.');
+      throw new InvalidOperationError('A diet summary needs a session signed in to a facility');
     }
+    const { areaId } = await querySchema.parseAsync(req.query);
 
     const regularDietId = await req.settings[facilityId].get(
       'bedManagement.dietSummary.regularDietId',
@@ -95,9 +99,8 @@ dietSummary.get(
     const patientsByEncounter = new Map();
 
     for (const row of rows) {
-      const areaKey = row.area_id ?? NO_AREA_KEY;
-      if (!areasByKey.has(areaKey)) {
-        areasByKey.set(areaKey, { id: row.area_id ?? null, name: row.area_name ?? null, patients: [] });
+      if (!areasByKey.has(row.area_id)) {
+        areasByKey.set(row.area_id, { id: row.area_id, name: row.area_name, patients: [] });
       }
 
       let patient = patientsByEncounter.get(row.encounter_id);
@@ -108,45 +111,45 @@ dietSummary.get(
           firstName: row.first_name,
           lastName: row.last_name,
           bed: row.bed,
-          dietKeys: [],
+          dietKeys: new Set(),
         };
         patientsByEncounter.set(row.encounter_id, patient);
-        areasByKey.get(areaKey).patients.push(patient);
+        areasByKey.get(row.area_id).patients.push(patient);
       }
 
       if (row.diet_id) {
         dietNamesById.set(row.diet_id, row.diet_name);
-        patient.dietKeys.push(row.diet_id);
+        // A Set, because nothing stops the same diet being recorded against an encounter twice,
+        // and a patient the sheet ticks once must be counted once
+        patient.dietKeys.add(row.diet_id);
       }
     }
 
-    for (const patient of patientsByEncounter.values()) {
-      if (patient.dietKeys.length === 0) {
-        patient.dietKeys.push(regularKey);
-      }
+    const allPatients = [...patientsByEncounter.values()];
+    for (const patient of allPatients) {
+      patient.dietKeys = patient.dietKeys.size > 0 ? [...patient.dietKeys] : [regularKey];
     }
 
-    const areas = [...areasByKey.values()].map(({ id, name, patients }) => ({
-      id,
-      name,
-      patients,
-      subTotals: countByKey(patients),
+    // spec: DIET#diet-columns-and-counting
+    const areas = [...areasByKey.values()].map(area => ({
+      ...area,
+      subTotals: countByKey(area.patients),
     }));
-    const hospitalTotals = sumTotals(areas);
+    const hospitalTotals = countByKey(allPatients);
 
     const regularDiet = regularDietId
       ? await req.models.ReferenceData.findByPk(regularDietId, { attributes: ['id', 'name'] })
       : null;
     const columns = Object.keys(hospitalTotals)
-      .filter((key) => key !== regularKey)
-      .map((key) => ({ key, name: dietNamesById.get(key), isRegular: false }))
+      .filter(key => key !== regularKey)
+      .map(key => ({ key, name: dietNamesById.get(key) }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     if (hospitalTotals[regularKey]) {
+      // A null name is what tells the sheet to print its own translated Regular label
       columns.unshift({
         key: regularKey,
         name: regularDiet?.name ?? dietNamesById.get(regularKey) ?? null,
-        isRegular: true,
       });
     }
 
