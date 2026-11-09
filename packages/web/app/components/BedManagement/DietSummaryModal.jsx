@@ -70,7 +70,7 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
       {isDietSummaryError ? (
         isForbidden ? (
           <ForbiddenErrorModalContents
-            onClose={props.onClose}
+            onConfirm={props.onClose}
             data-testid="forbiddenerrormodalcontents-dietsummary"
           />
         ) : (
