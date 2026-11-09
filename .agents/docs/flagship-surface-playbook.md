@@ -1,10 +1,10 @@
 ---
-workhorse-version: 0.7.9
+workhorse-version: 0.7.14
 ---
 
 # Building a surface to a reference standard
 
-A base prompt for a large, polished piece of product work: a surface people use all day that has to feel as good as the best tool they know. It is the detailed method behind `hands-free-feature`, which runs it end to end without check-ins. Verification, meaning bug hunts, reviews, browser checks and feel passes, is its own skill, `qa-loop`, and this playbook leaves that method to it. For taste, feel and how to critique a design, read `.agents/docs/design-judgement.md`, which this playbook does not repeat.
+A base prompt for a large, polished piece of product work: a surface people use all day that has to feel as good as the best tool they know. It is the detailed method behind `build-loop`, which runs it end to end without check-ins. Verification, meaning bug hunts, reviews, browser checks and feel passes, is its own skill, `qa-loop`, and this playbook leaves that method to it. For taste, feel and how to critique a design, read `.agents/docs/design-judgement.md`, which this playbook does not repeat.
 
 Fill in the block below in the plan. Everything after the brief is how to work.
 
