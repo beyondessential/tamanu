@@ -60,8 +60,13 @@ const buildQuery = hasArea => `
   ORDER BY location_groups.name NULLS LAST, locations.name, patients.last_name, patients.first_name
 `;
 
+// Constrained to diet reference data, so a setting pointed at a village or a drug falls back to
+// the generic Regular label rather than printing that record's name as the column header.
 const lookupDietName = async (models, dietId) => {
-  const diet = await models.ReferenceData.findByPk(dietId, { attributes: ['name'] });
+  const diet = await models.ReferenceData.findOne({
+    where: { id: dietId, type: REFERENCE_TYPES.DIET },
+    attributes: ['name'],
+  });
   return diet?.name ?? null;
 };
 
@@ -145,9 +150,11 @@ dietSummary.get(
     }));
     const hospitalTotals = countByKey(allPatients);
 
+    // The sheet sorts the columns by the names it displays, which are translated, so isRegular is
+    // what tells it which column leads rather than the order or the name.
     const columns = Object.keys(hospitalTotals)
       .filter(key => key !== regularKey)
-      .map(key => ({ key, name: dietNamesById.get(key) }))
+      .map(key => ({ key, name: dietNamesById.get(key), isRegular: false }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     if (hospitalTotals[regularKey]) {
@@ -156,7 +163,7 @@ dietSummary.get(
       const name =
         dietNamesById.get(regularKey) ??
         (regularDietId ? await lookupDietName(req.models, regularDietId) : null);
-      columns.unshift({ key: regularKey, name });
+      columns.unshift({ key: regularKey, name, isRegular: true });
     }
 
     res.send({ columns, hospitalTotals, areas });

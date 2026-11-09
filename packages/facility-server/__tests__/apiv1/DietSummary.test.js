@@ -3,7 +3,12 @@ import config from 'config';
 
 import { fake } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
-import { ENCOUNTER_TYPES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  REFERENCE_TYPES,
+  SETTINGS_SCOPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
@@ -47,14 +52,19 @@ describe('Diet summary', () => {
   const createDiet = name =>
     models.ReferenceData.create(fake(models.ReferenceData, { type: REFERENCE_TYPES.DIET, name }));
 
-  const createBed = ({ name, code, locationGroupId = null }) =>
-    models.Location.create(fake(models.Location, { facilityId, name, code, locationGroupId }));
+  const createBed = ({ locationGroupId = null, ...bed }) =>
+    models.Location.create(fake(models.Location, { facilityId, locationGroupId, ...bed }));
 
   // Deleting through the model cascades the soft delete down to the encounter, which the sheet
   // already leaves off. The row has to be marked deleted on its own to stand for one that arrived
   // from central that way.
   const markDeleted = (model, id) =>
     model.update({ deletedAt: new Date() }, { where: { id }, validate: false });
+
+  const configureRegularDiet = async dietId => {
+    await models.Setting.set(REGULAR_SETTING_KEY, dietId, SETTINGS_SCOPES.FACILITY, facilityId);
+    settingsCache.reset();
+  };
 
   const getSummary = (query = '') => app.get(`${SUMMARY_URL}${query}`);
 
@@ -130,21 +140,15 @@ describe('Diet summary', () => {
 
     const { columns, hospitalTotals, areas } = result.body;
     expect(columns).toEqual([
-      { key: 'regular', name: null },
-      { key: glutenFree.id, name: 'Gluten free' },
+      { key: 'regular', name: null, isRegular: true },
+      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
     ]);
     expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
     expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
   });
 
   it('counts a patient with no diet recorded under the configured regular diet', async () => {
-    await models.Setting.set(
-      REGULAR_SETTING_KEY,
-      regularDiet.id,
-      SETTINGS_SCOPES.FACILITY,
-      facilityId,
-    );
-    settingsCache.reset();
+    await configureRegularDiet(regularDiet.id);
 
     await admit({ location: bed2 });
     await admit({ location: maternityBed, diets: [regularDiet] });
@@ -153,19 +157,26 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet' }]);
+    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
     expect(hospitalTotals).toEqual({ [regularDiet.id]: 2 });
+  });
+
+  it('names the regular column when nobody on the sheet has the configured diet recorded', async () => {
+    await configureRegularDiet(regularDiet.id);
+
+    await admit({ location: bed2 });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
+    expect(hospitalTotals).toEqual({ [regularDiet.id]: 1 });
   });
 
   it('leaves the regular column unnamed when the configured diet has been deleted', async () => {
     const retiredRegular = await createDiet('Retired regular');
-    await models.Setting.set(
-      REGULAR_SETTING_KEY,
-      retiredRegular.id,
-      SETTINGS_SCOPES.FACILITY,
-      facilityId,
-    );
-    settingsCache.reset();
+    await configureRegularDiet(retiredRegular.id);
     await retiredRegular.destroy();
 
     await admit({ location: bed2 });
@@ -174,8 +185,24 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([{ key: retiredRegular.id, name: null }]);
+    expect(columns).toEqual([{ key: retiredRegular.id, name: null, isRegular: true }]);
     expect(hospitalTotals).toEqual({ [retiredRegular.id]: 1 });
+  });
+
+  it('leaves the regular column unnamed when the setting names reference data that is not a diet', async () => {
+    const village = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.VILLAGE, name: 'Not a diet either' }),
+    );
+    await configureRegularDiet(village.id);
+
+    await admit({ location: bed2 });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: village.id, name: null, isRegular: true }]);
+    expect(hospitalTotals).toEqual({ [village.id]: 1 });
   });
 
   it('counts a patient with several diets under each of them', async () => {
@@ -188,9 +215,7 @@ describe('Diet summary', () => {
     expect(hospitalTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 1 });
     expect(areas).toHaveLength(1);
     expect(areas[0].patients).toHaveLength(1);
-    expect(areas[0].patients[0].dietKeys).toEqual(
-      expect.arrayContaining([glutenFree.id, diabetic.id]),
-    );
+    expect([...areas[0].patients[0].dietKeys].sort()).toEqual([glutenFree.id, diabetic.id].sort());
     expect(areas[0].subTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 1 });
   });
 
@@ -206,20 +231,21 @@ describe('Diet summary', () => {
     expect(areas[0].patients[0].dietKeys).toEqual([glutenFree.id]);
   });
 
-  it('includes emergency encounters and leaves off clinic and closed encounters', async () => {
+  it('includes triage, active ED care and emergency encounters, leaving off clinic and closed ones', async () => {
     await admit({ location: bed2, encounterType: ENCOUNTER_TYPES.TRIAGE });
     await admit({ location: bed10, encounterType: ENCOUNTER_TYPES.EMERGENCY });
-    await admit({ location: maternityBed, encounterType: ENCOUNTER_TYPES.CLINIC });
+    await admit({ location: maternityBed, encounterType: ENCOUNTER_TYPES.OBSERVATION });
+    await admit({ location: bedWithoutArea, encounterType: ENCOUNTER_TYPES.CLINIC });
 
-    const { encounter } = await admit({ location: maternityBed });
+    const { encounter } = await admit({ location: bedWithoutArea });
     await encounter.update({ endDate: '2026-01-01 10:00:00' });
 
     const result = await getSummary();
     expect(result).toHaveSucceeded();
 
     const { areas, hospitalTotals } = result.body;
-    expect(areas.map(area => area.name)).toEqual(['Cardiology']);
-    expect(hospitalTotals).toEqual({ regular: 2 });
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', 'Maternity']);
+    expect(hospitalTotals).toEqual({ regular: 3 });
   });
 
   it('leaves off a deleted diet, counting its patient as regular', async () => {
@@ -233,8 +259,8 @@ describe('Diet summary', () => {
 
     const { columns, hospitalTotals } = result.body;
     expect(columns).toEqual([
-      { key: 'regular', name: null },
-      { key: glutenFree.id, name: 'Gluten free' },
+      { key: 'regular', name: null, isRegular: true },
+      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
     ]);
     expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
   });
@@ -252,8 +278,8 @@ describe('Diet summary', () => {
 
     const { columns, hospitalTotals, areas } = result.body;
     expect(columns).toEqual([
-      { key: 'regular', name: null },
-      { key: diabetic.id, name: 'Diabetic' },
+      { key: 'regular', name: null, isRegular: true },
+      { key: diabetic.id, name: 'Diabetic', isRegular: false },
     ]);
     expect(hospitalTotals).toEqual({ regular: 1, [diabetic.id]: 1 });
     expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
@@ -271,8 +297,8 @@ describe('Diet summary', () => {
 
     const { columns, hospitalTotals, areas } = result.body;
     expect(columns).toEqual([
-      { key: 'regular', name: null },
-      { key: diabetic.id, name: 'Diabetic' },
+      { key: 'regular', name: null, isRegular: true },
+      { key: diabetic.id, name: 'Diabetic', isRegular: false },
     ]);
     expect(hospitalTotals).toEqual({ regular: 1, [diabetic.id]: 1 });
     expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
@@ -307,6 +333,23 @@ describe('Diet summary', () => {
     const { areas, hospitalTotals } = result.body;
     expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
     expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 2']);
+  });
+
+  it('keeps a patient whose bed has been retired but not deleted', async () => {
+    const retiredBed = await createBed({
+      name: 'Bed 3',
+      code: 'diet-summary-historical-bed',
+      locationGroupId: cardiology.id,
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+    });
+    await admit({ location: retiredBed, diets: [glutenFree] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1 });
+    expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 3']);
   });
 
   it('groups a patient whose ward has been deleted under no area', async () => {
