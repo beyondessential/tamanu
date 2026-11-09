@@ -73,8 +73,6 @@ base.
 - **Images** a guide references must exist on the branch. Carry across any the branch lacks from the
   card branch
 
-Then check every link and anchor resolves on that branch.
-
 ## Titles
 
 Every pull request carries the same title, in Tamanu's conventional format
