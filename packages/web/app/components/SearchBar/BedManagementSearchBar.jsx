@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
-import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
 import { AutocompleteField, LocalisedField, TranslatedSelectField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
-import { DietSummaryModal } from '../BedManagement/DietSummaryModal';
+import { DietSummaryButton } from '../BedManagement/DietSummaryButton';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -34,9 +33,6 @@ const PrintActionButton = styled(Button)`
   &.Mui-disabled {
     pointer-events: auto;
   }
-  .MuiSvgIcon-root {
-    font-size: 18px;
-  }
 `;
 
 const EmptyGridItem = styled.div``;
@@ -48,7 +44,6 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
   });
 
   const [handoverNotesModalShown, setHandoverNotesModalShown] = useState(false);
-  const [dietSummaryModalShown, setDietSummaryModalShown] = useState(false);
 
   const handleHandoverNotesButtonClick = useCallback(
     () => setHandoverNotesModalShown(true),
@@ -58,16 +53,6 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
   const handleHandoverNotesModalClose = useCallback(
     () => setHandoverNotesModalShown(false),
     [setHandoverNotesModalShown],
-  );
-
-  const handleDietSummaryButtonClick = useCallback(
-    () => setDietSummaryModalShown(true),
-    [setDietSummaryModalShown],
-  );
-
-  const handleDietSummaryModalClose = useCallback(
-    () => setDietSummaryModalShown(false),
-    [setDietSummaryModalShown],
   );
 
   const handoverNotesButtonDisabled = !searchParameters?.area;
@@ -125,17 +110,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
               />
             )}
           </PrintActionButton>
-          <PrintActionButton
-            startIcon={<InsertChartOutlinedIcon htmlColor={Colors.primary} />}
-            onClick={handleDietSummaryButtonClick}
-            data-testid="dietsummarybutton-x3qa"
-          >
-            <TranslatedText
-              stringId="bedManagement.search.dietSummary.button.label"
-              fallback="Diet summary"
-              data-testid="translatedtext-dietsummary"
-            />
-          </PrintActionButton>
+          <DietSummaryButton area={searchParameters?.area} />
         </PrintActions>
 
         <EmptyGridItem data-testid="emptygriditem-t5fd" />
@@ -180,14 +155,6 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         keepMounted
         area={searchParameters?.area}
         data-testid="handovernotesmodal-el85"
-      />
-      <DietSummaryModal
-        open={dietSummaryModalShown}
-        onClose={handleDietSummaryModalClose}
-        printable
-        width="md"
-        area={searchParameters?.area}
-        data-testid="dietsummarymodal-p2vn"
       />
     </>
   );

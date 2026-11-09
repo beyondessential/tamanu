@@ -28,7 +28,7 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
 
   const { data: dietSummary, isFetching: isFetchingDietSummary } = useQuery(
     ['dietSummary', facilityId, areaId],
-    () => api.get('dietSummary', { facilityId, ...(areaId ? { areaId } : {}) }),
+    () => api.get('dietSummary', { ...(areaId ? { areaId } : {}) }),
     { enabled: props.open },
   );
 
