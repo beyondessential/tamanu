@@ -87,5 +87,5 @@ to Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `d
 type, use `chore`).
 
 Then tell the author what you wrote, anything you couldn't verify, and any screenshot placeholders
-still to be filled and why, so they can go in the pull request description. Report the target branch,
-the force-push and base change, and the forward branches as the targeting doc describes.
+still to be filled and why, so they can go in the pull request description. Report the pull requests
+to raise as the targeting doc describes.

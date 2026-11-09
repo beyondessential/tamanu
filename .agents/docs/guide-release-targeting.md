@@ -34,22 +34,11 @@ A demo site used to click the flow through or capture screenshots must run the t
 
 ## Landing the pull request
 
-Commit the guides on the card branch first. The branch must carry only the guides' commits; if it
-carries anything else, stop and ask the author before moving it.
-
-When the target is main, nothing more is needed. When it is a release branch, **rebase the card's
-commits onto it**:
-
-```bash
-git rebase --onto origin/release/2.68 "$(git merge-base HEAD origin/main)"
-```
-
-Guides often differ between main and a release branch, so expect conflicts, and resolve them as in
-[Resolving conflicts](#resolving-conflicts).
-
-The rebase rewrites history, which the Workhorse daemon does not push, so the author force-pushes
-(`git push --force-with-lease origin <branch>`) and changes the pull request's base to the release
-branch on GitHub.
+Open the pull request with the release branch as its base, rebasing the guide commits onto it first
+(`git rebase --onto origin/release/2.xx "$(git merge-base HEAD origin/main)"`), since a branch cut
+from main carries commits the release does not. Expect conflicts, and resolve them as in
+[Resolving conflicts](#resolving-conflicts). The rebase rewrites history, so an open pull request
+needs a force-push with lease and its base changed on GitHub.
 
 ## Carrying it forward
 
