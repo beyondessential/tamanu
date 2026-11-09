@@ -20,6 +20,7 @@ export {
   labsCancellationReasonsDefault,
 } from './labsCancellationReasons';
 export { letterheadProperties } from './letterheadTemplate';
+export { dietSummaryRegularDietIdSchema } from './dietSummary';
 export { formBuilderProperties } from './formBuilder';
 export {
   emailSchema,
