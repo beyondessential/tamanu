@@ -74,6 +74,7 @@ describe('Diet summary', () => {
   const configureRegularDiet = async (dietId, scope = SETTINGS_SCOPES.FACILITY) => {
     const settingFacilityId = scope === SETTINGS_SCOPES.FACILITY ? facilityId : null;
     await models.Setting.set(REGULAR_SETTING_KEY, dietId, scope, settingFacilityId);
+    // Belt-and-braces: Setting.set already resets the cache via its own hooks.
     settingsCache.reset();
   };
 
@@ -133,12 +134,13 @@ describe('Diet summary', () => {
     await models.Setting.destroy({
       where: { key: REGULAR_SETTING_KEY, scope: SETTINGS_SCOPES.GLOBAL, facilityId: null },
     });
+    // Belt-and-braces: Setting.destroy already resets the cache via its own hooks.
     settingsCache.reset();
   });
 
   it('groups patients by ward, ordering wards alphabetically and beds naturally', async () => {
     await admit({ location: bed10, diets: [glutenFree] });
-    await admit({ location: bed2, diets: [glutenFree] });
+    const { patient } = await admit({ location: bed2, diets: [glutenFree] });
     await admit({ location: maternityBed, diets: [diabetic] });
     await admit({ location: bedWithoutArea, diets: [diabetic] });
 
@@ -149,6 +151,12 @@ describe('Diet summary', () => {
     expect(areas.map(area => area.name)).toEqual(['Cardiology', 'Maternity', null]);
     expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 2', 'Bed 10']);
     expect(areas[2].id).toBe(null);
+    // spec: DIETSUM#who-appears-on-the-sheet — patients are identified by name and NHN.
+    expect(areas[0].patients[0]).toMatchObject({
+      displayId: patient.displayId,
+      firstName: patient.firstName,
+      lastName: patient.lastName,
+    });
   });
 
   it('counts a patient with no diet recorded under a Regular column', async () => {
@@ -316,6 +324,26 @@ describe('Diet summary', () => {
     expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
   });
 
+  it('keeps a patient whose diet has been retired but not deleted', async () => {
+    const retiredDiet = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.DIET,
+        name: 'Retired diet still offered',
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      }),
+    );
+    await admit({ location: bed2, diets: [retiredDiet] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([
+      { key: retiredDiet.id, name: 'Retired diet still offered', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ [retiredDiet.id]: 1 });
+  });
+
   it('leaves off a diet a clinician has cancelled, counting its patient as regular', async () => {
     const { encounter } = await admit({ location: bed2, diets: [glutenFree] });
     await admit({ location: maternityBed, diets: [diabetic] });
@@ -401,6 +429,30 @@ describe('Diet summary', () => {
     const { areas, hospitalTotals } = result.body;
     expect(hospitalTotals).toEqual({ [glutenFree.id]: 1 });
     expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 3']);
+  });
+
+  it('counts two patients sharing a bay as separate entries under the same bed', async () => {
+    // maxOccupancy above 1 fails the model's own validation; bypass it to create the bay.
+    const bay = await models.Location.create(
+      fake(models.Location, {
+        facilityId,
+        locationGroupId: cardiology.id,
+        name: 'Bay 1',
+        code: 'diet-summary-bay-1',
+        maxOccupancy: 2,
+      }),
+      { validate: false },
+    );
+    await admit({ location: bay, diets: [glutenFree] });
+    await admit({ location: bay, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas[0].patients).toHaveLength(2);
+    expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bay 1', 'Bay 1']);
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 1 });
   });
 
   it('groups a patient whose ward has been deleted under no area', async () => {
