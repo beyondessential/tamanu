@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import config from 'config';
 import { getAuthSecret, getRefreshTokenSecret } from '../../src/utils/authSecrets';
 import { getCanonicalHostName } from '../../src/utils/canonicalHostName';
 import { getTrustedProxy } from '../../src/utils/trustedProxy';
@@ -14,7 +15,7 @@ vi.mock('config', () => ({
     canonicalHostName: 'https://config-host.example',
     proxy: { trusted: ['10.0.0.1'] },
     countryTimeZone: 'Pacific/Fiji',
-    errors: { enabled: false, type: 'bugsnag', apiKey: '', releaseStage: 'config-stage' },
+    errors: { type: 'bugsnag', apiKey: '', releaseStage: 'config-stage' },
   },
 }));
 
@@ -69,6 +70,15 @@ describe('env-var precedence over config', () => {
     });
     it('falls back to config.errors, which leaves it off here', () => {
       expect(getBugsnagOptions()).toBeNull();
+    });
+    it('stays off when config.errors.enabled is explicitly false, even with BUGSNAG_API_KEY', () => {
+      process.env.BUGSNAG_API_KEY = 'env-key';
+      config.errors.enabled = false;
+      try {
+        expect(getBugsnagOptions()).toBeNull();
+      } finally {
+        delete config.errors.enabled;
+      }
     });
   });
 

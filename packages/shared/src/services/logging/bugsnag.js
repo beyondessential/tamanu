@@ -5,6 +5,7 @@ import { log } from './log.js';
 
 export function getBugsnagOptions() {
   const errors = config.errors ?? {};
+  if (errors.enabled === false) return null;
   const apiKey = process.env.BUGSNAG_API_KEY;
   if (!apiKey && !(errors.enabled && errors.type === 'bugsnag')) return null;
   return { ...omit(errors, ['enabled', 'type']), apiKey: apiKey || errors.apiKey };
