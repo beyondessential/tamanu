@@ -12,3 +12,4 @@ Applies to a prescriber sending selected prescriptions to the pharmacy from an a
 - Stock status is one of: in stock, out of stock, or unknown (no stock information available for that medication at the facility).
 - An in-stock medication's stock status carries the on-hand quantity as supporting detail.
 - Stock status is informational only: a prescriber can select and send any prescription regardless of its stock status.
+- A dose or quantity outside its drug's accepted range is flagged on its row, as set out in [dose and dispensing quantity limits](dose-and-quantity-limits.md).
