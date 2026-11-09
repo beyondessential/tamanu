@@ -313,6 +313,26 @@ export const facilitySettings = {
         },
       },
     },
+    bedManagement: {
+      name: 'Bed management',
+      description: 'Settings related to bed management',
+      properties: {
+        dietSummary: {
+          name: 'Diet summary sheet',
+          description: 'Settings for the diet summary sheet printed from bed management',
+          properties: {
+            regularDietId: {
+              name: 'Regular diet',
+              description:
+                'The diet that stands for a regular meal. Patients with no diet recorded are counted under it on the diet summary sheet. Left unset, the sheet carries its own Regular column for them.',
+              type: yup.string().nullable(),
+              defaultValue: null,
+              suggesterEndpoint: 'diet',
+            },
+          },
+        },
+      },
+    },
     vaccinations: vaccinationsSchema,
     medications: {
       name: 'Medication',

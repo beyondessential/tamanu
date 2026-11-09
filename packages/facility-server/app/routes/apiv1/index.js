@@ -33,6 +33,7 @@ import { certificateNotification } from './certificateNotification';
 import { changePassword } from './changePassword';
 import { department } from './department';
 import { diagnosis } from './diagnosis';
+import { dietSummary } from './dietSummary';
 import { encounter } from './encounter';
 import { facility } from './facility';
 import { familyHistory } from './familyHistory';
@@ -300,6 +301,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/allergy', allergy);
   patientDataRoutes.use('/appointments', appointments);
   patientDataRoutes.use('/diagnosis', diagnosis);
+  patientDataRoutes.use('/dietSummary', dietSummary);
   patientDataRoutes.use('/encounter', encounter);
   patientDataRoutes.use('/kiosk', kiosk);
   patientDataRoutes.use('/familyHistory', familyHistory);

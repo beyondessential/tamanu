@@ -3,21 +3,29 @@ import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
+import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
 import { AutocompleteField, LocalisedField, TranslatedSelectField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
+import { DietSummaryModal } from '../BedManagement/DietSummaryModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
 
-const HandoverNotesButton = styled(Button)`
+const PrintActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+`;
+
+const PrintActionButton = styled(Button)`
   font-weight: 500;
   text-transform: none;
   text-decoration: underline;
   color: ${Colors.primary};
-  margin-right: auto;
   margin-top: auto;
   margin-bottom: auto;
   &:hover {
@@ -25,6 +33,9 @@ const HandoverNotesButton = styled(Button)`
   }
   &.Mui-disabled {
     pointer-events: auto;
+  }
+  .MuiSvgIcon-root {
+    font-size: 18px;
   }
 `;
 
@@ -37,6 +48,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
   });
 
   const [handoverNotesModalShown, setHandoverNotesModalShown] = useState(false);
+  const [dietSummaryModalShown, setDietSummaryModalShown] = useState(false);
 
   const handleHandoverNotesButtonClick = useCallback(
     () => setHandoverNotesModalShown(true),
@@ -46,6 +58,16 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
   const handleHandoverNotesModalClose = useCallback(
     () => setHandoverNotesModalShown(false),
     [setHandoverNotesModalShown],
+  );
+
+  const handleDietSummaryButtonClick = useCallback(
+    () => setDietSummaryModalShown(true),
+    [setDietSummaryModalShown],
+  );
+
+  const handleDietSummaryModalClose = useCallback(
+    () => setDietSummaryModalShown(false),
+    [setDietSummaryModalShown],
   );
 
   const handoverNotesButtonDisabled = !searchParameters?.area;
@@ -64,44 +86,57 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         initialValues={searchParameters}
         data-testid="customisablesearchbar-xodq"
       >
-        <HandoverNotesButton
-          disabled={handoverNotesButtonDisabled}
-          startIcon={
-            <HandoverNotesIcon
-              color={searchParameters?.area ? Colors.primary : Colors.softText}
-              data-testid="handovernotesicon-d4ts"
-            />
-          }
-          onClick={handleHandoverNotesButtonClick}
-          data-testid="handovernotesbutton-40su"
-        >
-          {handoverNotesButtonDisabled ? (
-            <ThemedTooltip
-              title={
-                <TranslatedText
-                  stringId="bedManagement.search.handoverNotes.tooltip"
-                  fallback="Select an 'Area' to create handover notes"
-                  data-testid="translatedtext-g7x4"
-                />
-              }
-              data-testid="themedtooltip-25rl"
-            >
-              <span>
-                <TranslatedText
-                  stringId="bedManagement.search.handoverNotes.button.label"
-                  fallback="Handover notes"
-                  data-testid="translatedtext-7sg3"
-                />
-              </span>
-            </ThemedTooltip>
-          ) : (
+        <PrintActions data-testid="printactions-bedmanagement">
+          <PrintActionButton
+            disabled={handoverNotesButtonDisabled}
+            startIcon={
+              <HandoverNotesIcon
+                color={searchParameters?.area ? Colors.primary : Colors.softText}
+                data-testid="handovernotesicon-d4ts"
+              />
+            }
+            onClick={handleHandoverNotesButtonClick}
+            data-testid="handovernotesbutton-40su"
+          >
+            {handoverNotesButtonDisabled ? (
+              <ThemedTooltip
+                title={
+                  <TranslatedText
+                    stringId="bedManagement.search.handoverNotes.tooltip"
+                    fallback="Select an 'Area' to create handover notes"
+                    data-testid="translatedtext-g7x4"
+                  />
+                }
+                data-testid="themedtooltip-25rl"
+              >
+                <span>
+                  <TranslatedText
+                    stringId="bedManagement.search.handoverNotes.button.label"
+                    fallback="Handover notes"
+                    data-testid="translatedtext-7sg3"
+                  />
+                </span>
+              </ThemedTooltip>
+            ) : (
+              <TranslatedText
+                stringId="bedManagement.search.handoverNotes.button.label"
+                fallback="Handover notes"
+                data-testid="translatedtext-94wp"
+              />
+            )}
+          </PrintActionButton>
+          <PrintActionButton
+            startIcon={<InsertChartOutlinedIcon htmlColor={Colors.primary} />}
+            onClick={handleDietSummaryButtonClick}
+            data-testid="dietsummarybutton-x3qa"
+          >
             <TranslatedText
-              stringId="bedManagement.search.handoverNotes.button.label"
-              fallback="Handover notes"
-              data-testid="translatedtext-94wp"
+              stringId="bedManagement.search.dietSummary.button.label"
+              fallback="Diet summary"
+              data-testid="translatedtext-dietsummary"
             />
-          )}
-        </HandoverNotesButton>
+          </PrintActionButton>
+        </PrintActions>
 
         <EmptyGridItem data-testid="emptygriditem-t5fd" />
         <LocalisedField
@@ -145,6 +180,14 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         keepMounted
         area={searchParameters?.area}
         data-testid="handovernotesmodal-el85"
+      />
+      <DietSummaryModal
+        open={dietSummaryModalShown}
+        onClose={handleDietSummaryModalClose}
+        printable
+        width="md"
+        area={searchParameters?.area}
+        data-testid="dietsummarymodal-p2vn"
       />
     </>
   );
