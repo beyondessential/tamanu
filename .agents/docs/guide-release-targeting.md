@@ -9,22 +9,14 @@ it runs. Release branches are `release/2.xx` (see `llm/project-rules/release-bra
 
 ## Choosing the target
 
-The target is the release in which the **newest feature the guides document first shipped**. Judge it
-across every guide the run writes or updates, and the whole of each guide, not only the part a change
-touches: a guide is published for one version.
+**Ask the author which release the guides are for**, in the scope review, and use their answer. Fetch
+the release branches first and list them, so a newly cut one is offered.
 
-`release/2.68` is the first branch carrying `docs/user-manuals/`, so no guide targets an older one. In
-practice, then:
+A run's guides go to one release, so ask once for the run. `release/2.68` is the first branch carrying
+`docs/user-manuals/`, and main is the answer for a guide documenting something no release has yet.
 
-1. Pick an anchor in the code for each feature the guides document: a label's `fallback`, a setting
-   key, a permission subject, a reference data column, the component that renders the screen
-2. Walk the release branches from `release/2.68` upwards. The target is the **first branch on which
-   every anchor is present** (`git grep` against `origin/release/2.xx`). Check presence rather than
-   commit ancestry, since a feature hotfixed into a release carries a different commit there
-3. The target is **main** when no release branch carries every anchor, or when a guide being updated
-   does not exist on the release branch step 2 chose
-
-Fetch the release branches first, so a newly cut one is not missed.
+Say so and ask again if the answer turns out not to hold: the release lacks a feature the guides
+document, or a guide being updated does not exist on it.
 
 ## Grounding in the target
 
@@ -102,8 +94,5 @@ the forward cherry-picks to the release's commit by subject, so the subjects sta
 
 ## Reporting
 
-Tell the author:
-
-- The target branch, and the feature that decided it, or why it is main
-- On a release target, the force-push and base change to make
-- Each forward branch, its base, and the pull request to raise from it
+Tell the author the pull request to raise for the release they named, and each forward branch, its
+base, and the pull request to raise from it.

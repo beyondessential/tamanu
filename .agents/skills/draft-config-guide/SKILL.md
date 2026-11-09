@@ -49,10 +49,10 @@ Discover candidates:
 - **Existing documentation** — the module's Slab posts (see step 2), which can name configuration a
   code search misses
 
-Then **present the candidate list for the author to approve or trim before writing anything**, naming
-with it the target branch for the guides, per the targeting doc, and the feature that decided it. Do
-not derive scope and proceed. Once the target is a release branch, read the code sources above, and
-write every code-derived section, from that branch, not main. If the module has no folder yet, propose
+Then **present the candidate list for the author to approve or trim before writing anything**, asking
+with it which release the guides are for, per the targeting doc. Do not derive scope and proceed.
+Once they have named a release, read the code sources above, and write every code-derived section,
+from that branch, not main. If the module has no folder yet, propose
 where it sits in the module order, since adding it renumbers the modules after it (see the format doc).
 
 ### 2. Draft what the code cannot give you

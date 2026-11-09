@@ -33,9 +33,8 @@ The author names the platform and module. Explore that area of the app, and its 
 step 2), and propose the guides, each with a one-line description. If the module has no folder yet,
 propose where it sits in the module order, since adding it renumbers the modules after it.
 
-Work out the target branch for the proposed guides, per the targeting doc, and name it in the same
-review with the feature that decided it. In that review, also ask for a demo site running the target
-version, a login, the test patient to use, and the go-ahead to record data against that patient where
+Ask in the same review which release the guides are for, per the targeting doc. In that review, also
+ask for a demo site running that release, a login, the test patient to use, and the go-ahead to record data against that patient where
 a guide's action writes it. Get the list approved before writing.
 
 ### 2. Ground every step
