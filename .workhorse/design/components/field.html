@@ -69,12 +69,13 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 
 /* Tags */
 .tags{flex:1;display:flex;gap:4px;min-width:0;overflow:hidden;}
-.tag{display:inline-flex;align-items:center;gap:8px;padding:2px 10px 2px 12px;border:1px solid var(--primary);border-radius:50px;color:var(--darkest);white-space:nowrap;}
+.tag{display:inline-flex;align-items:center;gap:8px;line-height:18px;padding:2px 10px 2px 12px;border:1px solid var(--primary);border-radius:50px;color:var(--darkest);white-space:nowrap;}
 .tag svg{width:14px;height:14px;color:var(--dark);}
 .field--xsmall .tag{padding:0 4px 0 6px;}
 
 
-/* ---- Interactive controls ---- */
+/* ---- Interactive controls (HTML and CSS only: previews run without scripts) ---- */
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
 .field-input{position:relative;}
 .field-control{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;padding:0;font:inherit;color:inherit;}
 .field-control::placeholder{color:var(--soft);opacity:1;}
@@ -83,25 +84,79 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
 .field-control[type=number]{-moz-appearance:textfield;}
 .field-control[type=number]::-webkit-inner-spin-button,.field-control[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .field-input.is-disabled{cursor:not-allowed;}
-[data-select]{cursor:pointer;outline:0;}
-[data-select].is-disabled{cursor:not-allowed;}
+form{margin:0;}
+
+/* Search: the clear control is a reset button, shown once there is a value */
 .clear-btn{display:none;border:0;background:none;padding:0;cursor:pointer;color:var(--mid);}
-.clear-btn.is-shown{display:flex;}
-.tag-remove{display:flex;border:0;background:none;padding:0;cursor:pointer;color:var(--dark);}
+.field-input:has(.field-control:not(:placeholder-shown)) .clear-btn{display:flex;}
 
-/* Tag fields grow to fit wrapped tags */
-.field-input.is-tags{height:auto;min-height:40px;padding-top:7px;padding-bottom:7px;}
-.field--large .field-input.is-tags{min-height:44px;}
-.is-tags .tags{flex-wrap:wrap;}
+/* Required fields: error while empty */
+.msg-error{display:none;}
+.is-validating .field-input:has(.field-control:placeholder-shown){border-color:var(--alert);}
+.is-validating:has(.field-control:placeholder-shown) .msg-error{display:block;}
+.is-validating:has(.field-control:placeholder-shown) .msg-helper{display:none;}
 
-/* Dropdown menu */
-.menu{display:none;position:absolute;left:-1px;right:-1px;top:calc(100% + 2px);z-index:10;margin:0;padding:4px 0;list-style:none;
+/* Dropdowns */
+.dd{position:relative;counter-reset:selected;}
+.dd > input:checked{counter-increment:selected;}
+.trigger{cursor:pointer;outline:0;}
+.trigger .v{display:none;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dd:has(> input:checked) .trigger .ph{display:none;}
+.menu{display:none;position:absolute;left:0;right:0;top:calc(100% + 2px);z-index:10;margin:0;padding:4px 0;list-style:none;
   background:var(--white);border:1px solid var(--primary);border-radius:3px;max-height:190px;overflow:auto;}
-.is-open .menu{display:block;}
-.menu li{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:14px;line-height:18px;color:var(--darkest);cursor:pointer;}
-.menu li:hover,.menu li.is-highlighted,.menu li[aria-selected=true]{background:var(--bg);}
-.menu .tick{width:12px;flex:none;display:flex;}
+.menu label{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:14px;line-height:18px;color:var(--darkest);cursor:pointer;}
+.menu label:hover{background:var(--bg);}
+.menu .tick{width:12px;flex:none;display:flex;visibility:hidden;}
 .menu .tick svg{width:8px;height:6px;}
+/* Single select: open while the field has focus or the menu is under the pointer */
+.dd--single .trigger:focus ~ .menu,.dd--single .menu:hover{display:block;}
+.dd--single .trigger:focus,.dd--single:has(.menu:hover) .trigger{border-color:var(--primary);}
+/* Multi select: open while focus is anywhere in it, closes on a click outside */
+.dd--multi:focus-within .menu,.dd--multi .menu:hover{display:block;}
+.dd--multi:focus-within .field-input{border-color:var(--primary);}
+
+/* Tags sit over the field so their remove controls can be clicked */
+.tag-layer{position:absolute;left:1px;top:0;bottom:0;right:44px;display:flex;align-items:center;gap:4px;padding-left:15px;overflow:hidden;pointer-events:none;}
+.tag-layer .tag{display:none;}
+/* Tag field: tags share the field's grid cell, so the field grows when they wrap */
+.dd--tags{display:grid;}
+.dd--tags > .trigger,.dd--tags > .tag-layer{grid-area:1/1;}
+.dd--tags > .trigger{height:auto;min-height:40px;}
+.dd--tags > .tag-layer{position:relative;inset:auto;z-index:1;flex-wrap:wrap;padding:7px 44px 7px 16px;row-gap:6px;}
+.tag-remove{display:flex;border:0;background:none;padding:0;cursor:pointer;color:var(--dark);font:inherit;pointer-events:auto;}
+.tag-count .n::before{content:counter(selected) " selected";}
+.dd--count:has(> input:checked ~ input:checked) .tag-count{display:inline-flex;}
+.dd--count:not(:has(> input:not(:checked))) .tag-count .n::before{content:"All selected";}
+.dd--single:has(> input.o1:checked) .trigger .v.o1{display:block;}
+.dd:has(> input.o1:checked) .menu label.o1{background:var(--bg);}
+.dd--multi:has(> input.o1:checked) .menu label.o1 .tick{visibility:visible;}
+.dd--tags:has(> input.o1:checked) .tag.o1{display:inline-flex;}
+.dd--count:not(:has(> input:checked ~ input:checked)):has(> input.o1:checked) .tag.o1{display:inline-flex;}
+.dd--single:has(> input.o2:checked) .trigger .v.o2{display:block;}
+.dd:has(> input.o2:checked) .menu label.o2{background:var(--bg);}
+.dd--multi:has(> input.o2:checked) .menu label.o2 .tick{visibility:visible;}
+.dd--tags:has(> input.o2:checked) .tag.o2{display:inline-flex;}
+.dd--count:not(:has(> input:checked ~ input:checked)):has(> input.o2:checked) .tag.o2{display:inline-flex;}
+.dd--single:has(> input.o3:checked) .trigger .v.o3{display:block;}
+.dd:has(> input.o3:checked) .menu label.o3{background:var(--bg);}
+.dd--multi:has(> input.o3:checked) .menu label.o3 .tick{visibility:visible;}
+.dd--tags:has(> input.o3:checked) .tag.o3{display:inline-flex;}
+.dd--count:not(:has(> input:checked ~ input:checked)):has(> input.o3:checked) .tag.o3{display:inline-flex;}
+.dd--single:has(> input.o4:checked) .trigger .v.o4{display:block;}
+.dd:has(> input.o4:checked) .menu label.o4{background:var(--bg);}
+.dd--multi:has(> input.o4:checked) .menu label.o4 .tick{visibility:visible;}
+.dd--tags:has(> input.o4:checked) .tag.o4{display:inline-flex;}
+.dd--count:not(:has(> input:checked ~ input:checked)):has(> input.o4:checked) .tag.o4{display:inline-flex;}
+.dd--single:has(> input.o5:checked) .trigger .v.o5{display:block;}
+.dd:has(> input.o5:checked) .menu label.o5{background:var(--bg);}
+.dd--multi:has(> input.o5:checked) .menu label.o5 .tick{visibility:visible;}
+.dd--tags:has(> input.o5:checked) .tag.o5{display:inline-flex;}
+.dd--count:not(:has(> input:checked ~ input:checked)):has(> input.o5:checked) .tag.o5{display:inline-flex;}
+.dd--single:has(> input.o6:checked) .trigger .v.o6{display:block;}
+.dd:has(> input.o6:checked) .menu label.o6{background:var(--bg);}
+.dd--multi:has(> input.o6:checked) .menu label.o6 .tick{visibility:visible;}
+.dd--tags:has(> input.o6:checked) .tag.o6{display:inline-flex;}
+.dd--count:not(:has(> input:checked ~ input:checked)):has(> input.o6:checked) .tag.o6{display:inline-flex;}
 
 /* Help tooltip */
 .field-help-icon{position:relative;cursor:help;}
@@ -109,13 +164,15 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
   background:var(--primary-dark);color:var(--white);font-size:11px;line-height:15px;font-weight:400;padding:6px 8px;border-radius:3px;}
 .field-help-icon:hover .tip{display:block;}
 
-/* Mini form */
+/* Mini form: the submit control sets a radio that switches validation on */
 .mini-form{background:var(--white);border:1px solid var(--box-outline);border-radius:5px;padding:24px;display:flex;flex-direction:column;gap:16px;width:fit-content;}
 .mini-form-actions{display:flex;justify-content:flex-end;}
-.btn{font-family:inherit;font-weight:500;font-size:14px;line-height:18px;height:40px;padding:8px 20px;border-radius:3px;border:none;cursor:pointer;background:var(--primary);color:var(--white);}
+.btn{font-family:inherit;font-weight:500;font-size:14px;line-height:18px;height:40px;padding:8px 20px;border-radius:3px;border:none;cursor:pointer;background:var(--primary);color:var(--white);display:inline-flex;align-items:center;}
 .btn:hover{background:#22486D;}
-.form-status{font-size:11px;line-height:15px;color:var(--mid);}
-.form-status:empty{display:none;}
+.form-status{display:none;font-size:11px;line-height:15px;color:var(--mid);}
+.mini-form:has(.submitted:checked) .field-input:has(.field-control:placeholder-shown){border-color:var(--alert);}
+.mini-form:has(.submitted:checked) .field:has(.field-control:placeholder-shown) .msg-error{display:block;}
+.mini-form:has(.submitted:checked):not(:has(.field-control:placeholder-shown)) .form-status{display:block;}
 </style>
 </head>
 <body>
@@ -128,19 +185,19 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     <h2 class="ds-h">Sizes</h2>
     <div class="ds-row ds-row--fields">
       <div class="ds-cell">
-        <div class="field field--large"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper="Max 50 characters.">Max 50 characters.</span></div>
+        <div class="field field--large"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg msg-helper">Max 50 characters.</span><span class="field-msg is-error msg-error">*Required</span></div>
         <span class="ds-caption">Large · 44px</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper="Max 50 characters.">Max 50 characters.</span></div>
+        <div class="field field--medium"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg msg-helper">Max 50 characters.</span><span class="field-msg is-error msg-error">*Required</span></div>
         <span class="ds-caption">Medium · 40px</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--small"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper="Max 50 characters.">Max 50 characters.</span></div>
+        <div class="field field--small"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg msg-helper">Max 50 characters.</span><span class="field-msg is-error msg-error">*Required</span></div>
         <span class="ds-caption">Small · 36px</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--xsmall"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper="Max 50 characters.">Max 50 characters.</span></div>
+        <div class="field field--xsmall"><span class="field-label">Label<span class="field-req">*</span><span class="field-help-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4"/></svg><span class="tip">Help text</span></span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg msg-helper">Max 50 characters.</span><span class="field-msg is-error msg-error">*Required</span></div>
         <span class="ds-caption">XSmall · 32px</span>
       </div>
     </div>
@@ -167,15 +224,15 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
         <span class="ds-caption">Disabled completed</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon" data-select="single" data-values="" tabindex="0" role="combobox" aria-expanded="false" aria-label="Label"><span class="ph">Select</span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span><ul class="menu" role="listbox"><li role="option" data-value="Option one"><span class="tick"></span>Option one</li><li role="option" data-value="Option two"><span class="tick"></span>Option two</li><li role="option" data-value="Option three"><span class="tick"></span>Option three</li><li role="option" data-value="Option four"><span class="tick"></span>Option four</li><li role="option" data-value="Option five"><span class="tick"></span>Option five</li><li role="option" data-value="Option six"><span class="tick"></span>Option six</li></ul></div></div>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="dd dd--single"><input class="sr o1" type="radio" name="dd1" id="dd1-o1" tabindex="-1"><input class="sr o2" type="radio" name="dd1" id="dd1-o2" tabindex="-1"><input class="sr o3" type="radio" name="dd1" id="dd1-o3" tabindex="-1"><input class="sr o4" type="radio" name="dd1" id="dd1-o4" tabindex="-1"><input class="sr o5" type="radio" name="dd1" id="dd1-o5" tabindex="-1"><input class="sr o6" type="radio" name="dd1" id="dd1-o6" tabindex="-1"><div class="field-input has-end-icon trigger" tabindex="0" role="combobox" aria-label="Label"><span class="ph">Select</span><span class="v o1">Option one</span><span class="v o2">Option two</span><span class="v o3">Option three</span><span class="v o4">Option four</span><span class="v o5">Option five</span><span class="v o6">Option six</span><span class="icon" style="margin-left:auto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div><div class="menu" role="listbox"><label class="o1" for="dd1-o1">Option one</label><label class="o2" for="dd1-o2">Option two</label><label class="o3" for="dd1-o3">Option three</label><label class="o4" for="dd1-o4">Option four</label><label class="o5" for="dd1-o5">Option five</label><label class="o6" for="dd1-o6">Option six</label></div></div></div>
         <span class="ds-caption">Dropdown · empty (open it to see the active state)</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon" data-select="single" data-values="Option one" tabindex="0" role="combobox" aria-expanded="false" aria-label="Label"><span class="ph">Select</span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span><ul class="menu" role="listbox"><li role="option" data-value="Option one"><span class="tick"></span>Option one</li><li role="option" data-value="Option two"><span class="tick"></span>Option two</li><li role="option" data-value="Option three"><span class="tick"></span>Option three</li><li role="option" data-value="Option four"><span class="tick"></span>Option four</li><li role="option" data-value="Option five"><span class="tick"></span>Option five</li><li role="option" data-value="Option six"><span class="tick"></span>Option six</li></ul></div></div>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="dd dd--single"><input class="sr o1" type="radio" name="dd2" id="dd2-o1" checked tabindex="-1"><input class="sr o2" type="radio" name="dd2" id="dd2-o2" tabindex="-1"><input class="sr o3" type="radio" name="dd2" id="dd2-o3" tabindex="-1"><input class="sr o4" type="radio" name="dd2" id="dd2-o4" tabindex="-1"><input class="sr o5" type="radio" name="dd2" id="dd2-o5" tabindex="-1"><input class="sr o6" type="radio" name="dd2" id="dd2-o6" tabindex="-1"><div class="field-input has-end-icon trigger" tabindex="0" role="combobox" aria-label="Label"><span class="ph">Select</span><span class="v o1">Option one</span><span class="v o2">Option two</span><span class="v o3">Option three</span><span class="v o4">Option four</span><span class="v o5">Option five</span><span class="v o6">Option six</span><span class="icon" style="margin-left:auto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div><div class="menu" role="listbox"><label class="o1" for="dd2-o1">Option one</label><label class="o2" for="dd2-o2">Option two</label><label class="o3" for="dd2-o3">Option three</label><label class="o4" for="dd2-o4">Option four</label><label class="o5" for="dd2-o5">Option five</label><label class="o6" for="dd2-o6">Option six</label></div></div></div>
         <span class="ds-caption">Dropdown · completed</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium" data-required data-validating><span class="field-label">Label<span class="field-req">*</span></span><div class="field-input is-error"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg is-error" data-helper="">*Required</span></div>
+        <div class="field field--medium is-validating"><span class="field-label">Label<span class="field-req">*</span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg is-error msg-error">*Required</span></div>
         <span class="ds-caption">Validation · type to clear the error</span>
       </div>
     </div>
@@ -186,20 +243,20 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
     <h2 class="ds-h">Variants</h2>
     <div class="ds-row ds-row--fields">
       <div class="ds-cell">
-        <div class="field field--medium"><div class="field-input has-end-icon" data-search><span class="icon icon--search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg></span><input class="field-control" type="text" placeholder="Search" aria-label="Search"><button class="clear-btn" type="button" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div></div>
+        <form><div class="field field--medium"><div class="field-input has-end-icon"><span class="icon icon--search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg></span><input class="field-control" type="text" placeholder="Search" aria-label="Search"><button class="clear-btn" type="reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div></div></form>
         <span class="ds-caption">Search · default</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><div class="field-input has-end-icon is-disabled" data-search><span class="icon icon--search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg></span><input class="field-control" type="text" placeholder="Search" disabled aria-label="Search"><button class="clear-btn" type="button" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div></div>
+        <form><div class="field field--medium"><div class="field-input has-end-icon is-disabled"><span class="icon icon--search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg></span><input class="field-control" type="text" placeholder="Search" disabled aria-label="Search"><button class="clear-btn" type="reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div></div></form>
         <span class="ds-caption">Search · disabled</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon is-tags" data-select="tags" data-values="Option one|Option two" tabindex="0" role="combobox" aria-expanded="false" aria-label="Label"><span class="tags"></span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span><ul class="menu" role="listbox"><li role="option" data-value="Option one"><span class="tick"></span>Option one</li><li role="option" data-value="Option two"><span class="tick"></span>Option two</li><li role="option" data-value="Option three"><span class="tick"></span>Option three</li><li role="option" data-value="Option four"><span class="tick"></span>Option four</li><li role="option" data-value="Option five"><span class="tick"></span>Option five</li><li role="option" data-value="Option six"><span class="tick"></span>Option six</li></ul></div></div>
+        <div class="field field--medium"><span class="field-label">Label</span><div class="dd dd--multi dd--tags"><input class="sr o1" type="checkbox" name="dd3" id="dd3-o1" checked tabindex="-1"><input class="sr o2" type="checkbox" name="dd3" id="dd3-o2" checked tabindex="-1"><input class="sr o3" type="checkbox" name="dd3" id="dd3-o3" tabindex="-1"><input class="sr o4" type="checkbox" name="dd3" id="dd3-o4" tabindex="-1"><input class="sr o5" type="checkbox" name="dd3" id="dd3-o5" tabindex="-1"><input class="sr o6" type="checkbox" name="dd3" id="dd3-o6" tabindex="-1"><div class="field-input has-end-icon trigger" tabindex="0" role="combobox" aria-label="Label"><span class="ph" style="flex:1">Select</span><span class="icon" style="margin-left:auto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div><div class="tag-layer"><span class="tag o1">Option one<label class="tag-remove" for="dd3-o1" aria-label="Remove Option one"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o2">Option two<label class="tag-remove" for="dd3-o2" aria-label="Remove Option two"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o3">Option three<label class="tag-remove" for="dd3-o3" aria-label="Remove Option three"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o4">Option four<label class="tag-remove" for="dd3-o4" aria-label="Remove Option four"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o5">Option five<label class="tag-remove" for="dd3-o5" aria-label="Remove Option five"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o6">Option six<label class="tag-remove" for="dd3-o6" aria-label="Remove Option six"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span></div><div class="menu" role="listbox" tabindex="-1"><label class="o1" for="dd3-o1"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option one</label><label class="o2" for="dd3-o2"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option two</label><label class="o3" for="dd3-o3"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option three</label><label class="o4" for="dd3-o4"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option four</label><label class="o5" for="dd3-o5"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option five</label><label class="o6" for="dd3-o6"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option six</label></div></div></div>
         <span class="ds-caption">Tag</span>
       </div>
       <div class="ds-cell">
-        <div class="field field--medium"><span class="field-label">Label</span><div class="field-input has-end-icon" data-select="count" data-values="Option one|Option two|Option three|Option four|Option five" tabindex="0" role="combobox" aria-expanded="false" aria-label="Label"><span class="tags"></span><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span><ul class="menu" role="listbox"><li role="option" data-value="Option one"><span class="tick"></span>Option one</li><li role="option" data-value="Option two"><span class="tick"></span>Option two</li><li role="option" data-value="Option three"><span class="tick"></span>Option three</li><li role="option" data-value="Option four"><span class="tick"></span>Option four</li><li role="option" data-value="Option five"><span class="tick"></span>Option five</li><li role="option" data-value="Option six"><span class="tick"></span>Option six</li></ul></div></div>
-        <span class="ds-caption">Tag · selected count</span>
+        <form><div class="field field--medium"><span class="field-label">Label</span><div class="dd dd--multi dd--count"><input class="sr o1" type="checkbox" name="dd4" id="dd4-o1" tabindex="-1"><input class="sr o2" type="checkbox" name="dd4" id="dd4-o2" tabindex="-1"><input class="sr o3" type="checkbox" name="dd4" id="dd4-o3" tabindex="-1"><input class="sr o4" type="checkbox" name="dd4" id="dd4-o4" tabindex="-1"><input class="sr o5" type="checkbox" name="dd4" id="dd4-o5" tabindex="-1"><input class="sr o6" type="checkbox" name="dd4" id="dd4-o6" tabindex="-1"><div class="field-input has-end-icon trigger" tabindex="0" role="combobox" aria-label="Label"><span class="ph" style="flex:1">Select</span><span class="icon" style="margin-left:auto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div><div class="tag-layer"><span class="tag o1">Option one<label class="tag-remove" for="dd4-reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o2">Option two<label class="tag-remove" for="dd4-reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o3">Option three<label class="tag-remove" for="dd4-reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o4">Option four<label class="tag-remove" for="dd4-reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o5">Option five<label class="tag-remove" for="dd4-reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag o6">Option six<label class="tag-remove" for="dd4-reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span><span class="tag tag-count"><span class="n"></span><label class="tag-remove" for="dd4-reset" aria-label="Clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></label></span></div><div class="menu" role="listbox" tabindex="-1"><label class="o1" for="dd4-o1"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option one</label><label class="o2" for="dd4-o2"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option two</label><label class="o3" for="dd4-o3"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option three</label><label class="o4" for="dd4-o4"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option four</label><label class="o5" for="dd4-o5"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option five</label><label class="o6" for="dd4-o6"><span class="tick"><svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg></span>Option six</label></div></div><button class="sr" type="reset" id="dd4-reset" tabindex="-1">Clear</button></div></form>
+        <span class="ds-caption">Tag · selected count (pick two or more)</span>
       </div>
       <div class="ds-cell">
         <div class="field field--large"><span class="field-label">Weight</span><div class="field-input"><input class="field-control" type="number" inputmode="decimal" placeholder="0" value="72" aria-label="Weight"><span class="unit">kg</span></div></div>
@@ -216,152 +273,16 @@ body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--da
   <section class="ds-section">
     <h2 class="ds-h">Validation behaviour</h2>
     <div class="ds-cell">
-      <form class="mini-form" novalidate data-form>
-        <div class="field field--medium" data-required><span class="field-label">First name<span class="field-req">*</span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper=""></span></div>
-        <div class="field field--medium" data-required><span class="field-label">Surname<span class="field-req">*</span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Label"></div><span class="field-msg" data-helper=""></span></div>
-        <div class="mini-form-actions"><button class="btn" type="submit">Submit</button></div>
-        <span class="form-status" data-status></span>
-      </form>
+      <div class="mini-form">
+        <input class="sr submitted" type="radio" id="submitted5" tabindex="-1">
+        <div class="field field--medium"><span class="field-label">First name<span class="field-req">*</span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="First name"></div><span class="field-msg is-error msg-error">*Required</span></div>
+        <div class="field field--medium"><span class="field-label">Surname<span class="field-req">*</span></span><div class="field-input"><input class="field-control" type="text" placeholder="Placeholder" aria-label="Surname"></div><span class="field-msg is-error msg-error">*Required</span></div>
+        <div class="mini-form-actions"><label class="btn" for="submitted5">Submit</label></div>
+        <span class="form-status">Submitted.</span>
+      </div>
       <span class="ds-caption">Errors appear only after a submit attempt, then re-validate on every change.</span>
     </div>
   </section>
 </div>
-<script>
-(() => {
-  const CLOSE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
-  const TICK = `<svg viewBox="0 0 8 6" aria-hidden="true"><path fill="#326699" d="M7.83 1.02 3.26 5.82c-.12.12-.23.18-.4.18s-.29-.06-.4-.18L.17 3.42a.6.6 0 0 1 0-.84.55.55 0 0 1 .8 0l1.89 1.98L7.03.18a.55.55 0 0 1 .8 0 .6.6 0 0 1 0 .84Z"/></svg>`;
-  const OPTION_COUNT = 6;
-
-  // Required fields: show or clear the error against the field's current value
-  const validate = field => {
-    const input = field.querySelector('.field-control');
-    const box = field.querySelector('.field-input');
-    const msg = field.querySelector('.field-msg');
-    const isEmpty = input.value.trim() === '';
-    box.classList.toggle('is-error', isEmpty);
-    msg.classList.toggle('is-error', isEmpty);
-    msg.textContent = isEmpty ? '*Required' : msg.dataset.helper;
-  };
-  document.querySelectorAll('[data-required]').forEach(field => {
-    field.querySelector('.field-control').addEventListener('input', () => {
-      if (field.hasAttribute('data-validating')) validate(field);
-    });
-  });
-
-  // Mini form: no errors until the first submit attempt
-  document.querySelectorAll('[data-form]').forEach(form => {
-    form.addEventListener('submit', event => {
-      event.preventDefault();
-      const fields = [...form.querySelectorAll('[data-required]')];
-      fields.forEach(field => { field.setAttribute('data-validating', ''); validate(field); });
-      const hasErrors = fields.some(field => field.querySelector('.field-input').classList.contains('is-error'));
-      form.querySelector('[data-status]').textContent = hasErrors ? '' : 'Submitted.';
-    });
-  });
-
-  // Search: clear control appears once there is a value
-  document.querySelectorAll('[data-search]').forEach(box => {
-    const input = box.querySelector('.field-control');
-    const clear = box.querySelector('.clear-btn');
-    const sync = () => clear.classList.toggle('is-shown', input.value !== '');
-    input.addEventListener('input', sync);
-    clear.addEventListener('click', () => { input.value = ''; sync(); input.focus(); });
-  });
-
-  // Dropdowns: single select, tags, and selected count
-  const closeAll = except => document.querySelectorAll('[data-select].is-open').forEach(box => { if (box !== except) setOpen(box, false); });
-  const setOpen = (box, isOpen) => {
-    box.classList.toggle('is-open', isOpen);
-    box.classList.toggle('is-active', isOpen);
-    box.setAttribute('aria-expanded', String(isOpen));
-    box.querySelectorAll('.menu li').forEach(li => li.classList.remove('is-highlighted'));
-  };
-  const makeTag = (text, onRemove) => {
-    const tag = document.createElement('span');
-    tag.className = 'tag';
-    tag.append(text);
-    const remove = document.createElement('button');
-    remove.type = 'button';
-    remove.className = 'tag-remove';
-    remove.setAttribute('aria-label', `Remove ${text}`);
-    remove.innerHTML = CLOSE;
-    remove.addEventListener('click', event => { event.stopPropagation(); onRemove(); });
-    tag.append(remove);
-    return tag;
-  };
-  document.querySelectorAll('[data-select]').forEach(box => {
-    const mode = box.dataset.select;
-    const isDisabled = box.classList.contains('is-disabled');
-    let selected = box.dataset.values ? box.dataset.values.split('|') : [];
-    const options = [...box.querySelectorAll('.menu li')];
-
-    const render = () => {
-      options.forEach(li => {
-        const isSelected = selected.includes(li.dataset.value);
-        li.setAttribute('aria-selected', String(isSelected));
-        li.querySelector('.tick').innerHTML = mode !== 'single' && isSelected ? TICK : '';
-      });
-      if (mode === 'single') {
-        const display = box.querySelector('.ph, .val');
-        display.className = selected.length ? 'val' : 'ph';
-        display.textContent = selected[0] ?? 'Select';
-        return;
-      }
-      const tags = box.querySelector('.tags');
-      tags.replaceChildren();
-      if (!selected.length) {
-        const placeholder = document.createElement('span');
-        placeholder.className = 'ph';
-        placeholder.textContent = 'Select';
-        tags.append(placeholder);
-      } else if (mode === 'tags') {
-        selected.forEach(value => tags.append(makeTag(value, () => { selected = selected.filter(v => v !== value); render(); })));
-      } else {
-        const text = selected.length === 1 ? selected[0]
-          : selected.length === OPTION_COUNT ? 'All selected'
-          : `${selected.length} selected`;
-        tags.append(makeTag(text, () => { selected = []; render(); }));
-      }
-    };
-
-    const choose = value => {
-      if (mode === 'single') { selected = [value]; setOpen(box, false); }
-      else selected = selected.includes(value) ? selected.filter(v => v !== value) : [...selected, value];
-      render();
-    };
-    options.forEach(li => li.addEventListener('click', event => { event.stopPropagation(); choose(li.dataset.value); }));
-
-    box.addEventListener('click', () => {
-      if (isDisabled) return;
-      closeAll(box);
-      setOpen(box, !box.classList.contains('is-open'));
-    });
-    box.addEventListener('keydown', event => {
-      if (isDisabled) return;
-      const isOpen = box.classList.contains('is-open');
-      const index = options.findIndex(li => li.classList.contains('is-highlighted'));
-      const highlight = next => {
-        options.forEach(li => li.classList.remove('is-highlighted'));
-        options[next].classList.add('is-highlighted');
-        options[next].scrollIntoView({ block: 'nearest' });
-      };
-      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-        event.preventDefault();
-        if (!isOpen) { closeAll(box); setOpen(box, true); }
-        const step = event.key === 'ArrowDown' ? 1 : -1;
-        highlight(index === -1 ? 0 : (index + step + options.length) % options.length);
-      } else if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        if (isOpen && index !== -1) choose(options[index].dataset.value);
-        else { closeAll(box); setOpen(box, !isOpen); }
-      } else if (event.key === 'Escape') {
-        setOpen(box, false);
-      }
-    });
-    render();
-  });
-  document.addEventListener('click', event => { if (!event.target.closest('[data-select]')) closeAll(); });
-})();
-</script>
 </body>
 </html>
