@@ -2,9 +2,9 @@
 
 ## Notes
 
-### Ordering when a test category is picked
+### Table when only a test category is picked
 
-The patient lab test results query (`/:id/labTestResults` in `patientRelations.js`) orders only by test category. When a category is picked, every row shares that category, so the test order is left to the database. It usually comes out alphabetical, but that is not guaranteed. Add the test type name as a secondary sort key so the alphabetical order the spec describes always holds. The flat list with no heading rows and no test category column is already how it works and needs no change.
+The patient lab test results query (`/:id/labTestResults` in `patientRelations.js`) returns a flat list for a category, ordered only by category, and the table shows it with a test category column hidden. This changes to the same grouped layout as picked tests and panels: the category's panels the patient has a published lab request ordered under, each with its tests, then the category's remaining tests under "Individual tests". The grouping and ordering logic can be shared with the picked view, with the category view working out its own panels and individual tests before handing over.
 
 ### Category scoping the Test or panel suggestions
 

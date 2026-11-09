@@ -481,19 +481,26 @@
   }
 
   function buildRows() {
+    let panels;
+    let individualTests;
     if (state.selected.length === 0) {
-      const tests = Object.values(TESTS).filter(test => test.category === state.category).sort(byName);
-      return tests.map(test => ({ test }));
+      // Category only: its panels, then its tests outside those panels
+      panels = Object.values(PANELS).filter(panel => panel.category === state.category).sort(byName);
+      const panelTestIds = new Set(panels.flatMap(panel => panel.tests));
+      individualTests = Object.entries(TESTS)
+        .filter(([id, test]) => test.category === state.category && !panelTestIds.has(id))
+        .map(([, test]) => test)
+        .sort(byName);
+    } else {
+      panels = state.selected
+        .filter(id => id.startsWith('panel:'))
+        .map(id => PANELS[id.slice('panel:'.length)])
+        .sort(byName);
+      individualTests = state.selected
+        .filter(id => id.startsWith('test:'))
+        .map(id => TESTS[id.slice('test:'.length)])
+        .sort(byName);
     }
-
-    const panels = state.selected
-      .filter(id => id.startsWith('panel:'))
-      .map(id => PANELS[id.slice('panel:'.length)])
-      .sort(byName);
-    const individualTests = state.selected
-      .filter(id => id.startsWith('test:'))
-      .map(id => TESTS[id.slice('test:'.length)])
-      .sort(byName);
 
     const rows = [];
     panels.forEach(panel => {

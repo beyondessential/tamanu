@@ -39,13 +39,13 @@ reference range is flagged for clinicians.
 - [ ] There is no limit on how many tests and panels can be picked.
 - [ ] A picked test category narrows Test or panel to suggest only tests and panels whose configured category is that category. Clearing the test category brings back suggestions from every category.
 - [ ] Changing the test category clears any picked tests and panels. Clearing the test category keeps them. Picking a test or panel leaves the test category in place.
-- [ ] A picked test category with no tests or panels picked lists the category's tests as a flat list, alphabetical by name, with no heading rows and no test category column.
+- [ ] A picked test category with no tests or panels picked shows the category's panels that the patient has a published lab request ordered under, followed by the category's remaining tests as individual tests, laid out as below.
 - [ ] Once tests or panels are picked, the table shows only the picks, laid out as below, whether or not a test category is picked.
-- [ ] A picked panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
-- [ ] Picked panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
-- [ ] Individually picked tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
-- [ ] The heading rows show however few items are picked: a single picked panel still sits under its heading, and individually picked tests still sit under "Individual tests" when no panel is picked.
-- [ ] A test appears under every picked panel that contains it, and again under "Individual tests" when it is also picked on its own.
+- [ ] A panel in the table shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
+- [ ] Panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
+- [ ] Individual tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
+- [ ] The heading rows show however few items there are: a single panel still sits under its heading, and individual tests still sit under "Individual tests" when there is no panel.
+- [ ] A test appears under every panel in the table that contains it, and again under "Individual tests" when it is also picked on its own.
 - [ ] The table lists each test with its unit and normal range, followed by one column per sample date.
 
 ## Displaying results in a lab request
