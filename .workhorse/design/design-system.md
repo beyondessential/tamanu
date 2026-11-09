@@ -120,12 +120,15 @@ Surfaces, lines and hover states.
 | Style | Value | Token | Usage |
 |---|---|---|---|
 | White | `#FFFFFF` | `white` | Cards, panels, inputs, table bodies |
-| Hover 1 | `#F4F9FF` | `veryLightBlue` | Row hover tint on clickable tables. MUI `action.hover` |
+| Hover 1 | `#F4F9FF` | `hover` | Row hover tint on clickable tables. MUI `action.hover` |
 | Hover 2 | `#22486D` | — | Hover colour for blue text buttons (`TextButton` hardcodes the near-identical `#23476b`) |
 | Background | `#F3F5F7` | `background` | App/page background, modal body, table header, disabled fields, neutral hover. MUI `background.default` |
 | Background 2 | `#F9FAFB` | `background2` | Lighter alternate panel (summary panels) |
-| Default Off | `#EBEBEB` | `softOutline` | Subtle borders: section dividers, modal and card header rules |
-| Box Outline | `#DEDEDE` | `outline` | Default borders: inputs, cards, table container, dividers. MUI `divider` |
+| Default Off | `#EBEBEB` | `defaultOff` | Subtle borders: section dividers, modal and card header rules |
+| Box Outline | `#DEDEDE` | `boxOutline` | Default borders: inputs, cards, table container, dividers. MUI `divider` |
+
+`hover`, `boxOutline` and `defaultOff` are still named `veryLightBlue`, `outline`
+and `softOutline` in `TAMANU_COLORS` until the code is renamed.
 
 ### Tokens outside the Figma library
 
