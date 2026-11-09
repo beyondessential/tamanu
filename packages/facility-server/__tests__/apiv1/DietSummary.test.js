@@ -290,6 +290,21 @@ describe('Diet summary', () => {
     expect(areas[0].patients[0].dietKeys).toEqual([glutenFree.id]);
   });
 
+  it('counts only a ward’s own patients in its sub total, summing the wards in the hospital total', async () => {
+    await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: bed10, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', 'Maternity']);
+    expect(areas[0].subTotals).toEqual({ [glutenFree.id]: 2 });
+    expect(areas[1].subTotals).toEqual({ [diabetic.id]: 1 });
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 2, [diabetic.id]: 1 });
+  });
+
   it('includes triage, active ED care and emergency encounters, leaving off clinic and closed ones', async () => {
     await admit({ location: bed2, encounterType: ENCOUNTER_TYPES.TRIAGE });
     await admit({ location: bed10, encounterType: ENCOUNTER_TYPES.EMERGENCY });
