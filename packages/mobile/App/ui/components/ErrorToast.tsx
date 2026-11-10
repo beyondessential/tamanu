@@ -1,4 +1,4 @@
-import React, { type ReactElement, type ReactNode, useEffect } from 'react';
+import React, { type ReactElement, type ReactNode, useEffect, useRef } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { CrossIcon } from './Icons';
 import { StyledText } from '/styled/common';
@@ -33,10 +33,13 @@ interface ErrorToastProps {
 }
 
 export const ErrorToast = ({ message, onClose }: ErrorToastProps): ReactElement => {
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
-    const timer = setTimeout(onClose, AUTO_CLOSE_MS);
+    const timer = setTimeout(() => onCloseRef.current(), AUTO_CLOSE_MS);
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, []);
 
   return (
     <Pressable style={styles.toast} onPress={onClose} accessibilityRole="alert">

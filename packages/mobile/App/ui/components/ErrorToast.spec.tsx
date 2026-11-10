@@ -20,4 +20,17 @@ describe('<ErrorToast />', () => {
     await act(() => jest.advanceTimersByTime(100));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('keeps its timer when the parent passes a new onClose', async () => {
+    const firstOnClose = jest.fn();
+    const latestOnClose = jest.fn();
+    const { rerender } = await render(
+      <ErrorToast message="Not a valid QR code" onClose={firstOnClose} />,
+    );
+    await act(() => jest.advanceTimersByTime(3000));
+    await rerender(<ErrorToast message="Not a valid QR code" onClose={latestOnClose} />);
+    await act(() => jest.advanceTimersByTime(2000));
+    expect(firstOnClose).not.toHaveBeenCalled();
+    expect(latestOnClose).toHaveBeenCalledTimes(1);
+  });
 });
