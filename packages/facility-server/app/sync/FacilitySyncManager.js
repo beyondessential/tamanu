@@ -5,7 +5,6 @@ import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
-  FACT_SETTINGS_PSK,
 } from '@tamanu/constants/facts';
 import {
   createSnapshotTable,
@@ -22,7 +21,7 @@ import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getSyncConfig } from '../serverConfig';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
-import { convergeSyncUser, hasSyncUserToConverge } from './convergeSyncUser';
+import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { applyBootstrap } from './facilityBootstrap';
 import { hasUnpushedChanges } from './hasUnpushedChanges';
@@ -196,7 +195,10 @@ export class FacilitySyncManager {
       await this.bootstrap();
     }
 
-    if (await this.shouldCheckChangesPending()) {
+    // spec: SYNCHK#facility-servers
+    // Only a scheduled sync asks central first, and only when there is nothing to push, which a
+    // session is needed for whatever central answers.
+    if (this.reason?.type === 'scheduled' && !(await hasUnpushedChanges(this.models))) {
       // spec: SYNCHK#the-check
       const pullCursor = Number(pullSince);
       const changesToPull = await this.centralServer.checkChangesPending(
@@ -204,6 +206,7 @@ export class FacilitySyncManager {
       );
       if (!changesToPull) {
         log.info('FacilitySyncManager.upToDate', { pullSince });
+        await this.provisionFromCentral();
         this.markSyncCompleted(startTime);
         return { queued: false, ran: true };
       }
@@ -252,6 +255,25 @@ export class FacilitySyncManager {
       await dropSnapshotTable(this.sequelize, sessionId);
     }
 
+    await this.provisionFromCentral();
+
+    const durationMs = this.markSyncCompleted(startTime);
+    log.info('FacilitySyncManager.completedSession', { durationMs });
+
+    return { queued: false, ran: true };
+  }
+
+  // Moves the facility's last successful sync time, which monitoring and the sync status read.
+  // Deliberately not the pull cursor: that moves only when a session pulls.
+  markSyncCompleted(startTime) {
+    this.lastDurationMs = Date.now() - startTime;
+    this.lastCompletedAt = new Date();
+    return this.lastDurationMs;
+  }
+
+  // Runs after every sync that reached central, whether or not it needed a session, so a
+  // facility whose syncs keep finding nothing to pull still converges.
+  async provisionFromCentral() {
     // Provisioning that needs a live central, ordered: the PSK read is served to a
     // dedicated sync user only, so the swap has to land first. Neither may fail the
     // sync it rode in on, and both retry on the next one.
@@ -270,39 +292,6 @@ export class FacilitySyncManager {
     } catch (error) {
       log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
     }
-
-    const durationMs = this.markSyncCompleted(startTime);
-    log.info('FacilitySyncManager.completedSession', { durationMs });
-
-    return { queued: false, ran: true };
-  }
-
-  // Moves the facility's last successful sync time, which monitoring and the sync status read.
-  // Deliberately not the pull cursor: that moves only when a session pulls.
-  markSyncCompleted(startTime) {
-    this.lastDurationMs = Date.now() - startTime;
-    this.lastCompletedAt = new Date();
-    return this.lastDurationMs;
-  }
-
-  // spec: SYNCHK#facility-servers
-  // Only a scheduled sync asks central whether there is anything to pull before opening a
-  // session. Every other trigger opens one regardless, as does a scheduled sync that has
-  // something central's answer cannot account for: local changes to push, no settings pre-shared
-  // key (the key secret settings are encrypted with) yet, or a sync user still to be swapped. Ordered cheapest first, and the last needs a login, so it
-  // comes last.
-  async shouldCheckChangesPending() {
-    if (this.reason?.type !== 'scheduled') return false;
-
-    if (!(await this.models.LocalSystemSecret.get(FACT_SETTINGS_PSK))) return false;
-    if (await hasUnpushedChanges(this.models)) return false;
-
-    // Who we are syncing as is only known once authenticated
-    await this.centralServer.loginData();
-    return !(await hasSyncUserToConverge({
-      models: this.models,
-      centralServer: this.centralServer,
-    }));
   }
 
   // spec: FBOOT#when-a-facility-bootstraps

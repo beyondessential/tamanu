@@ -108,10 +108,7 @@ export class CentralServerConnection extends TamanuApi {
 
   async loginData() {
     if (!this.hasToken() || !this.#loginData) {
-      // A login of our own, rather than one a request makes for itself inside fetch(), so it
-      // needs the waking wrapper here: a sync that logs in before it asks central anything would
-      // otherwise fail on the 503 a waking central answers with.
-      await this.whileServerWakes('login', () => this.connect());
+      await this.connect();
     }
 
     return this.#loginData;

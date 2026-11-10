@@ -30,7 +30,8 @@ Applies to the check a facility server or a mobile device makes before opening a
 ## Facility servers
 
 - A scheduled sync, including the one at start-up, checks first and opens a session only when the answer is that there are changes to pull.
-- A scheduled sync opens a session without checking when the facility has local changes to push, has not yet obtained the [settings PSK](../administration/settings/secret-encryption.md), or still syncs as a user other than its dedicated sync user.
+- A scheduled sync opens a session without checking when the facility has local changes to push.
+- A sync that the check answers with nothing to pull still does the provisioning a facility does after a session: swapping to its dedicated sync user, and obtaining the [settings PSK](../administration/settings/secret-encryption.md).
 - A sync that a user asks for, a sync triggered by a patient being marked for sync, and the sync subcommand open a session without checking.
 - A facility server that cannot reach central for the check, or cannot read its answer, treats it as a failed sync, as it would a failed session.
 - A scheduled sync that the check answers with nothing to pull is a successful sync: the facility's last successful sync time moves, and its pull cursor does not.
@@ -45,6 +46,6 @@ Applies to the check a facility server or a mobile device makes before opening a
 
 ## While central wakes
 
-- A sync client whose check or session start gets `503 Service Unavailable` with a `Retry-After` header, as a [waking central](../platform/supervisor/sleep-and-wake.md#waking) answers, waits for that long and tries again within the same sync, for as long as central keeps answering that it is waking. A login the client makes for itself during the check or session start waits in the same way.
+- A sync client whose check or session start gets `503 Service Unavailable` with a `Retry-After` header, as a [waking central](../platform/supervisor/sleep-and-wake.md#waking) answers, waits for that long and tries again within the same sync, for as long as central keeps answering that it is waking.
 - The `Retry-After` header is what marks central as waking. A `503` without one is an ordinary failure, so an overloaded central, or an address with nothing behind it, fails the sync instead of holding it for the whole waiting time.
 - Waiting for a waking central is not a failed sync.

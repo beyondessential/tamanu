@@ -6,7 +6,6 @@ import {
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
   FACT_SETTINGS_PSK,
-  FACT_SYNC_EMAIL,
 } from '@tamanu/constants/facts';
 import { SYNC_FACILITY_RUN_STATUSES, USER_KINDS } from '@tamanu/constants';
 import { fakeReferenceData } from '@tamanu/fake-data/fake';
@@ -406,7 +405,6 @@ describe('FacilitySyncManager', () => {
         centralServer: {
           streaming: () => false,
           user: { kind: USER_KINDS.SYNC, email: SYNC_EMAIL },
-          loginData: vi.fn(async () => ({})),
           checkChangesPending: vi.fn(async () => false),
           startSyncSession: vi.fn(async () => ({ sessionId: TEST_SESSION_ID, startedAtTick: 1 })),
           endSyncSession: vi.fn(),
@@ -551,20 +549,6 @@ describe('FacilitySyncManager', () => {
         }
       });
 
-      it('when the facility has not yet obtained the settings PSK', async () => {
-        pskSpy.mockResolvedValue(null);
-
-        await expectSessionWithoutCheck(makeSyncManager(), scheduled);
-      });
-
-      it('when the facility still syncs as a user other than its sync user', async () => {
-        const syncManager = makeSyncManager({
-          user: { kind: USER_KINDS.USER, email: 'someone@example.com' },
-        });
-
-        await expectSessionWithoutCheck(syncManager, scheduled);
-      });
-
       it.each([
         ['a user asks for the sync', { type: 'userRequested', urgent: true }],
         [
@@ -578,21 +562,14 @@ describe('FacilitySyncManager', () => {
       });
     });
 
-    it('checks when the sync user has already been swapped for the dedicated one', async () => {
-      // central reports the legacy account, but the facts already record a different one: the
-      // swap happened and this process is only behind, so there is nothing left to converge
-      await models.LocalSystemFact.set(FACT_SYNC_EMAIL, SYNC_EMAIL);
-      const syncManager = makeSyncManager({
-        user: { kind: USER_KINDS.USER, email: 'legacy@example.com' },
-      });
+    it('still pulls the settings PSK when there is nothing to pull', async () => {
+      pskSpy.mockResolvedValue(null);
+      const syncManager = makeSyncManager();
 
-      try {
-        await syncManager.triggerSync(scheduled);
-      } finally {
-        await models.LocalSystemFact.set(FACT_SYNC_EMAIL, null);
-      }
+      await syncManager.triggerSync(scheduled);
 
-      expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledTimes(1);
+      expect(syncManager.centralServer.startSyncSession).not.toHaveBeenCalled();
+      expect(syncManager.centralServer.fetch).toHaveBeenCalledWith('admin/settingsPsk');
     });
   });
 

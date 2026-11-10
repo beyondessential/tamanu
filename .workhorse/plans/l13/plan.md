@@ -82,7 +82,7 @@ Central:
 Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
 - [x] Only a sync whose trigger type is `scheduled` (the schedule, including start-up) checks; the existing `this.reason` carries it
 - [x] Export a `hasUnpushedChanges(models)` helper from `packages/facility-server/app/sync/` (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`); the facility supervisor calls it at sleep in phase 5
-- [x] For scheduled syncs: skip the check when `hasUnpushedChanges`, when the settings PSK is missing, or when `convergeSyncUser` still has work; otherwise call the check and stop on "nothing"
+- [x] For scheduled syncs: skip the check when `hasUnpushedChanges`; otherwise call the check and stop on "nothing", still running the post-session provisioning (sync user swap, settings PSK)
 - [x] `CentralServerConnection`: add the check call; on `503` with `Retry-After`, wait and retry within the attempt for the check and for session start
 - [x] Run history: a run the check answers with nothing to pull is recorded as succeeded with no session (dbt model docs); it moves the last successful sync time but not the pull cursor
 - [x] Tests: each skip rule, the up-to-date outcome, the retry on `503`
