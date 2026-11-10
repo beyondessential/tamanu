@@ -8,6 +8,7 @@ import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text, TextWithoutContext } from '../pdf/Text';
 import { prepareDietSummary } from './prepareDietSummary';
+import { GLOBAL_PDF_FONT, estimateWardPresence } from './estimateWardPresence';
 
 const borderStyle = '1 solid black';
 
@@ -18,15 +19,6 @@ const PATIENT_COLUMNS_WIDTH = NAME_WIDTH + NHN_WIDTH + BED_WIDTH;
 const CONTENT_WIDTH = 742;
 const MAX_DIET_COLUMN_WIDTH = 34;
 const HEADER_HEIGHT = 72;
-
-// Enough room for a ward's heading, its column headers, its Sub total and its first patient row,
-// so a ward only starts on a page that can show something of its table. The row height is the
-// tallest a row is measured at — a name long enough to wrap — rather than the plain 19pt, because
-// an estimate that is too small strands a ward's heading with no patient under it. Being generous
-// only moves a ward to the next page; being mean reproduces the bug.
-const WARD_HEADING_HEIGHT = 15;
-const ROW_HEIGHT = 36;
-const MIN_WARD_PRESENCE = WARD_HEADING_HEIGHT + HEADER_HEIGHT + 2 + 2 * ROW_HEIGHT;
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -280,7 +272,7 @@ const WardHeading = ({ wardName }) => {
 
 // spec: DIETSUM#layout
 const WardSection = ({ area, wardName, dietColumns, columnWidth }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, pdfFont } = useLanguageContext();
 
   return (
     <>
@@ -288,7 +280,10 @@ const WardSection = ({ area, wardName, dietColumns, columnWidth }) => {
           would be stranded at the foot of a page whose remaining space the Sub total row can't
           use. This spacer is an ordinary node, so react-pdf does honour its minPresenceAhead and
           carries the whole ward over instead. */}
-      <View minPresenceAhead={MIN_WARD_PRESENCE} style={{ height: 14 }} />
+      <View
+        minPresenceAhead={estimateWardPresence(area, pdfFont === GLOBAL_PDF_FONT)}
+        style={{ height: 14 }}
+      />
       <View style={styles.table}>
         <View fixed>
           <WardHeading wardName={wardName} />
