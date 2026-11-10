@@ -50,12 +50,26 @@ Beds, bays, chairs, theatres and the cath lab hold one patient. Left out: Mercy 
 
 **Survey defaults**: the `demo` template sets facility-1's default survey location and department to `WaitingArea` and `Emergency`, which won't exist. The facility server only logs that, but surveys and vitals recorded without an encounter need real codes, so they move to `MercyReception` and `GeneralSurgery`.
 
+## Seeded on the site
+
+Added through the API on 10 November 2026, after the clean deploy was tested.
+
+- **Areas, locations and departments**: the Location Group, Locations and Departments sheets of the workbook, imported on central. The Facilities sheet was left out, so facility-1 is still named Test Facility 1.
+- **Roles**: Doctor (`doctor`) and Nurse (`nurse`), both with the practitioner permission set from `packages/shared/src/roles.js`, imported as Roles and Permissions sheets.
+- **Users**: 10 clinicians who sign in with the password `test`, at `firstname.lastname@demo.tamanu.io`. Doctors are Hannah Mitchell, Rangi Parata, Priya Raman, James Sutherland and Mele Taufa. Nurses are Sophie McKenzie, Aroha Tipene, Liam O'Connor, Grace Chen and Tom Henderson.
+- **Patients**: 100 test patients registered at facility-1, with Dunedin and wider Otago addresses and a mix of NZ European, Māori, Pacific and Asian names. Most are adults, a third are over 65. There are no phone numbers, because the API drops a leading zero. Roy Antonini was already there.
+- **Vitals**: the Vitals program and its one survey (28 questions), copied from the presentation site's `program-patientvitals` export. It refers to no reference data.
+- The seeding scripts live outside the repository, in `/tmp/b14/seed/`. The patient script is seeded, so a re-run finds the same 100 patients and skips them.
+
 ## Steps
 
 - [x] Work out how to deploy without standard reference data (`%config=demo`)
 - [x] Build the Mercy Hospital reference data workbook from the website
 - [x] Tick the deploy box in the PR body, with the line above (checked after deploy: facility-1 only, no reference data, no programs)
-- [ ] Once the site is up, import the workbook on central (admin panel, Reference data, Import)
+- [x] Import the areas, locations and departments on central
+- [ ] Import the Facilities sheet, renaming facility-1 to Mercy Hospital
 - [ ] Set facility-1's `survey.defaultCodes` to `MercyReception` and `GeneralSurgery` (admin panel, Settings, facility scope)
-- [ ] Check after a sync: facility-1 shows Mercy Hospital, its 12 areas, 110 locations and 18 departments, and no other reference data
+- [x] Check after a sync: facility-1 has its 12 areas, 110 locations and 18 departments, and no other reference data
+- [x] Add Doctor and Nurse roles, 10 clinician users and 100 test patients
+- [x] Copy the Vitals program from the presentation site
 - [ ] Keep the PR open, with a push or comment at least once a week
