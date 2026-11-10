@@ -7,7 +7,7 @@ import { outgoingChangesQuery } from './snapshotOutgoingChanges';
  * Whether the facility has any local change that the next sync would push: a row in a model that
  * pushes to central whose `updated_at_sync_tick` is above the last successful push cursor. It
  * selects with the same query as `snapshotOutgoingChanges`, but stops at the first hit rather than
- * reading them all. Each model is one probe of its sync tick index, so they run one at a time.
+ * reading them all.
  *
  * spec: SYNCHK#facility-servers
  */
