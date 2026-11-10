@@ -13,7 +13,7 @@ export const makeSimpleTextFilterFactory = params => (paramKey, sqlField) => {
   return {
     sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
     transform: p => ({
-      [paramKey]: `${p[paramKey]}%`,
+      [paramKey]: `${escapePatternWildcard(p[paramKey])}%`,
     }),
   };
 };
@@ -24,7 +24,7 @@ export const makeSubstringTextFilterFactory = params => (paramKey, sqlField) => 
   return {
     sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
     transform: p => ({
-      [paramKey]: `%${p[paramKey]}%`,
+      [paramKey]: `%${escapePatternWildcard(p[paramKey])}%`,
     }),
   };
 };
