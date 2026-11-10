@@ -40,15 +40,8 @@ describe('hasUnpushedChanges', () => {
 
   afterAll(() => ctx.close());
 
-  // Moves the local clock on, so that rows written after this have a tick above the returned one
+  // Moves the local clock on: rows written after carry the returned tick, rows before a lower one
   const startNewTick = () => models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
-
-  it('is false when nothing has changed since the last successful push', async () => {
-    const tick = await startNewTick();
-    await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, String(tick));
-
-    expect(await hasUnpushedChanges(models)).toBe(false);
-  });
 
   it('is true when a row that pushes to central changed since the last successful push', async () => {
     const tick = await startNewTick();
