@@ -73,6 +73,36 @@ describe('FHIR integration authentication', () => {
       expect(decodeJwt(result.body.token).deviceId).toBeUndefined();
     });
 
+    describe('when the user can only access one facility on this server', () => {
+      beforeEach(async () => {
+        await ctx.models.Setting.set('auth.restrictUsersToFacilities', true);
+      });
+      afterEach(async () => {
+        await ctx.models.Setting.set('auth.restrictUsersToFacilities', false);
+      });
+
+      it('puts that facility in the token', async () => {
+        const result = await loginWithoutDevice(integrationUser);
+        expect(result).toHaveSucceeded();
+        expect(decodeJwt(result.body.token).facilityId).toBe(getServerFacilityIds()[0]);
+      });
+    });
+
+    it('leaves the facility out of the token when the user can access several here', async () => {
+      const result = await loginWithoutDevice(integrationUser);
+      expect(result).toHaveSucceeded();
+      expect(result.body.availableFacilities.length).toBeGreaterThan(1);
+      expect(decodeJwt(result.body.token).facilityId).toBeUndefined();
+    });
+
+    it('leaves the facility out of the token when a deviceId is given', async () => {
+      const result = await baseApp
+        .post('/api/login')
+        .send({ email: integrationUser.email, password: PASSWORD, deviceId: 'test-device-id' });
+      expect(result).toHaveSucceeded();
+      expect(decodeJwt(result.body.token).facilityId).toBeUndefined();
+    });
+
     it('is rejected for a user without FHIR integration permissions', async () => {
       const result = await loginWithoutDevice(clinicalUser);
       expect(result).toHaveStatus(400);
@@ -149,6 +179,13 @@ describe('FHIR integration authentication', () => {
         expect(result.body).toHaveProperty('resourceType', 'Bundle');
       },
     );
+
+    it('can page FHIR results beyond the built-in limit, up to the max count setting', async () => {
+      const result = await baseApp
+        .get('/v1/integration/fhir/mat/Patient?_count=1000')
+        .set('authorization', `Bearer ${deviceLessToken}`);
+      expect(result).toHaveSucceeded();
+    });
 
     it('are rejected by non-FHIR routes', async () => {
       const result = await baseApp
