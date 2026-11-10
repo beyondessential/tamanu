@@ -18,6 +18,15 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): Omit<SyncRe
   };
 };
 
+// The rows a push sends: every row of a model changed since the last successful push, deleted ones
+// included. Shared by `snapshotOutgoingChanges` and `hasOutgoingChanges`, which must select the
+// same rows.
+const outgoingChangesQuery = (since: number) => ({
+  where: { updatedAtSyncTick: MoreThan(since) },
+  withDeleted: true,
+  loadEagerRelations: false,
+});
+
 /**
  * Get all the records that have updatedAtSyncTick > the last successful sync index,
  * meaning that these records have been updated since the last successful sync
@@ -37,11 +46,7 @@ export const snapshotOutgoingChanges = async (
   return Database.client.transaction(async () => {
     const outgoingChanges = [];
     for (const model of Object.values(outgoingModels)) {
-      const changesForModel = await model.find({
-        where: { updatedAtSyncTick: MoreThan(since) },
-        withDeleted: true,
-        loadEagerRelations: false,
-      });
+      const changesForModel = await model.find(outgoingChangesQuery(since));
       const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
       const hasSanitizeMethod = 'sanitizeRecordDataForPush' in model;
       const sanitizedSyncRecords = hasSanitizeMethod
@@ -56,7 +61,7 @@ export const snapshotOutgoingChanges = async (
 
 /**
  * Whether any record has been updated since the last successful push, without building the
- * snapshot that a push needs. It selects the same rows as `snapshotOutgoingChanges`, but reads
+ * snapshot that a push needs. It selects with the same query as `snapshotOutgoingChanges`, but reads
  * only each row's id and stops at the first one it finds.
  */
 export const hasOutgoingChanges = async (
@@ -65,10 +70,8 @@ export const hasOutgoingChanges = async (
 ): Promise<boolean> => {
   for (const model of Object.values(outgoingModels)) {
     const changedRecord = await model.findOne({
-      where: { updatedAtSyncTick: MoreThan(since) },
+      ...outgoingChangesQuery(since),
       select: { id: true },
-      withDeleted: true,
-      loadEagerRelations: false,
     });
     if (changedRecord) return true;
   }
