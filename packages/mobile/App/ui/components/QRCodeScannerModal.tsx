@@ -6,6 +6,7 @@ import {
   useBarcodeScannerOutput,
 } from 'react-native-vision-camera-barcode-scanner';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { useOnForeground } from '~/ui/hooks/useOnForeground';
 import { Button } from './Button';
 import { CrossIcon } from './Icons';
 import { TranslatedText } from './Translations/TranslatedText';
@@ -55,6 +56,7 @@ const styles = StyleSheet.create({
 
 const ScannerCamera = ({ onScan }: { onScan: (rawValue: string) => void }): ReactElement => {
   const device = useCameraDevice('back');
+  const isForeground = useOnForeground();
   const hasScannedRef = useRef(false);
   const output = useBarcodeScannerOutput({
     barcodeFormats: QR_CODE_FORMATS,
@@ -70,7 +72,12 @@ const ScannerCamera = ({ onScan }: { onScan: (rawValue: string) => void }): Reac
   return (
     <View style={styles.scanner}>
       {device && (
-        <Camera style={StyleSheet.absoluteFill} isActive device={device} outputs={[output]} />
+        <Camera
+          style={StyleSheet.absoluteFill}
+          isActive={isForeground}
+          device={device}
+          outputs={[output]}
+        />
       )}
       <CenterView flex={1}>
         <View style={styles.reticle}>
