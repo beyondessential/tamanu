@@ -3,7 +3,8 @@ const MAX_SCANNED_LENGTH = 50;
 const compilePattern = (pattern: string): RegExp | null => {
   try {
     return new RegExp(pattern);
-  } catch {
+  } catch (error) {
+    console.warn('Invalid fields.displayId.pattern setting', error);
     return null;
   }
 };

@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     left: 12,
     right: 12,
     zIndex: 10,
-    backgroundColor: '#fff0ee',
+    backgroundColor: theme.colors.ALERT_LIGHT,
     borderRadius: 3,
     paddingVertical: 11,
     paddingLeft: 16,

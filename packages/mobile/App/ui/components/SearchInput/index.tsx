@@ -78,6 +78,7 @@ export const SearchInput: FC<SearchInputProps> = ({
         {!focus && (
           <StyledText
             pointerEvents="none"
+            importantForAccessibility="no"
             numberOfLines={1}
             ellipsizeMode="tail"
             fontSize={FONT_SIZE}

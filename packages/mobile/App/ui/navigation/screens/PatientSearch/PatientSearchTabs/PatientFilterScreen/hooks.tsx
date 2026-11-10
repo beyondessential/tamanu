@@ -1,4 +1,4 @@
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
 export const useFilterFields = () => {
   const sex = useField<string>('sex');
@@ -13,13 +13,13 @@ export const useFilterFields = () => {
 };
 
 export const useClearFilterFields = () => {
-  const [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId] = useFilterFields();
+  const { setFieldValue } = useFormikContext();
   return () => {
-    sex[2].setValue('');
-    dateOfBirth[2].setValue(null);
-    firstName[2].setValue('');
-    lastName[2].setValue('');
-    villageId[2].setValue(null);
-    programRegistryId[2].setValue(null);
+    setFieldValue('sex', '');
+    setFieldValue('dateOfBirth', null);
+    setFieldValue('firstName', '');
+    setFieldValue('lastName', '');
+    setFieldValue('villageId', null);
+    setFieldValue('programRegistryId', null);
   };
 };

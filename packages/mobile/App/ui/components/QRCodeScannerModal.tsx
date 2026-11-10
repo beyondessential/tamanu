@@ -136,7 +136,7 @@ export const QRCodeScannerModal = ({ onClose, onScan }: QRCodeScannerModalProps)
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <StyledSafeAreaView flex={1} background="#111111">
+      <StyledSafeAreaView flex={1} background={theme.colors.BLACK}>
         <RowView justifyContent="space-between" alignItems="center" padding={16}>
           <StyledText fontSize={16} fontWeight={500} color={theme.colors.WHITE}>
             <TranslatedText stringId="modal.qrScanner.title" fallback="Scan QR code" />
