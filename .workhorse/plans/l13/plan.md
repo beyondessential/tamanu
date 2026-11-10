@@ -77,7 +77,6 @@ Central:
 - [x] `getHighestRealChangeTick` in `packages/central-server/app/sync/`: max settled `updated_at_sync_tick` from `sync_lookup` (excluding the pending-update flag), served by the existing index; confirm with `EXPLAIN`
 - [x] Route `GET /api/sync/pending?since=<tick>` in `buildSyncRoutes.js`, answering `{ changesToPull }`, taking the pull cursor, requiring a device with the sync client scope, answering pull or nothing; always pull when `config.sync.lookupTable.enabled` is false
 - The supervisor's own routes (lookup refresh, busy, next due) are not in this phase: they and the build lock touch no code-owned path and land in phase 5
-- [x] Shape the check's handler and the tick read so the supervisor can mount them unchanged against its copy (handler takes models and the tick source from context, not module state)
 - [x] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull
 
 Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
@@ -145,7 +144,7 @@ Central's supervisor-only routes go first. They touch nothing under the sync cod
 - [ ] CI step (in `ci.yml` and the release build): migrate an empty database, prune to the allowlist (`logs` schema structure only), `pg_dump -s --no-owner --no-privileges` with the oldest supported major's `pg_dump`, shipped in the supervisor package
 - [ ] Copy at sleep: load schema, then each table in its own `COPY` with triggers off; checksums of the seven read-only tables; then install the change-tracking trigger on the three written tables
 - [ ] Central context against the copy: `initDatabase` on the copy, settings reader, auth secret from config; mount central's `login` and `refresh` handlers from `packages/central-server/app/auth/` on the supervisor's Express app unchanged
-- [ ] Changes-pending check from the copy: mount phase 2's handler with the copy's models and the held tick; last-seen goes into the copy
+- [ ] Changes-pending check from the held tick: the supervisor's own route, with the same rule as central's handler (a device that never pulled, or a tick above its cursor, has changes)
 - [ ] Logins from unknown devices and logins with no device get the waking response and start a wake
 - [ ] CI drift guard: run `__tests__/auth/login.test.js`, `refresh.test.js`, `jwt-validation.test.js` and the check's tests against a database built from the allowlist schema
 - [ ] Measure the memory floor and copy time again with `fsync` on
