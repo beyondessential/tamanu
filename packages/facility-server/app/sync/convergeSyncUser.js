@@ -30,6 +30,10 @@ export async function hasSyncUserToConverge({ models, centralServer }) {
 // central mints, so the deployment can tell a facility server apart from a person:
 // central serves the settings PSK to kind:sync only. Runs on sync rather than on
 // upgrade so a facility that was offline during its upgrade still converges.
+//
+// Added in v2.62. Retire this, and `hasSyncUserToConverge` with it, once no deployment has a
+// facility server older than that or one that has not synced since upgrading past it: until then a
+// facility skipping the swap would never be served the settings PSK.
 export async function convergeSyncUser({ sequelize, models, centralServer }) {
   if (!(await hasSyncUserToConverge({ models, centralServer }))) return;
 
