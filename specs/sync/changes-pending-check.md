@@ -46,6 +46,7 @@ Applies to the check a facility server or a mobile device makes before opening a
 
 ## While central wakes
 
-- A sync client whose check or session start gets `503 Service Unavailable` with a `Retry-After` header, as a [waking central](../platform/supervisor/sleep-and-wake.md#waking) answers, waits for that long and tries again within the same sync, for as long as central keeps answering that it is waking.
-- The `Retry-After` header is what marks central as waking. A `503` without one is an ordinary failure, so an overloaded central, or an address with nothing behind it, fails the sync instead of holding it for the whole waiting time.
-- Waiting for a waking central is not a failed sync.
+- A sync client whose session start gets `503 Service Unavailable` with a `Retry-After` header, as a [waking central](../platform/supervisor/sleep-and-wake.md#waking) answers, waits in line as a queued sync does, and tries again at its next sync.
+- A check answered that way is left to the session start.
+- The `Retry-After` header is what marks central as waking. A `503` without one is an ordinary failure, so an overloaded central, or an address with nothing behind it, fails the sync.
+- A sync that meets a waking central is not a failed sync.

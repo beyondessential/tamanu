@@ -8,8 +8,6 @@ export type {
   TelemetrySink,
 } from './TamanuApi';
 export { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
-export { retryWhileWaking, wakeRetryAfterSeconds } from './retryWhileWaking';
-export type { WakeRetryOptions } from './retryWhileWaking';
 export type { RetryBackoffOptions } from './fetchWithRetryBackoff';
 export {
   buildTokenStorageKeyMaterial,

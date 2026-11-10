@@ -32,20 +32,13 @@ interface RefreshResponse {
 
 const API_PREFIX = 'api';
 
-/** How long to wait when a waking central gives no usable `Retry-After` */
-const DEFAULT_WAKE_RETRY_SECONDS = 5;
-/** Longest single wait, so a large `Retry-After` can't park the sync for long between attempts */
-const MAX_WAKE_RETRY_SECONDS = 30;
-/** Most time one request spends waiting for central to wake, after which the sync fails */
-const MAX_WAKE_WAIT_MS = 10 * 60 * 1000;
-
 /**
  * Central answered `503 Service Unavailable` with a `Retry-After` header, as it does while it is
- * waking from sleep. Not a failure of the sync: the request is retried after `retryAfterSeconds`.
+ * waking from sleep. The sync waits in line as a queued one does, and tries again next time.
  * spec: SYNCHK#while-central-wakes
  */
 export class CentralWakingError extends Error {
-  constructor(public retryAfterSeconds: number) {
+  constructor() {
     super('Central server is waking up and not ready yet');
     this.name = 'CentralWakingError';
   }
@@ -57,25 +50,12 @@ const readRetryAfterHeader = (headers: AxiosError['response']['headers']): unkno
   return typeof headers.get === 'function' ? headers.get('retry-after') : headers['retry-after'];
 };
 
-/** null when the header is absent or blank, which is an ordinary 503 rather than a waking central */
-const parseRetryAfterSeconds = (header: unknown): number | null => {
-  const trimmed = typeof header === 'string' ? header.trim() : header;
-  if (trimmed === undefined || trimmed === null || trimmed === '') return null;
-
-  const seconds = Number(trimmed);
-  // present but unreadable still means waking, so wait the default rather than failing
-  if (!Number.isFinite(seconds) || seconds < 0) return DEFAULT_WAKE_RETRY_SECONDS;
-  return Math.min(Math.max(seconds, 1), MAX_WAKE_RETRY_SECONDS);
-};
-
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
-  if (err.response?.status === 503) {
-    // Only a usable Retry-After marks central as waking. A bare 503, from an overloaded central
-    // or a proxy with nothing behind it, falls through and fails the sync as any error would.
-    const retryAfterSeconds = parseRetryAfterSeconds(readRetryAfterHeader(err.response.headers));
-    if (retryAfterSeconds !== null) {
-      return new CentralWakingError(retryAfterSeconds);
-    }
+  // Only a Retry-After marks central as waking. A bare 503, from an overloaded central or a proxy
+  // with nothing behind it, falls through and fails the sync as any error would.
+  const retryAfter = readRetryAfterHeader(err.response?.headers);
+  if (err.response?.status === 503 && typeof retryAfter === 'string' && retryAfter.trim()) {
+    return new CentralWakingError();
   }
 
   const problemJson = err.response?.data || {};
@@ -248,36 +228,18 @@ export class CentralServerConnection {
   }
 
   /**
-   * Run a request, and run it again each time central answers that it is waking, for as long as
-   * it does so. Gives up with the last `CentralWakingError` once the waits add up to
-   * `MAX_WAKE_WAIT_MS`, so a wake that never finishes fails the sync rather than hanging it.
-   */
-  async retryWhileCentralWakes<T>(request: () => Promise<T>): Promise<T> {
-    let waitedMs = 0;
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      try {
-        return await request();
-      } catch (error) {
-        if (!(error instanceof CentralWakingError)) throw error;
-        const waitMs = error.retryAfterSeconds * 1000;
-        if (waitedMs + waitMs > MAX_WAKE_WAIT_MS) throw error;
-        console.log(`Central is waking, trying again in ${error.retryAfterSeconds}s`);
-        await sleepAsync(waitMs);
-        waitedMs += waitMs;
-      }
-    }
-  }
-
-  /**
    * Ask central whether anything that syncs has changed since the device's last pull.
    * @param since the tick the last successful pull reached; leave out if the device never pulled
    * spec: SYNCHK#the-check
    */
   async checkForChangesToPull(since?: number): Promise<boolean> {
     const query = since === undefined ? {} : { since };
-    const response = await this.retryWhileCentralWakes(() =>
-      this.get<{ changesToPull?: boolean }>('sync/pending', query),
+    const response = await this.get<{ changesToPull?: boolean }>('sync/pending', query).catch(
+      error => {
+        // a waking central cannot say, so leave it to the session start, which waits in line
+        if (!(error instanceof CentralWakingError)) throw error;
+        return { changesToPull: true };
+      },
     );
     if (typeof response?.changesToPull !== 'boolean') {
       throw new Error('central answered the changes-pending check without a changesToPull flag');
@@ -289,19 +251,21 @@ export class CentralServerConnection {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    const { sessionId, status } = (await this.retryWhileCentralWakes(() =>
-      this.post(
-        'sync',
-        {},
-        {
-          urgent,
-          lastSyncedTick,
-          facilityIds: [facilityId],
-          deviceId: this.deviceId,
-          isMobile: true,
-        },
-      ),
-    )) as { sessionId?: string; status?: string };
+    const { sessionId, status } = (await this.post(
+      'sync',
+      {},
+      {
+        urgent,
+        lastSyncedTick,
+        facilityIds: [facilityId],
+        deviceId: this.deviceId,
+        isMobile: true,
+      },
+    ).catch(error => {
+      // a waking central cannot start a session yet, so wait in line as a queued sync does
+      if (!(error instanceof CentralWakingError)) throw error;
+      return { status: 'centralWaking' };
+    })) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
       // we're waiting in a queue

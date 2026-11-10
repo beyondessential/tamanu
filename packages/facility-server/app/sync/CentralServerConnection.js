@@ -10,6 +10,12 @@ import { version } from '../serverInfo';
 import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
 
+// spec: SYNCHK#while-central-wakes
+// A waking central answers 503 with a Retry-After. A 503 without one, from an overloaded central or
+// a proxy with nothing behind it, is an ordinary failure.
+const isCentralWaking = error =>
+  error?.response?.status === 503 && Boolean(error.response.headers?.get?.('retry-after')?.trim());
+
 export class CentralServerConnection extends TamanuApi {
   #loginData;
 
@@ -32,8 +38,6 @@ export class CentralServerConnection extends TamanuApi {
         waitForAuth: true,
         backoff: true,
       },
-      // spec: SYNCHK#while-central-wakes
-      wakeRetry: config.sync.centralWake,
     });
 
     if (process.env.TAMANU_DISABLE_FAITH_FETCH !== 'true') {
@@ -127,17 +131,16 @@ export class CentralServerConnection extends TamanuApi {
     return records;
   }
 
-  // fetch() consumes some of its options, so each attempt gets its own copy
-  async #fetchWhileCentralWakes(endpoint, options) {
-    return this.whileServerWakes(endpoint, () => this.fetch(endpoint, { ...options }));
-  }
-
   // spec: SYNCHK#the-check
   // Asks central whether anything that syncs has changed since the tick our last pull reached.
   // Leave `since` undefined when we have never pulled.
   async checkChangesPending(since) {
     const query = since === undefined ? {} : { since };
-    const answer = await this.#fetchWhileCentralWakes('sync/pending', { query });
+    const answer = await this.fetch('sync/pending', { query }).catch(error => {
+      // a waking central cannot say, so leave it to the session start, which waits in line
+      if (!isCentralWaking(error)) throw error;
+      return { changesToPull: true };
+    });
     if (typeof answer?.changesToPull !== 'boolean') {
       throw new Error('central answered the changes-pending check without a changesToPull flag');
     }
@@ -146,7 +149,7 @@ export class CentralServerConnection extends TamanuApi {
 
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityIds = getServerFacilityIds();
-    const { sessionId, status } = await this.#fetchWhileCentralWakes('sync', {
+    const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
         facilityIds,
@@ -154,6 +157,10 @@ export class CentralServerConnection extends TamanuApi {
         urgent,
         lastSyncedTick,
       },
+    }).catch(error => {
+      // a waking central cannot start a session yet, so wait in line as a queued sync does
+      if (!isCentralWaking(error)) throw error;
+      return { status: 'centralWaking' };
     });
 
     if (!sessionId) {

@@ -83,19 +83,19 @@ Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
 - [x] Only a sync whose trigger type is `scheduled` (the schedule, including start-up) checks; the existing `this.reason` carries it
 - [x] Export a `hasUnpushedChanges(models)` helper from `packages/facility-server/app/sync/` (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`); the facility supervisor calls it at sleep in phase 5
 - [x] For scheduled syncs: skip the check when `hasUnpushedChanges`; otherwise call the check and stop on "nothing", still running the post-session provisioning (sync user swap, settings PSK)
-- [x] `CentralServerConnection`: add the check call; on `503` with `Retry-After`, wait and retry within the attempt for the check and for session start
+- [x] `CentralServerConnection`: add the check call; a `503` with `Retry-After` at session start is queued, and at the check is left to the session start
 - [x] Run history: a run the check answers with nothing to pull is recorded as succeeded with no session (dbt model docs); it moves the last successful sync time but not the pull cursor
-- [x] Tests: each skip rule, the up-to-date outcome, the retry on `503`
+- [x] Tests: the skip rule, the up-to-date outcome, a waking central
 
 Mobile (`packages/mobile/App/services/sync/`):
 - [x] A `scheduled` flag on the existing `triggerSync({ urgent })` options, passed only by `BackendManager`'s periodic sync
 - [x] For scheduled syncs: skip the check when there are outgoing changes or `tablesForFullResync` is set; otherwise check and stop on "nothing", updating the displayed last-synced time only
-- [x] `CentralServerConnection.ts`: the check call, and `503` with `Retry-After` handling for the check and session start
+- [x] `CentralServerConnection.ts`: the check call, and the same `503` with `Retry-After` handling as the facility
 - [x] Tests in `MobileSyncManager.test.ts`
 
 Decisions made while building:
-- A 503 counts as central waking only when it carries a `Retry-After`; one without is an ordinary error, so an outage fails rather than parking the sync. Facility waits up to 60 s per retry and 30 minutes in all (`sync.centralWake` config); mobile waits 1 to 30 s per retry and 10 minutes in all.
-- The waiting itself is `TamanuApi.whileServerWakes` in `@tamanu/api-client`, opt-in per connection, so the facility, web and the supervisor's own clients share one implementation. Mobile keeps its own copy: it has its own axios client and does not depend on that package (card W13).
+- A 503 counts as central waking only when it carries a `Retry-After`; one without is an ordinary error, so an outage fails rather than parking the sync.
+- A sync that meets a waking central takes the existing queued path and tries again at its next scheduled sync (a minute on a facility, five on mobile), rather than waiting within the attempt. Nothing answers that way until the supervisor exists, so waiting within an attempt (`TamanuApi.whileServerWakes`, for the supervisor's own clients) lands with the supervisor in phase 5, where `@tamanu/api-client` needs no sync owners.
 - No fallback for a central without the route: central's version check keeps facilities and devices on its own minor version. An answer without the flag fails the sync, so a fault shows rather than being covered by a session.
 - The tick read is a backward index-only scan of the existing `updated_at_sync_tick` index; no migration.
 - A run with nothing to pull is recorded as `succeeded`, not a status of its own, so alerting that reads run history needs no change. It moves the facility's last completed time but not the pull cursor.
@@ -133,6 +133,7 @@ Central's supervisor-only routes go first. They touch nothing under the sync cod
 - [ ] Migration state check before sleeping (compare `SequelizeMeta` to the release's migrations)
 - [ ] Wake sequence: database, central hand-back, other parts, forward per part as each is ready; retry a stalled wake
 - [ ] Waking responses: `503` with `Retry-After` for API paths, the waking page (polls supervisor status, then reloads), `503` for websocket upgrades
+- [ ] `TamanuApi.whileServerWakes` in `@tamanu/api-client`: opt-in waiting within a request on a `503` with `Retry-After` (capped per wait and in total), for the supervisor's own clients. A first version is in this branch's history up to commit `2801922c59` (`retryWhileWaking.ts`, `TamanuApi.whileServerWakes`); sync clients keep the queued path from phase 2
 - [ ] Between-states serving on central (forward to api when up; held tick; waking response for logins while the copy is unavailable)
 - [ ] Graceful stop for the tasks process: finish the running task on `SIGTERM` (check `startTasks.js` and `ScheduledTask`)
 - [ ] Tests with the fake actuator: each sequence, cancellation at each step, restart at each step
