@@ -136,12 +136,11 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   // spec: SYNCHK#the-check
-  // Asks central whether anything that syncs has changed since the tick our last pull reached.
-  // Leave `since` undefined when we have never pulled.
+  // since: the tick our last pull reached, or undefined if we have never pulled, which the query
+  // string leaves out
   async checkChangesPending(since) {
-    const query = since === undefined ? {} : { since };
     // a waking central cannot say, so leave it to the session start, which waits in line
-    const answer = await this.fetch('sync/pending', { query }).catch(
+    const answer = await this.fetch('sync/pending', { query: { since } }).catch(
       whenCentralWakes({ changesToPull: true }),
     );
     if (typeof answer?.changesToPull !== 'boolean') {
