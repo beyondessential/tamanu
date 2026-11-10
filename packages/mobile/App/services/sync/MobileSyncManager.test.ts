@@ -275,12 +275,31 @@ describe('MobileSyncManager', () => {
       jest.restoreAllMocks();
     });
 
-    it('checks with the pull cursor, and opens no session when there is nothing to pull', async () => {
-      await mobileSyncManager.runSync(scheduled);
+    it('checks with the pull cursor, then ends the scheduled sync without a session when there is nothing to pull', async () => {
+      expect(mobileSyncManager.lastSuccessfulSyncTime).toBeNull();
+      const onSuccess = jest.fn();
+      const onError = jest.fn();
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, onSuccess);
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, onError);
+
+      await mobileSyncManager.triggerSync(scheduled);
 
       expect(checkSpy).toBeCalledWith(lastPullTick);
       expect(startSessionSpy).not.toBeCalled();
       expect(activateKeepAwake).not.toBeCalled();
+      // the displayed last synced time moves, but not the pull cursor
+      expect(mobileSyncManager.lastSuccessfulSyncTime).toBeInstanceOf(Date);
+      expect(updateFact).toBeCalledTimes(1);
+      expect(updateFact).toBeCalledWith(
+        { key: LAST_SUCCESSFUL_PULL },
+        { updatedAt: mobileSyncManager.lastSuccessfulSyncTime },
+      );
+      // neither the update above nor a pull writes the cursor's value
+      expect(setSyncTick).not.toBeCalled();
+      expect(mobileSyncManager.pullIncomingChanges).not.toBeCalled();
+      expect(onSuccess).toBeCalledTimes(1);
+      expect(onError).not.toBeCalled();
+      expect(mobileSyncManager.isSyncing).toBe(false);
     });
 
     it('opens a session when there are changes to pull', async () => {
@@ -300,17 +319,17 @@ describe('MobileSyncManager', () => {
       expect(checkSpy).toBeCalledWith(undefined);
     });
 
-    it('opens a session without checking when there are outgoing changes', async () => {
-      (hasOutgoingChanges as jest.Mock).mockResolvedValue(true);
-
-      await mobileSyncManager.runSync(scheduled);
-
-      expect(checkSpy).not.toBeCalled();
-      expect(startSessionSpy).toBeCalledTimes(1);
-    });
-
-    it('opens a session without checking when tables are waiting for a full resync', async () => {
-      findFact.mockResolvedValue({ key: 'tablesForFullResync', value: 'patients' });
+    it.each([
+      [
+        'there are outgoing changes',
+        () => (hasOutgoingChanges as jest.Mock).mockResolvedValue(true),
+      ],
+      [
+        'tables are waiting for a full resync',
+        () => findFact.mockResolvedValue({ key: 'tablesForFullResync', value: 'patients' }),
+      ],
+    ])('opens a session without checking when %s', async (_, arrange) => {
+      arrange();
 
       await mobileSyncManager.runSync(scheduled);
 
@@ -327,35 +346,6 @@ describe('MobileSyncManager', () => {
 
       expect(checkSpy).not.toBeCalled();
       expect(startSessionSpy).toBeCalledWith({ ...options, lastSyncedTick: lastPullTick });
-    });
-
-    it('moves the displayed last synced time when there is nothing to pull, but not the pull cursor', async () => {
-      expect(mobileSyncManager.lastSuccessfulSyncTime).toBeNull();
-
-      await mobileSyncManager.runSync(scheduled);
-
-      expect(mobileSyncManager.lastSuccessfulSyncTime).toBeInstanceOf(Date);
-      expect(updateFact).toBeCalledTimes(1);
-      expect(updateFact).toBeCalledWith(
-        { key: LAST_SUCCESSFUL_PULL },
-        { updatedAt: mobileSyncManager.lastSuccessfulSyncTime },
-      );
-      // neither the update above nor a pull writes the cursor's value
-      expect(setSyncTick).not.toBeCalled();
-      expect(mobileSyncManager.pullIncomingChanges).not.toBeCalled();
-    });
-
-    it('emits success for a sync with nothing to pull', async () => {
-      const onSuccess = jest.fn();
-      const onError = jest.fn();
-      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, onSuccess);
-      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, onError);
-
-      await mobileSyncManager.triggerSync(scheduled);
-
-      expect(onSuccess).toBeCalledTimes(1);
-      expect(onError).not.toBeCalled();
-      expect(mobileSyncManager.isSyncing).toBe(false);
     });
 
     it('fails the sync, without opening a session, when central cannot be reached for the check', async () => {
