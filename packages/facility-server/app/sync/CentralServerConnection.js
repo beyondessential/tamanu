@@ -11,10 +11,14 @@ import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
 
 // spec: SYNCHK#while-central-wakes
-// A waking central answers 503 with a Retry-After. A 503 without one, from an overloaded central or
-// a proxy with nothing behind it, is an ordinary failure.
-const isCentralWaking = error =>
-  error?.response?.status === 503 && Boolean(error.response.headers?.get?.('retry-after')?.trim());
+// Only a 503 with a Retry-After is a waking central; a bare 503 (overloaded central, empty proxy)
+// is an ordinary failure. Returns a catch handler answering `fallback` while central wakes.
+const whenCentralWakes = fallback => error => {
+  const waking =
+    error.response?.status === 503 && Boolean(error.response.headers.get('retry-after')?.trim());
+  if (!waking) throw error;
+  return fallback;
+};
 
 export class CentralServerConnection extends TamanuApi {
   #loginData;
@@ -136,11 +140,10 @@ export class CentralServerConnection extends TamanuApi {
   // Leave `since` undefined when we have never pulled.
   async checkChangesPending(since) {
     const query = since === undefined ? {} : { since };
-    const answer = await this.fetch('sync/pending', { query }).catch(error => {
-      // a waking central cannot say, so leave it to the session start, which waits in line
-      if (!isCentralWaking(error)) throw error;
-      return { changesToPull: true };
-    });
+    // a waking central cannot say, so leave it to the session start, which waits in line
+    const answer = await this.fetch('sync/pending', { query }).catch(
+      whenCentralWakes({ changesToPull: true }),
+    );
     if (typeof answer?.changesToPull !== 'boolean') {
       throw new Error('central answered the changes-pending check without a changesToPull flag');
     }
@@ -157,11 +160,9 @@ export class CentralServerConnection extends TamanuApi {
         urgent,
         lastSyncedTick,
       },
-    }).catch(error => {
+    })
       // a waking central cannot start a session yet, so wait in line as a queued sync does
-      if (!isCentralWaking(error)) throw error;
-      return { status: 'centralWaking' };
-    });
+      .catch(whenCentralWakes({ status: 'centralWaking' }));
 
     if (!sessionId) {
       // we're waiting in a queue
