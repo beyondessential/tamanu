@@ -254,8 +254,6 @@ describe('MobileSyncManager', () => {
     let updateFact: jest.Mock;
     let checkSpy: jest.SpyInstance;
     let startSessionSpy: jest.SpyInstance;
-    let endSessionSpy: jest.SpyInstance;
-
     beforeEach(() => {
       findFact = jest.fn().mockResolvedValue(null);
       updateFact = jest.fn();
@@ -270,15 +268,11 @@ describe('MobileSyncManager', () => {
         .mockResolvedValue({ sessionId: mockSessionId, startedAtTick: mockSyncTick });
       jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockResolvedValue(undefined);
       jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockResolvedValue(undefined);
-      endSessionSpy = jest
-        .spyOn(centralServerConnection, 'endSyncSession')
-        .mockResolvedValue(undefined);
+      jest.spyOn(centralServerConnection, 'endSyncSession').mockResolvedValue(undefined);
     });
 
     afterEach(() => {
-      checkSpy.mockRestore();
-      startSessionSpy.mockRestore();
-      endSessionSpy.mockRestore();
+      jest.restoreAllMocks();
     });
 
     it('checks with the pull cursor, and opens no session when there is nothing to pull', async () => {
