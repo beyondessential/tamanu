@@ -95,3 +95,26 @@ Sections are in build order. Each one leaves the tree working, so central can sh
 
 - [x] Add an integration test in `packages/facility-server/__tests__/sync` that runs a sync with a dead first endpoint and a live second one, and checks it lands on the second, reports it, and returns to the first after the recheck.
 - [x] Run the touched packages' tests (`settings`, `utils`, `api-client`, `central-server`, `facility-server`), `eslint` on changed files, and `npm run dbt-check-todos`.
+
+## Refactor ledger
+
+### Baseline (round 1, before)
+
+| Measure | Value |
+|---|---|
+| Product code | +1342 / -34 |
+| Tests | +2480 / -8 |
+| New product files | 12 |
+
+Largest product files: `CentralEndpointSelector.js` 329, `CentralServerConnection.js` 371 (+130),
+`serverConfig.js` 238 (+54), `centralEndpoint.ts` 136, `SyncLoginBackoff.js` 101,
+`setupCentralEndpointSelector.js` 91, `applyCentralEndpoints.js` 82, `validateCentralEndpoints.js` 55.
+
+Largest test files: `CentralServerConnection.test.js` 830, `CentralEndpointSelector.test.js` 502,
+`centralEndpoints-integration.test.js` 224, `applyCentralEndpoints.test.js` 219,
+`centralEndpoint.test.ts` 171, `SyncLoginBackoff.test.js` 153.
+
+### Green baseline (round 1)
+
+All passing before any refactor: facility-server 147 (77 unit, 70 DB-backed), utils 66,
+api-client 11, settings 58.
