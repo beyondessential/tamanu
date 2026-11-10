@@ -9,7 +9,6 @@ import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 import { getHighestRealChangeTick } from '../../app/sync/getHighestRealChangeTick';
 import { createTestContext } from '../utilities';
 
-const FACILITY_ID = 'changes-pending-facility';
 const SYNC_DEVICE_ID = 'changes-pending-sync-device';
 
 const withLookupTable = enabled => ({
@@ -63,7 +62,6 @@ describe('Changes-pending check', () => {
     const user = await models.User.create(
       fake(models.User, { password: 'password', role: 'admin' }),
     );
-    await models.Facility.create(fake(models.Facility, { id: FACILITY_ID, name: FACILITY_ID }));
     syncToken = await login(user, SYNC_DEVICE_ID, [DEVICE_SCOPES.SYNC_CLIENT]);
   });
 
@@ -87,7 +85,7 @@ describe('Changes-pending check', () => {
       await addLookupRow('pending-update', SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE);
       await addLookupRow('incoming', SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER);
       await addLookupRow('elsewhere', SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE);
-      // a stub is flagged for rebuild with no data, and carries a placeholder tick
+      // a stub has no data, and a placeholder tick
       await addLookupRow('stub', SYNC_TICK_FLAGS.OVERWRITE_WITH_CURRENT_TICK, null);
       await addLookupRow('stub-with-high-placeholder', 9999, null);
 
@@ -120,41 +118,18 @@ describe('Changes-pending check', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('answers that there are changes when the device has never pulled', async () => {
-      await addLookupRow('real-1', 5);
-      const response = await check(syncToken);
+    it.each([
+      ['the device has never pulled', [5], undefined, true],
+      ['the device has never pulled and the lookup table is empty', [], undefined, true],
+      ['the highest tick is above the cursor', [50], 49, true],
+      ['the cursor has reached the highest tick', [50], 50, false],
+      ['the cursor is past the highest tick', [50], 80, false],
+      ['the lookup table is empty', [], 0, false],
+    ])('answers on the flag when %s', async (_situation, ticks, since, changesToPull) => {
+      await Promise.all(ticks.map((tick, i) => addLookupRow(`real-${i}`, tick)));
+      const response = await check(syncToken, since);
       expect(response).toHaveSucceeded();
-      expect(response.body).toEqual({ changesToPull: true });
-    });
-
-    it('answers that there are changes when the lookup table is empty and the device has never pulled', async () => {
-      const response = await check(syncToken);
-      expect(response.body).toEqual({ changesToPull: true });
-    });
-
-    it('answers that there are changes when the highest tick is above the cursor', async () => {
-      await addLookupRow('real-1', 50);
-      const response = await check(syncToken, 49);
-      expect(response).toHaveSucceeded();
-      expect(response.body).toEqual({ changesToPull: true });
-    });
-
-    it('answers that there is nothing to pull when the cursor has reached the highest tick', async () => {
-      await addLookupRow('real-1', 50);
-      expect((await check(syncToken, 50)).body).toEqual({ changesToPull: false });
-      expect((await check(syncToken, 80)).body).toEqual({ changesToPull: false });
-    });
-
-    it('answers that there is nothing to pull when the lookup table is empty', async () => {
-      expect((await check(syncToken, 0)).body).toEqual({ changesToPull: false });
-    });
-
-    it('does not count pending-update flags and stubs as changes', async () => {
-      await addLookupRow('real-1', 50);
-      await addLookupRow('pending-update', SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE);
-      await addLookupRow('stub', SYNC_TICK_FLAGS.OVERWRITE_WITH_CURRENT_TICK, null);
-      await addLookupRow('stub-with-high-placeholder', 9999, null);
-      expect((await check(syncToken, 50)).body).toEqual({ changesToPull: false });
+      expect(response.body).toEqual({ changesToPull });
     });
 
     it('always answers that there are changes when the lookup table is turned off', async () => {
