@@ -292,8 +292,8 @@ export class FacilitySyncManager {
   // spec: SYNCHK#facility-servers
   // Only a scheduled sync asks central whether there is anything to pull before opening a
   // session. Every other trigger opens one regardless, as does a scheduled sync that has
-  // something central's answer cannot account for: local changes to push, no settings PSK yet, or
-  // a sync user still to be swapped. Ordered cheapest first, and the last needs a login, so it
+  // something central's answer cannot account for: local changes to push, no settings pre-shared
+  // key (the key secret settings are encrypted with) yet, or a sync user still to be swapped. Ordered cheapest first, and the last needs a login, so it
   // comes last.
   async shouldCheckChangesPending(reason) {
     if (reason?.type !== SYNC_TRIGGER_TYPES.SCHEDULED) return false;
