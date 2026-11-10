@@ -55,15 +55,20 @@ const TEST_PREFIX = 'test:';
 
 export const ResultsSearchBar = React.memo(
   ({ setSearchParameters, searchParameters, patientId, disabled }) => {
-    // One stable options object keeps each useSuggester (and the merged suggester below) identity
-    // stable across renders, so MultiAutocompleteInput's debounce timer survives between keystrokes.
-    const suggesterOptions = useMemo(
-      () => ({ baseQueryParameters: { patientId } }),
-      [patientId],
+    // Stable options keep each useSuggester (and the merged suggester below) identity stable across
+    // renders, so MultiAutocompleteInput's debounce timer survives between keystrokes. The category
+    // list is unscoped; the test/panel suggesters are scoped to the picked category so they only
+    // suggest that category's tests and panels (they re-create when the category changes).
+    const categoryOptions = useMemo(() => ({ baseQueryParameters: { patientId } }), [patientId]);
+    const scopedOptions = useMemo(
+      () => ({
+        baseQueryParameters: { patientId, categoryId: searchParameters.categoryId || undefined },
+      }),
+      [patientId, searchParameters.categoryId],
     );
-    const categorySuggester = useSuggester('patientLabTestCategories', suggesterOptions);
-    const panelSuggester = useSuggester('patientLabTestPanelTypes', suggesterOptions);
-    const testSuggester = useSuggester('patientLabTestTypes', suggesterOptions);
+    const categorySuggester = useSuggester('patientLabTestCategories', categoryOptions);
+    const panelSuggester = useSuggester('patientLabTestPanelTypes', scopedOptions);
+    const testSuggester = useSuggester('patientLabTestTypes', scopedOptions);
 
     // One field suggests both tests and panels, listed together by name. Each option is tagged with
     // its kind in the value (panel:<id> / test:<id>) so the two can be told apart when filtering.
@@ -105,8 +110,10 @@ export const ResultsSearchBar = React.memo(
 
     const handleTestOrPanelChange = event => {
       const value = event.target.value ?? [];
+      const { categoryId } = searchParameters;
       if (!value.length) {
-        setSearchParameters({});
+        // Clearing the picks keeps the category in place (shows the category-only view).
+        setSearchParameters(categoryId ? { categoryId } : {});
         return;
       }
       const panelIds = value
@@ -115,9 +122,8 @@ export const ResultsSearchBar = React.memo(
       const testIds = value
         .filter(id => id.startsWith(TEST_PREFIX))
         .map(id => id.slice(TEST_PREFIX.length));
-      // Clear the category with an empty string rather than by omitting it: the single-select field
-      // only resets its displayed option on '', not on undefined, so a dropped key leaves a stale name.
-      setSearchParameters({ categoryId: '', panelIds, testIds });
+      // Picking a test or panel leaves the category in place; it scopes what can be picked.
+      setSearchParameters(categoryId ? { categoryId, panelIds, testIds } : { panelIds, testIds });
     };
 
     return (
@@ -144,7 +150,17 @@ export const ResultsSearchBar = React.memo(
             value={searchParameters.categoryId}
             onChange={event => {
               const categoryId = event.target.value;
-              setSearchParameters(categoryId ? { categoryId } : {});
+              if (categoryId) {
+                // Changing the category clears any picked tests and panels.
+                setSearchParameters({ categoryId });
+                return;
+              }
+              // Clearing the category keeps the picks; '' resets the field's displayed value.
+              const panelIds = toArrayParam(searchParameters.panelIds);
+              const testIds = toArrayParam(searchParameters.testIds);
+              setSearchParameters(
+                panelIds.length || testIds.length ? { categoryId: '', panelIds, testIds } : {},
+              );
             }}
             data-testid="styledautocompleteinput-ar0l"
           />

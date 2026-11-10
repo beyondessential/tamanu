@@ -1126,6 +1126,8 @@ createSuggester(
 
     return {
       ...baseWhere,
+      // A picked test category narrows suggestions to panels configured under it.
+      ...(query.categoryId ? { categoryId: query.categoryId } : {}),
       id: {
         [Op.in]: Sequelize.literal(
           `(
@@ -1177,6 +1179,8 @@ createSuggester(
     return {
       ...baseWhere,
       ...(canListSensitive ? {} : { isSensitive: false }),
+      // A picked test category narrows suggestions to tests configured under it.
+      ...(query.categoryId ? { labTestCategoryId: query.categoryId } : {}),
       id: {
         [Op.in]: Sequelize.literal(
           // sample_time must be present to match what the results endpoint returns (it only shows
