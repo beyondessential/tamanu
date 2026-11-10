@@ -54,7 +54,8 @@ Beds, bays, chairs, theatres and the cath lab hold one patient. Left out: Mercy 
 
 Added through the API on 10 November 2026, after the clean deploy was tested.
 
-- **Areas, locations and departments**: the Location Group, Locations and Departments sheets of the workbook, imported on central. The Facilities sheet was left out, so facility-1 is still named Test Facility 1.
+- **Facility, areas, locations and departments**: all four sheets of the workbook, imported on central. The Facilities sheet keeps the id `facility-1`, so the facility server's own configuration still matches; only the name and address change.
+- **Survey defaults**: facility-1's `survey.defaultCodes` set to location `MercyReception` and department `GeneralSurgery`, replacing the demo template's `WaitingArea` and `Emergency`. `checkConfig` matches these on code within the facility, and both resolve.
 - **Roles**: Doctor (`doctor`) and Nurse (`nurse`), both with the practitioner permission set from `packages/shared/src/roles.js`, imported as Roles and Permissions sheets.
 - **Users**: 10 clinicians who sign in with the password `test`, at `firstname.lastname@demo.tamanu.io`. Doctors are Hannah Mitchell, Rangi Parata, Priya Raman, James Sutherland and Mele Taufa. Nurses are Sophie McKenzie, Aroha Tipene, Liam O'Connor, Grace Chen and Tom Henderson.
 - **Patients**: 100 test patients registered at facility-1, with Dunedin and wider Otago addresses and a mix of NZ European, Māori, Pacific and Asian names. Most are adults, a third are over 65. There are no phone numbers, because the API drops a leading zero. Roy Antonini was already there.
@@ -66,9 +67,8 @@ Added through the API on 10 November 2026, after the clean deploy was tested.
 - [x] Work out how to deploy without standard reference data (`%config=demo`)
 - [x] Build the Mercy Hospital reference data workbook from the website
 - [x] Tick the deploy box in the PR body, with the line above (checked after deploy: facility-1 only, no reference data, no programs)
-- [x] Import the areas, locations and departments on central
-- [ ] Import the Facilities sheet, renaming facility-1 to Mercy Hospital
-- [ ] Set facility-1's `survey.defaultCodes` to `MercyReception` and `GeneralSurgery` (admin panel, Settings, facility scope)
+- [x] Import the facility, areas, locations and departments on central
+- [x] Set facility-1's `survey.defaultCodes` to `MercyReception` and `GeneralSurgery`
 - [x] Check after a sync: facility-1 has its 12 areas, 110 locations and 18 departments, and no other reference data
 - [x] Add Doctor and Nurse roles, 10 clinician users and 100 test patients
 - [x] Copy the Vitals program from the presentation site
