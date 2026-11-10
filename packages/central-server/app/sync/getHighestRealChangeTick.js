@@ -4,13 +4,10 @@ import { QueryTypes } from 'sequelize';
 //
 // The highest settled sync tick in the lookup table, or null when it holds none.
 //
-// Ticks of zero or below are never real: 0 is the placeholder a stub row carries until it is
-// built, and the negative values are flags, including the one that marks rows a running build
-// has written but not yet settled (SYNC_TICK_FLAGS). The data check is a second guard for stubs.
+// Ticks of 0 or below are stubs or SYNC_TICK_FLAGS, never real changes; a null data column marks a
+// stub whatever its tick.
 //
-// Planned as a single backward step through the index on updated_at_sync_tick, so it does not
-// scan the table. Stubs and flagged rows sort below every real tick, so they are not stepped
-// over unless the table holds nothing real.
+// A backward walk of the updated_at_sync_tick index, so it does not scan the table.
 export const getHighestRealChangeTick = async models => {
   const [row] = await models.SyncLookup.sequelize.query(
     `

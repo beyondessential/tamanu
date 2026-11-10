@@ -14,12 +14,10 @@ const querySchema = z.object({
 });
 
 // spec: SYNCHK#the-check
-// Answers whether anything that syncs to devices has changed since the device's last pull.
 export const changesPendingHandler = asyncHandler(async (req, res) => {
   const { since } = querySchema.parse(req.query);
 
   // Without the lookup table there is no tick to compare against, so a session must decide.
-  // Read per request, so a config override applies.
   const hasNeverPulled = since === undefined;
   if (hasNeverPulled || !CentralSyncManager.config.sync.lookupTable.enabled) {
     res.json({ changesToPull: true });
