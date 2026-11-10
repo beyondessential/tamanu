@@ -231,23 +231,19 @@ export const globalSettings = {
         'alpha-2': {
           name: 'Alpha-2 code',
           description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
-          type: yup
-            .string()
-            .matches(/^[A-Z]{2}$/, {
-              excludeEmptyString: true,
-              message: 'must be two uppercase letters',
-            }),
+          type: yup.string().matches(/^[A-Z]{2}$/, {
+            excludeEmptyString: true,
+            message: 'must be two uppercase letters',
+          }),
           defaultValue: '',
         },
         'alpha-3': {
           name: 'Alpha-3 code',
           description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
-          type: yup
-            .string()
-            .matches(/^[A-Z]{3}$/, {
-              excludeEmptyString: true,
-              message: 'must be three uppercase letters',
-            }),
+          type: yup.string().matches(/^[A-Z]{3}$/, {
+            excludeEmptyString: true,
+            message: 'must be three uppercase letters',
+          }),
           defaultValue: '',
         },
       },

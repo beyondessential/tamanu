@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 import { useApi } from '../index';
 
 /**
@@ -14,7 +15,9 @@ export const useDischargeSyndromicSurveillanceSurveyQuery = (
   return useQuery(
     ['dischargeSyndromicSurveillanceSurvey', encounterId],
     () =>
-      api.get(`encounter/${encodeURIComponent(encounterId)}/syndromicSurveillance/dischargeSurvey`),
+      api.get(
+        route('encounter/:encounterId/syndromicSurveillance/dischargeSurvey', { encounterId }),
+      ),
     { enabled: Boolean(encounterId) && enabled },
   );
 };

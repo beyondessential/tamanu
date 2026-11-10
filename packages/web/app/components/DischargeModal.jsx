@@ -91,15 +91,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       navigateToPatient(patient?.id);
       onClose();
     },
-    [
-      updateEncounter,
-      encounter.id,
-      queryClient,
-      patient?.id,
-      onClose,
-      navigateToPatient,
-      facility,
-    ],
+    [updateEncounter, encounter.id, queryClient, patient?.id, onClose, navigateToPatient, facility],
   );
 
   if (!patient) return null;

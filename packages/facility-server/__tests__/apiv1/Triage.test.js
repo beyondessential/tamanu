@@ -494,9 +494,9 @@ describe('Triage', () => {
         );
       };
 
-      bulkCreateTestTriage = async (triageConfigs) => {
+      bulkCreateTestTriage = async triageConfigs => {
         const promises = [];
-        triageConfigs.forEach((c) => {
+        triageConfigs.forEach(c => {
           promises.push(createTestTriage(c));
         });
         await Promise.all(promises);
@@ -597,7 +597,7 @@ describe('Triage', () => {
       });
       const response = await app.get(`/api/triage?facilityId=${facility.id}`);
 
-      expect(response.body.data.some((b) => b.encounterId === createdEncounter.id)).toEqual(true);
+      expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
     });
 
     it('should include active ED care patients in the triage list', async () => {
@@ -610,9 +610,9 @@ describe('Triage', () => {
       const response = await app.get(`/api/triage?facilityId=${facility.id}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body.data.some((b) => b.encounterId === createdEncounter.id)).toEqual(true);
+      expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
       expect(
-        response.body.data.find((b) => b.encounterId === createdEncounter.id).encounterType,
+        response.body.data.find(b => b.encounterId === createdEncounter.id).encounterType,
       ).toEqual(ENCOUNTER_TYPES.OBSERVATION);
     });
 

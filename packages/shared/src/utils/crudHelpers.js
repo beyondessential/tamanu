@@ -20,7 +20,7 @@ export const permissionCheckingRouter = (action, subject) => {
   return router;
 };
 
-export const softDeletionCheckingRouter = (tableName) => {
+export const softDeletionCheckingRouter = tableName => {
   const router = express.Router();
 
   router.use(async (req, res, next) => {
@@ -343,7 +343,7 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
     offset: page && rowsPerPage ? page * rowsPerPage : undefined,
   });
 
-  const data = objects.map((x) => x.forResponse());
+  const data = objects.map(x => x.forResponse());
 
   return { count, data };
 };
@@ -395,7 +395,7 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
       offset,
     });
 
-    const data = objects.map((x) => x.forResponse());
+    const data = objects.map(x => x.forResponse());
 
     res.send({
       count: resultsToCount.length,
@@ -431,7 +431,7 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
     mapToModel: true,
   });
 
-  const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
+  const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
   return {
     count,
     data: forResponse,

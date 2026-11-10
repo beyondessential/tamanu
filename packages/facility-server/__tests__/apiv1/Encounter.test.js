@@ -2015,9 +2015,7 @@ describe('Encounter', () => {
       };
 
       const fetchPharmacyRequest = async () => {
-        const result = await app.get(
-          `/api/encounter/${pharmacyRequestEncounter.id}/medications`,
-        );
+        const result = await app.get(`/api/encounter/${pharmacyRequestEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
         const row = result.body.data.find(p => p.id === pharmacyRequestPrescription.id);
         expect(row).toBeDefined();
@@ -2097,9 +2095,7 @@ describe('Encounter', () => {
         await orderPharmacyRequest({ date: '2020-01-01 09:00:00' });
         await orderPharmacyRequest({ date: '2020-01-20 09:00:00', isCompleted: true });
 
-        const result = await app.get(
-          `/api/encounter/${pharmacyRequestEncounter.id}/medications`,
-        );
+        const result = await app.get(`/api/encounter/${pharmacyRequestEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
         const row = result.body.data.find(p => p.id === pharmacyRequestPrescription.id);
 

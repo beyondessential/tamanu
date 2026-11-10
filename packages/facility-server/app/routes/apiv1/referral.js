@@ -27,7 +27,7 @@ referral.post(
       throw new InvalidParameterError('A referral must be a response to a referral form.');
     }
 
-    const getDefaultId = async (type) =>
+    const getDefaultId = async type =>
       models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),

@@ -674,9 +674,8 @@ encounterRelations.get(
         prescriptionIds,
       );
 
-      const latestModifiedDispenses = await Prescription.getLatestModifiedDispensesByPrescriptionId(
-        prescriptionIds,
-      );
+      const latestModifiedDispenses =
+        await Prescription.getLatestModifiedDispensesByPrescriptionId(prescriptionIds);
 
       responseData = responseData.map(p => ({
         ...p,

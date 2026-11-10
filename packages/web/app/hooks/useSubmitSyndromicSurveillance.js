@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 
 import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../api';
@@ -18,19 +19,20 @@ export const useSubmitSyndromicSurveillance = ({ encounterId, patientId, isDisch
   const { facilityId } = useAuth();
   const { getCurrentDateTime } = useDateTime();
   const [startTime] = useState(getCurrentDateTime);
-  const route = isDischarging ? 'dischargeSurveyResponse' : 'surveyResponse';
 
   return async (survey, formValues) => {
+    const submissionRoute = isDischarging
+      ? route('encounter/:encounterId/syndromicSurveillance/dischargeSurveyResponse', {
+          encounterId,
+        })
+      : route('encounter/:encounterId/syndromicSurveillance/surveyResponse', { encounterId });
     try {
-      await api.post(
-        `encounter/${encodeURIComponent(encounterId)}/syndromicSurveillance/${route}`,
-        {
-          facilityId,
-          startTime,
-          endTime: getCurrentDateTime(),
-          answers: await getAnswersFromData(formValues, survey),
-        },
-      );
+      await api.post(submissionRoute, {
+        facilityId,
+        startTime,
+        endTime: getCurrentDateTime(),
+        answers: await getAnswersFromData(formValues, survey),
+      });
       queryClient.invalidateQueries(['patientDetails', patientId]);
     } finally {
       // Refreshed on failure too: a submission is rejected once the encounter has a response, such

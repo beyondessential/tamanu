@@ -95,7 +95,7 @@ describe('Referrals', () => {
     testProgram = await createDummyProgram();
     testSurvey = await createDummySurvey(testProgram, 6);
 
-    testSurvey.dataElements.forEach((q) => {
+    testSurvey.dataElements.forEach(q => {
       answers[q.id] = getRandomAnswer(q);
     });
   });

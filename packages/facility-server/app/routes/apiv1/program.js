@@ -84,11 +84,7 @@ programRelations.get(
       order: [['name', 'ASC']],
     });
     const filteredRecords = getFilteredListByPermission(ability, records, 'submit');
-    const data = await getProgramSurveysWithFormVisibility(
-      models,
-      filteredRecords,
-      patientId,
-    );
+    const data = await getProgramSurveysWithFormVisibility(models, filteredRecords, patientId);
 
     res.send({
       count: data.length,

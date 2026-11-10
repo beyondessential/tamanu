@@ -159,11 +159,7 @@ triage.post(
     if (invoice) {
       // Triage/emergency encounters are created here (not the generic encounter route), so the
       // ED encounter fee must be added on this path too.
-      await models.Invoice.addEncounterFee(
-        encounter,
-        settings[facilityId],
-        getPrimaryTimeZone(),
-      );
+      await models.Invoice.addEncounterFee(encounter, settings[facilityId], getPrimaryTimeZone());
     }
 
     res.send(triageRecord);

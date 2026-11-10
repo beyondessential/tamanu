@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 import { useApi } from '../index';
 
 export const ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY = 'encounterSyndromicSurveillance';
@@ -12,7 +13,7 @@ export const useEncounterSyndromicSurveillanceQuery = (encounterId, { enabled = 
 
   return useQuery(
     [ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY, encounterId],
-    () => api.get(`encounter/${encodeURIComponent(encounterId)}/syndromicSurveillance`),
+    () => api.get(route('encounter/:encounterId/syndromicSurveillance', { encounterId })),
     { enabled: Boolean(encounterId) && enabled },
   );
 };
