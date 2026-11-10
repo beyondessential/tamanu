@@ -82,7 +82,7 @@ export const ResultsSearchBar = React.memo(
             testSuggester.fetchSuggestions(search),
           ]);
           return [...tag(PANEL_PREFIX, panels), ...tag(TEST_PREFIX, tests)].sort((a, b) =>
-            a.label.localeCompare(b.label),
+            (a.label ?? '').localeCompare(b.label ?? ''),
           );
         },
         fetchCurrentOption: async compositeValue => {

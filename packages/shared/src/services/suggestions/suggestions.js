@@ -1196,6 +1196,7 @@ createSuggester(
             AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
+            AND lab_tests.deleted_at is null
             AND lab_requests.sample_time IS NOT NULL
         )`,
         ),
