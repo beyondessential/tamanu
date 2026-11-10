@@ -197,3 +197,11 @@ Leave:
 - A `TABLES_FOR_FULL_RESYNC` constant: no saving, and it touches code the branch does not.
 - `-1` as the never-pulled marker on the wire: a contract change, not a refactor.
 - Aligning names across platforms (`checkChangesPending`/`checkForChangesToPull`): no saving.
+
+Outcome: product code +299 −25 → +276 −26 (net 274 → 250), tests +745 −1 → +719 −46 (net 744 → 673).
+- Facility: one `completeSync` for both endings; one `whenCentralWakes` per connection; manager tests stub `hasUnpushedChanges` and share one fake sync manager, which also gives the run-history block the check stub it lacked.
+- Mobile: the waking rule once per connection and `retry-after` read through `AxiosHeaders` only. Tests grew by 10: the check tests now assert the URL axios builds rather than the arguments to `get`, and the waking cases use real `AxiosHeaders`, which is what production hands `diagnoseProblem`.
+- Central: route answers tabled, a duplicate test and an unused facility dropped.
+- Comments: trimmed throughout; three wrong ones corrected.
+- Reverted after review: `querySchema.parse`. It answers 4xx too, but its message is zod's whole issue list, which a facility writes into its run history.
+- Review left: the facility's trimmed optional chaining and mobile's `AxiosHeaders.get` both rest on the HTTP client always handing a real headers object, which holds for every path traced.
