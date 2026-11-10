@@ -11,6 +11,7 @@ import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlock
 import { SyndromicSurveillanceStatus } from '../../../components/SyndromicSurveillanceStatus';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -45,9 +46,9 @@ export const DiagnosisPane = React.memo(({ encounter, patient, disabled }) => {
   // Listing diagnoses gates only the table. Recording a diagnosis and syndromic surveillance are
   // checked by permissions of their own, so the rest of the pane stays available without it.
   const canListDiagnoses = ability.can('list', 'EncounterDiagnosis');
+  // The table fetches its own endpoint, so refreshing the encounter after a save doesn't reach it.
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
-  // Saving a diagnosis reloads the encounter, which remounts this pane, so the table refetches
-  // without being told to.
   return (
     <TabPane data-testid="tabpane-diagnosis">
       <DiagnosisModal
@@ -55,6 +56,7 @@ export const DiagnosisPane = React.memo(({ encounter, patient, disabled }) => {
         isTriage={getIsTriage(encounter)}
         encounterId={encounter.id}
         excludeDiagnoses={encounter.diagnoses}
+        onSaved={updateRefreshCount}
         onClose={() => setEditedDiagnosis(null)}
         data-testid="diagnosismodal-pane"
       />
@@ -86,6 +88,7 @@ export const DiagnosisPane = React.memo(({ encounter, patient, disabled }) => {
           // Read-only encounters (discharged, or the patient has died) list diagnoses without
           // offering to edit them, as they offer no way to add one.
           onItemClick={disabled ? undefined : setEditedDiagnosis}
+          refreshCount={refreshCount}
           data-testid="diagnosistable-pane"
         />
       ) : (

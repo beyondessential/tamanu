@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { route } from '@tamanu/api-client';
 
 import { Colors } from '../constants/styles';
 import { DataFetchingTable } from './Table';
@@ -164,11 +165,12 @@ const COLUMNS = [
 
 // Unsorted until a column is chosen, so the server's default order applies: primary diagnoses
 // first and disproven ones last.
-export const DiagnosisTable = React.memo(({ encounterId, onItemClick }) => (
+export const DiagnosisTable = React.memo(({ encounterId, onItemClick, refreshCount }) => (
   <StyledDataFetchingTable
     columns={COLUMNS}
-    endpoint={`encounter/${encounterId}/diagnoses`}
+    endpoint={route('encounter/:encounterId/diagnoses', { encounterId })}
     onRowClick={onItemClick}
+    refreshCount={refreshCount}
     elevated={false}
     allowExport={false}
     disablePagination
