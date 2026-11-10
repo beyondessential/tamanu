@@ -53,7 +53,6 @@ export const buildSyncRoutes = ctx => {
   });
 
   // spec: SYNCHK#the-check
-  // lets a device with nothing to pull skip opening a session
   syncRoutes.get('/pending', changesPendingHandler);
 
   // create new sync session or join/update the queue for one

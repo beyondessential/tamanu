@@ -415,13 +415,15 @@ describe('FacilitySyncManager', () => {
     });
 
     describe('when central answers there is nothing to pull', () => {
-      it('records the run as succeeded, with no session', async () => {
+      it('succeeds with no session, moving the sync time but not the pull cursor', async () => {
         const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => false) });
+        expect(syncManager.lastCompletedAt).toBe(0);
 
         const result = await syncManager.triggerSync(scheduled);
 
         expect(result).toMatchObject({ enabled: true, ran: true });
         expect(syncManager.centralServer.startSyncSession).not.toHaveBeenCalled();
+        expect(syncManager.pullChanges).not.toHaveBeenCalled();
         const syncRun = await latestSyncRun();
         expect(syncRun).toMatchObject({
           status: SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
@@ -430,17 +432,8 @@ describe('FacilitySyncManager', () => {
           error: null,
         });
         expect(syncRun.completedAt).toBeInstanceOf(Date);
-      });
-
-      it('moves the last successful sync time but not the pull cursor', async () => {
-        const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => false) });
-        expect(syncManager.lastCompletedAt).toBe(0);
-
-        await syncManager.triggerSync(scheduled);
-
         expect(syncManager.lastCompletedAt).toBeInstanceOf(Date);
         expect(await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)).toBe(PULL_CURSOR);
-        expect(syncManager.pullChanges).not.toHaveBeenCalled();
       });
     });
 
