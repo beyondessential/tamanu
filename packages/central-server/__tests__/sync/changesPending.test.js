@@ -38,21 +38,17 @@ describe('Changes-pending check', () => {
     return request;
   };
 
-  // inserted directly, because the lookup table's own id column is a serial
+  let nextLookupId = 1;
   const addLookupRow = (recordId, updatedAtSyncTick, data = { id: recordId }) =>
-    ctx.store.sequelize.query(
-      `
-        INSERT INTO sync_lookup (record_id, record_type, data, updated_at_sync_tick, is_lab_request, is_deleted)
-        VALUES (:recordId, 'patients', :data, :updatedAtSyncTick, false, false)
-      `,
-      {
-        replacements: {
-          recordId,
-          data: data && JSON.stringify(data),
-          updatedAtSyncTick,
-        },
-      },
-    );
+    models.SyncLookup.create({
+      id: nextLookupId++,
+      recordId,
+      recordType: 'patients',
+      data,
+      updatedAtSyncTick,
+      isLabRequest: false,
+      isDeleted: false,
+    });
 
   beforeAll(async () => {
     ctx = await createTestContext();
