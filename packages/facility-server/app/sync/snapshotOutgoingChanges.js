@@ -5,8 +5,8 @@ import { sanitizeRecord, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
-// The rows a push sends: every row of a model changed since the last successful push, deleted ones
-// included. Shared with `hasUnpushedChanges`, which must select the same rows.
+// Shared with hasUnpushedChanges, which must select exactly the rows a push sends (deleted ones
+// included).
 export const outgoingChangesQuery = since => ({
   where: { updatedAtSyncTick: { [Op.gt]: since } },
   raw: true,
