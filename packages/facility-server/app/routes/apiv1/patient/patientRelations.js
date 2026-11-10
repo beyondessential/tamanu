@@ -405,40 +405,41 @@ patientRelations.get(
     const panelIds = toArrayParam(query.panelIds);
     const testIds = toArrayParam(query.testIds);
 
-    // Test category and Test or panel are mutually exclusive. A category lists every test in it
-    // as a flat A–Z list; test/panel picks drive a grouped view the frontend assembles from the
-    // `groups` metadata returned below. With no filter at all (the initial load that checks whether
-    // the patient has any results), every published result is returned.
+    // A picked category, or picked tests/panels, drive a grouped view the frontend assembles from
+    // the `groups` metadata returned below (panels first, then individual tests). Picks take
+    // precedence: once tests or panels are picked the table shows only those, whether or not a
+    // category is also picked. With no filter at all (the initial load that checks whether the
+    // patient has any results), every published result is returned.
     let selectionClause = '';
     // The same filter, expressed against lab_tests/lab_requests, narrows the changelog scan in the
     // edited-entry CTE to just the tests being displayed instead of the patient's whole history.
     let cteSelectionClause = '';
     const replacements = { patientId: params.id, status, canListSensitive };
 
-    // Panels the user picked contribute their member tests (in the panel's configured order) to
-    // the set of results fetched, and the grouping metadata the frontend renders headings from.
+    // Panel members (in the panel's configured order) for a set of panels — used both for the
+    // panels the user picked and, in category mode, for the panels the patient ordered under in
+    // that category. Drives both the fetched results and the grouping metadata.
+    const fetchPanelMembers = panelIdList =>
+      db.query(
+        `SELECT
+           lab_test_panels.id AS panel_id,
+           lab_test_panels.name AS panel_name,
+           lab_test_panel_lab_test_types.lab_test_type_id AS test_type_id,
+           lab_test_panel_lab_test_types."order" AS member_order
+         FROM lab_test_panels
+         INNER JOIN lab_test_panel_lab_test_types
+           ON lab_test_panel_lab_test_types.lab_test_panel_id = lab_test_panels.id
+         WHERE lab_test_panels.id IN (:panelIds)
+           AND lab_test_panels.deleted_at IS NULL
+           AND lab_test_panel_lab_test_types.deleted_at IS NULL
+         ORDER BY lab_test_panels.name ASC, lab_test_panel_lab_test_types."order" ASC`,
+        { replacements: { panelIds: panelIdList }, type: QueryTypes.SELECT },
+      );
+
     let panelMembers = [];
-    if (categoryId) {
-      replacements.categoryId = categoryId;
-      selectionClause = 'AND lab_requests.lab_test_category_id = :categoryId';
-      cteSelectionClause = 'AND lab_requests.lab_test_category_id = :categoryId';
-    } else if (panelIds.length || testIds.length) {
+    if (panelIds.length || testIds.length) {
       if (panelIds.length) {
-        panelMembers = await db.query(
-          `SELECT
-             lab_test_panels.id AS panel_id,
-             lab_test_panels.name AS panel_name,
-             lab_test_panel_lab_test_types.lab_test_type_id AS test_type_id,
-             lab_test_panel_lab_test_types."order" AS member_order
-           FROM lab_test_panels
-           INNER JOIN lab_test_panel_lab_test_types
-             ON lab_test_panel_lab_test_types.lab_test_panel_id = lab_test_panels.id
-           WHERE lab_test_panels.id IN (:panelIds)
-             AND lab_test_panels.deleted_at IS NULL
-             AND lab_test_panel_lab_test_types.deleted_at IS NULL
-           ORDER BY lab_test_panels.name ASC, lab_test_panel_lab_test_types."order" ASC`,
-          { replacements: { panelIds }, type: QueryTypes.SELECT },
-        );
+        panelMembers = await fetchPanelMembers(panelIds);
       }
       const panelMemberTypeIds = [...new Set(panelMembers.map(member => member.test_type_id))];
       const testTypeIds = [...new Set([...testIds, ...panelMemberTypeIds])];
@@ -446,6 +447,33 @@ patientRelations.get(
       replacements.testTypeIds = testTypeIds.length ? testTypeIds : [null];
       selectionClause = 'AND lab_test_types.id IN (:testTypeIds)';
       cteSelectionClause = 'AND lab_tests.lab_test_type_id IN (:testTypeIds)';
+    } else if (categoryId) {
+      replacements.categoryId = categoryId;
+      // Group the category's panels the patient has a published, sampled lab request ordered under;
+      // the frontend shows the category's remaining resulted tests as individual tests.
+      const orderedPanels = await db.query(
+        `SELECT DISTINCT lab_test_panels.id AS panel_id
+         FROM lab_test_panel_requests
+         INNER JOIN lab_requests ON lab_requests.id = lab_test_panel_requests.lab_request_id
+         INNER JOIN encounters ON encounters.id = lab_requests.encounter_id
+         INNER JOIN lab_test_panels ON lab_test_panels.id = lab_test_panel_requests.lab_test_panel_id
+         WHERE encounters.patient_id = :patientId
+           AND lab_requests.status = :status
+           AND lab_requests.sample_time IS NOT NULL
+           AND encounters.deleted_at IS NULL
+           AND lab_requests.deleted_at IS NULL
+           AND lab_test_panel_requests.deleted_at IS NULL
+           AND lab_test_panels.deleted_at IS NULL
+           AND lab_test_panels.category_id = :categoryId`,
+        { replacements: { patientId: params.id, status, categoryId }, type: QueryTypes.SELECT },
+      );
+      const orderedPanelIds = orderedPanels.map(panel => panel.panel_id);
+      if (orderedPanelIds.length) {
+        panelMembers = await fetchPanelMembers(orderedPanelIds);
+      }
+      selectionClause = 'AND lab_test_types.lab_test_category_id = :categoryId';
+      cteSelectionClause =
+        'AND lab_tests.lab_test_type_id IN (SELECT id FROM lab_test_types WHERE lab_test_category_id = :categoryId)';
     }
 
     const results = await db.query(

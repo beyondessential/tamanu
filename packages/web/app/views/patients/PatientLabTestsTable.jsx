@@ -12,7 +12,6 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { getLabTestValidationCriteriaFromNormalRanges } from '@tamanu/utils/labTests';
-import { toArrayParam } from '@tamanu/utils/toArrayParam';
 import { BodyText } from '../../components';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Table } from '../../components/Table';
@@ -109,7 +108,7 @@ const ResultsExportButton = ({ onClick }) => (
 );
 
 export const PatientLabTestsTable = React.memo(
-  ({ patient, labTests = [], groups = [], isLoading, searchParameters }) => {
+  ({ patient, labTests = [], groups = [], isLoading }) => {
     const { formatShort, formatTimeWithSeconds } = useDateTime();
     const [modalLabTestId, setModalLabTestId] = useState();
     const [modalOpen, setModalOpen] = useState(false);
@@ -123,29 +122,19 @@ export const PatientLabTestsTable = React.memo(
       Object.values(test.results ?? {}).some(result => result.isEdited === true),
     );
 
-    const isCategoryMode = Boolean(searchParameters.categoryId);
-
-    // A picked category lists its tests flat and A–Z. Picked panels and tests are grouped: each
-    // panel (A–Z) with its member tests in configured order, then the individually picked tests
-    // (A–Z) under an "Individual tests" group. A test shared by several picks appears under each.
+    // Panels first (the backend returns them A–Z), each with its member tests in configured order;
+    // then every other displayed test, A–Z, under an "Individual tests" heading. A test that sits
+    // under a panel is not repeated as an individual test (R11).
     const { rows, hasGroups } = useMemo(() => {
-      const pickedTestIds = toArrayParam(searchParameters.testIds);
-      // A category lists its tests flat, A–Z. The same flat shape is used defensively when nothing
-      // is picked (the table is not rendered in that state), so there is always something to show.
-      if (isCategoryMode || (groups.length === 0 && pickedTestIds.length === 0)) {
-        return {
-          rows: labTests.map(test => ({ ...test, rowKey: test.testTypeId })),
-          hasGroups: false,
-        };
-      }
-
       const byTypeId = new Map(labTests.map(test => [test.testTypeId, test]));
       const displayRows = [];
+      const groupedTypeIds = new Set();
 
       for (const group of groups) {
         for (const testTypeId of group.testTypeIds) {
           const test = byTypeId.get(testTypeId);
           if (!test) continue;
+          groupedTypeIds.add(testTypeId);
           displayRows.push({
             ...test,
             rowKey: `${group.id}:${testTypeId}`,
@@ -156,22 +145,20 @@ export const PatientLabTestsTable = React.memo(
         }
       }
 
-      const individualTestIds = pickedTestIds
-        .filter(testTypeId => byTypeId.has(testTypeId))
-        .sort((a, b) =>
-          (byTypeId.get(a).testType ?? '').localeCompare(byTypeId.get(b).testType ?? ''),
-        );
-      for (const testTypeId of individualTestIds) {
+      const individualTests = labTests
+        .filter(test => !groupedTypeIds.has(test.testTypeId))
+        .sort((a, b) => (a.testType ?? '').localeCompare(b.testType ?? ''));
+      for (const test of individualTests) {
         displayRows.push({
-          ...byTypeId.get(testTypeId),
-          rowKey: `${INDIVIDUAL_GROUP_ID}:${testTypeId}`,
+          ...test,
+          rowKey: `${INDIVIDUAL_GROUP_ID}:${test.testTypeId}`,
           groupId: INDIVIDUAL_GROUP_ID,
           grouped: true,
         });
       }
 
-      return { rows: displayRows, hasGroups: true };
-    }, [isCategoryMode, labTests, groups, searchParameters.testIds]);
+      return { rows: displayRows, hasGroups: displayRows.length > 0 };
+    }, [labTests, groups]);
 
     const getRowGroupHeader = useMemo(() => {
       if (!hasGroups) return undefined;
