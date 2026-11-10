@@ -221,3 +221,5 @@ Leave:
 - Inlining `hasNeverPulled`: the name says what the undefined cursor means.
 
 Found: mobile `hasOutgoingChanges` has no test against real models; filed, and fixed apart from the refactors.
+
+Outcome: product net 250 → 244, tests net 673 → 668 (now counting the mobile spec, which gained the `hasOutgoingChanges` cases).
