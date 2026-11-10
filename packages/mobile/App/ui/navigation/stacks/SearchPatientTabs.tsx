@@ -1,5 +1,5 @@
 import type { NavigationProp } from '@react-navigation/native';
-import { parseScannedDisplayId } from '@tamanu/utils/scannedDisplayId';
+import { parseScannedDisplayId } from '@tamanu/utils';
 import { useFormikContext } from 'formik';
 import React, { type ReactElement, useCallback, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
