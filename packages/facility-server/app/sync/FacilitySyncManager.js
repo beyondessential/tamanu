@@ -259,8 +259,8 @@ export class FacilitySyncManager {
     return result;
   }
 
-  // The last successful sync time the sync status reports; deliberately not the pull cursor,
-  // which only a session's pull moves.
+  // Provisions from central, then moves the last successful sync time the sync status reports.
+  // Deliberately not the pull cursor, which only a session's pull moves.
   async completeSync(startTime) {
     await this.provisionFromCentral();
     this.lastDurationMs = Date.now() - startTime;
