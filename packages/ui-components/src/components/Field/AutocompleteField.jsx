@@ -209,6 +209,13 @@ export class AutocompleteInput extends Component {
     if (suggestion.isCustomizedOption) this.handleSuggestionChange(suggestion);
   };
 
+  // Leaving the field with the custom option highlighted commits it, as a highlighted option does
+  handleBlur = (event, { highlightedSuggestion } = {}) => {
+    if (highlightedSuggestion?.isCustomizedOption) {
+      this.handleSuggestionChange(highlightedSuggestion);
+    }
+  };
+
   handleSuggestionChange = option => {
     const { onChange, name, suggester } = this.props;
     if (!option.isCustomizedOption) {
@@ -583,6 +590,7 @@ export class AutocompleteInput extends Component {
             value: selectedOption?.value ?? '',
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
+            onBlur: this.handleBlur,
             onChange: this.handleInputChange,
             'data-testid': `${dataTestId}-input`,
             inputRef: this.handleInputRef,
