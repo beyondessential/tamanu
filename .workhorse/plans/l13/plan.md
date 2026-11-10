@@ -80,7 +80,7 @@ Central:
 - [x] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull
 
 Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
-- [x] Carry the trigger kind into `runSync` (schedule including start-up, user, patient marked, subcommand)
+- [x] Only a sync whose trigger type is `scheduled` (the schedule, including start-up) checks; the existing `this.reason` carries it
 - [x] Export a `hasUnpushedChanges(models)` helper from `packages/facility-server/app/sync/` (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`); the facility supervisor calls it at sleep in phase 5
 - [x] For scheduled syncs: skip the check when `hasUnpushedChanges`, when the settings PSK is missing, or when `convergeSyncUser` still has work; otherwise call the check and stop on "nothing"
 - [x] `CentralServerConnection`: add the check call; on `503` with `Retry-After`, wait and retry within the attempt for the check and for session start
@@ -88,7 +88,7 @@ Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
 - [x] Tests: each skip rule, the up-to-date outcome, the retry on `503`
 
 Mobile (`packages/mobile/App/services/sync/`):
-- [x] Replace `triggerSync({ urgent })` with a reason (scheduled, sign-in, reconnect, initial, manual, urgent) and pass it from `BackendManager`, `AuthContext`, facility selection and the sync screen
+- [x] A `scheduled` flag on the existing `triggerSync({ urgent })` options, passed only by `BackendManager`'s periodic sync
 - [x] For scheduled syncs: skip the check when there are outgoing changes or `tablesForFullResync` is set; otherwise check and stop on "nothing", updating the displayed last-synced time only
 - [x] `CentralServerConnection.ts`: the check call, and `503` with `Retry-After` handling for the check and session start
 - [x] Tests in `MobileSyncManager.test.ts`
@@ -99,7 +99,6 @@ Decisions made while building:
 - No fallback for a central without the route: central's version check keeps facilities and devices on its own minor version. An answer without the flag fails the sync, so a fault shows rather than being covered by a session.
 - The tick read is a backward index-only scan of the existing `updated_at_sync_tick` index; no migration.
 - A run with nothing to pull is recorded as `succeeded`, not a status of its own, so alerting that reads run history needs no change. It moves the facility's last completed time but not the pull cursor.
-- Mobile: the "Manual sync" button keeps the urgent path (the queue polling depends on it) and sends `urgent` to central, with the reason `manual`.
 
 ### 3. Supervisor package skeleton (SUPV) (PR 3 starts)
 

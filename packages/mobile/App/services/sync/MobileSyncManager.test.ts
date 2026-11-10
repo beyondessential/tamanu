@@ -1,7 +1,6 @@
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
-import { SYNC_REASONS, type SyncReason } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -68,7 +67,7 @@ describe('MobileSyncManager', () => {
     it('should call runSync() if it has not been started', async () => {
       jest.spyOn(mobileSyncManager, 'runSync');
 
-      mobileSyncManager.triggerSync(SYNC_REASONS.MANUAL);
+      mobileSyncManager.triggerSync();
 
       expect(mobileSyncManager.runSync).toBeCalledTimes(1);
     });
@@ -76,8 +75,8 @@ describe('MobileSyncManager', () => {
     it('should only run one sync at a time', async () => {
       jest.spyOn(mobileSyncManager, 'runSync');
 
-      const firstSyncPromise = mobileSyncManager.triggerSync(SYNC_REASONS.MANUAL);
-      const secondSyncPromise = mobileSyncManager.triggerSync(SYNC_REASONS.MANUAL);
+      const firstSyncPromise = mobileSyncManager.triggerSync();
+      const secondSyncPromise = mobileSyncManager.triggerSync();
 
       await Promise.all([firstSyncPromise, secondSyncPromise]);
 
@@ -85,9 +84,9 @@ describe('MobileSyncManager', () => {
     });
 
     it('should throw an error when calling runSync() while sync is still running', async () => {
-      mobileSyncManager.triggerSync(SYNC_REASONS.MANUAL);
+      mobileSyncManager.triggerSync();
 
-      await expect(mobileSyncManager.runSync(SYNC_REASONS.MANUAL)).rejects.toThrow(
+      await expect(mobileSyncManager.runSync()).rejects.toThrow(
         'MobileSyncManager.runSync(): Tried to start syncing while sync in progress',
       );
     });
@@ -106,7 +105,7 @@ describe('MobileSyncManager', () => {
         );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
-      await mobileSyncManager.runSync(SYNC_REASONS.MANUAL);
+      await mobileSyncManager.runSync();
 
       const startSyncSessionCallOrder = startSyncSessionSpy.mock.invocationCallOrder[0];
       const pushOutgoingChangesCallOrder = pushOutgoingChangesSpy.mock.invocationCallOrder[0];
@@ -128,7 +127,7 @@ describe('MobileSyncManager', () => {
         );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
-      await mobileSyncManager.runSync(SYNC_REASONS.MANUAL);
+      await mobileSyncManager.runSync();
 
       const pushOutgoingChangesCallOrder = pushOutgoingChangesSpy.mock.invocationCallOrder[0];
       const pullIncomingChangesCallOrder = pullIncomingChangesSpy.mock.invocationCallOrder[0];
@@ -146,7 +145,7 @@ describe('MobileSyncManager', () => {
       );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
-      await mobileSyncManager.runSync(SYNC_REASONS.MANUAL);
+      await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.pushOutgoingChanges).toBeCalledTimes(1);
       expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
@@ -162,7 +161,7 @@ describe('MobileSyncManager', () => {
       );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
-      await mobileSyncManager.runSync(SYNC_REASONS.MANUAL);
+      await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId);
@@ -183,7 +182,7 @@ describe('MobileSyncManager', () => {
         .spyOn(centralServerConnection, 'markSessionErrored')
         .mockImplementationOnce(jest.fn());
 
-      await expect(mobileSyncManager.runSync(SYNC_REASONS.MANUAL)).rejects.toThrow('pull failed');
+      await expect(mobileSyncManager.runSync()).rejects.toThrow('pull failed');
 
       expect(markSessionErroredSpy).toHaveBeenCalledWith(mockSessionId, 'pull failed');
     });
@@ -203,7 +202,7 @@ describe('MobileSyncManager', () => {
           .spyOn(centralServerConnection, 'endSyncSession')
           .mockImplementationOnce(jest.fn());
 
-        await mobileSyncManager.runSync(SYNC_REASONS.MANUAL);
+        await mobileSyncManager.runSync();
 
         expect(activateKeepAwake).toBeCalledTimes(1);
         expect(deactivateKeepAwake).toBeCalledTimes(1);
@@ -226,7 +225,7 @@ describe('MobileSyncManager', () => {
           );
         jest.spyOn(centralServerConnection, 'markSessionErrored').mockImplementationOnce(jest.fn());
 
-        await expect(mobileSyncManager.runSync(SYNC_REASONS.MANUAL)).rejects.toThrow('pull failed');
+        await expect(mobileSyncManager.runSync()).rejects.toThrow('pull failed');
 
         expect(activateKeepAwake).toBeCalledTimes(1);
         expect(deactivateKeepAwake).toBeCalledTimes(1);
@@ -237,7 +236,7 @@ describe('MobileSyncManager', () => {
           .spyOn(centralServerConnection, 'startSyncSession')
           .mockImplementationOnce(jest.fn(async () => ({ status: 'queued' })));
 
-        await mobileSyncManager.runSync(SYNC_REASONS.MANUAL);
+        await mobileSyncManager.runSync();
 
         expect(activateKeepAwake).not.toBeCalled();
         expect(deactivateKeepAwake).not.toBeCalled();
@@ -246,6 +245,7 @@ describe('MobileSyncManager', () => {
   });
 
   describe('runSync() changes-pending check', () => {
+    const scheduled = { urgent: false, scheduled: true };
     const lastPullTick = 120;
     let findFact: jest.Mock;
     let updateFact: jest.Mock;
@@ -279,7 +279,7 @@ describe('MobileSyncManager', () => {
     });
 
     it('checks with the pull cursor, and opens no session when there is nothing to pull', async () => {
-      await mobileSyncManager.runSync(SYNC_REASONS.SCHEDULED);
+      await mobileSyncManager.runSync(scheduled);
 
       expect(checkSpy).toBeCalledWith(lastPullTick);
       expect(startSessionSpy).not.toBeCalled();
@@ -289,7 +289,7 @@ describe('MobileSyncManager', () => {
     it('opens a session when there are changes to pull', async () => {
       checkSpy.mockResolvedValueOnce(true);
 
-      await mobileSyncManager.runSync(SYNC_REASONS.SCHEDULED);
+      await mobileSyncManager.runSync(scheduled);
 
       expect(startSessionSpy).toBeCalledWith({ urgent: false, lastSyncedTick: lastPullTick });
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
@@ -298,7 +298,7 @@ describe('MobileSyncManager', () => {
     it('leaves out the cursor when the device has never pulled', async () => {
       (getSyncTick as jest.Mock).mockResolvedValue(-1);
 
-      await mobileSyncManager.runSync(SYNC_REASONS.SCHEDULED);
+      await mobileSyncManager.runSync(scheduled);
 
       expect(checkSpy).toBeCalledWith(undefined);
     });
@@ -306,7 +306,7 @@ describe('MobileSyncManager', () => {
     it('opens a session without checking when there are outgoing changes', async () => {
       (hasOutgoingChanges as jest.Mock).mockResolvedValue(true);
 
-      await mobileSyncManager.runSync(SYNC_REASONS.SCHEDULED);
+      await mobileSyncManager.runSync(scheduled);
 
       expect(checkSpy).not.toBeCalled();
       expect(startSessionSpy).toBeCalledTimes(1);
@@ -315,7 +315,7 @@ describe('MobileSyncManager', () => {
     it('opens a session without checking when tables are waiting for a full resync', async () => {
       findFact.mockResolvedValue({ key: 'tablesForFullResync', value: 'patients' });
 
-      await mobileSyncManager.runSync(SYNC_REASONS.SCHEDULED);
+      await mobileSyncManager.runSync(scheduled);
 
       expect(findFact).toBeCalledWith({ where: { key: 'tablesForFullResync' } });
       expect(checkSpy).not.toBeCalled();
@@ -323,26 +323,20 @@ describe('MobileSyncManager', () => {
     });
 
     it.each([
-      [SYNC_REASONS.SIGN_IN, false],
-      [SYNC_REASONS.RECONNECT, false],
-      [SYNC_REASONS.INITIAL, false],
-      [SYNC_REASONS.MANUAL, true],
-      [SYNC_REASONS.URGENT, true],
-    ] as [SyncReason, boolean][])(
-      'opens a session without checking for a %s sync',
-      async (reason, urgent) => {
-        await mobileSyncManager.runSync(reason);
+      ['an ordinary', { urgent: false }],
+      ['an urgent', { urgent: true }],
+    ])('opens a session without checking for %s sync', async (_, options) => {
+      await mobileSyncManager.runSync(options);
 
-        expect(checkSpy).not.toBeCalled();
-        expect(startSessionSpy).toBeCalledWith({ urgent, lastSyncedTick: lastPullTick });
-      },
-    );
+      expect(checkSpy).not.toBeCalled();
+      expect(startSessionSpy).toBeCalledWith({ ...options, lastSyncedTick: lastPullTick });
+    });
 
     it('moves the displayed last synced time when there is nothing to pull, but not the pull cursor', async () => {
       const setSyncTick = jest.requireMock('./utils').setSyncTick as jest.Mock;
       expect(mobileSyncManager.lastSuccessfulSyncTime).toBeNull();
 
-      await mobileSyncManager.runSync(SYNC_REASONS.SCHEDULED);
+      await mobileSyncManager.runSync(scheduled);
 
       expect(mobileSyncManager.lastSuccessfulSyncTime).toBeInstanceOf(Date);
       expect(updateFact).toBeCalledTimes(1);
@@ -362,7 +356,7 @@ describe('MobileSyncManager', () => {
       mobileSyncManager.emitter.on('syncSuccess', onSuccess);
       mobileSyncManager.emitter.on('syncRecordError', onError);
 
-      await mobileSyncManager.triggerSync(SYNC_REASONS.SCHEDULED);
+      await mobileSyncManager.triggerSync(scheduled);
 
       expect(onSuccess).toBeCalledTimes(1);
       expect(onError).not.toBeCalled();
@@ -376,7 +370,7 @@ describe('MobileSyncManager', () => {
       mobileSyncManager.emitter.on('syncSuccess', onSuccess);
       mobileSyncManager.emitter.on('syncRecordError', onError);
 
-      await mobileSyncManager.triggerSync(SYNC_REASONS.SCHEDULED);
+      await mobileSyncManager.triggerSync(scheduled);
 
       expect(onError).toBeCalledWith({ error: expect.objectContaining({ message: 'Network Error' }) });
       expect(onSuccess).not.toBeCalled();
@@ -398,7 +392,7 @@ describe('MobileSyncManager', () => {
         );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
-      await mobileSyncManager.triggerSync(SYNC_REASONS.MANUAL);
+      await mobileSyncManager.triggerSync();
 
       expect(activateKeepAwake).toBeCalledTimes(1);
       expect(deactivateKeepAwake).toBeCalledTimes(1);

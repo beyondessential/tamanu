@@ -9,7 +9,7 @@ import { SYNC_DIRECTIONS } from '../../models/types';
 import type { SettingsService } from '../settings';
 import type { CentralServerConnection } from './CentralServerConnection';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
-import { SYNC_EVENT_ACTIONS, SYNC_REASONS, type SyncReason } from './types';
+import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -44,9 +44,14 @@ const STAGE_MAX_PROGRESS_INITIAL: StageMaxProgress = {
   2: 100,
 };
 
-/** Syncs that a person is waiting on, which jump the queue on central and keep polling it */
-const isUrgentSync = (reason: SyncReason): boolean =>
-  reason === SYNC_REASONS.URGENT || reason === SYNC_REASONS.MANUAL;
+type SyncOptions = {
+  urgent: boolean;
+  /**
+   * The periodic background sync, the only one that asks central whether there is anything to
+   * pull before opening a session (spec: SYNCHK#mobile-devices)
+   */
+  scheduled?: boolean;
+};
 
 export interface MobileSyncSettings {
   maxBatchesToKeepInMemory: number;
@@ -164,11 +169,8 @@ export class MobileSyncManager {
   /**
    * Trigger urgent sync, and along with urgent sync, schedule regular sync requests
    * to continuously connect to central server and request for status change of the sync session
-   * @param reason `urgent`, or `manual` for the sync the user starts by hand
    */
-  async triggerUrgentSync(
-    reason: typeof SYNC_REASONS.URGENT | typeof SYNC_REASONS.MANUAL = SYNC_REASONS.URGENT,
-  ): Promise<void> {
+  async triggerUrgentSync(): Promise<void> {
     if (this.urgentSyncInterval) {
       console.warn('MobileSyncManager.triggerSync(): Urgent sync already started');
       return;
@@ -181,18 +183,18 @@ export class MobileSyncManager {
 
     // Schedule regular urgent sync
     this.urgentSyncInterval = setInterval(
-      () => this.triggerSync(reason),
+      () => this.triggerSync({ urgent: true }),
       urgentSyncIntervalInSeconds * 1000,
     );
     // start the sync now
-    await this.triggerSync(reason);
+    await this.triggerSync({ urgent: true });
   }
 
   /**
    * Trigger syncing and send through the sync errors if there is any
    * @returns
    */
-  async triggerSync(reason: SyncReason): Promise<void> {
+  async triggerSync(options: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
@@ -203,7 +205,7 @@ export class MobileSyncManager {
     const startTime = Date.now();
 
     try {
-      await this.runSync(reason);
+      await this.runSync(options);
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_SUCCESS);
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
@@ -223,7 +225,7 @@ export class MobileSyncManager {
     }
   }
 
-  async runSync(reason: SyncReason): Promise<void> {
+  async runSync({ urgent, scheduled }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       throw new Error('MobileSyncManager.runSync(): Tried to start syncing while sync in progress');
     }
@@ -250,7 +252,7 @@ export class MobileSyncManager {
       ? STAGE_MAX_PROGRESS_INITIAL
       : STAGE_MAX_PROGRESS_INCREMENTAL;
 
-    if (reason === SYNC_REASONS.SCHEDULED && !(await this.hasLocalWorkToSync())) {
+    if (scheduled && !(await this.hasLocalWorkToSync())) {
       // spec: SYNCHK#mobile-devices
       // a failed check throws, which fails the sync just as a failed session start does
       const hasChangesToPull = await this.centralServer.checkForChangesToPull(
@@ -263,7 +265,6 @@ export class MobileSyncManager {
       }
     }
 
-    const urgent = isUrgentSync(reason);
     const {
       sessionId,
       startedAtTick: newSyncClockTime,

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
-import { SYNC_EVENT_ACTIONS, SYNC_REASONS } from '../../../../../services/sync';
+import { SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
@@ -147,7 +147,7 @@ export const SyncDataScreen = ({ navigation }) => {
         ) : null}
         {isSyncing ? null : (
           <Button
-            onPress={() => void syncManager.triggerUrgentSync(SYNC_REASONS.MANUAL)}
+            onPress={() => void syncManager.triggerUrgentSync()}
             width={160}
             outline
             textColor={theme.colors.SECONDARY_MAIN}

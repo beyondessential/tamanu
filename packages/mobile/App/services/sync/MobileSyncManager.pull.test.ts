@@ -1,5 +1,4 @@
 import { MobileSyncManager, type MobileSyncSettings } from './MobileSyncManager';
-import { SYNC_REASONS } from './types';
 
 jest.mock('./utils', () => ({
   getModelsForDirection: jest.fn(() => ({}) as any),
@@ -136,7 +135,7 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     const mgr = new MobileSyncManager(central as any, settings as any);
 
     // Act
-    await mgr.runSync(SYNC_REASONS.MANUAL);
+    await mgr.runSync();
 
     // Assert
     expect(mgr.isInitialSync).toBe(true);
@@ -168,7 +167,7 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     const mgr = new MobileSyncManager(central as any, settings as any);
 
     // Act
-    await mgr.runSync(SYNC_REASONS.MANUAL);
+    await mgr.runSync();
 
     // Assert
     expect(mgr.isInitialSync).toBe(false);
@@ -190,7 +189,7 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     const settings = makeSettings();
     const mgr = new MobileSyncManager(central as any, settings as any);
 
-    await mgr.runSync(SYNC_REASONS.MANUAL);
+    await mgr.runSync();
 
     expect(createSnapshotTable).not.toHaveBeenCalled();
     expect(pullRecordsInBatches).not.toHaveBeenCalled();
