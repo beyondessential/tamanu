@@ -18,9 +18,8 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): Omit<SyncRe
   };
 };
 
-// The rows a push sends: every row of a model changed since the last successful push, deleted ones
-// included. Shared by `snapshotOutgoingChanges` and `hasOutgoingChanges`, which must select the
-// same rows.
+// Shared with hasOutgoingChanges, which must select exactly the rows a push sends (deleted ones
+// included).
 const outgoingChangesQuery = (since: number) => ({
   where: { updatedAtSyncTick: MoreThan(since) },
   withDeleted: true,
@@ -60,9 +59,8 @@ export const snapshotOutgoingChanges = async (
 };
 
 /**
- * Whether any record has been updated since the last successful push, without building the
- * snapshot that a push needs. It selects with the same query as `snapshotOutgoingChanges`, but reads
- * only each row's id and stops at the first one it finds.
+ * Whether any of these models has a row a push from `since` would send;
+ * reads only ids, up to the first.
  */
 export const hasOutgoingChanges = async (
   outgoingModels: Partial<typeof MODELS_MAP>,

@@ -254,7 +254,7 @@ export class MobileSyncManager {
 
     if (scheduled && !(await this.hasLocalWorkToSync())) {
       // spec: SYNCHK#mobile-devices
-      // a failed check throws, which fails the sync just as a failed session start does
+      // a failed check fails the sync, as a failed session start does
       const hasChangesToPull = await this.centralServer.checkForChangesToPull(
         this.isInitialSync ? undefined : pullSince,
       );
@@ -333,10 +333,8 @@ export class MobileSyncManager {
   }
 
   /**
-   * A sync that central answered with nothing to pull is a successful sync: the "last synced"
-   * time moves, both the one in memory and the one stored with the pull cursor, which patient
-   * sync info shows. The cursor's value must not change, as the last pull did not reach any
-   * further.
+   * Moves the "last synced" time, in memory and on the pull cursor's fact (which patient sync info
+   * shows), without changing the cursor's value.
    */
   async recordSyncWithNothingToPull(): Promise<void> {
     const now = new Date();
