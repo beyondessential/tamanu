@@ -76,10 +76,9 @@ All sync code-owned changes for the card, including what the supervisor will lat
 Central:
 - [x] `getHighestRealChangeTick` in `packages/central-server/app/sync/`: max settled `updated_at_sync_tick` from `sync_lookup` (excluding the pending-update flag), served by the existing index; confirm with `EXPLAIN`
 - [x] Route `GET /api/sync/pending?since=<tick>` in `buildSyncRoutes.js`, answering `{ changesToPull }`, taking the pull cursor, requiring a device with the sync client scope, answering pull or nothing; always pull when `config.sync.lookupTable.enabled` is false
-- [x] Throttled last-seen: `Device.markSeenIfStale()` in `packages/database/src/models/Device.ts`, called from the check and from session start (`POST /api/sync`)
 - The supervisor's own routes (lookup refresh, busy, next due) are not in this phase: they and the build lock touch no code-owned path and land in phase 5
 - [x] Shape the check's handler and the tick read so the supervisor can mount them unchanged against its copy (handler takes models and the tick source from context, not module state)
-- [x] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull; last-seen throttled
+- [x] Tests in `packages/central-server/__tests__/sync/`: tick ignores pending flags and moves only on real changes; never-pulled answers pull; disabled lookup answers pull
 
 Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
 - [x] Carry the trigger kind into `runSync` (schedule including start-up, user, patient marked, subcommand)

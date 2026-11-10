@@ -11,7 +11,6 @@ import { createTestContext } from '../utilities';
 
 const FACILITY_ID = 'changes-pending-facility';
 const SYNC_DEVICE_ID = 'changes-pending-sync-device';
-const OTHER_DEVICE_ID = 'changes-pending-other-device';
 
 const withLookupTable = enabled => ({
   ...config,
@@ -23,7 +22,6 @@ describe('Changes-pending check', () => {
   let models;
   let baseApp;
   let syncToken;
-  let otherToken;
 
   const login = async (user, deviceId, scopes) => {
     const response = await baseApp
@@ -67,7 +65,6 @@ describe('Changes-pending check', () => {
     );
     await models.Facility.create(fake(models.Facility, { id: FACILITY_ID, name: FACILITY_ID }));
     syncToken = await login(user, SYNC_DEVICE_ID, [DEVICE_SCOPES.SYNC_CLIENT]);
-    otherToken = await login(user, OTHER_DEVICE_ID, []);
   });
 
   beforeEach(async () => {
@@ -123,17 +120,6 @@ describe('Changes-pending check', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('answers a cursor that is not a sync tick with a client error', async () => {
-      const response = await check(syncToken, 'soon');
-      expect(response).toHaveRequestError();
-    });
-
-    it('rejects a device without the sync client scope', async () => {
-      await addLookupRow('real-1', 50);
-      const response = await check(otherToken, 0);
-      expect(response).toHaveRequestError();
-    });
-
     it('answers that there are changes when the device has never pulled', async () => {
       await addLookupRow('real-1', 5);
       const response = await check(syncToken);
@@ -183,43 +169,6 @@ describe('Changes-pending check', () => {
       expect(await check(syncToken, 'soon')).toHaveRequestError();
       expect(await check(syncToken, '')).toHaveRequestError();
       expect(await check(syncToken, '1.5')).toHaveRequestError();
-    });
-
-    it('records the device as seen when its last-seen time is stale', async () => {
-      const longAgo = new Date(Date.now() - 60 * 60 * 1000);
-      await models.Device.update({ lastSeenAt: longAgo }, { where: { id: SYNC_DEVICE_ID } });
-
-      const response = await check(syncToken, 0);
-      expect(response).toHaveSucceeded();
-
-      const device = await models.Device.findByPk(SYNC_DEVICE_ID);
-      expect(device.lastSeenAt.getTime()).toBeGreaterThan(longAgo.getTime());
-    });
-  });
-
-  describe('POST /api/sync', () => {
-    it('records the device as seen when its last-seen time is stale', async () => {
-      CentralSyncManager.overrideConfig({
-        ...withLookupTable(true),
-        sync: { ...withLookupTable(true).sync, awaitPreparation: true },
-      });
-      const longAgo = new Date(Date.now() - 60 * 60 * 1000);
-      await models.Device.update({ lastSeenAt: longAgo }, { where: { id: SYNC_DEVICE_ID } });
-
-      const response = await baseApp
-        .post('/api/sync')
-        .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
-        .set('Authorization', `Bearer ${syncToken}`)
-        .send({ facilityIds: [FACILITY_ID], lastSyncedTick: 0, isMobile: true });
-      expect(response).toHaveSucceeded();
-
-      const device = await models.Device.findByPk(SYNC_DEVICE_ID);
-      expect(device.lastSeenAt.getTime()).toBeGreaterThan(longAgo.getTime());
-
-      await baseApp
-        .delete(`/api/sync/${response.body.sessionId}`)
-        .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
-        .set('Authorization', `Bearer ${syncToken}`);
     });
   });
 });

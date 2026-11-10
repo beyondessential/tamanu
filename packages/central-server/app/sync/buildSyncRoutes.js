@@ -87,9 +87,6 @@ export const buildSyncRoutes = ctx => {
 
       await assertUserCanSyncFacilities(req, facilityIds);
 
-      // spec: SYNCHK#recording-the-device-as-seen
-      await device.markSeenIfStale();
-
       // first check if our device has any stale sessions...
       const staleSessions = await SyncSession.findAll({
         where: {

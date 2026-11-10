@@ -27,11 +27,6 @@ Applies to the check a facility server or a mobile device makes before opening a
 >
 > A device with nothing to push and nothing to pull opens no session at all, so an idle device costs central almost nothing and does not keep a [sleeping central](../platform/supervisor/sleep-and-wake.md) awake.
 
-## Recording the device as seen
-
-- A check, and the start of a sync session, update the calling device's last-seen time when the stored time is older than a short interval. A device that checks often writes it at most every few minutes, so the change log is not flooded.
-- The last-seen time therefore stays accurate as the time a device last contacted central, whether or not it opens sessions.
-
 ## Facility servers
 
 - A scheduled sync, including the one at start-up, checks first and opens a session only when the answer is that there are changes to pull.
