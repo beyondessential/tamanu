@@ -1,10 +1,10 @@
 ---
-workhorse-version: 0.7.9
+workhorse-version: 0.7.14
 ---
 
 # Design judgement
 
-How to decide what a feature should do, how to tell a crafted interface from a generated one, and how to move a design from the second to the first. The skills `hands-free-feature` and `qa-loop` depend on it, and it applies to any UI review. The workspace's design system, where it has one (`.workhorse/design/design-system.md` or the repo's own), sets the tokens and the rules and wins wherever it disagrees; this document covers the judgement that rules do not.
+How to decide what a feature should do, how to tell a crafted interface from a generated one, and how to move a design from the second to the first. The skills `build-loop` and `qa-loop` depend on it, and it applies to any UI review. The workspace's design system, where it has one (`.workhorse/design/design-system.md` or the repo's own), sets the tokens and the rules and wins wherever it disagrees; this document covers the judgement that rules do not.
 
 ## Deciding features
 
@@ -45,6 +45,7 @@ A model asked for an interface produces the average of the interfaces it has see
   On one roadmap, every bar was tinted with its project's colour and carried the name inside. The reference's bars were neutral, the name sat above the bar, and colour appeared only in the small project icon.
 - **Boxes around everything.** Cards inside panels inside sections, each with a border, a radius and padding. Rows boxed rather than separated by space.
 - **Labels for the self-evident.** "Status:", section headings over a single item, helper text under fields, hint text explaining what a control plainly does.
+- **Narrating the machinery.** Hint text that tells the user what the system will do behind the scenes: "Workhorse reads it at its next break", "Changes save automatically", "You can change this later". Models add these reflexively, to reassure, and they are among the surest tells. Assume each one is unjustified, and keep it only when a user would otherwise get something wrong or be unable to act. Where the behaviour matters, show it as state when it happens (Queued, Saved) rather than promising it beside the control.
 - **A pill for every attribute.** Usually the value as plain muted text reads better.
 - **An icon beside every word.** Icons belong where they replace a word or mark a type, not where they repeat a label.
 - **Size doing the work of hierarchy.** Five type sizes on one surface, big headings over small content.
@@ -192,7 +193,7 @@ Findings 1, 2 and 6 are visible in a single capture of Linear's timeline, beside
 
 ## The UI loop
 
-This loop turns a working build into a refined one, and it is where most of a hands-free run's time should go.
+This loop turns a working build into a refined one, and it is where most of a build loop run's time should go.
 
 1. **Shoot** the state matrix and the interaction filmstrips.
 2. **Critique** with the protocol above and rank the findings by how much they cost.

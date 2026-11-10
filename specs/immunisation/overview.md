@@ -4,4 +4,4 @@ id: IMMUNISATION
 
 # Immunisation
 
-Vaccinations and immunisation schedules.
+Applies to vaccinations and immunisation schedules.

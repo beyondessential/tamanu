@@ -1,5 +1,4 @@
 import {
-  SendStatusToMetaServer,
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
   FhirMissingResources,
@@ -21,7 +20,6 @@ export { startFhirWorkerTasks };
 
 const DEFAULT_TASK_CLASSES = [
   RefreshUpcomingVaccinations,
-  SendStatusToMetaServer,
   TimeSyncTask,
   FhirMissingResources,
   FhirJobWorkerCleaner,

@@ -3,7 +3,7 @@ name: refactor-loop
 description: "Take stock of this card's code and refactor it, in loops, until it is as small, DRY and well structured as it sensibly can be, with behaviour unchanged"
 label: "Refactor loop"
 category: build
-workhorse-version: 0.7.9
+workhorse-version: 0.7.14
 ---
 
 ## Your task: make the code smaller and better structured, behaviour unchanged
@@ -15,6 +15,10 @@ Care about the code around the card as well as the card's own. When the card's c
 The aim is less code that is easier to change. On a large feature that has been through many rounds, halving the code it added is often a reasonable ambition. Treat that as a prompt to look hard, not a quota: some code is already as small as it should be, and cutting it further would make it worse. Judge each change by whether the next person to read the code will find it simpler.
 
 If you don't already have this card's context, establish it first by following `.agents/docs/card-context.md`.
+
+### Prerequisites
+
+Check them first, per `.agents/docs/running-loops.md`. No product code in scope (a docs-only branch, an empty diff) is "Nothing to do"; ask first when the scope is unclear and the user has named no area.
 
 ### Scope
 
@@ -36,11 +40,19 @@ Keep each wider change to one clear idea, so a reviewer can follow it, and recor
 - **Count every line, and judge by the net.** A new helper, hook or file counts against what it replaces, and so do the tests written to guard a refactor. An entry that does not bring the net down is reverted, unless it buys a clarity the ledger names. A package whose total is not down has missed its purpose, however many entries it ticked.
 - **Guard refactors with few, sharp tests.** Write the smallest test that would catch the regression the entry risks, at the public entry point. Where existing tests already pin the behaviour, write none.
 - **Commit per refactor**, each with its line count before and after, so any one can be reverted alone.
-- **Follow `.agents/docs/running-loops.md`** for models, cut-offs, the pull request hold, the rig and parallel agents. Hold the pull request with the reason "Refactor loop running".
+- **Follow `.agents/docs/running-loops.md`** for models, cut-offs, how a round is reported, what this card's rigour sets, the rig and parallel agents. The run holds the pull request itself, so you never call `hold_pr` or `release_pr`.
 - **Models by job:**
   - Fable for the judgements that are architecture or taste: the altitude survey, and triage calls on what to unify or redesign.
   - Opus for the other surveys, the adversarial review in step 5, and any refactor that restructures (a new state owner, a merged module, an altitude redesign). Left to a mechanical pass, a restructure comes back as a new layer beside the old code, and the count goes up.
   - Sonnet for mechanical entries: a rename, a helper adopted at many sites, a deletion.
+
+### Reporting the run
+
+A round is one survey, triage, refactor and proof (steps 2 to 5), with the measure that follows it.
+
+- **A refactor loop has no issues of its own** beyond the bugs it finds. Candidates, ledger entries and decisions stay in the plan's refactor ledger and are not filed. A bug found while refactoring is filed with `file_issue` as you find it, with a `severity` on the scale the hosted review uses (critical, suggestion or nit; a behaviour regression a package review catches counts by how much it would hurt), under this run and the round you are in, with a failing test where it is substantive. Do not fix it in a refactor commit: it is fixed apart, and you set its disposition with `set_issue_disposition` as that happens (in progress, then fixed with the commit's sha, or skipped with the reason).
+- **When a round files five or more issues, call `set_triage` before acting on any of them:** the triage rule applies to a loop's issues as it does to any others.
+- **Call `report_round` once per round,** when the round's survey has been judged and its packages proved: `loop` `refactor_loop`, the `round` you have just finished counting from 1, the `cap` this card's rigour gives (the turn names it), `found` as what the round turned up that was a defect, in critical, suggestion and nit counts (a refactor candidate is not a finding, so a round that only found things to refactor reports zeros), a one-line `summary` that carries the round's line numbers before and after, and `status`: `going` while another round follows, `done` when the stop rule in step 6 is met, and `stopped` only if the user told you to stop. If the tool refuses because the conversation has no open run of the loop, say so and do not report again.
 
 ### 1. Measure
 
@@ -97,7 +109,7 @@ A green suite is necessary but not enough, because tests cover only what someone
 
 Measure again and record the new numbers in the ledger. Then survey again with agents that did not survey or refactor before: each round's changes open up candidates that were hidden behind the old structure.
 
-Stop when two consecutive fresh surveys find nothing worth doing: their candidates are all decided as Leave, or together they would save only a small fraction of what remains. Running out of time does not end the loop; the stop condition does.
+Stop by the card's rigour (`.agents/docs/running-loops.md`): a survey is clean when it finds nothing worth doing, with its candidates all decided as Leave or together saving only a small fraction of what remains. The loop is done after the rigour's clean surveys in a row, each by agents that did not survey or refactor before: one at light, two at standard and at thorough. Running out of time does not end the loop; the stop rule and the cap do. A run that reaches its cap first reports that last round as `going`, since Workhorse ends the run at its cap, and says in its report where it stands.
 
 ### 7. Report
 
@@ -116,3 +128,4 @@ Lead with the numbers, before and after, for product code and tests. Then give:
 - Rewrite code the card only passes through, for its own sake.
 - Trade clarity for fewer lines.
 - Refactor code the tests do not cover without writing those tests first.
+- Call `hold_pr` or `release_pr`, or report a round you did not finish.

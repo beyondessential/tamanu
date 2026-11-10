@@ -3,6 +3,7 @@ import {
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
   INPATIENT_BUNDLED_CATEGORY_VALUES,
+  INVOICE_PRINT_LAYOUTS,
 } from '@tamanu/constants';
 
 import { extractDefaults } from './utils';
@@ -254,7 +255,6 @@ export const facilitySettings = {
             ...batchingProperties(1000, 100),
           },
         ),
-        sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
         timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
         mSupplyMedIntegrationProcessor: scheduledTaskSchema(
           { schedule: '0 2 * * *', enabled: false },
@@ -448,6 +448,18 @@ export const facilitySettings = {
               defaultValue: '02:00',
             },
           },
+        },
+        printLayout: {
+          name: 'Invoice print layout',
+          description:
+            'Layout used when printing an invoice at this facility. Receipt prints on 80mm thermal roll paper.',
+          exposedToWeb: true,
+          type: yup.string().oneOf(Object.values(INVOICE_PRINT_LAYOUTS)),
+          defaultValue: INVOICE_PRINT_LAYOUTS.A4,
+          options: [
+            { value: INVOICE_PRINT_LAYOUTS.A4, label: 'A4' },
+            { value: INVOICE_PRINT_LAYOUTS.RECEIPT, label: 'Receipt' },
+          ],
         },
       },
     },

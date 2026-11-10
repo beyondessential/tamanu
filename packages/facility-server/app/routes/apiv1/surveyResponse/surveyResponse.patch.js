@@ -204,6 +204,7 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
       responseRecord.surveyId,
       req.user.id,
       responseRecord.endTime,
+      { isEdit: true },
     );
   });
 

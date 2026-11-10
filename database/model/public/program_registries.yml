@@ -79,3 +79,8 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in program_registries."
             data_tests:
               - not_null
+          - name: mandatory_condition_enabled
+            data_type: boolean
+            description: "{{ doc('program_registries__mandatory_condition_enabled') }}"
+            data_tests:
+              - not_null

@@ -4,4 +4,4 @@ id: PROGRAMS
 
 # Programs
 
-Programs, surveys, and form submissions.
+Applies to programs, surveys, and form submissions.
