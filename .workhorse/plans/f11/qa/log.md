@@ -435,3 +435,64 @@ R2-2 fixed in `02e6b303`: every multi-area sub total assertion used named wards,
 misattributed to the null-keyed No area group passed all 37 tests. Proven by mutating the route so
 that group alone takes the facility-wide counts — exactly one test fails, the new one — and
 restoring the route byte-for-byte.
+
+### Round 2 checkpoint
+
+Lint PASS · diet summary endpoint tests PASS (38) · shared PASS (241, including the 5 new
+`estimateWardPresence` cases) · settings PASS (97) · web unit PASS (747) · build PASS.
+
+## Round 3
+
+Four lenses in parallel. Every one of them had found something in an earlier round, so every one of
+them owes a clean run before the loop can finish:
+
+| Lens | Model | Why it runs again |
+|---|---|---|
+| Printed sheet under hostile data | sonnet | found the blocker and the `ROW_HEIGHT` highs; attacks the new estimate |
+| Endpoint security and edges | opus | found the unguarded settings read and the prototype keys |
+| Neighbours | sonnet | found the `printPDF` guard's reach |
+| Architecture | fable | its round 1 findings reshaped the renderer; judges what the code is now |
+
+There is ONE facility test database, so the endpoint adversary owns it and the others were told not
+to run facility-server tests. Source mutation is owned by nobody this wave: all four are read-only
+on `packages/`, so the round cannot repeat round 1's lesson of adversaries and fixers sharing a
+checkout.
+
+### Round 3 — stopped early
+
+Two of the four lenses reported. The printed-sheet and endpoint adversaries were stopped by the
+user mid-run and wrote no report, so **round 3 is incomplete**: nothing is claimed from either, and
+neither the printed sheet nor the endpoint has the clean pass the stop rule asks of it. Their
+working files were removed and the tree is clean.
+
+### Round 3 — neighbours (sonnet): 0 blocker, 0 high, 1 medium, 4 low
+
+Clean on everything that could have broken a neighbour: all five `printPDF` callers, the settings
+schema and its `extractDefaults`, both migrations, and the settings, shared and web suites plus
+lint.
+
+- N3-1 (medium) `'GlobalPdfFont'` is now a magic string in three places — `registerFonts.js`,
+  `languageContext.jsx` and the new `estimateWardPresence.js` — so renaming it anywhere else
+  silently reopens P2-1 with every test still green.
+- Four lows: barrel-export inconsistency, no mobile migration counterpart (correctly none owed),
+  the search bar's grid cell changing from a button to a div (appearance NOT VERIFIED, no browser),
+  and a partial `iframe?.contentWindow` guard.
+
+### Round 3 — architecture (fable): 0 blocker, 0 high, 4 medium, 3 low. Nothing holds the card.
+
+Its answer to the question I put to it — is depending on an *estimated* row height the right shape?
+— is yes, in unpatched react-pdf 3: `splitNodes` pushes a `fixed` node onto both fragments before
+any fit test, which defeats the engine's own carry-over rule, and there is no pre-layout
+measurement API (`Font.getFont` is null for Helvetica and async for the global font). The sound
+alternative is a ~5-line patch to `@react-pdf/layout`, which this repo already patches and pins. It
+benefits three printouts, so it is a follow-up card, not this one.
+
+- A1 (medium) the estimator re-types the stylesheet's own dimensions, so a stylesheet change
+  reintroduces P2 with every test green. SAME ROOT as N3-1, found independently. → one shared
+  metrics module; the cheapest fix on the card and the only one both lenses asked for.
+- A4 the server/renderer boundary is in the right place; the area ordering in the SQL wants one
+  comment line.
+- A5 (medium) the host-facility guard is a session invariant written in one route while five
+  neighbours go unguarded → the same middleware follow-up already recorded.
+- A6 (medium) the pagination evidence lives only in the scratchpad; no committed test renders a
+  PDF. `pdfjs-dist` is already in the workspace. → follow-up, or cheap now.
