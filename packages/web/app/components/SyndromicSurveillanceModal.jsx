@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { SYNDROMIC_SURVEILLANCE_SURVEY_ID } from '@tamanu/constants';
@@ -9,6 +10,7 @@ import {
 } from '../api/queries';
 import { useAuth } from '../contexts/Auth';
 import { useSubmitSyndromicSurveillance } from '../hooks/useSubmitSyndromicSurveillance';
+import { EmbeddedSurveyBox } from './EmbeddedSurveyBox';
 import { ErrorMessage } from './ErrorMessage';
 import { SurveyViewForm } from '../views/programs/SurveyView';
 import { useSurveyResponseEditMutation } from '../views/programs/useSurveyResponseEditMutation';
@@ -18,6 +20,24 @@ import { LoadingIndicator } from './LoadingIndicator';
 import { SurveyResponseChangelogModal } from './SurveyResponseChangelogModal';
 import { TranslatedReferenceData } from './Translation';
 import { TranslatedText } from './Translation/TranslatedText';
+
+// A subtitle beneath the modal's title, as the form is embedded in the modal.
+const FormCompleteHeading = styled.h3`
+  margin-block: 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 21px;
+`;
+
+const FORM_COMPLETE_HEADING = (
+  <FormCompleteHeading data-testid="formcompleteheading-syndromic-surveillance">
+    <TranslatedText
+      stringId="paginatedForm.summary.heading"
+      fallback="Form complete"
+      data-testid="translatedtext-syndromic-surveillance-form-complete"
+    />
+  </FormCompleteHeading>
+);
 
 const SubmitSyndromicSurveillanceForm = ({ encounterId, patient, onClose }) => {
   const { currentUser } = useAuth();
@@ -58,6 +78,9 @@ const SubmitSyndromicSurveillanceForm = ({ encounterId, patient, onClose }) => {
       onSubmit={submitSurveyResponse}
       onCancel={onClose}
       showCancelButton
+      showButtonRowDivider={false}
+      showSummaryCancelButton
+      summaryHeading={FORM_COMPLETE_HEADING}
       patient={patient}
       patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
@@ -113,6 +136,9 @@ const EditSyndromicSurveillanceForm = ({ surveyResponseId, patient, onClose }) =
         onSubmit={submitSurveyResponseEdit}
         onCancel={onClose}
         showCancelButton
+        showButtonRowDivider={false}
+        showSummaryCancelButton
+        summaryHeading={FORM_COMPLETE_HEADING}
         patient={patient}
         patientAdditionalData={patientAdditionalData}
         currentUser={currentUser}
@@ -167,18 +193,20 @@ export const SyndromicSurveillanceModal = ({
     onClose={onClose}
     data-testid="formmodal-syndromic-surveillance"
   >
-    {surveyResponseId ? (
-      <EditSyndromicSurveillanceForm
-        surveyResponseId={surveyResponseId}
-        patient={patient}
-        onClose={onClose}
-      />
-    ) : (
-      <SubmitSyndromicSurveillanceForm
-        encounterId={encounterId}
-        patient={patient}
-        onClose={onClose}
-      />
-    )}
+    <EmbeddedSurveyBox data-testid="embeddedsurveybox-syndromic-surveillance">
+      {surveyResponseId ? (
+        <EditSyndromicSurveillanceForm
+          surveyResponseId={surveyResponseId}
+          patient={patient}
+          onClose={onClose}
+        />
+      ) : (
+        <SubmitSyndromicSurveillanceForm
+          encounterId={encounterId}
+          patient={patient}
+          onClose={onClose}
+        />
+      )}
+    </EmbeddedSurveyBox>
   </FormModal>
 );

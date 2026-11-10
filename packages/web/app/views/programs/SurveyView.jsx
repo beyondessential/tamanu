@@ -72,11 +72,14 @@ export const SurveyViewForm = ({
   currentUser,
   patientProgramRegistration,
   showCancelButton,
+  showButtonRowDivider = true,
   setSurveyFormDirty,
   initialAnswerOverrides = null,
   editedDataElementIds = null,
   onViewChangeLog = null,
   editedSurveyResponseId = null,
+  summaryHeading = null,
+  showSummaryCancelButton = false,
 }) => {
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
@@ -159,11 +162,14 @@ export const SurveyViewForm = ({
           setStatus={setStatus}
           status={status}
           showCancelButton={showCancelButton}
+          showButtonRowDivider={showButtonRowDivider}
           getComponentForQuestionType={getComponentForQuestionType}
           encounterType={encounter?.type}
           completeButtonDisabled={isEdit ? !dirty || isSubmittingEdit : false}
           editedDataElementIds={editedDataElementIds}
           onViewChangeLog={onViewChangeLog}
+          summaryHeading={summaryHeading}
+          showSummaryCancelButton={showSummaryCancelButton}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>

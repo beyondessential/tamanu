@@ -713,6 +713,7 @@ export const DischargeForm = ({
           {showSyndromicSurveillance && (
             <DischargeSyndromicSurveillanceSection
               encounterId={encounter.id}
+              isRequired={isSyndromicSurveillanceRequired}
               isComplete={isSyndromicSurveillanceComplete}
               hasStatusLoadFailed={hasSyndromicSurveillanceLoadFailed}
               setHasUnsubmittedAnswers={setIsSyndromicSurveillanceFormDirty}

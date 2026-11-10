@@ -18,7 +18,7 @@ export const SyndromicSurveillanceComplete = ({ 'data-testid': dataTestId }) => 
     <CheckCircleIcon fill={Colors.safe} aria-hidden data-testid="checkcircleicon-complete" />
     <TranslatedText
       stringId="encounter.syndromicSurveillance.complete"
-      fallback="Complete"
+      fallback="Completed"
       data-testid="translatedtext-syndromic-surveillance-complete"
     />
   </CompleteText>

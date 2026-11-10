@@ -1,11 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
+import FormHelperText from '@mui/material/FormHelperText';
 import { getIn, useFormikContext } from 'formik';
 
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+import { RequiredOrnament } from '@tamanu/ui-components';
 import { usePatientAdditionalDataQuery } from '../api/queries';
 import { useDischargeSyndromicSurveillanceSurveyQuery } from '../api/queries/useDischargeSyndromicSurveillanceSurveyQuery';
+import { EmbeddedSurveyBox } from '../components/EmbeddedSurveyBox';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { SyndromicSurveillanceComplete } from '../components/SyndromicSurveillanceComplete';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -34,12 +37,10 @@ const IntroText = styled.p`
   color: ${Colors.midText};
 `;
 
-// Matches a form embedded in the procedure modal.
-const SurveyBox = styled.div`
-  background: ${Colors.white};
-  padding: 20px;
-  border-radius: 3px;
-  border: 1px solid ${Colors.outline};
+// A long form scrolls within its box, rather than growing the discharge modal to fit it.
+const ScrollableSurveyBox = styled(EmbeddedSurveyBox)`
+  max-height: 400px;
+  overflow-y: auto;
 `;
 
 const LoadFailedText = styled.p`
@@ -93,9 +94,12 @@ const EmbeddedSyndromicSurveillanceForm = ({
   const { data: patientAdditionalData, isLoading: isLoadingPatientAdditionalData } =
     usePatientAdditionalDataQuery(patient.id);
 
-  const hasRequiredError =
-    status?.submitStatus === SUBMIT_ATTEMPTED_STATUS &&
-    Boolean(getIn(errors, SYNDROMIC_SURVEILLANCE_VALIDATION_KEY));
+  // Shown, like the discharge form's other errors, only once finalising it has been attempted.
+  const requiredError =
+    status?.submitStatus === SUBMIT_ATTEMPTED_STATUS
+      ? getIn(errors, SYNDROMIC_SURVEILLANCE_VALIDATION_KEY)
+      : null;
+  const hasRequiredError = Boolean(requiredError);
 
   // spec: SYND#discharge-form
   // Recorded as soon as it is submitted, separately from finalising the discharge, the same way a
@@ -107,14 +111,7 @@ const EmbeddedSyndromicSurveillanceForm = ({
 
   return (
     <>
-      <IntroText data-testid="introtext-syndromic-surveillance-section">
-        <TranslatedText
-          stringId="discharge.syndromicSurveillance.intro"
-          fallback="Please complete the below for syndromic surveillance"
-          data-testid="translatedtext-syndromic-surveillance-section-intro"
-        />
-      </IntroText>
-      <SurveyBox
+      <ScrollableSurveyBox
         style={hasRequiredError ? { borderColor: Colors.alert } : undefined}
         onSubmit={stopSubmitReachingDischargeForm}
         data-testid="surveybox-syndromic-surveillance"
@@ -129,22 +126,29 @@ const EmbeddedSyndromicSurveillanceForm = ({
             patient={patient}
             patientAdditionalData={patientAdditionalData}
             currentUser={currentUser}
+            showButtonRowDivider={false}
             setSurveyFormDirty={setHasUnsubmittedAnswers}
           />
         </EmbeddedSurveyContent>
-      </SurveyBox>
+      </ScrollableSurveyBox>
+      {hasRequiredError && (
+        <FormHelperText error data-testid="formhelpertext-syndromic-surveillance-required">
+          {requiredError}
+        </FormHelperText>
+      )}
     </>
   );
 };
 
 /**
  * The discharge form's syndromic surveillance section: the syndromic surveillance form to complete
- * until the encounter has a response to it, then only that it is complete.
+ * until the encounter has a response to it, then that it is complete.
  *
  * spec: SYND#discharge-form
  */
 export const DischargeSyndromicSurveillanceSection = ({
   encounterId,
+  isRequired,
   isComplete,
   hasStatusLoadFailed,
   setHasUnsubmittedAnswers,
@@ -161,9 +165,19 @@ export const DischargeSyndromicSurveillanceSection = ({
           fallback="Syndromic surveillance"
           data-testid="translatedtext-syndromic-surveillance-section-title"
         />
+        {isRequired && <RequiredOrnament data-testid="requiredornament-syndromic-surveillance" />}
       </SectionTitle>
+      <IntroText data-testid="introtext-syndromic-surveillance-section">
+        <TranslatedText
+          stringId="discharge.syndromicSurveillance.intro"
+          fallback="Please complete the below for syndromic surveillance"
+          data-testid="translatedtext-syndromic-surveillance-section-intro"
+        />
+      </IntroText>
       {isComplete ? (
-        <SyndromicSurveillanceComplete data-testid="syndromicsurveillancecomplete-discharge" />
+        <EmbeddedSurveyBox data-testid="embeddedsurveybox-syndromic-surveillance-complete">
+          <SyndromicSurveillanceComplete data-testid="syndromicsurveillancecomplete-discharge" />
+        </EmbeddedSurveyBox>
       ) : (
         <EmbeddedSyndromicSurveillanceForm
           encounterId={encounterId}

@@ -26,9 +26,9 @@ Deleting the response from Forms returns the encounter's syndromic surveillance 
 
 ## Diagnosis pane
 
-While syndromic surveillance has not been completed, the diagnosis pane shows a "Syndromic surveillance" action. It opens a modal containing the syndromic surveillance form, and submitting the form there records the response against the encounter. Once the encounter has ended the action is disabled, as no form takes a new response against an ended encounter.
+While syndromic surveillance has not been completed, the diagnosis pane shows a "Syndromic surveillance" action. It opens a modal containing the syndromic surveillance form, displayed the same way as a form embedded in the procedure modal, and submitting the form there records the response against the encounter. Once the encounter has ended the action is disabled, as no form takes a new response against an ended encounter.
 
-Once it is complete, the pane shows "Syndromic surveillance: Complete" with a completion icon to its left, alongside a "View/Edit" action that opens the encounter's response in the modal. For a user who cannot edit the response, the action reads "View" and the response opens read-only.
+Once it is complete, the pane shows "Syndromic surveillance: Completed" with a completion icon to its left, alongside a "View/Edit" action that opens the encounter's response in the modal. For a user who cannot edit the response, the action reads "View" and the response opens read-only.
 
 ## Discharge form
 
@@ -38,9 +38,9 @@ Answers entered into the embedded form but not yet submitted are discarded witho
 
 Finalising the discharge while the embedded form has answers that have not been submitted warns the clinician that the syndromic surveillance answers will be lost. They can return to the form to submit it, or finalise the discharge without it, which discards those answers. When the deployment requires syndromic surveillance at discharge, the discharge cannot be finalised without it, so the section is flagged as required instead.
 
-Once syndromic surveillance is complete, the section shows only that it is complete.
+Once syndromic surveillance is complete, the section shows that it is complete in place of the form.
 
-A deployment can require syndromic surveillance to be completed at discharge. When it does, the discharge form cannot be finalised until syndromic surveillance for the encounter is complete, and attempting to finalise it flags the syndromic surveillance section as required. The requirement applies while syndromic surveillance is available, and only to discharges made through the discharge form; an encounter that is discharged automatically, such as an outpatient encounter, is discharged regardless.
+A deployment can require syndromic surveillance to be completed at discharge. When it does, the discharge form cannot be finalised until syndromic surveillance for the encounter is complete, and attempting to finalise it flags the syndromic surveillance section as required. The section's title is marked as required both before and after syndromic surveillance is complete. The requirement applies while syndromic surveillance is available, and only to discharges made through the discharge form; an encounter that is discharged automatically, such as an outpatient encounter, is discharged regardless.
 
 ## Permissions
 
