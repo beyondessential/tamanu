@@ -12,7 +12,7 @@ import { faithFetch } from './faithFetch';
 
 // spec: SYNCHK#while-central-wakes
 // Only a 503 with a Retry-After is a waking central; a bare 503 (overloaded central, empty proxy)
-// is an ordinary failure. Returns a catch handler answering `fallback` while central wakes.
+// is an ordinary failure.
 const whenCentralWakes = fallback => error => {
   const waking =
     error.response?.status === 503 && Boolean(error.response.headers.get('retry-after')?.trim());
