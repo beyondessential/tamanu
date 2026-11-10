@@ -259,18 +259,11 @@ export class FacilitySyncManager {
     return result;
   }
 
-  // Provisions from central, then moves the last successful sync time the sync status reports.
-  // Deliberately not the pull cursor, which only a session's pull moves.
-  async completeSync(startTime) {
-    await this.provisionFromCentral();
-    this.lastDurationMs = Date.now() - startTime;
-    this.lastCompletedAt = new Date();
-    return { queued: false, ran: true };
-  }
-
   // Runs after every successful sync, with or without a session, so a facility whose syncs find
-  // nothing to pull still converges.
-  async provisionFromCentral() {
+  // nothing to pull still converges. Provisions from central, then moves the last successful sync
+  // time the sync status reports. Deliberately not the pull cursor, which only a session's pull
+  // moves.
+  async completeSync(startTime) {
     // Provisioning that needs a live central, ordered: the PSK read is served to a
     // dedicated sync user only, so the swap has to land first. Neither may fail the
     // sync it rode in on, and both retry on the next one.
@@ -289,6 +282,10 @@ export class FacilitySyncManager {
     } catch (error) {
       log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
     }
+
+    this.lastDurationMs = Date.now() - startTime;
+    this.lastCompletedAt = new Date();
+    return { queued: false, ran: true };
   }
 
   // spec: FBOOT#when-a-facility-bootstraps
