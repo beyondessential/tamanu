@@ -107,10 +107,12 @@ describe('CentralServerConnection', () => {
       expect(getSpy).toHaveBeenCalledWith('sync/pending', {});
     });
 
-    it('treats an answer that is not a clear "nothing" as changes to pull', async () => {
+    it('fails when central answers the check with no flag', async () => {
       jest.spyOn(centralServerConnection, 'get').mockResolvedValue({});
 
-      await expect(centralServerConnection.checkForChangesToPull(1)).resolves.toBe(true);
+      await expect(centralServerConnection.checkForChangesToPull(1)).rejects.toThrow(
+        'changesToPull',
+      );
     });
 
     it('waits for the Retry-After seconds and asks again while central answers 503', async () => {
@@ -198,15 +200,6 @@ describe('CentralServerConnection', () => {
       );
       expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
       expect(mockSleepAsync).not.toHaveBeenCalled();
-    });
-
-    // spec: SYNCHK#the-check
-    it('opens a session when central is too old to have the check', async () => {
-      mockAxiosRequest.mockRejectedValueOnce({
-        response: { status: 404, headers: {}, data: {} },
-      });
-
-      expect(await centralServerConnection.checkForChangesToPull(1)).toBe(true);
     });
 
     it('gives up once the waits add up to ten minutes, failing the request', async () => {

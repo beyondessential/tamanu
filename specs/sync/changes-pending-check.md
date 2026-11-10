@@ -20,10 +20,11 @@ Applies to the check a facility server or a mobile device makes before opening a
 - The answer is that there are changes to pull when the highest real-change tick is above the device's pull cursor, and when the device has never pulled.
 - The answer is that there is nothing to pull otherwise.
 - The check is answered at the same address whether central is awake or asleep. While central is asleep, [its supervisor answers it](../platform/supervisor/serving-while-asleep.md#changes-pending-check).
-- The check only ever saves a session that would have found nothing, so anything other than a clear answer of nothing to pull opens a session. A central server old enough not to have the check, which a device upgraded ahead of it meets, therefore keeps syncing rather than failing every scheduled sync.
 - A device's own pushes can bring the highest real-change tick above its pull cursor, so the check can answer that there are changes for one session that then pulls nothing. The next check after that session answers that there is nothing to pull.
 
 > [!NOTE]
+> Central accepts facility servers and mobile devices only on its own minor version, so a device that makes the check never meets a central without it.
+>
 > A device with nothing to push and nothing to pull opens no session at all, so an idle device costs central almost nothing and does not keep a [sleeping central](../platform/supervisor/sleep-and-wake.md) awake.
 
 ## Recording the device as seen
@@ -36,7 +37,7 @@ Applies to the check a facility server or a mobile device makes before opening a
 - A scheduled sync, including the one at start-up, checks first and opens a session only when the answer is that there are changes to pull.
 - A scheduled sync opens a session without checking when the facility has local changes to push, has not yet obtained the [settings PSK](../administration/settings/secret-encryption.md), or still syncs as a user other than its dedicated sync user.
 - A sync that a user asks for, a sync triggered by a patient being marked for sync, and the sync subcommand open a session without checking.
-- A facility server that cannot reach central for the check treats it as a failed sync, as it would a failed session.
+- A facility server that cannot reach central for the check, or cannot read its answer, treats it as a failed sync, as it would a failed session.
 - A scheduled sync that the check answers with nothing to pull is a successful sync: the facility's last successful sync time moves, and its pull cursor does not.
 
 ## Mobile devices
@@ -44,7 +45,7 @@ Applies to the check a facility server or a mobile device makes before opening a
 - A scheduled sync checks first and opens a session only when the answer is that there are changes to pull.
 - A scheduled sync opens a session without checking when the device has local changes to push, or has tables waiting for a full resync after an app upgrade.
 - Signing in, reconnecting with a password, selecting the device's facility (which runs the initial sync), a sync the user starts by hand, and urgent syncs open a session without checking.
-- A device that cannot reach central for the check treats it as a failed sync.
+- A device that cannot reach central for the check, or cannot read its answer, treats it as a failed sync.
 - A scheduled sync that the check answers with nothing to pull is a successful sync: the "last synced" time shown to the user moves, and the pull cursor does not.
 
 ## While central wakes

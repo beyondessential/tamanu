@@ -374,17 +374,10 @@ describe('CentralServerConnection', () => {
       expect(requestCalls()).toHaveLength(1);
     });
 
-    // spec: SYNCHK#the-check
-    it('opens a session when central is too old to have the check', async () => {
-      fetch.mockReturnValueOnce(fakeFailure(404));
-
-      expect(await centralServer.checkChangesPending(1)).toBe(true);
-    });
-
-    it('opens a session when central answers the check with no flag', async () => {
+    it('fails when central answers the check with no flag', async () => {
       fetch.mockReturnValueOnce(fakeSuccess({}));
 
-      expect(await centralServer.checkChangesPending(1)).toBe(true);
+      await expect(centralServer.checkChangesPending(1)).rejects.toThrow('changesToPull');
     });
 
     it('caps a long Retry-After', async () => {

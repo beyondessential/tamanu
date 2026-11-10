@@ -98,7 +98,7 @@ Mobile (`packages/mobile/App/services/sync/`):
 Decisions made while building:
 - A 503 counts as central waking only when it carries a `Retry-After`; one without is an ordinary error, so an outage fails rather than parking the sync. Facility waits up to 60 s per retry and 30 minutes in all (`sync.centralWake` config); mobile waits 1 to 30 s per retry and 10 minutes in all.
 - The waiting itself is `TamanuApi.whileServerWakes` in `@tamanu/api-client`, opt-in per connection, so the facility, web and the supervisor's own clients share one implementation. Mobile keeps its own copy: it has its own axios client and does not depend on that package (card W13).
-- The check only ever saves a session, so anything but a clear "nothing to pull" opens one. That covers a central too old to have the route, which answers 404, so a facility or device upgraded ahead of central keeps syncing.
+- No fallback for a central without the route: central's version check keeps facilities and devices on its own minor version. An answer without the flag fails the sync, so a fault shows rather than being covered by a session.
 - The tick read is a backward index-only scan of the existing `updated_at_sync_tick` index; no migration.
 - `up_to_date` runs move the facility's last completed time but not the pull cursor. `sync_facility_runs.status` is plain text, so no migration.
 - Mobile: the "Manual sync" button keeps the urgent path (the queue polling depends on it) and sends `urgent` to central, with the reason `manual`.

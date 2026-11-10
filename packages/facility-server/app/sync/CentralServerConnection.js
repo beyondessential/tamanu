@@ -140,23 +140,9 @@ export class CentralServerConnection extends TamanuApi {
   // Leave `since` undefined when we have never pulled.
   async checkChangesPending(since) {
     const query = since === undefined ? {} : { since };
-
-    let answer;
-    try {
-      answer = await this.#fetchWhileCentralWakes('sync/pending', { query });
-    } catch (error) {
-      // A central that does not have the check yet, because this facility was upgraded first,
-      // answers 404. The check only ever saves a session that would have found nothing, so open
-      // one rather than failing every scheduled sync until central catches up.
-      if (error.response?.status !== 404) throw error;
-      log.info('CentralServerConnection.changesPendingNotSupported');
-      return true;
-    }
-
-    // anything but a clear "nothing" opens a session, which is always safe
+    const answer = await this.#fetchWhileCentralWakes('sync/pending', { query });
     if (typeof answer?.changesToPull !== 'boolean') {
-      log.warn('CentralServerConnection.changesPendingUnreadable');
-      return true;
+      throw new Error('central answered the changes-pending check without a changesToPull flag');
     }
     return answer.changesToPull;
   }

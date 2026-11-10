@@ -276,21 +276,13 @@ export class CentralServerConnection {
    */
   async checkForChangesToPull(since?: number): Promise<boolean> {
     const query = since === undefined ? {} : { since };
-    let response: { changesToPull?: boolean } | undefined;
-    try {
-      response = await this.retryWhileCentralWakes(() =>
-        this.get<{ changesToPull?: boolean }>('sync/pending', query),
-      );
-    } catch (error) {
-      // A central that does not have the check yet, because this device was upgraded first,
-      // answers 404. The check only ever saves a session that would have found nothing, so open
-      // one rather than failing every scheduled sync until central catches up.
-      if ((error as Problem)?.status !== 404) throw error;
-      console.log('CentralServerConnection: central has no changes-pending check, syncing anyway');
-      return true;
+    const response = await this.retryWhileCentralWakes(() =>
+      this.get<{ changesToPull?: boolean }>('sync/pending', query),
+    );
+    if (typeof response?.changesToPull !== 'boolean') {
+      throw new Error('central answered the changes-pending check without a changesToPull flag');
     }
-    // anything but a clear "nothing" opens a session, which is always safe
-    return response?.changesToPull !== false;
+    return response.changesToPull;
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
