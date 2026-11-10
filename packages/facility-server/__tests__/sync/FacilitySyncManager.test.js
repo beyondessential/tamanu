@@ -8,11 +8,15 @@ import {
   FACT_SETTINGS_PSK,
 } from '@tamanu/constants/facts';
 import { SYNC_FACILITY_RUN_STATUSES, USER_KINDS } from '@tamanu/constants';
-import { fakeReferenceData } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
+import { hasUnpushedChanges } from '../../app/sync/hasUnpushedChanges';
 import { createTestContext } from '../utilities';
+
+// Whether there is anything to push is read against the database in hasUnpushedChanges' own test;
+// stubbed here, so these tests say what the manager does with the answer.
+vi.mock('../../app/sync/hasUnpushedChanges', () => ({ hasUnpushedChanges: vi.fn() }));
 
 describe('FacilitySyncManager', () => {
   let ctx;
@@ -56,6 +60,7 @@ describe('FacilitySyncManager', () => {
   const latestSyncRun = () => models.SyncFacilityRun.findOne({ order: [['startTime', 'DESC']] });
 
   beforeEach(async () => {
+    hasUnpushedChanges.mockResolvedValue(false);
     await models.SyncFacilityRun.destroy({ where: {}, force: true });
   });
 
@@ -396,29 +401,17 @@ describe('FacilitySyncManager', () => {
     const scheduled = { type: 'scheduled', urgent: false };
 
     let originalPullCursor;
-    let originalPushCursor;
-    let originalSyncTick;
     let pskSpy;
-
-    const markEverythingPushed = async () => {
-      const tick = await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
-      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, String(tick));
-    };
 
     beforeEach(async () => {
       originalPullCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL);
-      originalPushCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH);
-      originalSyncTick = await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, PULL_CURSOR);
-      await markEverythingPushed();
       pskSpy = vi.spyOn(models.LocalSystemSecret, 'get').mockResolvedValue('ab'.repeat(32));
     });
 
     afterEach(async () => {
       pskSpy.mockRestore();
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, originalPullCursor);
-      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, originalPushCursor);
-      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, originalSyncTick);
     });
 
     describe('when central answers there is nothing to pull', () => {
@@ -516,16 +509,9 @@ describe('FacilitySyncManager', () => {
       };
 
       it('when the facility has local changes to push', async () => {
-        const tick = await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
-        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, String(tick - 1));
-        const row = await models.ReferenceData.create(fakeReferenceData());
+        hasUnpushedChanges.mockResolvedValue(true);
 
-        try {
-          await expectSessionWithoutCheck(makeSyncManager(), scheduled);
-        } finally {
-          // the local clock is reset after each test, which must not leave a row ahead of it
-          await row.destroy({ force: true });
-        }
+        await expectSessionWithoutCheck(makeSyncManager(), scheduled);
       });
 
       it.each([
