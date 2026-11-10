@@ -1106,6 +1106,69 @@ describe('Patient relations', () => {
       ]);
     });
 
+    it('groups a category view by its ordered panels, with the category\'s other tests as data', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const category = await randomReferenceData(models, 'labTestCategory');
+      const [panelType, looseType] = await createLabTestTypes(models, category.id);
+      const panel = await models.LabTestPanel.create({
+        ...fake(models.LabTestPanel),
+        categoryId: category.id,
+      });
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: panel.id,
+        labTestTypeId: panelType.id,
+        order: 0,
+      });
+      // Order the panel (so it is "ordered under") and the loose test on their own — both published.
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: category.id,
+          labTestPanelId: panel.id,
+          labTestTypeIds: [panelType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: category.id,
+          labTestTypeIds: [looseType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+
+      const response = await app.get(
+        `/api/patient/${labTestsPatient.id}/labTestResults?categoryId=${category.id}`,
+      );
+      expect(response).toHaveSucceeded();
+      // The ordered panel comes back as a group with its member; both tests are in the data so the
+      // frontend shows the loose test under "Individual tests".
+      const panelGroup = response.body.groups.find(group => group.id === panel.id);
+      expect(panelGroup).toBeDefined();
+      expect(panelGroup.testTypeIds).toContain(panelType.id);
+      const dataIds = response.body.data.map(row => row.testTypeId);
+      expect(dataIds).toContain(panelType.id);
+      expect(dataIds).toContain(looseType.id);
+    });
+
+    it('shows only the picked tests when both a category and test ids are given', async () => {
+      const [testType] = labTestTypes;
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ categoryId: randomCategory.id, testIds: [testType.id] });
+      expect(response).toHaveSucceeded();
+      // Picks take precedence over the category, so only the picked test is returned.
+      expect(response.body.data.map(row => row.testTypeId)).toEqual([testType.id]);
+    });
+
     it('unions panel members and individual test ids, returning each distinct test once', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),

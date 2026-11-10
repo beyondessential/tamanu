@@ -557,6 +557,47 @@ describe('Suggestions', () => {
       expect(result.body.map(({ id }) => id)).not.toContain(panelId);
     });
 
+    it('narrows panel suggestions to a picked test category', async () => {
+      const { id: categoryA } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const { id: categoryB } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [typeA] = await createLabTestTypes(models, categoryA);
+      const [typeB] = await createLabTestTypes(models, categoryB);
+      const { id: panelA } = await models.LabTestPanel.create({
+        ...fake(models.LabTestPanel),
+        categoryId: categoryA,
+      });
+      const { id: panelB } = await models.LabTestPanel.create({
+        ...fake(models.LabTestPanel),
+        categoryId: categoryB,
+      });
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: panelA,
+        labTestTypeId: typeA.id,
+      });
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: panelB,
+        labTestTypeId: typeB.id,
+      });
+      await orderPanelUnder(panelA, [typeA.id], categoryA);
+      await orderPanelUnder(panelB, [typeB.id], categoryB);
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        categoryId: categoryA,
+      });
+      expect(result).toHaveSucceeded();
+      const ids = result.body.map(({ id }) => id);
+      expect(ids).toContain(panelA);
+      expect(ids).not.toContain(panelB);
+    });
+
     it('hides a wholly-sensitive panel from a user without permission, including on the searchById path', async () => {
       const { id: categoryId } = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
@@ -688,6 +729,47 @@ describe('Suggestions', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body.map(({ id }) => id)).not.toContain(orderedType.id);
+    });
+
+    it('narrows test suggestions to a picked test category', async () => {
+      const { id: categoryA } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const { id: categoryB } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [typeA] = await createLabTestTypes(models, categoryA);
+      const [typeB] = await createLabTestTypes(models, categoryB);
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId: categoryA,
+          labTestTypeIds: [typeA.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+          encounterId,
+        }),
+      );
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId: categoryB,
+          labTestTypeIds: [typeB.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+          encounterId,
+        }),
+      );
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        categoryId: categoryA,
+      });
+      expect(result).toHaveSucceeded();
+      const ids = result.body.map(({ id }) => id);
+      expect(ids).toContain(typeA.id);
+      expect(ids).not.toContain(typeB.id);
     });
 
     it('hides a sensitive test type on the searchById path for a user without permission', async () => {

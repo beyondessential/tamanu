@@ -67,7 +67,6 @@ const renderTable = (patient, labTests, props = {}) =>
       labTests={labTests}
       count={labTests.length}
       isLoading={false}
-      searchParameters={{}}
       {...props}
     />,
   );
@@ -139,55 +138,50 @@ describe('PatientLabTestsTable grouping', () => {
     { id: 'p2', name: 'Lipid profile', testTypeIds: ['t3'] },
   ];
 
-  it('orders panels (members in configured order) before individually picked tests, repeating a shared test', () => {
-    renderTable({ sex: 'male' }, labTests, {
-      groups,
-      searchParameters: { panelIds: ['p1', 'p2'], testIds: ['t4', 't1'] },
-    });
+  it('orders panels (members in configured order) first, then the other tests as individual A–Z, without repeating a panel member', () => {
+    renderTable({ sex: 'male' }, labTests, { groups });
 
-    // Panels A–Z with members in configured order, then individual tests A–Z. t1 appears under its
-    // panel and again under "Individual tests" because it was also picked on its own.
+    // Panels A–Z with members in configured order, then every test not under a panel, A–Z. t1 and
+    // t2 (in Full blood count) and t3 (in Lipid profile) are not repeated; only t4 is individual.
     expect(capturedTableProps.data.map(row => row.rowKey)).toEqual([
       'p1:t1',
       'p1:t2',
       'p2:t3',
-      '__individual__:t1',
       '__individual__:t4',
     ]);
   });
 
   it('shows a heading at each group boundary and none within a group', () => {
-    renderTable({ sex: 'male' }, labTests, {
-      groups,
-      searchParameters: { panelIds: ['p1', 'p2'], testIds: ['t4', 't1'] },
-    });
+    renderTable({ sex: 'male' }, labTests, { groups });
     const { data, getRowGroupHeader } = capturedTableProps;
 
     expect(getRowGroupHeader(data[0], undefined).props.fallback).toBe('Full blood count');
     expect(getRowGroupHeader(data[1], data[0])).toBeNull();
     expect(getRowGroupHeader(data[2], data[1]).props.fallback).toBe('Lipid profile');
     expect(getRowGroupHeader(data[3], data[2]).props.fallback).toBe('Individual tests');
-    expect(getRowGroupHeader(data[4], data[3])).toBeNull();
   });
 
-  it('shows an "Individual tests" heading even when only individual tests are picked', () => {
-    renderTable({ sex: 'male' }, labTests, {
-      groups: [],
-      searchParameters: { panelIds: [], testIds: ['t2'] },
-    });
+  it('shows an "Individual tests" heading when there are no panels', () => {
+    renderTable({ sex: 'male' }, [makeTest('t2', 'Bravo')], { groups: [] });
     const { data, getRowGroupHeader } = capturedTableProps;
 
     expect(data.map(row => row.rowKey)).toEqual(['__individual__:t2']);
     expect(getRowGroupHeader(data[0], undefined).props.fallback).toBe('Individual tests');
   });
 
-  it('lists a picked category flat, with no group headings', () => {
+  it('groups a category view: its ordered panels first, then the category\'s other tests as individual', () => {
     renderTable({ sex: 'male' }, labTests, {
-      groups: [],
-      searchParameters: { categoryId: 'category-1' },
+      groups: [{ id: 'p1', name: 'Full blood count', testTypeIds: ['t1', 't2'] }],
     });
+    const { data, getRowGroupHeader } = capturedTableProps;
 
-    expect(capturedTableProps.getRowGroupHeader).toBeUndefined();
-    expect(capturedTableProps.data.map(row => row.rowKey)).toEqual(['t1', 't2', 't3', 't4']);
+    expect(data.map(row => row.rowKey)).toEqual([
+      'p1:t1',
+      'p1:t2',
+      '__individual__:t3',
+      '__individual__:t4',
+    ]);
+    expect(getRowGroupHeader(data[0], undefined).props.fallback).toBe('Full blood count');
+    expect(getRowGroupHeader(data[2], data[1]).props.fallback).toBe('Individual tests');
   });
 });
