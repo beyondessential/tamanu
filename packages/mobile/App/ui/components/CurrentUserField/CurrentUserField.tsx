@@ -18,7 +18,7 @@ export const CurrentUserField = ({
   label,
   labelFontSize,
   valueKey = 'displayName',
-}: CurrentUserFieldProps): JSX.Element => {
+}: CurrentUserFieldProps) => {
   const user = useSelector(authUserSelector);
 
   return (

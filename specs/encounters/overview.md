@@ -4,4 +4,4 @@ id: ENCOUNTERS
 
 # Encounters
 
-Clinical encounters: admission, outpatient, triage, transfer, and discharge.
+Applies to clinical encounters: admission, outpatient, triage, transfer, and discharge.

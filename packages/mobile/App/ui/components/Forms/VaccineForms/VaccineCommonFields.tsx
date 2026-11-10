@@ -16,7 +16,7 @@ import { useBackend } from '~/ui/hooks';
 import { TranslatedText, type TranslatedTextElement } from '../../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
-const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }): JSX.Element => (
+const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }) => (
   <Dropdown
     value={value}
     options={INJECTION_SITE_OPTIONS}
@@ -46,7 +46,7 @@ export const DateGivenField = ({
   required = true,
   min,
   max,
-}: LabelledFieldProps & DateGivenFieldProps): JSX.Element => (
+}: LabelledFieldProps & DateGivenFieldProps) => (
   <Field
     component={DateField}
     name="date"
@@ -58,7 +58,7 @@ export const DateGivenField = ({
   />
 );
 
-export const BatchField = (): JSX.Element => (
+export const BatchField = () => (
   <Field
     component={TextField}
     name="batch"
@@ -68,7 +68,7 @@ export const BatchField = (): JSX.Element => (
   />
 );
 
-export const InjectionSiteField = (): JSX.Element => {
+export const InjectionSiteField = () => {
   const { getTranslation } = useTranslation();
   return (
     <Field
@@ -82,7 +82,7 @@ export const InjectionSiteField = (): JSX.Element => {
   );
 };
 
-export const NotGivenReasonField = (): JSX.Element => {
+export const NotGivenReasonField = () => {
   const { getTranslation } = useTranslation();
 
   return (
@@ -96,11 +96,11 @@ export const NotGivenReasonField = (): JSX.Element => {
   );
 };
 
-export const VaccineLocationField = ({ navigation }: NavigationFieldProps): JSX.Element => (
+export const VaccineLocationField = ({ navigation }: NavigationFieldProps) => (
   <LocationField navigation={navigation} required />
 );
 
-export const DepartmentField = ({ navigation }: NavigationFieldProps): JSX.Element => {
+export const DepartmentField = ({ navigation }: NavigationFieldProps) => {
   const { models } = useBackend();
   const { facilityId } = useFacility();
 
@@ -132,11 +132,11 @@ export const DepartmentField = ({ navigation }: NavigationFieldProps): JSX.Eleme
 
 export const GivenByField = ({
   label = <TranslatedText stringId="vaccine.form.givenBy.label" fallback="Given by" />,
-}: LabelledFieldProps): JSX.Element => (
+}: LabelledFieldProps) => (
   <Field component={TextField} label={label} name="givenBy" labelFontSize="14" />
 );
 
-export const RecordedByField = (): JSX.Element => (
+export const RecordedByField = () => (
   <CurrentUserField
     label={<TranslatedText stringId="vaccine.form.recordedBy.label" fallback="Recorded by" />}
     name="recorderId"
@@ -144,7 +144,7 @@ export const RecordedByField = (): JSX.Element => (
   />
 );
 
-export const ConsentField = (): JSX.Element => (
+export const ConsentField = () => (
   <Field
     component={Checkbox}
     name="consent"
@@ -159,7 +159,7 @@ export const ConsentField = (): JSX.Element => (
   />
 );
 
-export const ConsentGivenByField = (): JSX.Element => (
+export const ConsentGivenByField = () => (
   <Field
     component={TextField}
     name="consentGivenBy"

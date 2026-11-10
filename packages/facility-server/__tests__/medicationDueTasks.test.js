@@ -36,14 +36,14 @@ describe('Medication due tasks', () => {
       }),
     );
 
-  const createPrescription = async ({ encounter, frequency, endTime }) => {
+  const createPrescription = async ({ encounter, frequency, endTime, isPrn = false }) => {
     const prescription = await models.Prescription.create(
       fake(models.Prescription, {
         prescriberId: examiner.id,
         frequency,
         idealTimes: [...ADMINISTRATION_FREQUENCY_DETAILS[frequency].startTimes],
         startDate: todayAt('06:00'),
-        isPrn: false,
+        isPrn,
         discontinued: false,
       }),
     );
@@ -104,6 +104,18 @@ describe('Medication due tasks', () => {
     expect(await getMedicationDueTasks(encounter)).toHaveLength(0);
   });
 
+  it('generates a record and a task per dose for an Every 2 hours prescription', async () => {
+    const encounter = await createEncounter();
+    const prescription = await createPrescription({
+      encounter,
+      frequency: ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS,
+      endTime: '11:00',
+    });
+
+    expect(await getRecords(prescription)).toHaveLength(3);
+    expect(await getMedicationDueTasks(encounter)).toHaveLength(3);
+  });
+
   it('generates a task for a daily prescription', async () => {
     const encounter = await createEncounter();
     await createPrescription({
@@ -126,6 +138,33 @@ describe('Medication due tasks', () => {
       encounter,
       frequency: ADMINISTRATION_FREQUENCIES.HOURLY,
       endTime: '07:00',
+    });
+
+    const [task] = await getMedicationDueTasks(encounter);
+    expect(task.status).toBe(TASK_STATUSES.TODO);
+
+    const [dailyRecord] = await getRecords(daily);
+    await dailyRecord.update({
+      status: ADMINISTRATION_STATUS.GIVEN,
+      recordedAt: getCurrentDateTimeString(),
+    });
+
+    await task.reload();
+    expect(task.status).toBe(TASK_STATUSES.COMPLETED);
+  });
+
+  it('completes a task while a PRN record shares its time slot', async () => {
+    const encounter = await createEncounter();
+    const daily = await createPrescription({
+      encounter,
+      frequency: ADMINISTRATION_FREQUENCIES.DAILY,
+      endTime: '07:00',
+    });
+    await createPrescription({
+      encounter,
+      frequency: ADMINISTRATION_FREQUENCIES.DAILY,
+      endTime: '07:00',
+      isPrn: true,
     });
 
     const [task] = await getMedicationDueTasks(encounter);

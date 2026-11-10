@@ -95,6 +95,7 @@ treated as a hard pre-filter on any suggested action.
 - [read-logs](sops/read-logs.md)
 - [restart-services](sops/restart-services.md)
 - [stop-facility-syncing](sops/stop-facility-syncing.md)
+- [restore-as-copy](sops/restore-as-copy.md) (dev-OTS)
 - [run-db-report](sops/run-db-report.md)
 - [disable-fhir-jobs](sops/disable-fhir-jobs.md) (dev-OTS)
 - [disable-materialised-resources](sops/disable-materialised-resources.md) (dev-OTS)

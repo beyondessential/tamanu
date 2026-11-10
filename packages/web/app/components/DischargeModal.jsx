@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useSettings, useSuggester } from '@tamanu/ui-components';
 import { PATIENT_STATUS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
+import { useUpdateEncounterMutation } from '../api/mutations/useEncounterMutation';
 import { usePatient } from '../contexts/Patient';
 import { DischargeForm } from '../forms/DischargeForm';
 import { ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY } from '../api/queries/useEncounterDischargeDraftQuery';
@@ -22,7 +23,8 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const { patient } = usePatient();
   const { getSetting } = useSettings();
   const allowFilterDischargeDisposition = getSetting('features.filterDischargeDispositions');
-  const { encounter, writeAndViewEncounter } = useEncounter();
+  const { encounter } = useEncounter();
+  const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
   const practitionerSuggester = useSuggester('practitioner');
   const { facility } = encounter.location;
 
@@ -79,7 +81,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         facilityAddress: facility.streetAddress,
         facilityTown: facility.cityTown,
       };
-      await writeAndViewEncounter(encounter.id, data);
+      await updateEncounter(data);
       // The encounter is now discharged: refresh the queries that decide whether "Prepare
       // discharge" or "Discharge summary" is shown, otherwise re-entering the encounter can still
       // read the pre-discharge cache until something else forces a refetch.
@@ -90,7 +92,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       onClose();
     },
     [
-      writeAndViewEncounter,
+      updateEncounter,
       encounter.id,
       queryClient,
       patient?.id,

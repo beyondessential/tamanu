@@ -14,11 +14,12 @@ COPY scripts/ scripts/
 COPY packages/ packages/
 
 RUN npm ci
-RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios
+RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios \
+  && npm run --workspace=@tamanu/synthetic-tests bundle-hooks
 
 FROM node:26-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { useParams } from 'react-router';
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
@@ -36,6 +35,7 @@ import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { isEqual } from 'es-toolkit/compat';
 import { ChartDataProvider } from '../../contexts/ChartData';
+import { route } from '@tamanu/api-client';
 
 const TABS = [
   {
@@ -177,12 +177,11 @@ export const EncounterView = () => {
   const { getSetting } = useSettings();
   const { facilityId } = useAuth();
   const { patient, isLoading } = usePatient();
-  const { loadEncounter, encounter, isLoadingEncounter } = useEncounter();
+  const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
   const { data: userPreferences } = useUserPreferencesQuery();
   const { mutate: reorderEncounterTabs } = useUserPreferencesMutation();
 
-  const { encounterId } = useParams();
   const [tabs, setTabs] = useState(TABS);
   const disabled = encounter?.endDate || Boolean(patient?.dateOfDeath);
 
@@ -195,7 +194,7 @@ export const EncounterView = () => {
   // render when this view is opened directly by URL. Only record the view once we have an id.
   useEffect(() => {
     if (!patient?.id) return;
-    api.post(`user/recently-viewed-patients/${patient.id}`);
+    api.post(route('user/recently-viewed-patients/:patientId', { patientId: patient.id }));
   }, [api, patient?.id]);
 
   useEffect(() => {
@@ -209,13 +208,6 @@ export const EncounterView = () => {
       setTabs([...newTabs]);
     }
   }, [userPreferences?.encounterTabOrders]);
-
-  //Load the encounter on mount
-  useEffect(() => {
-    if (encounterId && encounterId !== encounter?.id) {
-      loadEncounter(encounterId);
-    }
-  }, [encounterId, encounter?.id, loadEncounter]);
 
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);

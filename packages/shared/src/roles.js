@@ -61,6 +61,7 @@ export const practitioner = [
   { verb: 'list', noun: 'Procedure' },
   { verb: 'create', noun: 'Procedure' },
   { verb: 'write', noun: 'Procedure' },
+  { verb: 'delete', noun: 'Procedure' },
 
   { verb: 'read', noun: 'Discharge' },
   { verb: 'list', noun: 'Discharge' },
@@ -288,6 +289,8 @@ export const practitioner = [
 
   { verb: 'create', noun: 'MedicationPharmacyNote' },
   { verb: 'write', noun: 'MedicationPharmacyNote' },
+
+  { verb: 'run', noun: 'Kiosk' },
 
   { verb: 'create', noun: 'PatientPortalRegistration' },
   { verb: 'read', noun: 'PatientPortalRegistration' },

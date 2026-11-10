@@ -2,11 +2,8 @@
 name: plan-implementation
 description: "Draft or refine the implementation checklist from specs and current code"
 label: "Plan implementation"
-pill-order:
-  specifying: 8
-  implementing: 3
-jockey-hint: "Surface when the user wants a concrete checklist but hasn't yet started coding. Demote once a plan with a healthy checklist exists on the card."
-workhorse-version: 0.3.0
+category: build
+workhorse-version: 0.7.14
 ---
 
 ## Your task: Plan implementation

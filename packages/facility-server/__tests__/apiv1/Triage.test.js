@@ -8,8 +8,9 @@ import {
   randomReferenceId,
 } from '@tamanu/database/demoData';
 import { fake } from '@tamanu/fake-data/fake';
-import { ENCOUNTER_TYPES, SURVEY_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { ENCOUNTER_TYPES, REFERENCE_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { add } from 'date-fns';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
@@ -82,6 +83,57 @@ describe('Triage', () => {
 
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
     expect(createdEncounter).toBeTruthy();
+  });
+
+  it('should record the patient billing type on the encounter when admitting a patient to triage', async () => {
+    const patientBillingType = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.PATIENT_BILLING_TYPE }),
+    );
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: patientBillingType.id,
+      }),
+    );
+    expect(response).toHaveSucceeded();
+
+    const createdTriage = await models.Triage.findByPk(response.body.id);
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter.patientBillingTypeId).toEqual(patientBillingType.id);
+  });
+
+  it('should reject a patient billing type that does not exist', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: 'nonexistent-patient-billing-type',
+      }),
+    );
+    expect(response).toHaveRequestError();
+
+    const triageEncounter = await models.Encounter.findOne({
+      where: { patientId: encounterPatient.id },
+    });
+    expect(triageEncounter).toBeNull();
+  });
+
+  it('should reject reference data that is not a patient billing type', async () => {
+    const arrivalMode = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.ARRIVAL_MODE }),
+    );
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: arrivalMode.id,
+      }),
+    );
+    expect(response).toHaveRequestError();
   });
 
   it('should fail to triage if an encounter is already open', async () => {
@@ -343,6 +395,27 @@ describe('Triage', () => {
         where: { surveyId: otherSurvey.id },
       });
       expect(responses).toHaveLength(0);
+    });
+  });
+
+  describe('Future time validation', () => {
+    it('should reject editing a triage with a future arrival time', async () => {
+      const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+      const createdTriage = await models.Triage.create(
+        await createDummyTriage(models, {
+          patientId: encounterPatient.id,
+          departmentId: await randomRecordId(models, 'Department'),
+        }),
+      );
+      const futureTime = toDateTimeString(add(new Date(), { days: 1 }));
+
+      const response = await app.put(`/api/triage/${createdTriage.id}`).send({
+        arrivalTime: futureTime,
+      });
+
+      expect(response).toHaveRequestError();
+      const unchanged = await models.Triage.findByPk(createdTriage.id);
+      expect(unchanged.arrivalTime).not.toEqual(futureTime);
     });
   });
 

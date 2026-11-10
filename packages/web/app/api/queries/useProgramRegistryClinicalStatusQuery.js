@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
+import { route } from '@tamanu/api-client';
 
 export const useProgramRegistryClinicalStatusQuery = (
   patientId,
@@ -10,7 +11,13 @@ export const useProgramRegistryClinicalStatusQuery = (
 
   return useQuery(['patient', patientId, 'programRegistration', programRegistryId, 'history'], () =>
     api
-      .get(`patient/${patientId}/programRegistration/${programRegistryId}/history`, fetchOptions)
+      .get(
+        route('patient/:patientId/programRegistration/:programRegistryId/history', {
+          patientId,
+          programRegistryId,
+        }),
+        fetchOptions,
+      )
       .then(response => response.data),
   );
 };

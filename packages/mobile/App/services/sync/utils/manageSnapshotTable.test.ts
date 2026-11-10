@@ -11,6 +11,8 @@ jest.mock('../../../infra/db', () => ({
     client: {
       query: jest.fn(),
     },
+    isSnapshotDatabaseAttached: jest.fn(),
+    resetSnapshotDatabase: jest.fn(),
   },
 }));
 
@@ -19,6 +21,7 @@ const mockDatabase = require('../../../infra/db').Database;
 describe('manageSnapshotTable', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockDatabase.isSnapshotDatabaseAttached.mockResolvedValue(true);
   });
 
   describe('insertSnapshotRecords', () => {
@@ -29,7 +32,7 @@ describe('manageSnapshotTable', () => {
 
       expect(mockDatabase.client.query).toHaveBeenCalledTimes(3);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'INSERT INTO sync_snapshot (data) VALUES (?)',
+        'INSERT INTO snapshot.sync_snapshot (data) VALUES (?)',
         expect.any(Array),
       );
     });
@@ -49,7 +52,7 @@ describe('manageSnapshotTable', () => {
 
       expect(result).toEqual([1, 2, 3]);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'SELECT id FROM sync_snapshot ORDER BY id',
+        'SELECT id FROM snapshot.sync_snapshot ORDER BY id',
       );
     });
   });
@@ -69,7 +72,7 @@ describe('manageSnapshotTable', () => {
 
       expect(result).toEqual(testData);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'SELECT data FROM sync_snapshot WHERE id IN (?,?)',
+        'SELECT data FROM snapshot.sync_snapshot WHERE id IN (?,?)',
         [1, 2],
       );
     });
@@ -81,7 +84,7 @@ describe('manageSnapshotTable', () => {
 
       expect(result).toEqual([]);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'SELECT data FROM sync_snapshot WHERE id IN (?)',
+        'SELECT data FROM snapshot.sync_snapshot WHERE id IN (?)',
         [999],
       );
     });
@@ -99,7 +102,7 @@ describe('manageSnapshotTable', () => {
       await createSnapshotTable();
 
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE sync_snapshot'),
+        expect.stringContaining('CREATE TABLE snapshot.sync_snapshot'),
       );
     });
 
@@ -114,7 +117,30 @@ describe('manageSnapshotTable', () => {
     it('should drop the snapshot table', async () => {
       await dropSnapshotTable();
 
-      expect(mockDatabase.client.query).toHaveBeenCalledWith('DROP TABLE IF EXISTS sync_snapshot');
+      expect(mockDatabase.client.query).toHaveBeenCalledWith(
+        'DROP TABLE IF EXISTS snapshot.sync_snapshot',
+      );
+      expect(mockDatabase.resetSnapshotDatabase).not.toHaveBeenCalled();
+    });
+
+    it('should start over with a fresh snapshot database when the drop fails', async () => {
+      mockDatabase.client.query.mockRejectedValueOnce(
+        new Error('database disk image is malformed'),
+      );
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await expect(dropSnapshotTable()).resolves.toBeUndefined();
+
+      expect(mockDatabase.resetSnapshotDatabase).toHaveBeenCalledTimes(1);
+    });
+
+    it('should attach the snapshot database instead of dropping when it is not attached', async () => {
+      mockDatabase.isSnapshotDatabaseAttached.mockResolvedValue(false);
+
+      await dropSnapshotTable();
+
+      expect(mockDatabase.resetSnapshotDatabase).toHaveBeenCalledTimes(1);
+      expect(mockDatabase.client.query).not.toHaveBeenCalled();
     });
   });
 });

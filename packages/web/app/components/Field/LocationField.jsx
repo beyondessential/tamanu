@@ -11,14 +11,19 @@ import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { MultiAutocompleteInput } from './MultiAutocompleteField';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
+import { route } from '@tamanu/api-client';
 
 const useLocationSuggestion = locationId => {
   const api = useApi();
   // Get the last selected location id to determine its location group
   const id = Array.isArray(locationId) ? locationId[locationId.length - 1] : locationId;
-  return useQuery(['locationSuggestion', id], () => api.get(`suggestions/location/${id}`), {
-    enabled: !!id,
-  });
+  return useQuery(
+    ['locationSuggestion', id],
+    () => api.get(route('suggestions/location/:id', { id })),
+    {
+      enabled: !!id,
+    },
+  );
 };
 
 const locationSuggesterFormatterWithStatus = ({ name, id, locationGroup, availability }) => ({

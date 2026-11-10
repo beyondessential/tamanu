@@ -7,7 +7,6 @@ import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from 
 import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { kebabCase } from 'es-toolkit/compat';
 import { useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
 
 import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
@@ -18,8 +17,6 @@ import { useTranslation } from '../../contexts/Translation';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { useEncounter } from '../../contexts/Encounter';
-import { reloadImagingRequest } from '../../store';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const NOTIFICATION_ICONS = {
@@ -187,8 +184,6 @@ const NoDataContainer = styled.div`
 const Card = ({ notification }) => {
   const { loadLabRequest } = useLabRequest();
   const { getTranslation } = useTranslation();
-  const { loadEncounter } = useEncounter();
-  const dispatch = useDispatch();
   const { mutateAsync: markAsRead, isLoading: isMarkingAsRead } = useMarkAsRead(notification.id);
   const { type, createdTime, status, patient, metadata } = notification;
   const { encounterId, id, pharmacyOrderPrescriptionId } = metadata;
@@ -203,11 +198,6 @@ const Card = ({ notification }) => {
     if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
       await loadLabRequest(id);
     }
-    if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
-      await dispatch(reloadImagingRequest(metadata.id));
-    }
-    await loadEncounter(encounterId);
-
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
       navigate(
         `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,

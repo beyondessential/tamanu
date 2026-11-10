@@ -14,6 +14,7 @@ import {
   LocationAvailabilityWarningMessage,
   RadioField,
   SuggesterSelectField,
+  useLocalisedSchema,
 } from '../components/Field';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
@@ -60,6 +61,7 @@ export const TriageForm = ({
   onSubmitEncounter,
   noRedirectOnSubmit,
   patient,
+  patientBillingTypeId,
   initialValues,
   withExistingEncounterCheck,
 }) => {
@@ -69,6 +71,7 @@ export const TriageForm = ({
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
+  const { getLocalisedSchema } = useLocalisedSchema();
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -132,6 +135,19 @@ export const TriageForm = ({
           component={SuggesterSelectField}
           endpoint="arrivalMode"
           data-testid="localisedfield-hjex"
+        />
+        <LocalisedField
+          name="patientBillingTypeId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.patientBillingTypeId.label"
+              fallback="Patient type"
+              data-testid="translatedtext-k3r8"
+            />
+          }
+          component={SuggesterSelectField}
+          endpoint="patientBillingType"
+          data-testid="localisedfield-x2nq"
         />
         <Field
           name="score"
@@ -248,6 +264,7 @@ export const TriageForm = ({
       initialValues={{
         triageTime: getCurrentDateTime(),
         practitionerId: currentUser.id,
+        patientBillingTypeId,
         ...initialValues,
       }}
       formType={FORM_TYPES.CREATE_FORM}
@@ -286,6 +303,7 @@ export const TriageForm = ({
             data-testid="translatedtext-77o5"
           />,
         ),
+        patientBillingTypeId: getLocalisedSchema({ name: 'patientBillingTypeId' }).nullable(),
         score: yup
           .string()
           .required()

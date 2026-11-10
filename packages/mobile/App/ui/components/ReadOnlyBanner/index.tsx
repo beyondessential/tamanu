@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ReadOnlyBanner = ({ label, value }: ReadOnlyBannerProps): JSX.Element => (
+export const ReadOnlyBanner = ({ label, value }: ReadOnlyBannerProps) => (
   <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)}>
     <Text style={styles.labelText}>{label}</Text>
     <View style={styles.container}>

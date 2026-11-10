@@ -129,6 +129,7 @@ export class Triage extends Model {
         departmentId: data.departmentId,
         locationId: data.locationId,
         examinerId: data.practitionerId,
+        patientBillingTypeId: data.patientBillingTypeId,
         actorId: data.actorId,
       });
 

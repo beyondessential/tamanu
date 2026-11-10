@@ -43,7 +43,7 @@ import {
 } from '@tamanu/ui-components';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useEncounter } from '../../../contexts/Encounter.jsx';
+import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { useAuth } from '../../../contexts/Auth';
@@ -156,7 +156,7 @@ const getDiet = ({ diets }) => {
 };
 
 const SetDischargeDateModal = ({ encounter, open, onClose }) => {
-  const { writeAndViewEncounter } = useEncounter();
+  const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
   return (
     <FormModal
       title={
@@ -170,9 +170,10 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
     >
       <Form
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={async ({ estimatedEndDate }) =>
-          writeAndViewEncounter(encounter.id, { estimatedEndDate })
-        }
+        onSubmit={async ({ estimatedEndDate }) => {
+          await updateEncounter({ estimatedEndDate });
+          onClose();
+        }}
         render={({ submitForm }) => (
           <>
             <DischargeDateFieldContainer>

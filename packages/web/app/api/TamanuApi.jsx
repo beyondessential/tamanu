@@ -29,7 +29,7 @@ const {
 function getImpersonateRoleIdFromToken(token) {
   try {
     const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    const decoded = JSON.parse(atob(payload.replaceAll('-', '+').replaceAll('_', '/')));
     return decoded.impersonateRoleId ?? null;
   } catch {
     return null;
@@ -389,6 +389,7 @@ export class TamanuApi extends ApiClient {
   }
 
   async checkServerAlive() {
-    return this.get('public/ping', null, { showUnknownErrorToast: false });
+    // spec: BTEL — ambient poll; excluded from the page-load quiet calculation.
+    return this.get('public/ping', null, { showUnknownErrorToast: false, background: true });
   }
 }

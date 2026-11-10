@@ -26,6 +26,7 @@ import { useSettings } from '../../contexts/Settings';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { usePatient } from '../../contexts/Patient';
+import { route } from '@tamanu/api-client';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -40,7 +41,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
       />
     }
     endpoint="ongoingCondition"
-    getEndpoint={`patient/${patient.id}/conditions`}
+    getEndpoint={route('patient/:patientId/conditions', { patientId: patient.id })}
     Form={OngoingConditionForm}
     getName={({ condition, resolved }) => {
       const { name } = condition;
@@ -71,7 +72,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
       />
     }
     endpoint="allergy"
-    getEndpoint={`patient/${patient.id}/allergies`}
+    getEndpoint={route('patient/:patientId/allergies', { patientId: patient.id })}
     Form={AllergyForm}
     getName={allergy => (
       <TranslatedReferenceData
@@ -98,7 +99,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
       />
     }
     endpoint="familyHistory"
-    getEndpoint={`patient/${patient.id}/familyHistory`}
+    getEndpoint={route('patient/:patientId/familyHistory', { patientId: patient.id })}
     Form={FamilyHistoryForm}
     getName={historyItem => {
       const { name } = historyItem.diagnosis;
@@ -123,7 +124,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
       />
     }
     endpoint="patientIssue"
-    getEndpoint={`patient/${patient.id}/issues`}
+    getEndpoint={route('patient/:patientId/issues', { patientId: patient.id })}
     Form={PatientIssueForm}
     getName={issue => issue.note}
     data-testid="infopanelist-2y30"
@@ -143,7 +144,7 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
       />
     }
     endpoint="patientCarePlan"
-    getEndpoint={`patient/${patient.id}/carePlans`}
+    getEndpoint={route('patient/:patientId/carePlans', { patientId: patient.id })}
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => (
       <TranslatedReferenceData
@@ -194,8 +195,8 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
         data-testid="translatedtext-90u8"
       />
     }
-    endpoint={`patient/${patient.id}/programRegistration`}
-    getEndpoint={`patient/${patient.id}/programRegistration`}
+    endpoint={route('patient/:patientId/programRegistration', { patientId: patient.id })}
+    getEndpoint={route('patient/:patientId/programRegistration', { patientId: patient.id })}
     Form={PatientProgramRegistryForm}
     ListItemComponent={ProgramRegistryListItem}
     behavior="modal"
@@ -263,7 +264,12 @@ export const PatientInfoPane = () => {
   const canReadPatientDeath = ability?.can('read', 'PatientDeath');
   const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient?.id],
-    () => api.get(`patient/${patient?.id}/death`, {}, { showUnknownErrorToast: false }),
+    () =>
+      api.get(
+        route('patient/:patientId/death', { patientId: patient?.id }),
+        {},
+        { showUnknownErrorToast: false },
+      ),
     { enabled: patientDeathsEnabled && Boolean(patient?.dateOfDeath) },
   );
 

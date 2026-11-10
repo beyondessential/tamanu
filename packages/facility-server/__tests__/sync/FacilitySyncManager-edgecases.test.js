@@ -1,18 +1,17 @@
 /* eslint-disable global-require */
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import config from 'config';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { fake, fakeUser } from '@tamanu/fake-data/fake';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
 } from '@tamanu/constants/facts';
-
-import { createTestContext } from '../utilities';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager edge cases', () => {
   let ctx;
@@ -44,9 +43,8 @@ describe('FacilitySyncManager edge cases', () => {
     const currentSyncTick = '6';
     const newSyncTick = '8';
 
-    const {
-      FacilitySyncManager: TestFacilitySyncManager,
-    } = await import('../../app/sync/FacilitySyncManager');
+    const { FacilitySyncManager: TestFacilitySyncManager } =
+      await import('../../app/sync/FacilitySyncManager');
     const syncManager = new TestFacilitySyncManager({
       models,
       sequelize,
@@ -150,9 +148,8 @@ describe('FacilitySyncManager edge cases', () => {
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
       });
-      const {
-        FacilitySyncManager: TestFacilitySyncManager,
-      } = await import('../../app/sync/FacilitySyncManager');
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
       if (configToOverride) {
         TestFacilitySyncManager.overrideConfig(configToOverride);
       }
@@ -242,7 +239,12 @@ describe('FacilitySyncManager edge cases', () => {
       }));
 
       const configToOverride = {
-        sync: { email: 'test@example.com', password: 'test-password', enabled: true, assertIfPulledRecordsUpdatedAfterPushSnapshot: true },
+        sync: {
+          email: 'test@example.com',
+          password: 'test-password',
+          enabled: true,
+          assertIfPulledRecordsUpdatedAfterPushSnapshot: true,
+        },
       };
       const encounter = await initializeSyncManager(configToOverride);
 
@@ -260,7 +262,7 @@ describe('FacilitySyncManager edge cases', () => {
       await expect(async () => {
         await syncPromise;
       }).rejects.toThrow(
-        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
+        "Facility: Some encounters record was updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
       );
     });
 
@@ -277,7 +279,12 @@ describe('FacilitySyncManager edge cases', () => {
       }));
 
       const configToOverride = {
-        sync: { email: 'test@example.com', password: 'test-password', enabled: false, assertIfPulledRecordsUpdatedAfterPushSnapshot: false },
+        sync: {
+          email: 'test@example.com',
+          password: 'test-password',
+          enabled: false,
+          assertIfPulledRecordsUpdatedAfterPushSnapshot: false,
+        },
       };
       const encounter = await initializeSyncManager(configToOverride);
 
@@ -305,9 +312,8 @@ describe('FacilitySyncManager edge cases', () => {
     it('Will notify central-server if the error occurred locally on the facility-server', async () => {
       const errorMessage = 'Local error';
 
-      const {
-        FacilitySyncManager: TestFacilitySyncManager,
-      } = await import('../../app/sync/FacilitySyncManager');
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
 
       const markSessionErrored = vi.fn();
 
@@ -352,13 +358,12 @@ describe('FacilitySyncManager edge cases', () => {
         }),
       }));
 
-      const {
-        FacilitySyncManager: TestFacilitySyncManager,
-      } = await import('../../app/sync/FacilitySyncManager');
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
 
-      const { CentralServerConnection: TestCentralServerConnection } = (await vi.importActual(
+      const { CentralServerConnection: TestCentralServerConnection } = await vi.importActual(
         '../../app/sync/CentralServerConnection',
-      ));
+      );
 
       const markSessionErrored = vi.fn();
 

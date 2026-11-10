@@ -5,6 +5,7 @@ import { usePatientDataQuery } from './usePatientDataQuery';
 import { useSurveyQuery } from './useSurveyQuery';
 import { useChartData } from '../../contexts/ChartData';
 import { getVisualisationConfig } from '../../utils/getVisualisationConfig';
+import { route } from '@tamanu/api-client';
 
 export const useChartsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
@@ -14,11 +15,18 @@ export const useChartsVisualisationConfigsQuery = () => {
   const patientQuery = usePatientDataQuery(encounter?.patientId);
   const { selectedChartTypeId } = useChartData();
   const chartSurveyQuery = useSurveyQuery(selectedChartTypeId);
-  
+
   // Fetch chart data to determine which historical questions have data
   const chartDataQuery = useQuery(
     ['encounterCharts', encounter?.id, selectedChartTypeId],
-    () => api.get(`encounter/${encounter?.id}/charts/${selectedChartTypeId}`, { rowsPerPage: 1 }),
+    () =>
+      api.get(
+        route('encounter/:encounterId/charts/:selectedChartTypeId', {
+          encounterId: encounter?.id,
+          selectedChartTypeId,
+        }),
+        { rowsPerPage: 1 },
+      ),
     { enabled: Boolean(encounter?.id) && Boolean(selectedChartTypeId) },
   );
 

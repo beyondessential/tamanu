@@ -22,7 +22,7 @@ export const VaccineCardHeader = ({
   vaccineData: { name, id: drugId, status, scheduledVaccineId, scheduledVaccineLabel },
   onCloseModal,
   onEditDetails,
-}: CardHeaderProps): JSX.Element => {
+}: CardHeaderProps) => {
   const isVaccineEditable = editableVaccineStatuses.has(status);
   return (
     <StyledView

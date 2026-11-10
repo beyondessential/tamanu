@@ -15,6 +15,7 @@ import type { IPatient, ISurveyScreenComponent, GenericFormValues } from '../../
 import { checkMandatory, checkVisibilityCriteria } from '../../../helpers/fields';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
+import { useRequiredConditionQuestionCode } from './SurveyProgramRegistryConditionField';
 import { FormScreenView } from '../FormScreenView';
 import { SubmitButton } from '../SubmitButton';
 import { Button } from '../../Button';
@@ -79,6 +80,7 @@ export const FormFields = ({
   const scrollViewRef = useRef(null);
   const { errors, validateForm, setStatus, submitForm, values } =
     useFormikContext<GenericFormValues>();
+  const requiredConditionQuestionCode = useRequiredConditionQuestionCode(values);
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
 
   const [disableSubmit, setDisableSubmit] = useState(false);
@@ -186,9 +188,10 @@ export const FormFields = ({
           ? emptyStateMessage
           : visibleComponents.map((component, index) => {
               const validationCriteria = component?.getValidationCriteriaObject();
-              const mandatory = checkMandatory(validationCriteria.mandatory, {
-                encounterType: encounter?.encounterType,
-              });
+              const mandatory =
+                checkMandatory(validationCriteria.mandatory, {
+                  encounterType: encounter?.encounterType,
+                }) || component.dataElement.code === requiredConditionQuestionCode;
               return (
                 <Fragment key={component.id}>
                   <StyledView

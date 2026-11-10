@@ -4,6 +4,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import styled from 'styled-components';
 import { useApi } from '../../api';
 import { PDFPage } from './PDFPage';
+import { route } from '@tamanu/api-client';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -47,11 +48,13 @@ export default function PDFPreview({
       if (!attachmentId) {
         return;
       }
-      const { data } = await api.get(`attachment/${attachmentId}`, { base64: true });
-      const raw = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+      const { data } = await api.get(route('attachment/:attachmentId', { attachmentId }), {
+        base64: true,
+      });
+      const raw = Uint8Array.from(atob(data), c => c.charCodeAt(0));
       const loadingTask = pdfjsLib.getDocument(raw);
       loadingTask.promise.then(
-        async (loadedPdf) => {
+        async loadedPdf => {
           setPageCount(loadedPdf.numPages);
           const loadedPages = [];
           for (let pageIndex = 0; pageIndex < loadedPdf.numPages; ++pageIndex) {
@@ -59,7 +62,7 @@ export default function PDFPreview({
           }
           setPages(loadedPages);
         },
-        (error) => {
+        error => {
           throw new Error(error);
         },
       );
@@ -70,7 +73,7 @@ export default function PDFPreview({
   // Approximate current page number from scroll percent
   useEffect(() => {
     const node = scrollRef.current;
-    const reportScroll = (e) => {
+    const reportScroll = e => {
       setScrollPage(getScrollPage(e.target, pageCount));
     };
     if (node !== null) {

@@ -23,6 +23,7 @@ import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { usePatient } from '../../contexts/Patient';
 import { useTranslation } from '../../contexts/Translation';
+import { getRelatedConditionsSchema } from './relatedConditionsSchema';
 
 const RelatedConditionFieldsContainer = styled.div`
   display: flex;
@@ -49,13 +50,14 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
   const { getCurrentDate } = useDateTime();
 
-  const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
+  const { data: programRegistry, isInitialLoading: isProgramRegistryLoading } =
+    useProgramRegistryQuery(selectedProgramRegistryId);
 
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient?.id },
   });
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programRegistryId: program ? program.id : null },
+    baseQueryParameters: { programRegistryId: programRegistry ? programRegistry.id : null },
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
@@ -63,23 +65,10 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
-        conditions: yup
-          .array()
-          .of(
-            yup.object().shape({
-              conditionId: yup.string().nullable(),
-              conditionCategoryId: yup
-                .string()
-                .nullable()
-                .when('conditionId', {
-                  is: Boolean,
-                  then: yup
-                    .string()
-                    .required(getTranslation('validation.required.inline', '*Required')),
-                }),
-            }),
-          )
-          .nullable(),
+        conditions: getRelatedConditionsSchema(
+          Boolean(programRegistry?.mandatoryConditionEnabled),
+          getTranslation('validation.required.inline', '*Required'),
+        ),
         programRegistryId: foreignKey().required(
           getTranslation('validation.required.inline', '*Required'),
         ),
@@ -92,7 +81,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
           getTranslation('validation.required.inline', '*Required'),
         ),
       }),
-    [getTranslation],
+    [getTranslation, programRegistry?.mandatoryConditionEnabled],
   );
 
   return (
@@ -201,7 +190,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
-                  disabled={!program}
+                  disabled={!programRegistry}
                 />
                 <Field
                   name="conditions"
@@ -239,6 +228,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                           programRegistryId={selectedProgramRegistryId}
                           onClear={onClear}
                           optionsFilter={condition => !usedValues.includes(condition.id)}
+                          required={index === 0 && Boolean(programRegistry?.mandatoryConditionEnabled)}
                           label={
                             <TranslatedText
                               stringId="programRegistry.relatedConditions.label"
@@ -273,6 +263,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               confirmText={buttonText}
               onConfirm={submitForm}
               onCancel={handleCancel}
+              confirmDisabled={isProgramRegistryLoading}
             />
           </>
         );

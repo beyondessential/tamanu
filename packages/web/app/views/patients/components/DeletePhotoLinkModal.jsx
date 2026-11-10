@@ -5,6 +5,7 @@ import { ConfirmModal } from '../../../components/ConfirmModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 import { notifyError } from '../../../utils';
+import { route } from '@tamanu/api-client';
 
 export const DeletePhotoLinkModal = ({ open, onClose, answerId }) => {
   const api = useApi();
@@ -13,7 +14,7 @@ export const DeletePhotoLinkModal = ({ open, onClose, answerId }) => {
 
   const onSubmit = async () => {
     try {
-      await api.put(`surveyResponseAnswer/photo/${answerId}`);
+      await api.put(route('surveyResponseAnswer/photo/:answerId', { answerId }));
       queryClient.invalidateQueries(['encounterCharts', encounter.id]);
     } catch (error) {
       notifyError(error);

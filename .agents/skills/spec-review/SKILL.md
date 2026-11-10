@@ -2,9 +2,8 @@
 name: spec-review
 description: "Review this card's specs with fresh eyes for gaps, contradictions, and cross-spec impact"
 label: "Review spec"
-pill-order:
-  specifying: 3
-workhorse-version: 0.3.0
+category: spec
+workhorse-version: 0.7.14
 ---
 
 ## Your task: Review spec with fresh eyes

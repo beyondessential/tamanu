@@ -62,6 +62,6 @@ encounterSummaryRoute.post(
 
     const response = await req.aiService.invoke(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY, userMessage);
 
-    res.send({ content: response.content });
+    res.send({ content: response.text });
   }),
 );

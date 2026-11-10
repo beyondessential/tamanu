@@ -1,17 +1,17 @@
 import React, { type ReactElement, useMemo } from 'react';
-import styled from 'styled-components';
-import { StyledText } from '~/ui/styled/common';
+import styled, { css } from 'styled-components';
 import { type TranslatedTextProps, useTranslation } from '~/ui/contexts/TranslationContext';
+import { StyledText } from '~/ui/styled/common';
 
 const TextWrapper = styled(StyledText)<{
   $isDebugMode: boolean;
 }>`
   ${props =>
     props.$isDebugMode &&
-    `
-    background-color: red;
-    color: white;
-  `};
+    css`
+      background-color: red;
+      color: white;
+    `};
 `;
 
 export type TranslatedTextElement = ReactElement<TranslatedTextProps> | string;

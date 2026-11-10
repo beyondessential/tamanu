@@ -12,6 +12,7 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { TranslatedText } from '../../../components';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { notifySuccess } from '../../../utils';
+import { route } from '@tamanu/api-client';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-left: 10px;
@@ -22,6 +23,7 @@ const ExportForm = ({
   dataTypesSelectable,
   buttonLabel,
   ExportButton = FormSubmitButton,
+  values,
 }) => (
   <StyledFormGrid columns={1} data-testid="styledformgrid-11t3">
     {dataTypesSelectable && (
@@ -40,7 +42,11 @@ const ExportForm = ({
       />
     )}
     <ButtonRow alignment="left" data-testid="buttonrow-zs3j">
-      <ExportButton text={buttonLabel} data-testid="exportbutton-7sto" />
+      <ExportButton
+        text={buttonLabel}
+        disabled={!values.includedDataTypes?.length}
+        data-testid="exportbutton-7sto"
+      />
     </ButtonRow>
   </StyledFormGrid>
 );
@@ -54,7 +60,8 @@ export const ExporterView = memo(
       async queryParameters => {
         const saved = await saveFile({
           defaultFileName: `${title} export ${getCurrentDateTime()}`,
-          getData: async () => await api.download(`admin/export/${endpoint}`, queryParameters),
+          getData: async () =>
+            await api.download(route('admin/export/:endpoint', { endpoint }), queryParameters),
           extension: 'xlsx',
         });
         if (saved) {

@@ -1,7 +1,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useState } from 'react';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
+import { ENCOUNTER_TYPES, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
+import { LocationCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import {
   AllPatientsSearchBar,
@@ -25,6 +25,7 @@ import {
   inpatientSex,
   firstName,
   lastName,
+  locationGroup,
   markedForSync,
   sex,
   status,
@@ -60,18 +61,6 @@ const location = {
   accessor: LocationCell,
 };
 
-const locationGroup = {
-  key: 'locationGroupName',
-  title: (
-    <TranslatedText
-      stringId="general.area.label"
-      fallback="Area"
-      data-testid="translatedtext-28c6"
-    />
-  ),
-  accessor: LocationGroupCell,
-};
-
 const OUTPATIENT_COLUMNS = [
   markedForSync,
   displayId,
@@ -98,7 +87,7 @@ const INPATIENT_COLUMNS = [
   { ...diet, sortable: false },
 ];
 
-const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters, pageSizePreferenceKey }) => {
   const { navigateToPatient } = usePatientNavigation();
   const { facilityId } = useAuth();
   const fetchOptionsWithSearchParameters = {
@@ -124,6 +113,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       }}
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
+      pageSizePreferenceKey={pageSizePreferenceKey}
       data-testid="searchtablewithpermissioncheck-qyht"
     />
   );
@@ -258,6 +248,7 @@ export const AdmittedPatientsView = () => {
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
           columns={INPATIENT_COLUMNS}
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.INPATIENTS}
           data-testid="patienttable-w4sz"
         />
       </ContentPane>
@@ -304,6 +295,7 @@ export const OutpatientsView = () => {
           fetchOptions={{ outpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
           columns={OUTPATIENT_COLUMNS}
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.OUTPATIENTS}
           data-testid="patienttable-18bx"
         />
       </ContentPane>

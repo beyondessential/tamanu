@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { route } from '@tamanu/api-client';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -379,7 +380,7 @@ export const PatientHistory = ({ patient, onItemClick, refreshCount: externalRef
             />
           </Box>
         }
-        endpoint={`patient/${patient.id}/encounters`}
+        endpoint={route('patient/:patientId/encounters', { patientId: patient.id })}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount + externalRefreshCount}
         TableHeader={

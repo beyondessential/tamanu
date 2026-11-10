@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { AI_ENCOUNTER_SUMMARY_QUERY_KEY } from '../queries/useAiEncounterSummaryQuery';
+import { route } from '@tamanu/api-client';
 
 const writeAiDocumentToCache = (queryClient, encounterId, aiDocument) => {
   queryClient.setQueryData([AI_ENCOUNTER_SUMMARY_QUERY_KEY, encounterId], {
@@ -13,7 +14,7 @@ export const useGenerateAiEncounterSummary = encounterId => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => api.post(`ai/encounter/summary/${encodeURIComponent(encounterId)}`),
+    mutationFn: () => api.post(route('ai/encounter/summary/:encounterId', { encounterId })),
     onSuccess: aiDocument => writeAiDocumentToCache(queryClient, encounterId, aiDocument),
   });
 };
@@ -25,7 +26,7 @@ const useUpdateAiEncounterSummary = (encounterId, getRequest) => {
   return useMutation({
     mutationFn: input => {
       const { id, body } = getRequest(input);
-      return api.put(`ai/encounter/summary/${encodeURIComponent(id)}`, body);
+      return api.put(route('ai/encounter/summary/:id', { id }), body);
     },
     onSuccess: aiDocument => writeAiDocumentToCache(queryClient, encounterId, aiDocument),
   });

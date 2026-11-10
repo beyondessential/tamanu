@@ -7,12 +7,14 @@ import { MultiselectField } from '@tamanu/ui-components';
 import { Field, TranslatedReferenceData } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';
+import { route } from '@tamanu/api-client';
 
 export const useLabTestTypes = labTestCategoryId => {
   const api = useApi();
   const query = useQuery(
     ['labTestType', { labTestCategoryId }],
-    () => api.get(`labTestType/${labTestCategoryId}`, { rowsPerPage: 50 }),
+    () =>
+      api.get(route('labTestType/:labTestCategoryId', { labTestCategoryId }), { rowsPerPage: 50 }),
     { enabled: !!labTestCategoryId },
   );
 

@@ -3,9 +3,10 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
-import { ENCOUNTER_TYPES, NOTE_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, NOTE_TYPES, REFERENCE_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
+import { storedDateTimeToEpochMilliseconds } from '@tamanu/utils/dateTime';
 
 import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
@@ -14,6 +15,25 @@ import { createTriageFilters } from '../../utils/triageFilters';
 import { getWhereClausesAndReplacementsFromFilters } from '../../utils/query';
 
 export const triage = express.Router();
+
+// A future arrival time drives the emergency wait time negative, so refuse it at the boundary as
+// well as in the form. Callers send times in whatever representation they have — a primary-timezone
+// ISO 9075 string, or a Date serialised to ISO 8601 with a Z — so resolve each to an absolute
+// instant (the same conversion the wait-time calculation uses) and compare against now.
+const isInFuture = value => {
+  if (!value) return false;
+  const instant = storedDateTimeToEpochMilliseconds(value, getPrimaryTimeZone());
+  return instant != null && instant > Date.now();
+};
+
+const checkTriageTimesNotInFuture = ({ arrivalTime, triageTime }) => {
+  if (isInFuture(arrivalTime)) {
+    throw new InvalidParameterError('Arrival time cannot be in the future');
+  }
+  if (isInFuture(triageTime)) {
+    throw new InvalidParameterError('Triage time cannot be in the future');
+  }
+};
 
 triage.get('/:id', simpleGet('Triage', { auditAccess: true }));
 triage.put(
@@ -24,6 +44,7 @@ triage.put(
     const triageObject = await models.Triage.findByPk(params.id);
     if (!triageObject) throw new NotFoundError();
     req.checkPermission('write', triageObject);
+    checkTriageTimesNotInFuture(req.body);
     await triageObject.update(req.body, user);
     res.send(triageObject);
   }),
@@ -44,6 +65,18 @@ triage.post(
       const vitalsSurvey = await models.Survey.findByPk(vitals.surveyId);
       if (vitalsSurvey?.surveyType !== SURVEY_TYPES.VITALS) {
         throw new InvalidParameterError('Triage vitals must be a response to the vitals form.');
+      }
+    }
+
+    checkTriageTimesNotInFuture(body);
+
+    const { patientBillingTypeId } = body;
+    if (patientBillingTypeId) {
+      const patientBillingType = await models.ReferenceData.findOne({
+        where: { id: patientBillingTypeId, type: REFERENCE_TYPES.PATIENT_BILLING_TYPE },
+      });
+      if (!patientBillingType) {
+        throw new InvalidParameterError('Patient billing type not found');
       }
     }
 

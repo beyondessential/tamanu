@@ -13,6 +13,7 @@ import {
   createProgramRegistryRowActionsAccessor,
   StyledDataFetchingTable,
 } from './components';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const codeColumn = /** @type {const} */ ({ key: 'code', title: 'code' });
 
@@ -97,6 +98,7 @@ function ManageProgramRegistriesTable({ columns, endpointSuffix, noDataMessage, 
       columns={columns}
       data-testid={dataTestId}
       endpoint={endpoint}
+      pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.PROGRAM_REGISTRIES}
       initialSort={{ orderBy: 'name', order: 'asc' }}
       key={programRegistryId}
       noDataMessage={noDataMessage}

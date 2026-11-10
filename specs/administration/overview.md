@@ -4,4 +4,4 @@ id: ADMINISTRATION
 
 # Administration
 
-System administration: users, roles and permissions, reference data, and settings.
+Applies to system administration: users, roles and permissions, reference data, patient data, and settings.

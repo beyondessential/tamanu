@@ -1,4 +1,4 @@
-export { InsurerPaymentsAdminView } from './InsurerPaymentsAdminView';
+export { InsurancePlanPaymentsAdminView } from './InsurancePlanPaymentsAdminView';
 export { LocationAdminView } from './LocationAdminView';
 export { LocationAssignmentsAdminView } from './LocationAssignmentsAdminView';
 export { AssetUploaderView } from './AssetUploaderView';
@@ -15,6 +15,7 @@ export {
 export { SurveyResponsesAdminView } from './SurveyResponsesAdminView';
 export { PermissionsAdminView } from './permissions/PermissionsAdminView';
 export { ReferenceDataAdminView } from './ReferenceDataAdminView';
+export { PatientDataAdminView } from './PatientDataAdminView';
 export { PatientMergeView } from './patientMerge';
 export { SyncView } from './SyncView';
 export { FhirJobStatsView } from './FhirJobStatsView';

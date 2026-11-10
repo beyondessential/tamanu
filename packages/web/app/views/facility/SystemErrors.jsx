@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
 import { Button, MultilineDatetimeDisplay, TranslatedText } from '@tamanu/ui-components';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 import { ContentPane, PageContainer, Table, TopBar } from '../../components';
 import { useClientSideTableData } from '../../components/Table/useClientSideTableData';
 import { Colors } from '../../constants';
-import { markSystemErrorsRead, purgeStaleSystemErrors, removeSystemErrors } from '../../store';
+import { systemErrorStore, useSystemErrors } from '../../state/systemErrorStore';
 import { SendErrorLogButtonLabel, SendErrorLogModal } from './SendErrorLogModal';
 
 const NoDataContainer = styled.div`
@@ -36,16 +36,15 @@ export const COLUMNS = [
 ];
 
 export const SystemErrors = React.memo(() => {
-  const dispatch = useDispatch();
-  const errors = useSelector(state => state.systemErrors.errors);
+  const errors = useSystemErrors();
   const [isSendLogModalOpen, setIsSendLogModalOpen] = useState(false);
 
   // Purging is only ever checked on visiting the view (no background scheduler), then
   // whatever's left is marked read.
   useEffect(() => {
-    dispatch(purgeStaleSystemErrors());
-    dispatch(markSystemErrorsRead());
-  }, [dispatch]);
+    systemErrorStore.purgeStale();
+    systemErrorStore.markAllRead();
+  }, []);
 
   const {
     pageData,
@@ -55,11 +54,14 @@ export const SystemErrors = React.memo(() => {
     onChangeOrderBy,
     page,
     rowsPerPage,
+    rowsPerPageOptions,
     onChangePage,
     onChangeRowsPerPage,
+    isPageSizeReady,
   } = useClientSideTableData(errors, {
     initialSortKey: 'timestamp',
     initialSortDirection: 'desc',
+    pageSizePreferenceKey: TABLE_PAGE_SIZE_PREFERENCE_KEYS.SYSTEM_ERRORS,
   });
 
   return (
@@ -76,6 +78,7 @@ export const SystemErrors = React.memo(() => {
         <Table
           data={pageData}
           columns={COLUMNS}
+          isLoading={!isPageSizeReady}
           noDataMessage={
             <NoDataContainer data-testid="nodatacontainer-syse">
               <TranslatedText
@@ -91,6 +94,7 @@ export const SystemErrors = React.memo(() => {
           page={page}
           count={count}
           rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={rowsPerPageOptions}
           onChangePage={onChangePage}
           onChangeRowsPerPage={onChangeRowsPerPage}
         />
@@ -99,7 +103,7 @@ export const SystemErrors = React.memo(() => {
         open={isSendLogModalOpen}
         onClose={() => setIsSendLogModalOpen(false)}
         errors={errors}
-        onSentSuccessfully={sentErrors => dispatch(removeSystemErrors(sentErrors.map(e => e.id)))}
+        onSentSuccessfully={sentErrors => systemErrorStore.remove(sentErrors.map(e => e.id))}
       />
     </PageContainer>
   );

@@ -15,6 +15,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
 import { NoteModalDialogTitle } from './NoteModalCommonComponents';
+import { route } from '@tamanu/api-client';
 
 const NOTE_MODAL_DIMENSIONS = {
   WIDTH: {
@@ -161,7 +162,9 @@ export const MuiNoteModalComponent = ({
   useEffect(() => {
     if (!open || !encounterId) return;
     (async () => {
-      const noteTypeCountResponse = await api.get(`encounter/${encounterId}/notes/noteTypes`);
+      const noteTypeCountResponse = await api.get(
+        route('encounter/:encounterId/notes/noteTypes', { encounterId }),
+      );
       setNoteTypeCountByType(noteTypeCountResponse.data);
     })();
   }, [api, note, encounterId, open]);

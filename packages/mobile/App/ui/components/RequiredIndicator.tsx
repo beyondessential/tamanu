@@ -7,7 +7,7 @@ interface RequiredIndicatorProps {
   marginLeft?: number;
 }
 
-export const RequiredIndicator = ({ marginLeft }: RequiredIndicatorProps): JSX.Element => (
+export const RequiredIndicator = ({ marginLeft }: RequiredIndicatorProps) => (
   <StyledText marginLeft={marginLeft} color={theme.colors.ALERT}>
     {' '}
     *

@@ -30,7 +30,7 @@ export const RadioButtonGroup = ({
   labelFontSize,
   optionComponentWidth: componentWidth,
   initialValue,
-}: RadioButtonGroupProps): JSX.Element => {
+}: RadioButtonGroupProps) => {
   const RadioComponent = CustomComponent || RadioButton;
 
   useEffect(() => {

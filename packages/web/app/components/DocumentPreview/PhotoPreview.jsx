@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useApi } from '../../api';
+import { route } from '@tamanu/api-client';
 
 const Image = styled.img`
   max-width: 35vw;
@@ -20,7 +21,9 @@ export default function PhotoPreview({ attachmentId }) {
       if (!attachmentId) {
         return;
       }
-      const { data } = await api.get(`attachment/${attachmentId}`, { base64: true });
+      const { data } = await api.get(route('attachment/:attachmentId', { attachmentId }), {
+        base64: true,
+      });
       setImageData(data);
     })();
   }, [api, attachmentId, setImageData]);

@@ -25,6 +25,7 @@ const PRESCRIPTION_WITH_DUE_TASKS = {
   frequency: {
     [Op.notIn]: [...FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS],
   },
+  isPrn: { [Op.not]: true },
 };
 
 export class MedicationAdministrationRecord extends Model {

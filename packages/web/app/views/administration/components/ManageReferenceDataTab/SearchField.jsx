@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 
-import { startCase } from 'es-toolkit/compat';
 import { useTranslation } from '@tamanu/ui-components';
 import {
   NONPATIENT_VISIBILITY_STATUS_VALUES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
+  VISIBILITY_STATUS_LABELS,
 } from '@tamanu/constants';
 import {
   AutocompleteField,
@@ -13,6 +13,7 @@ import {
   MultiAutocompleteField,
   SearchField as SearchTextField,
   SelectField,
+  TranslatedSelectField,
 } from '../../../../components/Field';
 import { NumberField } from '../../../../components/Field/NumberField';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
@@ -30,15 +31,14 @@ const BOOLEAN_SEARCH_OPTIONS = [
 ];
 
 // Lab test types can also be filtered by "Panel only" or "Reflex test"; other reference data cannot.
-const getVisibilityStatusOptions = selectedType =>
-  (selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+const getVisibilityStatuses = selectedType =>
+  selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
     ? [
         ...NONPATIENT_VISIBILITY_STATUS_VALUES,
         LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
         LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
       ]
-    : NONPATIENT_VISIBILITY_STATUS_VALUES
-  ).map(value => ({ value, label: startCase(value) }));
+    : NONPATIENT_VISIBILITY_STATUS_VALUES;
 
 const AvailableFacilitiesSearchField = () => {
   const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { noLimit: true } });
@@ -96,9 +96,15 @@ export const SearchField = ({ col, selectedType }) => {
   const { getTranslation } = useTranslation();
 
   if (col.key === VISIBILITY_STATUS_KEY) {
+    const statuses = getVisibilityStatuses(selectedType);
     return (
       <Field
-        component={SelectField}
+        component={TranslatedSelectField}
+        enumValues={VISIBILITY_STATUS_LABELS}
+        transformOptions={options => [
+          { value: statuses.join(','), label: getTranslation('general.select.all', 'All') },
+          ...options.filter(({ value }) => statuses.includes(value)),
+        ]}
         name={VISIBILITY_STATUS_KEY}
         label={
           <TranslatedText
@@ -107,7 +113,6 @@ export const SearchField = ({ col, selectedType }) => {
             data-testid="translatedtext-visibility-status"
           />
         }
-        options={getVisibilityStatusOptions(selectedType)}
         size="small"
         data-testid="searchfield-visibilityStatus"
       />

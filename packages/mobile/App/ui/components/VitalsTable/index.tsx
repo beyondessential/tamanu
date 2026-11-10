@@ -71,7 +71,7 @@ const checkNeedsAttention = (
   return fValue > normalRange.max || fValue < normalRange.min;
 };
 
-export const VitalsTable = memo(({ data, columns }: VitalsTableProps): JSX.Element => {
+export const VitalsTable = memo(({ data, columns }: VitalsTableProps) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
@@ -144,7 +144,7 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps): JSX.Eleme
                 rowKey: 'dataElementId',
                 rowTitle: id,
                 rowHeader: i => <VitalsTableRowHeader title={name} isOdd={i % 2 === 0} />,
-                cell: (cellData, i): JSX.Element => {
+                cell: (cellData, i) => {
                   const value = cellData?.body || '';
                   const needsAttention = checkNeedsAttention(
                     value,

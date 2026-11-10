@@ -16,7 +16,7 @@ export interface ViewPhotoLinkProps extends BaseInputProps {
 
 const MODAL_HEIGHT = Dimensions.get('window').width * 0.6;
 
-const Message = ({ color, message }): JSX.Element => (
+const Message = ({ color, message }) => (
   <StyledView background="white" justifyContent="center" height={MODAL_HEIGHT}>
     <StyledText
       marginTop={0}

@@ -4,6 +4,7 @@ import React from 'react';
 import { TranslatedText, VISIBILITY_STATUS_TRANSLATIONS } from '@tamanu/ui-components';
 import { useApi } from '../../../../api';
 import { notifyError, notifySuccess } from '../../../../utils';
+import { route } from '@tamanu/api-client';
 
 /**
  * @param {Omit<import('@tanstack/react-query').UseMutationOptions, 'mutationFn' | 'mutationKey'>} [useMutationOptions]
@@ -17,7 +18,7 @@ export function useVisibilityStatusMutation(useMutationOptions = {}) {
     ...rest,
     mutationKey: ['programRegistrySubResource', 'visibilityStatus'],
     mutationFn: async ({ recordId, resourceSegment, visibilityStatus }) =>
-      await api.patch(`admin/${resourceSegment}/${encodeURIComponent(recordId)}`, {
+      await api.patch(route('admin/:resourceSegment/:recordId', { resourceSegment, recordId }), {
         visibilityStatus,
       }),
     onSuccess: (data, variables, context) => {

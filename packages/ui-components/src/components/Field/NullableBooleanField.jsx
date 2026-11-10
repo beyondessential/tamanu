@@ -14,7 +14,7 @@ import { TranslatedText } from '../Translation';
 const ControlLabel = styled(FormLabel).attrs({
   'data-testid': 'controllabel-q0hy',
 })`
-  width: max-content;
+  max-width: 100%;
   align-items: flex-start;
   margin-left: 0;
 
@@ -25,6 +25,7 @@ const ControlLabel = styled(FormLabel).attrs({
     line-height: 1.15;
     letter-spacing: 0;
     margin-bottom: 5px;
+    overflow-wrap: anywhere;
   }
 `;
 

@@ -8,6 +8,7 @@ import { Colors } from '../../constants/styles';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useApi } from '../../api';
 import { ContactDetails } from './ContactDetails';
+import { route } from '@tamanu/api-client';
 
 const StyledHeading = styled(Typography)`
   margin: 6px 0 9px 0;
@@ -44,7 +45,11 @@ export const RemoveReminderContact = ({
   const handleDeleteContact = async () => {
     if (isDeleting) return;
     setIsDeleting(true);
-    await api.delete(`patient/reminderContact/${selectedContact.id}`);
+    await api.delete(
+      route('patient/reminderContact/:selectedContactId', {
+        selectedContactId: selectedContact.id,
+      }),
+    );
     onBack();
     setIsDeleting(false);
   };

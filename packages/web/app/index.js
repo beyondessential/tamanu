@@ -6,9 +6,11 @@ import BugsnagPluginReact from '@bugsnag/plugin-react';
 
 import { renderRootInto } from './Root';
 import { API } from './api/singletons';
+import { initWebTelemetry } from './telemetry';
 import { registerYup } from './utils/errorMessages';
 import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
-import { addSystemError, authFailure, initStore, restoreSession, versionIncompatible } from './store';
+import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
+import { systemErrorStore } from './state/systemErrorStore';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import './fonts.css';
@@ -49,6 +51,9 @@ async function start() {
     });
   }
 
+  // spec: BTEL — start browser performance telemetry (collects from before sign-in).
+  initWebTelemetry(API);
+
   // TODO: Switch to use api when we get rid of API singleton
   // const api = new TamanuApi(version);
   const { store } = initStore(API);
@@ -67,7 +72,7 @@ async function start() {
   });
 
   API.setSystemErrorHandler(error => {
-    store.dispatch(addSystemError(error));
+    systemErrorStore.add(error);
   });
 
   const container = document.getElementById('root');

@@ -18,6 +18,7 @@ import {
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   SuggesterSelectField,
+  useLocalisedSchema,
 } from '../components';
 import { ENCOUNTER_OPTIONS, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { useSuggester } from '../api';
@@ -35,6 +36,7 @@ export const EncounterForm = React.memo(
     const referralSourceSuggester = useSuggester('referralSource');
     const { getTranslation } = useTranslation();
     const { getCurrentDateTime } = useDateTime();
+    const { getLocalisedSchema } = useLocalisedSchema();
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (
@@ -238,6 +240,7 @@ export const EncounterForm = React.memo(
               data-testid="translatedtext-uguh"
             />,
           ),
+          patientBillingTypeId: getLocalisedSchema({ name: 'patientBillingTypeId' }).nullable(),
           startDate: yup
             .date()
             .required()

@@ -83,9 +83,8 @@ describe('MedicationAdministrationRecord', () => {
         date: getCurrentDateTimeString(),
         startDate: getCurrentDateTimeString(),
         frequency: ADMINISTRATION_FREQUENCIES.HOURLY,
-        idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.HOURLY].startTimes.join(
-          ',',
-        ),
+        idealTimes:
+          ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.HOURLY].startTimes.join(','),
         dosingUnit: 'mg',
       });
 

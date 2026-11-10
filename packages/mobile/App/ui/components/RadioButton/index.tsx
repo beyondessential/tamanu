@@ -22,7 +22,7 @@ export interface RadioOptionProps extends RadioOption {
   width?: string | number;
 }
 
-export const RadioButton = (props: RadioOptionProps): JSX.Element => {
+export const RadioButton = (props: RadioOptionProps) => {
   const onPressCallback = React.useCallback(() => props.onPress(props.value), [props]);
 
   const getBorderColor = useCallback(() => {

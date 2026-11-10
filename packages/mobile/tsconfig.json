@@ -30,7 +30,12 @@
       "/data/*": ["App/data/*"],
       "/infra/*": ["App/infra/*"],
       "/presentation/*": ["App/presentation/*"],
-      "/migrations/*": ["App/migrations/*"]
+      "/migrations/*": ["App/migrations/*"],
+      // Pin React types to mobile's own @types/react. Without this, hoisted libraries (e.g.
+      // react-native-qrcode-svg) resolve the stale @types/react@17 at the repo root, and their
+      // components fail with "cannot be used as a JSX component"
+      "react": ["node_modules/@types/react"],
+      "react/*": ["node_modules/@types/react/*"]
     },
     "moduleResolution": "bundler",
     "customConditions": ["react-native"],
@@ -48,6 +53,7 @@
       "es2021.string",
       "es2021.weakref",
       "es2022.array",
+      "es2022.error",
       "es2022.object",
       "es2022.string"
     ],

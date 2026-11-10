@@ -135,7 +135,7 @@ describe('useFacilitySidebar', () => {
     vi.mocked(useSettings).mockReturnValue(settingsMock({ patients: { sortPriority: 10 } }));
     vi.mocked(useAuth).mockReturnValue(authMock);
     const items = useFacilitySidebar();
-    expect(items.map((item) => item.key)).toStrictEqual([
+    expect(items.map(item => item.key)).toStrictEqual([
       'dashboard',
       'scheduling',
       'medication',
@@ -169,11 +169,50 @@ describe('useFacilitySidebar', () => {
     );
     vi.mocked(useAuth).mockReturnValue(authMock);
     const items = useFacilitySidebar();
-    expect(items[1].children.map((item) => item.key)).toStrictEqual([
+    expect(items[1].children.map(item => item.key)).toStrictEqual([
       'patientsOutpatients',
       'patientsEmergency',
       'patientsInpatients',
       'patientsAll',
     ]);
+  });
+
+  it('leaves out a group the account can use none of, without a sidebar config', () => {
+    vi.mocked(useSettings).mockReturnValue({ getSetting: () => undefined });
+    vi.mocked(useAuth).mockReturnValue({
+      ability: { can: (action, subject) => !String(subject).startsWith('Medication') },
+    });
+    const keys = useFacilitySidebar().map(item => item.key);
+    expect(keys).toContain('patients');
+    expect(keys).not.toContain('medication');
+  });
+
+  describe('self check-in kiosk', () => {
+    const settingsWithKiosk = isKioskEnabled => ({
+      getSetting: key => (key === 'kiosk.enabled' ? isKioskEnabled : defaultSettings),
+    });
+    const useFacilityAdminItem = () =>
+      useFacilitySidebar().find(item => item.key === 'facilityAdmin');
+
+    it('offers the kiosk under facility admin, in a new tab, where it is turned on', () => {
+      vi.mocked(useSettings).mockReturnValue(settingsWithKiosk(true));
+      vi.mocked(useAuth).mockReturnValue(authMock);
+      const kiosk = useFacilityAdminItem().children.find(child => child.key === 'kiosk');
+      expect(kiosk).toMatchObject({ path: '/kiosk', opensInNewTab: true });
+    });
+
+    it('leaves the kiosk out where it is turned off', () => {
+      vi.mocked(useSettings).mockReturnValue(settingsWithKiosk(false));
+      vi.mocked(useAuth).mockReturnValue(authMock);
+      expect(useFacilityAdminItem().children.map(child => child.key)).not.toContain('kiosk');
+    });
+
+    it('leaves the kiosk out for an account without permission to run it', () => {
+      vi.mocked(useSettings).mockReturnValue(settingsWithKiosk(true));
+      vi.mocked(useAuth).mockReturnValue({
+        ability: { can: (action, subject) => !(action === 'run' && subject === 'Kiosk') },
+      });
+      expect(useFacilityAdminItem().children.map(child => child.key)).not.toContain('kiosk');
+    });
   });
 });

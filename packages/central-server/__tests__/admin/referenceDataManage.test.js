@@ -189,6 +189,38 @@ describe('Reference Data Manage', () => {
       expect(referenceDrug.isSensitive).toBe(false);
     });
 
+    it('should fall back to the column default when a defaulted field is submitted blank', async () => {
+      // A cleared field reaches us as '', which numeric columns reject outright and text columns
+      // would silently store over their default.
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-blank-default-code',
+        name: 'Test Drug Blank Default',
+        unitConversion: '',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(Number(referenceDrug.unitConversion)).toBe(1);
+    });
+
+    it('should keep a blank value for a column with no default', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-blank-nodefault-code',
+        name: 'Test Drug Blank No Default',
+        notes: '',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(referenceDrug.notes).toBe('');
+    });
+
     it('should not create a detail record for a type that has none', async () => {
       const response = await adminApp.post(BASE_URL).send({
         referenceDataType: REFERENCE_TYPES.VILLAGE,
@@ -209,6 +241,40 @@ describe('Reference Data Manage', () => {
         code: 'test-drug-bad-route-code',
         name: 'Test Drug Bad Route',
         route: 'telepathic',
+      });
+      expect(response).toHaveRequestError();
+    });
+
+    it('should reject a code with characters the importer would reject', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        code: 'test_bad_code',
+        name: 'Test Bad Code',
+      });
+      expect(response).toHaveRequestError();
+
+      const record = await models.ReferenceData.findOne({ where: { code: 'test_bad_code' } });
+      expect(record).toBe(null);
+    });
+
+    it('should reject an id with characters the importer would reject', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        id: 'test_bad_id',
+        code: 'test-ok-code',
+        name: 'Test Bad Id',
+      });
+      expect(response).toHaveRequestError();
+
+      const record = await models.ReferenceData.findByPk('test_bad_id');
+      expect(record).toBe(null);
+    });
+
+    it('should reject a blank code', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        code: '',
+        name: 'Test Blank Code',
       });
       expect(response).toHaveRequestError();
     });
@@ -335,6 +401,66 @@ describe('Reference Data Manage', () => {
       expect(record.name).toBe('Updated Name');
     });
 
+    it('should reject updating a code to invalid characters', async () => {
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'test-edit-valid-code',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: TEST_TYPE,
+        code: 'test_edit_bad_code',
+      });
+      expect(response).toHaveRequestError();
+
+      await record.reload();
+      expect(record.code).toBe('test-edit-valid-code');
+    });
+
+    it('allows editing a record whose existing code breaks the character rule, if unchanged', async () => {
+      // A type imported without a code character rule (e.g. lab test panel) can hold a legacy code
+      // with an underscore; editing another field must not be blocked by re-sending it unchanged.
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'legacy_code',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: TEST_TYPE,
+        code: 'legacy_code',
+        name: 'Updated Name',
+      });
+      expect(response).toHaveSucceeded();
+
+      await record.reload();
+      expect(record.name).toBe('Updated Name');
+    });
+
+    it('should let a NOT NULL text column with a default be cleared', async () => {
+      // lab_test_types.unit is NOT NULL DEFAULT '', and plenty of qualitative tests have no unit,
+      // so clearing it has to keep saving.
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      });
+      const labTestType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        unit: 'mmol/L',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${labTestType.id}`).send({
+        referenceDataType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
+        unit: '',
+      });
+      expect(response).toHaveSucceeded();
+
+      await labTestType.reload();
+      expect(labTestType.unit).toBe('');
+    });
+
     it('should update a drug detail field', async () => {
       const created = await adminApp.post(BASE_URL).send({
         referenceDataType: REFERENCE_TYPES.DRUG,
@@ -414,6 +540,173 @@ describe('Reference Data Manage', () => {
         name: 'Should Fail',
       });
       expect(response).toBeForbidden();
+    });
+  });
+
+  // spec: specs/sync/sensitive-networks.md
+  describe('facility sensitive network', () => {
+    const createNetwork = () => models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
+    const editFacility = (id, body) =>
+      adminApp
+        .put(`${BASE_URL}/${id}`)
+        .send({ referenceDataType: OTHER_REFERENCE_TYPES.FACILITY, ...body });
+
+    it('refuses to move a facility to another network', async () => {
+      const network = await createNetwork();
+      const other = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: other.id });
+      expect(response).toHaveRequestError();
+      expect(response.body.error.message).toContain('cannot change sensitive network');
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('refuses to enrol a facility that belongs to no network', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(fake(models.Facility));
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: network.id });
+      expect(response).toHaveRequestError();
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBeNull();
+    });
+
+    it('refuses to remove a facility from its network', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: null });
+      expect(response).toHaveRequestError();
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('saves other fields when the network is sent unchanged', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const name = `${facility.name} edited`;
+
+      const response = await editFacility(facility.id, { name, sensitiveNetworkId: network.id });
+      expect(response).toHaveSucceeded();
+
+      await facility.reload();
+      expect(facility.name).toBe(name);
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('creates a facility in a network', async () => {
+      const network = await createNetwork();
+      const { code, name } = fake(models.Facility);
+
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: OTHER_REFERENCE_TYPES.FACILITY,
+        code,
+        name,
+        sensitiveNetworkId: network.id,
+      });
+      expect(response).toHaveSucceeded();
+
+      const created = await models.Facility.findByPk(response.body.id);
+      expect(created.sensitiveNetworkId).toBe(network.id);
+    });
+  });
+
+  // Types with their own table are guarded by their own permission noun here, exactly as they are
+  // on import and export — generic ReferenceData rights must not reach them.
+  describe('permissions per data type', () => {
+    const SENSITIVE_NETWORK = OTHER_REFERENCE_TYPES.SENSITIVE_NETWORK;
+    const referenceDataGrants = [
+      ['list', 'ReferenceData'],
+      ['create', 'ReferenceData'],
+      ['write', 'ReferenceData'],
+    ];
+
+    let referenceDataOnlyApp;
+    let sensitiveNetworkApp;
+
+    beforeAll(async () => {
+      referenceDataOnlyApp = await baseApp.asNewRole(referenceDataGrants);
+      sensitiveNetworkApp = await baseApp.asNewRole([
+        ...referenceDataGrants,
+        ['list', 'SensitiveNetwork'],
+        ['create', 'SensitiveNetwork'],
+        ['write', 'SensitiveNetwork'],
+      ]);
+    });
+
+    const createNetworkAs = app => {
+      const { code, name } = fake(models.SensitiveNetwork);
+      return app.post(BASE_URL).send({ referenceDataType: SENSITIVE_NETWORK, code, name });
+    };
+
+    const renameNetworkAs = async app => {
+      const network = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
+      const newName = `${network.name} renamed`;
+      const response = await app
+        .put(`${BASE_URL}/${network.id}`)
+        .send({ referenceDataType: SENSITIVE_NETWORK, name: newName });
+      await network.reload();
+      return { response, newName, storedName: network.name };
+    };
+
+    it('forbids creating a sensitive network with only reference data permissions', async () => {
+      expect(await createNetworkAs(referenceDataOnlyApp)).toBeForbidden();
+    });
+
+    it('forbids renaming a sensitive network with only reference data permissions', async () => {
+      const { response, newName, storedName } = await renameNetworkAs(referenceDataOnlyApp);
+      expect(response).toBeForbidden();
+      expect(storedName).not.toBe(newName);
+    });
+
+    it('forbids listing sensitive networks with only reference data permissions', async () => {
+      const response = await referenceDataOnlyApp
+        .get(BASE_URL)
+        .query({ referenceDataType: SENSITIVE_NETWORK });
+      expect(response).toBeForbidden();
+    });
+
+    it('allows managing sensitive networks with the SensitiveNetwork permission', async () => {
+      expect(await createNetworkAs(sensitiveNetworkApp)).toHaveSucceeded();
+
+      const { response, newName, storedName } = await renameNetworkAs(sensitiveNetworkApp);
+      expect(response).toHaveSucceeded();
+      expect(storedName).toBe(newName);
+
+      const list = await sensitiveNetworkApp
+        .get(BASE_URL)
+        .query({ referenceDataType: SENSITIVE_NETWORK });
+      expect(list).toHaveSucceeded();
+    });
+
+    it('still manages ordinary reference data with only reference data permissions', async () => {
+      const created = await referenceDataOnlyApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        code: 'refdata-permission-scope-code',
+        name: 'Reference Data Permission Scope',
+      });
+      expect(created).toHaveSucceeded();
+
+      const renamed = await referenceDataOnlyApp.put(`${BASE_URL}/${created.body.id}`).send({
+        referenceDataType: TEST_TYPE,
+        name: 'Reference Data Permission Scope Renamed',
+      });
+      expect(renamed).toHaveSucceeded();
+
+      const list = await referenceDataOnlyApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
+      expect(list).toHaveSucceeded();
     });
   });
 

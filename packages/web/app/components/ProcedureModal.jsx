@@ -30,6 +30,7 @@ import {
   CloseWithoutAdditionalDataModal,
 } from '../forms/ProcedureForm/ProcedureFormModals';
 import { ProcedureFormFields } from '../forms/ProcedureForm';
+import { route } from '@tamanu/api-client';
 
 const Heading = styled(Typography)`
   margin-bottom: 10px;
@@ -64,7 +65,7 @@ const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount)
   const api = useApi();
   return useQuery(
     ['patient', patientId, 'programResponses', procedureId, refreshCount],
-    () => api.get(`patient/${patientId}/programResponses`, { procedureId }),
+    () => api.get(route('patient/:patientId/programResponses', { patientId }), { procedureId }),
     { enabled: Boolean(procedureId) },
   );
 };
@@ -78,23 +79,17 @@ export const ProcedureModal = ({
 }) => {
   const api = useApi();
   const { currentUser } = useAuth();
-  const {
-    getCurrentDate,
-    getCurrentDateTime,
-    toStoredDateTime,
-    toFacilityDateTime,
-  } = useDateTime();
+  const { getCurrentDate, getCurrentDateTime, toStoredDateTime, toFacilityDateTime } =
+    useDateTime();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnsavedChangesModalOpen] = useState(false);
-  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(
-    false,
-  );
-  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(
-    false,
-  );
+  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] =
+    useState(false);
+  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] =
+    useState(false);
   const [pendingFormData, setPendingFormData] = useState(null);
   const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;
@@ -216,7 +211,7 @@ export const ProcedureModal = ({
               {programResponses?.data?.length > 0 && (
                 <>
                   <ProgramsTable
-                    endpoint={`patient/${patientId}/programResponses`}
+                    endpoint={route('patient/:patientId/programResponses', { patientId })}
                     patient={patient}
                     onDelete={() => {
                       updateRefreshCount();

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { literal, QueryTypes, Op } from 'sequelize';
+import { literal, QueryTypes, Op, Sequelize } from 'sequelize';
 import { snakeCase } from 'es-toolkit/compat';
 import { isBefore } from 'date-fns';
 import {
@@ -140,13 +140,19 @@ patientRoute.put(
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
       if (validatedBody.displayId && validatedBody.displayId !== patient.displayId) {
+        // Match case-insensitively: patient search treats display IDs as equal
+        // regardless of case, so the duplicate check must too.
         const existingPatients = await Patient.count({
-          where: { displayId: validatedBody.displayId },
+          where: {
+            id: { [Op.ne]: patient.id },
+            [Op.and]: Sequelize.where(
+              Sequelize.fn('lower', Sequelize.col('display_id')),
+              Sequelize.fn('lower', validatedBody.displayId),
+            ),
+          },
         });
         if (existingPatients > 0) {
-          throw new ValidationError(
-            `Display ID ${validatedBody.displayId} is already in use by another patient`,
-          );
+          throw new ValidationError('Display ID is already in use by another patient');
         }
 
         const oldDisplayIdType =

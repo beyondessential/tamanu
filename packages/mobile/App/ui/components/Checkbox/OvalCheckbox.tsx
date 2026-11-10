@@ -71,7 +71,7 @@ export const OvalCheckbox = ({
   error,
   required,
   style,
-}: OvalCheckboxProps): JSX.Element => (
+}: OvalCheckboxProps) => (
   <StyledView style={style}>
     <Pressable
       onPress={(): void => onChange(!value, id)}

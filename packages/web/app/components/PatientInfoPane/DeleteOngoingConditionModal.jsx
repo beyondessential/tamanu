@@ -4,6 +4,7 @@ import { useApi } from '../../api';
 import { ConfirmModal } from '../ConfirmModal';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';
+import { route } from '@tamanu/api-client';
 
 const SubText = styled.div`
   text-align: center;
@@ -23,7 +24,9 @@ export const DeleteOngoingConditionModal = ({
   const { getTranslation } = useTranslation();
 
   const onSubmit = async () => {
-    await api.delete(`ongoingCondition/${conditionToDelete.id}`);
+    await api.delete(
+      route('ongoingCondition/:conditionToDeleteId', { conditionToDeleteId: conditionToDelete.id }),
+    );
     if (onDeleteSuccess) {
       onDeleteSuccess();
     }

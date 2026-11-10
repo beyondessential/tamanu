@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 import { Database } from '~/infra/db';
 import { Task } from '~/models/Task';
 import { fakeUser, fakePatient, fakeEncounter, fakeTask } from '/root/tests/helpers/fake';
@@ -45,14 +43,17 @@ describe('checkForeignKeys', () => {
   });
 
   it('throws naming the offending record when a deferred foreign key is violated', async () => {
-    const childId = uuidv4();
+    const childId = crypto.randomUUID();
     await expect(
       Database.client.transaction(async em => {
         await deferForeignKeys(em);
         const repo = em.getRepository(Task);
         // parentTaskId references a task that is never inserted
         await repo.save(
-          fakeTask(encounterId, requestedByUserId, { id: childId, parentTaskId: uuidv4() }),
+          fakeTask(encounterId, requestedByUserId, {
+            id: childId,
+            parentTaskId: crypto.randomUUID(),
+          }),
         );
         await checkForeignKeys(em, ['tasks']);
       }),

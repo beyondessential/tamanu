@@ -4,6 +4,7 @@ import React from 'react';
 import { TranslatedText, VISIBILITY_STATUS_TRANSLATIONS } from '@tamanu/ui-components';
 import { useApi } from '../../../../api';
 import { notifyError, notifySuccess } from '../../../../utils';
+import { route } from '@tamanu/api-client';
 
 export function useSurveyVisibilityStatusMutation(surveyId) {
   const api = useApi();
@@ -12,7 +13,7 @@ export function useSurveyVisibilityStatusMutation(surveyId) {
   return useMutation({
     mutationKey: ['survey', surveyId],
     mutationFn: async ({ visibilityStatus }) =>
-      await api.patch(`admin/survey/${encodeURIComponent(surveyId)}`, { visibilityStatus }),
+      await api.patch(route('admin/survey/:surveyId', { surveyId }), { visibilityStatus }),
     onSuccess: async ({ visibilityStatus }) => {
       notifySuccess(
         <TranslatedText

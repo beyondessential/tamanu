@@ -66,6 +66,6 @@ patientSummaryRoute.post(
 
     const response = await req.aiService.invoke(AI_CONTEXT_NAMES.PATIENT_SUMMARY, userMessage);
 
-    res.send({ content: response.content });
+    res.send({ content: response.text });
   }),
 );

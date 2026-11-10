@@ -8,7 +8,7 @@ interface VitalsTableRowHeaderProps {
   isOdd: boolean;
 }
 
-export const VitalsTableRowHeader = ({ title, isOdd }: VitalsTableRowHeaderProps): JSX.Element => (
+export const VitalsTableRowHeader = ({ title, isOdd }: VitalsTableRowHeaderProps) => (
   <View
     style={[
       styles.container,

@@ -6,6 +6,8 @@ import { ThemeProvider } from 'styled-components';
 import { createTheme } from '@material-ui/core/styles';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { resolveEndpoint } from '@tamanu/api-client';
+
 const { apiGet, stableApi } = vi.hoisted(() => {
   const get = vi.fn(async () => ({ data: [], count: 0 }));
   return { apiGet: get, stableApi: { get } };
@@ -56,7 +58,7 @@ const TRANSLATION_CONTEXT = {
 // The table and the query hit the same endpoint; only the table asks for a sort order.
 const tableFetchCount = () =>
   apiGet.mock.calls.filter(
-    ([endpoint, params]) => endpoint.endsWith('/medications') && params?.orderBy,
+    ([endpoint, params]) => resolveEndpoint(endpoint).endsWith('/medications') && params?.orderBy,
   ).length;
 
 describe('EncounterMedicationTable', () => {

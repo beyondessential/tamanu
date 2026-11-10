@@ -20,17 +20,26 @@ type VitalsSurveyResponse = {
   components: VitalsSurveyComponent[];
 };
 
-
-async function openEncounterForVitals(
-  context: any,
-): Promise<{ encounterId: string; patientId: string; api: any }> {
+async function openEncounterForVitals(context: any): Promise<{
+  encounterId: string;
+  patientId: string;
+  locationId: string;
+  departmentId: string;
+  api: any;
+}> {
   const { api, facilityId } = context.vars;
   await generateEncounterPayload(context);
   const encounter = await api.post('encounter', {
     facilityId,
     ...context.vars.encounterPayload,
   });
-  return { encounterId: encounter.id, patientId: encounter.patientId, api };
+  return {
+    encounterId: encounter.id,
+    patientId: encounter.patientId,
+    locationId: encounter.locationId,
+    departmentId: encounter.departmentId,
+    api,
+  };
 }
 
 const SKIP_ANSWER_TYPES = new Set<string>([
@@ -107,8 +116,12 @@ function buildVitalsAnswersFromComponents(
  * Creates an open encounter, loads the facility vitals survey, and builds a POST /api/surveyResponse body.
  * Also sets `vitalsEncounterId` for follow-up requests (e.g. GET encounter vitals).
  */
-export async function generateVitalsSurveyResponsePayload(context: any, _events: any): Promise<void> {
-  const { encounterId, patientId, api } = await openEncounterForVitals(context);
+export async function generateVitalsSurveyResponsePayload(
+  context: any,
+  _events: any,
+): Promise<void> {
+  const { encounterId, patientId, locationId, departmentId, api } =
+    await openEncounterForVitals(context);
 
   const survey = (await api.get('survey/vitals')) as VitalsSurveyResponse;
   if (!survey?.id || !survey.components?.length) {
@@ -132,6 +145,8 @@ export async function generateVitalsSurveyResponsePayload(context: any, _events:
     encounterId,
     patientId,
     facilityId,
+    locationId,
+    departmentId,
     startTime: submissionDate,
     endTime: submissionDate,
     answers,

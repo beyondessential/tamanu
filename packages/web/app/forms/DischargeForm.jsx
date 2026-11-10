@@ -60,6 +60,7 @@ import {
   DischargeSyndromicSurveillanceSection,
   SYNDROMIC_SURVEILLANCE_VALIDATION_KEY,
 } from './DischargeSyndromicSurveillanceSection';
+import { route } from '@tamanu/api-client';
 
 const DischargeFormScreenContext = createContext(null);
 
@@ -436,7 +437,9 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       try {
-        const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+        const { data: notes } = await api.get(
+          route('encounter/:encounterId/notes', { encounterId: encounter.id }),
+        );
         setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
         setDischargeNotesFailed(false);
       } catch (e) {

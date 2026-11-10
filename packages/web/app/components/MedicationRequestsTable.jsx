@@ -20,7 +20,11 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
-import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
+import {
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
+  PHARMACY_PRESCRIPTION_TYPES,
+  TABLE_PAGE_SIZE_PREFERENCE_KEYS,
+} from '@tamanu/constants';
 import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { NotDispensedMedicationModal } from './Medication/NotDispensedMedicationModal';
@@ -29,6 +33,7 @@ import { getStockStatus } from '../utils/medications';
 import { getApprovalStatus } from '../utils/invoice';
 import { ApprovedColumnTitle } from './ApprovedColumnTitle';
 import { useSettings } from '../contexts/Settings';
+import { route } from '@tamanu/api-client';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -183,7 +188,11 @@ export const MedicationRequestsTable = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await api.delete(`medication/medication-requests/${selectedRequest.id}`);
+      await api.delete(
+        route('medication/medication-requests/:selectedRequestId', {
+          selectedRequestId: selectedRequest.id,
+        }),
+      );
       setIsDeleteModalOpen(false);
       setSelectedRequest(null);
       // The deleted request drops out of the patient's dispensable list, which the dispense
@@ -426,6 +435,7 @@ export const MedicationRequestsTable = () => {
         noun="MedicationRequest"
         autoRefresh={true}
         endpoint="medication/medication-requests"
+        pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.ACTIVE_MEDICATION_REQUESTS}
         columns={columns}
         noDataMessage={
           <NoDataContainer>

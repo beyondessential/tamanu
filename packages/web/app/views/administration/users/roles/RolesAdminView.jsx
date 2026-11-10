@@ -8,6 +8,7 @@ import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from '.
 import { AddRoleModal } from './AddRoleModal';
 import { DeleteRoleModal } from './DeleteRoleModal';
 import { RolesSearchForm } from './RolesSearchForm';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const ActionMenu = ({ data }) => {
   const navigate = useNavigate();
@@ -83,6 +84,7 @@ export const RolesAdminView = () => {
       <StyledDataFetchingTable
         columns={columns}
         endpoint={ROLES_ENDPOINT}
+        pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.ROLES}
         fetchOptions={{ id: idQuery, name: nameQuery }}
         initialSort={{ orderBy: 'name', order: 'asc' }}
         noDataMessage={

@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { TableButtonRow } from '../../../components';
+import { DeleteProcedureModal } from '../../../components/DeleteProcedureModal';
 import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
-import { useEncounter } from '../../../contexts/Encounter';
+import { useInvalidateEncounter } from '../../../api/queries/useEncounterQuery';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
-  const { loadEncounter } = useEncounter();
+  const [procedureToDelete, setProcedureToDelete] = useState(null);
+  const invalidateEncounter = useInvalidateEncounter();
+  // The table fetches its own endpoint, so invalidating the encounter query doesn't reach it.
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
   const onCreateNewProcedure = () => {
     setEditedProcedure({});
@@ -26,9 +31,19 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
         onClose={() => setEditedProcedure(null)}
         onSaved={async () => {
           setEditedProcedure(null);
-          await loadEncounter(encounter.id);
+          updateRefreshCount();
+          await invalidateEncounter(encounter.id);
         }}
         data-testid="proceduremodal-xq2p"
+      />
+      <DeleteProcedureModal
+        procedureToDelete={procedureToDelete}
+        onClose={() => setProcedureToDelete(null)}
+        onDeleted={async () => {
+          setProcedureToDelete(null);
+          updateRefreshCount();
+          await invalidateEncounter(encounter.id);
+        }}
       />
       <TableButtonRow variant="small" data-testid="tablebuttonrow-o76z">
         <NoteModalActionBlocker>
@@ -50,6 +65,8 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
       <ProcedureTable
         encounterId={encounter.id}
         onItemClick={item => setEditedProcedure(item)}
+        onDeleteItem={setProcedureToDelete}
+        refreshCount={refreshCount}
         data-testid="proceduretable-4661"
       />
     </TabPane>
