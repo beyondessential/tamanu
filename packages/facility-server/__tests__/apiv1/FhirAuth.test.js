@@ -2,6 +2,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { FHIR_INTEGRATION_VERB } from '@tamanu/constants';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
+import { settingsCache } from '@tamanu/settings';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { decodeJwt } from 'jose';
 import { pick } from 'es-toolkit/compat';
@@ -180,11 +181,34 @@ describe('FHIR integration authentication', () => {
       },
     );
 
-    it('can page FHIR results beyond the built-in limit, up to the max count setting', async () => {
-      const result = await baseApp
-        .get('/v1/integration/fhir/mat/Patient?_count=1000')
-        .set('authorization', `Bearer ${deviceLessToken}`);
-      expect(result).toHaveSucceeded();
+    describe('with a max count setting above the built-in limit', () => {
+      // well above the built-in FHIR_MAX_RESOURCES_PER_PAGE (20), and below the schema default
+      // (1000), so a pass shows this setting was read rather than either fallback
+      const MAX_COUNT = 500;
+
+      const searchPatients = count =>
+        baseApp
+          .get(`/v1/integration/fhir/mat/Patient?_count=${count}`)
+          .set('authorization', `Bearer ${deviceLessToken}`);
+
+      beforeEach(async () => {
+        await ctx.models.Setting.set('fhir.parameters._count', { default: 20, max: MAX_COUNT });
+        settingsCache.reset();
+      });
+      afterEach(async () => {
+        await ctx.models.Setting.set('fhir.parameters._count', { default: 100, max: 1000 });
+        settingsCache.reset();
+      });
+
+      it('accepts a _count up to the max', async () => {
+        const result = await searchPatients(MAX_COUNT);
+        expect(result).toHaveSucceeded();
+      });
+
+      it('rejects a _count above the max', async () => {
+        const result = await searchPatients(MAX_COUNT + 1);
+        expect(result).toHaveStatus(400);
+      });
     });
 
     it('are rejected by non-FHIR routes', async () => {
