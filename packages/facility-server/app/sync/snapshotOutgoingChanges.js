@@ -5,13 +5,16 @@ import { sanitizeRecord, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
+// The rows a push sends: every row of a model changed since the last successful push, deleted ones
+// included. Shared with `hasUnpushedChanges`, which must select the same rows.
+export const outgoingChangesQuery = since => ({
+  where: { updatedAtSyncTick: { [Op.gt]: since } },
+  raw: true,
+  paranoid: false,
+});
+
 const snapshotChangesForModel = async (model, since, transaction) => {
-  const recordsChanged = await model.findAll({
-    where: { updatedAtSyncTick: { [Op.gt]: since } },
-    raw: true,
-    paranoid: false,
-    transaction,
-  });
+  const recordsChanged = await model.findAll({ ...outgoingChangesQuery(since), transaction });
 
   log.debug(
     `snapshotChangesForModel: Found ${recordsChanged.length} for model ${model.tableName} since ${since}`,
