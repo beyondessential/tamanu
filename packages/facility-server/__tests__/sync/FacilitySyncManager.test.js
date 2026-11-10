@@ -8,7 +8,7 @@ import {
   FACT_SETTINGS_PSK,
   FACT_SYNC_EMAIL,
 } from '@tamanu/constants/facts';
-import { SYNC_FACILITY_RUN_STATUSES, SYNC_TRIGGER_TYPES, USER_KINDS } from '@tamanu/constants';
+import { SYNC_FACILITY_RUN_STATUSES, USER_KINDS } from '@tamanu/constants';
 import { fakeReferenceData } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -389,7 +389,7 @@ describe('FacilitySyncManager', () => {
   describe('changes-pending check', () => {
     const SYNC_EMAIL = 'sync.abc@sync.tamanu';
     const PULL_CURSOR = '50';
-    const scheduled = { type: SYNC_TRIGGER_TYPES.SCHEDULED, urgent: false };
+    const scheduled = { type: 'scheduled', urgent: false };
 
     let originalPullCursor;
     let originalPushCursor;
@@ -458,7 +458,7 @@ describe('FacilitySyncManager', () => {
         expect(syncRun).toMatchObject({
           status: SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
           sessionId: null,
-          triggerType: SYNC_TRIGGER_TYPES.SCHEDULED,
+          triggerType: 'scheduled',
           error: null,
         });
         expect(syncRun.completedAt).toBeInstanceOf(Date);
@@ -566,12 +566,12 @@ describe('FacilitySyncManager', () => {
       });
 
       it.each([
-        ['a user asks for the sync', { type: SYNC_TRIGGER_TYPES.USER_REQUESTED, urgent: true }],
+        ['a user asks for the sync', { type: 'userRequested', urgent: true }],
         [
           'a patient is marked for sync',
-          { type: SYNC_TRIGGER_TYPES.PATIENT_MARKED_FOR_SYNC, urgent: true },
+          { type: 'patientMarkedForSync', urgent: true },
         ],
-        ['the sync subcommand runs', { type: SYNC_TRIGGER_TYPES.SUBCOMMAND, urgent: true }],
+        ['the sync subcommand runs', { type: 'subcommand', urgent: true }],
         ['a follow-up sync runs for callers that arrived mid-sync', null],
       ])('when %s', async (_, reason) => {
         await expectSessionWithoutCheck(makeSyncManager(), reason);

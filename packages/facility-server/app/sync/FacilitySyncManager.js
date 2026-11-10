@@ -1,6 +1,6 @@
 import _config from 'config';
 
-import { SYNC_FACILITY_RUN_STATUSES, SYNC_TRIGGER_TYPES } from '@tamanu/constants';
+import { SYNC_FACILITY_RUN_STATUSES } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
@@ -61,6 +61,9 @@ export class FacilitySyncManager {
   /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   nextSyncPromise = null;
 
+  /** @type {string | null} */
+  reason = null;
+
   lastDurationMs = 0;
 
   lastCompletedAt = 0;
@@ -109,7 +112,8 @@ export class FacilitySyncManager {
     this.nextSyncPromise = null;
 
     // set up a common sync promise to avoid double sync
-    this.currentSyncPromise = this.runSync(reason);
+    this.reason = reason;
+    this.currentSyncPromise = this.runSync();
 
     // make sure sync promise gets cleared when finished, even if there's an error
     try {
@@ -118,16 +122,12 @@ export class FacilitySyncManager {
     } finally {
       this.currentSyncPromise = null;
       this.nextSyncPromise = null;
+      this.reason = '';
       this.currentStartTime = 0;
     }
   }
 
-  /**
-   * @param {{ type?: string, urgent?: boolean } | undefined} reason what asked for this sync. Its
-   * `type` is one of `SYNC_TRIGGER_TYPES`; a follow-up sync run on behalf of callers that arrived
-   * mid-sync has none.
-   */
-  async runSync(reason) {
+  async runSync() {
     if (this.currentSyncPromise) {
       throw new Error(
         'It should not be possible to call "runSync" while an existing run is active',
@@ -138,12 +138,12 @@ export class FacilitySyncManager {
     // Recorded before anything else so that an attempt which hangs, or whose
     // process dies, still leaves a running row for alerting to find.
     const syncRun = await this.models.SyncFacilityRun.create({
-      triggerType: reason?.type,
-      urgent: Boolean(reason?.urgent),
+      triggerType: this.reason?.type,
+      urgent: Boolean(this.reason?.urgent),
     });
 
     try {
-      const result = await this.runSyncSession(syncRun, reason);
+      const result = await this.runSyncSession(syncRun);
       await this.recordSyncRunOutcome(
         syncRun,
         result.queued ? SYNC_FACILITY_RUN_STATUSES.QUEUED : SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
@@ -176,7 +176,7 @@ export class FacilitySyncManager {
     }
   }
 
-  async runSyncSession(syncRun, reason) {
+  async runSyncSession(syncRun) {
     const { email, password } = getSyncConfig();
     if (!email || !password) {
       throw new Error('Sync credentials are not configured');
@@ -186,7 +186,7 @@ export class FacilitySyncManager {
     this.currentStartTime = startTime;
 
     log.info('FacilitySyncManager.attemptStart', {
-      reason: JSON.stringify(reason),
+      reason: JSON.stringify(this.reason),
       startTime,
     });
 
@@ -196,7 +196,7 @@ export class FacilitySyncManager {
       await this.bootstrap();
     }
 
-    if (await this.shouldCheckChangesPending(reason)) {
+    if (await this.shouldCheckChangesPending()) {
       // spec: SYNCHK#the-check
       const pullCursor = Number(pullSince);
       const changesToPull = await this.centralServer.checkChangesPending(
@@ -215,7 +215,7 @@ export class FacilitySyncManager {
       sessionId,
       startedAtTick: newSyncClockTime,
     } = await this.centralServer.startSyncSession({
-      urgent: reason?.urgent,
+      urgent: this.reason?.urgent,
       lastSyncedTick: pullSince,
     });
 
@@ -291,8 +291,8 @@ export class FacilitySyncManager {
   // something central's answer cannot account for: local changes to push, no settings pre-shared
   // key (the key secret settings are encrypted with) yet, or a sync user still to be swapped. Ordered cheapest first, and the last needs a login, so it
   // comes last.
-  async shouldCheckChangesPending(reason) {
-    if (reason?.type !== SYNC_TRIGGER_TYPES.SCHEDULED) return false;
+  async shouldCheckChangesPending() {
+    if (this.reason?.type !== 'scheduled') return false;
 
     if (!(await this.models.LocalSystemSecret.get(FACT_SETTINGS_PSK))) return false;
     if (await hasUnpushedChanges(this.models)) return false;

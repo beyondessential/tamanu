@@ -1,6 +1,5 @@
 import config from 'config';
 
-import { SYNC_TRIGGER_TYPES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -24,7 +23,7 @@ export class SyncTask extends ScheduledTask {
       return;
     }
     return this.context.syncManager.triggerSync({
-      type: SYNC_TRIGGER_TYPES.SCHEDULED,
+      type: 'scheduled',
       urgent: false,
     });
   }

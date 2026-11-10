@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
 import { initDeviceId } from '@tamanu/shared/utils';
-import { DEVICE_TYPES, SYNC_TRIGGER_TYPES } from '@tamanu/constants';
+import { DEVICE_TYPES } from '@tamanu/constants';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
 
@@ -24,7 +24,7 @@ async function sync({ delay: delaySecondsStr }) {
   while (true) {
     log.info('Sync subcommand: beginning sync');
     const { ran, enabled, queued } = await context.syncManager.triggerSync({
-      type: SYNC_TRIGGER_TYPES.SUBCOMMAND,
+      type: 'subcommand',
       urgent: true,
     });
     if (!enabled) {

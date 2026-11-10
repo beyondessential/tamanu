@@ -39,16 +39,6 @@ export const SYNC_FACILITY_RUN_STATUSES = {
   FAILED: 'failed',
 } as const;
 
-// spec: SYNRUN
-// What asked a facility server to sync. Recorded as `trigger_type` on the run, and decides whether
-// the attempt checks for pending changes first (only a scheduled sync does, see SYNCHK).
-export const SYNC_TRIGGER_TYPES = {
-  SCHEDULED: 'scheduled', // the schedule, including the sync at start-up
-  USER_REQUESTED: 'userRequested',
-  PATIENT_MARKED_FOR_SYNC: 'patientMarkedForSync',
-  SUBCOMMAND: 'subcommand',
-} as const;
-
 // spec: FBOOT#contents
 // Translated strings a facility bootstrap carries, in every language: the language list, and the
 // strings on the screens a user sees before the facility's first sync completes.

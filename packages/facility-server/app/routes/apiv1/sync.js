@@ -1,8 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { SYNC_TRIGGER_TYPES } from '@tamanu/constants';
-
 export const sync = express.Router();
 
 function resultToMessage({ enabled, queued, ran, timedOut }) {
@@ -23,7 +21,7 @@ sync.post(
     const completeSync = () =>
       syncConnection.runSync({
         urgent: true,
-        type: SYNC_TRIGGER_TYPES.USER_REQUESTED,
+        type: 'userRequested',
         userId: user.id,
         userEmail: user.email,
       });
