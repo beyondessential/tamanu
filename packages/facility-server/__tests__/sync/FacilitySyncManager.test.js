@@ -26,6 +26,39 @@ describe('FacilitySyncManager', () => {
 
   afterAll(() => ctx.close());
 
+  // A sync manager against the real models, with central stubbed. Its check answers that there
+  // are changes to pull, so a sync opens a session unless the test says otherwise.
+  const makeSyncManager = centralServerOverrides => {
+    const syncManager = new FacilitySyncManager({
+      models,
+      sequelize: {
+        getQueryInterface: () => ({ dropSchema: vi.fn(), createSchema: vi.fn() }),
+        query: () => true,
+      },
+      centralServer: {
+        streaming: () => false,
+        user: { kind: USER_KINDS.SYNC, email: 'sync.abc@sync.tamanu' },
+        checkChangesPending: vi.fn(async () => true),
+        startSyncSession: vi.fn(async () => ({ sessionId: TEST_SESSION_ID, startedAtTick: 1 })),
+        endSyncSession: vi.fn(),
+        markSessionErrored: vi.fn(),
+        // Provisioning after the session has its own block and isn't under test through this
+        fetch: vi.fn(async () => ({})),
+        ...centralServerOverrides,
+      },
+    });
+    vi.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
+    vi.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
+    syncManager.hasBootstrapped = true;
+    return syncManager;
+  };
+
+  const latestSyncRun = () => models.SyncFacilityRun.findOne({ order: [['startTime', 'DESC']] });
+
+  beforeEach(async () => {
+    await models.SyncFacilityRun.destroy({ where: {}, force: true });
+  });
+
   describe('triggerSync', () => {
     afterEach(() => {
       FacilitySyncManager.restoreConfig();
@@ -113,7 +146,8 @@ describe('FacilitySyncManager', () => {
     });
 
     describe('provisioning that needs central', () => {
-      const makeSyncManager = (centralServerOverrides, facts = {}) => {
+      // Its own stubbed models, so the provisioning writes can be read back out of them
+      const makeStubbedSyncManager = (centralServerOverrides, facts = {}) => {
         const secretStore = new Map();
         const factStore = new Map(Object.entries(facts));
         const syncManager = new FacilitySyncManager({
@@ -154,7 +188,7 @@ describe('FacilitySyncManager', () => {
       it('pulls the PSK once the session has completed', async () => {
         const psk = 'ab'.repeat(32);
         const fetch = vi.fn(async () => ({ settingsPsk: psk }));
-        const { syncManager, secretStore } = makeSyncManager({ fetch });
+        const { syncManager, secretStore } = makeStubbedSyncManager({ fetch });
 
         await syncManager.runSync();
 
@@ -166,7 +200,7 @@ describe('FacilitySyncManager', () => {
         const fetch = vi.fn(async () => {
           throw new Error('central unreachable');
         });
-        const { syncManager, secretStore } = makeSyncManager({ fetch });
+        const { syncManager, secretStore } = makeStubbedSyncManager({ fetch });
 
         await expect(syncManager.runSync()).resolves.toEqual({ queued: false, ran: true });
         expect(secretStore.has(FACT_SETTINGS_PSK)).toBe(false);
@@ -183,7 +217,7 @@ describe('FacilitySyncManager', () => {
             ? { email: 'sync.abc@sync.tamanu', password: 'minted', settingsPsk: psk }
             : { settingsPsk: psk },
         );
-        const { syncManager } = makeSyncManager(
+        const { syncManager } = makeStubbedSyncManager(
           { fetch, user: { kind: USER_KINDS.USER } },
           {
             [FACT_DEVICE_ID]: 'device-1',
@@ -204,7 +238,7 @@ describe('FacilitySyncManager', () => {
           if (endpoint === 'admin/syncCredentials') throw new Error('central refused');
           return { settingsPsk: 'ab'.repeat(32) };
         });
-        const { syncManager } = makeSyncManager(
+        const { syncManager } = makeStubbedSyncManager(
           { fetch, user: { kind: USER_KINDS.USER } },
           {
             [FACT_DEVICE_ID]: 'device-1',
@@ -218,34 +252,6 @@ describe('FacilitySyncManager', () => {
   });
 
   describe('sync run history', () => {
-    const makeSyncManager = centralServerOverrides => {
-      const syncManager = new FacilitySyncManager({
-        models,
-        sequelize: {
-          getQueryInterface: () => ({ dropSchema: vi.fn(), createSchema: vi.fn() }),
-          query: () => true,
-        },
-        centralServer: {
-          streaming: () => false,
-          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
-          endSyncSession: vi.fn(),
-          markSessionErrored: vi.fn(),
-          ...centralServerOverrides,
-        },
-      });
-      vi.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
-      vi.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
-      // Provisioning after the session is covered above and isn't under test here
-      syncManager.centralServer.fetch = vi.fn(async () => ({}));
-      return syncManager;
-    };
-
-    const latestSyncRun = () => models.SyncFacilityRun.findOne({ order: [['startTime', 'DESC']] });
-
-    beforeEach(async () => {
-      await models.SyncFacilityRun.destroy({ where: {}, force: true });
-    });
-
     it('records a successful run with its session and trigger', async () => {
       const syncManager = makeSyncManager();
 
@@ -386,7 +392,6 @@ describe('FacilitySyncManager', () => {
 
   // spec: SYNCHK#facility-servers
   describe('changes-pending check', () => {
-    const SYNC_EMAIL = 'sync.abc@sync.tamanu';
     const PULL_CURSOR = '50';
     const scheduled = { type: 'scheduled', urgent: false };
 
@@ -395,33 +400,6 @@ describe('FacilitySyncManager', () => {
     let originalSyncTick;
     let pskSpy;
 
-    const makeSyncManager = centralServerOverrides => {
-      const syncManager = new FacilitySyncManager({
-        models,
-        sequelize: {
-          getQueryInterface: () => ({ dropSchema: vi.fn(), createSchema: vi.fn() }),
-          query: () => true,
-        },
-        centralServer: {
-          streaming: () => false,
-          user: { kind: USER_KINDS.SYNC, email: SYNC_EMAIL },
-          checkChangesPending: vi.fn(async () => false),
-          startSyncSession: vi.fn(async () => ({ sessionId: TEST_SESSION_ID, startedAtTick: 1 })),
-          endSyncSession: vi.fn(),
-          markSessionErrored: vi.fn(),
-          fetch: vi.fn(async () => ({})),
-          ...centralServerOverrides,
-        },
-      });
-      vi.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
-      vi.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
-      syncManager.hasBootstrapped = true;
-      return syncManager;
-    };
-
-    const latestSyncRun = () => models.SyncFacilityRun.findOne({ order: [['startTime', 'DESC']] });
-
-    // Moves the local clock on and marks everything so far as pushed, so there is nothing to push
     const markEverythingPushed = async () => {
       const tick = await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, String(tick));
@@ -434,7 +412,6 @@ describe('FacilitySyncManager', () => {
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, PULL_CURSOR);
       await markEverythingPushed();
       pskSpy = vi.spyOn(models.LocalSystemSecret, 'get').mockResolvedValue('ab'.repeat(32));
-      await models.SyncFacilityRun.destroy({ where: {}, force: true });
     });
 
     afterEach(async () => {
@@ -446,7 +423,7 @@ describe('FacilitySyncManager', () => {
 
     describe('when central answers there is nothing to pull', () => {
       it('records the run as succeeded, with no session', async () => {
-        const syncManager = makeSyncManager();
+        const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => false) });
 
         const result = await syncManager.triggerSync(scheduled);
 
@@ -463,7 +440,7 @@ describe('FacilitySyncManager', () => {
       });
 
       it('moves the last successful sync time but not the pull cursor', async () => {
-        const syncManager = makeSyncManager();
+        const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => false) });
         expect(syncManager.lastCompletedAt).toBe(0);
 
         await syncManager.triggerSync(scheduled);
@@ -480,7 +457,9 @@ describe('FacilitySyncManager', () => {
 
         await syncManager.triggerSync(scheduled);
 
-        expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledWith(Number(PULL_CURSOR));
+        expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledWith(
+          Number(PULL_CURSOR),
+        );
         expect(syncManager.centralServer.startSyncSession).toHaveBeenCalledTimes(1);
         expect(syncManager.pullChanges).toHaveBeenCalledTimes(1);
         expect(await latestSyncRun()).toMatchObject({
@@ -551,10 +530,7 @@ describe('FacilitySyncManager', () => {
 
       it.each([
         ['a user asks for the sync', { type: 'userRequested', urgent: true }],
-        [
-          'a patient is marked for sync',
-          { type: 'patientMarkedForSync', urgent: true },
-        ],
+        ['a patient is marked for sync', { type: 'patientMarkedForSync', urgent: true }],
         ['the sync subcommand runs', { type: 'subcommand', urgent: true }],
         ['a follow-up sync runs for callers that arrived mid-sync', null],
       ])('when %s', async (_, reason) => {
@@ -564,7 +540,7 @@ describe('FacilitySyncManager', () => {
 
     it('still pulls the settings PSK when there is nothing to pull', async () => {
       pskSpy.mockResolvedValue(null);
-      const syncManager = makeSyncManager();
+      const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => false) });
 
       await syncManager.triggerSync(scheduled);
 
