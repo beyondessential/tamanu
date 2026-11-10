@@ -1,4 +1,5 @@
-import { parseScannedDisplayId } from './displayId';
+import { describe, expect, it } from 'vitest';
+import { parseScannedDisplayId } from '../src/scannedDisplayId';
 
 describe('parseScannedDisplayId', () => {
   it('trims surrounding whitespace', () => {

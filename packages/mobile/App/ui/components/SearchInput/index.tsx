@@ -6,8 +6,10 @@ import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
 import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 
+const FONT_SIZE = 16;
+
 const StyledTextInput = styled.TextInput`
-  font-size: 16px;
+  font-size: ${FONT_SIZE}px;
   color: ${theme.colors.TEXT_SUPER_DARK};
   height: 100%;
   padding: 0;
@@ -16,8 +18,11 @@ const StyledTextInput = styled.TextInput`
 const styles = StyleSheet.create({
   truncatedText: {
     position: 'absolute',
+    top: 0,
+    bottom: 0,
     left: 0,
     right: 0,
+    textAlignVertical: 'center',
   },
 });
 
@@ -75,7 +80,7 @@ export const SearchInput: FC<SearchInputProps> = ({
             pointerEvents="none"
             numberOfLines={1}
             ellipsizeMode="tail"
-            fontSize={16}
+            fontSize={FONT_SIZE}
             color={value ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_MID}
             style={styles.truncatedText}
           >

@@ -1,4 +1,5 @@
 import type { NavigationProp } from '@react-navigation/native';
+import { parseScannedDisplayId } from '@tamanu/utils/scannedDisplayId';
 import { useFormikContext } from 'formik';
 import React, { type ReactElement, useCallback, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,7 +10,6 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientFromRoute } from '~/ui/helpers/constants';
-import { parseScannedDisplayId } from '~/ui/helpers/displayId';
 import {
   RecentViewedScreen,
   useClearFilterFields,

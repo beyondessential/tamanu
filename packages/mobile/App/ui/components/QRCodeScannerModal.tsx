@@ -122,7 +122,9 @@ export const QRCodeScannerModal = ({ onClose, onScan }: QRCodeScannerModalProps)
 
   useEffect(() => {
     if (hasRequestedPermission) return;
-    requestPermission().finally(() => setHasRequestedPermission(true));
+    requestPermission()
+      .catch(error => console.error('Camera permission request failed', error))
+      .finally(() => setHasRequestedPermission(true));
   }, [hasRequestedPermission, requestPermission]);
 
   return (
