@@ -205,3 +205,19 @@ Outcome: product code +299 −25 → +276 −26 (net 274 → 250), tests +745 �
 - Comments: trimmed throughout; three wrong ones corrected.
 - Reverted after review: `querySchema.parse`. It answers 4xx too, but its message is zod's whole issue list, which a facility writes into its run history.
 - Review left: the facility's trimmed optional chaining and mobile's `AxiosHeaders.get` both rest on the HTTP client always handing a real headers object, which holds for every path traced.
+
+### Round 2
+
+Fresh surveys (`refactor-r2-survey.md`, `refactor-r2-altitude.md`) found the product code at its floor in all three runtimes, with the remaining gap in two test files.
+
+Do:
+- Facility: fold `provisionFromCentral` into `completeSync`, its only caller. In the manager's changes-pending tests, merge the two that pin one nothing-to-pull run, and fold the standalone cursor test into the adjacent table. The PSK test stays apart, as provisioning changes for its own reasons. Cut the comment on `whenCentralWakes` that restates it.
+- Central: build lookup rows in the test with `SyncLookup.create` and an explicit id, as the sibling lookup test does; validate the one `since` field rather than an object around it; cut the route comment the spec tag and handler name already carry.
+- Mobile: `restoreAllMocks` in place of three restores and an unused spy; one test for the nothing-to-pull outcome through `triggerSync`, and the two local-work skips as one table.
+
+Leave:
+- Inlining the handler into `buildSyncRoutes.js`: the route file is long, and the handler reads better alone.
+- A `getTablesForFullResync` helper on mobile: it would reach into the pull code for three lines.
+- Inlining `hasNeverPulled`: the name says what the undefined cursor means.
+
+Found: mobile `hasOutgoingChanges` has no test against real models; filed, and fixed apart from the refactors.
