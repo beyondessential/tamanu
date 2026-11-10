@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
 
+import { InvalidParameterError } from '@tamanu/errors';
+
 import { CentralSyncManager } from './CentralSyncManager';
 import { getHighestRealChangeTick } from './getHighestRealChangeTick';
 
@@ -15,9 +17,15 @@ const querySchema = z.object({
 
 // spec: SYNCHK#the-check
 export const changesPendingHandler = asyncHandler(async (req, res) => {
-  const { since } = querySchema.parse(req.query);
+  // answer with the schema's one message, which the device records, rather than zod's issue list
+  const parsed = querySchema.safeParse(req.query);
+  if (!parsed.success) {
+    throw new InvalidParameterError(parsed.error.issues[0]?.message ?? 'Invalid query');
+  }
+  const { since } = parsed.data;
 
   // Without the lookup table there is no tick to compare against, so a session must decide.
+  // Read per request, so a config override applies.
   const hasNeverPulled = since === undefined;
   if (hasNeverPulled || !CentralSyncManager.config.sync.lookupTable.enabled) {
     res.json({ changesToPull: true });
