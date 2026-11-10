@@ -447,16 +447,16 @@ describe('FacilitySyncManager', () => {
     });
 
     describe('when central answers there is nothing to pull', () => {
-      it('records the run as up to date, with no session', async () => {
+      it('records the run as succeeded, with no session', async () => {
         const syncManager = makeSyncManager();
 
         const result = await syncManager.triggerSync(scheduled);
 
-        expect(result).toMatchObject({ enabled: true, ran: true, upToDate: true });
+        expect(result).toMatchObject({ enabled: true, ran: true });
         expect(syncManager.centralServer.startSyncSession).not.toHaveBeenCalled();
         const syncRun = await latestSyncRun();
         expect(syncRun).toMatchObject({
-          status: SYNC_FACILITY_RUN_STATUSES.UP_TO_DATE,
+          status: SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
           sessionId: null,
           triggerType: SYNC_TRIGGER_TYPES.SCHEDULED,
           error: null,

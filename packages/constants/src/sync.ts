@@ -36,8 +36,6 @@ export const SYNC_FACILITY_RUN_STATUSES = {
   RUNNING: 'running',
   SUCCEEDED: 'succeeded',
   QUEUED: 'queued',
-  // The changes-pending check (SYNCHK) found nothing to pull, so no session was opened
-  UP_TO_DATE: 'up_to_date',
   FAILED: 'failed',
 } as const;
 

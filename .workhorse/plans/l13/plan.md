@@ -84,7 +84,7 @@ Facility (`packages/facility-server/app/sync/FacilitySyncManager.js`):
 - [x] Export a `hasUnpushedChanges(models)` helper from `packages/facility-server/app/sync/` (any synced row with `updated_at_sync_tick` above `FACT_LAST_SUCCESSFUL_SYNC_PUSH`); the facility supervisor calls it at sleep in phase 5
 - [x] For scheduled syncs: skip the check when `hasUnpushedChanges`, when the settings PSK is missing, or when `convergeSyncUser` still has work; otherwise call the check and stop on "nothing"
 - [x] `CentralServerConnection`: add the check call; on `503` with `Retry-After`, wait and retry within the attempt for the check and for session start
-- [x] Run history: new `up_to_date` outcome on `sync_facility_runs` (constant, model, migration if the column is constrained, dbt model docs); "nothing to pull" moves the last successful sync time but not the pull cursor
+- [x] Run history: a run the check answers with nothing to pull is recorded as succeeded with no session (dbt model docs); it moves the last successful sync time but not the pull cursor
 - [x] Tests: each skip rule, the up-to-date outcome, the retry on `503`
 
 Mobile (`packages/mobile/App/services/sync/`):
@@ -98,7 +98,7 @@ Decisions made while building:
 - The waiting itself is `TamanuApi.whileServerWakes` in `@tamanu/api-client`, opt-in per connection, so the facility, web and the supervisor's own clients share one implementation. Mobile keeps its own copy: it has its own axios client and does not depend on that package (card W13).
 - No fallback for a central without the route: central's version check keeps facilities and devices on its own minor version. An answer without the flag fails the sync, so a fault shows rather than being covered by a session.
 - The tick read is a backward index-only scan of the existing `updated_at_sync_tick` index; no migration.
-- `up_to_date` runs move the facility's last completed time but not the pull cursor. `sync_facility_runs.status` is plain text, so no migration.
+- A run with nothing to pull is recorded as `succeeded`, not a status of its own, so alerting that reads run history needs no change. It moves the facility's last completed time but not the pull cursor.
 - Mobile: the "Manual sync" button keeps the urgent path (the queue polling depends on it) and sends `urgent` to central, with the reason `manual`.
 
 ### 3. Supervisor package skeleton (SUPV) (PR 3 starts)

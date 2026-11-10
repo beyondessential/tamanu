@@ -31,12 +31,6 @@ import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
-const outcomeStatus = ({ queued, upToDate }) => {
-  if (queued) return SYNC_FACILITY_RUN_STATUSES.QUEUED;
-  if (upToDate) return SYNC_FACILITY_RUN_STATUSES.UP_TO_DATE;
-  return SYNC_FACILITY_RUN_STATUSES.SUCCEEDED;
-};
-
 export class FacilitySyncManager {
   static config = _config;
 
@@ -150,7 +144,10 @@ export class FacilitySyncManager {
 
     try {
       const result = await this.runSyncSession(syncRun, reason);
-      await this.recordSyncRunOutcome(syncRun, outcomeStatus(result));
+      await this.recordSyncRunOutcome(
+        syncRun,
+        result.queued ? SYNC_FACILITY_RUN_STATUSES.QUEUED : SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
+      );
       return result;
     } catch (error) {
       await this.recordSyncRunOutcome(syncRun, SYNC_FACILITY_RUN_STATUSES.FAILED, {
@@ -208,7 +205,7 @@ export class FacilitySyncManager {
       if (!changesToPull) {
         log.info('FacilitySyncManager.upToDate', { pullSince });
         this.markSyncCompleted(startTime);
-        return { queued: false, ran: true, upToDate: true };
+        return { queued: false, ran: true };
       }
     }
 
