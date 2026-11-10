@@ -37,7 +37,7 @@ const querySchema = z.object({
  * @param {boolean} lookupTableEnabled
  * @returns {ChangesPendingSource}
  */
-export const buildLookupChangesPendingSource = (models, lookupTableEnabled) => ({
+export const changesPendingSourceFromDatabase = (models, lookupTableEnabled) => ({
   lookupTableEnabled,
   getHighestRealChangeTick: () => getHighestRealChangeTick(models),
 });

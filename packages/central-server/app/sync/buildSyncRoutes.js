@@ -10,7 +10,7 @@ import { DEVICE_SCOPES } from '@tamanu/constants';
 
 import { buildFacilityBootstrap } from './buildFacilityBootstrap';
 import { CentralSyncManager } from './CentralSyncManager';
-import { buildLookupChangesPendingSource, changesPendingHandler } from './changesPending';
+import { changesPendingSourceFromDatabase, changesPendingHandler } from './changesPending';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -60,7 +60,7 @@ export const buildSyncRoutes = ctx => {
     (req, _res, next) => {
       // read per request (not at route build time) so the handler stays portable and a config
       // override applies
-      req.changesPendingSource = buildLookupChangesPendingSource(
+      req.changesPendingSource = changesPendingSourceFromDatabase(
         req.models,
         CentralSyncManager.config.sync.lookupTable.enabled,
       );
