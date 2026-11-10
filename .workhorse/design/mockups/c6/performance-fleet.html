@@ -1,0 +1,257 @@
+<!-- spec: none yet; design decisions in .workhorse/plans/c6/plan.md -->
+<!-- baseline: Canopy private-web (MUI light theme, AppSidebar, RunThroughputChart) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Performance: fleet, last 24 hours, Samoa expanded</title>
+<style>
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-family: "Roboto", "Helvetica", "Arial", sans-serif; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; color: rgba(0,0,0,0.87); background: #fff; }
+a { color: inherit; }
+.icon { width: 1em; height: 1em; fill: currentColor; flex-shrink: 0; }
+.icon-small { width: 20px; height: 20px; }
+.icon-ext { width: 1em; height: 1em; }
+
+.app { display: flex; }
+.sidebar { width: 240px; flex-shrink: 0; height: 100vh; position: sticky; top: 0; display: flex; flex-direction: column; background: #f5f5f5; border-right: 1px solid rgba(0,0,0,0.12); }
+.brand-wrap { padding: 12px 24px; }
+.brand { display: flex; align-items: center; gap: 8px; color: #388e3c; /* primary */ text-decoration: none; }
+.brand-name { font-size: 1.25rem; font-weight: 500; line-height: 1.6; letter-spacing: 0.0075em; }
+.nav { flex: 1; min-height: 0; overflow-y: auto; padding: 8px; }
+.nav-list { list-style: none; margin: 0; padding: 0; }
+.nav-item { position: relative; display: flex; align-items: center; }
+.nav-section { flex: 1; display: flex; align-items: center; gap: 4px; border-radius: 4px; padding: 6px 16px; color: rgba(0,0,0,0.6); font-weight: 500; text-decoration: none; }
+.nav-section:hover { background: rgba(0,0,0,0.04); }
+.nav-section.current { color: #32669a; /* secondary */ }
+.nav-toggle { position: absolute; right: 4px; border: 0; background: none; padding: 5px; border-radius: 50%; color: rgba(0,0,0,0.54); display: inline-flex; cursor: pointer; }
+.incident-count { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: #d32f2f; color: #fff; font-size: 0.75rem; line-height: 20px; text-align: center; }
+.mode-band { min-height: 48px; display: flex; align-items: center; gap: 8px; width: 100%; padding: 0 16px 0 24px; border: 0; border-top: 1px solid rgba(0,0,0,0.12); background: transparent; color: rgba(0,0,0,0.6); font: 500 0.875rem/1.75 "Roboto", "Helvetica", "Arial", sans-serif; letter-spacing: 0.02857em; cursor: pointer; }
+.mode-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.38); }
+.mode-label { flex: 1; text-align: left; }
+
+.main { flex: 1; min-width: 0; }
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.stack-3 > * + * { margin-top: 24px; }
+.breadcrumb { font-size: 0.875rem; line-height: 1.43; letter-spacing: 0.01071em; color: rgba(0,0,0,0.6); margin-bottom: 8px; }
+.breadcrumb a { text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.title-row { display: flex; align-items: center; gap: 12px; }
+h1 { margin: 0; font-size: 2.125rem; font-weight: 400; line-height: 1.235; letter-spacing: 0.00735em; }
+h2 { margin: 0 0 0.35em; font-size: 1.25rem; font-weight: 500; line-height: 1.6; letter-spacing: 0.0075em; }
+
+.picker { display: flex; flex-direction: column; gap: 4px; }
+.caption { font-size: 0.75rem; line-height: 1.66; letter-spacing: 0.03333em; color: rgba(0,0,0,0.6); }
+.select { position: relative; min-width: 160px; height: 40px; padding: 8.5px 32px 8.5px 14px; border: 1px solid rgba(0,0,0,0.23); border-radius: 4px; font-size: 1rem; line-height: 1.4375em; cursor: pointer; }
+.select:hover { border-color: rgba(0,0,0,0.87); }
+.select-arrow { position: absolute; right: 7px; top: calc(50% - 0.5em); width: 1.5em; height: 1.5em; margin-top: -0.25em; color: rgba(0,0,0,0.54); }
+
+.chip { display: inline-flex; align-items: center; height: 24px; border-radius: 16px; font-size: 0.8125rem; line-height: 1.5; white-space: nowrap; vertical-align: middle; }
+.chip-icon { width: 18px; height: 18px; margin-left: 4px; margin-right: -4px; }
+.chip-label { padding: 0 8px; }
+.chip-success { background: #2e7d32; color: #fff; }
+.chip-warning { background: #ed6c02; color: #fff; }
+.chip-error { background: #d32f2f; color: #fff; }
+
+table { width: 100%; border-collapse: collapse; border-spacing: 0; }
+th, td { padding: 6px 16px; font-size: 0.875rem; line-height: 1.43; letter-spacing: 0.01071em; border-bottom: 1px solid rgba(224,224,224,1); text-align: left; vertical-align: middle; }
+thead th { font-weight: 500; line-height: 1.5rem; color: rgba(0,0,0,0.87); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.sort-label { display: inline-flex; align-items: center; gap: 4px; color: rgba(0,0,0,0.87); }
+.sort-label .icon { width: 18px; height: 18px; color: rgba(0,0,0,0.6); }
+.row-link { color: rgba(0,0,0,0.87); font-weight: 500; text-decoration: none; }
+.row-link:hover { text-decoration: underline; }
+.expand-cell { width: 48px; padding: 0 0 0 8px; }
+.icon-button { border: 0; background: none; padding: 5px; border-radius: 50%; color: rgba(0,0,0,0.54); display: inline-flex; cursor: pointer; }
+.icon-button:hover { background: rgba(0,0,0,0.04); }
+.sub-row td { background: rgba(0,0,0,0.02); }
+.sub-row .name { padding-left: 32px; }
+.spark { display: block; }
+.legend-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 8px; vertical-align: -1px; }
+.total-row td, .total-row th { font-weight: 500; border-bottom: 0; }
+
+.chart-wrap { position: relative; }
+.tooltip { position: absolute; top: 0; min-width: 150px; padding: 4px 8px; background: #fff; border: 1px solid rgba(0,0,0,0.12); border-radius: 4px; pointer-events: none; display: none; }
+.tooltip .t-time { font-size: 0.75rem; line-height: 1.66; letter-spacing: 0.03333em; color: rgba(0,0,0,0.6); }
+.tooltip .t-row { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; line-height: 1.43; }
+.tooltip .t-row b { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 3.2em; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand-wrap"><a class="brand" href="#"><svg viewBox="0 0 100 100" width="24" height="24" aria-hidden="true"><rect width="100" height="100" rx="10" ry="10" fill="#32669A"/><circle cx="50" cy="50" r="36" fill="white"/><rect x="42" y="26" width="16" height="48" fill="#388E3C"/><rect x="26" y="42" width="48" height="16" fill="#388E3C"/></svg><span class="brand-name">Canopy</span></a></div>
+    <nav aria-label="Main" class="nav">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a class="nav-section" href="#">Status</a>
+          
+        </li>
+        <li class="nav-item">
+          <a class="nav-section" href="#">Incidents<span class="incident-count">2</span></a>
+          
+        </li>
+        <li class="nav-item">
+          <a class="nav-section current" href="performance-fleet.html" aria-current="page">Performance</a>
+          
+        </li>
+        <li class="nav-item">
+          <a class="nav-section" href="#">Fleet</a>
+          <button class="nav-toggle" aria-label="Expand Fleet" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg></button>
+        </li>
+        <li class="nav-item">
+          <a class="nav-section" href="#">Versions</a>
+          
+        </li>
+        <li class="nav-item">
+          <a class="nav-section" href="#">Upgrades</a>
+          
+        </li>
+        <li class="nav-item">
+          <a class="nav-section" href="#">Maintenance</a>
+          
+        </li>
+        <li class="nav-item">
+          <a class="nav-section" href="#">Devices</a>
+          <button class="nav-toggle" aria-label="Expand Devices" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg></button>
+        </li>
+        <li class="nav-item">
+          <a class="nav-section" href="#">Bestool</a>
+          
+        </li>
+        <li class="nav-item">
+          <a class="nav-section" href="#">Settings</a>
+          <button class="nav-toggle" aria-label="Expand Settings" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg></button>
+        </li>
+        <li class="nav-item" style="margin-top:8px"><a class="nav-section ext" href="#">Public<svg class="icon icon-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a></li>
+        <li class="nav-item"><a class="nav-section ext" href="#">Server Versions<svg class="icon icon-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a></li>
+      </ul>
+    </nav>
+    <button class="mode-band"><span class="mode-dot"></span><span class="mode-label">Read-only</span><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/></svg></button>
+  </aside>
+  <div class="main">
+    <main class="container">
+      <div class="stack-3">
+        <div class="header">
+          <h1>Performance</h1>
+          <div class="picker"><span class="caption">Window</span><div class="select" role="button" aria-haspopup="listbox" aria-label="Window">Last 24 hours<svg class="icon select-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th class="expand-cell"></th>
+              <th>Group</th>
+              <th>Health</th>
+              <th class="num" aria-sort="descending"><span class="sort-label"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg>p95 page load</span></th>
+              <th>Last 7 days</th>
+              <th class="num">Page loads</th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td class="expand-cell"><button class="icon-button" aria-label="Collapse Samoa" aria-expanded="true"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg></button></td>
+            <th scope="row"><a class="row-link" href="performance-group.html">Samoa</a></th>
+            <td><span class="chip chip-warning"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.99 19.53 19H4.47L12 5.99M12 2 1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg><span class="chip-label">Warning</span></span></td>
+            <td class="num">4.8s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Samoa: p95 page load over the last 7 days, 3.1s to 4.8s"><title>Samoa: p95 page load over the last 7 days, 3.1s to 4.8s</title><polyline points="4.0,12.9 8.1,12.0 12.3,11.1 16.4,11.2 20.6,13.4 24.7,12.0 28.9,10.4 33.0,11.5 37.2,13.5 41.3,11.3 45.5,11.7 49.6,11.9 53.8,12.1 57.9,10.8 62.1,11.7 66.2,10.3 70.4,9.7 74.5,8.8 78.7,5.8 82.8,6.7 87.0,8.1 91.1,7.7 95.3,7.2 99.4,7.2 103.6,8.3 107.7,6.2 111.9,5.9 116.0,7.0" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="7.0" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">18,204</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="expand-cell"></td>
+            <td class="name">TTM Hospital</td>
+            <td><span class="chip chip-warning"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.99 19.53 19H4.47L12 5.99M12 2 1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg><span class="chip-label">Warning</span></span></td>
+            <td class="num">6.1s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="TTM Hospital: p95 page load over the last 7 days, 3.7s to 5.8s"><title>TTM Hospital: p95 page load over the last 7 days, 3.7s to 5.8s</title><polyline points="4.0,13.9 8.1,13.3 12.3,12.5 16.4,13.7 20.6,12.8 24.7,12.0 28.9,13.1 33.0,12.3 37.2,14.2 41.3,13.4 45.5,11.5 49.6,13.3 53.8,13.6 57.9,13.1 62.1,12.2 66.2,12.2 70.4,11.5 74.5,9.0 78.7,6.2 82.8,7.2 87.0,8.4 91.1,6.5 95.3,5.8 99.4,8.0 103.6,8.0 107.7,7.8 111.9,6.3 116.0,8.0" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="8.0" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">9,870</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="expand-cell"></td>
+            <td class="name">MT2 Hospital</td>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">3.2s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="MT2 Hospital: p95 page load over the last 7 days, 2.7s to 3.4s"><title>MT2 Hospital: p95 page load over the last 7 days, 2.7s to 3.4s</title><polyline points="4.0,10.5 8.1,9.4 12.3,9.6 16.4,10.1 20.6,10.1 24.7,8.7 28.9,8.2 33.0,8.5 37.2,9.4 41.3,9.6 45.5,9.0 49.6,7.6 53.8,10.2 57.9,9.5 62.1,7.5 66.2,10.1 70.4,9.2 74.5,8.3 78.7,5.8 82.8,8.6 87.0,7.7 91.1,8.6 95.3,7.4 99.4,9.1 103.6,8.9 107.7,7.7 111.9,8.2 116.0,7.0" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="7.0" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">4,410</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="expand-cell"></td>
+            <td class="name">Leulumoega District Hospital</td>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">2.6s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Leulumoega District Hospital: p95 page load over the last 7 days, 2.2s to 2.5s"><title>Leulumoega District Hospital: p95 page load over the last 7 days, 2.2s to 2.5s</title><polyline points="4.0,9.7 8.1,8.3 12.3,6.6 16.4,9.2 20.6,10.3 24.7,8.6 28.9,5.9 33.0,8.0 37.2,10.1 41.3,8.7 45.5,6.7 49.6,7.7 53.8,9.5 57.9,8.9 62.1,5.8 66.2,7.9 70.4,8.3 74.5,8.1 78.7,8.1 82.8,9.2 87.0,8.9 91.1,7.0 95.3,8.6 99.4,9.1 103.6,8.8 107.7,9.7 111.9,6.5 116.0,7.9" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="7.9" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">2,315</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="expand-cell"></td>
+            <td class="name">Poutasi District Hospital</td>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">2.2s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Poutasi District Hospital: p95 page load over the last 7 days, 2.1s to 2.2s"><title>Poutasi District Hospital: p95 page load over the last 7 days, 2.1s to 2.2s</title><polyline points="4.0,9.2 8.1,7.4 12.3,7.1 16.4,8.6 20.6,7.7 24.7,8.9 28.9,7.1 33.0,7.7 37.2,8.0 41.3,7.9 45.5,7.9 49.6,8.1 53.8,9.1 57.9,8.5 62.1,7.7 66.2,9.1 70.4,7.2 74.5,7.5 78.7,6.5 82.8,9.0 87.0,9.4 91.1,7.8 95.3,5.8 99.4,8.4 103.6,7.9 107.7,7.7 111.9,7.2 116.0,8.1" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="8.1" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">1,609</td>
+          </tr>
+          <tr>
+            <td class="expand-cell"><button class="icon-button" aria-label="Expand Kiribati" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button></td>
+            <th scope="row"><a class="row-link" href="#">Kiribati</a></th>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">3.9s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Kiribati: p95 page load over the last 7 days, 3.4s to 3.5s"><title>Kiribati: p95 page load over the last 7 days, 3.4s to 3.5s</title><polyline points="4.0,9.8 8.1,8.3 12.3,8.3 16.4,7.4 20.6,8.2 24.7,9.4 28.9,8.3 33.0,8.2 37.2,8.9 41.3,7.5 45.5,6.7 49.6,9.4 53.8,8.7 57.9,7.2 62.1,7.5 66.2,8.3 70.4,10.5 74.5,8.6 78.7,5.8 82.8,8.4 87.0,7.6 91.1,7.6 95.3,6.6 99.4,8.5 103.6,9.7 107.7,9.3 111.9,8.4 116.0,9.3" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="9.3" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">6,120</td>
+          </tr>
+          <tr>
+            <td class="expand-cell"><button class="icon-button" aria-label="Expand Tonga" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button></td>
+            <th scope="row"><a class="row-link" href="#">Tonga</a></th>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">2.9s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Tonga: p95 page load over the last 7 days, 2.3s to 3.1s"><title>Tonga: p95 page load over the last 7 days, 2.3s to 3.1s</title><polyline points="4.0,10.6 8.1,9.0 12.3,7.3 16.4,8.3 20.6,10.2 24.7,8.0 28.9,8.0 33.0,9.4 37.2,11.2 41.3,8.4 45.5,9.4 49.6,8.2 53.8,9.7 57.9,8.4 62.1,7.8 66.2,7.8 70.4,10.2 74.5,8.4 78.7,7.4 82.8,8.0 87.0,7.9 91.1,8.2 95.3,6.9 99.4,7.5 103.6,8.5 107.7,7.1 111.9,5.8 116.0,6.2" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="6.2" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">9,880</td>
+          </tr>
+          <tr>
+            <td class="expand-cell"><button class="icon-button" aria-label="Expand Solomon Islands" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button></td>
+            <th scope="row"><a class="row-link" href="#">Solomon Islands</a></th>
+            <td><span class="chip chip-error"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg><span class="chip-label">Unhealthy</span></span></td>
+            <td class="num">2.7s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Solomon Islands: p95 page load over the last 7 days, 2.5s to 2.9s"><title>Solomon Islands: p95 page load over the last 7 days, 2.5s to 2.9s</title><polyline points="4.0,9.6 8.1,7.5 12.3,7.0 16.4,7.0 20.6,10.2 24.7,7.6 28.9,8.6 33.0,8.6 37.2,8.6 41.3,7.0 45.5,6.8 49.6,8.0 53.8,8.7 57.9,7.3 62.1,5.8 66.2,8.4 70.4,9.3 74.5,8.4 78.7,6.9 82.8,9.0 87.0,9.4 91.1,7.0 95.3,8.5 99.4,7.9 103.6,8.8 107.7,9.5 111.9,7.5 116.0,7.4" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="7.4" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">7,402</td>
+          </tr>
+          <tr>
+            <td class="expand-cell"><button class="icon-button" aria-label="Expand Fiji" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button></td>
+            <th scope="row"><a class="row-link" href="#">Fiji</a></th>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">2.4s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Fiji: p95 page load over the last 7 days, 2.2s to 2.4s"><title>Fiji: p95 page load over the last 7 days, 2.2s to 2.4s</title><polyline points="4.0,9.8 8.1,7.4 12.3,8.2 16.4,7.0 20.6,8.2 24.7,8.6 28.9,7.3 33.0,9.0 37.2,10.4 41.3,7.0 45.5,8.7 49.6,9.2 53.8,8.9 57.9,7.7 62.1,8.5 66.2,7.0 70.4,9.0 74.5,8.5 78.7,6.1 82.8,9.5 87.0,7.4 91.1,8.6 95.3,6.5 99.4,7.8 103.6,8.6 107.7,8.2 111.9,5.8 116.0,8.3" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="8.3" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">21,530</td>
+          </tr>
+          <tr>
+            <td class="expand-cell"><button class="icon-button" aria-label="Expand Tuvalu" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button></td>
+            <th scope="row"><a class="row-link" href="#">Tuvalu</a></th>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">1.9s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Tuvalu: p95 page load over the last 7 days, 1.6s to 1.7s"><title>Tuvalu: p95 page load over the last 7 days, 1.6s to 1.7s</title><polyline points="4.0,12.2 8.1,7.3 12.3,5.8 16.4,6.8 20.6,11.2 24.7,12.4 28.9,5.8 33.0,12.2 37.2,9.9 41.3,6.6 45.5,8.8 49.6,7.1 53.8,10.5 57.9,8.9 62.1,9.8 66.2,11.0 70.4,9.4 74.5,10.3 78.7,11.2 82.8,6.3 87.0,9.1 91.1,6.6 95.3,9.5 99.4,8.4 103.6,8.8 107.7,6.6 111.9,8.3 116.0,11.7" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="11.7" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">1,204</td>
+          </tr>
+          <tr>
+            <td class="expand-cell"><button class="icon-button" aria-label="Expand Nauru" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button></td>
+            <th scope="row"><a class="row-link" href="#">Nauru</a></th>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">1.4s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Nauru: p95 page load over the last 7 days, 1.2s to 2.0s"><title>Nauru: p95 page load over the last 7 days, 1.2s to 2.0s</title><polyline points="4.0,13.9 8.1,7.0 12.3,9.1 16.4,6.9 20.6,15.6 24.7,7.6 28.9,11.5 33.0,15.0 37.2,15.5 41.3,6.4 45.5,5.8 49.6,10.5 53.8,11.9 57.9,10.4 62.1,9.2 66.2,8.3 70.4,8.9 74.5,11.6 78.7,10.4 82.8,7.6 87.0,12.8 91.1,11.0 95.3,13.9 99.4,8.5 103.6,8.4 107.7,12.1 111.9,13.1 116.0,6.4" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="6.4" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">212</td>
+          </tr>
+          <tr>
+            <td class="expand-cell"><button class="icon-button" aria-label="Expand Palau" aria-expanded="false"><svg class="icon icon-small" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button></td>
+            <th scope="row"><a class="row-link" href="#">Palau</a></th>
+            <td><span class="chip chip-success"><svg class="icon chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span class="chip-label">Healthy</span></span></td>
+            <td class="num">1.2s</td>
+            <td><svg class="spark" width="120" height="28" viewBox="0 0 120 28" role="img" aria-label="Palau: p95 page load over the last 7 days, 1.1s to 1.3s"><title>Palau: p95 page load over the last 7 days, 1.1s to 1.3s</title><polyline points="4.0,9.4 8.1,9.3 12.3,7.6 16.4,6.2 20.6,7.8 24.7,7.4 28.9,6.0 33.0,6.2 37.2,8.3 41.3,9.2 45.5,7.1 49.6,8.6 53.8,8.8 57.9,7.7 62.1,5.8 66.2,8.6 70.4,7.1 74.5,7.9 78.7,6.0 82.8,6.9 87.0,10.0 91.1,9.2 95.3,6.1 99.4,6.7 103.6,7.1 107.7,6.7 111.9,6.0 116.0,6.9" fill="none" stroke="#388e3c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="116.0" cy="6.9" r="3" fill="#388e3c" stroke="#fff" stroke-width="1.5"/></svg></td>
+            <td class="num">3,310</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

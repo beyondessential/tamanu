@@ -22,6 +22,22 @@ Working notes from the design workshop. The dashboard helps support assess deplo
 - **Low volume:** no special case; every deployment ranks by p95 whatever its page-load count.
 - **Trend:** each fleet row carries a 7-day p95 sparkline rather than a change figure.
 
+## Mockups
+
+Two mockups, drawn from Canopy's `private-web` (MUI light theme, `AppSidebar`, `HealthChip`, `RunThroughputChart`):
+
+- **Fleet:** a new Performance section in the sidebar; a small table of groups sorted by p95 page load, each row with Canopy's health chip, a 7-day sparkline and the page-load count, and a row expanding to its facilities.
+- **Group:** p95 page load over the window, one line per facility, with the upgrade marked; a table beneath doubles as the legend and carries each facility's p95, page loads and health, with an all-facilities total.
+
+## Assumptions to confirm
+
+- A deployment is a Canopy group, and a facility is a Tamanu facility server in that group, named by its facility.
+- The p95 counts clinical web page loads only; the admin panel and patient portal are left out.
+- Only production groups are listed.
+- A group with more than eight facilities folds the rest into "Other" on the chart, since a categorical palette holds eight lines.
+- Sparklines are each scaled to their own row from zero, so they show shape rather than compare rows.
+- The dashboard lives in its own Performance section rather than on the group page.
+
 ## Open
 
-- Canopy's visual language for mockups. Canopy is not in this repository, so a capture of an existing Canopy page is needed for mockups to match it.
+- How K13's rollups reach Canopy (a healthcheck field on central's report, or a dedicated feed), which decides what Canopy can chart without new storage.
