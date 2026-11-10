@@ -3,30 +3,18 @@ import { getModelsForPush } from '@tamanu/database/sync';
 
 import { outgoingChangesQuery } from './snapshotOutgoingChanges';
 
-// Cap on models queried at once: each is its own query on the same connection pool the api uses
-const MAX_CONCURRENT_QUERIES = 4;
-
-const modelHasChangesSince = async (model, since) =>
-  Boolean(await model.findOne({ ...outgoingChangesQuery(since), attributes: ['id'] }));
-
 /**
  * Whether the facility has any local change that the next sync would push: a row in a model that
  * pushes to central whose `updated_at_sync_tick` is above the last successful push cursor. It
  * selects with the same query as `snapshotOutgoingChanges`, but stops at the first hit rather than
- * reading them all.
+ * reading them all. Each model is one probe of its sync tick index, so they run one at a time.
  *
  * spec: SYNCHK#facility-servers
  */
 export const hasUnpushedChanges = async models => {
   const since = (await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) || -1;
-  const modelsToCheck = Object.values(getModelsForPush(models));
-
-  // A batch at a time, so the whole set of models cannot take a connection each, and so the
-  // first batch holding a change stops the rest
-  for (let from = 0; from < modelsToCheck.length; from += MAX_CONCURRENT_QUERIES) {
-    const batch = modelsToCheck.slice(from, from + MAX_CONCURRENT_QUERIES);
-    const found = await Promise.all(batch.map(model => modelHasChangesSince(model, since)));
-    if (found.some(Boolean)) return true;
+  for (const model of Object.values(getModelsForPush(models))) {
+    if (await model.findOne({ ...outgoingChangesQuery(since), attributes: ['id'] })) return true;
   }
   return false;
 };
