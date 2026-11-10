@@ -343,6 +343,23 @@ describe('Diet summary', () => {
     expect(hospitalTotals).toEqual({ [glutenFree.id]: 2, [diabetic.id]: 1 });
   });
 
+  // The No area group is keyed on a null area id rather than a ward's, so it is the one a
+  // misattributed sub total would hide in.
+  it('counts the No area group’s own patients in its sub total', async () => {
+    await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: bedWithoutArea, diets: [diabetic] });
+    await admit({ location: bedWithoutArea, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', null]);
+    expect(areas[0].subTotals).toEqual({ [glutenFree.id]: 1 });
+    expect(areas[1].subTotals).toEqual({ [diabetic.id]: 2 });
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 2 });
+  });
+
   // Reference data ids come from the importer and the admin panel's Manage tab, both of which
   // accept these as ids, and a patient dropped from the totals is one the kitchen does not feed.
   it('counts diets whose ids are prototype keys', async () => {
