@@ -44,6 +44,13 @@ export class CentralWakingError extends Error {
   }
 }
 
+function whenCentralWakes<T>(fallback: T) {
+  return (error: unknown): T => {
+    if (!(error instanceof CentralWakingError)) throw error;
+    return fallback;
+  };
+}
+
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   // a bare 503 (overloaded central, empty proxy) falls through as an ordinary failure
   const retryAfter = (err.response?.headers as AxiosHeaders | undefined)?.get('retry-after');
@@ -228,11 +235,8 @@ export class CentralServerConnection {
   async checkForChangesToPull(since?: number): Promise<boolean> {
     const query = since === undefined ? {} : { since };
     const response = await this.get<{ changesToPull?: boolean }>('sync/pending', query).catch(
-      error => {
-        // a waking central cannot say, so leave it to the session start, which waits in line
-        if (!(error instanceof CentralWakingError)) throw error;
-        return { changesToPull: true };
-      },
+      // a waking central cannot say, so leave it to the session start, which waits in line
+      whenCentralWakes({ changesToPull: true }),
     );
     if (typeof response?.changesToPull !== 'boolean') {
       throw new Error('central answered the changes-pending check without a changesToPull flag');
@@ -254,11 +258,10 @@ export class CentralServerConnection {
         deviceId: this.deviceId,
         isMobile: true,
       },
-    ).catch(error => {
+    ).catch(
       // a waking central cannot start a session yet, so wait in line as a queued sync does
-      if (!(error instanceof CentralWakingError)) throw error;
-      return { status: 'centralWaking' };
-    })) as { sessionId?: string; status?: string };
+      whenCentralWakes({ status: 'centralWaking' }),
+    )) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
       // we're waiting in a queue
