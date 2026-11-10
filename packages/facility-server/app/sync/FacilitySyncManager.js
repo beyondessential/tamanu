@@ -274,10 +274,8 @@ export class FacilitySyncManager {
       log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
     }
 
-    this.markSyncCompleted(startTime);
-    log.info('FacilitySyncManager.completedSession', {
-      durationMs: this.lastDurationMs,
-    });
+    const durationMs = this.markSyncCompleted(startTime);
+    log.info('FacilitySyncManager.completedSession', { durationMs });
 
     return { queued: false, ran: true };
   }
@@ -287,6 +285,7 @@ export class FacilitySyncManager {
   markSyncCompleted(startTime) {
     this.lastDurationMs = Date.now() - startTime;
     this.lastCompletedAt = new Date();
+    return this.lastDurationMs;
   }
 
   // spec: SYNCHK#facility-servers
