@@ -387,3 +387,51 @@ parent and found nothing broken.
 - R2-2 (low, coverage) no test checks `subTotals` for more than one area when the **No area** group
   is involved, so a bug misattributing specifically the null-area's sub total is invisible to all
   37 tests. → fix now, by extending the two-ward sub total test to carry a No area group.
+
+### Round 2 — pagination (opus): 0 blocker, 1 high, 2 medium, 6 low
+
+~830 bounded renders: ward counts 1–200, sizes swept across page boundaries, tiny and huge
+mixtures, 1–60 diet columns, the global font, 800-word names. **No hang anywhere.** It also found a
+shape the commit never claimed — 20 wards of 21 patients, which burned 14m28s of CPU before the
+margin fix and takes 7.8s after — so the blocker fix is better established than I had proved it.
+
+It noticed the checkout being switched to another card mid-run, restored every mutation, verified
+them, and copied its harness out. I had written the run off as untrustworthy on that basis; it was
+not, and the finding below is the proof that it was worth keeping.
+
+- P2-1 (high) `ROW_HEIGHT = 36` under-measured a wrapping row under the global font, so 42 of 500
+  such fixtures still stranded a heading. FIXED, `124a7963`.
+- P2-2 (medium) the constant also cost paper on ordinary sheets. FIXED by the same change.
+
+Reproduced and measured here before and after, on 35 targeted fixtures:
+
+| | strandings | plain-sheet pages |
+|---|---|---|
+| the committed constant | 21 of 35 | 140 |
+| estimating from the first row | **0 of 35** | **136** |
+
+So the estimate costs nothing — it saves a little, because a short name now asks for less room
+rather than the same. It lives in its own pure module with five unit cases, following the same
+principle as `prepareDietSummary`: a rule the sheet depends on should be testable without rendering.
+
+- P2-3 (medium, NOT this card) the sheet renders in the browser, so 2,240 patients freezes the tab
+  for 86 seconds. Not caused by anything here. → reported to the author as a ceiling for a large
+  facility.
+- The six lows, each SKIPPED with a reason rather than patched:
+  - `countFor` guards the key but not the container, so a missing `subTotals` would still fail the
+    render. The server always sends it and the response shape has a test; a defensive branch in
+    internal code is what the coding rules call a smell.
+  - A non-string name would crash the label sort. `reference_data.name` is a varchar, so the only
+    non-string it can be is null, which is already handled.
+  - A translation token of `:constructor` leaks `Object`'s source. That is in the shared
+    `translationFactory`, reachable from any translated string in the product. → follow-up, not
+    this card.
+  - Over-long ward names overprint, long unbroken names overflow into the NHN column, and an empty
+    bed prints blank. Cosmetic, nothing lost.
+
+### Round 2 — the No area sub total
+
+R2-2 fixed in `02e6b303`: every multi-area sub total assertion used named wards, so a sub total
+misattributed to the null-keyed No area group passed all 37 tests. Proven by mutating the route so
+that group alone takes the facility-wide counts — exactly one test fails, the new one — and
+restoring the route byte-for-byte.
