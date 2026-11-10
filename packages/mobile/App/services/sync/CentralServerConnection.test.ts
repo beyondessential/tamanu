@@ -24,6 +24,8 @@ jest.mock('./utils', () => ({
 }));
 
 jest.mock('axios');
+// the automock would stub the real header class that the waking-central cases need
+const { AxiosHeaders } = jest.requireActual<typeof import('axios')>('axios');
 
 jest.mock('uuid', () => ({
   v4: jest.fn().mockReturnValue('test-device-id'),
@@ -126,8 +128,12 @@ describe('CentralServerConnection', () => {
 
   // spec: SYNCHK#while-central-wakes
   describe('waking central', () => {
+    // axios hands the rejection's headers over as an AxiosHeaders instance
     const wakingResponse = (retryAfter?: string): object => ({
-      response: { status: 503, headers: retryAfter === undefined ? {} : { 'retry-after': retryAfter } },
+      response: {
+        status: 503,
+        headers: new AxiosHeaders(retryAfter === undefined ? {} : { 'retry-after': retryAfter }),
+      },
     });
 
     it('leaves the check to the session start', async () => {

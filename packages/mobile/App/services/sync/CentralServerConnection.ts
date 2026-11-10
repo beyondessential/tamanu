@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosHeaders, type AxiosRequestConfig } from 'axios';
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -34,7 +34,7 @@ const API_PREFIX = 'api';
 
 /**
  * Central answered `503 Service Unavailable` with a `Retry-After` header, as it does while it is
- * waking from sleep. The sync waits in line as a queued one does, and tries again next time.
+ * waking from sleep.
  * spec: SYNCHK#while-central-wakes
  */
 export class CentralWakingError extends Error {
@@ -44,16 +44,9 @@ export class CentralWakingError extends Error {
   }
 }
 
-const readRetryAfterHeader = (headers: AxiosError['response']['headers']): unknown => {
-  if (!headers) return undefined;
-  // axios gives either a plain object (lower-cased keys) or an AxiosHeaders instance
-  return typeof headers.get === 'function' ? headers.get('retry-after') : headers['retry-after'];
-};
-
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
-  // Only a Retry-After marks central as waking. A bare 503, from an overloaded central or a proxy
-  // with nothing behind it, falls through and fails the sync as any error would.
-  const retryAfter = readRetryAfterHeader(err.response?.headers);
+  // a bare 503 (overloaded central, empty proxy) falls through as an ordinary failure
+  const retryAfter = (err.response?.headers as AxiosHeaders | undefined)?.get('retry-after');
   if (err.response?.status === 503 && typeof retryAfter === 'string' && retryAfter.trim()) {
     return new CentralWakingError();
   }
