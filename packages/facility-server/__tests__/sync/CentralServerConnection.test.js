@@ -139,19 +139,21 @@ describe('CentralServerConnection', () => {
     }),
   );
 
-  describe('authentication', () => {
-    let fetch;
-    let centralServer;
-    beforeEach(() => {
-      fetch = vi.spyOn(global, 'fetch');
-      centralServer = new CentralServerConnection({ deviceId: 'test' });
-      centralServer.fetchImplementation = fetch;
-    });
-    afterEach(() => {
-      fetch.mockReset();
-      fetch.mockRestore();
-    });
+  let fetch;
+  let centralServer;
 
+  beforeEach(() => {
+    fetch = vi.spyOn(global, 'fetch');
+    centralServer = new CentralServerConnection({ deviceId: 'test' });
+    centralServer.fetchImplementation = fetch;
+  });
+
+  afterEach(() => {
+    fetch.mockReset();
+    fetch.mockRestore();
+  });
+
+  describe('authentication', () => {
     it('authenticates against a central server', async () => {
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
       const { token, user } = await centralServer.connect();
@@ -269,22 +271,11 @@ describe('CentralServerConnection', () => {
     const waking = retryAfter =>
       fakeFailure(503, {}, retryAfter === undefined ? {} : { 'retry-after': retryAfter });
 
-    let fetch;
-    let centralServer;
-
     // Calls made after the login and the user lookup that precede the first request
     const requestCalls = () => fetch.mock.calls.slice(2);
 
     beforeEach(() => {
-      fetch = vi.spyOn(global, 'fetch');
-      centralServer = new CentralServerConnection({ deviceId: 'test' });
-      centralServer.fetchImplementation = fetch;
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
-    });
-
-    afterEach(() => {
-      fetch.mockReset();
-      fetch.mockRestore();
     });
 
     // spec: SYNCHK#the-check
@@ -329,8 +320,6 @@ describe('CentralServerConnection', () => {
       expect(requestCalls()).toHaveLength(1);
     });
 
-    // Only a Retry-After says the server is waking. An ordinary 503, from an overloaded central or
-    // a proxy with nothing behind it, fails the sync.
     it.each([
       ['has no Retry-After', undefined],
       ['has an empty Retry-After', '  '],
