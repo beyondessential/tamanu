@@ -438,33 +438,23 @@ describe('FacilitySyncManager', () => {
     });
 
     describe('when central answers there are changes to pull', () => {
-      it('sends the pull cursor with the check, and opens a session', async () => {
+      it.each([
+        ['its pull cursor', PULL_CURSOR, Number(PULL_CURSOR)],
+        ['no cursor when it has never pulled', null, undefined],
+        ['no cursor when its pull cursor is -1', '-1', undefined],
+      ])('sends %s with the check, and opens a session', async (_, cursor, sentCursor) => {
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, cursor);
         const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => true) });
 
         await syncManager.triggerSync(scheduled);
 
-        expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledWith(
-          Number(PULL_CURSOR),
-        );
+        expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledWith(sentCursor);
         expect(syncManager.centralServer.startSyncSession).toHaveBeenCalledTimes(1);
         expect(syncManager.pullChanges).toHaveBeenCalledTimes(1);
         expect(await latestSyncRun()).toMatchObject({
           status: SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
           sessionId: TEST_SESSION_ID,
         });
-      });
-
-      it.each([
-        ['has never pulled', null],
-        ['has a pull cursor of -1', '-1'],
-      ])('leaves the cursor out of the check when the facility %s', async (_, cursor) => {
-        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, cursor);
-        const syncManager = makeSyncManager({ checkChangesPending: vi.fn(async () => true) });
-
-        await syncManager.triggerSync(scheduled);
-
-        expect(syncManager.centralServer.checkChangesPending).toHaveBeenCalledWith(undefined);
-        expect(syncManager.centralServer.startSyncSession).toHaveBeenCalledTimes(1);
       });
     });
 
