@@ -199,6 +199,16 @@ export class AutocompleteInput extends Component {
     }
   };
 
+  // Autosuggest also calls this on every arrow-key highlight, so it mustn't create records
+  getSuggestionValue = option => {
+    if (option.isCustomizedOption) return option.label;
+    return this.handleSuggestionChange(option);
+  };
+
+  handleSuggestionSelected = (event, { suggestion }) => {
+    if (suggestion.isCustomizedOption) this.handleSuggestionChange(suggestion);
+  };
+
   handleSuggestionChange = option => {
     const { onChange, name, suggester } = this.props;
     if (!option.isCustomizedOption) {
@@ -554,7 +564,8 @@ export class AutocompleteInput extends Component {
           onSuggestionsFetchRequested={this.debouncedFetchOptions}
           onSuggestionsClearRequested={this.clearOptions}
           renderSuggestionsContainer={this.renderContainer}
-          getSuggestionValue={this.handleSuggestionChange}
+          getSuggestionValue={this.getSuggestionValue}
+          onSuggestionSelected={this.handleSuggestionSelected}
           renderSuggestion={this.renderSuggestion}
           renderInputComponent={this.renderInputComponent}
           inputProps={{
