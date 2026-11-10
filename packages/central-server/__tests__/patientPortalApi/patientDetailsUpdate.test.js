@@ -75,6 +75,29 @@ describe('Patient Portal: updating patient details', () => {
     expect(saved.cityTown).toEqual('Apia');
   });
 
+  // Insurance plans replaced the patient's insurer reference, so the portal no longer carries it.
+  // The policy number stays (spec: patient-portal/patient-details.md).
+  it('still writes the insurance policy number', async () => {
+    const response = await updateDetails({ insurerPolicyNumber: 'POL-99887' });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.additionalData).toMatchObject({ insurerPolicyNumber: 'POL-99887' });
+    const saved = await store.models.PatientAdditionalData.getForPatient(patient.id);
+    expect(saved.insurerPolicyNumber).toEqual('POL-99887');
+  });
+
+  it('no longer accepts an insurer', async () => {
+    expect(await updateDetails({ insurerId: ethnicity.id })).toHaveRequestError();
+  });
+
+  it('does not return an insurer on the patient', async () => {
+    const response = await updateDetails({ insurerPolicyNumber: 'POL-11223' });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.additionalData).not.toHaveProperty('insurerId');
+    expect(response.body.additionalData).not.toHaveProperty('insurer');
+  });
+
   it('leaves details that were not sent as they are', async () => {
     await store.models.PatientAdditionalData.create({
       patientId: patient.id,

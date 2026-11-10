@@ -1,5 +1,5 @@
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { DataTypes } from 'sequelize';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes, Op } from 'sequelize';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
@@ -86,6 +86,21 @@ export class PatientProgramRegistrationCondition extends Model {
       )
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
+  }
+
+  static async getRecordedConditionIds(patientProgramRegistrationId: string) {
+    const conditions = await this.findAll({
+      attributes: ['programRegistryConditionId'],
+      where: { patientProgramRegistrationId, deletionDate: null },
+      include: [
+        {
+          association: 'programRegistryConditionCategory',
+          attributes: [],
+          where: { code: { [Op.ne]: PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR } },
+        },
+      ],
+    });
+    return conditions.map(condition => condition.programRegistryConditionId);
   }
 
   static async buildSyncLookupQueryDetails() {

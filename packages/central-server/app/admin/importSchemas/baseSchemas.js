@@ -411,6 +411,7 @@ export const ProgramRegistry = Base.shape({
   visibilityStatus,
   lossToFollowUpEnabled: yup.boolean().default(false),
   lossToFollowUpThresholdDays: yup.number().integer().positive().default(90),
+  mandatoryConditionEnabled: yup.boolean().default(false),
 });
 
 export const ProgramRegistryClinicalStatus = Base.shape({

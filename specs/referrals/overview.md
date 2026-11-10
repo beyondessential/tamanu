@@ -4,4 +4,4 @@ id: REFERRALS
 
 # Referrals
 
-Patient referrals between services and facilities.
+Applies to patient referrals between services and facilities.
