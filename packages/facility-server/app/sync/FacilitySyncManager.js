@@ -196,8 +196,8 @@ export class FacilitySyncManager {
     }
 
     // spec: SYNCHK#facility-servers
-    // Only a scheduled sync asks central first, and only when there is nothing to push, which a
-    // session is needed for whatever central answers.
+    // Only a scheduled sync with nothing to push asks first: a push needs a session whatever
+    // central answers.
     if (this.reason?.type === 'scheduled' && !(await hasUnpushedChanges(this.models))) {
       // spec: SYNCHK#the-check
       const pullCursor = Number(pullSince);
@@ -206,9 +206,7 @@ export class FacilitySyncManager {
       );
       if (!changesToPull) {
         log.info('FacilitySyncManager.upToDate', { pullSince });
-        await this.provisionFromCentral();
-        this.markSyncCompleted(startTime);
-        return { queued: false, ran: true };
+        return this.completeSync(startTime);
       }
     }
 
@@ -255,24 +253,23 @@ export class FacilitySyncManager {
       await dropSnapshotTable(this.sequelize, sessionId);
     }
 
+    const result = await this.completeSync(startTime);
+    log.info('FacilitySyncManager.completedSession', { durationMs: this.lastDurationMs });
+
+    return result;
+  }
+
+  // The last successful sync time the sync status reports; deliberately not the pull cursor,
+  // which only a session's pull moves.
+  async completeSync(startTime) {
     await this.provisionFromCentral();
-
-    const durationMs = this.markSyncCompleted(startTime);
-    log.info('FacilitySyncManager.completedSession', { durationMs });
-
+    this.lastDurationMs = Date.now() - startTime;
+    this.lastCompletedAt = new Date();
     return { queued: false, ran: true };
   }
 
-  // Moves the facility's last successful sync time, which monitoring and the sync status read.
-  // Deliberately not the pull cursor: that moves only when a session pulls.
-  markSyncCompleted(startTime) {
-    this.lastDurationMs = Date.now() - startTime;
-    this.lastCompletedAt = new Date();
-    return this.lastDurationMs;
-  }
-
-  // Runs after every sync that reached central, whether or not it needed a session, so a
-  // facility whose syncs keep finding nothing to pull still converges.
+  // Runs after every successful sync, with or without a session, so a facility whose syncs find
+  // nothing to pull still converges.
   async provisionFromCentral() {
     // Provisioning that needs a live central, ordered: the PSK read is served to a
     // dedicated sync user only, so the swap has to land first. Neither may fail the
