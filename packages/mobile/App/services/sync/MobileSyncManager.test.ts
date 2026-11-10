@@ -6,8 +6,11 @@ import {
   getSyncTick,
   hasOutgoingChanges,
   pushOutgoingChanges,
+  setSyncTick,
   snapshotOutgoingChanges,
 } from './utils';
+import { LAST_SUCCESSFUL_PULL } from './constants';
+import { SYNC_EVENT_ACTIONS } from './types';
 
 jest.mock('./utils', () => ({
   setSyncTick: jest.fn(),
@@ -333,7 +336,6 @@ describe('MobileSyncManager', () => {
     });
 
     it('moves the displayed last synced time when there is nothing to pull, but not the pull cursor', async () => {
-      const setSyncTick = jest.requireMock('./utils').setSyncTick as jest.Mock;
       expect(mobileSyncManager.lastSuccessfulSyncTime).toBeNull();
 
       await mobileSyncManager.runSync(scheduled);
@@ -341,11 +343,10 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.lastSuccessfulSyncTime).toBeInstanceOf(Date);
       expect(updateFact).toBeCalledTimes(1);
       expect(updateFact).toBeCalledWith(
-        { key: 'lastSuccessfulSyncPull' },
+        { key: LAST_SUCCESSFUL_PULL },
         { updatedAt: mobileSyncManager.lastSuccessfulSyncTime },
       );
-      // only the time moves: the cursor's value is never written, whether by the update above
-      // (which sets only the time) or by a pull
+      // neither the update above nor a pull writes the cursor's value
       expect(setSyncTick).not.toBeCalled();
       expect(mobileSyncManager.pullIncomingChanges).not.toBeCalled();
     });
@@ -353,8 +354,8 @@ describe('MobileSyncManager', () => {
     it('emits success for a sync with nothing to pull', async () => {
       const onSuccess = jest.fn();
       const onError = jest.fn();
-      mobileSyncManager.emitter.on('syncSuccess', onSuccess);
-      mobileSyncManager.emitter.on('syncRecordError', onError);
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, onSuccess);
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, onError);
 
       await mobileSyncManager.triggerSync(scheduled);
 
@@ -367,12 +368,14 @@ describe('MobileSyncManager', () => {
       checkSpy.mockRejectedValueOnce(new Error('Network Error'));
       const onSuccess = jest.fn();
       const onError = jest.fn();
-      mobileSyncManager.emitter.on('syncSuccess', onSuccess);
-      mobileSyncManager.emitter.on('syncRecordError', onError);
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, onSuccess);
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, onError);
 
       await mobileSyncManager.triggerSync(scheduled);
 
-      expect(onError).toBeCalledWith({ error: expect.objectContaining({ message: 'Network Error' }) });
+      expect(onError).toBeCalledWith({
+        error: expect.objectContaining({ message: 'Network Error' }),
+      });
       expect(onSuccess).not.toBeCalled();
       expect(startSessionSpy).not.toBeCalled();
       expect(mobileSyncManager.lastSuccessfulSyncTime).toBeNull();
