@@ -25,7 +25,7 @@ jest.mock('./utils', () => ({
 
 jest.mock('axios');
 // the automock would stub the real header class that the waking-central cases need
-const { AxiosHeaders } = jest.requireActual<typeof import('axios')>('axios');
+const { AxiosHeaders, default: actualAxios } = jest.requireActual<typeof import('axios')>('axios');
 
 jest.mock('uuid', () => ({
   v4: jest.fn().mockReturnValue('test-device-id'),
@@ -91,22 +91,23 @@ describe('CentralServerConnection', () => {
     });
   });
   describe('checkForChangesToPull', () => {
-    it('asks central with the pull cursor and returns its answer', async () => {
-      const getSpy = jest
-        .spyOn(centralServerConnection, 'get')
-        .mockResolvedValue({ changesToPull: false });
+    // axios drops an undefined param, so what central receives is the URL it builds
+    it.each([
+      ['asks central with the pull cursor', 42, false, `${mockHost}/api/sync/pending?since=42`],
+      [
+        'leaves out since for a device that never pulled',
+        undefined,
+        true,
+        `${mockHost}/api/sync/pending`,
+      ],
+    ])('%s', async (_, since, changesToPull, expectedUri) => {
+      mockAxiosRequest.mockResolvedValueOnce({ data: { changesToPull } });
 
-      await expect(centralServerConnection.checkForChangesToPull(42)).resolves.toBe(false);
-      expect(getSpy).toHaveBeenCalledWith('sync/pending', { since: 42 });
-    });
-
-    it('leaves out since for a device that never pulled', async () => {
-      const getSpy = jest
-        .spyOn(centralServerConnection, 'get')
-        .mockResolvedValue({ changesToPull: true });
-
-      await expect(centralServerConnection.checkForChangesToPull()).resolves.toBe(true);
-      expect(getSpy).toHaveBeenCalledWith('sync/pending', {});
+      await expect(centralServerConnection.checkForChangesToPull(since)).resolves.toBe(
+        changesToPull,
+      );
+      const { url, params } = mockAxiosRequest.mock.calls[0][0];
+      expect(actualAxios.getUri({ url, params })).toBe(expectedUri);
     });
 
     it('fails when central answers the check with no flag', async () => {

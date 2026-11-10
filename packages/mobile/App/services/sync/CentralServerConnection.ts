@@ -228,13 +228,11 @@ export class CentralServerConnection {
   }
 
   /**
-   * Ask central whether anything that syncs has changed since the device's last pull.
    * @param since the tick the last successful pull reached; leave out if the device never pulled
    * spec: SYNCHK#the-check
    */
   async checkForChangesToPull(since?: number): Promise<boolean> {
-    const query = since === undefined ? {} : { since };
-    const response = await this.get<{ changesToPull?: boolean }>('sync/pending', query).catch(
+    const response = await this.get<{ changesToPull?: boolean }>('sync/pending', { since }).catch(
       // a waking central cannot say, so leave it to the session start, which waits in line
       whenCentralWakes({ changesToPull: true }),
     );
