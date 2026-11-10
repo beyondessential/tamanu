@@ -173,3 +173,27 @@ Central's supervisor-only routes go first. They touch nothing under the sync cod
 - [ ] `cd-package-servers.yml`: Linux and Windows bundles of the supervisor (Caddy and Postgres provided by the installation)
 - [ ] Support pack: `docs/runbooks/sync-facility-stale.md` and `docs/healthchecks.md` for facilities that open no session when idle, and for sleeping servers
 - [ ] Hand infra (Y3) the image name, config keys, the contract file, and that the facility supervisor needs the facility's key file
+
+## Refactor ledger (phase 2)
+
+Base `0f623d2ce6` (main at the last update), head `c0fe0dc379`.
+
+Baseline: product code +299 −25 in 13 files, tests +745 −1 in 6 files. Two new product files (`changesPending.js`, `getHighestRealChangeTick.js` on central, `hasUnpushedChanges.js` on the facility), one new test file per new module. Largest additions: `FacilitySyncManager.test.js` (+190), `changesPending.test.js` (+174), `MobileSyncManager.test.ts` (+139).
+
+The comments the branch adds or edits are judged as part of each survey: kept only where they give a reason the code cannot show.
+
+### Round 1
+
+Surveys: duplication, reuse, dead weight and comments (`refactor-r1-dup.md`); altitude and structure (`refactor-r1-altitude.md`). The altitude survey found the product code close to its floor: the `provisionFromCentral` seam, the `.catch` mappings onto the queued path and mobile's 503 detection inside `diagnoseProblem` (forced by `callWithBackoff`'s retry rule) are at the right altitude.
+
+Do:
+- Central: `querySchema.parse` in place of `safeParse` plus `InvalidParameterError`, if a bare parse answers 400 (the sibling routes rely on it); the problem type becomes the siblings' `validation`, which no client reads. Table the route's answers; drop the route test that repeats the tick filter's unit test; drop the unused facility.
+- Facility: fold the shared ending of `runSyncSession` into one `completeSync`; one `whenCentralWakes(fallback)` per connection in place of two catches and `isCentralWaking`; pass `since` straight through (the query string drops undefined); drop the unused `index.js` re-export. Tests: one shared fake sync manager (giving the run-history block a check stub, which it relies on by luck today), hoisted connection setup, drop the subsumed "nothing changed" case.
+- Mobile: read `retry-after` through `AxiosHeaders.get` only; `whenCentralWakes` as on the facility; pass `since` straight through. Tests: table the check cases, reuse `setSyncTick`, `LAST_SUCCESSFUL_PULL` and `SYNC_EVENT_ACTIONS`.
+- Comments: apply the verdicts in `refactor-r1-dup.md`, including three that are wrong (the `/:sessionId` capture claim, "stubs sort below every real tick", and "every sync that reached central").
+
+Leave:
+- `SyncLookup.max()` for the raw query: the explicit `ORDER BY … LIMIT 1` states the index walk the spec relies on, and nothing else in the repo uses `Model.max`.
+- A `TABLES_FOR_FULL_RESYNC` constant: no saving, and it touches code the branch does not.
+- `-1` as the never-pulled marker on the wire: a contract change, not a refactor.
+- Aligning names across platforms (`checkChangesPending`/`checkForChangesToPull`): no saving.
