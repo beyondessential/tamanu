@@ -1,12 +1,22 @@
 import type { NavigationProp } from '@react-navigation/native';
-import React, { type ReactElement } from 'react';
+import { useFormikContext } from 'formik';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { compose } from 'redux';
+import { ErrorToast } from '~/ui/components/ErrorToast';
+import { QRCodeScannerModal } from '~/ui/components/QRCodeScannerModal';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientFromRoute } from '~/ui/helpers/constants';
-import { RecentViewedScreen, ViewAllScreen } from '../screens/PatientSearch/PatientSearchTabs';
+import { parseScannedDisplayId } from '~/ui/helpers/displayId';
+import {
+  RecentViewedScreen,
+  useClearFilterFields,
+  ViewAllScreen,
+} from '../screens/PatientSearch/PatientSearchTabs';
 import { Field } from '/components/Forms/FormField';
-import { ArrowLeftIcon } from '/components/Icons';
+import { ArrowLeftIcon, QRCodeIcon } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
 import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
@@ -18,14 +28,18 @@ import { theme } from '/styled/theme';
 
 interface SearchPatientHeaderProps {
   onGoBack: () => void;
+  onOpenScanner: () => void;
 }
 
-const SearchPatientHeader = ({ onGoBack }: SearchPatientHeaderProps): ReactElement => {
+const SearchPatientHeader = ({
+  onGoBack,
+  onOpenScanner,
+}: SearchPatientHeaderProps): ReactElement => {
   const { getTranslation } = useTranslation();
 
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-      <RowView height={90} paddingTop={20} alignItems="center" paddingBottom={20} paddingRight={20}>
+      <RowView height={90} paddingTop={20} alignItems="center" paddingBottom={20} paddingRight={16}>
         <TouchableOpacity onPress={onGoBack}>
           <StyledView paddingLeft={20} paddingTop={20} paddingBottom={20} paddingRight={20}>
             <ArrowLeftIcon
@@ -41,6 +55,24 @@ const SearchPatientHeader = ({ onGoBack }: SearchPatientHeaderProps): ReactEleme
             placeholder={getTranslation('patient.search.placeholder', 'Search for patients')}
           />
         </StyledView>
+        <TouchableOpacity
+          onPress={onOpenScanner}
+          accessibilityRole="button"
+          accessibilityLabel={getTranslation('general.action.scanQRCode', 'Scan QR code')}
+        >
+          <StyledView
+            marginLeft={8}
+            width={44}
+            height={44}
+            borderRadius={22}
+            borderWidth={1.5}
+            borderColor={theme.colors.WHITE}
+            alignItems="center"
+            justifyContent="center"
+          >
+            <QRCodeIcon size={24} />
+          </StyledView>
+        </TouchableOpacity>
       </RowView>
     </StyledSafeAreaView>
   );
@@ -57,15 +89,44 @@ const DumbSearchPatientTabs = ({
   setSelectedPatient,
 }: SearchPatientTabsProps): ReactElement => {
   const { getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
+  const { setFieldValue } = useFormikContext();
+  const clearFilters = useClearFilterFields();
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [hasInvalidScan, setHasInvalidScan] = useState(false);
+  const closeInvalidScanToast = useCallback(() => setHasInvalidScan(false), []);
 
   const onNavigateToHome = (): void => {
     setSelectedPatient(null);
     navigation.navigate(Routes.HomeStack.HomeTabs.Home);
   };
 
+  const onScan = (rawValue: string): void => {
+    setIsScannerOpen(false);
+    const displayId = parseScannedDisplayId(
+      rawValue,
+      getSetting<string>('fields.displayId.pattern'),
+    );
+    if (!displayId) {
+      setHasInvalidScan(true);
+      return;
+    }
+    setFieldValue('search', displayId);
+    clearFilters();
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index, {
+      screen: Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll,
+    });
+  };
+
   return (
     <FullView>
-      <SearchPatientHeader onGoBack={onNavigateToHome} />
+      <SearchPatientHeader
+        onGoBack={onNavigateToHome}
+        onOpenScanner={() => {
+          setHasInvalidScan(false);
+          setIsScannerOpen(true);
+        }}
+      />
       <TopTabNavigator
         initialRouteName={
           routingFrom === PatientFromRoute.ALL_PATIENT
@@ -88,6 +149,20 @@ const DumbSearchPatientTabs = ({
           component={ViewAllScreen}
         />
       </TopTabNavigator>
+      {isScannerOpen && (
+        <QRCodeScannerModal onClose={() => setIsScannerOpen(false)} onScan={onScan} />
+      )}
+      {hasInvalidScan && (
+        <ErrorToast
+          message={
+            <TranslatedText
+              stringId="modal.qrScanner.invalidCodeErrorMessage"
+              fallback="Not a valid QR Code"
+            />
+          }
+          onClose={closeInvalidScanToast}
+        />
+      )}
     </FullView>
   );
 };

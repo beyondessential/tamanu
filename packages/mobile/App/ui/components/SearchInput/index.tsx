@@ -1,6 +1,7 @@
 import React, { type FC, useCallback, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
-import { RowView, StyledView } from '/styled/common';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
 import type { BaseInputProps } from '../../interfaces/BaseInputProps';
@@ -8,9 +9,17 @@ import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 const StyledTextInput = styled.TextInput`
   font-size: 16px;
   color: ${theme.colors.TEXT_SUPER_DARK};
-  flex: 1;
   height: 100%;
+  padding: 0;
 `;
+
+const styles = StyleSheet.create({
+  truncatedText: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+});
 
 interface SearchInputProps extends BaseInputProps {
   value: string;
@@ -41,6 +50,7 @@ export const SearchInput: FC<SearchInputProps> = ({
       width="100%"
       alignItems="center"
       paddingLeft={15}
+      paddingRight={15}
       borderRadius={85}
     >
       <StyledView marginRight={10}>
@@ -49,15 +59,30 @@ export const SearchInput: FC<SearchInputProps> = ({
           height={20}
         />
       </StyledView>
-      <StyledTextInput
-        onFocus={onFocus}
-        onBlur={onBlur}
-        editable={!disabled}
-        value={value}
-        placeholder={placeholder}
-        placeholderTextColor={theme.colors.TEXT_MID}
-        onChangeText={onChange}
-      />
+      <StyledView flex={1} height="100%" justifyContent="center">
+        <StyledTextInput
+          onFocus={onFocus}
+          onBlur={onBlur}
+          editable={!disabled}
+          value={value}
+          placeholder={placeholder}
+          placeholderTextColor={focus ? theme.colors.TEXT_MID : 'transparent'}
+          style={focus ? undefined : { color: 'transparent' }}
+          onChangeText={onChange}
+        />
+        {!focus && (
+          <StyledText
+            pointerEvents="none"
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            fontSize={16}
+            color={value ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_MID}
+            style={styles.truncatedText}
+          >
+            {value || placeholder}
+          </StyledText>
+        )}
+      </StyledView>
     </RowView>
   );
 };

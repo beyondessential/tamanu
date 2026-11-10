@@ -11,3 +11,15 @@ export const useFilterFields = () => {
 
   return [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId] as const;
 };
+
+export const useClearFilterFields = () => {
+  const [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId] = useFilterFields();
+  return () => {
+    sex[2].setValue('');
+    dateOfBirth[2].setValue(null);
+    firstName[2].setValue('');
+    lastName[2].setValue('');
+    villageId[2].setValue(null);
+    programRegistryId[2].setValue(null);
+  };
+};
