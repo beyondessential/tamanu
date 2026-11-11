@@ -703,7 +703,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   };
 
   // ---------- autocomplete field with a fixed list of options ----------
+  // options is a list, or a function returning the list when the options can change
   const suggestField = (input, clearButton, options, onSelect) => {
+    const currentOptions = () => (typeof options === 'function' ? options() : options);
     const list = document.createElement('ul');
     list.className = 'e14-suggestions';
     list.setAttribute('role', 'listbox');
@@ -712,8 +714,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     input.closest('.MuiFormControl-root').after(list);
     const show = () => {
       // A field already holding a choice offers every option, so it can be changed
-      const query = options.includes(input.value) ? '' : input.value.trim().toLowerCase();
-      const matches = options.filter(option => option.toLowerCase().includes(query));
+      const query = currentOptions().includes(input.value) ? '' : input.value.trim().toLowerCase();
+      const matches = currentOptions().filter(option => option.toLowerCase().includes(query));
       list.innerHTML = matches.map(option => `<li role="option">${escapeHtml(option)}</li>`).join('');
       list.hidden = matches.length === 0;
     };
@@ -731,7 +733,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     });
     input.addEventListener('blur', () => {
       list.hidden = true;
-      if (!options.includes(input.value)) setValue('');
+      if (!currentOptions().includes(input.value)) setValue('');
     });
     list.addEventListener('mousedown', event => {
       const option = event.target.closest('li');
@@ -754,7 +756,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   const carePlanRoot = carePlanInput.closest('[role="combobox"]');
   const textField = $('e14-text');
   const textFieldRoot = textField.closest('.e14-text-field');
-  const carePlanField = suggestField(carePlanInput, $('e14-care-plan-clear'), CARE_PLANS, () => clearError(carePlanRoot));
+  // A care plan the patient already has is not offered again
+  const carePlansNotYetAdded = () => CARE_PLANS.filter(name => !carePlans.some(plan => plan.name === name));
+  const carePlanField = suggestField(carePlanInput, $('e14-care-plan-clear'), carePlansNotYetAdded, () => clearError(carePlanRoot));
   const templateField = suggestField($('e14-template'), $('e14-template-clear'), TEMPLATES.map(template => template.name), name => {
     const template = TEMPLATES.find(candidate => candidate.name === name);
     textField.value = template.text;
