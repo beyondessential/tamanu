@@ -470,7 +470,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .e14-note-header { padding: 0.75rem 1rem; border-bottom: 1px solid #dedede; display: flex; justify-content: space-between; }
 .e14-row { display: flex; align-items: center; }
 .e14-author { color: #666666; /* Colors.darkText */ font-weight: 700; }
-.e14-main { color: #f76853; /* Colors.alert */ font-weight: 700; padding-left: 1rem; }
+/* E14: titled header for the main care plan card */
+.e14-main-header { align-items: center; padding: 12px 16px; }
+.e14-main-title { margin: 0; font-family: Roboto; font-size: 16px; font-weight: 500; line-height: 20px; color: #444444; /* Colors.darkestText */ }
+.e14-main-meta { margin-top: 2px; font-size: 14px; line-height: 18px; color: #888888; /* Colors.midText */ }
 .e14-timestamp { color: #888888; /* Colors.midText */ margin-right: 15px; }
 .e14-menu { padding: 5px; color: #888888; }
 .e14-menu svg { width: 24px; height: 24px; fill: currentColor; }
@@ -802,12 +805,24 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   $('e14-view').querySelector('[data-e14-close]').addEventListener('click', closeView);
   $('e14-view-close').addEventListener('click', closeView);
 
-  const noteCard = ({ date, content, isMain, noteIndex, onBehalfOf }) =>
-    '<div class="e14-note"><div class="e14-note-header"><div class="e14-row"><strong class="e14-author">Initial Admin</strong>' +
-    (onBehalfOf ? `<span class="e14-on-behalf">&nbsp;&nbsp;|&nbsp;&nbsp;on behalf of ${escapeHtml(onBehalfOf)}</span>` : '') +
-    (isMain ? '<strong class="e14-main">Main care plan</strong>' : '') +
-    `</div><div class="e14-row e14-menu-host"><span class="e14-timestamp">${date}</span>` +
-    `<button type="button" class="MuiButtonBase-root MuiIconButton-root e14-menu" aria-label="Note actions" aria-haspopup="menu" data-note="${isMain ? 'main' : noteIndex}">${MORE_HORIZ}</button></div></div>${content}</div>`;
+  const menuButton = note =>
+    `<div class="e14-row e14-menu-host"><button type="button" class="MuiButtonBase-root MuiIconButton-root e14-menu" aria-label="Note actions" aria-haspopup="menu" data-note="${note}">${MORE_HORIZ}</button></div>`;
+  const noteCard = ({ date, content, isMain, noteIndex, onBehalfOf }) => {
+    if (isMain) {
+      const author = `Initial Admin${onBehalfOf ? ` on behalf of ${escapeHtml(onBehalfOf)}` : ''}`;
+      return (
+        '<div class="e14-note"><div class="e14-note-header e14-main-header"><div>' +
+        `<h3 class="e14-main-title">Main care plan</h3><div class="e14-main-meta">${author}<span aria-hidden="true"> · </span>${date}</div>` +
+        `</div>${menuButton('main')}</div>${content}</div>`
+      );
+    }
+    return (
+      '<div class="e14-note"><div class="e14-note-header"><div class="e14-row"><strong class="e14-author">Initial Admin</strong>' +
+      (onBehalfOf ? `<span class="e14-on-behalf">&nbsp;&nbsp;|&nbsp;&nbsp;on behalf of ${escapeHtml(onBehalfOf)}</span>` : '') +
+      `</div><div class="e14-row e14-menu-host"><span class="e14-timestamp">${date}</span>` +
+      `<button type="button" class="MuiButtonBase-root MuiIconButton-root e14-menu" aria-label="Note actions" aria-haspopup="menu" data-note="${noteIndex}">${MORE_HORIZ}</button></div></div>${content}</div>`
+    );
+  };
   const mainContent = (plan, items) => {
     const text = `<p>${escapeHtml(plan.text)}</p>`;
     if (items.length === 0) return `<div class="e14-note-content">${text}</div>`;
