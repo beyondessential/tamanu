@@ -1,11 +1,11 @@
 import { sleepAsync } from './sleepAsync';
-import { isRecoverable } from '@tamanu/errors';
+import { isRecoverable, RemoteUnreachableError } from '@tamanu/errors';
 
 export type callWithBackoffOptions = Partial<{
   maxAttempts: number;
   /**
-   * Keep retrying for up to this long after the first failure, in place of a fixed number of
-   * attempts. This bounds how long the remote may stay unreachable before giving up.
+   * While the remote is unreachable, keep retrying for up to this long in place of a fixed number
+   * of attempts. Other recoverable errors are still limited by maxAttempts.
    */
   maxRetryDurationMs: number;
   maxWaitMs: number;
@@ -41,7 +41,8 @@ export const callWithBackoff = async <T>(
   let lastN = 0;
   let secondLastN = 0;
   let attempt = 0;
-  let firstFailureAt: number | null = null;
+  let countedFailures = 0;
+  let unreachableSince: number | null = null;
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -58,16 +59,22 @@ export const callWithBackoff = async <T>(
         throw e;
       }
 
-      firstFailureAt ??= Date.now();
+      const isUnreachable = isRetryingForDuration && e instanceof RemoteUnreachableError;
+      if (isUnreachable) {
+        unreachableSince ??= Date.now();
+      } else {
+        unreachableSince = null;
+        countedFailures += 1;
+      }
 
       // calculate the next backoff delay
       [secondLastN, lastN] = [lastN, Math.max(lastN + secondLastN, 1)];
       const delay = Math.min(lastN * multiplierMs, maxWaitMs);
 
       // throw if we've exceeded our maximum retries
-      const hasExhaustedRetries = isRetryingForDuration
-        ? Date.now() - firstFailureAt + delay > maxRetryDurationMs
-        : attempt >= maxAttempts;
+      const hasExhaustedRetries = isUnreachable
+        ? Date.now() - unreachableSince + delay > maxRetryDurationMs
+        : countedFailures >= maxAttempts;
       if (hasExhaustedRetries) {
         console.error(
           `callWithBackoff: attempt ${describeAttempt(attempt)} failed, max retries exceeded: ${e?.stack}`,

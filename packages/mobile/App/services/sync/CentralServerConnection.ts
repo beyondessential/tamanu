@@ -36,6 +36,9 @@ const API_PREFIX = 'api';
 // Statuses a proxy or gateway in front of the central server responds with when it can't reach it
 const GATEWAY_ERROR_STATUSES = [502, 503, 504];
 
+// Codes axios gives a request that was sent but got no response: the connection dropped or timed out
+const NO_RESPONSE_ERROR_CODES = new Set(['ERR_NETWORK', 'ECONNABORTED', 'ETIMEDOUT']);
+
 // Retry requests that are safe to repeat through a network drop, so a brief outage doesn't throw
 // away a sync that may have been running for a long time
 const retryThroughNetworkDrops = (
@@ -46,8 +49,11 @@ const retryThroughNetworkDrops = (
 
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   if (!err.response) {
-    // the connection dropped, timed out, or couldn't be made at all
-    return new RemoteUnreachableError(err.message).withCause(err);
+    if (NO_RESPONSE_ERROR_CODES.has(err.code)) {
+      return new RemoteUnreachableError(err.message).withCause(err);
+    }
+    // the request never went out (e.g. it was cancelled or couldn't be built), so retrying won't help
+    return err;
   }
 
   const problem = Problem.fromJSON(err.response.data || {});
@@ -105,6 +111,7 @@ export class CentralServerConnection {
     {
       // only retry where a caller knows the request is safe to repeat
       backoff = { maxAttempts: 1 },
+      onAttempt,
       skipAttemptRefresh,
       timeout,
       headers: extraHeaders,
@@ -127,6 +134,7 @@ export class CentralServerConnection {
     const isLogin = path.startsWith('login');
     try {
       const response = await callWithBackoff(async () => {
+        onAttempt?.();
         const configAxios: AxiosRequestConfig = {
           url,
           method,
@@ -154,6 +162,7 @@ export class CentralServerConnection {
           // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
           const updatedConfig: FetchOptions = {
             backoff,
+            onAttempt,
             skipAttemptRefresh: true,
             timeout,
             headers: extraHeaders,
@@ -272,8 +281,13 @@ export class CentralServerConnection {
     return { sessionId, startedAtTick };
   }
 
-  async endSyncSession(sessionId: string) {
-    return this.delete(`sync/${sessionId}`, {});
+  async endSyncSession(sessionId: string, maxUnreachableDurationMs?: number) {
+    return this.fetch(
+      `sync/${sessionId}`,
+      {},
+      // safe to repeat: central rejects ending a session that has already ended
+      { method: 'DELETE', backoff: retryThroughNetworkDrops(maxUnreachableDurationMs) },
+    );
   }
 
   async markSessionErrored(sessionId: string, error: string): Promise<unknown> {
@@ -316,6 +330,7 @@ export class CentralServerConnection {
     limit = 100,
     fromId?: string,
     maxUnreachableDurationMs?: number,
+    onAttempt?: () => void,
   ): Promise<SyncRecord[]> {
     const query: { limit: number; fromId?: string } = { limit };
     if (fromId) {
@@ -327,16 +342,22 @@ export class CentralServerConnection {
       timeout: 5 * 60 * 1000,
       // safe to repeat: pages are read from the session's snapshot by cursor
       backoff: retryThroughNetworkDrops(maxUnreachableDurationMs),
+      onAttempt,
     });
   }
 
-  async push(sessionId: string, changes, maxUnreachableDurationMs?: number): Promise<unknown> {
+  async push(
+    sessionId: string,
+    changes,
+    maxUnreachableDurationMs?: number,
+    onAttempt?: () => void,
+  ): Promise<unknown> {
     return this.post(
       `sync/${sessionId}/push`,
       {},
       { changes },
       // safe to repeat: central de-duplicates pushed records when it persists them
-      { compress: true, backoff: retryThroughNetworkDrops(maxUnreachableDurationMs) },
+      { compress: true, backoff: retryThroughNetworkDrops(maxUnreachableDurationMs), onAttempt },
     );
   }
 

@@ -281,7 +281,10 @@ export class MobileSyncManager {
       try {
         await this.pushOutgoingChanges(sessionId, newSyncClockTime);
         await this.pullIncomingChanges(sessionId);
-        await this.centralServer.endSyncSession(sessionId);
+        await this.centralServer.endSyncSession(
+          sessionId,
+          this.syncSettings.maxUnreachableDuration,
+        );
       } catch (error) {
         // notify central so its own alerting sees the failure immediately, rather than waiting for
         // the session to time out there (mobile otherwise never reports a session's error to

@@ -16,12 +16,18 @@ export const pullRecordsInBatches = async (
   const { dynamicLimiter: dynamicLimiterSettings, maxUnreachableDuration } = syncSettings ?? {};
 
   const fetchPage = async (pageLimit: number, pageFromId?: string): Promise<PulledPage> => {
-    const startTime = Date.now();
+    // time only the attempt that succeeds, so retrying through a network drop doesn't look like a
+    // slow page to the dynamic limiter
+    let startTime = Date.now();
+    const onAttempt = () => {
+      startTime = Date.now();
+    };
     const records = await centralServer.pull(
       sessionId,
       pageLimit,
       pageFromId,
       maxUnreachableDuration,
+      onAttempt,
     );
     const pullTime = Date.now() - startTime;
     return { records, pullTime };

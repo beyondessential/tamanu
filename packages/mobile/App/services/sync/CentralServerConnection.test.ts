@@ -75,9 +75,13 @@ describe('CentralServerConnection', () => {
 
   describe('endSyncSession', () => {
     it('should call delete with correct parameters', async () => {
-      const deleteSpy = jest.spyOn(centralServerConnection, 'delete').mockResolvedValue(null);
+      const fetchSpy = jest.spyOn(centralServerConnection, 'fetch').mockResolvedValue(null);
       await centralServerConnection.endSyncSession(mockSessionId);
-      expect(deleteSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), {});
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.stringContaining(mockSessionId),
+        {},
+        { method: 'DELETE', ...retryThroughNetworkDrops },
+      );
     });
   });
   describe('startSyncSession', () => {
@@ -567,6 +571,30 @@ describe('CentralServerConnection', () => {
         RemoteUnreachableError,
       );
       expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not treat a request that was never sent as the central server being unreachable', async () => {
+      const cancellation = { code: 'ERR_CANCELED', message: 'canceled' };
+      mockAxiosRequest.mockRejectedValueOnce(cancellation);
+      await expect(
+        centralServerConnection.fetch(
+          'test-path',
+          {},
+          { backoff: retryThroughNetworkDrops.backoff },
+        ),
+      ).rejects.toBe(cancellation);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it('tells the caller as each attempt starts', async () => {
+      const onAttempt = jest.fn();
+      mockAxiosRequest.mockRejectedValueOnce(networkError()).mockResolvedValueOnce({ data: {} });
+      await centralServerConnection.fetch(
+        'test-path',
+        {},
+        { backoff: retryThroughNetworkDrops.backoff, onAttempt },
+      );
+      expect(onAttempt).toHaveBeenCalledTimes(2);
     });
   });
 });
