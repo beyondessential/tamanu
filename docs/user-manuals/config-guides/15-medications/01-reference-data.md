@@ -44,16 +44,20 @@ Where * is a required field.
 | --- | --- |
 | id * | Unique id for the drug. Letters, numbers and hyphens only. |
 | code * | Unique code for the drug. Letters, numbers, hyphens, full stops and forward slashes only. |
-| name * | Name for the drug, up to 255 characters. This is the medication name displayed in Tamanu. |
+| name * | Name for the drug. This is the medication name displayed in Tamanu. |
 | visibilityStatus | `current` for drugs available for prescription, or `historical` for drugs that should not be prescribed and should not appear in Tamanu. Defaults to `current` if blank. |
 | systemRequired | Marks the record as required by the system so it cannot be removed. Leave blank unless instructed. |
 | availableFacilities | Restricts the drug to specific facilities. Must be a JSON array of facility ids, for example `["facility-a", "facility-b"]`. Leave blank for all facilities. |
-| route | The pathway through which the medication enters the body. Use one of the routes listed under [Route of administration](#route-of-administration). This column is not validated on import, so an unrecognised value is accepted and will not display correctly. If no default is set, the user selects the route when prescribing. Leave blank if no default is required. |
-| dosingUnit | The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under [Units](#units). If not set, the user selects the unit when prescribing. |
-| dispensingUnit | The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under [Units](#units). Defaults to the dosing unit if not set. |
+| route | The pathway through which the medication enters the body. Use one of the routes listed under [Route of administration](#route-of-administration). The display label is also accepted, so both `oral` and `Oral` work, and any other value fails the import. If no default is set, the user selects the route when prescribing. Leave blank if no default is required. |
+| dosingUnit | The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under [Units](#units). If not set, doses are entered and displayed without a unit. |
+| dispensingUnit | The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under [Units](#units). If not set, dispensing quantities are entered and displayed without a unit. |
 | unitConversion | Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set. |
 | notes | A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed. Leave blank if no default is required. |
 | isSensitive | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](03-permissions.md#sensitive-medications). |
+| doseMin | The lowest expected dose, in the drug's `dosingUnit`. Must be 0 or more, and no greater than `doseMax`. Leave blank for no minimum. See [Dose and dispensing quantity limits](#dose-and-dispensing-quantity-limits). |
+| doseMax | The highest expected dose, in the drug's `dosingUnit`. Must be 0 or more, and no less than `doseMin`. Leave blank for no maximum. |
+| dispensingQuantityMin | The lowest expected dispensing quantity, in the drug's `dispensingUnit`. Must be a whole number of 0 or more, and no greater than `dispensingQuantityMax`. Leave blank for no minimum. |
+| dispensingQuantityMax | The highest expected dispensing quantity, in the drug's `dispensingUnit`. Must be a whole number of 0 or more, and no less than `dispensingQuantityMin`. Leave blank for no maximum. |
 
 Stock levels are recorded in additional columns, one per facility, as described below.
 
@@ -83,6 +87,41 @@ read the same way, so a round trip is safe.
 
 Where a facility has mSupply as its source of truth for stock on hand, the importer does not overwrite
 that facility's stock levels. See the [Dispensing](../16-dispensing/) configuration guides.
+
+### Dose and dispensing quantity limits
+
+The `doseMin`, `doseMax`, `dispensingQuantityMin` and `dispensingQuantityMax` columns set the dose and
+dispensing quantity expected for a drug. They help staff catch unit mix-ups, such as 500 tablets entered
+when 500 mg (one tablet) was meant, before the quantity carries through to dispensing and the invoice.
+
+Each limit is optional and independent, so a drug can have any combination of them, and a drug with no
+limits never shows a warning. Limits apply at every facility. On the **Manage** tab, the limits are the
+fields of the same names in the drug's details.
+
+An import fails on a row whose limits break the rules in the table above, and the **Manage** tab will
+not save a drug whose limits break them.
+
+When a dose or dispensing quantity is outside its range, a warning appears below it, such as **Above
+expected max of 2 tablets** or **Below expected min of 1 tablet**. A value equal to a limit is within
+range, and an empty field never shows a warning. The warning does not stop the user saving, and the
+value is saved as entered. A variable dose has no dose amount, so only its dispensing quantity is
+checked.
+
+| Where | Dose checked | Dispensing quantity checked |
+| --- | --- | --- |
+| **New prescription**, and **Add ongoing medication** at the patient level | Yes | Yes |
+| Editing a medication set item before the set is prescribed | Yes | Yes |
+| **Add ongoing medications** on an encounter | Yes | Yes |
+| **Send to pharmacy** | Yes | Yes |
+| **Discharge patient** | Yes | Yes |
+| **Dispense medication** | No | Yes |
+| **Modify prescription** at dispense | Yes | Yes |
+| **Edit dispensed medication** | No | Yes |
+
+Where pharmacy substitutes a different drug when modifying a prescription, that drug's limits apply.
+Prescribing on mobile does not check the limits.
+
+**[Screenshot: the New prescription form with a dose amount above the drug's maximum, showing the warning below the Dose amount field]**
 
 ---
 
@@ -119,16 +158,20 @@ Where * is a required field.
 | dosingUnit * | The unit for the dose. Must be one of the units listed under [Units](#units). |
 | frequency * | Must be one of the frequencies listed under [Frequency](#frequency). |
 | route * | Must be one of the routes listed under [Route of administration](#route-of-administration). The display label is also accepted, so both `intravenous` and `IV` work. |
-| doseAmount * | The numerical dose amount, or the word `variable` where the dose is variable. The cell cannot be left empty. |
+| doseAmount * | The numerical dose amount, or the word `variable` where the dose is variable. The cell cannot be left empty. Where the drug has [dose limits](#dose-and-dispensing-quantity-limits), a dose outside them fails the import, and the **Manage** tab will not save it. |
 | ongoingMedication | Input `TRUE` if the medication should default to ongoing. Defaults to `FALSE`. |
 | prnMedication | Input `TRUE` if the medication should default to PRN. Defaults to `FALSE`. |
 | duration | The length of time and time unit, for example `7 days`. Supported units are hours, days, weeks and months. Both the length and the unit must be given together. Leave blank if no default duration is required. |
 | notes | Default notes relevant to the medication, such as instructions for taking it. Leave blank if no default is required. |
-| dischargeQuantity | Default quantity of medication units given to the patient. Leave blank if no default is required. |
+| dischargeQuantity | A quantity of medication units stored with the template. It is not applied when the set is prescribed, and is not checked against the drug's dispensing quantity limits. Leave blank. |
 | visibilityStatus | `current` or `historical`. Defaults to `current` if blank. |
 
 A duration cannot be set when the frequency is `Immediately`, or when the medication is flagged as
 ongoing. The import reports an error in both cases.
+
+A template's dose is checked against its drug's limits when the template is imported or saved on the
+**Manage** tab. Changing a drug's limits later does not re-check existing templates, though a set item
+outside the new limits shows a warning when it is edited before the set is prescribed.
 
 ### Medication Set
 

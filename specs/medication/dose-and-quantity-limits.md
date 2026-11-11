@@ -32,6 +32,7 @@ Applies to the accepted range a drug can carry for its dose amount and for its d
 ## The inline warning
 
 - When a value is out of range, a warning appears directly below it.
+- A value that is already out of range when a form or table opens, such as a quantity carried over from the prescription, shows its warning straight away.
 - The warning is a single line of small text led by an orange warning icon, and the field keeps its normal appearance rather than showing as an error.
 - The warning updates as the user types: it appears as soon as the value goes out of range, and clears once the value is back in range or the field is empty.
 - The warning names the limit crossed and its value in the drug's unit, for example "Above expected max of 2 tablets" or "Below expected min of 1 tablet".
@@ -45,7 +46,19 @@ Applies to the accepted range a drug can carry for its dose amount and for its d
 - The prescription form is checked for a new prescription on an encounter and for an ongoing medication added at the patient level.
 - A dose warning appears below the "Dose amount" field, and a quantity warning below the "Dispensing quantity" field.
 
-<!-- TODO: Check whether the "Discharge qty" input in the "Add ongoing medications" modal is checked against the dispensing quantity range. -->
+### Medication sets
+
+- The importer rejects a Medication Template row whose dose amount is outside its drug's dose range, so a medication set cannot be imported with a medication whose dose is out of range.
+- Saving a medication template in reference data management rejects a dose amount outside its drug's dose range the same way.
+- A template's discharge quantity is imported as entered, without being checked against the drug's dispensing quantity range.
+- Each item of a medication set is checked in the prescription form when it is opened for editing, with its warnings shown the same as on a single prescription.
+
+### Adding ongoing medications to an encounter
+
+- In the "Add ongoing medications" modal, each medication's quantity is checked, and its warning appears below the input in the "Discharge qty" column of that medication's row.
+- Each medication's dose amount is checked, and its warning appears below the dose in the "Dose" column.
+- A medication's warnings show whether or not it is selected.
+- The dose cannot be edited in this modal, so a dose warning stays on screen while the modal is open.
 
 ## Sending to pharmacy
 
@@ -66,5 +79,4 @@ Applies to the accepted range a drug can carry for its dose amount and for its d
 - Each item's quantity is checked against its drug's dispensing quantity range, and its warning appears below the input in the "Quantity" column of that item's row.
 - In the dispense list, only the quantity is checked.
 - When pharmacy modifies a prescription at dispense, the dose amount and dispensing quantity are checked in the "Modify prescription" form, with each warning below its field.
-
-<!-- TODO: Check whether the "Quantity" input in "Edit dispensed medication" is checked against the dispensing quantity range. -->
+- When a recorded dispense is edited in "Edit dispensed medication", its quantity is checked, and its warning appears below the input in the "Quantity" column.
