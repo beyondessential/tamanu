@@ -833,11 +833,26 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     currentPlan = plan;
     editing = null;
     $('e14-view-title').textContent = `Care plan: ${plan.name}`;
+    startTickSession();
     resetNoteForm();
     $('e14-view').hidden = false;
     renderView();
   };
+  // Ticks are logged once per modal session, as the net change since it opened
+  let tickBaseline = [];
+  const startTickSession = () => {
+    tickBaseline = currentPlan.items.map(item => ({ ...item }));
+  };
+  const logTicks = () => {
+    const doneBefore = new Map(tickBaseline.map(item => [item.text, item.done]));
+    const changes = currentPlan.items
+      .filter(item => doneBefore.has(item.text) && doneBefore.get(item.text) !== item.done)
+      .map(item => ({ text: item.text, done: item.done }));
+    if (changes.length) currentPlan.history.push({ kind: 'ticks', date: now(), changes });
+    startTickSession();
+  };
   const closeView = () => {
+    logTicks();
     $('e14-view').hidden = true;
   };
   $('e14-view').querySelector('[data-e14-close]').addEventListener('click', closeView);
@@ -955,6 +970,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
         items: plan.items,
         onBehalfOf: plan.onBehalfOf,
         onSave: ({ date, text, items, onBehalfOf }) => {
+          logTicks();
           const changes = metadataChanges(plan, { date, onBehalfOf });
           const isContentChanged = text !== plan.text || JSON.stringify(items) !== JSON.stringify(plan.items);
           Object.assign(plan, { date, text, items, onBehalfOf });
@@ -986,13 +1002,11 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     });
   };
 
-  // Ticking items on the saved main care plan saves as it happens
+  // Ticking items on the saved main care plan saves as it happens; the change log records it when the modal closes
   notesSection.addEventListener('change', event => {
     const item = event.target.closest('.e14-item');
     if (!item || event.target.type !== 'checkbox') return;
-    const ticked = currentPlan.items[Number(item.dataset.index)];
-    ticked.done = event.target.checked;
-    currentPlan.history.push({ kind: 'tick', date: now(), text: ticked.text, done: ticked.done });
+    currentPlan.items[Number(item.dataset.index)].done = event.target.checked;
     renderView();
   });
 
@@ -1023,7 +1037,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     closeMenus();
     if (isOpen) return;
     const note = openButton.dataset.note;
-    // Change log is offered once there is a change to show: an edit, or on the main care plan a tick or a deleted note
+    // Change log is offered once there is a change to show: an edit, or on the main care plan logged ticks or a deleted note
     const record = note === 'main' ? currentPlan : currentPlan.notes[Number(note)];
     const changeLog = record.history.length > 1 ? ['Change log'] : [];
     const actions = note === 'main' ? ['Edit', ...changeLog] : ['Edit', ...changeLog, 'Delete'];
@@ -1078,8 +1092,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     const entries = [...history]
       .reverse()
       .map(entry => {
-        if (entry.kind === 'tick') {
-          return changeLogEntry(`Initial Admin ${entry.date}`, `${entry.done ? 'Ticked' : 'Unticked'}: ${escapeHtml(entry.text)}`);
+        if (entry.kind === 'ticks') {
+          const lines = entry.changes.map(change => `<span class="e14-cl-change">${change.done ? 'Ticked' : 'Unticked'}: ${escapeHtml(change.text)}</span>`);
+          return changeLogEntry(`Initial Admin ${entry.date}`, lines.join(''));
         }
         if (entry.kind === 'noteDeleted') {
           return changeLogEntry(`Initial Admin ${entry.date}`, `Deleted note: ${escapeHtml(entry.text)}`);
