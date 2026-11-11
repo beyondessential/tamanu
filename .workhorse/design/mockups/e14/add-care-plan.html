@@ -790,8 +790,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   $('e14-add').querySelector('[data-e14-close]').addEventListener('click', closeAdd);
   // Buttons act on click rather than form submission, which a sandboxed viewer blocks
   $('e14-submit').addEventListener('click', () => {
-    if (carePlanInput.value === '') setError(carePlanRoot, 'Care plan is required');
-    if (textField.value.trim() === '') setError(textFieldRoot, 'Main care plan is required');
+    if (carePlanInput.value === '') setError(carePlanRoot, '*Required');
+    if (textField.value.trim() === '') setError(textFieldRoot, '*Required');
     if (carePlanInput.value === '' || textField.value.trim() === '') return;
     carePlans.push({
       id: String(Date.now()),
@@ -938,7 +938,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     saveButton.addEventListener('click', () => {
       const fieldRoot = isMain ? textBlock.querySelector('.e14-text-field') : textBlock;
       if (textarea.value.trim() === '') {
-        setError(fieldRoot, isMain ? 'Main care plan is required' : 'Content is required');
+        setError(fieldRoot, '*Required');
         return;
       }
       onSave({ date: dateField.querySelector('input').value, text: textarea.value.trim(), items: editor?.cleanedItems(), onBehalfOf: onBehalfOfInput.value });
