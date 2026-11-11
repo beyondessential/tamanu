@@ -184,13 +184,13 @@ The comments the branch adds or edits are judged as part of each survey: kept on
 
 ### Round 1
 
-Surveys: duplication, reuse, dead weight and comments (`refactor-r1-dup.md`); altitude and structure (`refactor-r1-altitude.md`). The altitude survey found the product code close to its floor: the `provisionFromCentral` seam, the `.catch` mappings onto the queued path and mobile's 503 detection inside `diagnoseProblem` (forced by `callWithBackoff`'s retry rule) are at the right altitude.
+Surveys: duplication, reuse, dead weight and comments; altitude and structure. The altitude survey found the product code close to its floor: the `provisionFromCentral` seam, the `.catch` mappings onto the queued path and mobile's 503 detection inside `diagnoseProblem` (forced by `callWithBackoff`'s retry rule) are at the right altitude.
 
 Do:
 - Central: `querySchema.parse` in place of `safeParse` plus `InvalidParameterError`, if a bare parse answers 400 (the sibling routes rely on it); the problem type becomes the siblings' `validation`, which no client reads. Table the route's answers; drop the route test that repeats the tick filter's unit test; drop the unused facility.
 - Facility: fold the shared ending of `runSyncSession` into one `completeSync`; one `whenCentralWakes(fallback)` per connection in place of two catches and `isCentralWaking`; pass `since` straight through (the query string drops undefined); drop the unused `index.js` re-export. Tests: one shared fake sync manager (giving the run-history block a check stub, which it relies on by luck today), hoisted connection setup, drop the subsumed "nothing changed" case.
 - Mobile: read `retry-after` through `AxiosHeaders.get` only; `whenCentralWakes` as on the facility; pass `since` straight through. Tests: table the check cases, reuse `setSyncTick`, `LAST_SUCCESSFUL_PULL` and `SYNC_EVENT_ACTIONS`.
-- Comments: apply the verdicts in `refactor-r1-dup.md`, including three that are wrong (the `/:sessionId` capture claim, "stubs sort below every real tick", and "every sync that reached central").
+- Comments: trim to reasons the code cannot show, and correct three that are wrong (the `/:sessionId` capture claim, "stubs sort below every real tick", and "every sync that reached central").
 
 Leave:
 - `SyncLookup.max()` for the raw query: the explicit `ORDER BY … LIMIT 1` states the index walk the spec relies on, and nothing else in the repo uses `Model.max`.
@@ -208,7 +208,7 @@ Outcome: product code +299 −25 → +276 −26 (net 274 → 250), tests +745 �
 
 ### Round 2
 
-Fresh surveys (`refactor-r2-survey.md`, `refactor-r2-altitude.md`) found the product code at its floor in all three runtimes, with the remaining gap in two test files.
+Fresh surveys found the product code at its floor in all three runtimes, with the remaining gap in two test files.
 
 Do:
 - Facility: fold `provisionFromCentral` into `completeSync`, its only caller. In the manager's changes-pending tests, merge the two that pin one nothing-to-pull run, and fold the standalone cursor test into the adjacent table. The PSK test stays apart, as provisioning changes for its own reasons. Cut the comment on `whenCentralWakes` that restates it.
