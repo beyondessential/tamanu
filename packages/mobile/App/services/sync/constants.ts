@@ -10,5 +10,5 @@ export const CURRENT_SYNC_TIME = 'currentSyncTick';
 export const LAST_SUCCESSFUL_PUSH = 'lastSuccessfulSyncPush';
 export const LAST_SUCCESSFUL_PULL = 'lastSuccessfulSyncPull';
 
-// This default is duplicated in the central settings schema mobileSync.networkRetryBudget
-export const DEFAULT_SYNC_NETWORK_RETRY_BUDGET_MS = 10 * 60 * 1000;
+// This default is duplicated in the central settings schema mobileSync.maxUnreachableDuration
+export const DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS = 10 * 60 * 1000;

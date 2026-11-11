@@ -36,7 +36,7 @@ const mobileSyncSettings = {
     maxLimitChangePerPage: 0.3,
     optimalTimePerPage: 500,
   },
-  networkRetryBudget: 600_000,
+  maxUnreachableDuration: 600_000,
 } as const satisfies MobileSyncSettings;
 
 const generateExistingRecord = (id, data = {}) => ({

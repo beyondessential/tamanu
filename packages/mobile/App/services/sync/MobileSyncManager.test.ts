@@ -52,7 +52,7 @@ describe('MobileSyncManager', () => {
         maxLimitChangePerPage: 0.3,
         optimalTimePerPage: 500,
       },
-      networkRetryBudget: 600000,
+      maxUnreachableDuration: 600_000,
     }),
   };
   let mobileSyncManager;
