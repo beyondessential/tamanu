@@ -221,9 +221,9 @@ test.describe('Medication - Encounter', () => {
       discontinuedStat.name,
     ]);
     for (const statRow of [rows.nth(0), rows.nth(1), rows.nth(3)]) {
-      await expect(statRow.getByText('STAT', { exact: true })).toBeVisible();
+      await expect(marPage.statLabel(statRow)).toBeVisible();
     }
-    await expect(rows.nth(2).getByText('STAT', { exact: true })).toBeHidden();
+    await expect(marPage.statLabel(rows.nth(2))).toBeHidden();
   });
 
   test('Send prescription to pharmacy', async ({ page, api, newPatient, patientDetailsPage }) => {

@@ -186,7 +186,7 @@ export const MarTableRow = ({
               </PharmacyNote>
             </div>
             {isStat && (
-              <StatPill>
+              <StatPill data-testid="mar-stat">
                 <TranslatedText stringId="medication.mar.stat.label" fallback="STAT" />
               </StatPill>
             )}

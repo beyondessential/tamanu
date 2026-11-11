@@ -13,6 +13,10 @@ export class MarPage {
       .filter({ has: page.getByTestId('mar-dosage') });
   }
 
+  statLabel(row: Locator): Locator {
+    return row.getByTestId('mar-stat');
+  }
+
   async waitForPageToLoad(): Promise<void> {
     await this.scheduledMedicationRows.first().waitFor({ state: 'visible' });
   }
