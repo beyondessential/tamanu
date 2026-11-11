@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+import {
+  getDispensingQuantityLimitBreach,
+  getDrugUnitLabel,
+} from '@tamanu/shared/utils/medication';
 import {
   AutocompleteInput,
   BaseModal,
@@ -45,6 +48,7 @@ import { MenuButton } from '../MenuButton';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import { TableFormFields } from '../Table/TableFormFields';
 import { BodyText } from '../Typography';
+import { renderLimitWarning } from './MedicationLimitWarning';
 import { ModifyPrescriptionModal } from './ModifyPrescriptionModal';
 
 const MODAL_STEPS = /** @type {const} */ ({
@@ -643,7 +647,8 @@ export const DispenseMedicationWorkflowModal = memo(
           ),
           accessor: (item, rowIndex) => {
             const { id, quantity, selected } = item;
-            const dispensingUnit = getEffectivePrescription(item)?.dispensingUnit;
+            const effectivePrescription = getEffectivePrescription(item);
+            const dispensingUnit = effectivePrescription?.dispensingUnit;
             const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
             return (
               <QuantityInput
@@ -662,7 +667,14 @@ export const DispenseMedicationWorkflowModal = memo(
                 helperText={
                   showValidationErrors && hasQuantityError
                     ? getTranslation('validation.required.inline', '*Required')
-                    : ''
+                    : // spec: DQLIM#dispensing
+                      renderLimitWarning(
+                        getDispensingQuantityLimitBreach(
+                          quantity,
+                          effectivePrescription?.medication?.referenceDrug,
+                        ),
+                        dispensingUnit,
+                      )
                 }
               />
             );

@@ -1,4 +1,4 @@
-import { DRUG_STOCK_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { DRUG_LIMIT_FIELDS, DRUG_STOCK_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
 
 export class DrugExporter extends ReferenceDataExporter {
@@ -34,6 +34,10 @@ export class DrugExporter extends ReferenceDataExporter {
         unitConversion: drug.referenceDrug?.unitConversion,
         notes: drug.referenceDrug?.notes,
         isSensitive: drug.referenceDrug?.isSensitive,
+        // spec: DQLIM#configuring-limits
+        ...Object.fromEntries(
+          DRUG_LIMIT_FIELDS.map(field => [field, drug.referenceDrug?.[field] ?? null]),
+        ),
       };
 
       for (const facilityId of allFacilityIds) {

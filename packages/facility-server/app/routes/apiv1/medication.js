@@ -25,6 +25,7 @@ import {
   DRUG_STOCK_STATUSES,
   SYSTEM_USER_UUID,
   PHARMACY_PRESCRIPTION_TYPES,
+  DRUG_LIMIT_FIELDS,
 } from '@tamanu/constants';
 import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
@@ -2296,7 +2297,7 @@ medication.get(
                   include: {
                     model: models.ReferenceDrug,
                     as: 'referenceDrug',
-                    attributes: ['id', 'isSensitive'],
+                    attributes: ['id', 'isSensitive', ...DRUG_LIMIT_FIELDS],
                     required: true,
                   },
                 },
@@ -2326,7 +2327,7 @@ medication.get(
           include: {
             model: models.ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['id', 'isSensitive'],
+            attributes: ['id', 'isSensitive', ...DRUG_LIMIT_FIELDS],
             required: false,
           },
         },
@@ -2700,7 +2701,7 @@ medication.get(
                 {
                   model: models.ReferenceDrug,
                   as: 'referenceDrug',
-                  attributes: ['id', 'isSensitive'],
+                  attributes: ['id', 'isSensitive', ...DRUG_LIMIT_FIELDS],
                   required: true,
                   include: [
                     {

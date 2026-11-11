@@ -28,6 +28,8 @@ import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
   getDefaultIdealTimes,
+  getDispensingQuantityLimitBreach,
+  getDoseLimitBreach,
   getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
@@ -66,6 +68,7 @@ import {
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
 import { DispensingQuantityAutocalculator } from '../components/Medication/DispensingQuantityAutocalculator';
+import { renderLimitWarning } from '../components/Medication/MedicationLimitWarning';
 import { prescriptionClinicalValidation } from '../components/Medication/prescriptionValidation';
 import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
@@ -670,6 +673,9 @@ export const MedicationForm = ({
   const [selectedDrug, setSelectedDrug] = useState(null);
   const drugQuantity = selectedDrug?.facilities?.[0]?.quantity;
   const drugStockStatus = selectedDrug?.facilities?.[0]?.stockStatus;
+  // spec: DQLIM#prescribing
+  // A medication set item is edited with its drug fixed, so its limits come with the item.
+  const drugLimits = selectedDrug ?? editingMedication?.medication?.referenceDrug;
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -1028,6 +1034,10 @@ export const MedicationForm = ({
                     ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation)
                     : undefined
                 }
+                helperText={renderLimitWarning(
+                  getDoseLimitBreach(values.doseAmount, drugLimits),
+                  values.dosingUnit,
+                )}
                 data-testid="medication-field-doseAmount-3t6w"
               />
               <Field
@@ -1259,6 +1269,10 @@ export const MedicationForm = ({
                     ? getDrugUnitLabel(dispensingUnit, values.quantity, getEnumTranslation)
                     : undefined
                 }
+                helperText={renderLimitWarning(
+                  getDispensingQuantityLimitBreach(values.quantity, drugLimits),
+                  dispensingUnit,
+                )}
                 data-testid="medication-field-quantity-6j9m"
               />
               {isDispensingQuantityAutocalculationEnabled && (

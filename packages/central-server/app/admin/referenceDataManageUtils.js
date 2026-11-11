@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { upperFirst } from 'es-toolkit/compat';
 import {
   ADMINISTRATION_FREQUENCIES,
+  DRUG_LIMIT_FIELDS,
   DRUG_ROUTE_VALUES,
   DRUG_UNIT_VALUES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
@@ -17,6 +18,8 @@ import {
   TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
+import { validateDrugLimits } from '@tamanu/shared/utils/medication';
+import { getTemplateDoseLimitError } from './referenceDataImporter/loaders';
 
 // Some reference data types have a value stored as a ReferenceDataRelation (parent = this record,
 // child = another reference-data record) rather than a column. The manage UI surfaces it as a
@@ -42,6 +45,9 @@ const DETAIL_ASSOCIATIONS = {
 
 // Owned by the association, never edited as a field.
 const DETAIL_INTERNAL_COLUMNS = new Set(['id', 'referenceDataId']);
+
+// Sequelize data type names (as buildColumns reports them) that the web form edits as a number.
+const NUMERIC_COLUMN_TYPES = new Set(['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL']);
 
 export const getDetailAssociation = type => DETAIL_ASSOCIATIONS[type] ?? null;
 
@@ -370,6 +376,32 @@ export const splitWritableData = (columns, data, isEditMode) => ({
   detail: getWritableData(columns.filter(c => c.detail), data, isEditMode),
 });
 
+/**
+ * spec: DQLIM#configuring-limits, DQLIM#medication-sets
+ * Applies the importer's dose and dispensing quantity limit rules when a record is saved here:
+ * a drug's own limits, and a medication template's dose against its drug's dose limits.
+ * `detail` holds the values being written; `existingDetail` is the stored detail row on update,
+ * which supplies any value the request leaves out (such as a template's drug, fixed on edit).
+ */
+export const assertValidDrugLimits = async (models, type, detail, existingDetail) => {
+  const valueOf = key => (key in detail ? detail[key] : existingDetail?.[key]);
+
+  if (type === REFERENCE_TYPES.DRUG) {
+    const errors = validateDrugLimits(
+      Object.fromEntries(DRUG_LIMIT_FIELDS.map(f => [f, valueOf(f)])),
+    );
+    if (errors.length > 0) throw new InvalidOperationError(`${errors.join('. ')}.`);
+  }
+
+  if (type === REFERENCE_TYPES.MEDICATION_TEMPLATE) {
+    const medicationId = valueOf('medicationId');
+    if (!medicationId) return;
+    const doseAmount = valueOf('isVariableDose') ? null : valueOf('doseAmount');
+    const error = await getTemplateDoseLimitError(models, medicationId, doseAmount);
+    if (error) throw new InvalidOperationError(error);
+  }
+};
+
 export const assertValidType = type => {
   if (!type) {
     throw new InvalidOperationError('type is required in request body');
@@ -390,13 +422,16 @@ export const getWritableData = (columns, data, isEditMode) => {
   // so drop it and let the column default apply. Writing '' would override the default, and a
   // numeric column rejects it outright.
   const shouldUseDefault = col => !isEditMode && col.hasDefault && data[col.key] === '';
+  // Otherwise a cleared number means no value at all, such as an unset drug limit, so store null.
+  const isClearedNullableNumber = col =>
+    col.allowNull && NUMERIC_COLUMN_TYPES.has(col.type) && data[col.key] === '';
 
   const writableData = {};
   for (const col of columns) {
     if (!(col.key in data)) continue;
     if (!isWritable(col)) continue;
     if (shouldUseDefault(col)) continue;
-    writableData[col.key] = data[col.key];
+    writableData[col.key] = isClearedNullableNumber(col) ? null : data[col.key];
   }
   return writableData;
 };

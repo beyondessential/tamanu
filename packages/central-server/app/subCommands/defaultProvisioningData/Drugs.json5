@@ -6,7 +6,11 @@
     "name",
     "dosingUnit",
     "dispensingUnit",
-    "unitConversion"
+    "unitConversion",
+    "doseMin",
+    "doseMax",
+    "dispensingQuantityMin",
+    "dispensingQuantityMax"
   ],
   "data": [
     {
@@ -95,7 +99,11 @@
       "name": "Aluminium 600mg Tablets",
       "dosingUnit": "Tablet",
       "dispensingUnit": "Pack",
-      "unitConversion": 30
+      "unitConversion": 30,
+      "doseMin": 1,
+      "doseMax": 2,
+      "dispensingQuantityMin": 1,
+      "dispensingQuantityMax": 4
     },
     {
       "id": "drug-amiodaronehcl100",
@@ -183,7 +191,11 @@
       "name": "Amoxicillin 500mg Capsules",
       "dosingUnit": "Capsule",
       "dispensingUnit": "Blister Pack",
-      "unitConversion": 10
+      "unitConversion": 10,
+      "doseMin": 1,
+      "doseMax": 2,
+      "dispensingQuantityMin": 1,
+      "dispensingQuantityMax": 3
     },
     {
       "id": "drug-amoxicillinclavulanic2506255",
@@ -743,7 +755,11 @@
       "name": "Clarithromycin 500mg Tablets",
       "dosingUnit": "Tablet",
       "dispensingUnit": "Blister Pack",
-      "unitConversion": 10
+      "unitConversion": 10,
+      "doseMin": 1,
+      "doseMax": 1,
+      "dispensingQuantityMin": 1,
+      "dispensingQuantityMax": 2
     },
     {
       "id": "drug-clindamycin150",
@@ -2487,7 +2503,11 @@
       "name": "Paracetamol 500mg Tablets",
       "dosingUnit": "Tablet",
       "dispensingUnit": "Pack",
-      "unitConversion": 30
+      "unitConversion": 30,
+      "doseMin": 1,
+      "doseMax": 2,
+      "dispensingQuantityMin": 1,
+      "dispensingQuantityMax": 4
     },
     {
       "id": "drug-paroxetinehcl20",
@@ -3471,7 +3491,10 @@
       "name": "drug-oxycodone10",
       "dosingUnit": "Tablet",
       "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "unitConversion": 1,
+      "doseMin": 1,
+      "doseMax": 2,
+      "dispensingQuantityMax": 20
     }
   ]
 }
