@@ -127,5 +127,18 @@ describe('callWithBackoff', () => {
       await expect(promise).rejects.toBe(error);
       expect(fn.mock.calls).toHaveLength(1);
     });
+
+    it('limits recoverable errors from a reachable remote to maxAttempts', async () => {
+      // arrange
+      const config = { maxRetryDurationMs: 10000, maxAttempts: 3, maxWaitMs: 1, multiplierMs: 1 };
+      const fn = jest.fn(() => Promise.reject(new RateLimitedError(0, 'slow down')));
+
+      // act
+      const promise = callWithBackoff(fn, config);
+
+      // assert
+      await expect(promise).rejects.toBeInstanceOf(RateLimitedError);
+      expect(fn.mock.calls).toHaveLength(config.maxAttempts);
+    });
   });
 });

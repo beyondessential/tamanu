@@ -28,8 +28,13 @@ export const pushOutgoingChanges = async (
   while (startOfPage < changes.length) {
     const endOfPage = Math.min(startOfPage + limit, changes.length);
     const page = changes.slice(startOfPage, endOfPage);
-    const startTime = Date.now();
-    await centralServer.push(sessionId, page, maxUnreachableDuration);
+    // time only the attempt that succeeds, so retrying through a network drop doesn't look like a
+    // slow page to the dynamic limiter
+    let startTime = Date.now();
+    const onAttempt = () => {
+      startTime = Date.now();
+    };
+    await centralServer.push(sessionId, page, maxUnreachableDuration, onAttempt);
     const endTime = Date.now();
 
     startOfPage = endOfPage;
