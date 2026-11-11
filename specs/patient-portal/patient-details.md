@@ -37,7 +37,7 @@ Your details, on the dashboard (see `patient-portal/overview.md`), shows the sig
 
 ## Validation
 
-- [ ] A field the deployment has configured as required is marked as required, and the details can't be saved while it is blank, including when it was already blank before editing.
+- [ ] A field the deployment has configured as required patient data (`fields.<field>.requiredPatientData`, the setting Patient details in Tamanu uses) is marked as required, and the details can't be saved while it is blank, including when it was already blank before editing.
 - [ ] Email must be a valid email address.
 - [ ] Mobile phone, Other phone and emergency contact Phone accept only digits, spaces, a leading plus sign, hyphens and brackets.
 - [ ] Formats are checked only on details the patient changed, so a value recorded by staff in another format doesn't stop the patient saving the rest.

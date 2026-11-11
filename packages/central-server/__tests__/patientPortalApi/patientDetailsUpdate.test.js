@@ -136,7 +136,7 @@ describe('Patient Portal: updating patient details', () => {
 
   it('keeps required details from being cleared, and hidden ones from being changed', async () => {
     await store.models.Setting.set('fields', {
-      primaryContactNumber: { required: true },
+      primaryContactNumber: { requiredPatientData: true },
       occupationId: { hidden: true },
     });
     settingsCache.reset();
@@ -147,7 +147,9 @@ describe('Patient Portal: updating patient details', () => {
   });
 
   it('refuses a save while a required detail is still blank, even one not being changed', async () => {
-    await store.models.Setting.set('fields', { emergencyContactName: { required: true } });
+    await store.models.Setting.set('fields', {
+      emergencyContactName: { requiredPatientData: true },
+    });
     settingsCache.reset();
 
     expect(await updateDetails({ cityTown: 'Apia' })).toHaveRequestError();
@@ -155,6 +157,13 @@ describe('Patient Portal: updating patient details', () => {
       await updateDetails({ cityTown: 'Apia', emergencyContactName: 'Losa Lavea' }),
     ).toHaveSucceeded();
     expect(await updateDetails({ cityTown: 'Lalomanu' })).toHaveSucceeded();
+  });
+
+  it('ignores the generic required flag, which patient details do not use', async () => {
+    await store.models.Setting.set('fields', { cityTown: { required: true } });
+    settingsCache.reset();
+
+    expect(await updateDetails({ cityTown: '' })).toHaveSucceeded();
   });
 
   it('rejects a request without a portal sign-in', async () => {

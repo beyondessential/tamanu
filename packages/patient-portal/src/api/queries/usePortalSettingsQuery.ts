@@ -3,7 +3,7 @@ import { useApi } from '../useApi';
 
 export interface FieldSetting {
   hidden?: boolean;
-  required?: boolean;
+  requiredPatientData?: boolean;
 }
 
 /** The deployment's settings that apply everywhere in the portal, like which fields it uses. */
