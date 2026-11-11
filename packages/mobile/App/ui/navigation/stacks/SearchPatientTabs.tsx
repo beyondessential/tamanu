@@ -83,7 +83,7 @@ interface SearchPatientTabsProps extends WithPatientStoreProps {
   routingFrom: (typeof PatientFromRoute)[keyof typeof PatientFromRoute];
 }
 
-const DumbSearchPatientTabs = ({
+export const DumbSearchPatientTabs = ({
   navigation,
   routingFrom,
   setSelectedPatient,
