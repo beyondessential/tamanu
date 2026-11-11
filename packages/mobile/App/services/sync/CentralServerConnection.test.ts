@@ -112,13 +112,13 @@ describe('CentralServerConnection', () => {
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
     });
 
-    it('does not retry starting the session when the connection drops', async () => {
-      mockAxiosRequest.mockRejectedValueOnce(networkError());
+    it('retries starting the session a few times when the connection drops, then gives up', async () => {
+      mockAxiosRequest.mockRejectedValue(networkError());
 
       await expect(
         centralServerConnection.startSyncSession({ urgent: false, lastSyncedTick: -1 }),
       ).rejects.toBeInstanceOf(RemoteUnreachableError);
-      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(3);
     });
   });
   describe('initiatePull', () => {
