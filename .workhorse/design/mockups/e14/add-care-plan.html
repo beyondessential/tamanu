@@ -471,6 +471,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .e14-card-header { align-items: center; padding: 12px 16px; }
 .e14-main-title { margin: 0; font-family: Roboto; font-size: 16px; font-weight: 500; line-height: 20px; color: #444444; /* Colors.darkestText */ }
 .e14-note-title { margin: 0; font-family: Roboto; font-size: 14px; font-weight: 500; line-height: 18px; color: #444444; /* Colors.darkestText */ }
+.e14-card-heading-inline { display: flex; align-items: baseline; gap: 4px; }
+.e14-card-heading-inline .e14-card-meta { margin-top: 0; }
 .e14-card-meta { margin-top: 2px; font-size: 14px; line-height: 18px; color: #888888; /* Colors.midText */ }
 .e14-menu { padding: 5px; color: #888888; }
 .e14-menu svg { width: 24px; height: 24px; fill: currentColor; }
@@ -804,9 +806,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 
   const menuButton = note =>
     `<div class="e14-row e14-menu-host"><button type="button" class="MuiButtonBase-root MuiIconButton-root e14-menu" aria-label="Note actions" aria-haspopup="menu" data-note="${note}">${MORE_HORIZ}</button></div>`;
-  // Both card kinds share a two-line header: a heading, then who and when in grey
-  const cardHeader = ({ title, titleClass, meta, note }) =>
-    `<div class="e14-note-header e14-card-header"><div><h3 class="${titleClass}">${title}</h3><div class="e14-card-meta">${meta}</div></div>${menuButton(note)}</div>`;
+  // Both card kinds share a header: a heading, then who and when in grey. The main care plan's
+  // sits on two lines beneath its title; a note's runs on from the author on one line
+  const cardHeader = ({ title, titleClass, meta, note, isInline = false }) =>
+    `<div class="e14-note-header e14-card-header"><div${isInline ? ' class="e14-card-heading-inline"' : ''}><h3 class="${titleClass}">${title}</h3><div class="e14-card-meta">${meta}</div></div>${menuButton(note)}</div>`;
   const metaLine = (...parts) => parts.filter(Boolean).join('<span aria-hidden="true"> · </span>');
   const noteCard = ({ date, content, isMain, noteIndex, onBehalfOf }) => {
     const onBehalfOfText = onBehalfOf ? `on behalf of ${escapeHtml(onBehalfOf)}` : '';
@@ -815,8 +818,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       : cardHeader({
           title: 'Initial Admin',
           titleClass: 'e14-note-title',
-          meta: metaLine(onBehalfOfText.replace(/^on/, 'On'), date),
+          meta: onBehalfOfText ? metaLine(onBehalfOfText, date) : `<span aria-hidden="true">· </span>${date}`,
           note: noteIndex,
+          isInline: true,
         });
     return `<div class="e14-note">${header}${content}</div>`;
   };
