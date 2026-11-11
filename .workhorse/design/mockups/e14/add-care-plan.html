@@ -528,7 +528,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 /* E14: note actions menu, after MenuButton */
 .e14-menu-host { position: relative; }
 .e14-menu-list { position: absolute; top: 100%; right: 0; z-index: 10; min-width: 112px; margin: 0; padding: 3px; list-style: none; background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 3px; }
-.e14-menu-item { display: block; width: 100%; padding: 6px 16px; border: 0; background: none; text-align: left; font-family: Roboto; font-size: 1rem; line-height: 1.5; color: #444444; cursor: pointer; }
+.e14-menu-item { display: block; width: 100%; white-space: nowrap; padding: 6px 16px; border: 0; background: none; text-align: left; font-family: Roboto; font-size: 1rem; line-height: 1.5; color: #444444; cursor: pointer; }
 .e14-menu-item:hover { background: rgba(0, 0, 0, 0.04); }
 /* E14: edit form in place of a note, after EditableNoteFormContainer */
 .e14-edit-form { margin: 2rem 0; }
@@ -941,8 +941,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
         items: plan.items,
         onBehalfOf: plan.onBehalfOf,
         onSave: ({ date, text, items, onBehalfOf }) => {
+          const hasChanged =
+            text !== plan.text || onBehalfOf !== (plan.onBehalfOf ?? '') || JSON.stringify(items) !== JSON.stringify(plan.items);
           Object.assign(plan, { date, text, items, onBehalfOf });
-          plan.history.push({ kind: 'version', date: now(), onBehalfOf, text, items: items.map(item => ({ ...item })) });
+          if (hasChanged) plan.history.push({ kind: 'version', date: now(), onBehalfOf, text, items: items.map(item => ({ ...item })) });
         },
       }));
     } else {
@@ -956,8 +958,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
           text: note.text,
           onBehalfOf: note.onBehalfOf,
           onSave: ({ date, text, onBehalfOf }) => {
+            const hasChanged = text !== note.text || onBehalfOf !== (note.onBehalfOf ?? '');
             Object.assign(note, { date, text, onBehalfOf });
-            note.history.push({ date: now(), onBehalfOf, text });
+            if (hasChanged) note.history.push({ date: now(), onBehalfOf, text });
           },
         }));
       } else {
@@ -1002,7 +1005,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     closeMenus();
     if (isOpen) return;
     const note = openButton.dataset.note;
-    const actions = note === 'main' ? ['Edit', 'Change log'] : ['Edit', 'Change log', 'Delete'];
+    // Change log is offered once there is a change to show: an edit, or a tick on the main care plan
+    const record = note === 'main' ? currentPlan : currentPlan.notes[Number(note)];
+    const changeLog = record.history.length > 1 ? ['Change log'] : [];
+    const actions = note === 'main' ? ['Edit', ...changeLog] : ['Edit', ...changeLog, 'Delete'];
     openButton.insertAdjacentHTML(
       'afterend',
       `<ul class="e14-menu-list" role="menu">${actions
