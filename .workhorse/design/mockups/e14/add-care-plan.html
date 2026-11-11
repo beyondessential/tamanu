@@ -548,6 +548,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .e14-cl-entry-info { margin-top: 5px; font-size: 11px; font-weight: 500; line-height: 15px; color: #b8b8b8; /* Colors.softText */ }
 .e14-cl-entry-content { font-size: 14px; line-height: 18px; color: #444444; /* Colors.darkestText */ white-space: pre-line; }
 .e14-cl-entry-divider { margin-top: 10px; }
+.e14-cl-change { display: block; }
+.e14-cl-change + .e14-cl-content { display: block; margin-top: 6px; }
 .e14-cl-items { margin: 6px 0 0; padding: 0; list-style: none; }
 .e14-cl-items li { display: flex; gap: 8px; align-items: baseline; white-space: normal; }
 .e14-cl-items i { font-size: 13px; color: #888888; /* Colors.midText */ }
@@ -708,7 +710,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     input.closest('[role="combobox"]').classList.add('e14-suggest-host');
     input.closest('.MuiFormControl-root').after(list);
     const show = () => {
-      const query = input.value.trim().toLowerCase();
+      // A field already holding a choice offers every option, so it can be changed
+      const query = options.includes(input.value) ? '' : input.value.trim().toLowerCase();
       const matches = options.filter(option => option.toLowerCase().includes(query));
       list.innerHTML = matches.map(option => `<li role="option">${escapeHtml(option)}</li>`).join('');
       list.hidden = matches.length === 0;
@@ -922,6 +925,17 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     return { form, afterMount: () => editor?.set(items ?? []) };
   };
 
+  // An edit to who a record is on behalf of, or its date recorded, is logged as that change on its own
+  const describeChange = (field, from, to) => {
+    if (!from) return `${field} set to ${escapeHtml(to)}`;
+    if (!to) return `${field} removed (was ${escapeHtml(from)})`;
+    return `${field} changed from ${escapeHtml(from)} to ${escapeHtml(to)}`;
+  };
+  const metadataChanges = (record, { date, onBehalfOf }) => [
+    ...(onBehalfOf !== (record.onBehalfOf ?? '') ? [describeChange('On behalf of', record.onBehalfOf ?? '', onBehalfOf)] : []),
+    ...(date !== record.date ? [describeChange('Date recorded', record.date, date)] : []),
+  ];
+
   const renderView = () => {
     const plan = currentPlan;
     notesSection.innerHTML = '';
@@ -941,10 +955,12 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
         items: plan.items,
         onBehalfOf: plan.onBehalfOf,
         onSave: ({ date, text, items, onBehalfOf }) => {
-          const hasChanged =
-            text !== plan.text || onBehalfOf !== (plan.onBehalfOf ?? '') || JSON.stringify(items) !== JSON.stringify(plan.items);
+          const changes = metadataChanges(plan, { date, onBehalfOf });
+          const isContentChanged = text !== plan.text || JSON.stringify(items) !== JSON.stringify(plan.items);
           Object.assign(plan, { date, text, items, onBehalfOf });
-          if (hasChanged) plan.history.push({ kind: 'version', date: now(), onBehalfOf, text, items: items.map(item => ({ ...item })) });
+          if (changes.length || isContentChanged) {
+            plan.history.push({ kind: 'version', date: now(), onBehalfOf, text, items: items.map(item => ({ ...item })), changes, isContentChanged });
+          }
         },
       }));
     } else {
@@ -958,9 +974,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
           text: note.text,
           onBehalfOf: note.onBehalfOf,
           onSave: ({ date, text, onBehalfOf }) => {
-            const hasChanged = text !== note.text || onBehalfOf !== (note.onBehalfOf ?? '');
+            const changes = metadataChanges(note, { date, onBehalfOf });
+            const isContentChanged = text !== note.text;
             Object.assign(note, { date, text, onBehalfOf });
-            if (hasChanged) note.history.push({ date: now(), onBehalfOf, text });
+            if (changes.length || isContentChanged) note.history.push({ date: now(), onBehalfOf, text, changes, isContentChanged });
           },
         }));
       } else {
@@ -1068,7 +1085,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
           return changeLogEntry(`Initial Admin ${entry.date}`, `Deleted note: ${escapeHtml(entry.text)}`);
         }
         const by = `Initial Admin ${entry.onBehalfOf ? `on behalf of ${escapeHtml(entry.onBehalfOf)} ` : ''}${entry.date}`;
-        return changeLogEntry(by, `<span>${escapeHtml(entry.text)}</span>${isMain ? problemListSnapshot(entry.items) : ''}`);
+        const changeLines = (entry.changes ?? []).map(line => `<span class="e14-cl-change">${line}</span>`).join('');
+        const fullContent = entry.isContentChanged === false ? '' : `<span class="e14-cl-content">${escapeHtml(entry.text)}</span>${isMain ? problemListSnapshot(entry.items) : ''}`;
+        return changeLogEntry(by, changeLines + fullContent);
       })
       .join('');
     $('e14-changelog-body').innerHTML =
