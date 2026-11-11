@@ -71,8 +71,9 @@ export const SearchInput: FC<SearchInputProps> = ({
           editable={!disabled}
           value={value}
           placeholder={placeholder}
-          placeholderTextColor={focus ? theme.colors.TEXT_MID : 'transparent'}
-          style={focus ? undefined : { color: 'transparent' }}
+          placeholderTextColor={theme.colors.TEXT_MID}
+          // Android doesn't repaint existing text when the colour changes, so hide the whole view
+          style={focus ? undefined : { opacity: 0 }}
           onChangeText={onChange}
         />
         {!focus && (
