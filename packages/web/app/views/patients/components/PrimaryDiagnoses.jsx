@@ -71,7 +71,9 @@ const Label = styled.span`
   color: ${Colors.darkText};
 `;
 
-// A name too long for the panel is cut off rather than spilling past its border.
+// A name too long for the panel is cut off rather than spilling past its border. Cutting off what
+// spills past its start also hides the divider before each line's first item, so dividers only
+// separate items on the same line.
 const List = styled.ul.attrs({ role: 'list' })`
   flex: 1;
   min-width: 0;
@@ -79,17 +81,28 @@ const List = styled.ul.attrs({ role: 'list' })`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 24px;
+  gap: 6px 25px;
   margin: 0;
   padding: 0;
   list-style: none;
 `;
 
+// Divided from the item before it by a line in the middle of the gap between them.
 const Item = styled.li`
+  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -13px;
+    border-left: 1px solid ${Colors.outline};
+  }
 `;
 
 const DiagnosisName = styled.span`
