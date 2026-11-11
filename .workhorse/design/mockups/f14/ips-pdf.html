@@ -1,0 +1,144 @@
+<!-- spec: none yet (card F14, IPS PDF download) -->
+<!-- Layout follows the shared patient PDFs in packages/shared/src/utils/patientCertificates (LetterheadSection, DataSection, Table, Footer) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>International Patient Summary PDF</title>
+<style>
+/* PDF viewer surround */
+html, body { margin: 0; }
+body { background: #525659; padding: 24px 0 48px; font-family: Helvetica, Arial, sans-serif; color: #222222; }
+
+/* A4 page, in points to match react-pdf (styles.page: padding 30 30 0 30) */
+.page { position: relative; box-sizing: border-box; width: 595pt; min-height: 842pt; margin: 0 auto; padding: 30pt 30pt 60pt; background: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+
+/* LetterheadSection */
+.letterhead { position: relative; min-height: 60pt; }
+.logo { position: absolute; top: 0; left: 0; width: 120pt; height: 60pt; box-sizing: border-box; border: 1px dashed #b8b8b8; display: flex; align-items: center; justify-content: center; font-size: 8pt; color: #888888; }
+.address { text-align: right; font-size: 14pt; font-weight: 700; line-height: 1.2; margin: 0 0 13pt; white-space: pre-line; }
+.doc-title { text-align: right; font-size: 18pt; font-weight: 700; margin: 0 0 14pt; }
+
+/* CertificateContent / section spacing */
+.content { margin: 0 18pt; }
+.section { margin: 7pt 0; }
+
+/* DataSection */
+.data-title { font-size: 11pt; font-weight: 700; margin: 0 0 3pt; }
+.rule { border-bottom: 0.5pt solid #000000; margin: 3pt 0; }
+.data-row { display: flex; }
+.data-col { width: 50%; }
+.data-item { font-size: 9pt; margin: 3pt 0; }
+.data-item b { font-weight: 700; }
+
+/* Table */
+.table-title { font-size: 11pt; font-weight: 700; margin: 0 0 3pt; }
+table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+th, td { border: 1pt solid #000000; padding: 3pt; text-align: left; vertical-align: top; }
+th { font-weight: 700; }
+
+/* Footer */
+.footer { position: absolute; left: 50pt; right: 50pt; bottom: 25pt; display: flex; justify-content: space-between; border-top: 1px solid #888888; padding-top: 2pt; color: #888888; font-size: 8pt; }
+.footer b { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="letterhead">
+    <div class="logo">Letterhead logo</div>
+    <p class="address">Ministry of Health
+PO Box 1234, Suva</p>
+    <p class="doc-title">International Patient Summary</p>
+  </div>
+
+  <div class="content">
+    <div class="section">
+      <p class="data-title">Patient details</p>
+      <div class="rule"></div>
+      <div class="data-row">
+        <div class="data-col">
+          <p class="data-item"><b>First name: </b>Julian</p>
+          <p class="data-item"><b>Last name: </b>Abbott</p>
+          <p class="data-item"><b>DOB: </b>13/05/1993 (33 years)</p>
+          <p class="data-item"><b>Address: </b>14 Ratu Sukuna Road, Suva</p>
+        </div>
+        <div class="data-col">
+          <p class="data-item"><b>Patient ID: </b>E1E293997833</p>
+          <p class="data-item"><b>Sex: </b>Male</p>
+          <p class="data-item"><b>Contact number: </b>+679 331 2045</p>
+        </div>
+      </div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="section">
+      <p class="data-title">Summary details</p>
+      <div class="rule"></div>
+      <div class="data-row">
+        <div class="data-col">
+          <p class="data-item"><b>Date generated: </b>11/11/2026 2:15 PM</p>
+          <p class="data-item"><b>Author: </b>Tamanu, Initial Admin</p>
+        </div>
+        <div class="data-col">
+          <p class="data-item"><b>Attested by: </b>Ministry of Health</p>
+        </div>
+      </div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="section">
+      <p class="table-title">Medications</p>
+      <table>
+        <thead><tr><th style="width: 34%">Medication</th><th>Dose</th><th>Frequency</th><th>Route</th><th>Start date</th></tr></thead>
+        <tbody>
+          <tr><td>Amlodipine 5 mg tablet</td><td>5 mg</td><td>Daily</td><td>Oral</td><td>02/09/2026</td></tr>
+          <tr><td>Metformin 500 mg tablet</td><td>500 mg</td><td>Twice daily</td><td>Oral</td><td>02/09/2026</td></tr>
+          <tr><td>Salbutamol 100 microgram inhaler</td><td>2 puffs</td><td>Four times daily</td><td>Inhaled</td><td>14/10/2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <p class="table-title">Allergies and intolerances</p>
+      <table>
+        <thead><tr><th>Allergy</th></tr></thead>
+        <tbody>
+          <tr><td>Penicillin</td></tr>
+          <tr><td>Peanuts</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <p class="table-title">Active problems</p>
+      <table>
+        <thead><tr><th style="width: 50%">Condition</th><th>Status</th><th>Resolution date</th></tr></thead>
+        <tbody>
+          <tr><td>Essential hypertension</td><td>Active</td><td></td></tr>
+          <tr><td>Type 2 diabetes mellitus</td><td>Active</td><td></td></tr>
+          <tr><td>Asthma</td><td>Resolved</td><td>02/03/2021</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <p class="table-title">Immunisations</p>
+      <table>
+        <thead><tr><th style="width: 50%">Vaccine</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>COVID-19 (Pfizer)</td><td>12/08/2021</td><td>Given</td></tr>
+          <tr><td>COVID-19 (Pfizer)</td><td>09/09/2021</td><td>Given</td></tr>
+          <tr><td>Tetanus diphtheria (Td)</td><td>21/03/2024</td><td>Given</td></tr>
+          <tr><td>Influenza</td><td>Unknown</td><td>Not given</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>Print date &amp; time: </b>11/11/2026 2:15 PM | <b>Printed by: </b>Initial Admin</span>
+    <span>1 of 1</span>
+  </div>
+</div>
+</body>
+</html>
