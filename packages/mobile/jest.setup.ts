@@ -8,6 +8,7 @@ import './__mocks__/react-native-nitro-sqlite';
 
 import { LogBox } from 'react-native';
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest';
+import mockNetInfo from '@react-native-community/netinfo/jest/netinfo-mock';
 
 jest.useFakeTimers();
 
@@ -16,6 +17,9 @@ LogBox.ignoreLogs([
 ]);
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
+
+// reports the device as online; the sync manager checks this before starting a sync
+jest.mock('@react-native-community/netinfo', () => mockNetInfo);
 
 // the package ships untranspiled ESM and resolves its native module on import, so it can't load
 // under jest. It is imported by the sync manager, which most suites pull in through the models
