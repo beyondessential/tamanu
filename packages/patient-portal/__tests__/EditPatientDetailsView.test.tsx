@@ -10,7 +10,7 @@ const renderEditDetails = ({
   fields = {},
 }: {
   patient?: ReturnType<typeof fakePatient>;
-  fields?: Record<string, { required?: boolean; hidden?: boolean }>;
+  fields?: Record<string, { requiredPatientData?: boolean; required?: boolean; hidden?: boolean }>;
 } = {}) => {
   stubTranslations();
   const api = createFakeApi({ me: patient, settings: { fields } });
@@ -37,13 +37,23 @@ describe('EditPatientDetailsView', () => {
   });
 
   it('holds the save while a required detail is blank', async () => {
-    const { api } = renderEditDetails({ fields: { cityTown: { required: true } } });
+    const { api } = renderEditDetails({ fields: { cityTown: { requiredPatientData: true } } });
     await userEvent.type(await screen.findByLabelText(/^Street address/), '12 Reef Road');
     await save();
 
     expect(await screen.findByText('Required')).toBeTruthy();
     expect(screen.getByLabelText(/^Town or city/).getAttribute('aria-invalid')).toBe('true');
     expect(api.put).not.toHaveBeenCalled();
+  });
+
+  it('ignores the generic required flag, which patient details do not use', async () => {
+    const { api } = renderEditDetails({ fields: { cityTown: { required: true } } });
+    await userEvent.type(await screen.findByLabelText(/^Street address/), '12 Reef Road');
+    await save();
+
+    await waitFor(() =>
+      expect(api.put).toHaveBeenCalledWith('me', { streetVillage: '12 Reef Road' }),
+    );
   });
 
   it('sends nothing when nothing was changed', async () => {

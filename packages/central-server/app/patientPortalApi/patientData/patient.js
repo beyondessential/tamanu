@@ -49,9 +49,9 @@ const checkAgainstFieldSettings = (changes, currentDetails, fieldSettings) => {
     }
   }
   for (const field of Object.keys(UpdatePatientDetailsRequestSchema.shape)) {
-    const { hidden, required } = fieldSettings[field] ?? {};
+    const { hidden, requiredPatientData } = fieldSettings[field] ?? {};
     const value = field in changes ? changes[field] : currentDetails[field];
-    if (required && !hidden && (value ?? '') === '') {
+    if (requiredPatientData && !hidden && (value ?? '') === '') {
       throw new ValidationError(`${field} is required`);
     }
   }

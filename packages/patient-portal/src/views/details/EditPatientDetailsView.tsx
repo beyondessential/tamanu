@@ -133,7 +133,7 @@ const EditDetailsForm = ({
 }: {
   editableGroups: { group: DetailGroup; fields: DetailField[] }[];
   fixedFields: DetailField[];
-  fieldSettings: Record<string, { required?: boolean }>;
+  fieldSettings: Record<string, { requiredPatientData?: boolean }>;
 }) => {
   const patient = useCurrentUser();
   const navigate = useNavigate();
@@ -169,7 +169,7 @@ const EditDetailsForm = ({
     const nextErrors: Record<string, string> = {};
     for (const { name, input } of fields) {
       const value = values[name].trim();
-      if (!value && fieldSettings[name]?.required) {
+      if (!value && fieldSettings[name]?.requiredPatientData) {
         nextErrors[name] = getTranslation('patientPortal.details.required', 'Required');
       } else if (changedNames.includes(name) && !shape[name]?.safeParse(value).success) {
         nextErrors[name] =
@@ -238,7 +238,7 @@ const EditDetailsForm = ({
                   field={field}
                   value={values[field.name]}
                   onChange={value => setValues(previous => ({ ...previous, [field.name]: value }))}
-                  required={Boolean(fieldSettings[field.name]?.required)}
+                  required={Boolean(fieldSettings[field.name]?.requiredPatientData)}
                   error={errors[field.name]}
                 />
               ))}
