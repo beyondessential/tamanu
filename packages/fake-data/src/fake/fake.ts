@@ -742,6 +742,12 @@ const MODEL_SPECIFIC_OVERRIDES = {
     unitConversion: 1,
     notes: null,
     isSensitive: false,
+    // Units are picked at random above, so random limits would be meaningless and would put dose
+    // warnings on arbitrary seeded prescriptions. Realistic limits live in the provisioning data.
+    doseMin: null,
+    doseMax: null,
+    dispensingQuantityMin: null,
+    dispensingQuantityMax: null,
   }),
   Department: ({ name }) => named(name ?? pickDistinct(DEPARTMENT_NAMES)),
   LocationGroup: ({ name }) => named(name ?? pickDistinct(LOCATION_GROUP_NAMES)),

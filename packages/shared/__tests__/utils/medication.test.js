@@ -4,6 +4,7 @@ import { set } from 'date-fns';
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_FREQUENCY_DETAILS,
+  DRUG_LIMIT_BREACHES,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   MEDICATION_DURATION_UNITS,
 } from '@tamanu/constants';
@@ -11,7 +12,11 @@ import {
   findAdministrationTimeSlotFromIdealTime,
   getAutocalculatedDispensingQuantity,
   getDefaultIdealTimes,
+  getDispensingQuantityLimitBreach,
+  getDoseLimitBreach,
   getFirstAdministrationDate,
+  getLimitBreach,
+  validateDrugLimits,
 } from '../../src/utils/medication';
 
 const breakfastSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(s => s.startTime === '06:00');
@@ -352,5 +357,122 @@ describe('getFirstAdministrationDate', () => {
     expect(getFirstAdministrationDate(startDate, everyTwoHours)).toEqual(
       new Date(2026, 9, 22, expectedHours, expectedMinutes),
     );
+  });
+});
+
+describe('getLimitBreach', () => {
+  it('is in range between the limits and on either limit', () => {
+    expect(getLimitBreach(5, 1, 10)).toBeNull();
+    expect(getLimitBreach(1, 1, 10)).toBeNull();
+    expect(getLimitBreach(10, 1, 10)).toBeNull();
+  });
+
+  it('reports the limit crossed', () => {
+    expect(getLimitBreach(0.5, 1, 10)).toEqual({ type: DRUG_LIMIT_BREACHES.BELOW_MIN, limit: 1 });
+    expect(getLimitBreach(11, 1, 10)).toEqual({ type: DRUG_LIMIT_BREACHES.ABOVE_MAX, limit: 10 });
+  });
+
+  it('applies each limit on its own', () => {
+    expect(getLimitBreach(500, null, 2)).toEqual({ type: DRUG_LIMIT_BREACHES.ABOVE_MAX, limit: 2 });
+    expect(getLimitBreach(500, 1, null)).toBeNull();
+    expect(getLimitBreach(0, 1, undefined)).toEqual({
+      type: DRUG_LIMIT_BREACHES.BELOW_MIN,
+      limit: 1,
+    });
+    expect(getLimitBreach(500, null, null)).toBeNull();
+  });
+
+  it('never flags an empty value', () => {
+    expect(getLimitBreach('', 1, 2)).toBeNull();
+    expect(getLimitBreach(null, 1, 2)).toBeNull();
+    expect(getLimitBreach(undefined, 1, 2)).toBeNull();
+  });
+
+  it('compares numeric strings as numbers, as DECIMAL limits and typed input arrive', () => {
+    expect(getLimitBreach('9', '1.5', '10')).toBeNull();
+    expect(getLimitBreach('10.5', '1.5', '10')).toEqual({
+      type: DRUG_LIMIT_BREACHES.ABOVE_MAX,
+      limit: 10,
+    });
+  });
+});
+
+describe('getDoseLimitBreach and getDispensingQuantityLimitBreach', () => {
+  const referenceDrug = {
+    doseMin: '1',
+    doseMax: '2',
+    dispensingQuantityMin: 10,
+    dispensingQuantityMax: 100,
+  };
+
+  it('checks a dose against the dose limits only', () => {
+    expect(getDoseLimitBreach(3, referenceDrug)).toEqual({
+      type: DRUG_LIMIT_BREACHES.ABOVE_MAX,
+      limit: 2,
+    });
+    expect(getDoseLimitBreach(50, referenceDrug)).toEqual({
+      type: DRUG_LIMIT_BREACHES.ABOVE_MAX,
+      limit: 2,
+    });
+  });
+
+  it('checks a quantity against the dispensing quantity limits only', () => {
+    expect(getDispensingQuantityLimitBreach(2, referenceDrug)).toEqual({
+      type: DRUG_LIMIT_BREACHES.BELOW_MIN,
+      limit: 10,
+    });
+    expect(getDispensingQuantityLimitBreach(50, referenceDrug)).toBeNull();
+  });
+
+  it('never flags a drug without limits', () => {
+    expect(getDoseLimitBreach(500, {})).toBeNull();
+    expect(getDoseLimitBreach(500, null)).toBeNull();
+    expect(getDispensingQuantityLimitBreach(500)).toBeNull();
+  });
+});
+
+describe('validateDrugLimits', () => {
+  it('accepts blank and valid limits', () => {
+    expect(validateDrugLimits({})).toEqual([]);
+    expect(
+      validateDrugLimits({
+        doseMin: 0,
+        doseMax: '2.5',
+        dispensingQuantityMin: 1,
+        dispensingQuantityMax: '100',
+      }),
+    ).toEqual([]);
+    expect(validateDrugLimits({ doseMin: '', doseMax: null })).toEqual([]);
+  });
+
+  it('accepts a minimum equal to its maximum', () => {
+    expect(validateDrugLimits({ doseMin: 1, doseMax: 1 })).toEqual([]);
+  });
+
+  it('rejects a negative limit', () => {
+    expect(validateDrugLimits({ doseMin: -1 })).toEqual(['doseMin must be 0 or more']);
+    expect(validateDrugLimits({ dispensingQuantityMax: -5 })).toEqual([
+      'dispensingQuantityMax must be 0 or more',
+    ]);
+  });
+
+  it('rejects a dispensing quantity limit that is not a whole number, but not a dose limit', () => {
+    expect(validateDrugLimits({ dispensingQuantityMin: 1.5 })).toEqual([
+      'dispensingQuantityMin must be a whole number',
+    ]);
+    expect(validateDrugLimits({ doseMin: 1.5 })).toEqual([]);
+  });
+
+  it('rejects a minimum greater than its matching maximum', () => {
+    expect(validateDrugLimits({ doseMin: 3, doseMax: 2 })).toEqual([
+      'doseMin must not be greater than doseMax',
+    ]);
+    expect(validateDrugLimits({ dispensingQuantityMin: '30', dispensingQuantityMax: '4' })).toEqual(
+      ['dispensingQuantityMin must not be greater than dispensingQuantityMax'],
+    );
+  });
+
+  it('rejects a limit that is not a number', () => {
+    expect(validateDrugLimits({ doseMax: 'two' })).toEqual(['doseMax must be a number']);
   });
 });

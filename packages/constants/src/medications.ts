@@ -100,6 +100,26 @@ export const DRUG_UNITS = {
 
 export const DRUG_UNIT_VALUES = Object.values(DRUG_UNITS);
 
+// spec: DQLIM#configuring-limits
+// The optional accepted ranges on a drug: dose limits are in its dosing unit, dispensing quantity
+// limits in its dispensing unit. Also the Drug sheet's column names.
+export const DRUG_DOSE_LIMIT_FIELDS = { min: 'doseMin', max: 'doseMax' } as const;
+export const DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS = {
+  min: 'dispensingQuantityMin',
+  max: 'dispensingQuantityMax',
+} as const;
+export const DRUG_LIMIT_FIELDS = [
+  DRUG_DOSE_LIMIT_FIELDS.min,
+  DRUG_DOSE_LIMIT_FIELDS.max,
+  DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS.min,
+  DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS.max,
+] as const;
+
+export const DRUG_LIMIT_BREACHES = {
+  BELOW_MIN: 'belowMin',
+  ABOVE_MAX: 'aboveMax',
+} as const;
+
 export type DrugUnit = (typeof DRUG_UNITS)[keyof typeof DRUG_UNITS];
 
 export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce(

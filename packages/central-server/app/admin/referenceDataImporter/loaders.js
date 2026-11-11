@@ -14,7 +14,10 @@ import {
   DEFAULT_LANGUAGE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
+  DRUG_LIMIT_FIELDS,
+  DRUG_LIMIT_BREACHES,
 } from '@tamanu/constants';
+import { getDoseLimitBreach, validateDrugLimits } from '@tamanu/shared/utils/medication';
 import __cjs_inflection from 'inflection';
 const { pluralize } = __cjs_inflection;
 import { isEmpty, isNil } from 'es-toolkit/compat';
@@ -691,6 +694,7 @@ const DRUG_COLUMNS = [
   'unitConversion',
   'notes',
   'isSensitive',
+  ...DRUG_LIMIT_FIELDS,
 ];
 
 // The set of facilities where mSupply is the stock-on-hand source of truth is fixed for
@@ -726,6 +730,19 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
   } = item;
   const rows = [];
 
+  // spec: DQLIM#configuring-limits
+  // A blank cell leaves the limit unset. Like an invalid unit, an invalid limit rejects the row.
+  const limits = Object.fromEntries(
+    DRUG_LIMIT_FIELDS.map(field => [field, item[field] === '' ? null : (item[field] ?? null)]),
+  );
+  const limitErrors = validateDrugLimits(limits);
+  if (limitErrors.length > 0) {
+    for (const message of limitErrors) {
+      pushError(`Drug "${drugId}": ${message}.`);
+    }
+    return [];
+  }
+
   const validDrugUnits = Object.values(DRUG_UNITS);
   if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
     pushError(
@@ -757,6 +774,7 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
     unitConversion,
     notes,
     isSensitive: !!isSensitive,
+    ...limits,
   };
   rows.push({
     model: 'ReferenceDrug',
@@ -837,6 +855,28 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
   return rows;
 }
 
+/**
+ * spec: DQLIM#medication-sets
+ * The reason a medication template's dose is outside its drug's dose limits, or null when it is
+ * within them. A variable dose has no amount, so it is never out of range. The template's
+ * discharge quantity is deliberately not checked.
+ */
+export async function getTemplateDoseLimitError(models, drugReferenceDataId, doseAmount) {
+  const referenceDrug = await models.ReferenceDrug.findOne({
+    where: { referenceDataId: drugReferenceDataId },
+    attributes: DRUG_LIMIT_FIELDS,
+  });
+  if (!referenceDrug) return null;
+
+  const isVariableDose = doseAmount?.toString().toLowerCase() === 'variable';
+  const breach = isVariableDose ? null : getDoseLimitBreach(doseAmount, referenceDrug);
+  if (!breach) return null;
+
+  return breach.type === DRUG_LIMIT_BREACHES.ABOVE_MAX
+    ? `Dose amount ${doseAmount} is above the maximum dose of ${breach.limit} for drug "${drugReferenceDataId}".`
+    : `Dose amount ${doseAmount} is below the minimum dose of ${breach.limit} for drug "${drugReferenceDataId}".`;
+}
+
 export async function medicationTemplateLoader(item, { models, pushError }) {
   const {
     id: referenceDataId,
@@ -869,6 +909,13 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
       `Dose amount must be a number or the string "variable".`,
       'ReferenceMedicationTemplate',
     );
+  }
+
+  // spec: DQLIM#medication-sets
+  // Drug rows in the same workbook are saved before templates are loaded, so this sees their limits.
+  if (drug) {
+    const doseLimitError = await getTemplateDoseLimitError(models, drugReferenceDataId, doseAmount);
+    if (doseLimitError) pushError(doseLimitError, 'ReferenceMedicationTemplate');
   }
 
   const existingTemplate = await models.ReferenceMedicationTemplate.findOne({

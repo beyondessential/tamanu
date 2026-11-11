@@ -138,7 +138,7 @@ export const resolvePresetLabelText = (presetId, presetName, fallbackText) =>
 // Only drop the leading capital from ordinary capitalised words (e.g. 'Tablet' ->
 // 'tablet', 'Oral' -> 'oral', 'Two times daily' -> 'two times daily'). Acronym and
 // symbol units/routes such as 'IU', 'FFU', 'IM', 'S/C' and 'mL' keep their casing.
-const lowercaseFirstLetter = text =>
+export const lowercaseFirstLetter = text =>
   /^[A-Z][a-z]/.test(text ?? '') ? `${text.charAt(0).toLowerCase()}${text.slice(1)}` : text;
 
 // Shared sentence assembly for the Instructions and Label text defaults. The two

@@ -13,7 +13,10 @@ import {
   MEDICATION_COLUMNS,
   OrderingPrescriberField,
 } from '../../app/forms/DischargeMedicationColumns';
-import { renderElementWithTranslatedText } from '../helpers/render';
+import {
+  createTranslationContextWithReplacements,
+  renderElementWithTranslatedText,
+} from '../helpers/render';
 
 const getTranslation = (_stringId, fallback) => fallback;
 const getEnumTranslation = () => '';
@@ -231,6 +234,65 @@ describe('MEDICATION_COLUMNS dispensing quantity', () => {
       );
     },
   );
+});
+
+// spec: DQLIM#discharging
+describe('MEDICATION_COLUMNS dose and dispensing quantity limits', () => {
+  const row = {
+    id: 'medication-1',
+    medication: {
+      id: 'drug-aluminium600',
+      name: 'Aluminium 600mg Tablets',
+      type: 'drug',
+      referenceDrug: { doseMin: '1', doseMax: '2', dispensingQuantityMax: 100 },
+    },
+    doseAmount: '10',
+    dosingUnit: 'Tablet',
+    isVariableDose: false,
+    frequency: 'As directed',
+    dispensingUnit: 'Tablet',
+  };
+
+  const renderRow = ({ quantity, sendToPharmacy = false, rowOverrides = {} }) => {
+    const translationContext = createTranslationContextWithReplacements();
+    const columns = MEDICATION_COLUMNS({
+      getTranslation: translationContext.getTranslation,
+      getEnumTranslation: translationContext.getEnumTranslation,
+      handleDiscontinueMedication,
+      canUpdateMedication: true,
+    });
+    const rowData = { ...row, ...rowOverrides };
+    return renderElementWithTranslatedText(
+      <Formik
+        initialValues={{ medications: { [row.id]: { quantity, sendToPharmacy } } }}
+        initialStatus={{}}
+        onSubmit={() => {}}
+      >
+        <div>
+          {accessorFor(columns, 'medication')(rowData)}
+          {accessorFor(columns, 'quantity')(rowData)}
+        </div>
+      </Formik>,
+      undefined,
+      translationContext,
+    );
+  };
+
+  it('flags the dose below its dose line and the quantity below its input, sent or not', () => {
+    const { getByText } = renderRow({ quantity: 500 });
+
+    expect(getByText('Above expected max of 2 tablets')).toBeTruthy();
+    expect(getByText('Above expected max of 100 tablets')).toBeTruthy();
+  });
+
+  it('shows no warning for values in range, or for a variable dose', () => {
+    const { queryByTestId } = renderRow({
+      quantity: 100,
+      rowOverrides: { doseAmount: null, isVariableDose: true },
+    });
+
+    expect(queryByTestId('medication-limit-warning')).toBeNull();
+  });
 });
 
 // A dispensing quantity can be left blank on any row — the server records a blank as zero. Only the

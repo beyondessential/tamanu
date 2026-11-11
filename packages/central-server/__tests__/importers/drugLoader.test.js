@@ -14,10 +14,7 @@ import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { drugLoaderFactory } from '../../app/admin/referenceDataImporter/loaders';
 import { createTestContext } from '../utilities';
 
-// Build a minimal XLSX workbook buffer with a single sheet called 'drug'.
-// Facility columns are included via `defval: ''` on read, matching how mSupply-driven
-// facilities can be present in the sheet with an empty stock value.
-function buildDrugWorkbookBuffer(headers, rows) {
+function buildSheet(headers, rows) {
   const ws = {};
 
   headers.forEach((h, idx) => {
@@ -40,9 +37,25 @@ function buildDrugWorkbookBuffer(headers, rows) {
     e: { r: rows.length, c: headers.length - 1 },
   };
   ws['!ref'] = utils.encode_range(range);
+  return ws;
+}
 
-  const wb = { SheetNames: ['drug'], Sheets: { drug: ws } };
+// Build a minimal XLSX workbook buffer from `{ [sheetName]: { headers, rows } }`.
+function buildWorkbookBuffer(sheets) {
+  const wb = {
+    SheetNames: Object.keys(sheets),
+    Sheets: Object.fromEntries(
+      Object.entries(sheets).map(([name, { headers, rows }]) => [name, buildSheet(headers, rows)]),
+    ),
+  };
   return write(wb, { type: 'buffer', bookType: 'xlsx' });
+}
+
+// Build a minimal XLSX workbook buffer with a single sheet called 'drug'.
+// Facility columns are included via `defval: ''` on read, matching how mSupply-driven
+// facilities can be present in the sheet with an empty stock value.
+function buildDrugWorkbookBuffer(headers, rows) {
+  return buildWorkbookBuffer({ drug: { headers, rows } });
 }
 
 describe('Drug import: stock on hand vs mSupply source of truth', () => {
@@ -359,6 +372,207 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
       expect(await models.ReferenceDrug.count()).toBe(0);
       expect(await models.ReferenceData.findByPk('drug-route-bad')).toBeNull();
     });
+  });
+
+  // spec: DQLIM#configuring-limits
+  describe('dose and dispensing quantity limits', () => {
+    const limitHeaders = [
+      'id',
+      'code',
+      'name',
+      'dosingUnit',
+      'dispensingUnit',
+      'doseMin',
+      'doseMax',
+      'dispensingQuantityMin',
+      'dispensingQuantityMax',
+    ];
+    const drugRow = overrides => ({
+      id: 'drug-limits',
+      code: 'DRUG-LIMITS',
+      name: 'Limits Drug',
+      dosingUnit: 'Tablet',
+      dispensingUnit: 'Tablet',
+      ...overrides,
+    });
+    const findLimits = async id => {
+      const referenceDrug = await models.ReferenceDrug.findOne({ where: { referenceDataId: id } });
+      return {
+        doseMin: referenceDrug.doseMin === null ? null : Number(referenceDrug.doseMin),
+        doseMax: referenceDrug.doseMax === null ? null : Number(referenceDrug.doseMax),
+        dispensingQuantityMin: referenceDrug.dispensingQuantityMin,
+        dispensingQuantityMax: referenceDrug.dispensingQuantityMax,
+      };
+    };
+
+    it('imports each limit, reading the limit columns as drug fields rather than facilities', async () => {
+      const rows = [
+        drugRow({ doseMin: 0.5, doseMax: 2, dispensingQuantityMin: 1, dispensingQuantityMax: 100 }),
+      ];
+
+      const { errors } = await doImport(buildDrugWorkbookBuffer(limitHeaders, rows));
+      expect(errors).toHaveLength(0);
+
+      expect(await findLimits('drug-limits')).toEqual({
+        doseMin: 0.5,
+        doseMax: 2,
+        dispensingQuantityMin: 1,
+        dispensingQuantityMax: 100,
+      });
+      expect(await models.ReferenceDrugFacility.count()).toBe(0);
+    });
+
+    it('leaves a blank limit unset, and clears a limit blanked on re-import', async () => {
+      await doImport(buildDrugWorkbookBuffer(limitHeaders, [drugRow({ doseMax: 2 })]));
+      expect(await findLimits('drug-limits')).toEqual({
+        doseMin: null,
+        doseMax: 2,
+        dispensingQuantityMin: null,
+        dispensingQuantityMax: null,
+      });
+
+      const { errors } = await doImport(
+        buildDrugWorkbookBuffer(limitHeaders, [drugRow({ dispensingQuantityMax: 30 })]),
+      );
+      expect(errors).toHaveLength(0);
+      expect(await findLimits('drug-limits')).toEqual({
+        doseMin: null,
+        doseMax: null,
+        dispensingQuantityMin: null,
+        dispensingQuantityMax: 30,
+      });
+    });
+
+    it('accepts a minimum equal to its maximum', async () => {
+      const rows = [drugRow({ doseMin: 1, doseMax: 1 })];
+      const { errors } = await doImport(buildDrugWorkbookBuffer(limitHeaders, rows));
+      expect(errors).toHaveLength(0);
+    });
+
+    it.each([
+      ['a negative limit', { doseMin: -1 }, 'doseMin must be 0 or more'],
+      [
+        'a dispensing quantity limit that is not a whole number',
+        { dispensingQuantityMax: 2.5 },
+        'dispensingQuantityMax must be a whole number',
+      ],
+      [
+        'a minimum greater than its maximum',
+        { doseMin: 3, doseMax: 2 },
+        'doseMin must not be greater than doseMax',
+      ],
+    ])('rejects the row for %s', async (_description, limits, message) => {
+      const rows = [drugRow(limits)];
+
+      const { errors } = await doImport(buildDrugWorkbookBuffer(limitHeaders, rows));
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toBe(`Drug "drug-limits": ${message}. on drug at row 2`);
+      expect(await models.ReferenceDrug.count()).toBe(0);
+    });
+  });
+
+  // spec: DQLIM#medication-sets
+  describe('medication template doses against drug dose limits', () => {
+    const drugHeaders = [
+      'id',
+      'code',
+      'name',
+      'dosingUnit',
+      'doseMin',
+      'doseMax',
+      'dispensingQuantityMax',
+    ];
+    const templateHeaders = [
+      'id',
+      'code',
+      'name',
+      'medication',
+      'doseAmount',
+      'dosingUnit',
+      'frequency',
+      'route',
+      'dischargeQuantity',
+    ];
+    const drugRows = [
+      {
+        id: 'drug-template-limits',
+        code: 'DRUG-TEMPLATE-LIMITS',
+        name: 'Template Limits Drug',
+        dosingUnit: 'Tablet',
+        doseMin: 1,
+        doseMax: 2,
+        dispensingQuantityMax: 10,
+      },
+    ];
+    const templateRow = overrides => ({
+      id: 'medicationtemplate-limits',
+      code: 'TEMPLATE-LIMITS',
+      name: 'Template Limits',
+      medication: 'drug-template-limits',
+      doseAmount: 1,
+      dosingUnit: 'Tablet',
+      frequency: 'Daily',
+      route: 'oral',
+      ...overrides,
+    });
+    const importWithTemplate = template =>
+      importerTransaction({
+        importer: referenceDataImporter,
+        data: buildWorkbookBuffer({
+          drug: { headers: drugHeaders, rows: drugRows },
+          'Medication Template': { headers: templateHeaders, rows: [template] },
+        }),
+        models: ctx.store.models,
+        includedDataTypes: ['drug', 'medicationTemplate'],
+        checkPermission: () => true,
+      });
+
+    afterEach(async () => {
+      await models.ReferenceMedicationTemplate.destroy({ where: {}, force: true });
+      await models.ReferenceData.destroy({
+        where: { type: REFERENCE_TYPES.MEDICATION_TEMPLATE },
+        force: true,
+      });
+    });
+
+    it.each([
+      ['within the limits', 2],
+      ['on a limit', 1],
+      ['variable', 'variable'],
+    ])('imports a template whose dose is %s', async (_description, doseAmount) => {
+      const { errors } = await importWithTemplate(templateRow({ doseAmount }));
+      expect(errors).toHaveLength(0);
+      expect(await models.ReferenceMedicationTemplate.count()).toBe(1);
+    });
+
+    it('does not check the discharge quantity against the dispensing quantity limits', async () => {
+      const { errors } = await importWithTemplate(templateRow({ dischargeQuantity: 50 }));
+      expect(errors).toHaveLength(0);
+    });
+
+    it.each([
+      [
+        'above the maximum',
+        3,
+        'Dose amount 3 is above the maximum dose of 2 for drug "drug-template-limits".',
+      ],
+      [
+        'below the minimum',
+        0.5,
+        'Dose amount 0.5 is below the minimum dose of 1 for drug "drug-template-limits".',
+      ],
+    ])(
+      'rejects a template whose dose is %s, using limits from the same workbook',
+      async (_description, doseAmount, message) => {
+        const { errors } = await importWithTemplate(templateRow({ doseAmount }));
+
+        expect(errors.map(error => error.message)).toEqual([
+          `${message} on medicationTemplate at row 2`,
+        ]);
+        expect(await models.ReferenceMedicationTemplate.count()).toBe(0);
+      },
+    );
   });
 
   // The test above can't cleanly prove drugLoaderFactory's own cache is what's doing the
