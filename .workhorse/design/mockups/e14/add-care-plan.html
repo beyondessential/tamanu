@@ -993,7 +993,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       if (menuAction.dataset.action === 'edit') {
         editing = target;
       } else {
-        currentPlan.notes.splice(target, 1);
+        const [deletedNote] = currentPlan.notes.splice(target, 1);
+        currentPlan.history.push({ kind: 'noteDeleted', date: now(), text: deletedNote.text });
         editing = null;
       }
       renderView();
@@ -1005,7 +1006,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     closeMenus();
     if (isOpen) return;
     const note = openButton.dataset.note;
-    // Change log is offered once there is a change to show: an edit, or a tick on the main care plan
+    // Change log is offered once there is a change to show: an edit, or on the main care plan a tick or a deleted note
     const record = note === 'main' ? currentPlan : currentPlan.notes[Number(note)];
     const changeLog = record.history.length > 1 ? ['Change log'] : [];
     const actions = note === 'main' ? ['Edit', ...changeLog] : ['Edit', ...changeLog, 'Delete'];
@@ -1049,7 +1050,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     const record = isMain ? currentPlan : currentPlan.notes[target];
     const history = record.history;
     const latest = history[history.length - 1];
-    const latestVersion = [...history].reverse().find(entry => entry.kind !== 'tick');
+    const latestVersion = [...history].reverse().find(entry => entry.kind === undefined || entry.kind === 'version');
     const info = isMain
       ? infoCell('Care plan', escapeHtml(currentPlan.name)) +
         infoCell('Last updated by (or on behalf of)', writtenBy(latestVersion.onBehalfOf)) +
@@ -1062,6 +1063,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       .map(entry => {
         if (entry.kind === 'tick') {
           return changeLogEntry(`Initial Admin ${entry.date}`, `${entry.done ? 'Ticked' : 'Unticked'}: ${escapeHtml(entry.text)}`);
+        }
+        if (entry.kind === 'noteDeleted') {
+          return changeLogEntry(`Initial Admin ${entry.date}`, `Deleted note: ${escapeHtml(entry.text)}`);
         }
         const by = `Initial Admin ${entry.onBehalfOf ? `on behalf of ${escapeHtml(entry.onBehalfOf)} ` : ''}${entry.date}`;
         return changeLogEntry(by, `<span>${escapeHtml(entry.text)}</span>${isMain ? problemListSnapshot(entry.items) : ''}`);
