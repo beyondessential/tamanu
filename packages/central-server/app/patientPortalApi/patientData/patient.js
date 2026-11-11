@@ -38,6 +38,18 @@ const REFERENCE_DATA_DETAILS = {
   occupationId: REFERENCE_TYPES.OCCUPATION,
 };
 
+const INSURANCE_FIELD_NAMES = ['insurerId', 'insurerPolicyNumber'];
+
+/** Insurance details are hidden unless the deployment uses them, as on Patient details in Tamanu. */
+const getFieldSettings = async settings => {
+  const fieldSettings = (await settings.get('fields')) ?? {};
+  if (await settings.get('features.enablePatientInsurer')) return fieldSettings;
+  const hiddenInsuranceFields = Object.fromEntries(
+    INSURANCE_FIELD_NAMES.map(name => [name, { ...fieldSettings[name], hidden: true }]),
+  );
+  return { ...fieldSettings, ...hiddenInsuranceFields };
+};
+
 /**
  * Details the deployment hides can't be changed, and required ones can't be left blank, judged on
  * the record as it will be after saving so a detail already blank still has to be filled in.
@@ -86,7 +98,7 @@ export const updatePatient = asyncHandler(async (req, res) => {
   checkAgainstFieldSettings(
     changes,
     { ...additionalData?.get({ plain: true }), email: patient.email },
-    (await req.settings.get('fields')) ?? {},
+    await getFieldSettings(req.settings),
   );
   await checkReferenceData(changes, models);
 
