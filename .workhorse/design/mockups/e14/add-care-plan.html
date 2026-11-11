@@ -462,19 +462,16 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 /* E14: add-note form below the main care plan and its notes */
 .e14-notes-divider { margin-top: 1.25rem; }
 .e14-note-form { margin-top: 1.25rem; }
-/* E14: NoteOnBehalfOf in the note header */
-.e14-on-behalf { color: #888888; /* Colors.midText */ }
 .e14-note-form .fWdLoX > .grDnvL { margin-top: calc(12px - 1.2rem); } /* sits 12px below the note field, inside the form grid's row gap */
 .e14-note-form .grDnvL .grDnvL { margin-top: 0; }
 .e14-note { border: 1px solid #dedede; /* Colors.outline */ background-color: #ffffff; margin-bottom: 0.75rem; font-family: Roboto; font-size: 14px; }
 .e14-note-header { padding: 0.75rem 1rem; border-bottom: 1px solid #dedede; display: flex; justify-content: space-between; }
 .e14-row { display: flex; align-items: center; }
-.e14-author { color: #666666; /* Colors.darkText */ font-weight: 700; }
-/* E14: titled header for the main care plan card */
-.e14-main-header { align-items: center; padding: 12px 16px; }
+/* E14: two-line card headers for the main care plan and its notes */
+.e14-card-header { align-items: center; padding: 12px 16px; }
 .e14-main-title { margin: 0; font-family: Roboto; font-size: 16px; font-weight: 500; line-height: 20px; color: #444444; /* Colors.darkestText */ }
-.e14-main-meta { margin-top: 2px; font-size: 14px; line-height: 18px; color: #888888; /* Colors.midText */ }
-.e14-timestamp { color: #888888; /* Colors.midText */ margin-right: 15px; }
+.e14-note-title { margin: 0; font-family: Roboto; font-size: 14px; font-weight: 500; line-height: 18px; color: #444444; /* Colors.darkestText */ }
+.e14-card-meta { margin-top: 2px; font-size: 14px; line-height: 18px; color: #888888; /* Colors.midText */ }
 .e14-menu { padding: 5px; color: #888888; }
 .e14-menu svg { width: 24px; height: 24px; fill: currentColor; }
 .e14-note-content { padding: 1rem; color: #888888; }
@@ -807,21 +804,21 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 
   const menuButton = note =>
     `<div class="e14-row e14-menu-host"><button type="button" class="MuiButtonBase-root MuiIconButton-root e14-menu" aria-label="Note actions" aria-haspopup="menu" data-note="${note}">${MORE_HORIZ}</button></div>`;
+  // Both card kinds share a two-line header: a heading, then who and when in grey
+  const cardHeader = ({ title, titleClass, meta, note }) =>
+    `<div class="e14-note-header e14-card-header"><div><h3 class="${titleClass}">${title}</h3><div class="e14-card-meta">${meta}</div></div>${menuButton(note)}</div>`;
+  const metaLine = (...parts) => parts.filter(Boolean).join('<span aria-hidden="true"> · </span>');
   const noteCard = ({ date, content, isMain, noteIndex, onBehalfOf }) => {
-    if (isMain) {
-      const author = `Initial Admin${onBehalfOf ? ` on behalf of ${escapeHtml(onBehalfOf)}` : ''}`;
-      return (
-        '<div class="e14-note"><div class="e14-note-header e14-main-header"><div>' +
-        `<h3 class="e14-main-title">Main care plan</h3><div class="e14-main-meta">${author}<span aria-hidden="true"> · </span>${date}</div>` +
-        `</div>${menuButton('main')}</div>${content}</div>`
-      );
-    }
-    return (
-      '<div class="e14-note"><div class="e14-note-header"><div class="e14-row"><strong class="e14-author">Initial Admin</strong>' +
-      (onBehalfOf ? `<span class="e14-on-behalf">&nbsp;&nbsp;|&nbsp;&nbsp;on behalf of ${escapeHtml(onBehalfOf)}</span>` : '') +
-      `</div><div class="e14-row e14-menu-host"><span class="e14-timestamp">${date}</span>` +
-      `<button type="button" class="MuiButtonBase-root MuiIconButton-root e14-menu" aria-label="Note actions" aria-haspopup="menu" data-note="${noteIndex}">${MORE_HORIZ}</button></div></div>${content}</div>`
-    );
+    const onBehalfOfText = onBehalfOf ? `on behalf of ${escapeHtml(onBehalfOf)}` : '';
+    const header = isMain
+      ? cardHeader({ title: 'Main care plan', titleClass: 'e14-main-title', meta: metaLine(`Initial Admin ${onBehalfOfText}`.trim(), date), note: 'main' })
+      : cardHeader({
+          title: 'Initial Admin',
+          titleClass: 'e14-note-title',
+          meta: metaLine(onBehalfOfText.replace(/^on/, 'On'), date),
+          note: noteIndex,
+        });
+    return `<div class="e14-note">${header}${content}</div>`;
   };
   const mainContent = (plan, items) => {
     const text = `<p>${escapeHtml(plan.text)}</p>`;
