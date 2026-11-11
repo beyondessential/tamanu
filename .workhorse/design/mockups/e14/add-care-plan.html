@@ -550,7 +550,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .e14-cl-entry-divider { margin-top: 10px; }
 .e14-cl-change { display: block; }
 .e14-cl-change + .e14-cl-content { display: block; margin-top: 6px; }
-.e14-cl-items { margin: 6px 0 0; padding: 0; list-style: none; }
+.e14-cl-subheading { display: block; margin-top: 10px; font-weight: 500; color: #666666; /* Colors.darkText, as the card's Problem list heading */ }
+.e14-cl-items { margin: 4px 0 0; padding: 0; list-style: none; }
 .e14-cl-items li { display: flex; gap: 8px; align-items: baseline; white-space: normal; }
 .e14-cl-items i { font-size: 13px; color: #888888; /* Colors.midText */ }
 .e14-cl-items i.fa-check-square { color: #326699; /* Colors.primary */ }
@@ -1073,7 +1074,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   const problemListSnapshot = items =>
     items.length === 0
       ? ''
-      : `<ul class="e14-cl-items">${items
+      : `<span class="e14-cl-subheading">Problem list</span><ul class="e14-cl-items">${items
           .map(item => `<li><i class="far ${item.done ? 'fa-check-square' : 'fa-square'}" aria-label="${item.done ? 'Ticked' : 'Not ticked'}"></i>${escapeHtml(item.text)}</li>`)
           .join('')}</ul>`;
   const openChangeLog = target => {
