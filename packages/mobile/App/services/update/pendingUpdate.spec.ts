@@ -68,11 +68,23 @@ describe('pendingUpdate', () => {
       expect(await hasInstalledUpdateAndStillOutOfDate()).toBe(false);
     });
 
-    it('is true when an update installed and the app is rejected again', async () => {
+    it('is true when an update installed and the app is rejected again for the same release', async () => {
+      await recordPendingUpdate(UPDATE_URL);
       await recordInstallAttempt();
       await writeConfig('updateInstallAttemptedFromVersion', '0.0.1-the-version-before');
 
       expect(await hasInstalledUpdateAndStillOutOfDate()).toBe(true);
+    });
+
+    it('is false when the server has moved on to a newer release since the install', async () => {
+      // Central was upgraded while the device was installing, so it now asks for a later release
+      await recordPendingUpdate(UPDATE_URL);
+      await recordInstallAttempt();
+      await writeConfig('updateInstallAttemptedFromVersion', '0.0.1-the-version-before');
+
+      await recordPendingUpdate('https://meta.tamanu.app/versions/2.68.5/mobile/package');
+
+      expect(await hasInstalledUpdateAndStillOutOfDate()).toBe(false);
     });
 
     it('compares against the version actually running', async () => {

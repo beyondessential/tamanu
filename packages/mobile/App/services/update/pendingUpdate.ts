@@ -29,6 +29,7 @@ export function isUpdatePending(): boolean {
 const PENDING_UPDATE_URL = 'pendingUpdateUrl';
 const PENDING_UPDATE_RECORDED_AT_VERSION = 'pendingUpdateRecordedAtVersion';
 const INSTALL_ATTEMPTED_FROM_VERSION = 'updateInstallAttemptedFromVersion';
+const INSTALL_ATTEMPTED_FOR_URL = 'updateInstallAttemptedForUrl';
 
 export async function recordPendingUpdate(updateUrl: string): Promise<void> {
   cachedUpdateUrl = updateUrl;
@@ -66,16 +67,21 @@ export async function readPendingUpdate(): Promise<string | null> {
  */
 export async function recordInstallAttempt(): Promise<void> {
   await writeConfig(INSTALL_ATTEMPTED_FROM_VERSION, currentVersion);
+  await writeConfig(INSTALL_ATTEMPTED_FOR_URL, cachedUpdateUrl ?? '');
 }
 
 /**
- * Whether the app has already installed an update and is still being rejected for its version.
- * The version it installed from is compared with the version now running: a change means the
- * install took and the package did not satisfy the server, so downloading it again would loop.
+ * Whether the app has already installed the update the server is asking for, and is still being
+ * rejected for its version. A changed running version means the install took; the server asking
+ * for the same address again means that package did not satisfy it, so downloading it again would
+ * loop. A different address is a newer release the server moved on to, which is downloaded.
  */
 export async function hasInstalledUpdateAndStillOutOfDate(): Promise<boolean> {
   const attemptedFrom = await readConfig(INSTALL_ATTEMPTED_FROM_VERSION, '');
-  return Boolean(attemptedFrom) && attemptedFrom !== currentVersion;
+  const attemptedFor = await readConfig(INSTALL_ATTEMPTED_FOR_URL, '');
+  return (
+    Boolean(attemptedFrom) && attemptedFrom !== currentVersion && attemptedFor === cachedUpdateUrl
+  );
 }
 
 /**
@@ -88,4 +94,5 @@ export async function clearUpdateState(): Promise<void> {
   await writeConfig(PENDING_UPDATE_URL, '');
   await writeConfig(PENDING_UPDATE_RECORDED_AT_VERSION, '');
   await writeConfig(INSTALL_ATTEMPTED_FROM_VERSION, '');
+  await writeConfig(INSTALL_ATTEMPTED_FOR_URL, '');
 }
