@@ -54,7 +54,7 @@ export interface MobileSyncSettings {
   maxRecordsPerUpdateBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
-  networkRetryBudget: number;
+  maxUnreachableDuration: number;
 }
 
 export interface PullParams {
@@ -254,7 +254,7 @@ export class MobileSyncManager {
     } = await this.centralServer.startSyncSession({
       urgent,
       lastSyncedTick: pullSince,
-      networkRetryBudgetMs: this.syncSettings.networkRetryBudget,
+      maxUnreachableDurationMs: this.syncSettings.maxUnreachableDuration,
     });
 
     if (!sessionId) {
@@ -400,7 +400,7 @@ export class MobileSyncManager {
       pullSince,
       tableNames,
       tablesForFullResync,
-      this.syncSettings.networkRetryBudget,
+      this.syncSettings.maxUnreachableDuration,
     );
 
     const pullParams: PullParams = {

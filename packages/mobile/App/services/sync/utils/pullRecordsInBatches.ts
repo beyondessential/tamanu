@@ -13,11 +13,16 @@ export const pullRecordsInBatches = async (
     return;
   }
 
-  const { dynamicLimiter: dynamicLimiterSettings, networkRetryBudget } = syncSettings ?? {};
+  const { dynamicLimiter: dynamicLimiterSettings, maxUnreachableDuration } = syncSettings ?? {};
 
   const fetchPage = async (pageLimit: number, pageFromId?: string): Promise<PulledPage> => {
     const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, pageLimit, pageFromId, networkRetryBudget);
+    const records = await centralServer.pull(
+      sessionId,
+      pageLimit,
+      pageFromId,
+      maxUnreachableDuration,
+    );
     const pullTime = Date.now() - startTime;
     return { records, pullTime };
   };

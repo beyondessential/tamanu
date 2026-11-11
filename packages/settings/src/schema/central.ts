@@ -316,7 +316,7 @@ export const centralSettings = {
             },
           },
         },
-        networkRetryBudget: {
+        maxUnreachableDuration: {
           description:
             'How long a sync request that is safe to repeat keeps retrying while the central server is unreachable, before the sync fails. Keep this well under the stale sync session age, so the session is still open when the connection comes back',
           type: yup.number().positive().integer(),
