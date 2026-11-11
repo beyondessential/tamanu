@@ -6,13 +6,11 @@ import type { CommonParams } from './common.js';
 
 interface CreateMedicationParams extends CommonParams {
   encounterId?: string;
-  patientId?: string;
   referenceDataId?: string;
 }
 export const createMedication = async ({
   models,
   encounterId,
-  patientId,
   referenceDataId,
 }: CreateMedicationParams): Promise<void> => {
   const {
@@ -31,16 +29,21 @@ export const createMedication = async ({
     { hooks: false },
   );
 
+  const prescribingEncounterId = encounterId ?? (await randomRecordId(models, 'Encounter'));
   const encounterPrescription = await EncounterPrescription.create(
     fake(EncounterPrescription, {
-      encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
+      encounterId: prescribingEncounterId,
       prescriptionId: prescription.id,
     }),
   );
 
+  // Must match the encounter's patient, or the prescription syncs as belonging to two patients.
+  const prescribingEncounter = await models.Encounter.findByPk(prescribingEncounterId, {
+    attributes: ['patientId'],
+  });
   await PatientOngoingPrescription.create(
     fake(PatientOngoingPrescription, {
-      patientId: patientId || (await randomRecordId(models, 'Patient')),
+      patientId: prescribingEncounter.patientId,
       prescriptionId: prescription.id,
     }),
   );

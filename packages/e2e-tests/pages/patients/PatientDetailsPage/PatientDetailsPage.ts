@@ -126,6 +126,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly patientDetailsTab: Locator;
   readonly dietLabel: Locator;
   readonly locationLabel: Locator;
+  readonly patientTypeLabel: Locator;
   readonly addDiagnosisButton: Locator;
   readonly diagnosisContainer: Locator;
   readonly diagnosisCategory: Locator;
@@ -299,6 +300,10 @@ export class PatientDetailsPage extends BasePatientPage {
       .filter({ hasText: 'Diet' })
       .locator('..')
       .getByTestId('cardvalue-1v8z');
+    this.patientTypeLabel = this.page
+      .getByTestId('cardcell-8efu')
+      .filter({ has: this.page.getByTestId('cardlabel-6kys').filter({ hasText: 'Patient type' }) })
+      .getByTestId('cardvalue-lcni');
     this.locationLabel = this.page
       .getByTestId('cardlabel-0v8z')
       .filter({ hasText: 'Location' })

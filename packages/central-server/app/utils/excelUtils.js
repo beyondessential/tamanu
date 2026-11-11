@@ -22,3 +22,24 @@ export function writeExcelFile(sheets, fileName) {
   XLSX.writeFile(workbook, excelFileName);
   return excelFileName;
 }
+
+const EXCEL_EPOCH = Date.UTC(1899, 11, 30);
+const SECONDS_IN_DAY = 24 * 60 * 60;
+
+// An Excel date is the wall-clock time as days since 1899-12-30, with no timezone. Rebuild that
+// wall-clock time in local time, which is how the exporter wrote it and how the models format it.
+export function getDateFromExcel(excelDate) {
+  const days = Number(excelDate);
+  if (!Number.isFinite(days)) {
+    throw new Error(`Unrecognised date "${excelDate}", expected an Excel date`);
+  }
+  const wallClock = new Date(EXCEL_EPOCH + Math.round(days * SECONDS_IN_DAY) * 1000);
+  return new Date(
+    wallClock.getUTCFullYear(),
+    wallClock.getUTCMonth(),
+    wallClock.getUTCDate(),
+    wallClock.getUTCHours(),
+    wallClock.getUTCMinutes(),
+    wallClock.getUTCSeconds(),
+  );
+}
