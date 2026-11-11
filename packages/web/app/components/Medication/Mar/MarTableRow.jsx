@@ -2,7 +2,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_LABELS,
+  MEDICATION_ADMINISTRATION_TIME_SLOTS,
+} from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
   TranslatedReferenceData,
@@ -34,6 +38,26 @@ const TableRowHeader = styled(({ children, disabled, discontinued, paused, onCli
   </th>
 ))`
   font-weight: inherit;
+`;
+
+const HeaderContent = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+`;
+
+const StatPill = styled.span`
+  background-color: oklch(from currentColor l c h / 10%);
+  border-radius: calc(infinity * 1px);
+  color: #bc261a;
+  flex-shrink: 0;
+  padding: 4px 8px;
+
+  [data-discontinued='true'] &,
+  [data-paused='true'] & {
+    color: inherit;
+  }
 `;
 
 const MedicationName = styled.span`
@@ -78,6 +102,7 @@ export const MarTableRow = ({
   const { encounter } = useEncounter();
   const pauseData = encounterPrescription?.pausePrescriptions?.[0];
   const isPausing = !!pauseData && !discontinued;
+  const isStat = frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY;
 
   const [medicationDetailsOpen, setMedicationDetailsOpen] = useState(false);
   const [openModifyHistory, setOpenModifyHistory] = useState(false);
@@ -114,48 +139,58 @@ export const MarTableRow = ({
           onClick={openMedicationDetails}
           paused={isPausing}
         >
-          <MedicationName>
-            <TranslatedReferenceData
-              fallback={medicationRef.name}
-              value={medicationRef.id}
-              category={medicationRef.type}
-            />
-            {isPausing && (
-              <>
-                {' '}
-                <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
-              </>
+          <HeaderContent>
+            <div>
+              <MedicationName>
+                <TranslatedReferenceData
+                  fallback={medicationRef.name}
+                  value={medicationRef.id}
+                  category={medicationRef.type}
+                />
+                {isPausing && (
+                  <>
+                    {' '}
+                    <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
+                  </>
+                )}
+              </MedicationName>
+              <div data-testid="mar-dosage">
+                {[
+                  getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+                  getTranslatedFrequency(frequency, getTranslation),
+                  getEnumTranslation(DRUG_ROUTE_LABELS, route),
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
+              </div>
+              <PharmacyNote>
+                <span>{notes}</span>
+                {displayedPharmacyNote && (
+                  <span>
+                    {notes && ', '}
+                    <TranslatedText
+                      stringId="medication.mar.pharmacyNotes"
+                      fallback="Pharmacy note"
+                    />
+                    : {displayedPharmacyNote}
+                  </span>
+                )}
+                {modifiedPharmacyNote && (
+                  <>
+                    {' '}
+                    <ViewChangeLink onClick={handleViewChangeClick} data-testid="mar-view-change">
+                      <TranslatedText stringId="medication.mar.viewChange" fallback="View change" />
+                    </ViewChangeLink>
+                  </>
+                )}
+              </PharmacyNote>
+            </div>
+            {isStat && (
+              <StatPill>
+                <TranslatedText stringId="medication.mar.stat.label" fallback="STAT" />
+              </StatPill>
             )}
-          </MedicationName>
-          <div data-testid="mar-dosage">
-            {[
-              getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
-              getTranslatedFrequency(frequency, getTranslation),
-              getEnumTranslation(DRUG_ROUTE_LABELS, route),
-            ]
-              .filter(Boolean)
-              .join(', ')}
-          </div>
-          <PharmacyNote>
-            <span>{notes}</span>
-            {displayedPharmacyNote && (
-              <span>
-                {notes && ', '}
-                <TranslatedText
-                  stringId="medication.mar.pharmacyNotes"
-                  fallback="Pharmacy note"
-                />: {displayedPharmacyNote}
-              </span>
-            )}
-            {modifiedPharmacyNote && (
-              <>
-                {' '}
-                <ViewChangeLink onClick={handleViewChangeClick} data-testid="mar-view-change">
-                  <TranslatedText stringId="medication.mar.viewChange" fallback="View change" />
-                </ViewChangeLink>
-              </>
-            )}
-          </PharmacyNote>
+          </HeaderContent>
         </TableRowHeader>
         {recordsByWindow.map((marInfos, index) => (
           <MarCell
