@@ -247,7 +247,6 @@ export class CentralServerConnection {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    // not retried: there's no session to keep alive yet, and the next scheduled sync tries again
     const { sessionId, status } = (await this.post(
       'sync',
       {},
@@ -258,6 +257,10 @@ export class CentralServerConnection {
         deviceId: this.deviceId,
         isMobile: true,
       },
+      // safe to repeat: central closes any session this device left open before starting a new one.
+      // Only a few attempts, to ride out a blip: there's no session to keep alive yet, and the next
+      // scheduled sync tries again
+      { backoff: { maxAttempts: 3 } },
     )) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
