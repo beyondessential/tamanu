@@ -51,6 +51,7 @@ Applies to the care plans recorded against a patient and listed in the patient s
 - The modal is titled "Care plan:" followed by the care plan's name.
 - It shows the main care plan first, then the care plan's notes from oldest to newest, then the form for adding a note, separated from the notes by a divider.
 - The modal's footer holds a single Close, which closes the modal.
+- Text on the cards and in the change log wraps within its own column, breaking a word too long for the column, so no text runs into the column beside it.
 
 > [!NOTE]
 > Notes run oldest first so a note appears directly above the form it was written in.
