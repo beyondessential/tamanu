@@ -18,6 +18,7 @@ import { Colors } from '../constants/styles';
 import { DateDisplay, FormSeparatorLine, TranslatedText } from '../components';
 import { Field, OuterLabelFieldWrapper } from '../components/Field';
 import { useApi } from '../api';
+import { usePatient } from '../contexts/Patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
@@ -144,6 +145,7 @@ export const EditVitalCellForm = ({
   const api = useApi();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const { patient } = usePatient();
   const { ability, facilityId } = useAuth();
 
   const { getSetting } = useSettings();
@@ -241,6 +243,7 @@ export const EditVitalCellForm = ({
           <Box style={{ gridColumn: '1 / 3' }}>
             <SurveyQuestion
               component={dataPoint.component}
+              patient={patient}
               getComponentForQuestionType={getComponentForQuestionType}
               disabled={isDeleted || !hasPermission}
               data-testid="surveyquestion-2f43"
