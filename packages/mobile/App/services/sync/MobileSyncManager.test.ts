@@ -1,6 +1,8 @@
+import NetInfo from '@react-native-community/netinfo';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
+import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -88,6 +90,20 @@ describe('MobileSyncManager', () => {
       await expect(mobileSyncManager.runSync()).rejects.toThrow(
         'MobileSyncManager.runSync(): Tried to start syncing while sync in progress',
       );
+    });
+
+    it('does not start a sync session when the device is offline', async () => {
+      jest.mocked(NetInfo.fetch).mockResolvedValueOnce({ isConnected: false } as any);
+      const startSyncSessionSpy = jest.spyOn(centralServerConnection, 'startSyncSession');
+      const emitSpy = jest.spyOn(mobileSyncManager.emitter, 'emit');
+
+      await mobileSyncManager.triggerSync();
+
+      expect(startSyncSessionSpy).not.toHaveBeenCalled();
+      expect(emitSpy).toHaveBeenCalledWith(SYNC_EVENT_ACTIONS.SYNC_ERROR, {
+        error: new Error('No network connection'),
+      });
+      expect(mobileSyncManager.isSyncing).toBe(false);
     });
   });
 

@@ -1,3 +1,4 @@
+import NetInfo from '@react-native-community/netinfo';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
@@ -227,6 +228,12 @@ export class MobileSyncManager {
 
     console.log('MobileSyncManager.runSync(): Began sync run');
     this.isSyncing = true;
+
+    // there's no point opening a session if we already know the device is offline
+    const { isConnected } = await NetInfo.fetch();
+    if (isConnected === false) {
+      throw new Error('No network connection');
+    }
 
     // A VACUUM kicked off while the app was backgrounded may still be running. Let it finish
     // before opening a central session so the session isn’t held open waiting on the write lock.
