@@ -539,6 +539,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 /* E14: ModalActionRow at the bottom of the care plan modal */
 .e14-modal-actions { margin: 20px -32px 0; }
 .e14-modal-actions > .grDnvL { margin-top: 0; padding: 30px 32px 0 0; border-top: 1px solid #dedede; /* Colors.outline */ }
+/* E14: the Add care plan footer, as ModalActionRow: a full-width rule above the buttons */
+#e14-add-form > .fWdLoX > .grDnvL { width: auto; margin: 10px -32px 0; padding: 30px 32px 0; border-top: 1px solid #dedede; /* Colors.outline */ }
+#e14-add-form > .fWdLoX > .grDnvL > .grDnvL { margin-top: 0; }
 /* E14: Change Log modal, after NoteChangelogModal, NoteInfoSection and NoteChangeLogs */
 .e14-md .MuiDialog-paper { max-width: 830px; }
 .e14-cl-info { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 30px; padding: 12px; background: #ffffff; border: 1px solid #dedede; /* Colors.outline */ font-family: Roboto; font-size: 14px; line-height: 21px; color: #888888; /* Colors.midText */ }
@@ -558,7 +561,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .e14-cl-items li { display: flex; gap: 8px; align-items: baseline; white-space: normal; }
 .e14-cl-items i { font-size: 13px; color: #888888; /* Colors.midText */ }
 .e14-cl-items i.fa-check-square { color: #326699; /* Colors.primary */ }
-.e14-cl-divider { margin-block: 30px; margin-inline: 0; }
+.e14-cl-divider { width: calc(100% + 64px); margin-block: 30px; margin-inline: -32px; }
 #e14-changelog .grDnvL { margin-top: 0; }
 </style>
 </head>
