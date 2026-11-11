@@ -40,6 +40,13 @@ th { font-weight: 700; }
 /* Footer */
 .footer { position: absolute; left: 50pt; right: 50pt; bottom: 25pt; display: flex; justify-content: space-between; border-top: 1px solid #888888; padding-top: 2pt; color: #888888; font-size: 8pt; }
 .footer b { font-weight: 700; }
+
+/* Printing to PDF drops the viewer surround and keeps the page to one A4 sheet */
+@page { size: A4; margin: 0; }
+@media print {
+  body { background: none; padding: 0; }
+  .page { margin: 0; height: 842pt; min-height: 0; box-shadow: none; overflow: hidden; }
+}
 </style>
 </head>
 <body>
