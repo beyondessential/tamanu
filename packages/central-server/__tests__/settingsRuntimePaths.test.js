@@ -94,13 +94,13 @@ describe('Settings-driven runtime paths', () => {
     it('keeps serving the boot-time update URL after the setting changes', async () => {
       await models.Setting.set(
         'metaServer.updateUrls.mobile',
-        'https://updates.example.com/~{minVersion}',
+        'https://updates.example.com/{minVersion}',
         SETTINGS_SCOPES.GLOBAL,
       );
       const response = await outdatedMobileRequest(baseApp);
       expect(response.status).toEqual(400);
       expect(JSON.parse(response.text)['update-url']).toEqual(
-        `https://meta.tamanu.app/versions/~${MIN_MOBILE_VERSION}/mobile/package`,
+        `https://meta.tamanu.app/versions/${MIN_MOBILE_VERSION}/mobile/package`,
       );
     });
 
@@ -110,7 +110,7 @@ describe('Settings-driven runtime paths', () => {
         const response = await outdatedMobileRequest(supertest.agent(server));
         expect(response.status).toEqual(400);
         expect(JSON.parse(response.text)['update-url']).toEqual(
-          `https://updates.example.com/~${MIN_MOBILE_VERSION}`,
+          `https://updates.example.com/${MIN_MOBILE_VERSION}`,
         );
       } finally {
         server.close();

@@ -3,7 +3,8 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { VERSION_CONTROLLED_CLIENTS } from '../../app/middleware/versionCompatibility';
+import { parse } from 'semver';
+import { VERSION, VERSION_CONTROLLED_CLIENTS } from '../../app/middleware/versionCompatibility';
 
 const MIN_MOBILE_VERSION = VERSION_CONTROLLED_CLIENTS[SERVER_TYPES.MOBILE].min;
 const MIN_FACILITY_VERSION = VERSION_CONTROLLED_CLIENTS[SERVER_TYPES.FACILITY].min;
@@ -75,6 +76,15 @@ describe('Version compatibility', () => {
       expect(JSON.parse(response.error.text).error.message).toEqual(
         VERSION_COMPATIBILITY_ERRORS.LOW,
       );
+    });
+
+    it('Should require the release itself when no mobile release is recorded', () => {
+      expect(MIN_MOBILE_VERSION).toEqual(VERSION);
+    });
+
+    it('Should leave facility servers on the start of the minor line', () => {
+      const { major, minor } = parse(VERSION);
+      expect(MIN_FACILITY_VERSION).toEqual(`${major}.${minor}.0`);
     });
 
     it('Should deny a client over the maximum', async () => {
