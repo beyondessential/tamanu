@@ -59,6 +59,7 @@ lints.md
 
 # Output
 /packages/central-server/tamanu-reports/
+/packages/central-server/mobile-release.json
 
 # Env
 /packages/mobile/.envrc
