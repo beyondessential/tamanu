@@ -483,7 +483,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .e14-note-content .e14-item-text { font-size: 14px; color: #666666; }
 .e14-note-content > p { margin: 0; white-space: pre-line; }
 /* E14: checklist inside the main care plan card, to the left of its text */
-.e14-plan-body { display: grid; grid-template-columns: 320px 1fr; padding: 0; }
+.e14-plan-body { display: grid; grid-template-columns: 320px minmax(0, 1fr); padding: 0; }
+/* E14: long unbroken text wraps within its column rather than running into the next */
+.e14-checklist .e14-item-text, .e14-plan-text p, .e14-note-content p, .e14-cl-entry-content, .e14-cl-items li, .e14-card-meta, .e14-card-header h3 { overflow-wrap: anywhere; min-width: 0; }
+.e14-card-header > div:first-child { min-width: 0; }
 .e14-checklist { padding: 0.75rem 1rem; border-right: 1px solid #dedede; /* Colors.outline */ }
 .e14-checklist-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
 .e14-checklist-title { color: #666666; /* Colors.darkText */ font-weight: 500; }
