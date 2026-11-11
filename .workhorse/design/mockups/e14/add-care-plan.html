@@ -518,6 +518,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .e14-add-item svg { width: 18px; height: 18px; fill: currentColor; }
 .e14-error .MuiOutlinedInput-notchedOutline { border-color: #f76853 !important; /* Colors.alert */ }
 .e14-error-text { margin-top: 4px; font-family: Roboto; font-size: 12px; color: #f76853; /* Colors.alert */ }
+/* The text field stretches to the problem list's height, so its error hangs below rather than shrinking it */
+.e14-text-field { position: relative; }
+.e14-text-field > .e14-error-text { position: absolute; top: 100%; left: 0; }
 /* E14: template suggestions, after AutocompleteField's SuggestionsList */
 .e14-suggest-host { position: relative; }
 .e14-suggestions { position: absolute; z-index: 10; left: 0; right: 0; margin: 1px 0 0; padding: 0; list-style: none; background: #ffffff; border: 1px solid #dedede; /* Colors.outline */ border-radius: 3px; max-height: 210px; overflow-y: auto; }
