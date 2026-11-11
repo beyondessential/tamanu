@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '@tamanu/errors';
 import {
+  getPatientDetailFieldSettings,
   PatientWithAdditionalDataSchema,
   UpdatePatientDetailsRequestSchema,
 } from '@tamanu/shared/schemas/patientPortal';
@@ -36,18 +37,6 @@ const REFERENCE_DATA_DETAILS = {
   ethnicityId: REFERENCE_TYPES.ETHNICITY,
   insurerId: REFERENCE_TYPES.INSURER,
   occupationId: REFERENCE_TYPES.OCCUPATION,
-};
-
-const INSURANCE_FIELD_NAMES = ['insurerId', 'insurerPolicyNumber'];
-
-/** Insurance details are hidden unless the deployment uses them, as on Patient details in Tamanu. */
-const getFieldSettings = async settings => {
-  const fieldSettings = (await settings.get('fields')) ?? {};
-  if (await settings.get('features.enablePatientInsurer')) return fieldSettings;
-  const hiddenInsuranceFields = Object.fromEntries(
-    INSURANCE_FIELD_NAMES.map(name => [name, { ...fieldSettings[name], hidden: true }]),
-  );
-  return { ...fieldSettings, ...hiddenInsuranceFields };
 };
 
 /**
@@ -98,7 +87,10 @@ export const updatePatient = asyncHandler(async (req, res) => {
   checkAgainstFieldSettings(
     changes,
     { ...additionalData?.get({ plain: true }), email: patient.email },
-    await getFieldSettings(req.settings),
+    getPatientDetailFieldSettings(
+      (await req.settings.get('fields')) ?? {},
+      Boolean(await req.settings.get('features.enablePatientInsurer')),
+    ),
   );
   await checkReferenceData(changes, models);
 
