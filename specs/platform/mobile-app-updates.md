@@ -21,6 +21,27 @@ Servers reject a client below their minimum supported version and include the ad
 - [ ] An outstanding update is remembered on the device, so closing and reopening the app resumes it rather than losing it.
 - [ ] An app rejected for being above the maximum supported version does not start an update, since a device cannot be moved backwards to an earlier release. It reports that the app is incompatible with its server, as any other sign-in failure does.
 
+## The version a device must run
+
+A deployment's devices follow its central server. Central requires the mobile app to be at least the latest release in its own release line that changed the app, so a mobile hotfix reaches a deployment's devices when its central is upgraded to that release, and a release that changes only the servers asks nothing of them.
+
+- [ ] Central's minimum mobile version is the latest release, up to and including its own, in its minor line that published an Android package.
+- [ ] A mobile app on central's minor line but below that release is rejected and updates, in the same way as an app on an earlier minor line.
+- [ ] The address a rejected mobile app is given names that exact release, so every device at a deployment lands on the same version whichever release it started from.
+- [ ] Upgrading central to a release that changes only the servers leaves its minimum mobile version where it was, so no device is asked to update.
+- [ ] A mobile app above central's minimum but within its minor line, such as one installed by hand, is accepted and not asked to change.
+- [ ] Facility servers and the web app are unaffected: their minimum stays the first release of central's minor line.
+
+## Release packaging
+
+A release publishes an Android package only when it changes what goes into the app, so devices are never asked to download a package identical to the one they run.
+
+- [ ] A release builds and publishes an Android package when anything that goes into the app has changed since the previous release in its minor line: the mobile app itself, the shared packages it is built from, its dependencies, or their patches.
+- [ ] A release that changes only the servers publishes no Android package.
+- [ ] The first release of a minor line always publishes an Android package.
+- [ ] Each central server release records the latest release in its minor line that published an Android package, which becomes its minimum mobile version.
+- [ ] Where the comparison with the previous release cannot be made, the release publishes a package, so a doubtful case updates devices rather than sending them to a package that does not exist.
+
 ## The update endpoint
 
 The meta server serves the Android package for a given version and branding at its own address, separate from the page a browser is sent to. The app knows its own branding; central does not, so the app adds its branding to the address central gives it.
@@ -30,7 +51,7 @@ The meta server serves the Android package for a given version and branding at i
 - [ ] The app adds its own branding to the address it receives before requesting the package.
 - [ ] The response declares the package's size, so the app can check free space before downloading and detect a truncated download.
 - [ ] The endpoint supports resuming a partial download from a byte offset.
-- [ ] The endpoint serves the highest patch release within the requested version's minor line, matching the version range central asks for.
+- [ ] The endpoint serves exactly the release requested, since central names the release its devices must run.
 - [ ] A request for a version or branding the meta server has no package for is refused, and the app treats it as a failure it cannot retry its way out of.
 - [ ] The package is served over an encrypted connection.
 
