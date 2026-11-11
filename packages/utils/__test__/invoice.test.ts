@@ -89,6 +89,15 @@ describe('Invoice Utils', () => {
       };
       expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(0);
     });
+
+    // The quantity input holds '' while the user has cleared it to type a new value
+    it('should treat a cleared (empty string) quantity as 0 rather than throwing', () => {
+      const invoiceItem = {
+        manualEntryPrice: 100,
+        quantity: '' as unknown as number,
+      };
+      expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(0);
+    });
   });
 
   describe('getInvoiceItemTotalDiscountedPrice', () => {
