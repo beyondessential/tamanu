@@ -180,6 +180,26 @@ describe('Patient Portal: updating patient details', () => {
     expect(await updateDetails({ cityTown: 'Lalomanu' })).toHaveSucceeded();
   });
 
+  it('refuses insurance details unless the deployment uses patient insurance', async () => {
+    const { ReferenceData, Setting } = store.models;
+    const insurer = await ReferenceData.create(
+      fake(ReferenceData, { type: REFERENCE_TYPES.INSURER }),
+    );
+    await Setting.set('fields', {});
+    await Setting.set('features.enablePatientInsurer', false);
+    settingsCache.reset();
+
+    expect(await updateDetails({ insurerPolicyNumber: 'POL-111' })).toHaveRequestError();
+    expect(await updateDetails({ insurerId: insurer.id })).toHaveRequestError();
+
+    await Setting.set('features.enablePatientInsurer', true);
+    settingsCache.reset();
+
+    expect(
+      await updateDetails({ insurerId: insurer.id, insurerPolicyNumber: 'POL-111' }),
+    ).toHaveSucceeded();
+  });
+
   it('rejects a request without a portal sign-in', async () => {
     const response = await baseApp.put('/api/portal/me').send({ cityTown: 'Apia' });
     expect(response).toHaveRequestError();
