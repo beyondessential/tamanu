@@ -57,3 +57,22 @@ test.describe('Emergency patients', () => {
     });
   });
 });
+
+test.describe('Emergency encounter details', () => {
+  test('Change the patient type from Edit encounter details', async ({
+    newPatientWithTriageAdmission,
+    patientDetailsPage,
+  }) => {
+    await patientDetailsPage.goToPatient(newPatientWithTriageAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
+
+    const editEncounterModal = await patientDetailsPage.openEditEncounterModal();
+    const patientType = await editEncounterModal.selectPatientType('Charity');
+    await editEncounterModal.saveChanges();
+
+    await expect(patientDetailsPage.patientTypeLabel).toHaveText(patientType ?? 'Charity');
+  });
+});
