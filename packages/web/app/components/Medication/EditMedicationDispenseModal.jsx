@@ -10,7 +10,10 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+import {
+  getDispensingQuantityLimitBreach,
+  getDrugUnitLabel,
+} from '@tamanu/shared/utils/medication';
 
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -22,6 +25,7 @@ import { DateDisplay } from '../DateDisplay';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
+import { renderLimitWarning } from './MedicationLimitWarning';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
   buildInstructionText,
@@ -325,7 +329,14 @@ export const EditMedicationDispenseModal = memo(
                 helperText={
                   showValidationErrors && hasQuantityError
                     ? getTranslation('validation.required.inline', '*Required')
-                    : ''
+                    : // spec: DQLIM#dispensing
+                      renderLimitWarning(
+                        getDispensingQuantityLimitBreach(
+                          quantity,
+                          dispensedPrescription?.medication?.referenceDrug,
+                        ),
+                        dispensingUnit,
+                      )
                 }
               />
             );
