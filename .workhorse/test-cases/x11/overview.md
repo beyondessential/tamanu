@@ -108,7 +108,7 @@ Two things to know while testing:
       features.enablePatientInsurer
 - [x] The patient portal's details and edit screens no longer offer Health insurer, and still
       offer Policy number (verifies spec: PPDET)
-- [ ] An invoice record printout shows the invoice's insurance plans, and no longer falls back
+- [x] An invoice record printout shows the invoice's insurance plans, and no longer falls back
       to the patient's insurer when the invoice has none
 - [x] A patient saved before the upgrade keeps its insurance policy number
 
