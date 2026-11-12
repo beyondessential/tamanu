@@ -37,13 +37,16 @@ export const startApi = async ({ skipMigrationCheck }) => {
   const minConnectionPoolSnapshotHeadroom = 4;
   // Resolve so a pool size supplied via the connection-string query is seen here too.
   const poolMax = resolveDbConfig(config.db)?.pool?.max;
-  const connectionPoolSnapshotHeadroom = poolMax - config?.sync?.numberConcurrentPullSnapshots;
+  const numberConcurrentPullSnapshots = await context.settings.get(
+    'sync.numberConcurrentPullSnapshots',
+  );
+  const connectionPoolSnapshotHeadroom = poolMax - numberConcurrentPullSnapshots;
   if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
     log.warn(
-      `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,
+      `WARNING: config.db.pool.max is dangerously close to the sync.numberConcurrentPullSnapshots setting (within ${minConnectionPoolSnapshotHeadroom} connections)`,
       {
         'config.db.pool.max': poolMax,
-        'config.sync.numberConcurrentPullSnapshots': config.sync?.numberConcurrentPullSnapshots,
+        'sync.numberConcurrentPullSnapshots': numberConcurrentPullSnapshots,
         connectionPoolSnapshotHeadroom,
       },
     );

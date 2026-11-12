@@ -1,8 +1,8 @@
-import config from 'config';
-
 import { fetchWithRetryBackoff } from '@tamanu/api-client';
 import { extractErrorFromFetchResponse, RemoteUnreachableError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
+
+import { getSyncApiConnection } from '../serverConfig';
 
 // Backs off over 1.2s before giving up, well inside the 10s the api route races a trigger
 // against, so a request that can't get through reports the real error rather than being
@@ -17,9 +17,8 @@ const MAX_ATTEMPTS = 4;
  */
 export class FacilitySyncConnection {
   constructor() {
-    this.host = `${config.sync.syncApiConnection.host.trim().replace(/\/*$/, '')}:${
-      config.sync.syncApiConnection.port
-    }`;
+    const { host, port } = getSyncApiConnection();
+    this.host = `${host.trim().replace(/\/*$/, '')}:${port}`;
   }
 
   /** Make the request, retrying if the sync process can't be reached at all.

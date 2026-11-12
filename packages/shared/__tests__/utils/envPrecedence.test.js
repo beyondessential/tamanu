@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import config from 'config';
 import { getAuthSecret, getRefreshTokenSecret } from '../../src/utils/authSecrets';
 import { getCanonicalHostName } from '../../src/utils/canonicalHostName';
 import { getTrustedProxy } from '../../src/utils/trustedProxy';
 import { getPrimaryTimeZone } from '../../src/utils/timeZoneCheck';
+import { getBugsnagOptions } from '../../src/services/logging/bugsnag';
 
 // The config -> env cutover (TAM-6864) keeps the config keys as a transitional
 // fallback: each getter prefers its env var and falls back to the (soon-removed)
@@ -13,11 +15,19 @@ vi.mock('config', () => ({
     canonicalHostName: 'https://config-host.example',
     proxy: { trusted: ['10.0.0.1'] },
     countryTimeZone: 'Pacific/Fiji',
+    errors: { type: 'bugsnag', apiKey: '', releaseStage: 'config-stage' },
   },
 }));
 
 describe('env-var precedence over config', () => {
-  const ENV_KEYS = ['AUTH_SECRET', 'AUTH_REFRESH_TOKEN_SECRET', 'CANONICAL_HOST_NAME', 'PROXY_TRUSTED', 'TZ'];
+  const ENV_KEYS = [
+    'AUTH_SECRET',
+    'AUTH_REFRESH_TOKEN_SECRET',
+    'CANONICAL_HOST_NAME',
+    'PROXY_TRUSTED',
+    'TZ',
+    'BUGSNAG_API_KEY',
+  ];
   const original = {};
 
   beforeEach(() => {
@@ -50,6 +60,25 @@ describe('env-var precedence over config', () => {
     });
     it('falls back to config.auth.refreshToken.secret when the env var is unset', () => {
       expect(getRefreshTokenSecret()).toBe('config-refresh');
+    });
+  });
+
+  describe('getBugsnagOptions', () => {
+    it('turns Bugsnag on with BUGSNAG_API_KEY, keeping the other config options', () => {
+      process.env.BUGSNAG_API_KEY = 'env-key';
+      expect(getBugsnagOptions()).toEqual({ apiKey: 'env-key', releaseStage: 'config-stage' });
+    });
+    it('falls back to config.errors, which leaves it off here', () => {
+      expect(getBugsnagOptions()).toBeNull();
+    });
+    it('stays off when config.errors.enabled is explicitly false, even with BUGSNAG_API_KEY', () => {
+      process.env.BUGSNAG_API_KEY = 'env-key';
+      config.errors.enabled = false;
+      try {
+        expect(getBugsnagOptions()).toBeNull();
+      } finally {
+        delete config.errors.enabled;
+      }
     });
   });
 

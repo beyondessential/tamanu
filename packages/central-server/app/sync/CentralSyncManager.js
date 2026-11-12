@@ -73,10 +73,13 @@ export class CentralSyncManager {
   /** @type {ApplicationContext} */
   store;
 
+  settings;
+
   purgeInterval;
 
   constructor(ctx) {
     this.store = ctx.store;
+    this.settings = ctx.settings;
     ctx.onClose(this.close);
   }
 
@@ -459,7 +462,10 @@ export class CentralSyncManager {
 
       // will wait for concurrent snapshots to complete if we are currently at capacity, then
       // set the snapshot_started_at timestamp before we proceed with the heavy work below
-      await startSnapshotWhenCapacityAvailable(sequelize, sessionId);
+      const numberConcurrentPullSnapshots = await this.settings.get(
+        'sync.numberConcurrentPullSnapshots',
+      );
+      await startSnapshotWhenCapacityAvailable(sequelize, sessionId, numberConcurrentPullSnapshots);
 
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
       // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot

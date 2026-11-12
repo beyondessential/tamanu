@@ -1,7 +1,10 @@
-import config from 'config';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-const startSnapshotIfCapacityAvailable = async (sequelize, sessionId) => {
+const startSnapshotIfCapacityAvailable = async (
+  sequelize,
+  sessionId,
+  numberConcurrentPullSnapshots,
+) => {
   // work out how many sessions are currently in the snapshot phase
   const [, affectedRows] = await sequelize.query(
     `
@@ -21,7 +24,7 @@ const startSnapshotIfCapacityAvailable = async (sequelize, sessionId) => {
     {
       replacements: {
         sessionId,
-        numberConcurrentPullSnapshots: config.sync.numberConcurrentPullSnapshots,
+        numberConcurrentPullSnapshots,
       },
       type: sequelize.QueryTypes.UPDATE,
     },
@@ -30,9 +33,15 @@ const startSnapshotIfCapacityAvailable = async (sequelize, sessionId) => {
   return success;
 };
 
-export const startSnapshotWhenCapacityAvailable = async (sequelize, sessionId) => {
+export const startSnapshotWhenCapacityAvailable = async (
+  sequelize,
+  sessionId,
+  numberConcurrentPullSnapshots,
+) => {
   // wait for there to be enough capacity to start a snapshot
-  while (!(await startSnapshotIfCapacityAvailable(sequelize, sessionId))) {
+  while (
+    !(await startSnapshotIfCapacityAvailable(sequelize, sessionId, numberConcurrentPullSnapshots))
+  ) {
     await sleepAsync(500); // wait for half a second
   }
 };

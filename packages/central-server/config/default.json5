@@ -32,8 +32,7 @@
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
   errors: {
-    // enable to send errors to a bug tracking service
-    enabled: false,
+    // Leave enabled unset: BUGSNAG_API_KEY turns reporting on, an explicit false turns it off.
     // right now the only supported service is bugsnag
     type: 'bugsnag',
     // paste your bugsnag API key here
