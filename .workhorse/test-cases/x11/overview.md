@@ -54,7 +54,7 @@ Two things to know while testing:
       required for sliding fee scale" on the family size field (verifies spec: PDET)
 - [x] With a family size chosen, saving without an annual income shows "Annual income is
       required for sliding fee scale" on the annual income field (verifies spec: PDET)
-- [ ] Neither message appears before Save is selected; choosing a value afterwards clears
+- [x] Neither message appears before Save is selected; choosing a value afterwards clears
       that field's message without raising one on the other until Save again
       (verifies spec: PDET)
 - [ ] Removing the sliding fee scale plan drops the required marks and clears both messages
