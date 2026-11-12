@@ -346,7 +346,10 @@ export class CentralServerConnection {
       `sync/${sessionId}/push`,
       {},
       { changes },
-      // safe to repeat: central de-duplicates pushed records when it persists them
+      // Safe to repeat:
+      // - a page whose response was lost lands twice in the session’s snapshot; and
+      // - central persists both copies to the same result (creates are deduped by id, and a
+      //   repeated update merges to the same values). Facility servers retry pushes the same way.
       { compress: true, backoff: this.retryThroughNetworkDrops, onAttempt },
     );
   }
