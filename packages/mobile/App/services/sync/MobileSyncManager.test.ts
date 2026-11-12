@@ -93,7 +93,7 @@ describe('MobileSyncManager', () => {
     });
 
     it('does not start a sync session when the device is offline', async () => {
-      jest.mocked(NetInfo.fetch).mockResolvedValueOnce({ isConnected: false } as any);
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: false } as any);
       const startSyncSessionSpy = jest.spyOn(centralServerConnection, 'startSyncSession');
       const emitSpy = jest.spyOn(mobileSyncManager.emitter, 'emit');
 
@@ -104,6 +104,17 @@ describe('MobileSyncManager', () => {
         error: new Error('No network connection'),
       });
       expect(mobileSyncManager.isSyncing).toBe(false);
+    });
+
+    it('still tries to sync when the network state cannot be read', async () => {
+      jest.mocked(NetInfo.refresh).mockRejectedValueOnce(new Error('native module unavailable'));
+      const startSyncSessionSpy = jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockResolvedValueOnce({ status: 'waitingInQueue' } as any);
+
+      await mobileSyncManager.triggerSync();
+
+      expect(startSyncSessionSpy).toHaveBeenCalledTimes(1);
     });
   });
 
