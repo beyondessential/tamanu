@@ -5,12 +5,24 @@ import { Button, TranslatedText, useSettings } from '@tamanu/ui-components';
 import { WebcamCaptureModal, CAMERA_STATUS } from './WebcamCaptureModal';
 import { notifyError } from '../utils/index.js';
 
-export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
+const MAX_FREE_TEXT_QR_LENGTH = 255;
+
+const parseFreeText = raw => {
+  const value = raw.trim();
+  return value && value.length <= MAX_FREE_TEXT_QR_LENGTH ? value : null;
+};
+
+export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPattern = true }) => {
   const webcamRef = useRef(null);
   const { getSetting } = useSettings();
   const displayIdPattern = getSetting('fields.displayId.pattern');
+  const parseCode = raw =>
+    matchDisplayIdPattern ? parseScannedDisplayId(raw, displayIdPattern) : parseFreeText(raw);
   const [cameraStatus, setCameraStatus] = useState(CAMERA_STATUS.REQUESTING);
   const scannerTimerRef = useRef(null);
+  // The scan loop reads the latest callbacks through a ref so a parent re-render doesn't restart it
+  const callbacksRef = useRef({ onScan, onClose, parseCode });
+  callbacksRef.current = { onScan, onClose, parseCode };
 
   useEffect(() => {
     if (cameraStatus === CAMERA_STATUS.READY && open) {
@@ -26,6 +38,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
       };
 
       const scan = async () => {
+        const { onScan, onClose, parseCode } = callbacksRef.current;
         if (webcamRef.current && webcamRef.current.video) {
           const video = webcamRef.current.video;
           // Ensure video is ready to be scanned
@@ -49,9 +62,9 @@ export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
               if (rawValue) {
                 stopScanning();
 
-                const displayId = parseScannedDisplayId(rawValue, displayIdPattern);
-                if (displayId) {
-                  onScan?.(displayId);
+                const code = parseCode(rawValue);
+                if (code) {
+                  onScan?.(code);
                 } else {
                   notifyError(
                     <TranslatedText
@@ -84,7 +97,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
         scannerTimerRef.current = null;
       }
     };
-  }, [cameraStatus, open, onScan, onClose, displayIdPattern]);
+  }, [cameraStatus, open]);
 
   const videoConstraints = {
     width: 1280,

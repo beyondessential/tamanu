@@ -1,10 +1,27 @@
 import { Chance } from 'chance';
 
+import { SYNDROMIC_SURVEILLANCE_SURVEY_ID } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
+import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { fake } from '@tamanu/fake-data/fake';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const chance = new Chance();
+
+export const SYNDROMIC_SURVEILLANCE_TEST_DATA_ELEMENT_ID = 'pde-SyndromicSurveillanceFever';
+
+export const setupSyndromicSurveillanceSurvey = async models => {
+  const { survey } = await setupSurveyFromObject(models, {
+    program: {
+      id: 'program-syndromicsurveillance',
+      code: 'syndromicsurveillance',
+      name: 'Syndromic surveillance',
+    },
+    survey: { id: SYNDROMIC_SURVEILLANCE_SURVEY_ID, code: 'syndromicsurveillance' },
+    questions: [{ name: 'SyndromicSurveillanceFever', type: 'FreeText' }],
+  });
+  return survey;
+};
 
 export const setupSurvey = async ({
   models,

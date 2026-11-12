@@ -10,6 +10,7 @@ import {
   CustomisableSearchBar,
   DateField,
   LocalisedField,
+  QRCodeSearchField,
   SearchField,
 } from '../../components';
 import { BaseSelectField, useDateTime } from '@tamanu/ui-components';
@@ -160,7 +161,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             data-testid="translatedtext-k3v0"
           />
         }
-        component={SearchField}
+        component={QRCodeSearchField}
         data-testid="localisedfield-5oa9"
       />
       <LocalisedField

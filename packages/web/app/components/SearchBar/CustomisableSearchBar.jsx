@@ -1,5 +1,5 @@
 import { IconButton } from '@material-ui/core';
-import React, { useCallback, useId } from 'react';
+import React, { useCallback, useId, useState } from 'react';
 import styled from 'styled-components';
 
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
@@ -87,12 +87,24 @@ export const CustomisableSearchBar = ({
   hiddenFields,
   hasPermission = true,
   className,
+  canSearch,
 }) => {
   const switchExpandValue = useCallback(() => {
     setIsExpanded(previous => !previous);
   }, [setIsExpanded]);
 
+  // Search and Clear stay available once a search has run, so emptying the fields can't strand its
+  // results. Searching with nothing filled in then clears.
+  const [hasSearched, setHasSearched] = useState(false);
+  const isBlank = values => Boolean(canSearch) && !canSearch(values);
+
   const handleSubmit = values => {
+    if (isBlank(values)) {
+      setHasSearched(false);
+      onSearch({});
+      return;
+    }
+    setHasSearched(true);
     onSearch({ ...values });
   };
 
@@ -129,6 +141,7 @@ export const CustomisableSearchBar = ({
               <SearchButton
                 type="submit"
                 hasPermission={hasPermission}
+                disabled={isBlank(values) && !hasSearched}
                 data-testid="searchbutton-nt24"
               >
                 <TranslatedText
@@ -138,9 +151,11 @@ export const CustomisableSearchBar = ({
                 />
               </SearchButton>
               <ClearButton
+                disabled={isBlank(values) && !hasSearched}
                 onClick={() => {
                   // Cant check for dirty as form is reinitialized with persisted values
                   if (Object.keys(values).length === 0) return;
+                  setHasSearched(false);
                   onSearch({});
                   // ClearForm needed to be deferred in order ensure that it re-initializes to an empty
                   // state rather than the previous state

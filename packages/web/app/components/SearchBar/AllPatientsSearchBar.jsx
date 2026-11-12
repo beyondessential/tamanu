@@ -13,8 +13,10 @@ import styled from 'styled-components';
 import { useSuggester } from '../../api';
 import { useSettings } from '../../contexts/Settings';
 import { DOBFields, LocalisedField, QRCodeSearchField, SearchField } from '../Field';
+import { Customisations } from '../Customisations';
 import { AdditionalSearchField } from './AdditionalSearchField';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
+import { hasSearchCriteria } from './hasSearchCriteria';
 import { SearchBarCheckField } from './SearchBarCheckField';
 
 const TwoColumnsField = styled.div`
@@ -48,20 +50,23 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       onSearch={onSearch}
+      canSearch={hasSearchCriteria}
       initialValues={searchParameters}
       hiddenFields={
         <>
-          <LocalisedField
-            component={SearchField}
-            name="culturalName"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.culturalName.label.short"
-                fallback="Cultural/traditional name"
-              />
-            }
-            data-testid="localisedfield-epbq"
-          />
+          <Customisations name="CulturalNameSearchField">
+            <LocalisedField
+              component={SearchField}
+              name="culturalName"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.culturalName.label.short"
+                  fallback="Cultural/traditional name"
+                />
+              }
+              data-testid="localisedfield-epbq"
+            />
+          </Customisations>
           <TwoColumnsField data-testid="twocolumnsfield-wg4x">
             <DOBFields showExactBirth={false} data-testid="dobfields-k8zn" />
             <SexLocalisedField

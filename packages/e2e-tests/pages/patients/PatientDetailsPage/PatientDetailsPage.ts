@@ -130,6 +130,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly diagnosisContainer: Locator;
   readonly diagnosisCategory: Locator;
   readonly diagnosisName: Locator;
+  readonly diagnosisTab: Locator;
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
@@ -312,10 +313,14 @@ export class PatientDetailsPage extends BasePatientPage {
     this.threeDotMenuButton = this.page.getByTestId('stylediconbutton-szh8');
     this.editEncounterMenuItem = this.page.getByTestId('menuitem-0');
     this.movePatientButton = this.page.getByRole('button', { name: 'Move patient' });
-    this.addDiagnosisButton = this.page.getByTestId('adddiagnosisbutton-2ij9');
-    this.diagnosisContainer = this.page.getByTestId('diagnosislistcontainer-dqkk');
-    this.diagnosisCategory = this.page.getByTestId('category-vwwx');
-    this.diagnosisName = this.page.getByTestId('diagnosisname-vvn4');
+    this.addDiagnosisButton = this.page.getByTestId('button-add-diagnosis');
+    this.diagnosisContainer = this.page.getByTestId('datafetchingtable-diagnoses');
+    // DiagnosisTable's `isPrimary`/`Diagnosis.name` columns render via TranslatedText /
+    // TranslatedReferenceData, neither of which accepts a `data-testid` prop (they return bare
+    // strings, not DOM elements) — so the cell itself is what's addressable, not its content.
+    this.diagnosisCategory = this.page.getByTestId(/^styledtablecell-2gyy-\d+-isPrimary$/);
+    this.diagnosisName = this.page.getByTestId(/^styledtablecell-2gyy-\d+-Diagnosis\.name$/);
+    this.diagnosisTab = this.page.getByTestId('styledtab-ccs8-diagnosis');
   }
 
   /**
@@ -391,6 +396,10 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async navigateToVitalsTab(): Promise<void> {
     await this.selectTab(this.vitalsTab);
+  }
+
+  async navigateToDiagnosisTab(): Promise<void> {
+    await this.selectTab(this.diagnosisTab);
   }
 
   async navigateToDocumentsTab(): Promise<DocumentsPane> {

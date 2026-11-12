@@ -1,10 +1,12 @@
 import React from 'react';
 import * as PalauComponents from './palau';
+import * as QRCodeScannerComponents from './qrCodeScanner';
 import { useSettings } from '../../contexts/Settings';
 import { SETTING_KEYS } from '@tamanu/constants';
 
 const ComponentList = {
   palau: PalauComponents,
+  qrCodeScanner: QRCodeScannerComponents,
 };
 
 /**
@@ -18,9 +20,11 @@ const ComponentList = {
  *
  * IMPORTANT:
  * - Your customized version in settings have to matched the key of the `ComponentList` object (.i.e "palau").
- * - Your customized component's name have to matched the default component's name,
- * and the component's name in settings have to matched both of them (.i.e SampleButton)
+ * - The `name` prop, the customised component's export name and the component's name in settings
+ * have to match (.i.e SampleButton). It is passed explicitly because production builds minify
+ * function names.
  *
+ * @param {string} name - The customisation's name, as used in settings.
  * @param {ReactNode} children - The child component to be customized.
  * @returns {ReactNode} - The customized child component.
  * @example
@@ -36,25 +40,24 @@ const ComponentList = {
  *
  * import { SampleButton } from './components/SampleButton';
  *
- * return <Customisations><SampleButton onClick={() => null} /></Customisations>
+ * return <Customisations name="SampleButton"><SampleButton onClick={() => null} /></Customisations>
  *
  * => It will check if we have customized the SampleButton component or not ("palau" version is used in this case)
  * then it will replaced the default SampleButton component with the "palau" SampleButton component
  */
-export const Customisations = ({ children }) => {
+export const Customisations = ({ name, children }) => {
   const { getSetting } = useSettings();
   const settings = getSetting(SETTING_KEYS.CUSTOMISATIONS_COMPONENTS);
 
-  const componentName = children?.type?.name;
   const props = children?.props;
 
   if (!settings) {
     return children;
   }
 
-  const componentVersion = settings[componentName];
-  const Component = ComponentList[componentVersion]?.[componentName];
+  const componentVersion = settings[name];
+  const Component = ComponentList[componentVersion]?.[name];
 
   if (!Component) return children;
-  return <Component {...props} data-testid="component-84o8" />;
+  return <Component {...props} />;
 };
