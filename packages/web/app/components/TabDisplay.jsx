@@ -1,10 +1,38 @@
 import { svgIconClasses } from '@mui/material/SvgIcon';
 import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
+import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Colors } from '../constants';
+
+export const tabScrollButtonStyles = css`
+  .${tabsClasses.scrollButtons} {
+    align-self: center;
+    width: 32px;
+    height: 32px;
+    margin-inline: 8px;
+    border: 1px solid ${Colors.outline};
+    border-radius: 20%;
+    background-color: ${Colors.white};
+    color: ${Colors.primary};
+    opacity: 1;
+
+    &:hover {
+      background-color: ${Colors.primary10};
+    }
+
+    .${svgIconClasses.root} {
+      font-size: 1.5rem;
+    }
+
+    &.Mui-disabled {
+      opacity: 0;
+      width: 40px;
+      margin-inline: 0;
+    }
+  }
+`;
 
 export const TabContainer = styled(Tabs)`
   background: ${Colors.white};
