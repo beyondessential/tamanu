@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_encounters_from_sync_lookup
+              - flag_encounters_for_lookup_rebuild
               - notify_encounters_changed
               - record_encounters_changelog
               - set_encounters_updated_at

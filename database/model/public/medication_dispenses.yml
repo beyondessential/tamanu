@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_medication_dispenses_from_sync_lookup
+              - flag_medication_dispenses_for_lookup_rebuild
               - record_medication_dispenses_changelog
               - set_medication_dispenses_updated_at
               - set_medication_dispenses_updated_at_sync_tick

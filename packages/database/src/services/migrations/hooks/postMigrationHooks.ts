@@ -21,14 +21,17 @@ import {
 import { requireFunction, requireTable } from './prerequisites';
 import type { MigrationHook } from './types';
 
-const DELETE_TRIGGER_PREFIX = 'delete_';
-const DELETE_TRIGGER_SUFFIX = '_from_sync_lookup';
+export const DELETE_TRIGGER_PREFIX = 'delete_';
+export const DELETE_TRIGGER_SUFFIX = '_from_sync_lookup';
+export const FLAG_TRIGGER_PREFIX = 'flag_';
+export const FLAG_TRIGGER_SUFFIX = '_for_lookup_rebuild';
 const LOOKUP_TRACKED_DIRECTIONS: string[] = [
   SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
   SYNC_DIRECTIONS.BIDIRECTIONAL,
 ];
 
-// Postgres silently truncates identifiers over 63 bytes; match that so a later lookup against the
+// Postgres silently truncates identifiers over 63 bytes (a truncated name also lands in the dbt
+// models, as a fragment the spellcheck rejects, see the table name length test); match that so a later lookup against the
 // installed trigger name (pg_trigger.tgname) finds what CREATE TRIGGER actually stored.
 const truncatedTriggerName = (prefix: string, table: string, suffix: string) =>
   `${prefix}${table}${suffix}`.slice(0, 63);
@@ -87,24 +90,69 @@ const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
   name: 'addOrReplaceUpdatedAtSyncTickTrigger',
   prerequisites: [requireFunction('set_updated_at_sync_tick')],
   async run({ log, sequelize }) {
-    const isCentralServer = !selectFacilityIds(config);
-
     for (const { schema, table } of await allTables(sequelize, [
       ...GLOBAL_EXCLUDE_TABLES,
       ...NON_SYNCING_TABLES,
     ])) {
-      const isLookupTracked = isCentralServer && isTableLookupTracked(sequelize, table);
-      log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`, {
-        lookupTracked: isLookupTracked,
-      });
+      log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`);
       await sequelize.query(`
         DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}";
-        
+
         CREATE TRIGGER set_${table}_updated_at_sync_tick
         BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
         FOR EACH ROW
-        EXECUTE FUNCTION public.set_updated_at_sync_tick(${isLookupTracked ? `'true'` : ''});
+        EXECUTE FUNCTION public.set_updated_at_sync_tick();
     `);
+    }
+  },
+};
+
+// AFTER rather than folded into the BEFORE sync tick trigger: stored generated columns (such as
+// the `id` of translated_strings) are NULL in a BEFORE ROW trigger, and the flag needs the id.
+export const addOrReplaceSyncLookupDisabledFlagTrigger: MigrationHook = {
+  name: 'addOrReplaceSyncLookupDisabledFlagTrigger',
+  prerequisites: [requireFunction('flag_sync_lookup_for_rebuild_when_sync_trigger_disabled')],
+  async run({ log, sequelize }) {
+    const isCentralServer = !selectFacilityIds(config);
+    const isWanted = (table: string) => isCentralServer && isTableLookupTracked(sequelize, table);
+
+    // Remove triggers that are no longer wanted, such as after a database moves from central to a
+    // facility role (restored from a central backup), or a table stops being lookup-tracked.
+    for (const { schema, table } of await tablesWithTrigger(
+      sequelize,
+      FLAG_TRIGGER_PREFIX,
+      FLAG_TRIGGER_SUFFIX,
+    )) {
+      if (isWanted(table)) {
+        continue;
+      }
+      log.info(`Removing sync_lookup disabled-mode flag trigger from ${schema}.${table}`);
+      await sequelize.query(
+        `DROP TRIGGER IF EXISTS ${truncatedTriggerName(FLAG_TRIGGER_PREFIX, table, FLAG_TRIGGER_SUFFIX)} ON "${schema}"."${table}";`,
+      );
+    }
+
+    if (!isCentralServer) {
+      return;
+    }
+
+    for (const { schema, table } of await tablesWithoutTrigger(
+      sequelize,
+      FLAG_TRIGGER_PREFIX,
+      FLAG_TRIGGER_SUFFIX,
+      [...GLOBAL_EXCLUDE_TABLES, ...NON_SYNCING_TABLES],
+    )) {
+      if (!isWanted(table)) {
+        continue;
+      }
+
+      log.info(`Adding sync_lookup disabled-mode flag trigger to ${schema}.${table}`);
+      await sequelize.query(`
+        CREATE TRIGGER ${truncatedTriggerName(FLAG_TRIGGER_PREFIX, table, FLAG_TRIGGER_SUFFIX)}
+        AFTER INSERT OR UPDATE ON "${schema}"."${table}"
+        FOR EACH ROW
+        EXECUTE FUNCTION public.flag_sync_lookup_for_rebuild_when_sync_trigger_disabled();
+      `);
     }
   },
 };
@@ -239,6 +287,7 @@ export const POST_MIGRATION_HOOKS: MigrationHook[] = [
   addUpdatedAtSyncTickColumn,
   addUpdatedAtTrigger,
   addOrReplaceUpdatedAtSyncTickTrigger,
+  addOrReplaceSyncLookupDisabledFlagTrigger,
   addSyncLookupDeleteTrigger,
   reconcileNotifyTableChangedTrigger,
   addRecordChangeTrigger,

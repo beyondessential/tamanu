@@ -1,0 +1,23 @@
+import { useQuery } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
+import { useApi } from '../index';
+
+/**
+ * The syndromic surveillance form, for completing within the discharge form. Fetched through the
+ * encounter because doing so is covered by the permission to discharge it, not the form's own.
+ */
+export const useDischargeSyndromicSurveillanceSurveyQuery = (
+  encounterId,
+  { enabled = true } = {},
+) => {
+  const api = useApi();
+
+  return useQuery(
+    ['dischargeSyndromicSurveillanceSurvey', encounterId],
+    () =>
+      api.get(
+        route('encounter/:encounterId/syndromicSurveillance/dischargeSurvey', { encounterId }),
+      ),
+    { enabled: Boolean(encounterId) && enabled },
+  );
+};

@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '@tamanu/errors';
 import {
+  getPatientDetailFieldSettings,
   PatientWithAdditionalDataSchema,
   UpdatePatientDetailsRequestSchema,
 } from '@tamanu/shared/schemas/patientPortal';
@@ -85,7 +86,10 @@ export const updatePatient = asyncHandler(async (req, res) => {
   checkAgainstFieldSettings(
     changes,
     { ...additionalData?.get({ plain: true }), email: patient.email },
-    (await req.settings.get('fields')) ?? {},
+    getPatientDetailFieldSettings(
+      (await req.settings.get('fields')) ?? {},
+      Boolean(await req.settings.get('features.enablePatientInsurer')),
+    ),
   );
   await checkReferenceData(changes, models);
 

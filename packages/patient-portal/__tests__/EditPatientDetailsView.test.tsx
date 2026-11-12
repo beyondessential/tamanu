@@ -8,12 +8,14 @@ import { createFakeApi, fakePatient, renderPortal, stubTranslations } from './re
 const renderEditDetails = ({
   patient = fakePatient(),
   fields = {},
+  features = {},
 }: {
   patient?: ReturnType<typeof fakePatient>;
   fields?: Record<string, { required?: boolean; hidden?: boolean }>;
+  features?: { enablePatientInsurer?: boolean };
 } = {}) => {
   stubTranslations();
-  const api = createFakeApi({ me: patient, settings: { fields } });
+  const api = createFakeApi({ me: patient, settings: { fields, features } });
   renderPortal({ page: <EditPatientDetailsView />, path: '/details/edit', api });
   return { api };
 };
@@ -44,6 +46,17 @@ describe('EditPatientDetailsView', () => {
     expect(await screen.findByText('Required')).toBeTruthy();
     expect(screen.getByLabelText(/^Town or city/).getAttribute('aria-invalid')).toBe('true');
     expect(api.put).not.toHaveBeenCalled();
+  });
+
+  it('leaves out insurance unless the deployment uses patient insurance', async () => {
+    renderEditDetails();
+    await screen.findByLabelText(/^Email/);
+    expect(screen.queryByLabelText(/^Policy number/)).toBeNull();
+  });
+
+  it('shows insurance when the deployment uses patient insurance', async () => {
+    renderEditDetails({ features: { enablePatientInsurer: true } });
+    expect(await screen.findByLabelText(/^Policy number/)).toBeTruthy();
   });
 
   it('sends nothing when nothing was changed', async () => {

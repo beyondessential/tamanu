@@ -321,6 +321,52 @@ describe('ProgramRegistry', () => {
       ]);
     });
 
+    it('should include the currently in ids', async () => {
+      const { id: programRegistryId } = await createProgramRegistry({ currentlyAtType: 'village' });
+      const village = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: 'village' }),
+      );
+      const patient = await models.Patient.create(fake(models.Patient));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId,
+          patientId: patient.id,
+          clinicianId: app.user.id,
+          villageId: village.id,
+          facilityId: null,
+        }),
+      );
+
+      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toMatchObject([
+        { villageId: village.id, facilityId: null, village: { name: village.name } },
+      ]);
+    });
+
+    it('should include the currently in facility id', async () => {
+      const { id: programRegistryId } = await createProgramRegistry({ currentlyAtType: 'facility' });
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId,
+          patientId: patient.id,
+          clinicianId: app.user.id,
+          villageId: null,
+          facilityId: facility.id,
+        }),
+      );
+
+      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toMatchObject([
+        { villageId: null, facilityId: facility.id, facility: { name: facility.name } },
+      ]);
+    });
+
     it('should exclude conditions with hidden condition categories', async () => {
       const { id: programRegistryId } = await createProgramRegistry();
 

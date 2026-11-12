@@ -2,6 +2,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { FHIR_INTEGRATION_VERB } from '@tamanu/constants';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
+import { settingsCache } from '@tamanu/settings';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { decodeJwt } from 'jose';
 import { pick } from 'es-toolkit/compat';
@@ -71,6 +72,36 @@ describe('FHIR integration authentication', () => {
       const result = await loginWithoutDevice(integrationUser);
       expect(result).toHaveSucceeded();
       expect(decodeJwt(result.body.token).deviceId).toBeUndefined();
+    });
+
+    describe('when the user can only access one facility on this server', () => {
+      beforeEach(async () => {
+        await ctx.models.Setting.set('auth.restrictUsersToFacilities', true);
+      });
+      afterEach(async () => {
+        await ctx.models.Setting.set('auth.restrictUsersToFacilities', false);
+      });
+
+      it('puts that facility in the token', async () => {
+        const result = await loginWithoutDevice(integrationUser);
+        expect(result).toHaveSucceeded();
+        expect(decodeJwt(result.body.token).facilityId).toBe(getServerFacilityIds()[0]);
+      });
+    });
+
+    it('leaves the facility out of the token when the user can access several here', async () => {
+      const result = await loginWithoutDevice(integrationUser);
+      expect(result).toHaveSucceeded();
+      expect(result.body.availableFacilities.length).toBeGreaterThan(1);
+      expect(decodeJwt(result.body.token).facilityId).toBeUndefined();
+    });
+
+    it('leaves the facility out of the token when a deviceId is given', async () => {
+      const result = await baseApp
+        .post('/api/login')
+        .send({ email: integrationUser.email, password: PASSWORD, deviceId: 'test-device-id' });
+      expect(result).toHaveSucceeded();
+      expect(decodeJwt(result.body.token).facilityId).toBeUndefined();
     });
 
     it('is rejected for a user without FHIR integration permissions', async () => {
@@ -149,6 +180,36 @@ describe('FHIR integration authentication', () => {
         expect(result.body).toHaveProperty('resourceType', 'Bundle');
       },
     );
+
+    describe('with a max count setting above the built-in limit', () => {
+      // well above the built-in FHIR_MAX_RESOURCES_PER_PAGE (20), and below the schema default
+      // (1000), so a pass shows this setting was read rather than either fallback
+      const MAX_COUNT = 500;
+
+      const searchPatients = count =>
+        baseApp
+          .get(`/v1/integration/fhir/mat/Patient?_count=${count}`)
+          .set('authorization', `Bearer ${deviceLessToken}`);
+
+      beforeEach(async () => {
+        await ctx.models.Setting.set('fhir.parameters._count', { default: 20, max: MAX_COUNT });
+        settingsCache.reset();
+      });
+      afterEach(async () => {
+        await ctx.models.Setting.set('fhir.parameters._count', { default: 100, max: 1000 });
+        settingsCache.reset();
+      });
+
+      it('accepts a _count up to the max', async () => {
+        const result = await searchPatients(MAX_COUNT);
+        expect(result).toHaveSucceeded();
+      });
+
+      it('rejects a _count above the max', async () => {
+        const result = await searchPatients(MAX_COUNT + 1);
+        expect(result).toHaveStatus(400);
+      });
+    });
 
     it('are rejected by non-FHIR routes', async () => {
       const result = await baseApp
