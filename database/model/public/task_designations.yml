@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_task_designations_from_sync_lookup
+              - flag_task_designations_for_lookup_rebuild
               - record_task_designations_changelog
               - set_task_designations_updated_at
               - set_task_designations_updated_at_sync_tick

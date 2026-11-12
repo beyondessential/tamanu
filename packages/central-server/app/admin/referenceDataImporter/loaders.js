@@ -1,5 +1,4 @@
 import { endOfDay, startOfDay } from 'date-fns';
-import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
 import { ReadSettings } from '@tamanu/settings';
 import {
@@ -19,6 +18,7 @@ import {
 import __cjs_inflection from 'inflection';
 const { pluralize } = __cjs_inflection;
 import { isEmpty, isNil } from 'es-toolkit/compat';
+import { getDateFromExcel } from '../../utils/excelUtils';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -89,6 +89,48 @@ function parseConsent(consent, pushError) {
   return false;
 }
 
+// The export writes the array as JSON (`["a","b"]`); a hand-filled sheet is more likely to use a
+// comma-separated list. Either way the column needs an array, which the raw cell text is not.
+// An unreadable list throws, which skips the row rather than clearing the record's circumstances.
+function parseCircumstanceIds(circumstanceIds) {
+  if (Array.isArray(circumstanceIds)) return circumstanceIds;
+  const text = String(circumstanceIds ?? '').trim();
+  if (text === '') return [];
+  if (text.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(text);
+      const isListOfIds =
+        Array.isArray(parsed) &&
+        parsed.every(id => typeof id === 'string' || typeof id === 'number');
+      if (isListOfIds) return parsed.map(id => String(id).trim()).filter(Boolean);
+    } catch {
+      // Fall through to throw an error below.
+    }
+    throw new Error(
+      `Unrecognised circumstanceIds value "${circumstanceIds}", expected a list of ids`,
+    );
+  }
+  return text
+    .split(',')
+    .map(id => id.trim())
+    .filter(Boolean);
+}
+
+async function loadCircumstanceIds(circumstanceIds, { models, pushError }) {
+  const ids = parseCircumstanceIds(circumstanceIds);
+  if (ids.length === 0) return ids;
+
+  const existingIds = await models.ReferenceData.findAll({
+    attributes: ['id'],
+    where: { id: { [Op.in]: ids }, type: REFERENCE_TYPES.VACCINE_CIRCUMSTANCE },
+  }).then(circumstances => circumstances.map(({ id }) => id));
+  const unknownIds = ids.filter(id => !existingIds.includes(id));
+  if (unknownIds.length > 0) {
+    pushError(`Vaccine circumstances ${unknownIds.join(', ')} not found`, 'AdministeredVaccine');
+  }
+  return ids;
+}
+
 export async function administeredVaccineLoader(item, { models, pushError }) {
   const {
     encounterId,
@@ -96,13 +138,14 @@ export async function administeredVaccineLoader(item, { models, pushError }) {
     date: excelDate,
     reason,
     consent,
+    circumstanceIds,
     locationId,
     departmentId,
     examinerId,
     patientId,
     ...data
   } = item;
-  const date = excelDate ? getJsDateFromExcel(excelDate) : null;
+  const date = excelDate ? getDateFromExcel(excelDate) : null;
 
   const startDate = date ? startOfDay(date) : null;
   const endDate = date ? endOfDay(date) : null;
@@ -142,6 +185,10 @@ export async function administeredVaccineLoader(item, { models, pushError }) {
         date,
         reason,
         consent: parseConsent(consent, pushError),
+        // An absent column leaves the record's circumstances as they are.
+        ...(circumstanceIds === undefined
+          ? {}
+          : { circumstanceIds: await loadCircumstanceIds(circumstanceIds, { models, pushError }) }),
         ...data,
 
         // relationships
@@ -204,7 +251,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
     model: 'Patient',
     values: {
       id: patientId,
-      dateOfBirth: dateOfBirth && getJsDateFromExcel(dateOfBirth),
+      dateOfBirth: dateOfBirth && getDateFromExcel(dateOfBirth),
       ...otherFields,
     },
   });

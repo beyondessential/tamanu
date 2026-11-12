@@ -10,6 +10,7 @@ import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMe
 import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
 import { MarCellButton } from './components';
+import { compareMarMedications } from './marOrder';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const Table = styled.table`
@@ -208,11 +209,7 @@ export const MarTable = ({ selectedDate }) => {
       order: 'asc',
     },
   );
-  const medications =
-    medicationsData?.data?.toSorted((a, b) => {
-      if (a.discontinued === b.discontinued) return 0;
-      return a.discontinued ? 1 : -1;
-    }) ?? [];
+  const medications = medicationsData?.data?.toSorted(compareMarMedications) ?? [];
   const [prnMedications, scheduledMedications] = partition(
     medications,
     medication => medication.isPrn,

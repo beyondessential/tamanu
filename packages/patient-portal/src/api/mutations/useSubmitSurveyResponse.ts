@@ -16,7 +16,9 @@ export const useSubmitSurveyResponse = (
     mutationFn: async payload => {
       await api.post('surveyResponse', payload as any);
     },
-    onSuccess: () => {
+    onSuccess: (_data, { surveyId }) => {
+      // Drop the cached form so browser Back can't reopen it
+      queryClient.removeQueries({ queryKey: ['survey', surveyId] });
       queryClient.invalidateQueries({ queryKey: ['outstandingSurveys'] });
       navigate('/');
       notifySuccess(getTranslation('patientPortal.form.submitted', 'Form submitted'));
