@@ -104,6 +104,24 @@ describe('sync_lookup self healing (trigger level)', () => {
       expect(lookupRow.isDeleted).toBe(false);
     });
 
+    it('flags a table whose id is a stored generated column when disabled', async () => {
+      // generated columns are NULL in a BEFORE ROW trigger, so this needs the AFTER trigger
+      await disableSyncTrigger();
+      const translatedString = await models.TranslatedString.create({
+        stringId: 'selfHeal.generatedId',
+        language: 'en',
+        text: 'Generated id',
+      });
+      await enableSyncTrigger();
+
+      expect(translatedString.id).toBe('selfHeal.generatedId;en');
+      const lookupRow = await models.SyncLookup.findOne({
+        where: { recordId: 'selfHeal.generatedId;en', recordType: 'translated_strings' },
+      });
+      expect(lookupRow).not.toBeNull();
+      expect(lookupRow.needsRebuild).toBe(true);
+    });
+
     it('does not flag or stub a push-only table even when disabled', async () => {
       const user = await models.User.create(fake(models.User));
 
@@ -187,22 +205,37 @@ describe('sync_lookup self healing (trigger level)', () => {
   });
 
   describe('trigger install axes (server type)', () => {
-    it('installs the tick trigger without the lookup-tracked arg on a facility server', async () => {
+    const triggerNamesOn = async table => {
+      const rows = await sequelize.query(
+        `
+          SELECT t.tgname AS name
+          FROM pg_trigger t
+          JOIN pg_class c ON c.oid = t.tgrelid
+          WHERE c.relname = :table AND NOT t.tgisinternal
+        `,
+        { type: QueryTypes.SELECT, replacements: { table } },
+      );
+      return rows.map(row => row.name);
+    };
+
+    it('installs the disabled-mode flag trigger on lookup-tracked tables on a central server', async () => {
+      expect(await triggerNamesOn('patients')).toContain(
+        'flag_patients_in_sync_lookup_when_sync_disabled',
+      );
+      expect(await triggerNamesOn('user_login_attempts')).not.toContain(
+        'flag_user_login_attempts_in_sync_lookup_when_sync_disabled',
+      );
+    });
+
+    it('does not install the disabled-mode flag trigger on a facility server', async () => {
       const originalServerFacilityId = config.serverFacilityId;
       config.serverFacilityId = 'test-facility';
       try {
         await runPostMigration(log, sequelize);
 
-        const [row] = await sequelize.query(
-          `
-            SELECT pg_get_triggerdef(t.oid) AS definition
-            FROM pg_trigger t
-            JOIN pg_class c ON c.oid = t.tgrelid
-            WHERE c.relname = 'patients' AND t.tgname = 'set_patients_updated_at_sync_tick'
-          `,
-          { type: QueryTypes.SELECT },
+        expect(await triggerNamesOn('patients')).not.toContain(
+          'flag_patients_in_sync_lookup_when_sync_disabled',
         );
-        expect(row.definition).not.toContain(`'true'`);
       } finally {
         // eslint-disable-next-line require-atomic-updates -- single-threaded test, no concurrent writers
         config.serverFacilityId = originalServerFacilityId;

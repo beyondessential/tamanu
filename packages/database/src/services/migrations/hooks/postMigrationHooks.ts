@@ -23,6 +23,8 @@ import type { MigrationHook } from './types';
 
 const DELETE_TRIGGER_PREFIX = 'delete_';
 const DELETE_TRIGGER_SUFFIX = '_from_sync_lookup';
+const FLAG_TRIGGER_PREFIX = 'flag_';
+const FLAG_TRIGGER_SUFFIX = '_in_sync_lookup_when_sync_disabled';
 const LOOKUP_TRACKED_DIRECTIONS: string[] = [
   SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
   SYNC_DIRECTIONS.BIDIRECTIONAL,
@@ -87,24 +89,49 @@ const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
   name: 'addOrReplaceUpdatedAtSyncTickTrigger',
   prerequisites: [requireFunction('set_updated_at_sync_tick')],
   async run({ log, sequelize }) {
+    for (const { schema, table } of await allTables(sequelize, [
+      ...GLOBAL_EXCLUDE_TABLES,
+      ...NON_SYNCING_TABLES,
+    ])) {
+      log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`);
+      await sequelize.query(`
+        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}";
+
+        CREATE TRIGGER set_${table}_updated_at_sync_tick
+        BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
+        FOR EACH ROW
+        EXECUTE FUNCTION public.set_updated_at_sync_tick();
+    `);
+    }
+  },
+};
+
+// AFTER rather than folded into the BEFORE sync tick trigger: stored generated columns (such as
+// the `id` of translated_strings) are NULL in a BEFORE ROW trigger, and the flag needs the id.
+const addOrReplaceSyncLookupDisabledFlagTrigger: MigrationHook = {
+  name: 'addOrReplaceSyncLookupDisabledFlagTrigger',
+  prerequisites: [requireFunction('flag_sync_lookup_for_rebuild_when_sync_trigger_disabled')],
+  async run({ log, sequelize }) {
     const isCentralServer = !selectFacilityIds(config);
 
     for (const { schema, table } of await allTables(sequelize, [
       ...GLOBAL_EXCLUDE_TABLES,
       ...NON_SYNCING_TABLES,
     ])) {
-      const isLookupTracked = isCentralServer && isTableLookupTracked(sequelize, table);
-      log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`, {
-        lookupTracked: isLookupTracked,
-      });
+      const triggerName = truncatedTriggerName(FLAG_TRIGGER_PREFIX, table, FLAG_TRIGGER_SUFFIX);
+      await sequelize.query(`DROP TRIGGER IF EXISTS ${triggerName} ON "${schema}"."${table}";`);
+
+      if (!isCentralServer || !isTableLookupTracked(sequelize, table)) {
+        continue;
+      }
+
+      log.debug(`Ensuring sync_lookup disabled-mode flag trigger on ${schema}.${table}`);
       await sequelize.query(`
-        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}";
-        
-        CREATE TRIGGER set_${table}_updated_at_sync_tick
-        BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
+        CREATE TRIGGER ${triggerName}
+        AFTER INSERT OR UPDATE ON "${schema}"."${table}"
         FOR EACH ROW
-        EXECUTE FUNCTION public.set_updated_at_sync_tick(${isLookupTracked ? `'true'` : ''});
-    `);
+        EXECUTE FUNCTION public.flag_sync_lookup_for_rebuild_when_sync_trigger_disabled();
+      `);
     }
   },
 };
@@ -239,6 +266,7 @@ export const POST_MIGRATION_HOOKS: MigrationHook[] = [
   addUpdatedAtSyncTickColumn,
   addUpdatedAtTrigger,
   addOrReplaceUpdatedAtSyncTickTrigger,
+  addOrReplaceSyncLookupDisabledFlagTrigger,
   addSyncLookupDeleteTrigger,
   reconcileNotifyTableChangedTrigger,
   addRecordChangeTrigger,
