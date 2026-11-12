@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { TABLE_SORT_PREFERENCE_KEYS } from '@tamanu/constants';
 import { AuthContext } from '@tamanu/ui-components';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createQueryClient, renderElementWithTranslatedText } from '../../helpers';
 
@@ -115,6 +116,10 @@ describe('DataFetchingTable sort', () => {
     respondWithPreferences({});
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('loads its first page once, in the remembered sort', async () => {
     respondWithPreferences({ [SORT_KEY]: { orderBy: 'name', order: 'desc' } });
     renderTable();
@@ -177,6 +182,36 @@ describe('DataFetchingTable sort', () => {
         value: { orderBy: 'name', order: 'asc' },
       }),
     );
+  });
+
+  it('opens at its initial sort when the preferences are slow, then moves to the remembered sort', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    let finishLoadingPreferences;
+    stableApi.get.mockImplementation(async endpoint => {
+      if (endpoint === 'patient') return { data: [], count: 0 };
+      if (endpoint.template !== 'user/userPreferences/:facilityId') return {};
+      return new Promise(resolve => {
+        finishLoadingPreferences = resolve;
+      });
+    });
+    renderTable();
+
+    act(() => vi.advanceTimersByTime(5_000));
+
+    await waitFor(() => expect(getTableFetches()).toHaveLength(1));
+    expect(getTableFetches()[0][1]).toMatchObject({ orderBy: 'name', order: 'asc' });
+
+    await act(async () =>
+      finishLoadingPreferences({ [SORT_KEY]: { orderBy: 'name', order: 'desc' } }),
+    );
+
+    await waitFor(() => expect(getTableFetches()).toHaveLength(2));
+    expect(getTableFetches()[1][1]).toMatchObject({ orderBy: 'name', order: 'desc' });
+  });
+
+  it('gives every table that remembers its sort a sort of its own', () => {
+    const sortKeys = Object.values(TABLE_SORT_PREFERENCE_KEYS);
+    expect(new Set(sortKeys).size).toBe(sortKeys.length);
   });
 
   it('keeps the sort only until shown again on a table that does not remember it', async () => {
