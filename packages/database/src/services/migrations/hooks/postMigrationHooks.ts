@@ -113,21 +113,41 @@ export const addOrReplaceSyncLookupDisabledFlagTrigger: MigrationHook = {
   prerequisites: [requireFunction('flag_sync_lookup_for_rebuild_when_sync_trigger_disabled')],
   async run({ log, sequelize }) {
     const isCentralServer = !selectFacilityIds(config);
+    const isWanted = (table: string) => isCentralServer && isTableLookupTracked(sequelize, table);
 
-    for (const { schema, table } of await allTables(sequelize, [
-      ...GLOBAL_EXCLUDE_TABLES,
-      ...NON_SYNCING_TABLES,
-    ])) {
-      const triggerName = truncatedTriggerName(FLAG_TRIGGER_PREFIX, table, FLAG_TRIGGER_SUFFIX);
-      await sequelize.query(`DROP TRIGGER IF EXISTS ${triggerName} ON "${schema}"."${table}";`);
+    // Remove triggers that are no longer wanted, such as after a database moves from central to a
+    // facility role (restored from a central backup), or a table stops being lookup-tracked.
+    for (const { schema, table } of await tablesWithTrigger(
+      sequelize,
+      FLAG_TRIGGER_PREFIX,
+      FLAG_TRIGGER_SUFFIX,
+    )) {
+      if (isWanted(table)) {
+        continue;
+      }
+      log.info(`Removing sync_lookup disabled-mode flag trigger from ${schema}.${table}`);
+      await sequelize.query(
+        `DROP TRIGGER IF EXISTS ${truncatedTriggerName(FLAG_TRIGGER_PREFIX, table, FLAG_TRIGGER_SUFFIX)} ON "${schema}"."${table}";`,
+      );
+    }
 
-      if (!isCentralServer || !isTableLookupTracked(sequelize, table)) {
+    if (!isCentralServer) {
+      return;
+    }
+
+    for (const { schema, table } of await tablesWithoutTrigger(
+      sequelize,
+      FLAG_TRIGGER_PREFIX,
+      FLAG_TRIGGER_SUFFIX,
+      [...GLOBAL_EXCLUDE_TABLES, ...NON_SYNCING_TABLES],
+    )) {
+      if (!isWanted(table)) {
         continue;
       }
 
-      log.debug(`Ensuring sync_lookup disabled-mode flag trigger on ${schema}.${table}`);
+      log.info(`Adding sync_lookup disabled-mode flag trigger to ${schema}.${table}`);
       await sequelize.query(`
-        CREATE TRIGGER ${triggerName}
+        CREATE TRIGGER ${truncatedTriggerName(FLAG_TRIGGER_PREFIX, table, FLAG_TRIGGER_SUFFIX)}
         AFTER INSERT OR UPDATE ON "${schema}"."${table}"
         FOR EACH ROW
         EXECUTE FUNCTION public.flag_sync_lookup_for_rebuild_when_sync_trigger_disabled();
