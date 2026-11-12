@@ -1,3 +1,4 @@
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
 import { test } from '../../fixtures/baseFixture';
 import { expect } from '@playwright/test';
@@ -13,7 +14,13 @@ import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
 import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
-import { getUser, createApiContext, getCurrentEncounterViaApi } from '@utils/apiHelpers';
+import {
+  getUser,
+  createApiContext,
+  getCurrentEncounterViaApi,
+  getFacilityId,
+  resetTableSortViaApi,
+} from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
 import { format } from 'date-fns';
 import path from 'path';
@@ -37,8 +44,14 @@ test.describe('Basic tests', () => {
   test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({
     newPatient,
     patientDetailsPage,
+    api,
   }) => {
     test.setTimeout(100000);
+    await resetTableSortViaApi(
+      api,
+      TABLE_PAGE_SIZE_PREFERENCE_KEYS.EMERGENCY_PATIENTS,
+      await getFacilityId(patientDetailsPage.page),
+    );
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.admitOrCheckinButton.click();
     const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -84,16 +97,20 @@ test.describe('Basic tests', () => {
 
     // This journey ends on the emergency board, so check the patient type was saved to the encounter
     // through the API rather than opening the encounter view
-    const api = await createApiContext({ page: patientDetailsPage.page });
     const triageEncounter = await getCurrentEncounterViaApi(api, newPatient.id);
-    await api.dispose();
     expect(triageEncounter.patientBillingTypeId).toBe(testData.patientBillingTypeId);
   });
   test('[BT-0003][AT-2002]Admit the patient to Triage with adding vitals', async ({
     newPatient,
     patientDetailsPage,
+    api,
   }) => {
     test.setTimeout(100000);
+    await resetTableSortViaApi(
+      api,
+      TABLE_PAGE_SIZE_PREFERENCE_KEYS.EMERGENCY_PATIENTS,
+      await getFacilityId(patientDetailsPage.page),
+    );
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.admitOrCheckinButton.click();
     const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
