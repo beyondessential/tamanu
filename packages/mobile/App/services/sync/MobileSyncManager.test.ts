@@ -1,4 +1,8 @@
-import NetInfo from '@react-native-community/netinfo';
+import NetInfo, {
+  type NetInfoNoConnectionState,
+  NetInfoStateType,
+  type NetInfoUnknownState,
+} from '@react-native-community/netinfo';
 import { RemoteUnreachableError } from '@tamanu/errors';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { MobileSyncManager } from './MobileSyncManager';
@@ -39,6 +43,19 @@ jest.mock('../../infra/db', () => ({
 
 const mockSessionId = 'xxx';
 const mockSyncTick = 5;
+
+const offlineState: NetInfoNoConnectionState = {
+  type: NetInfoStateType.none,
+  isConnected: false,
+  isInternetReachable: false,
+  details: null,
+};
+const unknownState: NetInfoUnknownState = {
+  type: NetInfoStateType.unknown,
+  isConnected: null,
+  isInternetReachable: null,
+  details: null,
+};
 
 describe('MobileSyncManager', () => {
   const centralServerConnection = new CentralServerConnection();
@@ -94,7 +111,7 @@ describe('MobileSyncManager', () => {
     });
 
     it('does not start a sync session when the device is offline', async () => {
-      jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: false } as any);
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce(offlineState);
       const startSyncSessionSpy = jest.spyOn(centralServerConnection, 'startSyncSession');
       const emitSpy = jest.spyOn(mobileSyncManager.emitter, 'emit');
 
@@ -115,7 +132,7 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.isQueuing).toBe(true);
       expect(mobileSyncManager.progressMessage).toBe('Sync in queue');
 
-      jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: false } as any);
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce(offlineState);
       await mobileSyncManager.triggerSync();
 
       expect(mobileSyncManager.isQueuing).toBe(false);
@@ -124,7 +141,7 @@ describe('MobileSyncManager', () => {
 
     it('resets progress when a sync fails', async () => {
       mobileSyncManager.setProgress(40, 'Pulling changes');
-      jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: false } as any);
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce(offlineState);
 
       await mobileSyncManager.triggerSync();
 
@@ -133,7 +150,7 @@ describe('MobileSyncManager', () => {
     });
 
     it('still tries to sync when the network state is unknown', async () => {
-      jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: null } as any);
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce(unknownState);
       const startSyncSessionSpy = jest
         .spyOn(centralServerConnection, 'startSyncSession')
         .mockResolvedValueOnce({ status: 'waitingInQueue' } as any);
