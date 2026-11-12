@@ -108,7 +108,7 @@ const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
 
 // AFTER rather than folded into the BEFORE sync tick trigger: stored generated columns (such as
 // the `id` of translated_strings) are NULL in a BEFORE ROW trigger, and the flag needs the id.
-const addOrReplaceSyncLookupDisabledFlagTrigger: MigrationHook = {
+export const addOrReplaceSyncLookupDisabledFlagTrigger: MigrationHook = {
   name: 'addOrReplaceSyncLookupDisabledFlagTrigger',
   prerequisites: [requireFunction('flag_sync_lookup_for_rebuild_when_sync_trigger_disabled')],
   async run({ log, sequelize }) {

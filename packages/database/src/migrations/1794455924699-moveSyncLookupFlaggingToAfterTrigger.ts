@@ -1,4 +1,6 @@
 import { QueryInterface } from 'sequelize';
+import { log } from '@tamanu/shared/services/logging/log';
+import { addOrReplaceSyncLookupDisabledFlagTrigger } from '../services/migrations/hooks/postMigrationHooks';
 
 // Moves sync_lookup self-heal flagging out of the BEFORE trigger set_updated_at_sync_tick and into
 // its own AFTER INSERT OR UPDATE trigger (installed per lookup-tracked table by the post-migration
@@ -6,6 +8,10 @@ import { QueryInterface } from 'sequelize';
 // generated (translated_strings, user_preferences, patient_facilities, ...) were flagged with a
 // NULL record_id, failing any migration that wrote to them on central. By the AFTER trigger the
 // generated `id` is populated. See specs/sync/lookup-table.md (LOOKUP).
+//
+// The per-table triggers are installed here as well as by the post-migration hook, because that
+// hook only runs after the whole batch: without this, a later migration in the same batch that
+// writes to a lookup-tracked table would not be flagged for rebuild.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     CREATE FUNCTION flag_sync_lookup_for_rebuild_when_sync_trigger_disabled()
@@ -55,6 +61,8 @@ export async function up(query: QueryInterface): Promise<void> {
       END
       $func$;
   `);
+
+  await addOrReplaceSyncLookupDisabledFlagTrigger.run({ log, sequelize: query.sequelize });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
