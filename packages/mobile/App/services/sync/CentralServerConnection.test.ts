@@ -479,7 +479,7 @@ describe('CentralServerConnection', () => {
         {},
         {
           skipAttemptRefresh: true,
-          backoff: { maxAttempts: 1 },
+          backoff: { maxAttempts: 3 },
           body: undefined,
           headers: undefined,
           method: 'GET',
@@ -521,14 +521,14 @@ describe('CentralServerConnection', () => {
 
     describe('when the failure is not a Problem', () => {
       it('treats a dropped connection as the central server being unreachable', async () => {
-        mockAxiosRequest.mockRejectedValueOnce(networkError());
+        mockAxiosRequest.mockRejectedValue(networkError());
         await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toBeInstanceOf(
           RemoteUnreachableError,
         );
       });
 
       it('describes a dropped connection using the axios message', async () => {
-        mockAxiosRequest.mockRejectedValueOnce(networkError());
+        mockAxiosRequest.mockRejectedValue(networkError());
         await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
           type: ERROR_TYPE.REMOTE_UNREACHABLE,
           detail: 'Network Error',
@@ -536,7 +536,7 @@ describe('CentralServerConnection', () => {
       });
 
       it('treats a gateway error page as the central server being unreachable', async () => {
-        mockAxiosRequest.mockRejectedValueOnce({
+        mockAxiosRequest.mockRejectedValue({
           message: 'Request failed with status code 502',
           code: 'ERR_BAD_RESPONSE',
           response: { status: 502, data: '<html><body>Bad Gateway</body></html>' },
@@ -572,11 +572,27 @@ describe('CentralServerConnection', () => {
       );
     });
 
-    it('does not retry by default when the connection drops', async () => {
-      mockAxiosRequest.mockRejectedValueOnce(networkError());
+    it('retries a GET a few times by default when the connection drops, then gives up', async () => {
+      mockAxiosRequest.mockRejectedValue(networkError());
       await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toBeInstanceOf(
         RemoteUnreachableError,
       );
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(3);
+    });
+
+    it('does not retry a GET whose caller asks for a single attempt', async () => {
+      mockAxiosRequest.mockRejectedValue(networkError());
+      await expect(
+        centralServerConnection.fetch('test-path', {}, { backoff: { maxAttempts: 1 } }),
+      ).rejects.toBeInstanceOf(RemoteUnreachableError);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not retry a POST by default when the connection drops', async () => {
+      mockAxiosRequest.mockRejectedValue(networkError());
+      await expect(
+        centralServerConnection.fetch('test-path', {}, { method: 'POST' }),
+      ).rejects.toBeInstanceOf(RemoteUnreachableError);
       expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
     });
 

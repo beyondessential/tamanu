@@ -115,13 +115,14 @@ export class CentralServerConnection {
     path: string,
     query: Record<string, string | number | boolean>,
     {
-      // only retry where a caller knows the request is safe to repeat
-      backoff = { maxAttempts: 1 },
+      method = 'GET',
+      // a GET is safe to repeat, so it gets a few attempts to ride out a blip. Anything else only
+      // retries where a caller knows the request is safe to repeat
+      backoff = { maxAttempts: method === 'GET' ? 3 : 1 },
       onAttempt,
       skipAttemptRefresh,
       timeout,
       headers: extraHeaders,
-      method = 'GET',
       body,
       ...rest
     }: FetchOptions = {},
