@@ -1,4 +1,5 @@
 import NetInfo from '@react-native-community/netinfo';
+import { RemoteUnreachableError } from '@tamanu/errors';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
@@ -101,7 +102,7 @@ describe('MobileSyncManager', () => {
 
       expect(startSyncSessionSpy).not.toHaveBeenCalled();
       expect(emitSpy).toHaveBeenCalledWith(SYNC_EVENT_ACTIONS.SYNC_ERROR, {
-        error: new Error('No network connection'),
+        error: expect.any(RemoteUnreachableError),
       });
       expect(mobileSyncManager.isSyncing).toBe(false);
     });
