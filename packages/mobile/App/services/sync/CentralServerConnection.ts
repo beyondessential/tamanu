@@ -34,7 +34,7 @@ interface RefreshResponse {
 const API_PREFIX = 'api';
 
 // Statuses a proxy or gateway in front of the central server responds with when it can't reach it
-const GATEWAY_ERROR_STATUSES = [502, 503, 504];
+const GATEWAY_ERROR_STATUSES = new Set([502, 503, 504]);
 
 // Codes axios gives a request that was sent but got no response: the connection dropped or timed out
 const NO_RESPONSE_ERROR_CODES = new Set(['ERR_NETWORK', 'ECONNABORTED', 'ETIMEDOUT']);
@@ -60,7 +60,7 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
 
   if (!problem) {
     // React Native's XHR has no statusText, so describe the failure from axios instead
-    if (GATEWAY_ERROR_STATUSES.includes(err.response.status)) {
+    if (GATEWAY_ERROR_STATUSES.has(err.response.status)) {
       return new RemoteUnreachableError(err.message).withCause(err);
     }
     return new Problem(ERROR_TYPE.UNKNOWN, err.message, err.response.status);
