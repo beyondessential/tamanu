@@ -33,14 +33,16 @@ interface RefreshResponse {
 
 const API_PREFIX = 'api';
 
-// Statuses a proxy or gateway in front of the central server responds with when it can't reach it
+/** Statuses a proxy or gateway in front of the central server responds with when it can't reach it */
 const GATEWAY_ERROR_STATUSES = new Set([502, 503, 504]);
 
-// Codes axios gives a request that was sent but got no response: the connection dropped or timed out
+/** Codes axios gives a request that was sent but got no response: the connection dropped or timed out */
 const NO_RESPONSE_ERROR_CODES = new Set(['ERR_NETWORK', 'ECONNABORTED', 'ETIMEDOUT']);
 
-// Retry requests that are safe to repeat through a network drop, so a brief outage doesn't throw
-// away a sync that may have been running for a long time
+/**
+ * Retry requests that are safe to repeat through a network drop, so a brief outage doesn't throw
+ * away a sync that may have been running for a long time
+ */
 const retryThroughNetworkDrops = (
   maxUnreachableDurationMs = DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS,
 ) => ({
