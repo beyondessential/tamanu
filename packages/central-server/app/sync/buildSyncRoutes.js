@@ -400,7 +400,7 @@ export const buildSyncRoutes = ctx => {
       const { params } = req;
       const { sessionId } = params;
       await syncManager.endSession(sessionId);
-      res.json({});
+      res.status(204).send();
     }),
   );
 

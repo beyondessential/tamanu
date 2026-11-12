@@ -58,4 +58,43 @@ describe('CentralSyncManager.endSession', () => {
     await centralSyncManager.endSession(sessionId);
     await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow();
   });
+
+  it('does nothing when ending a session that has already ended', async () => {
+    const centralSyncManager = await initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    await centralSyncManager.endSession(sessionId);
+    const sessionAfterFirstEnd = await models.SyncSession.findOne({ where: { id: sessionId } });
+
+    await expect(centralSyncManager.endSession(sessionId)).resolves.toBeUndefined();
+    const sessionAfterSecondEnd = await models.SyncSession.findOne({ where: { id: sessionId } });
+
+    expect(sessionAfterSecondEnd.completedAt).toEqual(sessionAfterFirstEnd.completedAt);
+    expect(sessionAfterSecondEnd.updatedAt).toEqual(sessionAfterFirstEnd.updatedAt);
+    expect(sessionAfterSecondEnd.errors).toBeNull();
+  });
+
+  it('throws an error when ending a session that already ended with an error', async () => {
+    const centralSyncManager = await initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    await centralSyncManager.endSession(sessionId, 'The sync failed on the client');
+    await expect(centralSyncManager.endSession(sessionId)).rejects.toThrow();
+  });
+
+  it('throws an error when reporting an error on a session that already ended cleanly', async () => {
+    const centralSyncManager = await initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    await centralSyncManager.endSession(sessionId);
+    await expect(
+      centralSyncManager.endSession(sessionId, 'The sync failed on the client'),
+    ).rejects.toThrow();
+
+    const session = await models.SyncSession.findOne({ where: { id: sessionId } });
+    expect(session.errors).toBeNull();
+  });
 });
