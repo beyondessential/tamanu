@@ -2,16 +2,35 @@
 
 Scenarios that verify this card. Web only; mobile has no patient billing UI.
 
+## Test environment
+
+The preview deployment at https://facility-1.workhorse-x11.cd.tamanu.app is configured for these
+scenarios. Log in as `admin@tamanu.io` / `admin`, facility Test Facility 1.
+
+What is set up on it:
+
+- Every Billing information field shown: `fields.{adoptionNumber,marriageLicence,familySize,annualIncome,payor1Id,payor1ReferenceNumber,payor2Id,payor2ReferenceNumber}.hidden` set to false, since all eight ship hidden
+- `features.enablePatientInsurer` on, so insurance policy number appears
+- `features.invoicing.enabled` and `features.invoicing.slidingFeeScale` on, so the discount assessment can be reached; the deployment already carries invoice products and a price list
+- An `invoiceInsurancePlan` named **Sliding fee scale**, code `sliding-fee-scale`, matching `invoice.slidingFeeScalePlanCode`. Without it nothing makes family size and annual income required
+- `features.patientPortal` on, for the portal cases
+- **Adeline Giannoni (RQLN820387)** carries a worked example: every billing and identification field filled, the sliding fee scale plan selected, family size 3 and annual income 7,400 - 17,000. The other patients are untouched, for the plan-not-selected state
+
+Two things to know while testing:
+
+- A settings change on the admin panel reaches facility-1 by sync, about a minute later. A screen that looks unchanged straight after a settings save has usually just not caught up
+- The deployment's browser-support gate refuses Playwright's bundled Chromium with "Tamanu is not available on your browser". Drive it with the installed Chrome (`channel: 'chrome'`) instead
+
 ## Section layout
 
 - [x] The Details tab shows Billing information below Location information, and above any
       custom patient field groups (verifies spec: PDET)
 - [x] Patient type is shown in Billing information rather than Personal information, and
       saves and reads back from there (verifies spec: PDET)
-- [ ] Billing information holds, in order: insurance policy number, insurance plan, patient
+- [x] Billing information holds, in order: insurance policy number, insurance plan, patient
       type, family size, annual income, Payor 1, Payor 1 reference number, Payor 2, Payor 2
       reference number (verifies spec: PDET)
-- [ ] Identification information ends with adoption number then marriage licence
+- [x] Identification information ends with adoption number then marriage licence
       (verifies spec: PDET)
 - [ ] With every Billing information field hidden in patient field settings, the section and
       its heading do not appear at all (verifies spec: PDET)
@@ -52,10 +71,10 @@ Scenarios that verify this card. Web only; mobile has no patient billing UI.
 
 ## Payors
 
-- [ ] Payor 1 and Payor 2 search existing patients, each match showing name, display ID, sex
+- [x] Payor 1 and Payor 2 search existing patients, each match showing name, display ID, sex
       and date of birth (verifies spec: PDET)
 - [x] A deceased patient is not offered as a payor (verifies spec: PDET)
-- [ ] The patient being edited can be chosen as their own payor (verifies spec: PDET)
+- [x] The patient being edited can be chosen as their own payor (verifies spec: PDET)
 - [ ] Each payor's reference number saves as free text (verifies spec: PDET)
 
 ## Creating a patient
@@ -84,8 +103,8 @@ Scenarios that verify this card. Web only; mobile has no patient billing UI.
 
 ## Removing the patient insurer
 
-- [ ] Insurer no longer appears on the Details tab or the new patient form
-- [ ] Insurance policy number still appears, in Billing information, and is still gated by
+- [x] Insurer no longer appears on the Details tab or the new patient form
+- [x] Insurance policy number still appears, in Billing information, and is still gated by
       features.enablePatientInsurer
 - [x] The patient portal's details and edit screens no longer offer Health insurer, and still
       offer Policy number (verifies spec: PPDET)
