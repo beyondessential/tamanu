@@ -103,6 +103,24 @@ const getKioskSurveys = async (req, facilitySettings, { appointmentTypeId, booki
 /** Appointments past Confirmed have already been checked in, here or at reception. */
 const isCheckedIn = appointment => appointment.status !== APPOINTMENT_STATUSES.CONFIRMED;
 
+/**
+ * The forms already submitted at the kiosk for this appointment. Each response is tagged with the
+ * appointment, and the patient's encounters bound the search.
+ */
+const findSubmittedResponses = (models, appointment, surveyIds) =>
+  models.SurveyResponse.findAll({
+    where: { surveyId: { [Op.in]: surveyIds }, metadata: { appointmentId: appointment.id } },
+    include: [
+      {
+        association: 'encounter',
+        where: { patientId: appointment.patientId },
+        required: true,
+        attributes: [],
+      },
+    ],
+    order: [['createdAt', 'ASC']],
+  });
+
 /** Always present so patient-data questions can compute ages and names. */
 const BASE_PATIENT_FIELDS = ['id', 'firstName', 'lastName', 'dateOfBirth'];
 
@@ -283,12 +301,18 @@ kiosk.get(
       ...survey.forResponse(),
       components: components.filter(({ surveyId }) => surveyId === survey.id),
     }));
+    const submittedResponses = await findSubmittedResponses(
+      models,
+      appointment,
+      surveys.map(({ id }) => id),
+    );
 
     await auditPatientAccess(req, [appointment.patient]);
     res.send({
       appointment: toAppointmentSummary(appointment, { isMasked: false }),
       ...(await getPatientDataForForms(models, appointment.patient, forms)),
       forms,
+      submittedSurveyIds: submittedResponses.map(({ surveyId }) => surveyId),
     });
   }),
 );
@@ -322,36 +346,87 @@ const getResponsePlace = async (req, facilitySettings, appointment) => {
 /** An ISO 9075 datetime, as the tablet records it in the primary time zone. */
 const storedDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
 
-const checkInBodySchema = z.object({
-  responses: z.array(
-    z.object({
-      surveyId: z.string(),
-      answers: z.record(z.string(), z.unknown()),
-      // How long the patient spent on the form, which the tablet holds until they check in
-      startTime: storedDateTime.nullish(),
-      endTime: storedDateTime.nullish(),
-    }),
-  ),
+const submitFormBodySchema = z.object({
+  answers: z.record(z.string(), z.unknown()),
+  // How long the patient spent on the form
+  startTime: storedDateTime.nullish(),
+  endTime: storedDateTime.nullish(),
 });
+
+/**
+ * Submits one finished form. Responses for the same appointment share one encounter, and a
+ * submitted form can't be submitted again or changed from the kiosk.
+ */
+kiosk.post(
+  '/appointments/:id/forms/:surveyId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('run', 'Kiosk');
+    const facilitySettings = await getKioskSettings(req);
+    const body = await submitFormBodySchema.parseAsync(req.body);
+    const { models, facilityId } = req;
+    const { surveyId } = req.params;
+
+    const now = getCurrentPrimaryTimeZoneDateTimeString();
+    const startTime = body.startTime ?? now;
+    const endTime = body.endTime ?? now;
+    const today = await getTodayBoundaries(facilitySettings);
+    const isToday = dateTime => dateTime >= today.start && dateTime <= today.end;
+    if (!isToday(startTime) || !isToday(endTime) || endTime < startTime) {
+      throw new InvalidOperationError('A form must be started and finished today, in order');
+    }
+
+    const result = await req.db.transaction(async () => {
+      // Lock the appointment so two submissions for it (two tablets, or a retry) are taken in turn
+      await models.Appointment.findByPk(req.params.id, { lock: true });
+      const appointment = await findKioskAppointment(req, facilitySettings);
+      if (isCheckedIn(appointment)) {
+        throw new InvalidOperationError('This appointment has already been checked in');
+      }
+
+      const configuredSurveyIds = (await getKioskSurveys(req, facilitySettings, appointment)).map(
+        ({ id }) => id,
+      );
+      if (!configuredSurveyIds.includes(surveyId)) {
+        throw new InvalidOperationError('This form is not one the appointment asks for');
+      }
+      const submittedResponses = await findSubmittedResponses(
+        models,
+        appointment,
+        configuredSurveyIds,
+      );
+      if (submittedResponses.some(response => response.surveyId === surveyId)) {
+        throw new InvalidOperationError('This form has already been submitted');
+      }
+
+      const encounterId = submittedResponses[0]?.encounterId ?? null;
+      const surveyResponse = await models.SurveyResponse.createWithAnswers({
+        surveyId,
+        answers: body.answers,
+        patientId: appointment.patientId,
+        encounterId,
+        forceNewEncounter: true,
+        facilityId,
+        userId: req.user.id,
+        ...(encounterId ? {} : await getResponsePlace(req, facilitySettings, appointment)),
+        startTime,
+        endTime,
+        metadata: { appointmentId: appointment.id },
+      });
+
+      await auditPatientAccess(req, [appointment.patient]);
+      return { surveyResponseId: surveyResponse.id };
+    });
+
+    res.send(result);
+  }),
+);
 
 kiosk.post(
   '/appointments/:id/checkIn',
   asyncHandler(async (req, res) => {
     req.checkPermission('run', 'Kiosk');
     const facilitySettings = await getKioskSettings(req);
-    const { responses } = await checkInBodySchema.parseAsync(req.body);
-    const { models, facilityId } = req;
-
-    const now = getCurrentPrimaryTimeZoneDateTimeString();
-    const today = await getTodayBoundaries(facilitySettings);
-    const isToday = dateTime => dateTime >= today.start && dateTime <= today.end;
-    for (const response of responses) {
-      const startTime = response.startTime ?? now;
-      const endTime = response.endTime ?? now;
-      if (!isToday(startTime) || !isToday(endTime) || endTime < startTime) {
-        throw new InvalidOperationError('Each form must be started and finished today, in order');
-      }
-    }
+    const { models } = req;
 
     const result = await req.db.transaction(async () => {
       // Lock the appointment so two check-ins for it (two tablets, or a retry) can't both succeed
@@ -364,42 +439,21 @@ kiosk.post(
       const configuredSurveyIds = (await getKioskSurveys(req, facilitySettings, appointment)).map(
         ({ id }) => id,
       );
-      const submittedSurveyIds = responses.map(response => response.surveyId);
-      const isEveryFormSubmittedOnce =
-        submittedSurveyIds.length === configuredSurveyIds.length &&
-        configuredSurveyIds.every(surveyId => submittedSurveyIds.includes(surveyId));
-      if (!isEveryFormSubmittedOnce) {
-        throw new InvalidOperationError('Every form must be completed before checking in');
-      }
-
-      const { locationId, departmentId } =
-        responses.length > 0 ? await getResponsePlace(req, facilitySettings, appointment) : {};
-
-      const surveyResponses = [];
-      for (const { surveyId, answers, startTime, endTime } of responses) {
-        surveyResponses.push(
-          await models.SurveyResponse.createWithAnswers({
-            surveyId,
-            answers,
-            patientId: appointment.patientId,
-            encounterId: surveyResponses[0]?.encounterId ?? null,
-            forceNewEncounter: true,
-            facilityId,
-            userId: req.user.id,
-            locationId,
-            departmentId,
-            startTime: startTime ?? now,
-            endTime: endTime ?? now,
-          }),
-        );
+      const submittedResponses = await findSubmittedResponses(
+        models,
+        appointment,
+        configuredSurveyIds,
+      );
+      const isEveryFormSubmitted = configuredSurveyIds.every(surveyId =>
+        submittedResponses.some(response => response.surveyId === surveyId),
+      );
+      if (!isEveryFormSubmitted) {
+        throw new InvalidOperationError('Every form must be submitted before checking in');
       }
 
       await appointment.update({ status: APPOINTMENT_STATUSES.ARRIVED });
       await auditPatientAccess(req, [appointment.patient]);
-      return {
-        appointment: toAppointmentSummary(appointment, { isMasked: false }),
-        surveyResponseIds: surveyResponses.map(surveyResponse => surveyResponse.id),
-      };
+      return { appointment: toAppointmentSummary(appointment, { isMasked: false }) };
     });
 
     res.send(result);
