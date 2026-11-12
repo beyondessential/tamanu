@@ -6,6 +6,12 @@ import { FACT_CURRENT_SYNC_TICK, FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/const
 import { log } from '@tamanu/shared/services/logging/log';
 import { closeDatabase, createTestDatabase } from '../utilities';
 import { runPostMigration } from '../../src/services/migrations/hooks';
+import {
+  DELETE_TRIGGER_PREFIX,
+  DELETE_TRIGGER_SUFFIX,
+  FLAG_TRIGGER_PREFIX,
+  FLAG_TRIGGER_SUFFIX,
+} from '../../src/services/migrations/hooks/postMigrationHooks';
 
 let nextSyncLookupId = 1;
 const createLookupRow = (models, overrides) =>
@@ -204,6 +210,20 @@ describe('sync_lookup self healing (trigger level)', () => {
     expect(rows[0].indexdef).toContain('WHERE needs_rebuild');
   });
 
+  it('keeps the per-table sync_lookup trigger names within the 63 character identifier limit', () => {
+    // Postgres silently truncates longer names, so the installed trigger no longer matches the name
+    // the post-migration hook looks for, and the truncated fragment lands in the dbt models. If this
+    // fails, a table name is too long for the trigger prefix and suffix: shorten the suffix in
+    // postMigrationHooks.ts or the table name.
+    const tooLong = Object.values(sequelize.models).flatMap(({ tableName }) =>
+      [
+        `${DELETE_TRIGGER_PREFIX}${tableName}${DELETE_TRIGGER_SUFFIX}`,
+        `${FLAG_TRIGGER_PREFIX}${tableName}${FLAG_TRIGGER_SUFFIX}`,
+      ].filter(name => name.length > 63),
+    );
+    expect(tooLong).toEqual([]);
+  });
+
   describe('trigger install axes (server type)', () => {
     const triggerNamesOn = async table => {
       const rows = await sequelize.query(
@@ -219,9 +239,7 @@ describe('sync_lookup self healing (trigger level)', () => {
     };
 
     it('installs the disabled-mode flag trigger on lookup-tracked tables on a central server', async () => {
-      expect(await triggerNamesOn('patients')).toContain(
-        'flag_patients_for_lookup_rebuild',
-      );
+      expect(await triggerNamesOn('patients')).toContain('flag_patients_for_lookup_rebuild');
       expect(await triggerNamesOn('user_login_attempts')).not.toContain(
         'flag_user_login_attempts_for_lookup_rebuild',
       );
@@ -233,9 +251,7 @@ describe('sync_lookup self healing (trigger level)', () => {
       try {
         await runPostMigration(log, sequelize);
 
-        expect(await triggerNamesOn('patients')).not.toContain(
-          'flag_patients_for_lookup_rebuild',
-        );
+        expect(await triggerNamesOn('patients')).not.toContain('flag_patients_for_lookup_rebuild');
       } finally {
         // eslint-disable-next-line require-atomic-updates -- single-threaded test, no concurrent writers
         config.serverFacilityId = originalServerFacilityId;

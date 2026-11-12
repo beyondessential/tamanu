@@ -21,16 +21,17 @@ import {
 import { requireFunction, requireTable } from './prerequisites';
 import type { MigrationHook } from './types';
 
-const DELETE_TRIGGER_PREFIX = 'delete_';
-const DELETE_TRIGGER_SUFFIX = '_from_sync_lookup';
-const FLAG_TRIGGER_PREFIX = 'flag_';
-const FLAG_TRIGGER_SUFFIX = '_for_lookup_rebuild';
+export const DELETE_TRIGGER_PREFIX = 'delete_';
+export const DELETE_TRIGGER_SUFFIX = '_from_sync_lookup';
+export const FLAG_TRIGGER_PREFIX = 'flag_';
+export const FLAG_TRIGGER_SUFFIX = '_for_lookup_rebuild';
 const LOOKUP_TRACKED_DIRECTIONS: string[] = [
   SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
   SYNC_DIRECTIONS.BIDIRECTIONAL,
 ];
 
-// Postgres silently truncates identifiers over 63 bytes; match that so a later lookup against the
+// Postgres silently truncates identifiers over 63 bytes (a truncated name also lands in the dbt
+// models, as a fragment the spellcheck rejects, see the table name length test); match that so a later lookup against the
 // installed trigger name (pg_trigger.tgname) finds what CREATE TRIGGER actually stored.
 const truncatedTriggerName = (prefix: string, table: string, suffix: string) =>
   `${prefix}${table}${suffix}`.slice(0, 63);
