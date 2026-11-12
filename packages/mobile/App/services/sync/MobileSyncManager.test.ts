@@ -121,6 +121,17 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.progressMessage).toBe('');
     });
 
+    it('still tries to sync when the network state is unknown', async () => {
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: null } as any);
+      const startSyncSessionSpy = jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockResolvedValueOnce({ status: 'waitingInQueue' } as any);
+
+      await mobileSyncManager.triggerSync();
+
+      expect(startSyncSessionSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('still tries to sync when the network state cannot be read', async () => {
       jest.mocked(NetInfo.refresh).mockRejectedValueOnce(new Error('native module unavailable'));
       const startSyncSessionSpy = jest
