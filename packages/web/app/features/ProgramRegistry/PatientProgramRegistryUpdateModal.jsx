@@ -13,7 +13,7 @@ import { RelatedConditionsForm } from './RelatedConditionsForm';
 import { useAuth } from '../../contexts/Auth'
 
 const StyledAutocompleteField = styled(AutocompleteField)`
-  width: 300px;
+  width: 267px;
 `;
 
 const FieldRow = styled.div`
