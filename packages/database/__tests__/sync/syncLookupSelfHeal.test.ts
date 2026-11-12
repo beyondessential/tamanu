@@ -220,10 +220,10 @@ describe('sync_lookup self healing (trigger level)', () => {
 
     it('installs the disabled-mode flag trigger on lookup-tracked tables on a central server', async () => {
       expect(await triggerNamesOn('patients')).toContain(
-        'flag_patients_in_sync_lookup_when_sync_disabled',
+        'flag_patients_for_lookup_rebuild',
       );
       expect(await triggerNamesOn('user_login_attempts')).not.toContain(
-        'flag_user_login_attempts_in_sync_lookup_when_sync_disabled',
+        'flag_user_login_attempts_for_lookup_rebuild',
       );
     });
 
@@ -234,7 +234,7 @@ describe('sync_lookup self healing (trigger level)', () => {
         await runPostMigration(log, sequelize);
 
         expect(await triggerNamesOn('patients')).not.toContain(
-          'flag_patients_in_sync_lookup_when_sync_disabled',
+          'flag_patients_for_lookup_rebuild',
         );
       } finally {
         // eslint-disable-next-line require-atomic-updates -- single-threaded test, no concurrent writers

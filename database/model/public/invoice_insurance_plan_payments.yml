@@ -12,7 +12,7 @@ sources:
           meta:
             triggers:
               - delete_invoice_insurance_plan_payments_from_sync_lookup
-              - flag_invoice_insurance_plan_payments_in_sync_lookup_when_sync_d
+              - flag_invoice_insurance_plan_payments_for_lookup_rebuild
               - record_invoice_insurance_plan_payments_changelog
               - set_invoice_insurance_plan_payments_updated_at
               - set_invoice_insurance_plan_payments_updated_at_sync_tick

@@ -24,7 +24,7 @@ import type { MigrationHook } from './types';
 const DELETE_TRIGGER_PREFIX = 'delete_';
 const DELETE_TRIGGER_SUFFIX = '_from_sync_lookup';
 const FLAG_TRIGGER_PREFIX = 'flag_';
-const FLAG_TRIGGER_SUFFIX = '_in_sync_lookup_when_sync_disabled';
+const FLAG_TRIGGER_SUFFIX = '_for_lookup_rebuild';
 const LOOKUP_TRACKED_DIRECTIONS: string[] = [
   SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
   SYNC_DIRECTIONS.BIDIRECTIONAL,
