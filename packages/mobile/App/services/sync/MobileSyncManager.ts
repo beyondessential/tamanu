@@ -221,6 +221,21 @@ export class MobileSyncManager {
     }
   }
 
+  /**
+   * Only an optimisation, so it errs towards letting the sync try: a reading that is unknown or
+   * can't be taken doesn't count as offline.
+   */
+  private async isOffline(): Promise<boolean> {
+    try {
+      // refresh rather than fetch: the cached state can be stale just after the app is foregrounded
+      const { isConnected } = await NetInfo.refresh();
+      return isConnected === false;
+    } catch (error) {
+      console.warn('MobileSyncManager.isOffline(): Couldn’t read network state', error);
+      return false;
+    }
+  }
+
   async runSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       throw new Error('MobileSyncManager.runSync(): Tried to start syncing while sync in progress');
@@ -230,8 +245,7 @@ export class MobileSyncManager {
     this.isSyncing = true;
 
     // there's no point opening a session if we already know the device is offline
-    const { isConnected } = await NetInfo.fetch();
-    if (isConnected === false) {
+    if (await this.isOffline()) {
       throw new Error('No network connection');
     }
 
