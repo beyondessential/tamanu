@@ -202,19 +202,20 @@ describe('PatientProgramRegistration', () => {
     it('creates a registration with a currently in facility', async () => {
       const patient = await models.Patient.create(fake(models.Patient));
       const programRegistry = await createProgramRegistry({ currentlyAtType: 'facility' });
+      const currentFacility = await models.Facility.create(fake(models.Facility));
 
       const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
         programRegistryId: programRegistry.id,
         clinicianId: app.user.id,
         registeringFacilityId: facilityId,
-        facilityId,
+        facilityId: currentFacility.id,
       });
 
       expect(result).toHaveSucceeded();
       const createdRegistration = await models.PatientProgramRegistration.findOne({
         where: { id: result.body.id },
       });
-      expect(createdRegistration.facilityId).toBe(facilityId);
+      expect(createdRegistration.facilityId).toBe(currentFacility.id);
     });
   });
 
