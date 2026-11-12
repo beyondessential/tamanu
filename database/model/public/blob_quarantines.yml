@@ -12,7 +12,6 @@ sources:
           meta:
             triggers:
               - delete_blob_quarantines_from_sync_lookup
-              - notify_blob_quarantines_changed
               - record_blob_quarantines_changelog
               - set_blob_quarantines_updated_at
               - set_blob_quarantines_updated_at_sync_tick
