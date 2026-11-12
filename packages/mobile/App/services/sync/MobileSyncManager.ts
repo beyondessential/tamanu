@@ -246,11 +246,6 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Began sync run');
     this.isSyncing = true;
 
-    // there's no point opening a session if we already know the device is offline
-    if (await this.isOffline()) {
-      throw new Error('No network connection');
-    }
-
     // A VACUUM kicked off while the app was backgrounded may still be running. Let it finish
     // before opening a central session so the session isn’t held open waiting on the write lock.
     if (Database.maintenanceInProgress !== null) {
@@ -269,6 +264,12 @@ export class MobileSyncManager {
     this.progressMaxByStage = this.isInitialSync
       ? STAGE_MAX_PROGRESS_INITIAL
       : STAGE_MAX_PROGRESS_INCREMENTAL;
+
+    // there's no point opening a session if we already know the device is offline. Checked last,
+    // since the maintenance wait above can be long enough for the connection to change
+    if (await this.isOffline()) {
+      throw new Error('No network connection');
+    }
 
     const {
       sessionId,
