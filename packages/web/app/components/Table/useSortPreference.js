@@ -1,14 +1,7 @@
 import { useContext, useMemo, useState } from 'react';
-import { TABLE_PAGE_SIZE_PREFERENCE_KEYS, TABLE_SORT_PREFERENCE_KEYS } from '@tamanu/constants';
+import { TABLE_SORT_PREFERENCE_KEYS } from '@tamanu/constants';
 
 import { PageSizePreferencesContext } from '../../contexts/PageSizePreferences';
-
-const getSortPreferenceKey = pageSizePreferenceKey => {
-  const tableName = Object.keys(TABLE_PAGE_SIZE_PREFERENCE_KEYS).find(
-    name => TABLE_PAGE_SIZE_PREFERENCE_KEYS[name] === pageSizePreferenceKey,
-  );
-  return TABLE_SORT_PREFERENCE_KEYS[tableName];
-};
 
 /**
  * The sort for a table. A table whose page size key has a sort key of the same name remembers the
@@ -18,7 +11,7 @@ const getSortPreferenceKey = pageSizePreferenceKey => {
 // spec: TPAGE#remembered-sort
 export const useSortPreference = ({ pageSizePreferenceKey, columns, initialSort }) => {
   const pageSizePreferences = useContext(PageSizePreferencesContext);
-  const preferenceKey = getSortPreferenceKey(pageSizePreferenceKey);
+  const preferenceKey = TABLE_SORT_PREFERENCE_KEYS[pageSizePreferenceKey];
   const [pickedSorting, setPickedSorting] = useState(preferenceKey ? null : initialSort);
 
   const savedSorting = preferenceKey ? pageSizePreferences.preferences[preferenceKey] : undefined;
