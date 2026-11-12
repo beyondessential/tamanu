@@ -5,6 +5,7 @@ import {
   getLabTestValidationCriteriaFromNormalRanges,
   getReferenceRange,
   getReferenceRangeWithUnit,
+  formatLabTestResult,
   getLabRequestTestAndPanelNames,
   hasInterimLabResults,
   isInterimLabRequest,
@@ -382,5 +383,60 @@ describe('interim lab requests', () => {
     expect(hasInterimLabResults([published])).toBe(false);
     expect(hasInterimLabResults([])).toBe(false);
     expect(hasInterimLabResults()).toBe(false);
+  });
+});
+
+describe('formatLabTestResult', () => {
+  const type = (overrides = {}) => ({ unit: 'mmol/L', ...overrides });
+
+  it('appends the unit to the result', () => {
+    expect(formatLabTestResult({ result: '7.2', labTestType: type() })).toBe('7.2 mmol/L');
+  });
+
+  it('returns the bare result when the type has no unit', () => {
+    expect(formatLabTestResult({ result: 'Positive', labTestType: type({ unit: null }) })).toBe(
+      'Positive',
+    );
+  });
+
+  it('follows the result with a secondary result in brackets', () => {
+    expect(
+      formatLabTestResult({
+        result: '7.2',
+        secondaryResult: 'High',
+        labTestType: type({ supportsSecondaryResults: true }),
+      }),
+    ).toBe('7.2 mmol/L (High)');
+  });
+
+  it('ignores a secondary result the test type does not support', () => {
+    expect(
+      formatLabTestResult({
+        result: '7.2',
+        secondaryResult: 'High',
+        labTestType: type({ supportsSecondaryResults: false }),
+      }),
+    ).toBe('7.2 mmol/L');
+  });
+
+  it('ignores an empty secondary result on a type that supports one', () => {
+    expect(
+      formatLabTestResult({
+        result: '7.2',
+        secondaryResult: '',
+        labTestType: type({ supportsSecondaryResults: true }),
+      }),
+    ).toBe('7.2 mmol/L');
+  });
+
+  it('renders a test with no result as blank, with no stray unit', () => {
+    expect(formatLabTestResult({ result: '', labTestType: type() })).toBe('');
+    expect(formatLabTestResult({ result: null, labTestType: type() })).toBe('');
+    expect(formatLabTestResult({ result: undefined, labTestType: type() })).toBe('');
+    expect(formatLabTestResult()).toBe('');
+  });
+
+  it('renders a zero result rather than treating it as absent', () => {
+    expect(formatLabTestResult({ result: 0, labTestType: type() })).toBe('0 mmol/L');
   });
 });

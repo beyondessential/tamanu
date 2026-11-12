@@ -144,6 +144,7 @@ const MODALS = {
     <LabResultsPrintoutModal
       {...props}
       labRequests={[labRequest]}
+      isSingleRequestPrintout
       data-testid="labresultsprintoutmodal-single"
     />
   ),

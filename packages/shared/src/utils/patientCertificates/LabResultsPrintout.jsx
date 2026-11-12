@@ -3,6 +3,7 @@ import { Document, StyleSheet, View } from '@react-pdf/renderer';
 
 import { LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import {
+  formatLabTestResult,
   getReferenceRangeWithUnit,
   hasInterimLabResults,
   isInterimLabRequest,
@@ -138,16 +139,7 @@ const LabRequestBlock = ({
     {
       key: 'result',
       title: getTranslation('lab.results.table.column.result', 'Result'),
-      accessor: ({ result, secondaryResult, labTestType }) => {
-        if (result === undefined || result === null || result === '') return '';
-        const unit = labTestType?.unit;
-        const resultWithUnit = unit ? `${result} ${unit}` : result;
-
-        if (labTestType?.supportsSecondaryResults && secondaryResult) {
-          return `${resultWithUnit} (${secondaryResult})`;
-        }
-        return resultWithUnit;
-      },
+      accessor: formatLabTestResult,
     },
     {
       key: 'reference',
@@ -213,13 +205,20 @@ const LabRequestBlock = ({
 };
 
 const LabResultsPrintoutComponent = React.memo(
-  ({ patientData, encounter, labRequests, certificateData, getSetting }) => {
+  ({
+    patientData,
+    encounter,
+    labRequests,
+    certificateData,
+    getSetting,
+    // Which document this is, told by the caller rather than counted from labRequests: an
+    // encounter printout holding one eligible request is still an encounter printout, and must
+    // keep its per-request interim marker and leave the request id out of the running header.
+    isSingleRequestPrintout = false,
+  }) => {
     const { getTranslation } = useLanguageContext();
     const { logo } = certificateData;
     const documentName = getTranslation('pdf.labResults.documentName', 'Lab results');
-    // A single-request printout names its request in the running header; an encounter's printout
-    // holds several, so it has no one request to name.
-    const isSingleRequest = labRequests.length === 1;
     const hasAnyTests = labRequests.some(labRequest => labRequest.tests?.length > 0);
 
     return (
@@ -229,7 +228,7 @@ const LabResultsPrintoutComponent = React.memo(
             <MultiPageHeader
               documentName={documentName}
               documentSubname={
-                isSingleRequest
+                isSingleRequestPrintout
                   ? getTranslation('pdf.labResults.documentSubname', 'Request ID: :requestId', {
                       replacements: { requestId: labRequests[0]?.displayId || '' },
                     })
@@ -259,7 +258,7 @@ const LabResultsPrintoutComponent = React.memo(
               labRequest={labRequest}
               patientData={patientData}
               getSetting={getSetting}
-              showInterimMarker={!isSingleRequest}
+              showInterimMarker={!isSingleRequestPrintout}
               showDivider={index > 0}
             />
           ))}

@@ -262,3 +262,28 @@ export const isInterimLabRequest = ({ status }: LabRequestStatusLike = {}): bool
 
 export const hasInterimLabResults = (labRequests: LabRequestStatusLike[] = []): boolean =>
   labRequests.some(isInterimLabRequest);
+
+export type LabTestResultLike = {
+  result?: string | number | null;
+  secondaryResult?: string | null;
+  labTestType?: { unit?: string | null; supportsSecondaryResults?: boolean | null } | null;
+};
+
+// A lab test's result as the printout's Result column shows it: the value with its unit, and a
+// secondary result in brackets after it where the test type supports one. A test with no result
+// yet renders blank rather than a stray unit, so an unresulted row reads as unresulted.
+export const formatLabTestResult = ({
+  result,
+  secondaryResult,
+  labTestType,
+}: LabTestResultLike = {}): string => {
+  if (result === undefined || result === null || result === '') return '';
+
+  const unit = labTestType?.unit;
+  const resultWithUnit = unit ? `${result} ${unit}` : `${result}`;
+
+  if (labTestType?.supportsSecondaryResults && secondaryResult) {
+    return `${resultWithUnit} (${secondaryResult})`;
+  }
+  return resultWithUnit;
+};

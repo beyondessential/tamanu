@@ -22,7 +22,7 @@ are shown on screen, see `labs/results.md`.
 - [ ] A request containing a sensitive test is left out of the encounter printout for every user. Its results are printed from the request itself.
 - [ ] Choosing "Print results" opens the preview directly, holding every eligible request, and staff can print from it.
 - [ ] When the encounter has no eligible requests, "Print results" is hidden, and so is the overflow menu when it holds nothing else.
-- [ ] "Print results" appears only when the lab results printout setting is on and the user has permission to read lab test results.
+- [ ] "Print results" appears only when the lab results printout setting is on and the user holds every permission the printout's own fetches need: read lab test results, and read and list lab requests and list lab tests. Reading the request status log is not among them — without it the printout still prints, naming no publisher.
 - [ ] "Print results" is available on a discharged or otherwise read-only encounter.
 - [ ] Requests appear in the order they were requested, oldest first.
 
@@ -35,7 +35,7 @@ are shown on screen, see `labs/results.md`.
 - [ ] A request with a results interpretation shows it in a box below its results table.
 - [ ] A test with no result yet is listed with its result blank.
 - [ ] In an encounter printout, the request blocks follow one another separated by a divider, with pages breaking only where the content requires.
-- [ ] Pages after the first carry a running header with the document name and the patient's name and ID. A single-request printout's header also names the request ID.
+- [ ] Pages after the first carry a running header with the document name and the patient's name and ID. Only a printout of a single request names the request ID there; an encounter's printout never does, including when it holds one eligible request.
 - [ ] Every page's footer shows the print date and time and the page number out of the total.
 
 ## Interim results
@@ -43,4 +43,4 @@ are shown on screen, see `labs/results.md`.
 - [ ] When a printout carries the interim banner, it sits under the title and reads "This report contains interim results that have not yet been published".
 - [ ] A single-request printout carries the banner when the request is Reception pending, Results pending, Interim results or To be verified.
 - [ ] An encounter printout carries the banner when any of its requests is at Interim results.
-- [ ] In an encounter printout, each request at Interim results also carries its own interim marker above its block, so staff can tell which results are not final.
+- [ ] In an encounter printout, each request at Interim results also carries its own interim marker above its block, so staff can tell which results are not final — including when the encounter has only that one eligible request.
