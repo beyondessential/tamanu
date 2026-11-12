@@ -47,7 +47,7 @@ export const UpdatePatientDetailsRequestSchema = z
 
 export type UpdatePatientDetailsRequest = z.infer<typeof UpdatePatientDetailsRequestSchema>;
 
-const INSURANCE_DETAIL_NAMES = ['insurerId', 'insurerPolicyNumber'];
+const INSURANCE_DETAIL_NAMES = ['insurerPolicyNumber'];
 
 /**
  * The deployment's field settings for patient details, with insurance treated as hidden unless the

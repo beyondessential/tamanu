@@ -28,6 +28,7 @@ describe('Patient Portal: updating patient details', () => {
     const { Patient, PortalUser, ReferenceData, Setting } = store.models;
 
     await Setting.set('features.patientPortal', true);
+    await Setting.set('features.enablePatientInsurer', true);
     patient = await Patient.create(
       fake(Patient, { firstName: 'Tess', lastName: 'Lavea', email: 'tess@old.example' }),
     );
@@ -180,24 +181,18 @@ describe('Patient Portal: updating patient details', () => {
     expect(await updateDetails({ cityTown: 'Lalomanu' })).toHaveSucceeded();
   });
 
-  it('refuses insurance details unless the deployment uses patient insurance', async () => {
-    const { ReferenceData, Setting } = store.models;
-    const insurer = await ReferenceData.create(
-      fake(ReferenceData, { type: REFERENCE_TYPES.INSURER }),
-    );
+  it('refuses the policy number unless the deployment uses patient insurance', async () => {
+    const { Setting } = store.models;
     await Setting.set('fields', {});
     await Setting.set('features.enablePatientInsurer', false);
     settingsCache.reset();
 
     expect(await updateDetails({ insurerPolicyNumber: 'POL-111' })).toHaveRequestError();
-    expect(await updateDetails({ insurerId: insurer.id })).toHaveRequestError();
 
     await Setting.set('features.enablePatientInsurer', true);
     settingsCache.reset();
 
-    expect(
-      await updateDetails({ insurerId: insurer.id, insurerPolicyNumber: 'POL-111' }),
-    ).toHaveSucceeded();
+    expect(await updateDetails({ insurerPolicyNumber: 'POL-111' })).toHaveSucceeded();
   });
 
   it('rejects a request without a portal sign-in', async () => {
