@@ -309,6 +309,8 @@ programRegistry.get(
         division.name AS "patient.division.name",
         subdivision.name AS "patient.subdivision.name",
         patient_village.name AS "patient.village.name",
+        mrr.village_id as "village_id",
+        mrr.facility_id as "facility_id",
         currently_at_village.name as "village.name",
         currently_at_facility.name as "facility.name",
         registering_facility.name as "registering_facility.name",
