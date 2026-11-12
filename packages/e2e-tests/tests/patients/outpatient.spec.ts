@@ -67,7 +67,7 @@ test.describe('outpatient table tests', () => {
       await outpatientsPage.patientTable.validateNumberOfPatients(100);
       await outpatientsPage.patientTable.patientPage2.click();
       await outpatientsPage.patientTable.waitForTableToLoad();
-      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('101–');
+      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('Showing 101');
     });
 
     //skipping this test for now as it is failing in ci because of less than 51 outpatients
@@ -79,7 +79,7 @@ test.describe('outpatient table tests', () => {
       await outpatientsPage.patientTable.validateNumberOfPatients(50);
       await outpatientsPage.patientTable.patientPage2.click();
       await outpatientsPage.patientTable.waitForTableToLoad();
-      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('51–');
+      await expect(outpatientsPage.patientTable.pageRecordCount).toContainText('Showing 51');
     });
   });
 

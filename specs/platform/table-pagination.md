@@ -6,12 +6,35 @@ id: TPAGE
 
 Applies to the footer every paginated table in the web app shares: what it tells the user about the records they are looking at, the choice of how many rows a page holds, and moving between pages, along with the column sort the patient lists and worklists remember.
 
+## Footer visibility
+
+- The pagination footer appears whenever a paginated table holds at least one record
+- A table with no records shows its empty-state message and no pagination footer
+
+## Record count
+
+- The footer states the range of records on the current page and the total, as a sentence: "Showing 1–10 of 547 records"
+- The range runs from the first to the last record on the current page, so the last page shows only the records it holds (e.g. "Showing 541–547 of 547 records")
+- When every record fits on one page, the count still shows the range (e.g. "Showing 1–3 of 3 records")
+- When the current page holds a single record, the range collapses to that one number (e.g. "Showing 11 of 11 records")
+- When the table holds exactly one record, the count reads "Showing 1 of 1 record"
+- The count uses the same wording on every table, whatever kind of record the table lists
+- Numbers in the count are formatted for the user's selected language, including thousands separators (e.g. "Showing 1–10 of 1,204 records")
+- The count wording is translatable
+
 ## Rows per page
 
+- A visible "Rows per page" label sits to the left of the rows-per-page dropdown, and the label is translatable
 - Each table offers one of two sets of page sizes: the standard set of 10, 25 and 50 rows, or the large set of 50 and 100 rows
 - A table with the standard set opens at its default size each time it is shown
 - Changing the rows per page returns the table to its first page, and the record count reflects the new page size
 - Every page except the last holds as many records as the chosen size, and the last page holds the records remaining
+
+## Page navigation
+
+- Page buttons show the first page, the last page, and the pages either side of the current one, with an ellipsis standing in for each gap. On the first page they show the first three pages, and on the last page the last three
+- The current page is highlighted
+- Previous and next buttons move one page at a time, and are disabled on the first and last page respectively
 
 ## Large page sizes
 
