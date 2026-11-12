@@ -1,4 +1,5 @@
 import { calculatePageLimit } from './calculatePageLimit';
+import { timeSuccessfulAttempt } from './timeSuccessfulAttempt';
 import { SYNC_SESSION_DIRECTION } from '../constants';
 import type { PullParams } from '../MobileSyncManager';
 import type { SyncRecord } from '../types';
@@ -16,14 +17,9 @@ export const pullRecordsInBatches = async (
   const { dynamicLimiter: dynamicLimiterSettings } = syncSettings ?? {};
 
   const fetchPage = async (pageLimit: number, pageFromId?: string): Promise<PulledPage> => {
-    // time only the attempt that succeeds, so retrying through a network drop doesn't look like a
-    // slow page to the dynamic limiter
-    let startTime = Date.now();
-    const onAttempt = () => {
-      startTime = Date.now();
-    };
-    const records = await centralServer.pull(sessionId, pageLimit, pageFromId, onAttempt);
-    const pullTime = Date.now() - startTime;
+    const { result: records, durationMs: pullTime } = await timeSuccessfulAttempt(onAttempt =>
+      centralServer.pull(sessionId, pageLimit, pageFromId, onAttempt),
+    );
     return { records, pullTime };
   };
 
