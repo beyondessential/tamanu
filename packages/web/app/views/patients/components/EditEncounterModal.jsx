@@ -390,7 +390,9 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       // start date below so the change still gets its system note. It goes first because it is the
       // write most likely to be refused, and a refusal then leaves nothing half-saved.
       if ((patientBillingTypeId ?? null) !== (encounter.patientBillingTypeId ?? null)) {
-        await updateEncounter({ submittedTime, patientBillingTypeId });
+        // A cleared select gives undefined, which would drop out of the request body and leave the
+        // old patient type in place, so send null to clear it.
+        await updateEncounter({ submittedTime, patientBillingTypeId: patientBillingTypeId ?? null });
       }
 
       await api.put(route('triage/:triageId', { triageId: triage?.id }), {
@@ -424,7 +426,8 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       submittedTime: getCurrentDateTime(),
       startDate,
       referralSourceId,
-      patientBillingTypeId,
+      // A cleared select gives undefined, which would drop out of the request body
+      patientBillingTypeId: patientBillingTypeId ?? null,
       dietIds,
       reasonForEncounter,
       estimatedEndDate,

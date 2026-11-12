@@ -139,6 +139,32 @@ describe('EditEncounterModal emergency patient type', () => {
     );
   });
 
+  it('clears the patient type when the select is cleared', async () => {
+    const { onSubmit } = renderModal(emergencyEncounter);
+
+    await onSubmit({ ...triageFormValues, patientBillingTypeId: undefined });
+
+    expect(apiPut).toHaveBeenNthCalledWith(1, encounterRoute, {
+      submittedTime: '2026-07-12 00:00:00',
+      patientBillingTypeId: null,
+    });
+  });
+
+  it('clears the patient type from the encounter form when the select is cleared', async () => {
+    const { onSubmit } = renderModal({
+      id: 'encounter-1',
+      encounterType: 'admission',
+      patientBillingTypeId: 'billing-type-private',
+    });
+
+    await onSubmit({ startDate: '2026-07-11 09:00:00', patientBillingTypeId: undefined });
+
+    expect(apiPut).toHaveBeenCalledWith(
+      encounterRoute,
+      expect.objectContaining({ patientBillingTypeId: null }),
+    );
+  });
+
   it('does not write the encounter patient type when it is unchanged', async () => {
     const { onSubmit } = renderModal(emergencyEncounter);
 
