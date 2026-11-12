@@ -123,7 +123,7 @@ Two things to know while testing:
 ## Migration and sync
 
 - [x] The new columns are added and insurer_id dropped, and both migrations reverse cleanly
-- [ ] A facility server syncing against a central server that has dropped insurer_id applies
+- [x] A facility server syncing against a central server that has dropped insurer_id applies
       patient additional data without error
 - [x] Mobile, which carries neither the new columns nor insurer_id, can still push a patient
       additional data edit without clearing the billing fields on central
