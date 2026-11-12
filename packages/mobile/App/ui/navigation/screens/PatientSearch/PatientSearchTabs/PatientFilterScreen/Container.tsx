@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFilterFields } from './hooks';
+import { useClearFilterFields } from './hooks';
 import { Screen } from './Screen';
 import { Routes } from '/helpers/routes';
 import type { BaseAppProps } from '/interfaces/BaseAppProps';
@@ -18,15 +18,7 @@ export const PatientFilterScreen = ({ navigation, route }: BaseAppProps) => {
     });
   };
 
-  const [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId] = useFilterFields();
-  const onClearFilters = () => {
-    sex[2].setValue('');
-    dateOfBirth[2].setValue(null);
-    firstName[2].setValue('');
-    lastName[2].setValue('');
-    villageId[2].setValue(null);
-    programRegistryId[2].setValue(null);
-  };
+  const onClearFilters = useClearFilterFields();
 
   return <Screen onCancel={onNavigateBack} onClear={onClearFilters} onSubmit={onSubmit} />;
 };

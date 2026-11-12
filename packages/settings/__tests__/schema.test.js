@@ -12,7 +12,7 @@ import {
 import { extractDefaults } from '../src/schema/utils';
 import * as yup from 'yup';
 import { fail } from 'assert';
-import { VACCINE_STATUS } from '@tamanu/constants';
+import { INVOICE_PRINT_LAYOUTS, VACCINE_STATUS } from '@tamanu/constants';
 
 describe('Schemas', () => {
   describe('Extracting settings from schema', () => {
@@ -431,6 +431,29 @@ describe('Schemas', () => {
       it('upcomingTasksTimeFrame is not nullable: the ceiling always applies', async () => {
         await expect(tasking({ upcomingTasksTimeFrame: null })).rejects.toThrow(
           yup.ValidationError,
+        );
+      });
+    });
+
+    describe('Invoice print layout', () => {
+      const printLayout = value =>
+        validateSettings({ settings: { invoicing: { printLayout: value } }, scope: 'facility' });
+
+      it('defaults to A4', () => {
+        expect(facilityDefaults.invoicing.printLayout).toBe(INVOICE_PRINT_LAYOUTS.A4);
+      });
+
+      it.each(Object.values(INVOICE_PRINT_LAYOUTS))('accepts %s', async value => {
+        await expect(printLayout(value)).resolves.not.toThrow();
+      });
+
+      it('rejects any other layout', async () => {
+        await expect(printLayout('letter')).rejects.toThrow(yup.ValidationError);
+      });
+
+      it('is sent to the web', () => {
+        expect(getKeysByFlag('exposedToWeb', [facilitySettings])).toContain(
+          'invoicing.printLayout',
         );
       });
     });
