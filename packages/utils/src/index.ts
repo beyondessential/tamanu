@@ -1,4 +1,5 @@
 export { generateId, generateIdFromPattern } from './generateId';
+export { parseScannedDisplayId } from './scannedDisplayId';
 export * from './invoice';
 export {
   checkFormVisibilityCriteria,

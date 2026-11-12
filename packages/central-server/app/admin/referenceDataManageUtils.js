@@ -380,6 +380,8 @@ export const assertValidType = type => {
   }
 };
 
+const NUMERIC_COLUMN_TYPES = new Set(['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL']);
+
 export const getWritableData = (columns, data, isEditMode) => {
   const isWritable = col =>
     // Relation-backed columns aren't real columns; they're written separately (see
@@ -391,12 +393,15 @@ export const getWritableData = (columns, data, isEditMode) => {
   // numeric column rejects it outright.
   const shouldUseDefault = col => !isEditMode && col.hasDefault && data[col.key] === '';
 
+  // Otherwise a cleared number means "no value", which Postgres only accepts as null.
+  const isBlankNumber = col => NUMERIC_COLUMN_TYPES.has(col.type) && data[col.key] === '';
+
   const writableData = {};
   for (const col of columns) {
     if (!(col.key in data)) continue;
     if (!isWritable(col)) continue;
     if (shouldUseDefault(col)) continue;
-    writableData[col.key] = data[col.key];
+    writableData[col.key] = isBlankNumber(col) ? null : data[col.key];
   }
   return writableData;
 };
