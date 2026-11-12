@@ -83,7 +83,7 @@ describe('Paginator', () => {
   });
 });
 
-const renderFooter = ({ page = 0, count, rowsPerPage = 10 }) =>
+const renderFooter = ({ page = 0, count, rowsPerPage = 10, translations = {} }) =>
   renderElementWithTranslatedText(
     <table>
       <tbody>
@@ -101,7 +101,7 @@ const renderFooter = ({ page = 0, count, rowsPerPage = 10 }) =>
       </tbody>
     </table>,
     undefined,
-    { getTranslation: (...args) => translationFactory({})(...args).value },
+    { getTranslation: (...args) => translationFactory(translations)(...args).value },
   );
 
 const recordCountText = () => screen.getByTestId('pagerecordcount-m8ne').textContent;
@@ -138,5 +138,57 @@ describe('Paginator record count', () => {
     const dropdown = screen.getByRole('button', { name: 'Rows per page' });
     expect(dropdown.getAttribute('aria-labelledby')).toBe(screen.getByText('Rows per page').id);
     expect(dropdown.textContent).toBe('10');
+  });
+});
+
+describe('Paginator translations', () => {
+  it.each([
+    ['general.table.recordCount.range', { count: 547 }, 'Kitea 1–10 o 547'],
+    ['general.table.recordCount.singleRow', { page: 1, count: 11 }, 'Kitea 11 o 11'],
+    ['general.table.recordCount.onlyRecord', { count: 1 }, 'Kitea 1 o 1'],
+  ])('shows the record count in the translation of %s', (stringId, props, expectedText) => {
+    const template = stringId.endsWith('range')
+      ? 'Kitea :lowerRange–:upperRange o :count'
+      : 'Kitea :lowerRange o :count';
+    renderFooter({ ...props, translations: { [stringId]: template } });
+    expect(recordCountText()).toBe(expectedText);
+  });
+
+  it('shows the rows per page label in its translation', () => {
+    renderFooter({
+      count: 547,
+      translations: { 'general.table.rowsPerPage': 'Rārangi ia whārangi' },
+    });
+    expect(screen.getByRole('button', { name: 'Rārangi ia whārangi' })).not.toBeNull();
+  });
+});
+
+const pageItemLabels = () =>
+  [...document.querySelectorAll('.MuiPagination-ul li')]
+    .map(item => item.textContent)
+    .filter(Boolean);
+
+describe('Paginator page buttons', () => {
+  it.each([
+    ['the first three pages and the last on the first page', 0, ['1', '2', '3', '…', '10']],
+    ['the pages either side of the current one', 4, ['1', '…', '4', '5', '6', '…', '10']],
+    ['the first page and the last three on the last page', 9, ['1', '…', '8', '9', '10']],
+  ])('shows %s', (_, page, expectedLabels) => {
+    renderFooter({ page, count: 100 });
+    expect(pageItemLabels()).toEqual(expectedLabels);
+  });
+
+  it.each([
+    ['previous', 'on the first page', 0, 'paginationitem-hcui'],
+    ['next', 'on the last page', 9, 'paginationitem-d791'],
+  ])('disables the %s button %s', (_, __, page, testId) => {
+    renderFooter({ page, count: 100 });
+    expect(screen.getByTestId(testId).className).toContain('Mui-disabled');
+  });
+
+  it('enables the previous and next buttons on a middle page', () => {
+    renderFooter({ page: 4, count: 100 });
+    expect(screen.getByTestId('paginationitem-hcui').className).not.toContain('Mui-disabled');
+    expect(screen.getByTestId('paginationitem-d791').className).not.toContain('Mui-disabled');
   });
 });
