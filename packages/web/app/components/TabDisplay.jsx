@@ -28,8 +28,6 @@ export const tabScrollButtonStyles = css`
 
     &.Mui-disabled {
       opacity: 0;
-      width: 40px;
-      margin-inline: 0;
     }
   }
 `;
