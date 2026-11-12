@@ -3,8 +3,12 @@ import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'styled-components';
 import { TranslationProvider } from '../../app/contexts/Translation';
+import { SettingsContext } from '@tamanu/ui-components';
 import { createTheme } from '@material-ui/core/styles';
 import { vi } from 'vitest';
+
+/** Field components read settings (`features.disableInputPasting`), so every render needs one. */
+const stubSettings = { getSetting: () => undefined };
 
 export const createQueryClient = () =>
   new QueryClient({
@@ -53,9 +57,11 @@ const CompositeTranslationProvider = ({
 }) => (
   <QueryClientProvider client={createQueryClient()}>
     <ThemeProvider theme={createStubTheme()}>
-      <TranslationProvider value={translationContext}>
-        {children}
-      </TranslationProvider>
+      <SettingsContext.Provider value={stubSettings}>
+        <TranslationProvider value={translationContext}>
+          {children}
+        </TranslationProvider>
+      </SettingsContext.Provider>
     </ThemeProvider>
   </QueryClientProvider>
 );

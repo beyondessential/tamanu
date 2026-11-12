@@ -1,15 +1,15 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
-import { ThemeProvider } from 'styled-components';
+import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { SettingsContext } from '@tamanu/ui-components';
 import {
   COLUMN_KEYS,
   PharmacyOrderMedicationTable,
 } from '../../../app/components/Medication/PharmacyOrderMedicationTable';
-import { TranslationProvider } from '../../../app/contexts/Translation';
-import { createStubTheme, createTranslationContextWithReplacements } from '../../helpers';
+import {
+  createTranslationContextWithReplacements,
+  renderElementWithTranslatedText,
+} from '../../helpers';
 
 const buildRow = overrides => ({
   id: 'prescription-1',
@@ -30,18 +30,14 @@ const buildRow = overrides => ({
 });
 
 const renderTable = rows =>
-  render(
-    <ThemeProvider theme={createStubTheme()}>
-      <SettingsContext.Provider value={{ getSetting: () => undefined }}>
-        <TranslationProvider value={createTranslationContextWithReplacements()}>
-          <PharmacyOrderMedicationTable
-            data={rows}
-            columnsToInclude={[COLUMN_KEYS.MEDICATION, COLUMN_KEYS.DOSE, COLUMN_KEYS.QUANTITY]}
-            cellOnChange={() => {}}
-          />
-        </TranslationProvider>
-      </SettingsContext.Provider>
-    </ThemeProvider>,
+  renderElementWithTranslatedText(
+    <PharmacyOrderMedicationTable
+      data={rows}
+      columnsToInclude={[COLUMN_KEYS.MEDICATION, COLUMN_KEYS.DOSE, COLUMN_KEYS.QUANTITY]}
+      cellOnChange={() => {}}
+    />,
+    undefined,
+    createTranslationContextWithReplacements(),
   );
 
 const getRow = medicationName => screen.getByText(medicationName).closest('tr');
