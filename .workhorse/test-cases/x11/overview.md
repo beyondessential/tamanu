@@ -75,7 +75,7 @@ Two things to know while testing:
       and date of birth (verifies spec: PDET)
 - [x] A deceased patient is not offered as a payor (verifies spec: PDET)
 - [x] The patient being edited can be chosen as their own payor (verifies spec: PDET)
-- [ ] Each payor's reference number saves as free text (verifies spec: PDET)
+- [x] Each payor's reference number saves as free text (verifies spec: PDET)
 
 ## Creating a patient
 
