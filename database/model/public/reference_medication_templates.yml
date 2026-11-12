@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_reference_medication_templates_from_sync_lookup
+              - flag_reference_medication_templates_in_sync_lookup_when_sync_di
               - record_reference_medication_templates_changelog
               - set_reference_medication_templates_updated_at
               - set_reference_medication_templates_updated_at_sync_tick

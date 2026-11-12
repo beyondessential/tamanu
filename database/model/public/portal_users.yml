@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_portal_users_from_sync_lookup
+              - flag_portal_users_in_sync_lookup_when_sync_disabled
               - notify_portal_users_changed
               - record_portal_users_changelog
               - set_portal_users_updated_at

@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_procedures_from_sync_lookup
+              - flag_procedures_in_sync_lookup_when_sync_disabled
               - record_procedures_changelog
               - set_procedures_updated_at
               - set_procedures_updated_at_sync_tick

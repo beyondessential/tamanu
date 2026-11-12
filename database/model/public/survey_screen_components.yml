@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_survey_screen_components_from_sync_lookup
+              - flag_survey_screen_components_in_sync_lookup_when_sync_disabled
               - record_survey_screen_components_changelog
               - set_survey_screen_components_updated_at
               - set_survey_screen_components_updated_at_sync_tick

@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_program_registries_from_sync_lookup
+              - flag_program_registries_in_sync_lookup_when_sync_disabled
               - record_program_registries_changelog
               - set_program_registries_updated_at
               - set_program_registries_updated_at_sync_tick
