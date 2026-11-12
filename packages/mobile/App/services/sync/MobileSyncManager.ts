@@ -3,6 +3,8 @@ import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-k
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
+import { RemoteUnreachableError } from '@tamanu/errors';
+
 import { SETTING_KEYS } from '~/constants/settings';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
@@ -276,7 +278,7 @@ export class MobileSyncManager {
     // there's no point opening a session if we already know the device is offline. Checked last,
     // since the maintenance wait above can be long enough for the connection to change
     if (await this.isOffline()) {
-      throw new Error('No network connection');
+      throw new RemoteUnreachableError('Currently offline');
     }
 
     const {
