@@ -19,6 +19,7 @@ Applies to Your details on the [portal dashboard](overview.md), which shows the 
 - Each detail shows its label beside its value, with every value lined up in one column.
 - Details with no value are left out, as is a group with none recorded. With nothing beyond the basic details recorded, More details does not appear.
 - A field the deployment has configured as hidden in its patient field settings does not appear, in the details or on the edit screen. A group whose details are all hidden does not appear.
+- Policy number is treated as hidden unless the deployment has enabled patient insurance, matching Patient details in Tamanu.
 - Field labels use the deployment's translations, so a field the deployment has renamed shows its renamed label.
 
 ## Editing

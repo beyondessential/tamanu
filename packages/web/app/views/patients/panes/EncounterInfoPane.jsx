@@ -308,6 +308,21 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               data-testid="infocarditem-p5t5"
             />
           )}
+          {/* Emergency encounters have no more details, and their price list follows the patient type */}
+          {isEmergencyPatient(encounter.encounterType) && (
+            <InfoCardItem
+              label={
+                <TranslatedText
+                  stringId="encounter.summary.patientType.label"
+                  fallback="Patient type"
+                  data-testid="translatedtext-vk46"
+                />
+              }
+              value={patientBillingType}
+              icon={patientTypeIcon}
+              data-testid="infocarditem-3svu"
+            />
+          )}
           <InfoCardItem
             label={
               <TranslatedText
