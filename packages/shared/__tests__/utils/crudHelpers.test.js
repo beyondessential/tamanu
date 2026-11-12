@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { InvalidOperationError, UsageError } from '@tamanu/errors';
 
-import { simplePatch, simplePost, simplePut } from '../../src/utils/crudHelpers';
+import { getResourceList, simplePatch, simplePost, simplePut } from '../../src/utils/crudHelpers';
 
 // These guards are what stops a new call site from reintroducing mass assignment. Whether a
 // field is protected is known while the route is being built, so that half throws at boot;
@@ -86,5 +86,52 @@ describe('crudHelpers allowedFields', () => {
         id: 'supplied-id',
       });
     });
+  });
+});
+
+describe('getResourceList', () => {
+  const listQueries = [];
+  const listedModel = {
+    getListReferenceAssociations: () => ['Reference'],
+    count: async () => 0,
+    findAll: async queryOptions => {
+      listQueries.push(queryOptions);
+      return [];
+    },
+  };
+  const listWith = (query, options) =>
+    getResourceList(
+      {
+        models: { Listed: listedModel },
+        params: { id: 'parent-id' },
+        query,
+        checkPermission: () => {},
+      },
+      'Listed',
+      'parentId',
+      options,
+    );
+  const lastOrder = () => listQueries.at(-1).order;
+
+  it('orders by createdAt when no sort is requested', async () => {
+    await listWith({});
+    expect(lastOrder()).toEqual([['createdAt', 'ASC']]);
+  });
+
+  it('orders by the requested column, including one on an association', async () => {
+    await listWith({ orderBy: 'Reference.name', order: 'desc' });
+    expect(lastOrder()).toEqual([['Reference', 'name', 'DESC']]);
+  });
+
+  it('orders by what buildOrder returns, given the sort as requested', async () => {
+    const builtOrder = [['custom', 'ASC']];
+    const buildOrder = vi.fn(() => builtOrder);
+
+    await listWith({}, { buildOrder });
+    expect(buildOrder).toHaveBeenLastCalledWith({ orderBy: undefined, order: 'ASC' });
+    expect(lastOrder()).toBe(builtOrder);
+
+    await listWith({ orderBy: 'name', order: 'desc' }, { buildOrder });
+    expect(buildOrder).toHaveBeenLastCalledWith({ orderBy: 'name', order: 'desc' });
   });
 });

@@ -48,37 +48,13 @@ export const centralSettings = {
     },
     ai: {
       name: 'AI',
-      description: 'Settings for AI-powered features',
-      infoBanner:
-        'The model settings below offer a dropdown of available models once an API key is saved. Model IDs are also listed at https://platform.claude.com/docs/en/about-claude/models/overview',
+      description: 'Credentials for AI-powered features',
       properties: {
-        enabled: {
-          name: 'Enabled',
-          description: 'Enable or disable all AI-powered features',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         anthropicApiKey: {
           name: 'Anthropic API key',
           description: 'API key for the Anthropic API',
           type: yup.string(),
           secret: true,
-        },
-        anthropicModel: {
-          name: 'Anthropic model',
-          description:
-            'The Anthropic model to use for AI features. Opus is recommended, Sonnet is a cheaper alternative.',
-          type: yup.string(),
-          defaultValue: '',
-          suggesterEndpoint: 'anthropicModel',
-        },
-        anthropicFastModel: {
-          name: 'Anthropic fast model',
-          description:
-            'Optional faster Anthropic model for non-conversational tasks (PDF/image interpretation, structured tweaks, ProgramDefinition build). Falls back to anthropicModel when empty. A Haiku model is a good choice.',
-          type: yup.string(),
-          defaultValue: '',
-          suggesterEndpoint: 'anthropicFastModel',
         },
       },
     },

@@ -13,6 +13,7 @@ sources:
             js_class: PatientFamilyHistory
             triggers:
               - delete_patient_family_histories_from_sync_lookup
+              - flag_patient_family_histories_for_lookup_rebuild
               - notify_patient_family_histories_changed
               - record_patient_family_histories_changelog
               - set_patient_family_histories_updated_at

@@ -22,6 +22,7 @@ import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useSettings } from '../../../../contexts/Settings';
+import { Customisations } from '../../../../components/Customisations';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
@@ -92,20 +93,22 @@ export const GenericPrimaryDetailsLayout = ({
             enablePasting
             data-testid="localisedfield-41un"
           />
-          <LocalisedField
-            name="culturalName"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.culturalName.label"
-                fallback="Cultural/traditional name"
-                data-testid="translatedtext-reeu"
-              />
-            }
-            component={TextField}
-            required={isRequiredPatientData('culturalName')}
-            enablePasting
-            data-testid="localisedfield-ew4s"
-          />
+          <Customisations name="CulturalNameTextField">
+            <LocalisedField
+              name="culturalName"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.culturalName.label"
+                  fallback="Cultural/traditional name"
+                  data-testid="translatedtext-reeu"
+                />
+              }
+              component={TextField}
+              required={isRequiredPatientData('culturalName')}
+              enablePasting
+              data-testid="localisedfield-ew4s"
+            />
+          </Customisations>
           <LocalisedField
             name="dateOfBirth"
             label={

@@ -157,6 +157,20 @@ describe('Program export', () => {
     );
   });
 
+  it('exports mandatoryConditionEnabled on the Registry sheet', async () => {
+    const program = await models.Program.create(fake(Program));
+    await models.ProgramRegistry.create({
+      ...fake(models.ProgramRegistry),
+      programId: program.id,
+      mandatoryConditionEnabled: true,
+    });
+
+    const exportFileName = await exportProgram(ctx.store, program.id);
+    const exportFile = mockExcelFileSystem[exportFileName];
+
+    expect(exportFile.Registry).toContainEqual(['mandatoryConditionEnabled', true]);
+  });
+
   it('can export a sheet for each survey in a program', async () => {
     const programId = 'test-program';
     const survey1Code = 'test-survey-1';

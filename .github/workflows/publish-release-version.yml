@@ -66,7 +66,7 @@ jobs:
     # do release management after the critical bits above as we care less if those fail
 
     - name: Install git-cliff
-      run: npm install -g git-cliff@latest
+      run: npm install -g --min-release-age=7 git-cliff@latest
 
     - name: Generate release notes
       run: |

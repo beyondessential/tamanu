@@ -118,6 +118,7 @@ test.describe('Recently viewed patients pagination', () => {
       const patientStack: Array<Patient> = [];
 
       for (let i = 0; i < 12; i++) {
+        await allPatientsPage.searchAllPatients();
         if (i >= 10) {
           await allPatientsPage.page.waitForTimeout(1000); // Add wait before changing page size
           await allPatientsPage.patientTable.changePageSize(25);
