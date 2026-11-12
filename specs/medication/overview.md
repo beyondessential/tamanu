@@ -4,4 +4,4 @@ id: MEDICATION
 
 # Medication
 
-Prescribing, dispensing, and medication administration.
+Applies to prescribing, dispensing, and medication administration.

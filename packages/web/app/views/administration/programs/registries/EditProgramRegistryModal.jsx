@@ -17,6 +17,7 @@ import {
   TranslatedText,
 } from '@tamanu/ui-components';
 import { FormModal } from '../../../../components';
+import { CheckField } from '../../../../components/Field';
 import { notifySuccess } from '../../../../utils';
 import { VisibilityStatusField, visibilityStatusOptions } from '../components';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
@@ -52,6 +53,7 @@ const metadataValidationSchema = yup.object().shape({
     .required('Required')
     .oneOf(visibilityStatusOptions.map(option => option.value)),
   currentlyAtType: yup.string().required('Required'),
+  mandatoryConditionEnabled: yup.boolean(),
 });
 
 function EditProgramRegistryModal({ onClose, open }) {
@@ -76,6 +78,7 @@ function EditProgramRegistryModal({ onClose, open }) {
       name: registry?.name ?? '',
       visibilityStatus: registry?.visibilityStatus ?? '',
       currentlyAtType: registry?.currentlyAtType ?? '',
+      mandatoryConditionEnabled: Boolean(registry?.mandatoryConditionEnabled),
     }),
     [registry],
   );
@@ -103,6 +106,7 @@ function EditProgramRegistryModal({ onClose, open }) {
             name: values.name,
             visibilityStatus: values.visibilityStatus,
             currentlyAtType: values.currentlyAtType,
+            mandatoryConditionEnabled: values.mandatoryConditionEnabled,
           });
         }}
         render={({ submitForm, isSubmitting }) => (
@@ -130,6 +134,12 @@ function EditProgramRegistryModal({ onClose, open }) {
                 name="currentlyAtType"
                 options={currentlyAtTypeSelectOptions}
                 required
+              />
+              <Field
+                component={CheckField}
+                disabled={isSubmitting}
+                label="mandatoryConditionEnabled"
+                name="mandatoryConditionEnabled"
               />
             </FormGridThatFits>
             <Footer>

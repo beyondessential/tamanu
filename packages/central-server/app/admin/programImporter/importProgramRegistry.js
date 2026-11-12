@@ -144,6 +144,7 @@ export async function importProgramRegistry(context, workbook, programId) {
           currentlyAtType: registryRecord.currentlyAtType,
           lossToFollowUpEnabled: registryRecord.lossToFollowUpEnabled,
           lossToFollowUpThresholdDays: registryRecord.lossToFollowUpThresholdDays,
+          mandatoryConditionEnabled: registryRecord.mandatoryConditionEnabled,
         },
       },
     ],

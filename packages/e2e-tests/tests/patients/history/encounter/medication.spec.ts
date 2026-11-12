@@ -2,6 +2,8 @@ import { test, expect } from '@fixtures/baseFixture';
 import {
   createHospitalAdmissionEncounterViaAPI,
   createEncounterPrescriptionViaApi,
+  discontinuePrescriptionViaApi,
+  getDrugSuggestions,
   getFacilityId,
   getUser,
   getPractitioners,
@@ -173,6 +175,55 @@ test.describe('Medication - Encounter', () => {
     // client: a regression that drops it (the four-deep alias exceeding PostgreSQL's 63-byte limit and
     // being silently truncated) falls back to a conversion of 1 and would show "21 Blister Packs".
     await expect(dialog.getByText('Dispensing quantity: 3 Blister Packs')).toBeVisible();
+  });
+
+  test('MAR labels STAT medications and lists active ones first', async ({
+    page,
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const facilityId = await getFacilityId(page);
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const [asDirected, olderStat, newerStat, discontinuedStat] = await getDrugSuggestions(
+      api,
+      4,
+      facilityId,
+    );
+    const daysAgo = (days: number) =>
+      new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
+    const prescribe = (medicationId: string, frequency: string, date: string) =>
+      createEncounterPrescriptionViaApi(api, encounter.id, facilityId, {
+        medicationId,
+        frequency,
+        date,
+      });
+
+    await prescribe(asDirected.id, 'As directed', daysAgo(3));
+    await prescribe(newerStat.id, 'Immediately', daysAgo(1));
+    await prescribe(olderStat.id, 'Immediately', daysAgo(2));
+    const discontinued = await prescribe(discontinuedStat.id, 'Immediately', daysAgo(4));
+    await discontinuePrescriptionViaApi(api, discontinued.id);
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const medicationPane = await patientDetailsPage.navigateToMedicationTab();
+    await medicationPane.waitForPaneToLoad();
+    const marPage = await medicationPane.openMedicationAdminRecord();
+
+    const rows = marPage.scheduledMedicationRows;
+    await expect(rows).toHaveCount(4);
+    await expect(rows).toContainText([
+      olderStat.name,
+      newerStat.name,
+      asDirected.name,
+      discontinuedStat.name,
+    ]);
+    for (const statRow of [rows.nth(0), rows.nth(1), rows.nth(3)]) {
+      await expect(marPage.statLabel(statRow)).toBeVisible();
+    }
+    await expect(marPage.statLabel(rows.nth(2))).toBeHidden();
   });
 
   test('Send prescription to pharmacy', async ({ page, api, newPatient, patientDetailsPage }) => {

@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_patient_additional_data_from_sync_lookup
+              - flag_patient_additional_data_for_lookup_rebuild
               - notify_patient_additional_data_changed
               - record_patient_additional_data_changelog
               - set_patient_additional_data_updated_at
@@ -196,9 +197,6 @@ sources:
           - name: secondary_village_id
             data_type: text
             description: "{{ doc('patient_additional_data__secondary_village_id') }}"
-          - name: insurer_id
-            data_type: character varying(255)
-            description: "{{ doc('patient_additional_data__insurer_id') }}"
           - name: insurer_policy_number
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__insurer_policy_number') }}"

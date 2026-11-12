@@ -15,7 +15,6 @@ import { ReferralsView } from '../views/referrals/ReferralsView';
 import { PatientProgramRegistryView } from '../views/programRegistry/PatientProgramRegistryView';
 import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
 import { PATIENT_PATHS } from '../constants/patientPaths';
@@ -34,9 +33,6 @@ import {
 } from '../features/Breadcrumbs';
 
 export const usePatientRoutes = () => {
-  // prefetch userPreferences
-  useUserPreferencesQuery();
-
   return [
     {
       index: true,
