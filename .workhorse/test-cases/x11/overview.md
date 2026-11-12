@@ -81,7 +81,7 @@ Two things to know while testing:
 
 - [x] A Billing information field set as required when creating a patient appears on the new
       patient form (verifies spec: PDET)
-- [ ] Adoption number and marriage licence set as required when creating appear there too
+- [x] Adoption number and marriage licence set as required when creating appear there too
       (verifies spec: PDET)
 - [ ] Choosing the sliding fee scale plan on the new patient form brings up family size and
       annual income as required, with the same messages (verifies spec: PDET)
