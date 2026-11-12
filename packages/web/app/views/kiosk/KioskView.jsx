@@ -90,7 +90,11 @@ const Kiosk = () => {
   }, [dispatch, storedLanguage, defaultLanguage, updateStoredLanguage]);
 
   useKeepSignedIn();
-  const isSessionOpen = ![KIOSK_STEPS.LANDING, KIOSK_STEPS.CHECKED_IN].includes(session.step);
+  const isSessionOpen = ![
+    KIOSK_STEPS.LANDING,
+    KIOSK_STEPS.ALREADY_CHECKED_IN,
+    KIOSK_STEPS.CHECKED_IN,
+  ].includes(session.step);
   // Choices made on the landing page by someone who then walks away are cleared too
   const isDisplayChanged = display !== DEFAULT_DISPLAY || storedLanguage !== defaultLanguage;
   const inactivity = useInactivityTimer({

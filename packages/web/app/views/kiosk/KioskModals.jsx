@@ -129,14 +129,52 @@ export const HelpDialog = ({ onClose }) => (
   </MessageDialog>
 );
 
+export const GoToReceptionDialog = ({ onCloseSession }) => (
+  <MessageDialog
+    icon={<ReceptionIcon />}
+    title={
+      <TranslatedText stringId="kiosk.goToReception.title" fallback="Please go to reception" />
+    }
+    text={
+      <TranslatedText
+        stringId="kiosk.goToReception.text"
+        fallback="Our staff will help you check in."
+      />
+    }
+  >
+    <PrimaryButton $wide onClick={onCloseSession} autoFocus>
+      <TranslatedText stringId="kiosk.action.closeSession" fallback="Close session" />
+    </PrimaryButton>
+  </MessageDialog>
+);
+
+export const FormNotSavedDialog = ({ onClose }) => (
+  <MessageDialog
+    icon={<AlertIcon />}
+    title={
+      <TranslatedText stringId="kiosk.formNotSaved.title" fallback="We couldn't save your form" />
+    }
+    text={
+      <TranslatedText
+        stringId="kiosk.formNotSaved.text"
+        fallback="Please try again, or go to reception."
+      />
+    }
+  >
+    <PrimaryButton $wide onClick={onClose} autoFocus>
+      <TranslatedText stringId="general.action.close" fallback="Close" />
+    </PrimaryButton>
+  </MessageDialog>
+);
+
 export const StartOverDialog = ({ onCancel, onConfirm }) => (
   <MessageDialog
     icon={<AlertIcon />}
     title={<TranslatedText stringId="kiosk.startOver.title" fallback="Start over?" />}
     text={
       <TranslatedText
-        stringId="kiosk.startOver.text"
-        fallback="Any information you've entered will be lost."
+        stringId="kiosk.startOver.unfinishedText"
+        fallback="Answers in any unfinished form will be lost."
       />
     }
   >

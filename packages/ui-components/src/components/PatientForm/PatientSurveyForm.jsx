@@ -10,9 +10,9 @@ import { useDateTime, useTranslation } from '../../contexts';
 import { getFormInitialValues, getValidationSchema } from '../../utils';
 import { SurveyQuestion } from '../Survey';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { FormBackIcon, FormNextIcon } from './icons';
+import { FormBackIcon, FormInfoIcon, FormNextIcon } from './icons';
 import { getVisibleComponents } from './patientForms';
-import { PLAIN_QUESTION_TYPES } from './questionTypes';
+import { InstructionBox, PLAIN_QUESTION_TYPES } from './questionTypes';
 import { formScaled, FormPrimaryButton, FormSecondaryButton, whenFormCompact } from './styles';
 
 const FormPanel = styled.main`
@@ -72,6 +72,22 @@ const PageBar = styled.div`
     background: var(--pf-primary);
     transition: width 200ms;
   }
+`;
+
+const ReadOnlyNotice = styled(InstructionBox)`
+  flex: none;
+  align-items: center;
+  margin: 0 ${formScaled(36)} ${formScaled(12)};
+  padding: ${formScaled(12)} ${formScaled(18)};
+  font-size: ${formScaled(17)};
+
+  svg {
+    margin-top: 0;
+  }
+
+  ${whenFormCompact`
+    margin: 0 ${formScaled(20)} ${formScaled(12)};
+  `}
 `;
 
 const Questions = styled.div`
@@ -183,6 +199,7 @@ const FormPages = ({
   onExit,
   finishLabel,
   isFinishing,
+  readOnlyNotice,
   testIdPrefix,
 }) => {
   const { values, setFieldValue, validateForm, setStatus, setTouched } = useFormikContext();
@@ -220,6 +237,11 @@ const FormPages = ({
   };
 
   const handleNext = async () => {
+    if (readOnlyNotice) {
+      if (isLastPage) onComplete(values);
+      else goToPage(findPage(pageIndex, 1));
+      return;
+    }
     const errors = await validateForm();
     const firstInvalid = visibleQuestions.find(({ dataElementId }) => errors[dataElementId]);
     if (firstInvalid) {
@@ -274,7 +296,13 @@ const FormPages = ({
           <span style={{ width: `${((pageIndex + 1) / progressPageCount) * 100}%` }} />
         </PageBar>
       </FormHead>
-      <Questions ref={questionsRef}>
+      {readOnlyNotice && (
+        <ReadOnlyNotice role="note">
+          <FormInfoIcon />
+          <span>{readOnlyNotice}</span>
+        </ReadOnlyNotice>
+      )}
+      <Questions ref={questionsRef} {...(readOnlyNotice && { inert: '' })}>
         {visibleQuestions.map(component => (
           <QuestionCard
             key={component.id}
@@ -328,6 +356,8 @@ const FormPages = ({
  * @param {() => void} props.onExit Called on Back from the first page
  * @param {import('react').ReactNode} [props.finishLabel] The last page's button, in place of Next
  * @param {boolean} [props.isFinishing] Holds the last page's button while it is being handled
+ * @param {import('react').ReactNode} [props.readOnlyNotice] Shows the answers without letting them
+ *   change, under this notice. Next moves through the pages without checking them
  * @param {import('react').ReactNode} [props.children] Rendered inside the form, for anything that
  *   needs the form's state, like a prompt before unsaved answers are dropped
  */
@@ -342,6 +372,7 @@ export const PatientSurveyForm = ({
   onExit,
   finishLabel,
   isFinishing = false,
+  readOnlyNotice,
   testIdPrefix = 'patient-form',
   children,
 }) => {
@@ -407,6 +438,7 @@ export const PatientSurveyForm = ({
           onExit={onExit}
           finishLabel={finishLabel}
           isFinishing={isFinishing}
+          readOnlyNotice={readOnlyNotice}
           testIdPrefix={testIdPrefix}
         />
         {children}
