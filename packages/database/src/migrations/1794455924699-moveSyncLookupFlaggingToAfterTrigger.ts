@@ -66,10 +66,11 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  // DESTRUCTIVE: CASCADE also drops every per-table AFTER trigger installed against this function
-  // (see addSyncLookupDisabledFlagTrigger in postMigrationHooks). The function restored below only
-  // flags tables whose BEFORE trigger carries the lookup-tracked arg, which the post-migration hook
-  // from before this migration installed.
+  // DESTRUCTIVE: CASCADE also drops every per-table AFTER trigger installed against this function.
+  // The function restored below flags only from BEFORE triggers installed with the lookup-tracked
+  // argument, which the post-migration hook of the previous code version installs, not this one.
+  // Roll the code back together with this migration, or flagging while the sync tick trigger is
+  // disabled is lost until it is.
   await query.sequelize.query(`
     DROP FUNCTION IF EXISTS flag_sync_lookup_for_rebuild_when_sync_trigger_disabled() CASCADE;
   `);
