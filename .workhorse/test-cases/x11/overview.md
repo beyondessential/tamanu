@@ -83,7 +83,7 @@ Two things to know while testing:
       patient form (verifies spec: PDET)
 - [x] Adoption number and marriage licence set as required when creating appear there too
       (verifies spec: PDET)
-- [ ] Choosing the sliding fee scale plan on the new patient form brings up family size and
+- [x] Choosing the sliding fee scale plan on the new patient form brings up family size and
       annual income as required, with the same messages (verifies spec: PDET)
 - [ ] Removing the sliding fee scale plan takes them off the form again, unless they are set
       as required when creating (verifies spec: PDET)
