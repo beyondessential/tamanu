@@ -5,10 +5,11 @@ import { WebcamCaptureModal, CAMERA_STATUS } from './WebcamCaptureModal';
 import { notifyError } from '../utils/index.js';
 
 const MAX_QR_LENGTH = 50;
+const MAX_FREE_TEXT_QR_LENGTH = 255;
 
 const normalizeQrValue = value => (typeof value === 'string' ? value.trim() : '');
 
-const useDisplayIdValidation = () => {
+const useQrValueValidation = matchDisplayIdPattern => {
   const { getSetting } = useSettings();
   const pattern = getSetting('fields.displayId.pattern');
 
@@ -24,7 +25,11 @@ const useDisplayIdValidation = () => {
   }, [pattern]);
 
   return value => {
-    if (!value || value.length > MAX_QR_LENGTH) return false;
+    if (!value) return false;
+
+    if (!matchDisplayIdPattern) return value.length <= MAX_FREE_TEXT_QR_LENGTH;
+
+    if (value.length > MAX_QR_LENGTH) return false;
 
     // No pattern configured: allow any non-empty value within length bound
     if (!pattern) return true;
@@ -36,11 +41,14 @@ const useDisplayIdValidation = () => {
   };
 };
 
-export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
+export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPattern = true }) => {
   const webcamRef = useRef(null);
-  const validateCode = useDisplayIdValidation();
+  const validateCode = useQrValueValidation(matchDisplayIdPattern);
   const [cameraStatus, setCameraStatus] = useState(CAMERA_STATUS.REQUESTING);
   const scannerTimerRef = useRef(null);
+  // The scan loop reads the latest callbacks through a ref so a parent re-render doesn't restart it
+  const callbacksRef = useRef({ onScan, onClose, validateCode });
+  callbacksRef.current = { onScan, onClose, validateCode };
 
   useEffect(() => {
     if (cameraStatus === CAMERA_STATUS.READY && open) {
@@ -56,6 +64,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
       };
 
       const scan = async () => {
+        const { onScan, onClose, validateCode } = callbacksRef.current;
         if (webcamRef.current && webcamRef.current.video) {
           const video = webcamRef.current.video;
           // Ensure video is ready to be scanned
@@ -115,7 +124,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
         scannerTimerRef.current = null;
       }
     };
-  }, [cameraStatus, open, onScan, onClose, validateCode]);
+  }, [cameraStatus, open]);
 
   const videoConstraints = {
     width: 1280,

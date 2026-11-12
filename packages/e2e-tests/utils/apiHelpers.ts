@@ -376,6 +376,7 @@ export const createEncounterPrescriptionViaApi = async (
     route: string;
     doseAmount: number;
     frequency: string;
+    date: string;
   }> = {},
 ) => {
   const user = await getUser(api);
@@ -402,6 +403,22 @@ export const createEncounterPrescriptionViaApi = async (
   if (!response.ok()) {
     const errorText = await response.text();
     throw new Error(`Failed to create prescription: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+export const discontinuePrescriptionViaApi = async (
+  api: APIRequestContext,
+  prescriptionId: string,
+) => {
+  const user = await getUser(api);
+  const url = constructFacilityUrl(`/api/medication/${prescriptionId}/discontinue`);
+  const response = await api.post(url, { data: { discontinuingClinicianId: user.id } });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to discontinue prescription: ${response.status()} ${errorText}`);
   }
 
   return response.json();

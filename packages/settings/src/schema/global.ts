@@ -231,17 +231,19 @@ export const globalSettings = {
         'alpha-2': {
           name: 'Alpha-2 code',
           description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
-          type: yup
-            .string()
-            .matches(/^[A-Z]{2}$/, { excludeEmptyString: true, message: 'must be two uppercase letters' }),
+          type: yup.string().matches(/^[A-Z]{2}$/, {
+            excludeEmptyString: true,
+            message: 'must be two uppercase letters',
+          }),
           defaultValue: '',
         },
         'alpha-3': {
           name: 'Alpha-3 code',
           description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
-          type: yup
-            .string()
-            .matches(/^[A-Z]{3}$/, { excludeEmptyString: true, message: 'must be three uppercase letters' }),
+          type: yup.string().matches(/^[A-Z]{3}$/, {
+            excludeEmptyString: true,
+            message: 'must be three uppercase letters',
+          }),
           defaultValue: '',
         },
       },
@@ -310,8 +312,7 @@ export const globalSettings = {
     rateLimit: {
       highRisk: true,
       name: 'Rate limiting',
-      description:
-        'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
+      description: 'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
       requiresRestart: true,
       properties: {
         enabled: {
@@ -2038,6 +2039,20 @@ export const globalSettings = {
               value => !value || new Set(value).size === value.length,
             ),
           defaultValue: [],
+        },
+      },
+    },
+    syndromicSurveillance: {
+      name: 'Syndromic surveillance',
+      description: 'Settings related to syndromic surveillance',
+      exposedToWeb: true,
+      properties: {
+        mandatorySyndromicSurveillanceOnDischarge: {
+          name: 'Mandatory syndromic surveillance on discharge',
+          description:
+            'Require syndromic surveillance to be completed before a patient can be manually discharged. Not enforced on the server, so an encounter that discharges automatically (e.g. outpatient) is unaffected.',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },
