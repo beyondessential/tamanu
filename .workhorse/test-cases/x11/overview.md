@@ -32,11 +32,11 @@ Two things to know while testing:
       reference number (verifies spec: PDET)
 - [x] Identification information ends with adoption number then marriage licence
       (verifies spec: PDET)
-- [ ] With every Billing information field hidden in patient field settings, the section and
+- [x] With every Billing information field hidden in patient field settings, the section and
       its heading do not appear at all (verifies spec: PDET)
-- [ ] Hiding every field of any other section (for example Contact information) likewise
+- [x] Hiding every field of any other section (for example Contact information) likewise
       leaves out its heading (verifies spec: PDET)
-- [ ] Out of the box, adoption number, marriage licence, family size, annual income, both
+- [x] Out of the box, adoption number, marriage licence, family size, annual income, both
       payors and both reference numbers are hidden until a deployment shows them
       (verifies spec: PDET)
 
