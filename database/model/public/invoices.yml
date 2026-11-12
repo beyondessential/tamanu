@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_invoices_from_sync_lookup
+              - flag_invoices_for_lookup_rebuild
               - record_invoices_changelog
               - set_invoices_updated_at
               - set_invoices_updated_at_sync_tick
@@ -77,9 +78,9 @@ sources:
                       - unpaid
                       - paid
                       - partial
-          - name: insurer_payment_status
+          - name: insurance_plan_payment_status
             data_type: character varying(255)
-            description: "{{ doc('invoices__insurer_payment_status') }}"
+            description: "{{ doc('invoices__insurance_plan_payment_status') }}"
             data_tests:
               - not_null
               - accepted_values:

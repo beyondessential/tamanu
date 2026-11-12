@@ -17,6 +17,8 @@ import {
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { columns } from './bedManagementColumns';
+import { route } from '@tamanu/api-client';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -215,17 +217,15 @@ export const BedManagement = () => {
     }),
   );
 
-  const {
-    data: { count: currentInpatientsCount } = {},
-    isLoading: currentInpatientsCountLoading,
-  } = useQuery(['currentInpatientsCount'], () =>
-    api.get('patient', {
-      countOnly: true,
-      currentPatient: true,
-      inpatient: true,
-      facilityId,
-    }),
-  );
+  const { data: { count: currentInpatientsCount } = {}, isLoading: currentInpatientsCountLoading } =
+    useQuery(['currentInpatientsCount'], () =>
+      api.get('patient', {
+        countOnly: true,
+        currentPatient: true,
+        inpatient: true,
+        facilityId,
+      }),
+    );
 
   const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(
     ['currentOccupancy', facilityId],
@@ -242,7 +242,7 @@ export const BedManagement = () => {
   );
 
   const { data: facility } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
+    api.get(route('facility/:facilityId', { facilityId })),
   );
 
   // hides hover for rows that arent clickable (do not have a patient to click to)
@@ -373,6 +373,7 @@ export const BedManagement = () => {
           rowStyle={rowStyle}
           fetchOptions={{ ...searchParameters, facilityId }}
           endpoint="patient/locations/bedManagement"
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.BED_MANAGEMENT}
           data-testid="searchtable-ir2h"
         />
       </ContentPane>

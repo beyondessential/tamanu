@@ -36,6 +36,7 @@ import {
   StyledPresetLabelAutocomplete,
   usePresetLabelsQuery,
 } from '../../utils/medications';
+import { route } from '@tamanu/api-client';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -242,12 +243,17 @@ export const EditMedicationDispenseModal = memo(
         return;
       }
 
-      await api.put(`medication/dispense/${medicationDispense.id}`, {
-        dispensedByUserId,
-        quantity: item.quantity,
-        instructions: item.instructions,
-        medicationPresetLabelId: item.medicationPresetLabelId || null,
-      });
+      await api.put(
+        route('medication/dispense/:medicationDispenseId', {
+          medicationDispenseId: medicationDispense.id,
+        }),
+        {
+          dispensedByUserId,
+          quantity: item.quantity,
+          instructions: item.instructions,
+          medicationPresetLabelId: item.medicationPresetLabelId || null,
+        },
+      );
 
       if (onConfirm) onConfirm();
 

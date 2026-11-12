@@ -12,18 +12,28 @@ import {
   OTHER_REFERENCE_TYPE_VALUES,
 } from '@tamanu/constants/importable';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
+import { createAdministeredVaccine } from '@tamanu/database/demoData/vaccines';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import { tmpdir } from '@tamanu/shared/utils/tmpdir';
-import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  REFERENCE_TYPES,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+} from '@tamanu/constants';
 
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 import { exporter } from '../../app/admin/exporter/exporter';
-import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
-import { camelCase } from 'es-toolkit/compat';
+import {
+  createAllergy,
+  createDataForEncounter,
+  createDiagnosis,
+  createVaccine,
+} from '../exporters/referenceDataUtils';
+import { camelCase, pick } from 'es-toolkit/compat';
 import { makeRoleWithPermissions } from '../permissions';
 import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
@@ -1090,5 +1100,70 @@ describe('Import from an exported file', () => {
       'ReferenceData/diagnosis': { created: 2, updated: 0, errored: 0 },
       Patient: { created: 1, updated: 0, errored: 0 },
     });
+  });
+
+  it('leaves the encounters of existing administered vaccines untouched on re-import', async () => {
+    await createDataForEncounter(models);
+    const scheduledVaccine = await createVaccine(models, { label: 'Test', doseLabel: 'Dose 1' });
+    const encounterFields = [
+      'encounterType',
+      'startDate',
+      'endDate',
+      'reasonForEncounter',
+      'locationId',
+      'departmentId',
+      'examinerId',
+    ];
+
+    const createVaccineInEncounter = async encounterValues => {
+      const patient = await models.Patient.create(createDummyPatient(models));
+      const encounter = await models.Encounter.create(
+        await createDummyEncounter(models, { patientId: patient.id, ...encounterValues }),
+      );
+      await models.AdministeredVaccine.create(
+        await createAdministeredVaccine(models, {
+          scheduledVaccineId: scheduledVaccine.id,
+          encounterId: encounter.id,
+        }),
+      );
+      return encounter;
+    };
+
+    const standalone = await createVaccineInEncounter({
+      encounterType: ENCOUNTER_TYPES.VACCINATION,
+      startDate: '2024-03-04 10:15:00',
+      endDate: '2024-03-04 10:30:00',
+      reasonForEncounter: 'Vaccination',
+    });
+    const admission = await createVaccineInEncounter({
+      current: true,
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      startDate: '2024-03-01 08:00:00',
+      reasonForEncounter: 'Pneumonia',
+    });
+
+    try {
+      const fileName = await exporter(
+        { models },
+        { 1: 'administeredVaccine' },
+        {},
+        path.join(await tmpdir(), `exported-administered-vaccine-${Date.now()}.xlsx`),
+      );
+      const { errors } = await doImport({ file: fileName });
+      await rm(fileName, { force: true });
+      expect(errors).toHaveLength(0);
+
+      for (const before of [standalone, admission]) {
+        const after = await models.Encounter.findByPk(before.id);
+        expect(pick(after.get(), encounterFields)).toEqual(pick(before.get(), encounterFields));
+      }
+      expect((await models.Encounter.findByPk(admission.id)).endDate).toBeNull();
+    } finally {
+      await models.AdministeredVaccine.destroy({ where: {}, force: true });
+      await models.EncounterHistory.destroy({ where: {}, force: true });
+      await models.Encounter.destroy({ where: {}, force: true });
+      await models.ScheduledVaccine.destroy({ where: {}, force: true });
+      await models.PatientFacility.destroy({ where: {}, force: true });
+    }
   });
 });

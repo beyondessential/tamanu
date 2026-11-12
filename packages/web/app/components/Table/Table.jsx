@@ -360,6 +360,13 @@ const StatusRow = ({ colSpan, children, statusCellStyle, ...props }) => (
 );
 
 class TableComponent extends React.Component {
+  componentDidUpdate() {
+    const { page, count, rowsPerPage, lazyLoading, onChangePage } = this.props;
+    if (page === null || lazyLoading || !onChangePage) return;
+    const lastPage = Math.max(0, Math.ceil(count / rowsPerPage) - 1);
+    if (page > lastPage) onChangePage(lastPage);
+  }
+
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage, isEmpty } = this.props;
     if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading…" />;

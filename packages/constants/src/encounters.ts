@@ -24,6 +24,31 @@ export const ENCOUNTER_TYPE_LABELS = {
 
 export const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);
 
+// How staff describe the kind of care an encounter is. Form response and vaccination record
+// encounters close as soon as they're created, so they carry no patient status.
+export const PATIENT_STATUSES = {
+  INPATIENT: 'inpatient',
+  OUTPATIENT: 'outpatient',
+  EMERGENCY: 'emergency',
+} as const;
+
+export type PatientStatus = (typeof PATIENT_STATUSES)[keyof typeof PATIENT_STATUSES];
+
+export const PATIENT_STATUS_LABELS = {
+  [PATIENT_STATUSES.INPATIENT]: 'Inpatient',
+  [PATIENT_STATUSES.OUTPATIENT]: 'Outpatient',
+  [PATIENT_STATUSES.EMERGENCY]: 'Emergency',
+} as const;
+
+export const ENCOUNTER_TYPE_PATIENT_STATUSES: Partial<Record<EncounterType, PatientStatus>> = {
+  [ENCOUNTER_TYPES.ADMISSION]: PATIENT_STATUSES.INPATIENT,
+  [ENCOUNTER_TYPES.CLINIC]: PATIENT_STATUSES.OUTPATIENT,
+  [ENCOUNTER_TYPES.IMAGING]: PATIENT_STATUSES.OUTPATIENT,
+  [ENCOUNTER_TYPES.TRIAGE]: PATIENT_STATUSES.EMERGENCY,
+  [ENCOUNTER_TYPES.OBSERVATION]: PATIENT_STATUSES.EMERGENCY,
+  [ENCOUNTER_TYPES.EMERGENCY]: PATIENT_STATUSES.EMERGENCY,
+};
+
 export const ENCOUNTER_TYPE_ABBREVIATION_LABELS = {
   [ENCOUNTER_TYPES.ADMISSION]: 'HA',
   [ENCOUNTER_TYPES.TRIAGE]: 'T',

@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
+import { route } from '@tamanu/api-client';
 
-export const useLabTestResultHistoryQuery = (labTestId) => {
+export const useLabTestResultHistoryQuery = labTestId => {
   const api = useApi();
 
   return useQuery(
     ['labTestResultHistory', labTestId],
-    () => api.get(`labTest/${encodeURIComponent(labTestId)}/history`),
+    () => api.get(route('labTest/:labTestId/history', { labTestId })),
     { enabled: !!labTestId },
   );
 };

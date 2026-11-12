@@ -2,11 +2,8 @@
 name: security-audit
 description: "Review implementation for common security vulnerabilities"
 label: "Security audit"
-pill-order:
-  implementing: 5
-  reviewing: 5
-  complete: 4
-workhorse-version: 0.3.0
+category: verify
+workhorse-version: 0.7.14
 ---
 
 ## Your task: Security audit

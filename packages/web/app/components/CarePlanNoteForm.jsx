@@ -3,18 +3,13 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { useApi, useSuggester } from '../api';
 import { FORM_TYPES } from '@tamanu/constants';
-import {
-  TextField,
-  Form,
-  FormSubmitCancelRow,
-  FormGrid,
-  useDateTime,
-} from '@tamanu/ui-components';
+import { TextField, Form, FormSubmitCancelRow, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { AutocompleteField, DateTimeField, Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
+import { route } from '@tamanu/api-client';
 
 const SubmitError = styled.div`
   color: ${Colors.alert};
@@ -36,9 +31,10 @@ export function CarePlanNoteForm({
   const api = useApi();
 
   const submitNote = async (patientCarePlanId, body) =>
-    api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
+    api.post(route('patientCarePlan/:patientCarePlanId/notes', { patientCarePlanId }), body);
 
-  const updateNote = async updatedNote => api.put(`notes/${updatedNote.id}`, updatedNote);
+  const updateNote = async updatedNote =>
+    api.put(route('notes/:updatedNoteId', { updatedNoteId: updatedNote.id }), updatedNote);
   return (
     <Form
       onSubmit={async values => {
@@ -105,7 +101,10 @@ export function CarePlanNoteForm({
             <NoteModalActionBlocker>
               <Field
                 name="content"
-                placeholder={getTranslation('carePlan.note.placeholder.writeNote', 'Write a note...')}
+                placeholder={getTranslation(
+                  'carePlan.note.placeholder.writeNote',
+                  'Write a note...',
+                )}
                 component={TextField}
                 required
                 multiline

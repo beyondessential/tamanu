@@ -407,6 +407,60 @@ describe('Patient', () => {
       });
       expect(secondaryId.typeId).toBe('secondaryIdType-nhn');
     });
+
+    it('Should reject a display ID already in use by another patient', async () => {
+      const existingDisplayId = 'DUPLICATE-EXACT';
+      await models.Patient.create({ ...fake(models.Patient), displayId: existingDisplayId });
+      const patientToEdit = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: 'EDIT-ME-EXACT',
+      });
+
+      const updateResult = await app.put(`/api/patient/${patientToEdit.id}`).send({
+        displayId: existingDisplayId,
+        facilityId,
+      });
+
+      expect(updateResult).toHaveRequestError();
+
+      await patientToEdit.reload();
+      expect(patientToEdit.displayId).toEqual('EDIT-ME-EXACT');
+    });
+
+    it('Should reject a display ID that only differs in case from an existing one', async () => {
+      const existingDisplayId = 'ABC123';
+      await models.Patient.create({ ...fake(models.Patient), displayId: existingDisplayId });
+      const patientToEdit = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: 'EDIT-ME-CASE',
+      });
+
+      const updateResult = await app.put(`/api/patient/${patientToEdit.id}`).send({
+        displayId: existingDisplayId.toLowerCase(),
+        facilityId,
+      });
+
+      expect(updateResult).toHaveRequestError();
+
+      await patientToEdit.reload();
+      expect(patientToEdit.displayId).toEqual('EDIT-ME-CASE');
+    });
+
+    it('Should allow a genuinely distinct display ID', async () => {
+      const patientToEdit = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: 'EDIT-ME-DISTINCT',
+      });
+
+      const newDisplayId = 'GENUINELY-DISTINCT-ID';
+      const updateResult = await app.put(`/api/patient/${patientToEdit.id}`).send({
+        displayId: newDisplayId,
+        facilityId,
+      });
+
+      expect(updateResult).toHaveSucceeded();
+      expect(updateResult.body.displayId).toEqual(newDisplayId);
+    });
   });
 
   describe('Get patient covid clearance lab tests', () => {

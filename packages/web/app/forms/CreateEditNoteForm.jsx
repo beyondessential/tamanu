@@ -4,7 +4,12 @@ import styled from 'styled-components';
 import { FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import {
-  NoteContentField, NoteDateTimeField, NoteTemplateField, NoteTypeField, WrittenByField, } from '../components/NoteCommonFields';
+  NoteContentField,
+  NoteDateTimeField,
+  NoteTemplateField,
+  NoteTypeField,
+  WrittenByField,
+} from '../components/NoteCommonFields';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useApi } from '../api';
 import { NOTE_FORM_MODES } from '../constants';
@@ -13,6 +18,7 @@ import {
   NoteModalDialogActions,
   DisabledWrapper,
 } from '../components/NoteModal/NoteModalCommonComponents';
+import { route } from '@tamanu/api-client';
 
 const StyledNoteModalDialogContent = styled(NoteModalDialogContent)`
   .MuiInputBase-input {
@@ -43,7 +49,7 @@ export const CreateEditNoteForm = ({
       if (!templateId) {
         return;
       }
-      const template = await api.get(`template/${templateId}`);
+      const template = await api.get(route('template/:templateId', { templateId }));
 
       setValues(values => ({
         ...values,

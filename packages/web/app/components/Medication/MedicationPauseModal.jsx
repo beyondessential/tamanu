@@ -22,6 +22,7 @@ import { MedicationSummary } from './MedicationSummary';
 import { preventInvalidNumber } from '../../utils';
 import { add } from 'date-fns';
 import { useEncounter } from '../../contexts/Encounter';
+import { route } from '@tamanu/api-client';
 
 const StyledBaseModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -87,7 +88,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
   );
 
   const onSubmit = async data => {
-    await api.post(`medication/${medication.id}/pause`, {
+    await api.post(route('medication/:medicationId/pause', { medicationId: medication.id }), {
       ...data,
       pauseStartDate: getCurrentDateTime(),
     });
@@ -170,10 +171,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
               </FormGrid>
             </Box>
             <StyledFormActions data-testid="styledformactions-pause-abc123">
-              <FormCancelButton 
-                onClick={onClose}
-                data-testid="formcancelbutton-cancel-abc123"
-              >
+              <FormCancelButton onClick={onClose} data-testid="formcancelbutton-cancel-abc123">
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
               <FormSubmitButton

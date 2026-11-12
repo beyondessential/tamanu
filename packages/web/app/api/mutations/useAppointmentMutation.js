@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 export const useAppointmentMutation = (existingAppointmentId = null, useMutationOptions) => {
   const { facilityId } = useAuth();
@@ -10,10 +11,10 @@ export const useAppointmentMutation = (existingAppointmentId = null, useMutation
   const isEdit = !!existingAppointmentId;
 
   return useMutation(
-    (payload) =>
+    payload =>
       isEdit
         ? api.put(
-            `appointments/${existingAppointmentId}`,
+            route('appointments/:existingAppointmentId', { existingAppointmentId }),
             { ...payload, facilityId },
             { throwResponse: true },
           )

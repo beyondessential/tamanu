@@ -102,12 +102,12 @@ export default [
       'no-unused-vars': 'off',
 
       // support _unusedVar pattern
-      "@typescript-eslint/no-unused-vars": [
+      '@typescript-eslint/no-unused-vars': [
         'error',
         {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_",
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
         },
       ],
 
@@ -169,10 +169,7 @@ export default [
     },
   },
   {
-    files: [
-      `packages/${BROWSER_PACKAGES}/**/*.${EXTS}`,
-      `packages/${BROWSER_PACKAGES}/*.${EXTS}`,
-    ],
+    files: [`packages/${BROWSER_PACKAGES}/**/*.${EXTS}`, `packages/${BROWSER_PACKAGES}/*.${EXTS}`],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -184,6 +181,31 @@ export default [
         Buffer: 'readonly',
         process: 'readonly',
       },
+    },
+    rules: {
+      // Path parameters must reach the API client as a `route()` template plus a
+      // params object, not interpolated into the endpoint string — otherwise the
+      // client only sees a concrete, flattened path and telemetry can't group by
+      // route pattern. Forbid a template literal with `${...}` as the endpoint
+      // argument of an api.<verb>() call.
+      'no-restricted-syntax': [
+        'error',
+        // Kept from the base config — this block overrides `no-restricted-syntax`
+        // for browser packages rather than extending it, so the base selector
+        // must be repeated here.
+        {
+          selector:
+            "CallExpression[callee.object.name='vi'][callee.property.name='mock']:not(Program > ExpressionStatement > CallExpression)",
+          message:
+            'vi.mock must be called at the top level of the test file; use vi.doMock to register a mock mid-test.',
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='api'][callee.property.name=/^(get|post|put|patch|delete|download)$/] > TemplateLiteral.arguments:first-child[expressions.length>0]",
+          message:
+            'Do not interpolate path params into the endpoint string. Use route() from @tamanu/api-client: api.get(route("patient/:patientId/allergies", { patientId }), query).',
+        },
+      ],
     },
   },
   {

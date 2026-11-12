@@ -11,6 +11,7 @@ import { Modal, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections.jsx';
 import { useTranslation } from '../../contexts/Translation.jsx';
+import { route } from '@tamanu/api-client';
 
 const Body = styled.div`
   padding: 40px 20px 50px;
@@ -34,7 +35,7 @@ const useDeletePatientProgramRegistration = (patientProgramRegistration = {}, on
 
   return useMutation({
     mutationFn: async () => {
-      return api.delete(`patient/programRegistration/${registrationId}`);
+      return api.delete(route('patient/programRegistration/:registrationId', { registrationId }));
     },
     onSuccess: async () => {
       await queryClient.resetQueries(['patient', patientId]);
@@ -48,10 +49,9 @@ const useDeletePatientProgramRegistration = (patientProgramRegistration = {}, on
 
 export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const { getTranslation } = useTranslation();
-  const {
-    mutate: deleteProgramRegistry,
-  } = useDeletePatientProgramRegistration(patientProgramRegistration, () =>
-    onClose({ success: true }),
+  const { mutate: deleteProgramRegistry } = useDeletePatientProgramRegistration(
+    patientProgramRegistration,
+    () => onClose({ success: true }),
   );
 
   if (!patientProgramRegistration) {

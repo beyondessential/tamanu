@@ -17,6 +17,7 @@ import { useTranslation } from '../contexts/Translation';
 import { DeletePhotoLinkModal } from '../views/patients/components/DeletePhotoLinkModal';
 import { useAuth } from '../contexts/Auth';
 import { useExport } from '../contexts/ExportContext';
+import { route } from '@tamanu/api-client';
 
 const Image = styled.img`
   display: block;
@@ -102,7 +103,7 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
     }
 
     try {
-      const { data } = await api.get(`attachment/${imageId}`, { base64: true });
+      const { data } = await api.get(route('attachment/:imageId', { imageId }), { base64: true });
       setImageData(data);
       setErrorMessage(null);
     } catch (error) {

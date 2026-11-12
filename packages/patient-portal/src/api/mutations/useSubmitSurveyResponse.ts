@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { notifyError, notifySuccess } from '@tamanu/ui-components';
+import { notifyError, notifySuccess, useTranslation } from '@tamanu/ui-components';
 import { useApi } from '../useApi';
 import { type CreateSurveyResponseRequest } from '@tamanu/shared/schemas/patientPortal';
 
@@ -10,15 +10,18 @@ export const useSubmitSurveyResponse = (
   const queryClient = useQueryClient();
   const api = useApi();
   const navigate = useNavigate();
+  const { getTranslation } = useTranslation();
 
   return useMutation<void, Error, CreateSurveyResponseRequest>({
     mutationFn: async payload => {
       await api.post('surveyResponse', payload as any);
     },
-    onSuccess: () => {
+    onSuccess: (_data, { surveyId }) => {
+      // Drop the cached form so browser Back can't reopen it
+      queryClient.removeQueries({ queryKey: ['survey', surveyId] });
       queryClient.invalidateQueries({ queryKey: ['outstandingSurveys'] });
       navigate('/');
-      notifySuccess('Form submitted');
+      notifySuccess(getTranslation('patientPortal.form.submitted', 'Form submitted'));
     },
     onError: error => {
       notifyError(error);

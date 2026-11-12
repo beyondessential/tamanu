@@ -6,6 +6,7 @@ import Autorenew from '@mui/icons-material/Autorenew';
 import { Colors } from '../../constants';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { QRCodeScanButton } from './QRCodeScanButton';
 
 const IdControl = styled.div`
   display: flex;
@@ -19,6 +20,13 @@ const Id = styled(InvertedDisplayIdLabel)`
   width: max-content;
   padding: 10px;
   margin-right: 15px;
+`;
+
+const ScanButton = styled(QRCodeScanButton)`
+  height: 44px;
+  width: 44px;
+  margin: 0 15px 0 0;
+  border-color: ${Colors.white};
 `;
 
 const RegenerateId = styled.div`
@@ -44,6 +52,10 @@ export const IdInput = ({ value, name, onChange, regenerateId }) => (
     <Id data-test-class="id-field-div" data-testid="id-8niy">
       {value || ''}
     </Id>
+    <ScanButton
+      name={name}
+      onScan={scannedValue => onChange({ target: { value: scannedValue, name } })}
+    />
     <RegenerateId
       onClick={() => onChange({ target: { value: regenerateId(), name } })}
       data-testid="regenerateid-ksy8"

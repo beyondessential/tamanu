@@ -1,5 +1,10 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  SENSITIVE_NETWORK_IS_FIXED_MESSAGE,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -49,6 +54,21 @@ export class Facility extends Model {
         ],
       },
     );
+
+    // Incoming sync writes with hooks off, so a facility server still applies whatever central sends.
+    // spec: specs/sync/sensitive-networks.md
+    this.addHook('beforeUpdate', (facility: Facility) => {
+      if (!facility.changed('sensitiveNetworkId')) return;
+      const previousNetworkId = facility.previous('sensitiveNetworkId');
+      // A blank form field means "no network", the same as the stored null.
+      if ((facility.sensitiveNetworkId || null) === (previousNetworkId || null)) {
+        facility.set('sensitiveNetworkId', previousNetworkId);
+        return;
+      }
+      throw new InvalidOperationError(
+        `${SENSITIVE_NETWORK_IS_FIXED_MESSAGE} (facility ${facility.code ?? facility.id})`,
+      );
+    });
   }
 
   static initRelations(models: Models) {

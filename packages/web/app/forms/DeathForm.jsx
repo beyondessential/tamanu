@@ -190,7 +190,12 @@ export const DeathForm = React.memo(
     const { getSetting } = useSettings();
     const showInfantQuestions = isInfant(currentTOD, patient);
     const handleSubmit = data => {
-      onSubmit(transformData(data, showInfantQuestions));
+      // The first "other contributing condition" row can't be deleted, so an unfilled one would be
+      // submitted with no cause and make the whole death record fail server-side. Drop empty rows.
+      const otherContributingConditions = (data.otherContributingConditions ?? []).filter(
+        condition => condition?.cause,
+      );
+      onSubmit(transformData({ ...data, otherContributingConditions }, showInfantQuestions));
     };
     const isFSMStyleEnabled = getSetting('fsmCrvsCertificates.enableFSMStyle');
     const showPregnantFSMQuestions = isFSMStyleEnabled && canBePregnantFSM(currentTOD, patient);

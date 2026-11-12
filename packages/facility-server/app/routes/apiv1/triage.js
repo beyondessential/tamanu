@@ -3,9 +3,10 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
-import { ENCOUNTER_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, NOTE_TYPES, REFERENCE_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
+import { storedDateTimeToEpochMilliseconds } from '@tamanu/utils/dateTime';
 
 import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
@@ -14,6 +15,25 @@ import { createTriageFilters } from '../../utils/triageFilters';
 import { getWhereClausesAndReplacementsFromFilters } from '../../utils/query';
 
 export const triage = express.Router();
+
+// A future arrival time drives the emergency wait time negative, so refuse it at the boundary as
+// well as in the form. Callers send times in whatever representation they have — a primary-timezone
+// ISO 9075 string, or a Date serialised to ISO 8601 with a Z — so resolve each to an absolute
+// instant (the same conversion the wait-time calculation uses) and compare against now.
+const isInFuture = value => {
+  if (!value) return false;
+  const instant = storedDateTimeToEpochMilliseconds(value, getPrimaryTimeZone());
+  return instant != null && instant > Date.now();
+};
+
+const checkTriageTimesNotInFuture = ({ arrivalTime, triageTime }) => {
+  if (isInFuture(arrivalTime)) {
+    throw new InvalidParameterError('Arrival time cannot be in the future');
+  }
+  if (isInFuture(triageTime)) {
+    throw new InvalidParameterError('Triage time cannot be in the future');
+  }
+};
 
 triage.get('/:id', simpleGet('Triage', { auditAccess: true }));
 triage.put(
@@ -24,6 +44,7 @@ triage.put(
     const triageObject = await models.Triage.findByPk(params.id);
     if (!triageObject) throw new NotFoundError();
     req.checkPermission('write', triageObject);
+    checkTriageTimesNotInFuture(req.body);
     await triageObject.update(req.body, user);
     res.send(triageObject);
   }),
@@ -38,7 +59,16 @@ triage.post(
     req.checkPermission('create', 'Triage');
     if (vitals) {
       req.checkPermission('create', 'Vitals');
+      // Checked before the triage is created, as the vitals are recorded separately after it.
+      // Recording them is authorised by the vitals permission alone, so the response has to be to
+      // the vitals form, not a form under permissions or rules of its own.
+      const vitalsSurvey = await models.Survey.findByPk(vitals.surveyId);
+      if (vitalsSurvey?.surveyType !== SURVEY_TYPES.VITALS) {
+        throw new InvalidParameterError('Triage vitals must be a response to the vitals form.');
+      }
     }
+
+    checkTriageTimesNotInFuture(body);
 
     const { patientBillingTypeId } = body;
     if (patientBillingTypeId) {
@@ -129,11 +159,7 @@ triage.post(
     if (invoice) {
       // Triage/emergency encounters are created here (not the generic encounter route), so the
       // ED encounter fee must be added on this path too.
-      await models.Invoice.addEncounterFee(
-        encounter,
-        settings[facilityId],
-        getPrimaryTimeZone(),
-      );
+      await models.Invoice.addEncounterFee(encounter, settings[facilityId], getPrimaryTimeZone());
     }
 
     res.send(triageRecord);

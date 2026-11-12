@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router';
 import { useApi } from '../../../api';
 import { ReportTable, VersionTable } from './ReportTables';
+import { route } from '@tamanu/api-client';
 
 const FlexContainer = styled.div`
   padding: 20px;
@@ -25,15 +26,20 @@ export const SelectReportView = () => {
     navigate(`/admin/reports/${report.id}/versions/${id}/edit`);
   };
 
-  const { data: reportList = [], isLoading: isReportLoading, error: reportError } = useQuery(
-    ['reportList'],
-    () => api.get('admin/reports'),
-  );
+  const {
+    data: reportList = [],
+    isLoading: isReportLoading,
+    error: reportError,
+  } = useQuery(['reportList'], () => api.get('admin/reports'));
 
   const showVersions = !!report?.id;
-  const { data: versionData, isLoading: areVersionsLoading, error: versionsError } = useQuery(
+  const {
+    data: versionData,
+    isLoading: areVersionsLoading,
+    error: versionsError,
+  } = useQuery(
     ['reportVersions', report?.id],
-    () => api.get(`admin/reports/${report?.id}/versions`),
+    () => api.get(route('admin/reports/:reportId/versions', { reportId: report?.id })),
     {
       enabled: showVersions,
     },

@@ -161,6 +161,7 @@ export * from './SyncLookupTick';
 export * from './SyncFacilityRun';
 
 export * from './AccessLog';
+export * from './BrowserTelemetrySpan';
 export * from './ChangeLog';
 export * from './UserLeave';
 

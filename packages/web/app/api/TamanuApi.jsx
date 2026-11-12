@@ -2,6 +2,7 @@ import React from 'react';
 import {
   TamanuApi as ApiClient,
   readPersistedAuthToken,
+  resolveEndpoint,
   writePersistedAuthToken,
 } from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
@@ -373,10 +374,12 @@ export class TamanuApi extends ApiClient {
         clearLocalStorage();
       } else if (showUnknownErrorToast) {
         const toastKind = resolveApiErrorToast(err, isErrorUnknown);
+        // The endpoint may be a route() descriptor, which the error messages can't show
+        const path = resolveEndpoint(endpoint);
         if (toastKind === API_ERROR_TOAST.SERVER && !isAdminRoute()) {
-          this.systemErrorHandler?.(buildSystemError(err, endpoint));
+          this.systemErrorHandler?.(buildSystemError(err, path));
         } else if (toastKind) {
-          notifyError(buildErrorToast(toastKind, err, endpoint));
+          notifyError(buildErrorToast(toastKind, err, path));
         }
       }
 
@@ -389,6 +392,7 @@ export class TamanuApi extends ApiClient {
   }
 
   async checkServerAlive() {
-    return this.get('public/ping', null, { showUnknownErrorToast: false });
+    // spec: BTEL — ambient poll; excluded from the page-load quiet calculation.
+    return this.get('public/ping', null, { showUnknownErrorToast: false, background: true });
   }
 }

@@ -9,6 +9,7 @@ export * from './useReferenceDataQuery';
 export { default as useDispensingUnit } from './useDispensingUnit';
 export * from './usePatientAdditionalDataQuery';
 export * from './useEncounterDataQuery';
+export * from './useEncounterQuery';
 export * from './useLabRequestNotesQuery';
 export * from './usePatientCurrentEncounterQuery';
 export * from './useAdministeredVaccinesQuery';
@@ -26,6 +27,7 @@ export {
   useProgramRegistryConditionsQuery,
 } from './usePatientProgramRegistryConditionsQuery';
 export { useProgramRegistryQuery, useListOfProgramRegistryQuery } from './useProgramRegistryQuery';
+export { useSurveyProgramRegistryQuery } from './useSurveyProgramRegistryQuery';
 export { useProgramRegistryLinkedChartsQuery } from './useProgramRegistryLinkedChartsQuery';
 export { useProgramRegistryPatientChartsQuery } from './useProgramRegistryPatientChartsQuery';
 export { useProgramRegistryPatientInitialChartQuery } from './useProgramRegistryPatientInitialChartQuery';

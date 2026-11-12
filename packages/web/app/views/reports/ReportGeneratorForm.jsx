@@ -38,6 +38,7 @@ import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { ReportAboutModal } from './ReportAboutModal';
+import { route } from '@tamanu/api-client';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -230,7 +231,7 @@ export const ReportGeneratorForm = () => {
 
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-        const excelData = await api.post(`reports/${reportId}`, {
+        const excelData = await api.post(route('reports/:reportId', { reportId }), {
           parameters: { ...parsedParameters, timezone },
           facilityId,
         });

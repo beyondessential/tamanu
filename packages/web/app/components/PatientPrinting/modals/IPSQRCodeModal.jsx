@@ -5,6 +5,7 @@ import { IPSQRCodeForm } from '../../../forms/IPSQRCodeForm';
 import { useApi } from '../../../api';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 export const IPSQRCodeModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
@@ -16,7 +17,7 @@ export const IPSQRCodeModal = React.memo(({ patient }) => {
     async data => {
       try {
         setConfirmDisabled(true);
-        await api.post(`patient/${patient.id}/ipsRequest`, {
+        await api.post(route('patient/:patientId/ipsRequest', { patientId: patient.id }), {
           email: data.email,
         });
         setOpen(false);

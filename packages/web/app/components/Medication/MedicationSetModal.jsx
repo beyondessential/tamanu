@@ -256,6 +256,8 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
 
   const canPrintPrescription = ability.can('read', 'Medication');
 
+  // The toast is the only way a save failure is surfaced, so the error is caught rather than
+  // thrown; the returned flag is what lets the print path tell a save apart from a failure.
   const onSubmit = async (isPrinting = false) => {
     const payload = {
       encounterId: encounter.id,
@@ -271,8 +273,10 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       if (!isPrinting) {
         onClose();
       }
+      return true;
     } catch (error) {
       toast.error(error.message);
+      return false;
     }
   };
 
@@ -368,8 +372,10 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   };
 
   const onFinalise = async () => {
-    await onSubmit(true);
-    setPrintModalOpen(true);
+    const isSaved = await onSubmit(true);
+    if (isSaved) {
+      setPrintModalOpen(true);
+    }
   };
 
   const onCustomClose = () => {

@@ -1,6 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ListItem, ListItemText } from '@material-ui/core';
+import Launch from '@mui/icons-material/Launch';
+
+import { TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 
 const SecondaryListItem = styled(ListItem)`
   position: relative;
@@ -20,6 +23,14 @@ const SecondaryItemText = styled(ListItemText)`
   line-height: 18px;
   font-weight: 400;
   letter-spacing: 0;
+`;
+
+const NewTabIcon = styled(Launch)`
+  && {
+    font-size: 14px;
+    margin-right: 12px;
+    opacity: 0.8;
+  }
 `;
 
 const Dot = styled.div`
@@ -46,12 +57,16 @@ export const SecondarySidebarItem = ({
   onClick,
   color,
   overlaidColor,
+  opensInNewTab = false,
 }) => {
   const dataTestIdSuffix = path.replace(/\//g, '-');
+  const linkProps = opensInNewTab
+    ? { component: 'a', href: path, target: '_blank', rel: 'noopener noreferrer' }
+    : { to: path };
   return (
     <SecondaryListItem
       button
-      to={path}
+      {...linkProps}
       disabled={disabled}
       selected={isCurrent}
       onClick={onClick}
@@ -65,6 +80,14 @@ export const SecondarySidebarItem = ({
         primary={label}
         data-testid={`secondaryitemtext-${dataTestIdSuffix}`}
       />
+      {opensInNewTab && (
+        <>
+          <NewTabIcon aria-hidden data-testid={`newtabicon${dataTestIdSuffix}`} />
+          <VisuallyHidden>
+            <TranslatedText stringId="general.opensInNewTab" fallback="(opens in a new tab)" />
+          </VisuallyHidden>
+        </>
+      )}
     </SecondaryListItem>
   );
 };

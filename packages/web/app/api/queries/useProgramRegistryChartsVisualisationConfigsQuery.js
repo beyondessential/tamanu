@@ -3,17 +3,24 @@ import { combineQueries, useApi } from '../index';
 import { usePatientDataQuery } from './usePatientDataQuery';
 import { useSurveyQuery } from './useSurveyQuery';
 import { getVisualisationConfig } from '../../utils/getVisualisationConfig';
+import { route } from '@tamanu/api-client';
 
 export const useProgramRegistryChartsVisualisationConfigsQuery = (patientId, chartSurveyId) => {
   const api = useApi();
   const patientQuery = usePatientDataQuery(patientId);
   const chartSurveyQuery = useSurveyQuery(chartSurveyId);
-  
+
   // Fetch chart data to determine which historical questions have data
   const chartDataQuery = useQuery(
     ['programRegistryPatientCharts', patientId, chartSurveyId],
     () =>
-      api.get(`programRegistry/patient/${patientId}/charts/${chartSurveyId}`, { rowsPerPage: 1 }),
+      api.get(
+        route('programRegistry/patient/:patientId/charts/:chartSurveyId', {
+          patientId,
+          chartSurveyId,
+        }),
+        { rowsPerPage: 1 },
+      ),
     { enabled: Boolean(patientId) && Boolean(chartSurveyId) },
   );
 

@@ -2,15 +2,13 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { AutocompleteField, DisplayIdField, TextField } from '../../../../../components';
+import { DisplayIdField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
-import { useSuggester } from '../../../../../api';
 import { useSettings } from '../../../../../contexts/Settings';
 
 export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
   const { getSetting } = useSettings();
-  const insurerSuggester = useSuggester('insurer');
   const canEditDisplayId = isEdit && getSetting('features.editPatientDisplayId');
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
 
@@ -28,18 +26,6 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
           data-testid="translatedtext-3f67"
         />
       ),
-    },
-    insurerId: {
-      component: AutocompleteField,
-      suggester: insurerSuggester,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.insurer.label"
-          fallback="Insurer"
-          data-testid="translatedtext-b91c"
-        />
-      ),
-      condition: () => !!enablePatientInsurer,
     },
     insurerPolicyNumber: {
       component: TextField,

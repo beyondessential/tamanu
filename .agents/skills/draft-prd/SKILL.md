@@ -1,17 +1,19 @@
 ---
 name: draft-prd
-description: "Draft or refine the project's PRD from the description and conversation"
-label: "Draft PRD"
+description: "Interview me about this project to develop the PRD"
+label: "PRD interview"
+category: plan
 surface: project
-jockey-hint: "Top pill on the project surface when the PRD is empty. Demote once the PRD has substantive content unless the user signals a fresh draft pass."
-workhorse-version: 0.3.0
+workhorse-version: 0.7.14
 ---
 
-## Your task: Draft PRD
+## Your task: PRD interview
 
 Produce or refine the project's PRD at `.workhorse/projects/{hash}-{slug}/prd.md`. The agent already knows the project's hash and slug from the workspace context.
 
-This is the PRD-level equivalent of card-level **Implement this** — go straight to drafting from the project description and conversation history. Do not start by asking questions; produce a sensible structure even when no conversation has yet occurred.
+Work as an interview that writes as it goes, rather than a single drafting pass. Draft first and ask second: produce a sensible structure from the project description and conversation history straight away, so the user has something concrete to react to, then interview them to develop it.
+
+Do not open with a list of questions. Once a draft exists, ask about the parts of it you are least sure of, one or two at a time, and fold each answer back into the PRD as it arrives.
 
 ### Default scaffolding
 

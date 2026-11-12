@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
+import { format } from 'date-fns';
 
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 
@@ -24,6 +25,19 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   const userUrl = constructFacilityUrl('/api/user/me');
   const user = await api.get(userUrl);
   return user.json();
+};
+
+// Saves one of the logged-in user's preferences with no facility, so it applies everywhere
+export const setUserPreferenceViaApi = async (
+  api: APIRequestContext,
+  key: string,
+  value: unknown,
+) => {
+  const url = constructFacilityUrl('/api/user/userPreferences');
+  const response = await api.post(url, { data: { key, value } });
+  if (!response.ok()) {
+    throw new Error(`Failed to set user preference: ${response.status()} ${await response.text()}`);
+  }
 };
 
 export const getCurrentEncounterViaApi = async (api: APIRequestContext, patientId: string) => {
@@ -135,6 +149,38 @@ export const createPatient = async (
   return response.json();
 };
 
+// Seeded on facility-1, the facility every spec signs in to.
+const OUTPATIENT_LOCATION_GROUP_ID = 'locationgroup-Outpatient-tamanu';
+
+const toStoredDateTime = (date: Date) => format(date, 'yyyy-MM-dd HH:mm:ss');
+
+export const createTodayOutpatientAppointmentViaApi = async (
+  api: APIRequestContext,
+  { patientId, facilityId }: { patientId: string; facilityId: string },
+) => {
+  const user = await getUser(api);
+  const now = new Date();
+  const end = new Date(now.getTime() + 15 * 60_000);
+
+  const response = await api.post(constructFacilityUrl('/api/appointments'), {
+    data: {
+      facilityId,
+      patientId,
+      clinicianId: user.id,
+      locationGroupId: OUTPATIENT_LOCATION_GROUP_ID,
+      appointmentTypeId: 'appointmentType-other',
+      startTime: toStoredDateTime(now),
+      endTime: toStoredDateTime(end),
+    },
+  });
+
+  if (!response.ok()) {
+    throw new Error(`Failed to create appointment: ${response.status()} ${await response.text()}`);
+  }
+
+  return response.json();
+};
+
 // TODO: swap these functions to use the new fakeRequests in fakeData package when it's merged
 export const createHospitalAdmissionEncounterViaAPI = async (
   api: APIRequestContext,
@@ -181,14 +227,20 @@ export const createHospitalAdmissionEncounterViaAPI = async (
 };
 
 // Discharge = give the encounter an end date. An invoice can only be finalised once its encounter
-// has been discharged, so this is the arrange step for the finalisation journey.
+// has been discharged, so this is the arrange step for the finalisation journey. Without a
+// dischargerId the discharge is recorded as automatic, the way the system closes encounters.
 export const dischargeEncounterViaApi = async (
   api: APIRequestContext,
   encounterId: string,
-  endDate: string = new Date().toISOString().replace('T', ' ').substring(0, 19),
+  {
+    endDate = new Date().toISOString().replace('T', ' ').substring(0, 19),
+    dischargerId,
+  }: Partial<{ endDate: string; dischargerId: string }> = {},
 ) => {
   const encounterUrl = constructFacilityUrl(`/api/encounter/${encounterId}`);
-  const response = await api.put(encounterUrl, { data: { endDate } });
+  const response = await api.put(encounterUrl, {
+    data: { endDate, ...(dischargerId && { discharge: { dischargerId } }) },
+  });
 
   if (!response.ok()) {
     const errorText = await response.text();
@@ -324,6 +376,7 @@ export const createEncounterPrescriptionViaApi = async (
     route: string;
     doseAmount: number;
     frequency: string;
+    date: string;
   }> = {},
 ) => {
   const user = await getUser(api);
@@ -350,6 +403,22 @@ export const createEncounterPrescriptionViaApi = async (
   if (!response.ok()) {
     const errorText = await response.text();
     throw new Error(`Failed to create prescription: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+export const discontinuePrescriptionViaApi = async (
+  api: APIRequestContext,
+  prescriptionId: string,
+) => {
+  const user = await getUser(api);
+  const url = constructFacilityUrl(`/api/medication/${prescriptionId}/discontinue`);
+  const response = await api.post(url, { data: { discontinuingClinicianId: user.id } });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to discontinue prescription: ${response.status()} ${errorText}`);
   }
 
   return response.json();

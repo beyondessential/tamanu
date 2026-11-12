@@ -11,6 +11,7 @@ import {
   TranslatedText,
 } from '@tamanu/ui-components';
 import { Colors } from '../constants';
+import { route } from '@tamanu/api-client';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -55,7 +56,7 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
   const closeRevertModal = useCallback(() => setRevertModalOpen(false), [setRevertModalOpen]);
   const revertDeath = async () => {
     const patientId = patient.id;
-    await api.post(`patient/${patientId}/revertDeath`);
+    await api.post(route('patient/:patientId/revertDeath', { patientId }));
     queryClient.resetQueries(['patientDeathSummary', patient.id]);
 
     closeRevertModal();

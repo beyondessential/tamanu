@@ -24,6 +24,7 @@ import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { EncounterModal } from '../EncounterModal';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentModal } from './AppointmentModal';
+import { route } from '@tamanu/api-client';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -258,7 +259,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
 
   const updateAppointmentStatus = useCallback(
     async newValue => {
-      await api.put(`appointments/${id}`, {
+      await api.put(route('appointments/:id', { id }), {
         status: newValue,
       });
       onUpdated();

@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_survey_response_answers_from_sync_lookup
+              - flag_survey_response_answers_for_lookup_rebuild
               - record_survey_response_answers_changelog
               - set_survey_response_answers_updated_at
               - set_survey_response_answers_updated_at_sync_tick

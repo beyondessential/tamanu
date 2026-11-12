@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { SurveySelector } from './SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useSurveyResponseEditMutation } from './useSurveyResponseEditMutation';
+import { useSurveyResponseEditValues } from './useSurveyResponseEditValues';
 import { usePatientAdditionalDataQuery, useSurveyResponseQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -24,6 +25,7 @@ import { useAuth } from '../../contexts/Auth';
 import { SurveyResponseChangelogModal } from '../../components/SurveyResponseChangelogModal';
 import { TranslatedReferenceData } from '../../components';
 import { ForbiddenError } from '@tamanu/errors';
+import { route } from '@tamanu/api-client';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -31,7 +33,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const { getCurrentDateTime } = useDateTime();
   const params = useParams();
   const queryClient = useQueryClient();
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const surveyResponseId = params.surveyResponseId;
   const [changelogOpen, setChangelogOpen] = useState(false);
@@ -44,12 +46,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [surveys, setSurveys] = useState(null);
   const [programReadError, setProgramReadError] = useState(null);
   const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
-
-  useEffect(() => {
-    if (params.encounterId) {
-      loadEncounter(params.encounterId);
-    }
-  }, [loadEncounter, params.encounterId]);
 
   useEffect(() => {
     (async () => {
@@ -70,7 +66,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   const setSelectedSurvey = useCallback(
     async id => {
-      const response = await api.get(`survey/${encodeURIComponent(id)}`);
+      const response = await api.get(route('survey/:id', { id }));
       setSurvey(response);
       setStartTime(getCurrentDateTime());
     },
@@ -103,7 +99,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       }
 
       try {
-        const { data } = await api.get(`program/${encodeURIComponent(programId)}/surveys`, {
+        const { data } = await api.get(route('program/:programId/surveys', { programId }), {
           ...(patient?.id ? { patientId: patient.id } : {}),
         });
         const programSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS);
@@ -159,32 +155,8 @@ const SurveyFlow = ({ patient, currentUser }) => {
     error: surveyResponseError,
   } = useSurveyResponseQuery(surveyResponseId);
 
-  const surveyForEdit = useMemo(() => {
-    if (!existingSurveyResponse) return null;
-    return {
-      id: existingSurveyResponse.surveyId,
-      name: existingSurveyResponse.surveyName,
-      components: existingSurveyResponse.components,
-    };
-  }, [existingSurveyResponse]);
-
-  const initialAnswerOverrides = useMemo(() => {
-    if (!existingSurveyResponse?.answers?.length) return null;
-    return Object.fromEntries(
-      existingSurveyResponse.answers.map(a => {
-        const value = a.originalBody ?? a.body;
-        return [a.dataElementId, value];
-      }),
-    );
-  }, [existingSurveyResponse]);
-
-  const editedDataElementIds = useMemo(() => {
-    const ids = new Set();
-    for (const answer of existingSurveyResponse?.answers ?? []) {
-      if (answer.editedTime) ids.add(answer.dataElementId);
-    }
-    return ids;
-  }, [existingSurveyResponse]);
+  const { surveyForEdit, initialAnswerOverrides, editedDataElementIds } =
+    useSurveyResponseEditValues(existingSurveyResponse);
 
   const { mutateAsync: submitSurveyResponseEdit } = useSurveyResponseEditMutation(
     { surveyResponseId, survey: surveyForEdit },

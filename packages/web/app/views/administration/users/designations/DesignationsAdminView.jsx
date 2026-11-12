@@ -8,6 +8,7 @@ import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from '.
 import { AddDesignationModal } from './AddDesignationModal';
 import { DeleteDesignationModal } from './DeleteDesignationModal';
 import { DesignationsSearchForm } from './DesignationsSearchForm';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const ActionMenu = ({ data }) => {
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ export const DesignationsAdminView = () => {
       </Header>
       <StyledDataFetchingTable
         columns={columns}
-        defaultRowsPerPage={10}
+        pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.DESIGNATIONS}
         endpoint={DESIGNATIONS_ENDPOINT}
         fetchOptions={{ id: idQuery, name: nameQuery }}
         initialSort={{ orderBy: 'name', order: 'asc' }}

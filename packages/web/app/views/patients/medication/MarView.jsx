@@ -8,6 +8,8 @@ import { MarHeader } from '../../../components/Medication/Mar/MarHeader';
 import { MarTable } from '../../../components/Medication/Mar/MarTable';
 import { PATIENT_PATHS } from '../../../constants/patientPaths';
 import { useEncounter } from '../../../contexts/Encounter';
+import { useAuth } from '../../../contexts/Auth';
+import { NoPermissionScreen } from '../../NoPermissionScreen';
 
 const MAR_VIEW_PATH = `${PATIENT_PATHS.MAR}/view/:date`;
 
@@ -96,7 +98,12 @@ const useMarDate = () => {
 };
 
 export const MarView = () => {
+  const { ability } = useAuth();
   const [date, setDate] = useMarDate();
+
+  // The route is always registered so a link here (e.g. a Medication Due dashboard task) never
+  // lands on a blank page; without the permission we show the standard no-permission message.
+  if (!ability.can('list', 'MedicationAdministration')) return <NoPermissionScreen />;
 
   if (!date) return null; // Redirecting to the default date
 

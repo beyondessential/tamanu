@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_patient_program_registrations_from_sync_lookup
+              - flag_patient_program_registrations_for_lookup_rebuild
               - notify_patient_program_registrations_changed
               - record_patient_program_registrations_changelog
               - set_patient_program_registrations_updated_at

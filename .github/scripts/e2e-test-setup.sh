@@ -31,11 +31,6 @@ e2e_test_setup_setup_central() {
             "username": "tamanu",
             "password": "tamanu"
         },
-        "schedules": {
-            "sendStatusToMetaServer": {
-                "enabled": false
-            }
-        },
         "localisation": {
             "data": {
                 "country": {
@@ -83,6 +78,16 @@ EOF
                 password: "admin",
                 displayName: "Initial Admin",
             },
+            "practitioner@tamanu.io": {
+                role: "practitioner",
+                password: "practitioner",
+                displayName: "Test Practitioner",
+            },
+            "reception@tamanu.io": {
+                role: "reception",
+                password: "reception",
+                displayName: "Test Reception",
+            },
         },
 
         facilities: {
@@ -108,15 +113,34 @@ EOF
                         enabled: true,
                     },
                 },
-                patientSummary: {
+                experimentalAi: {
                     enabled: true,
-                },
-                encounterSummary: {
-                    enabled: true,
+                    patientSummary: {
+                        enabled: true,
+                    },
+                    encounterSummary: {
+                        enabled: true,
+                    },
                 },
                 medications: {
                     dispensing: {
                         dispensingQuantityAutocalculation: true,
+                    },
+                },
+                // The support floor is derived from the latest Chrome major in the
+                // installed caniuse-lite, which tracks Chrome's four-week cadence,
+                // while Playwright's bundled Chromium is pinned and lags it. At the
+                // default of 2 the suite starts failing on the browser-unsupported
+                // page whenever caniuse-lite moves ahead of the pin, for reasons
+                // unrelated to any change under test.
+                browserSupport: {
+                    versionsBack: 12,
+                },
+            },
+            facilities: {
+                "facility-1": {
+                    kiosk: {
+                        enabled: true,
                     },
                 },
             },
@@ -177,11 +201,6 @@ e2e_test_setup_setup_facility() {
 	        "name": "facility",
 	        "username": "tamanu",
 	        "password": "tamanu"
-        },
-        schedules: {
-            sendStatusToMetaServer: {
-                enabled: false,
-            },
         },
     }
 EOF

@@ -13,6 +13,7 @@ import { SurveyResponsesPrintout } from '@tamanu/shared/utils/patientCertificate
 import { useTransformedSurveyResponseQuery } from '../../../api/queries/useSurveyResponseQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
+import { route } from '@tamanu/api-client';
 
 export const SurveyResponsesPrintModal = React.memo(
   ({ patient, open, onClose, surveyResponseId, title, isReferral, submittedBy }) => {
@@ -25,32 +26,30 @@ export const SurveyResponsesPrintModal = React.memo(
     const { primaryTimeZone } = useDateTime();
     const { data: facility, isLoading: isFacilityLoading } = useQuery(
       ['facility', facilityId],
-      async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
+      async () => await api.get(route('facility/:facilityId', { facilityId })),
       {
         enabled: !!facilityId,
       },
     );
 
-    const {
-      data: additionalData,
-      isLoading: isAdditionalDataLoading,
-    } = usePatientAdditionalDataQuery(patient.id);
+    const { data: additionalData, isLoading: isAdditionalDataLoading } =
+      usePatientAdditionalDataQuery(patient.id);
 
     const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
       ['village', patient.id],
-      async () => await api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+      async () =>
+        await api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
       {
         enabled: !!patient?.villageId,
       },
     );
 
-    const { data: transformedSurveyResponse, isLoading: surveyResponseLoading } = useTransformedSurveyResponseQuery(
-      surveyResponseId,
-    );
+    const { data: transformedSurveyResponse, isLoading: surveyResponseLoading } =
+      useTransformedSurveyResponseQuery(surveyResponseId);
 
     const { data: user, isLoading: isUserLoading } = useQuery(
       ['user', transformedSurveyResponse?.userId],
-      () => api.get(`user/${transformedSurveyResponse?.userId}`),
+      () => api.get(route('user/:userId', { userId: transformedSurveyResponse?.userId })),
       {
         enabled: !!transformedSurveyResponse?.userId,
       },

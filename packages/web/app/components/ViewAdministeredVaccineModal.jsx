@@ -19,6 +19,7 @@ import { Colors } from '../constants/styles';
 import { ModalActionRow } from './ModalActionRow';
 
 import { useTranslation } from '../contexts/Translation.jsx';
+import { route } from '@tamanu/api-client';
 
 const Container = styled.div`
   display: flex;
@@ -140,7 +141,12 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const { data: { data: vaccineCircumstances } = {} } = useQuery({
     queryKey: ['administeredVaccine', patientId, vaccineRecordId],
     queryFn: () =>
-      api.get(`patient/${patientId}/administeredVaccine/${vaccineRecordId}/circumstances`),
+      api.get(
+        route('patient/:patientId/administeredVaccine/:vaccineRecordId/circumstances', {
+          patientId,
+          vaccineRecordId,
+        }),
+      ),
     // to avoid unnecessary API calls, these are the conditions that will show circumstance
     enabled: Boolean(!editMode && givenElsewhere && circumstanceIds),
   });

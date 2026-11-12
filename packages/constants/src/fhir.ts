@@ -1,3 +1,9 @@
+// Namespace for deterministically deriving a materialised FHIR resource's id (UUIDv5)
+// from its resource type and upstream id. This is a frozen contract: the same inputs
+// must always produce the same id across servers and deployments, so this value must
+// never change — doing so would change every deterministically-derived FHIR id.
+export const FHIR_RESOURCE_ID_NAMESPACE = 'fa29f90a-e123-48d7-8538-8c98866df993';
+
 export const FHIR_INTERACTIONS = {
   INSTANCE: {
     READ: 'resource-read',

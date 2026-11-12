@@ -20,6 +20,7 @@ import { ContentPane } from '../../components/ContentPane';
 import { Field } from '../../components/Field';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { AdminViewContainer } from './components/AdminViewContainer';
+import { route } from '@tamanu/api-client';
 
 const LargeSubmitButton = styled(FormSubmitButton)`
   font-size: 15px;
@@ -56,7 +57,7 @@ export const AssetUploaderView = memo(() => {
       try {
         const filename = file.name;
         const data = await convertToBase64(file);
-        const response = await api.put(`admin/asset/${name}`, {
+        const response = await api.put(route('admin/asset/:name', { name }), {
           filename,
           data,
           facilityId,

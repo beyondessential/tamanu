@@ -2,6 +2,7 @@ export { useAppointmentMutation } from './useAppointmentMutation';
 export { useSendAppointmentEmail } from './useSendAppointmentEmail';
 export { useImagingRequestMutation } from './useImagingRequestMutation';
 export { useLocationBookingMutation } from './useLocationBookingMutation';
+export * from './useEncounterMutation';
 export * from './usePatientMove';
 export * from './usePatientPaymentsMutation';
 export * from './useNotificationsMutation';
@@ -13,6 +14,7 @@ export {
   useLocationAssignmentOverlappingAssignmentsMutation,
 } from './useLocationAssignmentMutation';
 export { useLocationAssignmentDeleteMutation } from './useLocationAssignmentDeleteMutation';
+export { useDeleteProcedureMutation } from './useDeleteProcedureMutation';
 export { useRegisterPatientPortal } from './useRegisterPatientPortal';
 export { useTogglePermissionMutation } from './usePermissionMutation';
 export {

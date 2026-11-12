@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 const SubText = styled.div`
   text-align: left;
@@ -18,7 +19,12 @@ export const DeletePortalSurveyAssignmentModal = ({
   const api = useApi();
 
   const onSubmit = async () => {
-    await api.delete(`patient/${patient.id}/portal/forms/${portalSurveyAssignmentToDelete.id}`);
+    await api.delete(
+      route('patient/:patientId/portal/forms/:portalSurveyAssignmentToDeleteId', {
+        patientId: patient.id,
+        portalSurveyAssignmentToDeleteId: portalSurveyAssignmentToDelete.id,
+      }),
+    );
     onClose();
   };
 

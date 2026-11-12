@@ -6,6 +6,7 @@ import styled from 'styled-components';
 
 import { useApi } from '../../api';
 import { SurveyAnswerResult } from '../SurveyAnswerResult';
+import { route } from '@tamanu/api-client';
 
 function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
   const api = useApi();
@@ -13,7 +14,7 @@ function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
     ['surveyResponseAnswer', 'latest-answer', patientId, dataElementCode],
     async () =>
       await api.get(
-        `surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`,
+        route('surveyResponseAnswer/latest-answer/:dataElementCode', { dataElementCode }),
         { patientId },
       ),
     {

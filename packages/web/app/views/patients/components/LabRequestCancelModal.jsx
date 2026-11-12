@@ -6,6 +6,7 @@ import { useDateTime } from '@tamanu/ui-components';
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, labRequest }) => {
   const api = useApi();
@@ -29,7 +30,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
       status = LAB_REQUEST_STATUSES.CANCELLED;
     }
 
-    await api.post(`labRequest/${labRequest.id}/notes`, {
+    await api.post(route('labRequest/:labRequestId/notes', { labRequestId: labRequest.id }), {
       content: note,
       authorId: auth.currentUser.id,
       noteTypeId: NOTE_TYPES.OTHER,

@@ -43,6 +43,7 @@ export const ImportExportView = memo(
     defaultTab,
     ImportButton,
     ExportButton,
+    importWarning,
   }) => {
     const [currentTab, setCurrentTab] = useState(defaultTab || 'import');
     const [isLoading, setIsLoading] = useState(false);
@@ -66,12 +67,13 @@ export const ImportExportView = memo(
               dataTypesSelectable={dataTypesSelectable}
               setIsLoading={setIsLoading}
               ImportButton={ImportButton}
+              importWarning={importWarning}
               data-testid="importerview-o1ew"
             />
           </TabContainer>
         ),
       }),
-      [endpoint, dataTypes, dataTypesSelectable, ImportButton],
+      [endpoint, dataTypes, dataTypesSelectable, ImportButton, importWarning],
     );
 
     const exportTab = useMemo(

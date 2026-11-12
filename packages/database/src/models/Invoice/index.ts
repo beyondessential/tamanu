@@ -3,7 +3,7 @@ export * from './InvoiceDiscount';
 export * from './InvoiceInsurancePlan';
 export * from './InvoiceInsurancePlanItem';
 export * from './InvoicesInvoiceInsurancePlan';
-export * from './InvoiceInsurerPayment';
+export * from './InvoiceInsurancePlanPayment';
 export * from './InvoiceItem';
 export * from './InvoiceItemFinalisedInsurance';
 export * from './InvoiceItemDiscount';

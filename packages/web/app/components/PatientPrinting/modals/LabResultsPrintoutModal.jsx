@@ -13,6 +13,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useSettings } from '../../../contexts/Settings';
 import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { route } from '@tamanu/api-client';
 
 export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { translations } = useTranslation();
@@ -25,28 +26,31 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
     labRequest.encounterId,
   );
 
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(patient.id);
 
   const { data: notes, isLoading: areNotesLoading } = useLabRequestNotesQuery(labRequest.id);
 
   const { data: testsData, isLoading: areTestsLoading } = useQuery(
     ['labRequest', labRequest.id, 'tests'],
-    () => api.get(`labRequest/${labRequest.id}/tests`),
+    () => api.get(route('labRequest/:labRequestId/tests', { labRequestId: labRequest.id })),
   );
 
   const isVillageEnabled = !!patient.villageId;
   const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['referenceData', patient.villageId],
-    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    () => api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
     { enabled: isVillageEnabled },
   );
 
   const { data: publishedLog, isLoading: isPublishedLogLoading } = useQuery(
     ['labRequestLog', labRequest.id, 'latest-published'],
-    () => api.get(`labRequestLog/labRequest/${labRequest.id}/latest-published`),
+    () =>
+      api.get(
+        route('labRequestLog/labRequest/:labRequestId/latest-published', {
+          labRequestId: labRequest.id,
+        }),
+      ),
   );
 
   const isLoading =

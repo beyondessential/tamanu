@@ -22,6 +22,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useTranslation } from '../../../contexts/Translation';
 import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
 import { LoadingIndicator } from '../../LoadingIndicator';
+import { route } from '@tamanu/api-client';
 
 const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 
@@ -36,10 +37,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
   const { logo, watermark, footerImg, printedBy } = certificateData;
-  const {
-    data: additionalData,
-    isFetching: isAdditionalDataFetching,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isFetching: isAdditionalDataFetching } =
+    usePatientAdditionalDataQuery(patient.id);
 
   const { title, subTitle } = getSetting('templates.letterhead');
   const { healthFacility } = getSetting('templates.vaccineCertificate');
@@ -60,7 +59,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     vaccineData?.data.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
+    api.get(route('facility/:facilityId', { facilityId })),
   );
 
   const createVaccineCertificateNotification = useCallback(

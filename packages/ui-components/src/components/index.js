@@ -12,6 +12,7 @@ export { SignaturePathDisplay, SignatureSvg } from './Field/signature';
 export * from './Form';
 export * from './JSONEditor';
 export * from './Modal';
+export * from './PatientForm';
 export * from './PatientNameDisplay';
 export { RequiredOrnament } from './RequiredOrnament';
 export * from './Suggester';

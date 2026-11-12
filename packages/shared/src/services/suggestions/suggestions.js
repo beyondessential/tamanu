@@ -25,6 +25,7 @@ import {
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { buildAvailableFacilitiesFilter } from '@tamanu/shared/utils/availableFacilities';
 
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
@@ -285,7 +286,12 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   );
 };
 
-const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name', skipVisibilityFilter = false }) => ({
+const DEFAULT_WHERE_BUILDER = ({
+  endpoint,
+  modelName,
+  searchColumn = 'name',
+  skipVisibilityFilter = false,
+}) => ({
   [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
   ...(!skipVisibilityFilter && VISIBILITY_CRITERIA),
 });
@@ -342,19 +348,6 @@ function createSuggester(
 // once there's more than one status that we're checking against
 const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-};
-
-// Reusable filter: if availableFacilities is set on a reference data row,
-// only show it when the requesting facility is in the list. NULL means visible everywhere.
-// Uses the model's attribute so the DB column name comes from the model (field option), not from a literal.
-const buildAvailableFacilitiesFilter = facilityId => {
-  if (!facilityId) return null;
-  return {
-    [Op.or]: [
-      { availableFacilities: null },
-      { availableFacilities: { [Op.contains]: [facilityId] } },
-    ],
-  };
 };
 
 const afterCreatedReferenceData = async (req, newRecord) => {
@@ -613,41 +606,42 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
               },
             ],
           },
-          typeName === REFERENCE_TYPES.MEDICATION_SET && (() => {
-            const childrenWhere = { ...VISIBILITY_CRITERIA };
-            const medicationWhere = { ...VISIBILITY_CRITERIA };
-            const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
-            if (facilityFilter) {
-              childrenWhere[Op.and] = [facilityFilter];
-              medicationWhere[Op.and] = [facilityFilter];
-            }
-            return {
-              model: ReferenceData,
-              as: 'children',
-              where: childrenWhere,
-              through: {
-                attributes: [],
-                where: {
-                  type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
-                  deleted_at: null,
+          typeName === REFERENCE_TYPES.MEDICATION_SET &&
+            (() => {
+              const childrenWhere = { ...VISIBILITY_CRITERIA };
+              const medicationWhere = { ...VISIBILITY_CRITERIA };
+              const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+              if (facilityFilter) {
+                childrenWhere[Op.and] = [facilityFilter];
+                medicationWhere[Op.and] = [facilityFilter];
+              }
+              return {
+                model: ReferenceData,
+                as: 'children',
+                where: childrenWhere,
+                through: {
+                  attributes: [],
+                  where: {
+                    type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                    deleted_at: null,
+                  },
                 },
-              },
-              // referenceDrug (needed for the dispensing quantity autocalculation) is not eager
-              // loaded here: nested four associations deep its column aliases would exceed
-              // PostgreSQL's 63-byte identifier limit and be silently truncated, dropping
-              // dispensingUnit/unitConversion. It is attached in the mapper via a shallow query.
-              include: {
-                model: ReferenceMedicationTemplate,
-                as: 'medicationTemplate',
+                // referenceDrug (needed for the dispensing quantity autocalculation) is not eager
+                // loaded here: nested four associations deep its column aliases would exceed
+                // PostgreSQL's 63-byte identifier limit and be silently truncated, dropping
+                // dispensingUnit/unitConversion. It is attached in the mapper via a shallow query.
                 include: {
-                  model: ReferenceData,
-                  as: 'medication',
-                  where: medicationWhere,
-                  required: !!facilityFilter,
+                  model: ReferenceMedicationTemplate,
+                  as: 'medicationTemplate',
+                  include: {
+                    model: ReferenceData,
+                    as: 'medication',
+                    where: medicationWhere,
+                    required: !!facilityFilter,
+                  },
                 },
-              },
-            };
-          })(),
+              };
+            })(),
         ].filter(Boolean);
 
         return result.length > 0 ? result : null;
@@ -713,21 +707,26 @@ createSuggester(
   },
 );
 
-createSuggester('labTestType', 'LabTestType', ({ req }) => {
-  const baseWhere = { ...VISIBILITY_CRITERIA };
-  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
-  if (facilityFilter) {
-    baseWhere[Op.and] = [facilityFilter];
-  }
-  return baseWhere;
-}, {
-  mapper: ({ name, code, id, labTestCategoryId }) => ({
-    name,
-    code,
-    id,
-    labTestCategoryId,
-  }),
-});
+createSuggester(
+  'labTestType',
+  'LabTestType',
+  ({ req }) => {
+    const baseWhere = { ...VISIBILITY_CRITERIA };
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+    if (facilityFilter) {
+      baseWhere[Op.and] = [facilityFilter];
+    }
+    return baseWhere;
+  },
+  {
+    mapper: ({ name, code, id, labTestCategoryId }) => ({
+      name,
+      code,
+      id,
+      labTestCategoryId,
+    }),
+  },
+);
 
 const filterByFacilityWhereBuilder = ({ query, modelName, endpoint }) => {
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
@@ -760,10 +759,8 @@ const createNameSuggester = (
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
-createNameSuggester(
-  'patientFieldDefinitionCategory',
-  'PatientFieldDefinitionCategory',
-  args => DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
+createNameSuggester('patientFieldDefinitionCategory', 'PatientFieldDefinitionCategory', args =>
+  DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
 );
 createNameSuggester('invoicePriceList');
 createNameSuggester('referenceData', 'ReferenceData');
@@ -1155,10 +1152,15 @@ createSuggester(
       return baseWhere;
     }
 
+    // Exclude registries the patient is actively registered in or has been removed from — a
+    // removed registration is re-enabled via Activate, not re-added here. A recorded-in-error
+    // registration can still be re-added.
+    const excludedStatuses = [REGISTRATION_STATUSES.ACTIVE, REGISTRATION_STATUSES.INACTIVE]
+      .map(status => `'${status}'`)
+      .join(', ');
+
     return {
       ...baseWhere,
-      // Only exclude registries the patient is currently actively registered in. A patient who
-      // was removed (inactive) or recorded-in-error can be suggested again for re-registration.
       id: {
         [Op.notIn]: Sequelize.literal(
           `(
@@ -1169,7 +1171,7 @@ createSuggester(
           WHERE
             ppr.patient_id = $patient_id
           AND
-            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
+            ppr.registration_status IN (${excludedStatuses})
         )`,
         ),
       },

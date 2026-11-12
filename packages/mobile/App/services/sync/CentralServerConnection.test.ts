@@ -452,5 +452,27 @@ describe('CentralServerConnection', () => {
         updateUrl: mockUpdateUrl,
       });
     });
+
+    describe('when the failure is not a Problem', () => {
+      it('describes a failure with no response using the axios message', async () => {
+        mockAxiosRequest.mockRejectedValueOnce({ message: 'Network Error', code: 'ERR_NETWORK' });
+        await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
+          type: ERROR_TYPE.UNKNOWN,
+          title: 'Network Error',
+        });
+      });
+
+      it('keeps the status of a response whose body is not Problem JSON', async () => {
+        mockAxiosRequest.mockRejectedValueOnce({
+          message: 'Request failed with status code 502',
+          code: 'ERR_BAD_RESPONSE',
+          response: { status: 502, data: '<html><body>Bad Gateway</body></html>' },
+        });
+        await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
+          title: 'Request failed with status code 502',
+          status: 502,
+        });
+      });
+    });
   });
 });

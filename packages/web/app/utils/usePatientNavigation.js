@@ -1,16 +1,16 @@
 import { useCallback } from 'react';
-import { generatePath, matchPath, useLocation, useNavigate, useParams } from 'react-router';
+import { generatePath, useLocation, useNavigate, useParams } from 'react-router';
 import { PATIENT_CATEGORIES, PATIENT_PATHS } from '../constants/patientPaths';
+import { getRouteParams } from './useRouteParams';
 
 export const usePatientNavigation = () => {
   const navigate = useNavigate();
   const params = useParams();
   const location = useLocation();
 
-  const getParams = useCallback(
-    path => matchPath({ path, end: false }, location.pathname)?.params ?? {},
-    [location.pathname],
-  );
+  const getParams = useCallback(path => getRouteParams(path, location.pathname), [
+    location.pathname,
+  ]);
 
   const navigateToCategory = useCallback(
     category => void navigate(generatePath(PATIENT_PATHS.CATEGORY, { category })),

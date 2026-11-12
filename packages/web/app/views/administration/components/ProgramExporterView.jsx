@@ -9,6 +9,7 @@ import { AutocompleteField, Field } from '../../../components/Field';
 import { notifySuccess } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useProgramsQuery } from '../programs/surveys/queries';
+import { route } from '@tamanu/api-client';
 
 const ExportForm = ({ options = [] }) => (
   <FormGrid columns={1} data-testid="formgrid-hbbc">
@@ -52,7 +53,8 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
         const programName = programOptions.find(option => option.value === programId).label;
         const saved = await saveFile({
           defaultFileName: `Program-${programName}-export-${getCurrentDateTime()}`,
-          getData: async () => await api.download(`admin/export/program/${programId}`),
+          getData: async () =>
+            await api.download(route('admin/export/program/:programId', { programId })),
           extension: 'xlsx',
         });
         if (saved) {

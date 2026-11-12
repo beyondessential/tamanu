@@ -1,19 +1,25 @@
 import { useMemo, useState } from 'react';
 import { useTableSorting } from './useTableSorting';
+import { usePageSizePreference } from './usePageSizePreference';
 
 // Sorts and paginates a plain in-memory array for tables backed by local/mock data rather
 // than a server endpoint (see DataFetchingTable for the server-driven equivalent, where the
-// server itself handles sorting and slicing).
+// server itself handles sorting and slicing). `defaultRowsPerPage` applies only to a table
+// without a `pageSizePreferenceKey` (see usePageSizePreference).
 export const useClientSideTableData = (
   data,
-  { initialSortKey, initialSortDirection, defaultRowsPerPage = 25 },
+  { initialSortKey, initialSortDirection, defaultRowsPerPage = 25, pageSizePreferenceKey },
 ) => {
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey,
     initialSortDirection,
   });
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
+  const { rowsPerPage, rowsPerPageOptions, onChangeRowsPerPage, isPageSizeReady } =
+    usePageSizePreference({
+      preferenceKey: pageSizePreferenceKey,
+      defaultRowsPerPage,
+    });
 
   const pageData = useMemo(() => {
     const sorted = customSort([...data]);
@@ -34,7 +40,9 @@ export const useClientSideTableData = (
     onChangeOrderBy: handleChangeOrderBy,
     page,
     rowsPerPage,
+    rowsPerPageOptions,
     onChangePage: setPage,
-    onChangeRowsPerPage: setRowsPerPage,
+    onChangeRowsPerPage,
+    isPageSizeReady,
   };
 };

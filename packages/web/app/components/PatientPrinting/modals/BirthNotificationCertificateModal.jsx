@@ -12,24 +12,23 @@ import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertif
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
+import { route } from '@tamanu/api-client';
 
 const useParent = (api, enabled, parentId) => {
   const { data: parentData, isLoading: isParentDataLoading } = useQuery(
     ['parentData', parentId],
-    async () => (parentId ? api.get(`patient/${encodeURIComponent(parentId)}`) : null),
+    async () => (parentId ? api.get(route('patient/:parentId', { parentId })) : null),
     { enabled },
   );
 
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(parentId, { enabled });
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(parentId, { enabled });
 
   const { data: village, isLoading: isVillageLoading } = useQuery(
     ['village', parentData?.villageId],
     () =>
       parentData?.villageId
-        ? api.get(`referenceData/${encodeURIComponent(parentData.villageId)}`)
+        ? api.get(route('referenceData/:villageId', { villageId: parentData.villageId }))
         : null,
     { enabled: !isParentDataLoading },
   );
@@ -38,7 +37,9 @@ const useParent = (api, enabled, parentId) => {
     ['occupation', additionalData?.occupationId],
     () =>
       additionalData?.occupationId
-        ? api.get(`referenceData/${encodeURIComponent(additionalData.occupationId)}`)
+        ? api.get(
+            route('referenceData/:occupationId', { occupationId: additionalData.occupationId }),
+          )
         : null,
     { enabled: !isAdditionalDataLoading },
   );
@@ -47,7 +48,7 @@ const useParent = (api, enabled, parentId) => {
     ['mothersName', additionalData?.motherId],
     () =>
       additionalData?.motherId
-        ? api.get(`patient/${encodeURIComponent(additionalData?.motherId)}`)
+        ? api.get(route('patient/:motherId', { motherId: additionalData?.motherId }))
         : null,
     { enabled: !isAdditionalDataLoading },
   );
@@ -56,7 +57,7 @@ const useParent = (api, enabled, parentId) => {
     ['fathersName', additionalData?.fatherId],
     () =>
       additionalData?.fatherId
-        ? api.get(`patient/${encodeURIComponent(additionalData?.fatherId)}`)
+        ? api.get(route('patient/:fatherId', { fatherId: additionalData?.fatherId }))
         : null,
     { enabled: !isAdditionalDataLoading },
   );
@@ -88,10 +89,8 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(patient.id);
   const { data: motherData, isLoading: isMotherDataLoading } = useParent(
     api,
     !!additionalData,
@@ -105,7 +104,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
 
   const { data: birthData, isLoading: isBirthDataLoading } = useQuery(
     ['birthData', patient.id],
-    () => api.get(`patient/${encodeURIComponent(patient.id)}/birthData`),
+    () => api.get(route('patient/:patientId/birthData', { patientId: patient.id })),
   );
 
   const { data: deathData, isLoading: isDeathDataLoading } = useQuery(
@@ -113,11 +112,15 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
     // A living patient has no death record and the endpoint 404s; that's expected here, so don't
     // surface it as a server error toast (matches the other patient/:id/death callers).
     () =>
-      api.get(`patient/${encodeURIComponent(patient.id)}/death`, {}, { showUnknownErrorToast: false }),
+      api.get(
+        route('patient/:patientId/death', { patientId: patient.id }),
+        {},
+        { showUnknownErrorToast: false },
+      ),
   );
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
+    api.get(route('facility/:facilityId', { facilityId })),
   );
 
   const isLoading =

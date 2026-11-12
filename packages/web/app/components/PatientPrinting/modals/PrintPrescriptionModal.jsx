@@ -13,6 +13,7 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
+import { route } from '@tamanu/api-client';
 
 export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClose }) => {
   const { getSetting } = useSettings();
@@ -34,7 +35,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
     setPatientLoading(true);
     (async () => {
       if (encounter?.patientId) {
-        const res = await api.get(`patient/${encounter.patientId}`);
+        const res = await api.get(route('patient/:patientId', { patientId: encounter.patientId }));
         setPatient(res);
       }
       setPatientLoading(false);
@@ -45,7 +46,9 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
     setAdditionalDataLoading(true);
     (async () => {
       if (encounter?.patientId) {
-        const res = await api.get(`patient/${encounter.patientId}/additionalData`);
+        const res = await api.get(
+          route('patient/:patientId/additionalData', { patientId: encounter.patientId }),
+        );
         setAdditionalData(res);
       }
       setAdditionalDataLoading(false);
@@ -56,7 +59,9 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
     setVillageLoading(true);
     (async () => {
       if (patient.villageId) {
-        const res = await api.get(`referenceData/${encodeURIComponent(patient.villageId)}`);
+        const res = await api.get(
+          route('referenceData/:villageId', { villageId: patient.villageId }),
+        );
         setVillage(res);
       }
       setVillageLoading(false);
@@ -67,7 +72,9 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
     setPrescriberLoading(true);
     (async () => {
       if (medication.prescriberId) {
-        const res = await api.get(`user/${encodeURIComponent(medication.prescriberId)}`);
+        const res = await api.get(
+          route('user/:prescriberId', { prescriberId: medication.prescriberId }),
+        );
         setPrescriber(res);
       }
       setPrescriberLoading(false);
@@ -75,7 +82,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   }, [api, medication.prescriberId]);
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
+    api.get(route('facility/:facilityId', { facilityId })),
   );
 
   const isLoading =

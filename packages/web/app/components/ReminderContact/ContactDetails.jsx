@@ -1,4 +1,5 @@
 import { Typography } from '@material-ui/core';
+import { route } from '@tamanu/api-client';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -370,7 +371,7 @@ export const ContactDetails = ({
       )}
       <StyledContactListTable
         columns={columns}
-        endpoint={`patient/${patient.id}/reminderContacts`}
+        endpoint={route('patient/:patientId/reminderContacts', { patientId: patient.id })}
         disablePagination
         initialSort={{ orderBy: 'name', order: 'asc' }}
         allowExport={false}

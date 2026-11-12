@@ -1,4 +1,5 @@
 export { DashboardPage } from './DashboardPage';
+export { KioskPage } from './kiosk/KioskPage';
 export { LoginPage } from './LoginPage';
 export { SetupWizardPage } from './SetupWizardPage';
 export { SidebarPage } from './SidebarPage';

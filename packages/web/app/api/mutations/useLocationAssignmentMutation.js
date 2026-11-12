@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../useApi';
+import { route } from '@tamanu/api-client';
 
 export const useLocationAssignmentMutation = (options = {}) => {
   const api = useApi();
@@ -8,7 +9,10 @@ export const useLocationAssignmentMutation = (options = {}) => {
   return useMutation(
     assignment => {
       if (assignment.id) {
-        return api.put(`admin/location-assignments/${assignment.id}`, assignment);
+        return api.put(
+          route('admin/location-assignments/:assignmentId', { assignmentId: assignment.id }),
+          assignment,
+        );
       }
       return api.post('admin/location-assignments', assignment);
     },

@@ -3,6 +3,7 @@ import { useApi } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { getCurrentLanguageCode } from '../utils/translation';
 import { unionBy } from 'es-toolkit/compat';
+import { route } from '@tamanu/api-client';
 
 export const useSuggesterOptions = ({
   field,
@@ -25,13 +26,13 @@ export const useSuggesterOptions = ({
           : JSON.parse(field.value)
         : [field.value];
 
-      values.forEach((value) => {
+      values.forEach(value => {
         api
-          .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(value)}`, {
+          .get(route('suggestions/:endpoint/:value', { endpoint, value }), {
             language: getCurrentLanguageCode(),
           })
           .then(({ id, name }) => {
-            setInitialOptions((prev) => [...prev, { value: id, label: name }]);
+            setInitialOptions(prev => [...prev, { value: id, label: name }]);
           });
       });
     }
@@ -41,13 +42,13 @@ export const useSuggesterOptions = ({
 
   useEffect(() => {
     api
-      .get(`suggestions/${encodeURIComponent(endpoint)}/all`, {
+      .get(route('suggestions/:endpoint/all', { endpoint }), {
         facilityId,
         filterByFacility,
         language: getCurrentLanguageCode(),
         ...baseQueryParameters,
       })
-      .then((resultData) => {
+      .then(resultData => {
         setOptions(
           unionBy(
             initialOptions,

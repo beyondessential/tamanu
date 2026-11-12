@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { AI_PATIENT_SUMMARY_QUERY_KEY } from '../queries/useAiPatientSummaryQuery';
+import { route } from '@tamanu/api-client';
 
 // The POST/PUT endpoints return an aiDocument directly; the GET query holds a
 // `{ aiDocument, requiresRegeneration }` shape, so when a mutation succeeds we
@@ -19,7 +20,7 @@ export const useGenerateAiPatientSummary = patientId => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => api.post(`ai/patient/summary/${encodeURIComponent(patientId)}`),
+    mutationFn: () => api.post(route('ai/patient/summary/:patientId', { patientId })),
     onSuccess: aiDocument => writeAiDocumentToCache(queryClient, patientId, aiDocument),
   });
 };
@@ -31,7 +32,7 @@ const useUpdateAiPatientSummary = (patientId, getRequest) => {
   return useMutation({
     mutationFn: input => {
       const { id, body } = getRequest(input);
-      return api.put(`ai/patient/summary/${encodeURIComponent(id)}`, body);
+      return api.put(route('ai/patient/summary/:id', { id }), body);
     },
     onSuccess: aiDocument => writeAiDocumentToCache(queryClient, patientId, aiDocument),
   });

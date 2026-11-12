@@ -99,6 +99,11 @@ export const PRE_IDEMPOTENCY_MUTATING_ROUTES = [
     path: '/public/browser-support',
     reason: 'Unauthenticated pre-login gate; computes a verdict from the posted descriptor and stores nothing.',
   },
+  {
+    path: '/public/telemetry',
+    reason:
+      'Unauthenticated pre-login ingest of browser performance telemetry; best-effort, and a key is scoped to a user and facility that do not exist yet.',
+  },
 ];
 
 /**

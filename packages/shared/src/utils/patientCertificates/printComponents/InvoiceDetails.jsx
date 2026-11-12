@@ -1,10 +1,10 @@
 import React from 'react';
 import {
   ENCOUNTER_TYPE_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_STATUS_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
 import { getInvoiceDiscountReason } from '@tamanu/utils/invoice';
@@ -14,37 +14,39 @@ import { Col } from '../Layout';
 import { useLanguageContext } from '../../pdf/languageContext';
 import { useDateTime } from '../../pdf/withDateTimeContext';
 
-const getInvoicePaymentStatus = invoice => {
+const getInvoicePaymentStatus = (invoice, getEnumTranslation) => {
   const patientPaymentStatus =
     invoice?.patientPaymentStatus ?? INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID;
 
-  const insurerPaymentStatus =
-    invoice?.insurerPaymentStatus ?? INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
+  const insurancePlanPaymentStatus =
+    invoice?.insurancePlanPaymentStatus ?? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.UNPAID;
 
-  const patientLabel = INVOICE_PATIENT_PAYMENT_STATUSES_LABELS[patientPaymentStatus];
-  const insurerLabel = INVOICE_INSURER_PAYMENT_STATUS_LABELS[insurerPaymentStatus];
+  const patientLabel = getEnumTranslation(
+    INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
+    patientPaymentStatus,
+  );
+  const insurancePlanLabel = getEnumTranslation(
+    INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
+    insurancePlanPaymentStatus,
+  );
 
   return (
     patientLabel +
-    (insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED ? `/${insurerLabel}` : '')
+    (insurancePlanPaymentStatus === INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED ? `/${insurancePlanLabel}` : '')
   );
 };
 
 export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
 
   const invoiceInsurancePlans = invoice?.insurancePlans || [];
   const hasInvoicePlans = invoiceInsurancePlans.length > 0;
   const insurancePlanNames = invoiceInsurancePlans.map(p => p.name || p.code).join(', ');
 
-  // Fall back to legacy patient-level insurer when no invoice plans are present
   const {
-    additionalData: { insurer, insurerPolicyNumber },
+    additionalData: { insurerPolicyNumber },
   } = patient;
-
-  const showInsurer = hasInvoicePlans || enablePatientInsurer;
-  const insurerDisplayValue = hasInvoicePlans ? insurancePlanNames : insurer?.name;
 
   const discountReason = getInvoiceDiscountReason(invoice?.discount);
   const discountReasonValue =
@@ -64,15 +66,15 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('general.date.label', 'Date')}
             value={formatShort(invoice.date)}
           />
-          {showInsurer && (
+          {hasInvoicePlans && (
             <DataItem
-              label={getTranslation('invoice.insurer.label', 'Insurer')}
-              value={insurerDisplayValue}
+              label={getTranslation('invoice.insurancePlan.label', 'Insurance plan')}
+              value={insurancePlanNames}
             />
           )}
           <DataItem
             label={getTranslation('invoice.invoiceStatus.label', 'Invoice status')}
-            value={INVOICE_STATUS_LABELS[invoice.status]}
+            value={getEnumTranslation(INVOICE_STATUS_LABELS, invoice.status)}
           />
           <DataItem
             label={getTranslation('invoice.priceList.label', 'Price list')}
@@ -82,7 +84,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
         <Col>
           <DataItem
             label={getTranslation('encounter.admission.label', 'Admission')}
-            value={ENCOUNTER_TYPE_LABELS[encounter?.encounterType]}
+            value={getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounter?.encounterType)}
           />
           {enablePatientInsurer && (
             <DataItem
@@ -92,7 +94,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
           )}
           <DataItem
             label={getTranslation('invoice.paymentStatus.label', 'Payment status')}
-            value={getInvoicePaymentStatus(invoice)}
+            value={getInvoicePaymentStatus(invoice, getEnumTranslation)}
           />
           {discountReasonValue && (
             <DataItem

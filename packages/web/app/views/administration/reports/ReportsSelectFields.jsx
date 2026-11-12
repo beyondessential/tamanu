@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { BaseSelectField } from '@tamanu/ui-components';
+import { route } from '@tamanu/api-client';
 
 export const ReportSelectField = ({
   includeNameChangeEvent,
@@ -23,9 +24,9 @@ export const ReportSelectField = ({
   return (
     <BaseSelectField
       {...props}
-      onChange={(event) => {
+      onChange={event => {
         const { value } = event.target;
-        const name = reportData.find((report) => report.id === value)?.name;
+        const name = reportData.find(report => report.id === value)?.name;
         if (setSelectedReportName) setSelectedReportName(name);
 
         if (includeNameChangeEvent) {
@@ -42,7 +43,7 @@ export const ReportSelectField = ({
   );
 };
 
-export const VersionSelectField = (props) => {
+export const VersionSelectField = props => {
   const api = useApi();
   const {
     form: {
@@ -53,7 +54,7 @@ export const VersionSelectField = (props) => {
 
   const query = useQuery(
     ['reportVersions', reportId],
-    () => api.get(`admin/reports/${reportId}/versions`),
+    () => api.get(route('admin/reports/:reportId/versions', { reportId })),
     {
       enabled: !!reportId,
     },
@@ -72,9 +73,9 @@ export const VersionSelectField = (props) => {
   return (
     <BaseSelectField
       {...props}
-      onChange={(event) => {
+      onChange={event => {
         const { value } = event.target;
-        const { versionNumber } = versionData.find((version) => version.id === value);
+        const { versionNumber } = versionData.find(version => version.id === value);
         setSelectedVersionNumber(versionNumber);
 
         props.field.onChange(event);

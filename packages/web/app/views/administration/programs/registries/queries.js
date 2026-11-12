@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../../api/useApi';
+import { route } from '@tamanu/api-client';
 
 export function useProgramRegistriesQuery(options = {}) {
   const api = useApi();
@@ -20,7 +21,7 @@ export function useProgramRegistryQuery(programRegistryId) {
   const api = useApi();
 
   const getProgramRegistry = async () =>
-    await api.get(`admin/programRegistry/${encodeURIComponent(programRegistryId)}`);
+    await api.get(route('admin/programRegistry/:programRegistryId', { programRegistryId }));
 
   return useQuery({
     queryKey: ['adminProgramRegistry', programRegistryId],
@@ -35,11 +36,18 @@ export function useProgramRegistryMutation(useMutationOptions = {}) {
 
   return useMutation({
     mutationKey: ['programRegistry', 'updateMetadata'],
-    mutationFn: async ({ programRegistryId, name, visibilityStatus, currentlyAtType }) =>
-      await api.patch(`admin/programRegistry/${encodeURIComponent(programRegistryId)}`, {
+    mutationFn: async ({
+      programRegistryId,
+      name,
+      visibilityStatus,
+      currentlyAtType,
+      mandatoryConditionEnabled,
+    }) =>
+      await api.patch(route('admin/programRegistry/:programRegistryId', { programRegistryId }), {
         name,
         visibilityStatus,
         currentlyAtType,
+        mandatoryConditionEnabled,
       }),
     onSuccess: async (data, variables, context) => {
       void (await Promise.all([
