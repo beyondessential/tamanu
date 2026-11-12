@@ -1,10 +1,6 @@
-import React, { useState } from 'react';
-import { IconButton } from '@material-ui/core';
+import React from 'react';
 import styled from 'styled-components';
-import { QRCodeIcon } from '../Icons';
-import { useTranslation } from '../../contexts/Translation';
-import { QRCodeScannerModal } from '../QRCodeScannerModal';
-import { ThemedTooltip } from '../Tooltip';
+import { QRCodeScanButton } from './QRCodeScanButton';
 import { SearchInput } from './SearchField';
 
 const Container = styled.div`
@@ -16,44 +12,22 @@ const Container = styled.div`
   }
 `;
 
-const StyledIconButton = styled(IconButton)`
-  height: 38px;
-  width: 38px;
-  margin-left: 5px;
-  border: 1px solid ${props => props.theme.palette.primary.main};
-  color: ${props => props.theme.palette.primary.main};
-  border-radius: 3px;
-`;
-
-export const QRCodeSearchField = props => {
-  const { getTranslation } = useTranslation();
-  const [qrModalOpen, setQrModalOpen] = useState(false);
+export const QRCodeSearchField = ({ matchDisplayIdPattern, ...props }) => {
   const { field: { onChange, name, value } = {}, form: { setFieldValue } = {} } = props;
-
-  const onClear = () => {
-    setFieldValue(name, '');
-  };
-
-  const applyScannedValue = qrCodeValue => {
-    setFieldValue(name, qrCodeValue);
-  };
 
   return (
     <Container>
-      <SearchInput {...props} onChange={onChange} name={name} value={value} onClear={onClear} />
-      <ThemedTooltip title={getTranslation('general.action.scanQRCode', 'Scan QR code')}>
-        <StyledIconButton
-          aria-label={getTranslation('general.action.scanQRCode', 'Scan QR code')}
-          onClick={() => setQrModalOpen(true)}
-          data-testid="qr-scanner-button"
-        >
-          <QRCodeIcon aria-hidden />
-        </StyledIconButton>
-      </ThemedTooltip>
-      <QRCodeScannerModal
-        open={qrModalOpen}
-        onClose={() => setQrModalOpen(false)}
-        onScan={applyScannedValue}
+      <SearchInput
+        {...props}
+        onChange={onChange}
+        name={name}
+        value={value}
+        onClear={() => setFieldValue(name, '')}
+      />
+      <QRCodeScanButton
+        name={name}
+        onScan={qrCodeValue => setFieldValue(name, qrCodeValue)}
+        matchDisplayIdPattern={matchDisplayIdPattern}
       />
     </Container>
   );
