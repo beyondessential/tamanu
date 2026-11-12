@@ -9,7 +9,12 @@ import type { MODELS_MAP } from '../../models/modelsMap';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import type { SettingsService } from '../settings';
 import type { CentralServerConnection } from './CentralServerConnection';
-import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
+import {
+  CURRENT_SYNC_TIME,
+  DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS,
+  LAST_SUCCESSFUL_PULL,
+  LAST_SUCCESSFUL_PUSH,
+} from './constants';
 import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
@@ -264,6 +269,10 @@ export class MobileSyncManager {
       ? STAGE_MAX_PROGRESS_INITIAL
       : STAGE_MAX_PROGRESS_INCREMENTAL;
 
+    // the setting is missing when the central server is older than this app
+    this.centralServer.maxUnreachableDurationMs =
+      this.syncSettings.maxUnreachableDuration ?? DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS;
+
     // there's no point opening a session if we already know the device is offline. Checked last,
     // since the maintenance wait above can be long enough for the connection to change
     if (await this.isOffline()) {
@@ -274,11 +283,7 @@ export class MobileSyncManager {
       sessionId,
       startedAtTick: newSyncClockTime,
       status,
-    } = await this.centralServer.startSyncSession({
-      urgent,
-      lastSyncedTick: pullSince,
-      maxUnreachableDurationMs: this.syncSettings.maxUnreachableDuration,
-    });
+    } = await this.centralServer.startSyncSession({ urgent, lastSyncedTick: pullSince });
 
     if (!sessionId) {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
@@ -304,10 +309,7 @@ export class MobileSyncManager {
       try {
         await this.pushOutgoingChanges(sessionId, newSyncClockTime);
         await this.pullIncomingChanges(sessionId);
-        await this.centralServer.endSyncSession(
-          sessionId,
-          this.syncSettings.maxUnreachableDuration,
-        );
+        await this.centralServer.endSyncSession(sessionId);
       } catch (error) {
         // notify central so its own alerting sees the failure immediately, rather than waiting for
         // the session to time out there (mobile otherwise never reports a session's error to
@@ -426,7 +428,6 @@ export class MobileSyncManager {
       pullSince,
       tableNames,
       tablesForFullResync,
-      this.syncSettings.maxUnreachableDuration,
     );
 
     const pullParams: PullParams = {

@@ -100,10 +100,7 @@ describe('CentralServerConnection', () => {
         lastSyncedTick: -1,
       });
       expect(postSpy).toHaveBeenCalled();
-      expect(pollUntilTrueSpy).toHaveBeenCalledWith(
-        expect.stringContaining(mockSessionId),
-        undefined,
-      );
+      expect(pollUntilTrueSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId));
       expect(getSpy).toHaveBeenCalledWith(
         expect.stringContaining(mockSessionId),
         {},
@@ -158,9 +155,10 @@ describe('CentralServerConnection', () => {
       );
     });
 
-    it('retries for as long as the network retry budget it is given', async () => {
+    it('retries for as long as the network retry budget set on the connection', async () => {
       const getSpy = jest.spyOn(centralServerConnection, 'get').mockResolvedValue(null);
-      await centralServerConnection.pull(mockSessionId, 1, 'test-from-id', 30_000);
+      centralServerConnection.maxUnreachableDurationMs = 30_000;
+      await centralServerConnection.pull(mockSessionId, 1, 'test-from-id');
       expect(getSpy).toHaveBeenCalledWith(
         expect.stringContaining(mockSessionId),
         expect.anything(),
