@@ -64,28 +64,32 @@ export const SyncPausedForUpdate = (): ReactElement => {
         )}
       </StyledText>
       {isReady && (
-        <Button
-          onPress={() => void requestInstall()}
-          width={160}
-          outline
-          textColor={theme.colors.SECONDARY_MAIN}
-          borderColor={theme.colors.SECONDARY_MAIN}
-          buttonText={
-            <TranslatedText stringId="update.action.installUpdate" fallback="Install update" />
-          }
-          marginTop={20}
-        />
+        // Spaced by a wrapper: Button applies its own margins twice
+        <StyledView marginTop={screenPercentageToDP(2.3, Orientation.Height)}>
+          <Button
+            onPress={() => void requestInstall()}
+            width={160}
+            outline
+            textColor={theme.colors.SECONDARY_MAIN}
+            borderColor={theme.colors.SECONDARY_MAIN}
+            buttonText={
+              <TranslatedText stringId="update.action.installUpdate" fallback="Install update" />
+            }
+          />
+        </StyledView>
       )}
       {needsPermission && (
-        <Button
-          onPress={grantPermission}
-          width={160}
-          outline
-          textColor={theme.colors.SECONDARY_MAIN}
-          borderColor={theme.colors.SECONDARY_MAIN}
-          buttonText={<TranslatedText stringId="update.action.allow" fallback="Allow" />}
-          marginTop={20}
-        />
+        // Spaced by a wrapper: Button applies its own margins twice
+        <StyledView marginTop={screenPercentageToDP(2.3, Orientation.Height)}>
+          <Button
+            onPress={grantPermission}
+            width={160}
+            outline
+            textColor={theme.colors.SECONDARY_MAIN}
+            borderColor={theme.colors.SECONDARY_MAIN}
+            buttonText={<TranslatedText stringId="update.action.allow" fallback="Allow" />}
+          />
+        </StyledView>
       )}
     </StyledView>
   );

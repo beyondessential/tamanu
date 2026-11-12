@@ -36,27 +36,28 @@ const UpdateModal = ({
 }: UpdateModalProps): ReactElement => (
   <Modal isVisible={isVisible} onBackdropPress={onClose}>
     <StyledView
-      padding={screenPercentageToDP(3.6, Orientation.Width)}
+      paddingTop={screenPercentageToDP(onClose ? 3.6 : 7.2, Orientation.Width)}
+      paddingLeft={screenPercentageToDP(3.6, Orientation.Width)}
+      paddingRight={screenPercentageToDP(3.6, Orientation.Width)}
+      paddingBottom={screenPercentageToDP(7.2, Orientation.Width)}
       background={theme.colors.WHITE}
       borderRadius={5}
     >
-      <StyledView height={screenPercentageToDP(3, Orientation.Height)}>
-        {onClose && (
-          <StyledView position="absolute" right={0}>
-            <StyledTouchableOpacity onPress={onClose}>
-              <CrossIcon
-                fill={theme.colors.TEXT_SUPER_DARK}
-                size={screenPercentageToDP(2.9, Orientation.Height)}
-              />
-            </StyledTouchableOpacity>
-          </StyledView>
-        )}
-      </StyledView>
+      {onClose && (
+        <StyledView height={screenPercentageToDP(8.3, Orientation.Width)} alignItems="flex-end">
+          <StyledTouchableOpacity onPress={onClose}>
+            <CrossIcon
+              fill={theme.colors.TEXT_SUPER_DARK}
+              size={screenPercentageToDP(4.4, Orientation.Width)}
+            />
+          </StyledTouchableOpacity>
+        </StyledView>
+      )}
       <StyledText
         fontSize={screenPercentageToDP(4.8, Orientation.Width)}
         fontWeight={600}
         color={theme.colors.TEXT_SUPER_DARK}
-        marginBottom={screenPercentageToDP(2, Orientation.Height)}
+        marginBottom={screenPercentageToDP(5.6, Orientation.Width)}
         textAlign="center"
       >
         {title}
@@ -65,9 +66,9 @@ const UpdateModal = ({
         fontSize={screenPercentageToDP(3.6, Orientation.Width)}
         color={theme.colors.TEXT_SUPER_DARK}
         textAlign="center"
-        paddingLeft={screenPercentageToDP(6, Orientation.Width)}
-        paddingRight={screenPercentageToDP(6, Orientation.Width)}
-        marginBottom={screenPercentageToDP(3.2, Orientation.Height)}
+        paddingLeft={screenPercentageToDP(6.7, Orientation.Width)}
+        paddingRight={screenPercentageToDP(6.7, Orientation.Width)}
+        marginBottom={screenPercentageToDP(3.9, Orientation.Width)}
       >
         {body}
       </StyledText>
@@ -103,31 +104,34 @@ export const UpdateModals = ({
         }
       >
         <StyledView alignItems="center">
-          <Button
-            backgroundColor={theme.colors.PRIMARY_MAIN}
-            onPress={onConfirm}
-            textColor={theme.colors.WHITE}
-            width={screenPercentageToDP(60, Orientation.Width)}
-            fontSize={screenPercentageToDP(1.94, Orientation.Height)}
-            fontWeight={500}
-            buttonText={
-              <TranslatedText
-                stringId="update.action.installAndClose"
-                fallback="Install and close"
-              />
-            }
-          />
-          <Button
-            marginTop={screenPercentageToDP(1.5, Orientation.Height)}
-            outline
-            borderColor={theme.colors.PRIMARY_MAIN}
-            onPress={onCancelConfirm}
-            textColor={theme.colors.PRIMARY_MAIN}
-            width={screenPercentageToDP(60, Orientation.Width)}
-            fontSize={screenPercentageToDP(1.94, Orientation.Height)}
-            fontWeight={500}
-            buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          />
+          <StyledView marginTop={screenPercentageToDP(2.8, Orientation.Width)}>
+            <Button
+              backgroundColor={theme.colors.PRIMARY_MAIN}
+              onPress={onConfirm}
+              textColor={theme.colors.WHITE}
+              width={screenPercentageToDP(64, Orientation.Width)}
+              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+              fontWeight={500}
+              buttonText={
+                <TranslatedText
+                  stringId="update.action.installAndClose"
+                  fallback="Install and close"
+                />
+              }
+            />
+          </StyledView>
+          <StyledView marginTop={screenPercentageToDP(2.8, Orientation.Width)}>
+            <Button
+              outline
+              borderColor={theme.colors.PRIMARY_MAIN}
+              onPress={onCancelConfirm}
+              textColor={theme.colors.PRIMARY_MAIN}
+              width={screenPercentageToDP(64, Orientation.Width)}
+              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+              fontWeight={500}
+              buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+            />
+          </StyledView>
         </StyledView>
       </UpdateModal>
 
@@ -158,26 +162,29 @@ export const UpdateModals = ({
         }
       >
         <StyledView alignItems="center">
-          <Button
-            backgroundColor={theme.colors.PRIMARY_MAIN}
-            onPress={onTryAgain}
-            textColor={theme.colors.WHITE}
-            width={screenPercentageToDP(60, Orientation.Width)}
-            fontSize={screenPercentageToDP(1.94, Orientation.Height)}
-            fontWeight={500}
-            buttonText={<TranslatedText stringId="update.action.tryAgain" fallback="Try again" />}
-          />
-          <Button
-            marginTop={screenPercentageToDP(1.5, Orientation.Height)}
-            outline
-            borderColor={theme.colors.PRIMARY_MAIN}
-            onPress={onDismissFailure}
-            textColor={theme.colors.PRIMARY_MAIN}
-            width={screenPercentageToDP(60, Orientation.Width)}
-            fontSize={screenPercentageToDP(1.94, Orientation.Height)}
-            fontWeight={500}
-            buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          />
+          <StyledView marginTop={screenPercentageToDP(2.8, Orientation.Width)}>
+            <Button
+              backgroundColor={theme.colors.PRIMARY_MAIN}
+              onPress={onTryAgain}
+              textColor={theme.colors.WHITE}
+              width={screenPercentageToDP(64, Orientation.Width)}
+              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+              fontWeight={500}
+              buttonText={<TranslatedText stringId="update.action.tryAgain" fallback="Try again" />}
+            />
+          </StyledView>
+          <StyledView marginTop={screenPercentageToDP(2.8, Orientation.Width)}>
+            <Button
+              outline
+              borderColor={theme.colors.PRIMARY_MAIN}
+              onPress={onDismissFailure}
+              textColor={theme.colors.PRIMARY_MAIN}
+              width={screenPercentageToDP(64, Orientation.Width)}
+              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+              fontWeight={500}
+              buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+            />
+          </StyledView>
         </StyledView>
       </UpdateModal>
     </>
