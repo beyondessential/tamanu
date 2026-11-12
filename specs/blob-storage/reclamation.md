@@ -34,18 +34,18 @@ implements this has to answer both:
   collect content that never acquired a reference at all, which leaves the
   repointed-asset case below uncollectable in practice.
 
-- [ ] The central server reclaims only orphaned blobs: those referenced by no
+- The central server reclaims only orphaned blobs: those referenced by no
   record, whether live or soft-deleted.
-- [ ] Liveness is derived by comparing the stored blobs against the hashes
+- Liveness is derived by comparing the stored blobs against the hashes
   referenced across the reference tables and carried in changelog entries, not
   from a maintained reference count.
-- [ ] Content superseded on a mutable reference (an asset replaced by a later
+- Content superseded on a mutable reference (an asset replaced by a later
   upload) remains referenced by the changelog entries that recorded it, so
   superseded content is retained rather than collected.
-- [ ] A blob is eligible for collection only when it is unreferenced and older than
+- A blob is eligible for collection only when it is unreferenced and older than
   a safety window, so a blob whose reference is momentarily absent during an
   operation is not collected.
-- [ ] Because the central server accepts a blob only once a record references it, and
+- Because the central server accepts a blob only once a record references it, and
   records are retained rather than deleted, orphans are rare: they arise from
   anomalies such as interrupted or abandoned operations, or from a reference being
   repointed at new content, as when an asset is replaced (see `assets.md`). Orphan
@@ -53,10 +53,10 @@ implements this has to answer both:
 
 ## Facility and mobile reclamation
 
-- [ ] Facility and mobile servers hold blobs as a bounded cache and reclaim space
+- Facility and mobile servers hold blobs as a bounded cache and reclaim space
   by evicting cached blobs under a least-recently-used and size budget, never by
   orphan collection.
-- [ ] A blob awaiting its push is never evicted: it stays in the outbox until the
+- A blob awaiting its push is never evicted: it stays in the outbox until the
   central server acknowledges it. Content no record references is demoted out of
   the outbox and reclaimed with the rest of the cache, whether or not the central
   server ever received it.
