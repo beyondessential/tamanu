@@ -125,7 +125,7 @@ export const PatientLabTestsTable = React.memo(
     // Panels first (the backend returns them A–Z), each with its member tests in configured order;
     // then every other displayed test, A–Z, under an "Individual tests" heading. A test that sits
     // under a panel is not repeated as an individual test (R11).
-    const { rows, hasGroups } = useMemo(() => {
+    const { rows, hasRows } = useMemo(() => {
       const byTypeId = new Map(labTests.map(test => [test.testTypeId, test]));
       const displayRows = [];
       const groupedTypeIds = new Set();
@@ -157,11 +157,11 @@ export const PatientLabTestsTable = React.memo(
         });
       }
 
-      return { rows: displayRows, hasGroups: displayRows.length > 0 };
+      return { rows: displayRows, hasRows: displayRows.length > 0 };
     }, [labTests, groups]);
 
     const getRowGroupHeader = useMemo(() => {
-      if (!hasGroups) return undefined;
+      if (!hasRows) return undefined;
       return (row, previousRow) => {
         if (previousRow && previousRow.groupId === row.groupId) return null;
         if (row.groupId === INDIVIDUAL_GROUP_ID) {
@@ -182,7 +182,7 @@ export const PatientLabTestsTable = React.memo(
           />
         );
       };
-    }, [hasGroups]);
+    }, [hasRows]);
 
     const allDates = isLoading
       ? []
