@@ -61,7 +61,7 @@ Two things to know while testing:
       (verifies spec: PDET)
 - [x] The requirement holds when the sliding fee scale plan is renamed, and does not apply to
       a plan whose code is not the configured one (verifies spec: PDET)
-- [ ] An annual income saved against a scale that has since changed still shows as saved on
+- [x] An annual income saved against a scale that has since changed still shows as saved on
       the Details tab until a current band is chosen (verifies spec: PDET)
 - [x] An income band belonging to a different family size is rejected as a missing answer
       (verifies spec: PDET)
