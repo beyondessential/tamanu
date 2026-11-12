@@ -106,6 +106,21 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.isSyncing).toBe(false);
     });
 
+    it('clears the queue state when a queued sync then fails to start', async () => {
+      jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockResolvedValueOnce({ status: 'waitingInQueue' } as any);
+      await mobileSyncManager.triggerSync();
+      expect(mobileSyncManager.isQueuing).toBe(true);
+      expect(mobileSyncManager.progressMessage).toBe('Sync in queue');
+
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: false } as any);
+      await mobileSyncManager.triggerSync();
+
+      expect(mobileSyncManager.isQueuing).toBe(false);
+      expect(mobileSyncManager.progressMessage).toBe('');
+    });
+
     it('still tries to sync when the network state cannot be read', async () => {
       jest.mocked(NetInfo.refresh).mockRejectedValueOnce(new Error('native module unavailable'));
       const startSyncSessionSpy = jest
