@@ -1,6 +1,10 @@
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
-import { clearUpdateState, recordPendingUpdate } from '~/services/update/pendingUpdate';
+import {
+  clearUpdateState,
+  readPendingUpdate,
+  recordPendingUpdate,
+} from '~/services/update/pendingUpdate';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -58,8 +62,7 @@ describe('MobileSyncManager', () => {
 
   beforeEach(async () => {
     mobileSyncManager = new MobileSyncManager(centralServerConnection, mockSettingsService as any);
-    // An outstanding update pauses sync, and is remembered for the whole module, so it has to be
-    // cleared between cases or one test's update silently stops the next one syncing.
+    // An outstanding update is remembered for the whole module, so it is cleared between cases
     await clearUpdateState();
     jest.clearAllMocks();
   });
@@ -92,23 +95,23 @@ describe('MobileSyncManager', () => {
       );
     });
 
-    it('should not sync while an app update is outstanding', async () => {
-      jest.spyOn(mobileSyncManager, 'runSync');
+    it('should still try to sync while an app update is outstanding', async () => {
+      // The server's rejection is how the app learns which release it wants now
+      jest.spyOn(mobileSyncManager, 'runSync').mockImplementationOnce(jest.fn());
       await recordPendingUpdate('https://meta.example.com/package');
 
       await mobileSyncManager.triggerSync();
 
-      expect(mobileSyncManager.runSync).not.toBeCalled();
+      expect(mobileSyncManager.runSync).toBeCalledTimes(1);
     });
 
-    it('should sync again once the update state is cleared', async () => {
-      jest.spyOn(mobileSyncManager, 'runSync');
+    it('should forget the update once the server accepts a sync', async () => {
+      jest.spyOn(mobileSyncManager, 'runSync').mockImplementationOnce(jest.fn());
       await recordPendingUpdate('https://meta.example.com/package');
-      await clearUpdateState();
 
-      mobileSyncManager.triggerSync();
+      await mobileSyncManager.triggerSync();
 
-      expect(mobileSyncManager.runSync).toBeCalledTimes(1);
+      expect(await readPendingUpdate()).toBeNull();
     });
   });
 

@@ -2,7 +2,7 @@ import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
 import { SETTING_KEYS } from '~/constants/settings';
-import { clearUpdateState, isUpdatePending } from '~/services/update/pendingUpdate';
+import { clearUpdateState } from '~/services/update/pendingUpdate';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
 import { SYNC_DIRECTIONS } from '../../models/types';
@@ -196,17 +196,12 @@ export class MobileSyncManager {
       return;
     }
 
-    // An app the server has turned away for its version stays turned away until its update is
-    // installed, so syncing is paused rather than retried into the same rejection. Checked
-    // without awaiting: runSync claims isSyncing synchronously, and anything awaited between
-    // the guard above and that claim would let two syncs through at once.
-    if (isUpdatePending()) {
-      return;
-    }
-
     const startTime = Date.now();
 
     try {
+      // Still attempted while an update is outstanding. The server turns an out-of-date app away on
+      // the first request, before anything is sent, and each rejection carries the address it
+      // wants the app updated from now, which may have changed since the last.
       await this.runSync({ urgent });
       // A sync the server accepted proves it accepts this version, so anything remembered about
       // updating is spent. Left behind, a past install would later be mistaken for the current

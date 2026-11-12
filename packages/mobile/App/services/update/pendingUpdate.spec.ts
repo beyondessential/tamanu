@@ -3,8 +3,10 @@ import { readConfig, writeConfig } from '~/services/config';
 import {
   clearUpdateState,
   hasInstalledUpdateAndStillOutOfDate,
+  pendingUpdateEmitter,
   readPendingUpdate,
   recordInstallAttempt,
+  recordPackageSource,
   recordPendingUpdate,
 } from './pendingUpdate';
 
@@ -21,7 +23,7 @@ jest.mock('~/services/config', () => {
   };
 });
 
-const UPDATE_URL = 'https://meta.tamanu.app/versions/~2.68.0/mobile/package';
+const UPDATE_URL = 'https://meta.tamanu.app/versions/2.68.0/mobile/package';
 
 describe('pendingUpdate', () => {
   beforeEach(async () => {
@@ -56,6 +58,45 @@ describe('pendingUpdate', () => {
 
     expect(await readPendingUpdate()).toBeNull();
     expect(await hasInstalledUpdateAndStillOutOfDate()).toBe(false);
+  });
+
+  it('replaces the outstanding update with the address the server names next', async () => {
+    const correctedUrl = 'https://meta.tamanu.app/versions/2.68.3/mobile/package';
+    await recordPendingUpdate(UPDATE_URL);
+    await recordPendingUpdate(correctedUrl);
+
+    expect(await readPendingUpdate()).toBe(correctedUrl);
+  });
+
+  describe('recordPackageSource', () => {
+    const NEWER_URL = 'https://meta.tamanu.app/versions/2.68.3/mobile/package';
+
+    it('keeps a package fetched for the same address', async () => {
+      expect(await recordPackageSource(UPDATE_URL)).toBe(false);
+      expect(await recordPackageSource(UPDATE_URL)).toBe(false);
+    });
+
+    it('discards a package fetched for an address the server has since replaced', async () => {
+      await recordPackageSource(UPDATE_URL);
+      expect(await recordPackageSource(NEWER_URL)).toBe(true);
+    });
+
+    it('starts afresh once the server has accepted the running version', async () => {
+      await recordPackageSource(UPDATE_URL);
+      await clearUpdateState();
+      expect(await recordPackageSource(NEWER_URL)).toBe(false);
+    });
+  });
+
+  it('tells the banner when the server has accepted the running version', async () => {
+    const onCleared = jest.fn();
+    pendingUpdateEmitter.on('cleared', onCleared);
+    await recordPendingUpdate(UPDATE_URL);
+
+    await clearUpdateState();
+
+    pendingUpdateEmitter.off('cleared', onCleared);
+    expect(onCleared).toHaveBeenCalledTimes(1);
   });
 
   describe('hasInstalledUpdateAndStillOutOfDate', () => {

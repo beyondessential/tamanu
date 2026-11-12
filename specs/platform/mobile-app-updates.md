@@ -18,6 +18,9 @@ Servers reject a client below their minimum supported version and include the ad
 - [ ] Staff stay signed in and carry on working. The screen they are on is undisturbed, and nothing they have part-filled is lost.
 - [ ] Signing in does not clear an outstanding update, since the server accepts the sign-in whatever version the app is on. Only a sync it accepts does.
 - [ ] Sync is paused for as long as the update is outstanding, since the server rejects this version. Changes recorded while it is paused are held on the device.
+- [ ] While sync is paused, the app keeps trying to sync in the background. The server turns each attempt away on its first request, before any records are sent, so the app always knows what the server wants now.
+- [ ] Where a rejection names a different release from the one being updated to, such as a corrected address or a newer release, anything downloaded for the old one is discarded and the update starts again from the new address. This holds even after the banner has said no update is available.
+- [ ] Where the server accepts the app's version again, such as after its required release is corrected, the outstanding update is dropped: the banner goes and sync resumes.
 - [ ] An outstanding update is remembered on the device, so closing and reopening the app resumes it rather than losing it.
 - [ ] An app rejected for being above the maximum supported version does not start an update, since a device cannot be moved backwards to an earlier release. It reports that the app is incompatible with its server, as any other sign-in failure does.
 
@@ -52,7 +55,7 @@ The meta server serves the Android package for a given version and branding at i
 - [ ] The response declares the package's size, so the app can check free space before downloading and detect a truncated download.
 - [ ] The endpoint supports resuming a partial download from a byte offset.
 - [ ] The endpoint serves exactly the release requested, since central names the release its devices must run.
-- [ ] A request for a version or branding the meta server has no package for is refused, and the app treats it as a failure it cannot retry its way out of.
+- [ ] A request for a version or branding the meta server has no package for is refused, and the app treats it as a failure it cannot retry its way out of, until it is reopened or the server names a different release.
 - [ ] The package is served over an encrypted connection.
 
 ## The update banner

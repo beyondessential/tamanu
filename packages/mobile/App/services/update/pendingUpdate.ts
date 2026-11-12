@@ -4,23 +4,14 @@ import { version as currentVersion } from '/root/package.json';
 import { readConfig, writeConfig } from '~/services/config';
 
 /**
- * Lets the home screen banner and the Sync tab pick up a rejection that arrives while the app is
- * already running, rather than only on the next launch. Emits `recorded` with the address to update
- * from.
+ * Lets the home screen banner and the Sync tab follow the server while the app is running, rather
+ * than only on the next launch. Emits `recorded` with the address to update from each time the
+ * server rejects this version, and `cleared` once it accepts it.
  */
 export const pendingUpdateEmitter = mitt();
 
-/**
- * The outstanding update as last read or written, so callers that cannot await can still see it.
- * Sync is one: its guard against two syncs at once holds only while nothing awaits between the
- * check and the run, so pausing has to be answerable without going to storage.
- */
+/** The outstanding update as last read or written. */
 let cachedUpdateUrl: string | null = null;
-
-/** Whether an update is outstanding, as far as this process currently knows. */
-export function isUpdatePending(): boolean {
-  return Boolean(cachedUpdateUrl);
-}
 
 /**
  * An outstanding update is remembered on the device rather than held in memory, so closing the app
@@ -30,6 +21,7 @@ const PENDING_UPDATE_URL = 'pendingUpdateUrl';
 const PENDING_UPDATE_RECORDED_AT_VERSION = 'pendingUpdateRecordedAtVersion';
 const INSTALL_ATTEMPTED_FROM_VERSION = 'updateInstallAttemptedFromVersion';
 const INSTALL_ATTEMPTED_FOR_URL = 'updateInstallAttemptedForUrl';
+const PACKAGE_FETCHED_FOR_URL = 'updatePackageFetchedForUrl';
 
 export async function recordPendingUpdate(updateUrl: string): Promise<void> {
   cachedUpdateUrl = updateUrl;
@@ -59,6 +51,17 @@ export async function readPendingUpdate(): Promise<string | null> {
   }
   cachedUpdateUrl = updateUrl;
   return updateUrl;
+}
+
+/**
+ * Notes the address the package on the device is being fetched from, returning whether it replaces
+ * a different one. A package fetched for an address the server has since replaced is for another
+ * release, so it has to be discarded rather than resumed or installed.
+ */
+export async function recordPackageSource(packageUrl: string): Promise<boolean> {
+  const fetchedFor = await readConfig(PACKAGE_FETCHED_FOR_URL, '');
+  await writeConfig(PACKAGE_FETCHED_FOR_URL, packageUrl);
+  return Boolean(fetchedFor) && fetchedFor !== packageUrl;
 }
 
 /**
@@ -95,4 +98,6 @@ export async function clearUpdateState(): Promise<void> {
   await writeConfig(PENDING_UPDATE_RECORDED_AT_VERSION, '');
   await writeConfig(INSTALL_ATTEMPTED_FROM_VERSION, '');
   await writeConfig(INSTALL_ATTEMPTED_FOR_URL, '');
+  await writeConfig(PACKAGE_FETCHED_FOR_URL, '');
+  pendingUpdateEmitter.emit('cleared');
 }

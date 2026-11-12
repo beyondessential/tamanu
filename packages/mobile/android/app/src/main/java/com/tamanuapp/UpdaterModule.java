@@ -154,14 +154,18 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
         promise.resolve(null);
     }
 
+    // Queued behind any download still running, so a cancelled one has stopped writing before its
+    // files are removed
     @ReactMethod
     public void clearDownload(Promise promise) {
-        try {
-            downloader.clear();
-            promise.resolve(null);
-        } catch (Exception e) {
-            promise.reject("CLEAR_DOWNLOAD_ERROR", "Failed to remove the downloaded package", e);
-        }
+        executor.execute(() -> {
+            try {
+                downloader.clear();
+                promise.resolve(null);
+            } catch (Exception e) {
+                promise.reject("CLEAR_DOWNLOAD_ERROR", "Failed to remove the downloaded package", e);
+            }
+        });
     }
 
     /**

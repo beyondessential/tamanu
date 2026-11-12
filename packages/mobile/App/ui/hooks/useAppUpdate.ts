@@ -21,6 +21,7 @@ import {
   pendingUpdateEmitter,
   readPendingUpdate,
   recordInstallAttempt,
+  recordPackageSource,
 } from '~/services/update/pendingUpdate';
 import { Branding } from '~/ui/hooks/useBranding';
 import { useOnForeground } from '~/ui/hooks/useOnForeground';
@@ -58,6 +59,11 @@ export const useAppUpdate = (): AppUpdateState => {
   const isForeground = useOnForeground();
 
   const packageUrl = updateUrl && buildPackageUrl(updateUrl, Config.BRANDING || Branding.Tamanu);
+  // Read after a download settles, to tell whether the server has moved on to another release since
+  const currentPackageUrl = useRef(packageUrl);
+  currentPackageUrl.current = packageUrl;
+  const currentStage = useRef(stage);
+  currentStage.current = stage;
 
   // An update outstanding from a previous launch, and one rejected while the app is running.
   useEffect(() => {
@@ -69,9 +75,36 @@ export const useAppUpdate = (): AppUpdateState => {
     const onRecorded = (recordedUrl?: string) => {
       if (recordedUrl) setUpdateUrl(recordedUrl);
     };
+    // Cleared once the server accepts this version, so there is nothing left to update to
+    const onCleared = () => setUpdateUrl(null);
     pendingUpdateEmitter.on('recorded', onRecorded);
-    return () => pendingUpdateEmitter.off('recorded', onRecorded);
+    pendingUpdateEmitter.on('cleared', onCleared);
+    return () => {
+      pendingUpdateEmitter.off('recorded', onRecorded);
+      pendingUpdateEmitter.off('cleared', onCleared);
+    };
   }, []);
+
+  // spec: MUPD#detecting-an-out-of-date-app
+  // The server can name a different release, or none, while an update is under way: an address
+  // corrected, a newer release, or this version accepted after all. The update starts again from
+  // the new address, and begin discards whatever was fetched for the old one. An install already
+  // handed to Android is left to finish.
+  const previousPackageUrl = useRef(packageUrl);
+  useEffect(() => {
+    const previous = previousPackageUrl.current;
+    previousPackageUrl.current = packageUrl;
+    if (!previous || previous === packageUrl) return;
+    if (currentStage.current === UPDATE_STAGE.INSTALLING) return;
+
+    setProgress(NO_PROGRESS);
+    setBlocker(null);
+    setFailedAttempts(0);
+    setStage(UPDATE_STAGE.CHECKING);
+    if (!packageUrl) {
+      Updater.cancelDownload().then(() => Updater.clearDownload());
+    }
+  }, [packageUrl]);
 
   // Download progress reported by the native downloader, for the percentage on the banner and Sync tab
   useEffect(() => {
@@ -81,8 +114,8 @@ export const useAppUpdate = (): AppUpdateState => {
     return () => subscription.remove();
   }, []);
 
-  // Stops at a failure retrying can't fix, until the next launch checks afresh. The reason picks
-  // the banner's message.
+  // Stops at a failure retrying can't fix, until the next launch or the server naming another
+  // release. The reason picks the banner's message.
   const block = useCallback((reason: UpdateBlocker) => {
     setBlocker(reason);
     setStage(UPDATE_STAGE.BLOCKED);
@@ -112,6 +145,8 @@ export const useAppUpdate = (): AppUpdateState => {
     } catch (error) {
       console.warn('useAppUpdate: could not read the package size', error);
     }
+    // The server named another release meanwhile, and the update has started again for that
+    if (currentPackageUrl.current !== packageUrl) return;
 
     if (packageBytes > 0) {
       const freeBytes = await Updater.getFreeDiskBytes();
@@ -124,8 +159,11 @@ export const useAppUpdate = (): AppUpdateState => {
 
     try {
       await Updater.startDownload(packageUrl);
+      if (currentPackageUrl.current !== packageUrl) return;
       setStage(UPDATE_STAGE.READY);
     } catch (error) {
+      // Cancelled because the server named another release, which the update has started again for
+      if (currentPackageUrl.current !== packageUrl) return;
       // No package at the address is a refusal, not a dropped connection, so retrying won't help
       if ((error as { code?: string }).code === 'PACKAGE_UNAVAILABLE') {
         block(UPDATE_BLOCKER.PACKAGE_UNAVAILABLE);
@@ -142,12 +180,18 @@ export const useAppUpdate = (): AppUpdateState => {
   const begin = useCallback(async () => {
     if (!packageUrl) return;
 
+    if (await recordPackageSource(packageUrl)) {
+      await Updater.cancelDownload();
+      await Updater.clearDownload();
+    }
+
     if (await hasInstalledUpdateAndStillOutOfDate()) {
       block(UPDATE_BLOCKER.STILL_OUT_OF_DATE);
       return;
     }
 
     const status = await Updater.getStatus();
+    if (currentPackageUrl.current !== packageUrl) return;
 
     // The package can download while the device is still being set up to install it, so the
     // permission is only asked for once there is something waiting to be installed.

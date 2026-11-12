@@ -51,8 +51,8 @@ describe('updatePolicy', () => {
 
   describe('buildPackageUrl', () => {
     it('adds the branding the server does not know about', () => {
-      expect(buildPackageUrl('https://meta.tamanu.app/versions/~2.68.0/mobile/package', 'tamanu')).toBe(
-        'https://meta.tamanu.app/versions/~2.68.0/mobile/package?branding=tamanu',
+      expect(buildPackageUrl('https://meta.tamanu.app/versions/2.68.0/mobile/package', 'tamanu')).toBe(
+        'https://meta.tamanu.app/versions/2.68.0/mobile/package?branding=tamanu',
       );
     });
 
