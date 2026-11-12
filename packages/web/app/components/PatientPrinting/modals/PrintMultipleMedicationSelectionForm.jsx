@@ -30,6 +30,7 @@ import { usePatient } from '../../../contexts/Patient';
 import { preventInvalidRepeatsInput, singularize } from '../../../utils';
 import { Table, useSelectableColumn } from '../../Table';
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
+import { route } from '@tamanu/api-client';
 
 const QuantityCell = ({ quantity, dispensingUnit, onChange }) => {
   const { getEnumTranslation } = useTranslation();
@@ -173,7 +174,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const { data, error, isLoading } = useQuery(['encounterMedication', encounter.id], () =>
-    api.get(`encounter/${encounter.id}/medications`),
+    api.get(route('encounter/:encounterId/medications', { encounterId: encounter.id })),
   );
 
   const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');

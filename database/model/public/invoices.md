@@ -28,8 +28,8 @@ One of:
 - `partial`
 {% enddocs %}
 
-{% docs invoices__insurer_payment_status %}
-Payment status (insurer portion, if applicable).
+{% docs invoices__insurance_plan_payment_status %}
+Payment status (insurance plan portion, if applicable).
 
 One of:
 - `unpaid`

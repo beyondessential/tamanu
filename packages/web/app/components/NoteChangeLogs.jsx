@@ -1,14 +1,15 @@
-import React from 'react';
-import Box from '@material-ui/core/Box';
-import styled from 'styled-components';
-import { isEmpty } from 'es-toolkit/compat';
+import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
+import { isEmpty } from 'es-toolkit/compat';
+import React from 'react';
+import styled from 'styled-components';
 
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import { NoteChangeLog } from './NoteChangeLog';
 import { TranslatedText } from './Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 const StyledBox = styled(Box)`
   .MuiListItem-root {
@@ -28,7 +29,10 @@ export const NoteChangeLogs = ({ note = {}, ...props }) => {
     ['noteChangeLogs', note.recordId, note.revisedById],
     async () =>
       await api.get(
-        `encounter/${encodeURIComponent(note.recordId)}/notes/${encodeURIComponent(note.revisedById)}/changelogs`,
+        route('encounter/:recordId/notes/:revisedById/changelogs', {
+          recordId: note.recordId,
+          revisedById: note.revisedById,
+        }),
       ),
     { enabled: !!(note.recordId && note.revisedById) },
   );

@@ -27,7 +27,7 @@ type AuthenticationValues = {
   password: string;
 };
 
-const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
+const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps) => {
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
   const authCtx = useAuth();
@@ -40,14 +40,12 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
     }
   };
 
-  useEffect(() => {
-    if (errorMessage) {
-      setErrorMessage(null);
-    }
-  }, [open]);
-
   return (
-    <Modal isVisible={open} onBackdropPress={onClose}>
+    <Modal
+      isVisible={open}
+      onBackdropPress={onClose}
+      onModalHide={() => void setErrorMessage(null)}
+    >
       <StyledView
         padding={screenPercentageToDP(3.6, Orientation.Width)}
         background={theme.colors.WHITE}
@@ -109,7 +107,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
           })}
           onSubmit={handleSignIn}
         >
-          {({ handleSubmit, isSubmitting }): JSX.Element => (
+          {({ handleSubmit, isSubmitting }) => (
             <StyledView>
               <Field
                 name="password"
@@ -151,7 +149,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
   );
 };
 
-export const SyncInactiveAlert = (): JSX.Element => {
+export const SyncInactiveAlert = () => {
   const [openAuthenticationModel, setOpenAuthenticationModel] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -197,7 +195,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
           </StyledText>
         </StyledTouchableOpacity>
       </Alert>
-      <AuthenticationModal open={openAuthenticationModel} onClose={handleCloseModal} />
+      <AuthenticationModal onClose={handleCloseModal} open={openAuthenticationModel} />
     </>
   );
 };

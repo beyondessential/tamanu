@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react';
+import { route } from '@tamanu/api-client';
 import styled from 'styled-components';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -363,7 +364,7 @@ const NoteTable = ({
         hideHeader
         allowExport={false}
         columns={COLUMNS}
-        endpoint={`encounter/${encounterId}/notes`}
+        endpoint={route('encounter/:encounterId/notes', { encounterId })}
         fetchOptions={searchParameters}
         // Remount to fully reload (rather than lazy-append) when a note is saved.
         // Filter state lives in the parent, so remounting here preserves the filters.

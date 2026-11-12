@@ -54,9 +54,9 @@ export class InvoicePayment extends Model {
       foreignKey: 'invoicePaymentId',
       as: 'patientPayment',
     });
-    this.hasOne(models.InvoiceInsurerPayment, {
+    this.hasOne(models.InvoiceInsurancePlanPayment, {
       foreignKey: 'invoicePaymentId',
-      as: 'insurerPayment',
+      as: 'insurancePlanPayment',
     });
     this.belongsTo(models.User, {
       foreignKey: 'updatedByUserId',
@@ -101,9 +101,9 @@ export class InvoicePayment extends Model {
         include: models.InvoicePatientPayment.getListReferenceAssociations(models),
       },
       {
-        model: models.InvoiceInsurerPayment,
-        as: 'insurerPayment',
-        include: models.InvoiceInsurerPayment.getListReferenceAssociations(models),
+        model: models.InvoiceInsurancePlanPayment,
+        as: 'insurancePlanPayment',
+        include: models.InvoiceInsurancePlanPayment.getListReferenceAssociations(models),
       },
       {
         model: models.InvoicePayment,

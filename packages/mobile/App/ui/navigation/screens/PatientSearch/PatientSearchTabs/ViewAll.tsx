@@ -25,12 +25,7 @@ import { theme } from '/styled/theme';
 type FieldProp = [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
 
 type PatientFilterField =
-  | 'dateOfBirth'
-  | 'firstName'
-  | 'lastName'
-  | 'programRegistryId'
-  | 'sex'
-  | 'villageId';
+  'dateOfBirth' | 'firstName' | 'lastName' | 'programRegistryId' | 'sex' | 'villageId';
 
 interface QueryConfig {
   where: string;

@@ -158,7 +158,7 @@ describe('Sync Lookup data', () => {
       AdministeredVaccine,
       Discharge,
       DocumentMetadata,
-      InvoiceInsurerPayment,
+      InvoiceInsurancePlanPayment,
       InvoicePatientPayment,
       LabRequest,
       LabRequestAttachment,
@@ -653,10 +653,10 @@ describe('Sync Lookup data', () => {
         invoiceId: invoice.id,
       }),
     );
-    await InvoiceInsurerPayment.create(
-      fake(InvoiceInsurerPayment, {
+    await InvoiceInsurancePlanPayment.create(
+      fake(InvoiceInsurancePlanPayment, {
         invoicePaymentId: invoicePayment.id,
-        insurerId: referenceData.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
     await InvoicePatientPayment.create(
@@ -1133,6 +1133,21 @@ describe('Sync Lookup data', () => {
         );
 
         expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).toBeDefined();
+      });
+
+      it('Never puts settings with central scope in the lookup, even on a full rebuild', async () => {
+        const setting = await models.Setting.create({
+          key: 'centralOnly',
+          value: { test: 'test' },
+          scope: SETTINGS_SCOPES.CENTRAL,
+        });
+
+        await centralSyncManager.updateLookupTable();
+        expect(await models.SyncLookup.findOne({ where: { recordId: setting.id } })).toBeNull();
+
+        await ctx.store.sequelize.query(`SELECT flag_lookup_model_to_rebuild('settings')`);
+        await centralSyncManager.updateLookupTable();
+        expect(await models.SyncLookup.findOne({ where: { recordId: setting.id } })).toBeNull();
       });
     });
   });

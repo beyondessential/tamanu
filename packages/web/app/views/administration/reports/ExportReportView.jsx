@@ -11,6 +11,7 @@ import { notifySuccess, sanitizeFileName } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
 import { useTranslation } from '../../../contexts/Translation';
+import { route } from '@tamanu/api-client';
 
 const InnerContainer = styled.div`
   padding: 20px;
@@ -65,7 +66,11 @@ export const ExportReportView = () => {
 
       const getData = async () => {
         const { data } = await api.get(
-          `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
+          route('admin/reports/:reportId/versions/:versionId/export/:format', {
+            reportId,
+            versionId,
+            format,
+          }),
         );
         return data;
       };

@@ -2,6 +2,9 @@ import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { WS_EVENTS } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
+
+import { wakeCentral } from '../../../utils/wakeCentral';
 
 export const patientContact = express.Router();
 
@@ -17,9 +20,14 @@ patientContact.post(
   '/reminderContact',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Patient');
-    const { models, websocketClientService } = req;
+    const { models, websocketClientService, deviceId } = req;
     const patientContact = await models.PatientContact.create(req.body);
-    websocketClientService?.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, patientContact.dataValues);
+    // The response doesn't depend on central, which may take a while to wake
+    wakeCentral(deviceId)
+      .then(() =>
+        websocketClientService?.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, patientContact.dataValues),
+      )
+      .catch(error => log.warn(`Could not send the patient contact to central: ${error}`));
     res.send(patientContact);
   }),
 );

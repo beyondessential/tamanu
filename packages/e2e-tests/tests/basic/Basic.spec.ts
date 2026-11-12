@@ -13,7 +13,8 @@ import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
 import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
-import { getUser, createApiContext } from '@utils/apiHelpers';
+import { getUser, createApiContext, getCurrentEncounterViaApi } from '@utils/apiHelpers';
+import { testData } from '@utils/testData';
 import { format } from 'date-fns';
 import path from 'path';
 import { SidebarPage } from '@pages/SidebarPage';
@@ -48,7 +49,9 @@ test.describe('Basic tests', () => {
     await emergencyTriageModal.selectTriageScore(1);
     const triageFormValues = await emergencyTriageModal.fillTriageForm({
       triageScore: 1,
+      patientType: 'Private',
     });
+    expect(triageFormValues.patientType).toBe('Private');
     await emergencyTriageModal.submitButton.click();
     const emergencyPatientsPage = new EmergencyPatientsPage(patientDetailsPage.page);
     await emergencyPatientsPage.waitForPageToLoad();
@@ -78,6 +81,13 @@ test.describe('Basic tests', () => {
     expect(locationValue).toBe(triageFormValues.location?.split('\n')[0] || '');
     const level1Value = await emergencyPatientsPage.getLevelCardValue(1);
     expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
+
+    // This journey ends on the emergency board, so check the patient type was saved to the encounter
+    // through the API rather than opening the encounter view
+    const api = await createApiContext({ page: patientDetailsPage.page });
+    const triageEncounter = await getCurrentEncounterViaApi(api, newPatient.id);
+    await api.dispose();
+    expect(triageEncounter.patientBillingTypeId).toBe(testData.patientBillingTypeId);
   });
   test('[BT-0003][AT-2002]Admit the patient to Triage with adding vitals', async ({
     newPatient,
@@ -359,6 +369,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.navigateToDiagnosisTab();
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();
@@ -368,10 +379,8 @@ test.describe('Basic tests', () => {
     expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUserDisplayName);
     const formValues = await diagnosisModal.fillForm(true);
     await diagnosisModal.confirmButton.click();
-    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('P');
-    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(
-      `${formValues.diagnosis} (primary diagnosis)`,
-    );
+    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('Primary');
+    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(formValues.diagnosis);
   });
   test('[BT-0022][AT-2016]Add a not primary diagnosis', async ({
     newPatientWithHospitalAdmission,
@@ -381,15 +390,14 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.navigateToDiagnosisTab();
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();
     const formValues = await diagnosisModal.fillForm(false);
     await diagnosisModal.confirmButton.click();
-    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('S');
-    await expect(patientDetailsPage.diagnosisName.first()).toHaveText([
-      `${formValues.diagnosis} (secondary diagnosis)`,
-    ]);
+    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('Secondary');
+    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(formValues.diagnosis);
   });
   test('[BT-0023][AT-2017] Add a new task set', async ({
     newPatientWithHospitalAdmission,

@@ -84,7 +84,7 @@ export const VaccineForm = ({
   onCancel,
   navigation,
   patientId,
-}: VaccineFormProps): JSX.Element => {
+}: VaccineFormProps) => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   const user = useSelector(authUserSelector);
   const { getTranslation } = useTranslation();
@@ -170,7 +170,7 @@ export const VaccineForm = ({
       })}
       initialValues={newInitialValues}
     >
-      {({ isSubmitting }: FormikProps<VaccineFormValues>): JSX.Element => (
+      {({ isSubmitting }: FormikProps<VaccineFormValues>) => (
         <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
           <StatusForm navigation={navigation} />
           <RowView paddingTop={20} paddingBottom={20} flex={1}>

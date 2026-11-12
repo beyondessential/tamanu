@@ -4,6 +4,7 @@ import { TextInput, Button, TranslatedText } from '@tamanu/ui-components';
 import { PatientSummary } from './PatientSummary';
 
 import { useApi } from '../../../api';
+import { route } from '@tamanu/api-client';
 
 const Row = styled.div`
   display: flex;
@@ -29,7 +30,7 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
   const onClick = async () => {
     clear();
     try {
-      const patient = await api.get(`admin/lookup/patient/${searchText}`);
+      const patient = await api.get(route('admin/lookup/patient/:searchText', { searchText }));
       setCurrentPatient(patient);
       onPatientFound(patient);
     } catch (e) {
@@ -43,7 +44,7 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
         <TextInput
           label={label}
           value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
+          onChange={e => setSearchText(e.target.value)}
           data-testid="textinput-8k3u"
         />
         <Button onClick={onClick} data-testid="button-ozwr">

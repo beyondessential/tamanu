@@ -328,6 +328,17 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: (
           <TranslatedText
+            stringId="sidebar.facilityAdmin.recentlyDischargedPatients"
+            fallback="Recently discharged"
+            data-testid="translatedtext-rdp-sidebar"
+          />
+        ),
+        key: 'recentlyDischargedPatients',
+        path: '/facility-admin/recently-discharged-patients',
+      },
+      {
+        label: (
+          <TranslatedText
             stringId="sidebar.facilityAdmin.systemErrors"
             fallback="System errors"
             data-testid="translatedtext-syse"
@@ -335,6 +346,21 @@ export const FACILITY_MENU_ITEMS = [
         ),
         key: 'systemErrors',
         path: '/facility-admin/system-errors',
+      },
+      {
+        label: (
+          <TranslatedText
+            stringId="sidebar.facilityAdmin.kiosk"
+            fallback="Self check-in kiosk"
+            data-testid="translatedtext-kios"
+          />
+        ),
+        key: 'kiosk',
+        path: '/kiosk',
+        // The kiosk runs full screen on its own, so it opens beside Tamanu rather than in place of it
+        opensInNewTab: true,
+        enabledBySetting: 'kiosk.enabled',
+        abilities: [{ action: 'run', subject: 'Kiosk' }],
       },
     ],
   },

@@ -4,7 +4,7 @@ import { BaseNumberFieldStory } from './fixtures';
 import { NumberField } from './index';
 
 /** Mirrors a Formik parent: stores the parsed value from `onChange` and passes it back down. */
-function ControlledNumberField({ label }: { label: string }): JSX.Element {
+function ControlledNumberField({ label }: { label: string }) {
   const [value, setValue] = useState<string | number>('');
   return <NumberField label={label} value={value} onChange={setValue} />;
 }

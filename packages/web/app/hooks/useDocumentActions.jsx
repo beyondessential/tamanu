@@ -11,8 +11,9 @@ import {
   notifySuccess,
 } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
+import { route } from '@tamanu/api-client';
 
-const base64ToUint8Array = (base64) => Buffer.from(base64, 'base64');
+const base64ToUint8Array = base64 => Buffer.from(base64, 'base64');
 
 export const useDocumentActions = () => {
   const api = useApi();
@@ -40,7 +41,7 @@ export const useDocumentActions = () => {
   }, [dataUrl]);
 
   const onDownload = useCallback(
-    async (document) => {
+    async document => {
       try {
         const saved = await saveFile({
           defaultFileName: document.name,
@@ -54,7 +55,10 @@ export const useDocumentActions = () => {
               { replacement: { type: 'info' } },
             );
 
-            const response = await api.get(`attachment/${document.attachmentId}`, { base64: true });
+            const response = await api.get(
+              route('attachment/:attachmentId', { attachmentId: document.attachmentId }),
+              { base64: true },
+            );
             const unavailableMessage = getAttachmentUnavailableMessage(response);
             if (unavailableMessage) {
               throw new AttachmentUnavailableError(unavailableMessage);
@@ -83,9 +87,9 @@ export const useDocumentActions = () => {
   );
 
   const onPrintPDF = useCallback(
-    async (attachmentId) => {
+    async attachmentId => {
       try {
-        const response = await api.get(`attachment/${attachmentId}`, {
+        const response = await api.get(route('attachment/:attachmentId', { attachmentId }), {
           base64: true,
         });
         const unavailableMessage = getAttachmentUnavailableMessage(response);

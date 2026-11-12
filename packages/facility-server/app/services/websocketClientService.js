@@ -7,6 +7,7 @@ const NOOP_CLIENT_SERVICE = {
   getClient: () => null,
   emit: () => {},
   listenOnce: () => {},
+  removeListener: () => {},
 };
 
 /**
@@ -60,9 +61,12 @@ export const defineWebsocketClientService = injector => {
   const emit = (eventName, ...args) => client.emit(eventName, ...args);
 
   const listenOnce = (eventName, callback) => client.once(eventName, callback);
+
+  const removeListener = (eventName, callback) => client.off(eventName, callback);
   return {
     getClient,
     emit,
     listenOnce,
+    removeListener,
   };
 };

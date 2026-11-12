@@ -4,7 +4,7 @@ import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
-export const VitalsTableTitle = (): JSX.Element => (
+export const VitalsTableTitle = () => (
   <View style={styles.container}>
     <Text style={styles.text}>
       <TranslatedText stringId="vitals.table.column.measure" fallback="Measure" />

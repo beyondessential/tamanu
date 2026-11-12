@@ -56,6 +56,7 @@ type CachedSession = {
   userId: string;
   facilityId: string;
   availableFacilities: unknown;
+  isOtherSexAllowed: boolean;
   expiresAtMs: number;
 };
 
@@ -89,17 +90,19 @@ function isSessionValid(session: CachedSession, target: string, email: string, s
   return session.expiresAtMs > Date.now() + skewMs;
 }
 
-async function resolveToken(
+async function selectFacility(
   api: TamanuApi,
   loginToken: string,
   facilityId: string,
-): Promise<string> {
+): Promise<{ token: string; isOtherSexAllowed: boolean }> {
   const setFacilityResponse = await api.post('setFacility', { facilityId });
+  // setFacility returns the facility's front-end settings, as the web app reads them
+  const isOtherSexAllowed = setFacilityResponse?.settings?.features?.hideOtherSex === false;
   if (setFacilityResponse?.token) {
     api.setToken(setFacilityResponse.token);
-    return setFacilityResponse.token;
+    return { token: setFacilityResponse.token, isOtherSexAllowed };
   }
-  return loginToken;
+  return { token: loginToken, isOtherSexAllowed };
 }
 
 /**
@@ -133,7 +136,7 @@ async function performFullLogin(
     throw new Error('No available facilities — cannot run synthetic tests without a facility');
   }
 
-  const token = await resolveToken(api, loginResponse.token, facilityId);
+  const { token, isOtherSexAllowed } = await selectFacility(api, loginResponse.token, facilityId);
   const jwtExp = getJwtExpiryMs(token);
   const expiresAtMs = jwtExp ?? Date.now() + FALLBACK_SESSION_TTL_MS;
 
@@ -145,6 +148,7 @@ async function performFullLogin(
     userId: user.id,
     facilityId,
     availableFacilities,
+    isOtherSexAllowed,
     expiresAtMs,
   };
 }
@@ -167,6 +171,7 @@ function applySessionToContext(context: any, session: CachedSession): void {
     userId: session.userId,
     facilityId: session.facilityId,
     availableFacilities: session.availableFacilities,
+    isOtherSexAllowed: session.isOtherSexAllowed,
   };
 }
 

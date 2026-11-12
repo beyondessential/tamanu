@@ -6,8 +6,9 @@ import { AutocompleteField, DateTimeField, Field } from '../Field';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
-export const AppointmentForm = (props) => {
+export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
   const isUpdating = !!appointment;
@@ -28,7 +29,7 @@ export const AppointmentForm = (props) => {
     };
   }
   const createAppointment = useCallback(
-    async (values) => {
+    async values => {
       if (isUpdating) {
         const updated = {
           ...values,
@@ -37,7 +38,10 @@ export const AppointmentForm = (props) => {
         if (values.startTime !== initialValues.startTime) {
           updated.status = APPOINTMENT_STATUSES.CONFIRMED;
         }
-        await api.put(`appointments/${appointment.id}`, updated);
+        await api.put(
+          route('appointments/:appointmentId', { appointmentId: appointment.id }),
+          updated,
+        );
       } else {
         await api.post('appointments', {
           ...values,

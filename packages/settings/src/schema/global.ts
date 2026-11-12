@@ -42,12 +42,11 @@ import {
   urlSchema,
   msDurationSchema,
 } from './definitions';
-import { encounterSummaryProperties } from './definitions/encounterSummary';
+import { experimentalAiProperties } from './definitions/experimentalAi';
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
-import { patientSummaryProperties } from './definitions/patientSummary';
 import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
@@ -245,6 +244,7 @@ export const globalSettings = {
       description:
         "BCP-47 locale used for date/time formatting (e.g. 'en-GB'). When unset, dates follow the user's browser locale on the web, or the server locale for server-rendered documents and notes",
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       type: yup
         .string()
         .nullable()
@@ -272,17 +272,19 @@ export const globalSettings = {
         'alpha-2': {
           name: 'Alpha-2 code',
           description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
-          type: yup
-            .string()
-            .matches(/^[A-Z]{2}$/, { excludeEmptyString: true, message: 'must be two uppercase letters' }),
+          type: yup.string().matches(/^[A-Z]{2}$/, {
+            excludeEmptyString: true,
+            message: 'must be two uppercase letters',
+          }),
           defaultValue: '',
         },
         'alpha-3': {
           name: 'Alpha-3 code',
           description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
-          type: yup
-            .string()
-            .matches(/^[A-Z]{3}$/, { excludeEmptyString: true, message: 'must be three uppercase letters' }),
+          type: yup.string().matches(/^[A-Z]{3}$/, {
+            excludeEmptyString: true,
+            message: 'must be three uppercase letters',
+          }),
           defaultValue: '',
         },
       },
@@ -351,8 +353,7 @@ export const globalSettings = {
     rateLimit: {
       highRisk: true,
       name: 'Rate limiting',
-      description:
-        'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
+      description: 'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
       requiresRestart: true,
       properties: {
         enabled: {
@@ -412,7 +413,7 @@ export const globalSettings = {
     metaServer: {
       highRisk: true,
       name: 'Meta server',
-      description: 'The Tamanu meta server this deployment reports status to',
+      description: 'The Tamanu meta server this deployment fetches shared data from',
       properties: {
         updateUrls: {
           description: 'Where outdated clients are sent to update',
@@ -496,6 +497,32 @@ export const globalSettings = {
         },
       },
     },
+    telemetry: {
+      name: 'Telemetry',
+      description: 'Browser performance telemetry collected from the web clients',
+      // Exposed at the group level — the convention the frontend settings payload and
+      // its tests rely on (exposed keys are top-level groups, not nested leaves).
+      // retentionDays rides along in the exposed payload but is only read server-side.
+      exposedToWeb: true,
+      exposedToPatientPortal: true,
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description:
+            'Collect browser performance telemetry (page-load and API timings) from the web clients and store it on the server each client talks to.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        retentionDays: {
+          name: 'Retention',
+          description:
+            'Delete raw browser telemetry spans older than this. The scheduled cleanup task on each server (facility and central) prunes to this horizon.',
+          type: yup.number().integer().positive(),
+          defaultValue: 30,
+          unit: 'days',
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       exposedToWeb: true,
@@ -565,7 +592,7 @@ export const globalSettings = {
         },
         enablePatientInsurer: {
           description:
-            'Include insurer and policy number as fields in patient details identification section',
+            'Include insurance policy number as a field in patient details identification section',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -860,6 +887,7 @@ export const globalSettings = {
       name: 'Fields (Previously localised fields)',
       description: 'Customise form fields behavior across the application',
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       properties: {
         emergencyContactName: {
           name: 'Emergency contact name',
@@ -1118,14 +1146,6 @@ export const globalSettings = {
         },
         birthCertificate: {
           name: 'Birth certificate',
-          description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
-        },
-        insurerId: {
-          name: 'Insurer',
           description: '_',
           properties: generateFieldSchema({
             isPatientDetails: true,
@@ -1714,6 +1734,7 @@ export const globalSettings = {
               properties: {
                 reports: { properties: layoutModuleProperties },
                 bedManagement: { properties: layoutModuleProperties },
+                recentlyDischargedPatients: { properties: layoutModuleProperties },
               },
             },
           },
@@ -2062,6 +2083,20 @@ export const globalSettings = {
         },
       },
     },
+    syndromicSurveillance: {
+      name: 'Syndromic surveillance',
+      description: 'Settings related to syndromic surveillance',
+      exposedToWeb: true,
+      properties: {
+        mandatorySyndromicSurveillanceOnDischarge: {
+          name: 'Mandatory syndromic surveillance on discharge',
+          description:
+            'Require syndromic surveillance to be completed before a patient can be manually discharged. Not enforced on the server, so an encounter that discharges automatically (e.g. outpatient) is unaffected.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     notifications: {
       description: 'Notification settings',
       properties: {
@@ -2083,8 +2118,7 @@ export const globalSettings = {
         },
       },
     },
-    patientSummary: patientSummaryProperties,
-    encounterSummary: encounterSummaryProperties,
+    experimentalAi: experimentalAiProperties,
     medications: {
       description: 'Medication settings',
       exposedToWeb: true,
@@ -2161,6 +2195,11 @@ export const globalSettings = {
             },
             [ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY]: {
               description: ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS,
               type: yup.boolean(),
               defaultValue: true,
             },

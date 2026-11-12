@@ -9,6 +9,7 @@ import { utils } from 'xlsx';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   OTHER_REFERENCE_TYPES,
+  PATIENT_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
   SETTINGS_SCOPES,
@@ -23,7 +24,6 @@ import {
   isEncryptedSecret,
 } from '@tamanu/shared/utils/crypto';
 import { normaliseSheetName } from '../admin/importer/importerEndpoint';
-import { SENSITIVE_NETWORK_IS_FIXED_MESSAGE } from '../admin/importSchemas/baseSchemas';
 import { programImporter } from '../admin/programImporter/programImporter';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
@@ -120,7 +120,7 @@ export function validateFullReferenceDataImport(workbook) {
 
   // Check all required data types are present and have data
   const missingDataTypes = [];
-  for (const dataType of GENERAL_IMPORTABLE_DATA_TYPES) {
+  for (const dataType of [...GENERAL_IMPORTABLE_DATA_TYPES, ...PATIENT_IMPORTABLE_DATA_TYPES]) {
     if (EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType)) continue;
     const sheetName = sheetNameDictionary[dataType];
     if (!sheetName || utils.sheet_to_json(workbook.Sheets[sheetName]).length === 0) {
@@ -208,7 +208,11 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     errors,
     models: store.models,
     stats,
-    includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
+    includedDataTypes: [
+      ...GENERAL_IMPORTABLE_DATA_TYPES,
+      ...PATIENT_IMPORTABLE_DATA_TYPES,
+      ...PERMISSION_IMPORTABLE_DATA_TYPES,
+    ],
     checkPermission: () => true,
   };
 
@@ -279,15 +283,6 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
 
     const facility = await store.models.Facility.findByPk(id);
     if (facility) {
-      // Absent means no instruction, as a blank cell does on the facility import sheet.
-      // spec: specs/sync/sensitive-networks.md
-      if (
-        fields.sensitiveNetworkId !== undefined &&
-        fields.sensitiveNetworkId !== facility.sensitiveNetworkId
-      ) {
-        throw new Error(`${SENSITIVE_NETWORK_IS_FIXED_MESSAGE} (facility ${id})`);
-      }
-
       log.info('Updating facility', { id });
       await facility.update(fields);
     } else {

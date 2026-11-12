@@ -108,6 +108,8 @@ export const SurveyScreen = ({
   encounterType,
   onCancel,
   showCancelButton = false,
+  // Separates the screen's actions from its questions with a line.
+  showButtonRowDivider = true,
   getComponentForQuestionType,
   editedDataElementIds = null,
   onViewChangeLog = null,
@@ -172,10 +174,12 @@ export const SurveyScreen = ({
     ],
   );
 
+  const ActionRow = showButtonRowDivider ? StyledButtonRow : ButtonRow;
+
   return (
     <FormGrid columns={cols} data-testid="formgrid-h378">
       {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
-      <StyledButtonRow data-testid="styledbuttonrow-pvdv">
+      <ActionRow data-testid="styledbuttonrow-pvdv">
         {submitButton || (
           <>
             {showCancelButton && onCancel && (
@@ -200,7 +204,7 @@ export const SurveyScreen = ({
             </Button>
           </>
         )}
-      </StyledButtonRow>
+      </ActionRow>
     </FormGrid>
   );
 };

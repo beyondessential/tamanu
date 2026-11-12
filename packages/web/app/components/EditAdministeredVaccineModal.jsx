@@ -5,13 +5,14 @@ import { useApi, useSuggester } from '../api';
 import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
 import { VaccineForm } from '../forms/VaccineForm';
 import { TranslatedText } from './Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
   const countrySuggester = useSuggester('country');
 
   const handleUpdateVaccine = useCallback(
-    async (data) => {
+    async data => {
       const newData = { ...data };
       if (
         newData.status === VACCINE_RECORDING_TYPES.GIVEN &&
@@ -22,12 +23,18 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         const givenByCountry = (await countrySuggester.fetchCurrentOption(newData.givenBy))?.label;
         newData.givenBy = givenByCountry;
       }
-      await api.put(`patient/${patientId}/administeredVaccine/${vaccineRecord.id}`, {
-        ...newData,
-        circumstanceIds: Array.isArray(newData.circumstanceIds)
-          ? newData.circumstanceIds
-          : JSON.parse(newData.circumstanceIds),
-      });
+      await api.put(
+        route('patient/:patientId/administeredVaccine/:vaccineRecordId', {
+          patientId,
+          vaccineRecordId: vaccineRecord.id,
+        }),
+        {
+          ...newData,
+          circumstanceIds: Array.isArray(newData.circumstanceIds)
+            ? newData.circumstanceIds
+            : JSON.parse(newData.circumstanceIds),
+        },
+      );
       onClose();
     },
     [api, patientId, vaccineRecord, countrySuggester, onClose],

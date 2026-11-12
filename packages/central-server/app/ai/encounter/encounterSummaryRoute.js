@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
 
-import { ForbiddenError } from '@tamanu/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { AI_CONTEXT_NAMES, AI_PROMPT_TAGS } from '@tamanu/constants';
 
@@ -47,8 +47,8 @@ encounterSummaryRoute.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Discharge');
 
-    if (!req.aiService) {
-      throw new ForbiddenError('AI service is not enabled or configured');
+    if (!req.aiService?.hasContext(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY)) {
+      throw new InvalidOperationError('Encounter summary is not enabled or configured');
     }
 
     const { encounterData, editFeedback } = encounterSummaryBodySchema.parse(req.body);
@@ -62,6 +62,6 @@ encounterSummaryRoute.post(
 
     const response = await req.aiService.invoke(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY, userMessage);
 
-    res.send({ content: response.content });
+    res.send({ content: response.text });
   }),
 );

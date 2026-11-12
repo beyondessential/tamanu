@@ -22,6 +22,10 @@ import {
   findRouteObject,
 } from '@tamanu/shared/utils/crudHelpers';
 import {
+  buildAvailableFacilitiesFilter,
+  isAvailableAtFacility,
+} from '@tamanu/shared/utils/availableFacilities';
+import {
   getWhereClausesAndReplacementsFromFilters,
   makeDeletedAtIsNullFilter,
   makeFilter,
@@ -898,12 +902,9 @@ labTestType.get(
       },
       ...(!canCreateSensitive && { isSensitive: false }),
     };
-    if (query.facilityId) {
-      where[Op.and] = [
-        Sequelize.literal(
-          `("LabTestType"."available_facilities" IS NULL OR "LabTestType"."available_facilities" @> ${req.db.escape(JSON.stringify([query.facilityId]))}::jsonb)`,
-        ),
-      ];
+    const facilityFilter = buildAvailableFacilitiesFilter(query.facilityId);
+    if (facilityFilter) {
+      where[Op.and] = [facilityFilter];
     }
     const labTests = await models.LabTestType.findAll({
       include: [
@@ -932,13 +933,9 @@ labTestPanel.get('/', async (req, res) => {
   const where = {
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   };
-  if (query.facilityId) {
-    const escapedFacilityArray = req.db.escape(JSON.stringify([query.facilityId]));
-    where[Op.and] = [
-      Sequelize.literal(
-        `("LabTestPanel"."available_facilities" IS NULL OR "LabTestPanel"."available_facilities" @> ${escapedFacilityArray}::jsonb)`,
-      ),
-    ];
+  const facilityFilter = buildAvailableFacilitiesFilter(query.facilityId);
+  if (facilityFilter) {
+    where[Op.and] = [facilityFilter];
   }
   const panels = await models.LabTestPanel.findAll({
     include: [
@@ -965,9 +962,7 @@ labTestPanel.get('/', async (req, res) => {
         member =>
           isOrderableTestType(member) &&
           (canCreateSensitive || !member.isSensitive) &&
-          (!query.facilityId ||
-            !member.availableFacilities ||
-            member.availableFacilities.includes(query.facilityId)),
+          isAvailableAtFacility(member, query.facilityId),
       )
       .map(({ id, code, name, LabTestPanelLabTestTypes }) => ({
         id,
@@ -999,12 +994,9 @@ labTestPanel.get(
     const where = {
       visibilityStatus: { [Op.notIn]: UNORDERABLE_VISIBILITY_STATUSES },
     };
-    if (query.facilityId) {
-      where[Op.and] = [
-        Sequelize.literal(
-          `("LabTestType"."available_facilities" IS NULL OR "LabTestType"."available_facilities" @> ${req.db.escape(JSON.stringify([query.facilityId]))}::jsonb)`,
-        ),
-      ];
+    const facilityFilter = buildAvailableFacilitiesFilter(query.facilityId);
+    if (facilityFilter) {
+      where[Op.and] = [facilityFilter];
     }
     const response = await panel.getLabTestTypes({
       include: [
@@ -1047,8 +1039,6 @@ async function createLabRequestsByCategory(models, body, note, user) {
     include: [{ model: models.Location, as: 'location', attributes: ['facilityId'] }],
   });
   const facilityId = encounter?.location?.facilityId;
-  const isAvailableAtFacility = testType =>
-    !facilityId || !testType.availableFacilities || testType.availableFacilities.includes(facilityId);
 
   const groups = new Map();
   const groupFor = (key, categoryId) => {
@@ -1075,7 +1065,7 @@ async function createLabRequestsByCategory(models, body, note, user) {
       // hold here too — otherwise a reflex test lands on the request as an empty row awaiting
       // results it was never meant to be ordered for.
       const orderableTestTypes = (panel.labTestTypes ?? []).filter(
-        testType => isOrderableTestType(testType) && isAvailableAtFacility(testType),
+        testType => isOrderableTestType(testType) && isAvailableAtFacility(testType, facilityId),
       );
       if (!orderableTestTypes.length) {
         throw new InvalidOperationError(

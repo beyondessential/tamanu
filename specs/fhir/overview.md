@@ -4,4 +4,4 @@ id: FHIR
 
 # FHIR
 
-FHIR materialisation of Tamanu data and integration with external systems.
+Applies to the FHIR materialisation of Tamanu data and its integration with external systems.

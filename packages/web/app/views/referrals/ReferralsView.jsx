@@ -16,6 +16,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useAuth } from '../../contexts/Auth';
 import { usePatient } from '../../contexts/Patient';
 import { TranslatedText } from '../../components';
+import { route } from '@tamanu/api-client';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const { getCurrentDateTime } = useDateTime();
@@ -36,7 +37,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
 
   const setSelectedReferral = useCallback(
     async id => {
-      const response = await api.get(`survey/${encodeURIComponent(id)}`);
+      const response = await api.get(route('survey/:id', { id }));
       setReferralSurvey(response);
       setStartTime(getCurrentDateTime());
     },
@@ -60,9 +61,12 @@ const ReferralFlow = ({ patient, currentUser }) => {
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });
   };
 
-  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
-    patient.id,
-  );
+  const {
+    isLoading,
+    data: patientAdditionalData,
+    isError,
+    error,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   if (isLoading) {
     return <LoadingIndicator data-testid="loadingindicator-uqkf" />;

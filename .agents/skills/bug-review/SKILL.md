@@ -2,11 +2,8 @@
 name: bug-review
 description: "Review code changes on this card for likely bugs, regressions, and missed edges"
 label: "Bug review"
-pill-order:
-  implementing: 2
-  reviewing: 1
-  complete: 1
-workhorse-version: 0.3.0
+category: verify
+workhorse-version: 0.7.14
 ---
 
 ## Your task: Bug review
@@ -20,3 +17,5 @@ Review the code changes on this card's branch for likely bugs, regressions, and 
 5. For each finding, reference the file and a short excerpt so the user can locate it
 
 Be specific and actionable. Don't flag stylistic preferences as bugs.
+
+If you go on to fix what you found, and the fixing takes more than one turn, call `hold_pr` with a short reason as you start and `release_pr` once the last fix is pushed, so the review loop does not request a round on a half-fixed branch and an armed merge does not fire between your turns. A review that only reports needs no hold. Where the tools are not available, carry on without them.

@@ -40,6 +40,7 @@ export class PatientTable {
   readonly pageRecordCountDropDown!: Locator;
   readonly patientPageRecordCount25!: Locator;
   readonly patientPageRecordCount50!: Locator;
+  readonly patientPageRecordCount100!: Locator;
   readonly patientPage2!: Locator;
   readonly pageRecordCount!: Locator;
   readonly pageRecordCountDropDownOptions!: Locator;
@@ -101,6 +102,9 @@ export class PatientTable {
     this.patientPageRecordCount50 = page
       .getByTestId('styledmenuitem-fkrw-undefined')
       .getByText('50');
+    this.patientPageRecordCount100 = page
+      .getByTestId('styledmenuitem-fkrw-undefined')
+      .getByText('100');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2', { exact: true });
   }
 
@@ -295,6 +299,7 @@ export class PatientTable {
     }
 
     await this.searchBtn.click();
+    await this.waitForTableToLoad();
   }
 
   async clearSearch() {
@@ -318,13 +323,15 @@ export class PatientTable {
       // Click on the page record count dropdown
       await this.pageRecordCountDropDown.click();
 
-      // Select the specified number of records per page
-      await this.pageRecordCountDropDownOptions.getByText(recordsPerPage.toString()).click();
+      // Select the specified number of records per page, exactly, so 10 never matches 100
+      await this.pageRecordCountDropDownOptions
+        .getByText(recordsPerPage.toString(), { exact: true })
+        .click();
 
       // Wait for the table to reload with the new page size
       await this.waitForTableToLoad();
-      // Verify the page size has been changed by checking the page record count
-      await expect(this.pageRecordCount).toContainText(recordsPerPage.toString());
+      // Verify the page size on the dropdown, which also holds for lists shorter than a page
+      await expect(this.pageRecordCountDropDown).toHaveText(recordsPerPage.toString());
     } catch (error) {
       throw new Error(
         `Failed to change page size to ${recordsPerPage}: ${error instanceof Error ? error.message : String(error)}`,

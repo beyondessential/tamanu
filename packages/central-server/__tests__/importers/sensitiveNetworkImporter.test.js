@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { utils, write } from 'xlsx';
 
+import { SENSITIVE_NETWORK_IS_FIXED_MESSAGE } from '@tamanu/constants';
 import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/constants/importable';
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
-import { SENSITIVE_NETWORK_IS_FIXED_MESSAGE } from '../../app/admin/importSchemas/baseSchemas';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';

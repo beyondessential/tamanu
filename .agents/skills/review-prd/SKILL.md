@@ -2,8 +2,9 @@
 name: review-prd
 description: "Fresh-eyes review of the project's PRD for gaps, contradictions, vague phrasing, and unresolved decisions"
 label: "Review PRD"
+category: plan
 surface: project
-workhorse-version: 0.3.0
+workhorse-version: 0.7.14
 ---
 
 ## Your task: Review PRD with fresh eyes

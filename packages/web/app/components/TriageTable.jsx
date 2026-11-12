@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { DateDisplay } from '@tamanu/ui-components';
-import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
@@ -9,6 +8,7 @@ import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Transl
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 import { useSettings } from '../contexts/Settings';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const ADMITTED_PRIORITY_COLOR = '#888888';
 
@@ -156,21 +156,19 @@ const useColumns = () => {
 
 export const TriageTable = React.memo(({ searchParameters = {} }) => {
   const { facilityId } = useAuth();
-  const { loadEncounter } = useEncounter();
   const { category } = useParams();
   const columns = useColumns();
   const navigate = useNavigate();
 
-  const viewEncounter = async triage => {
-    await loadEncounter(triage.encounterId);
+  const viewEncounter = triage =>
     navigate(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`);
-  };
 
   return (
     <DataFetchingTableWithPermissionCheck
       verb="list"
       noun="Triage"
       endpoint="triage"
+      pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.EMERGENCY_PATIENTS}
       fetchOptions={{ facilityId, ...searchParameters }}
       columns={columns}
       headStyle={WAIT_TIME_COLUMN_STYLE}

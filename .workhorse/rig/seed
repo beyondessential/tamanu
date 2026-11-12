@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+. "$RIG_RECIPE_DIR/lib.sh"
+
+central upgrade
+central provision "$RIG_RECIPE_DIR/provisioning.json5"
+central rebuildSyncLookup
+# Here RIG_DATABASE_URL is the build's template, which every lease and reset is cloned from.
+db_name > "$RIG_SOURCE/../central-template"
+
+port=$(free_ports 1)
+(on_port "$port"; exec_central) &
+central_pid=$!
+trap 'kill $central_pid 2>/dev/null || true; wait $central_pid 2>/dev/null || true' EXIT
+wait_for "http://127.0.0.1:$port/api/public/ping"
+
+for n in 1 2; do
+  template=$(facility_template "$n")
+  admin_sql "DROP DATABASE IF EXISTS $template WITH (FORCE)" "CREATE DATABASE $template"
+  (
+    export DATABASE_URL="$(db_url "$template")" SYNC_URL="$(sync_url "$port" "$n")" TAMANU_FACILITY_IDS="facility-$n"
+    facility upgrade
+    facility setupSync
+    # The central's sync lookup builds on a timer, and a sync before its first build is refused.
+    tries=0
+    until facility sync; do
+      tries=$((tries + 1))
+      [ "$tries" -lt 8 ] || exit 1
+      sleep 15
+    done
+  )
+done

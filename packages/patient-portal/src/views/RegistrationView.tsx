@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import { styled, Typography } from '@mui/material';
 
-import { Button } from '@tamanu/ui-components';
+import { Button, TranslatedText } from '@tamanu/ui-components';
 import { ERROR_TYPE } from '@tamanu/errors';
 
 import { useApi } from '@api/useApi';
@@ -19,15 +19,30 @@ const IconDisplay = styled('div')(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const getErrorMessage = (error: unknown) => {
+const RegistrationErrorMessage = ({ error }: { error: unknown }) => {
   const maybeProblem = error as { type?: string; status?: number } | undefined;
   if (maybeProblem?.type === ERROR_TYPE.AUTH_TOKEN_INVALID && maybeProblem.status === 401) {
-    return 'Registration link expired';
+    return (
+      <TranslatedText
+        stringId="patientPortal.registration.error.expired"
+        fallback="Registration link expired"
+      />
+    );
   }
   if (maybeProblem?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID && maybeProblem.status === 401) {
-    return 'Broken registration link';
+    return (
+      <TranslatedText
+        stringId="patientPortal.registration.error.broken"
+        fallback="Broken registration link"
+      />
+    );
   }
-  return 'An error occurred while verifying registration';
+  return (
+    <TranslatedText
+      stringId="patientPortal.registration.error.generic"
+      fallback="An error occurred while verifying registration"
+    />
+  );
 };
 
 const useVerifyRegistration = () => {
@@ -58,10 +73,13 @@ export const RegistrationView = () => {
       {error ? (
         <>
           <Typography mb={2} variant="h2">
-            {getErrorMessage(error)}
+            <RegistrationErrorMessage error={error} />
           </Typography>
           <Typography variant="body1" gutterBottom>
-            Please contact the sending facility to resend a new link.
+            <TranslatedText
+              stringId="patientPortal.registration.error.text"
+              fallback="Please contact the sending facility to resend a new link."
+            />
           </Typography>
         </>
       ) : (
@@ -70,13 +88,22 @@ export const RegistrationView = () => {
             <CheckCircleIcon color="success" />
           </IconDisplay>
           <Typography mb={2} variant="h2">
-            Account successfully created!
+            <TranslatedText
+              stringId="patientPortal.registration.success.title"
+              fallback="Account successfully created!"
+            />
           </Typography>
           <Typography variant="body1" mb={3} color="text.secondary">
-            Continue to log in to access the Patient Portal.
+            <TranslatedText
+              stringId="patientPortal.registration.success.text"
+              fallback="Continue to log in to access the Patient Portal."
+            />
           </Typography>
           <Button onClick={() => navigate('/login')} fullWidth variant="contained">
-            Continue to log in
+            <TranslatedText
+              stringId="patientPortal.registration.continue"
+              fallback="Continue to log in"
+            />
           </Button>
         </>
       )}

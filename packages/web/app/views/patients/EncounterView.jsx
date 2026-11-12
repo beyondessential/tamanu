@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { useParams } from 'react-router';
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { usePatient } from '../../contexts/Patient';
 import { useSyncedTabSearchParam } from '../../utils/useSyncedTabSearchParam';
 import { ContentPane, EncounterTopBar } from '../../components';
-import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import {
@@ -23,8 +21,9 @@ import {
   VitalsPane,
   ChartsPane,
   TasksPane,
+  DiagnosisPane,
 } from './panes';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { Colors } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 import { useReferenceDataQuery } from '../../api/queries';
@@ -36,11 +35,17 @@ import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { isEqual } from 'es-toolkit/compat';
 import { ChartDataProvider } from '../../contexts/ChartData';
-import { PlannedMoveActions } from './components/PlannedMoveActions';
-
-const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
+import { route } from '@tamanu/api-client';
 
 const TABS = [
+  {
+    label: <TranslatedText stringId="encounter.tabs.diagnosis" fallback="Diagnosis" />,
+    key: ENCOUNTER_TAB_NAMES.DIAGNOSIS,
+    // Not wrapped in EncounterPaneWithPermissionCheck like the other tabs: the pane checks the
+    // permission to list diagnoses around the table only, as it also holds actions under other
+    // permissions.
+    render: props => <DiagnosisPane {...props} data-testid="diagnosispane-jm2a" />,
+  },
   {
     label: <TranslatedText stringId="encounter.tabs.tasks" fallback="Tasks" />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
@@ -163,33 +168,33 @@ const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
   background: white;
 `;
 
+const StyledContentPane = styled(ContentPane)`
+  margin: 12px;
+`;
+
 export const EncounterView = () => {
   const api = useApi();
   const { getSetting } = useSettings();
   const { facilityId } = useAuth();
   const { patient, isLoading } = usePatient();
-  const { loadEncounter, encounter, isLoadingEncounter } = useEncounter();
+  const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
   const { data: userPreferences } = useUserPreferencesQuery();
   const { mutate: reorderEncounterTabs } = useUserPreferencesMutation();
 
-  const { encounterId } = useParams();
   const [tabs, setTabs] = useState(TABS);
   const disabled = encounter?.endDate || Boolean(patient?.dateOfDeath);
 
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
   const visibleTabKeys = useMemo(() => visibleTabs.map(tab => tab.key), [visibleTabs]);
   const fallbackEncounterTab = visibleTabs[0]?.key;
-  const { currentTab, onTabSelect } = useSyncedTabSearchParam(
-    visibleTabKeys,
-    fallbackEncounterTab,
-  );
+  const { currentTab, onTabSelect } = useSyncedTabSearchParam(visibleTabKeys, fallbackEncounterTab);
 
   // The patient is loaded into the store asynchronously, so patient.id is null on the first
   // render when this view is opened directly by URL. Only record the view once we have an id.
   useEffect(() => {
     if (!patient?.id) return;
-    api.post(`user/recently-viewed-patients/${patient.id}`);
+    api.post(route('user/recently-viewed-patients/:patientId', { patientId: patient.id }));
   }, [api, patient?.id]);
 
   useEffect(() => {
@@ -203,13 +208,6 @@ export const EncounterView = () => {
       setTabs([...newTabs]);
     }
   }, [userPreferences?.encounterTabOrders]);
-
-  //Load the encounter on mount
-  useEffect(() => {
-    if (encounterId && encounterId !== encounter?.id) {
-      loadEncounter(encounterId);
-    }
-  }, [encounterId, encounter?.id, loadEncounter]);
 
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -283,14 +281,7 @@ export const EncounterView = () => {
         }
         data-testid="encounterinfopane-nabb"
       />
-      {encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
-      <DiagnosisView
-        encounter={encounter}
-        isTriage={getIsTriage(encounter)}
-        readOnly={disabled}
-        data-testid="diagnosisview-7r50"
-      />
-      <ContentPane data-testid="contentpane-nv12">
+      <StyledContentPane data-testid="contentpane-nv12">
         <StyledTabDisplayDraggable
           tabs={visibleTabs}
           currentTab={currentTab}
@@ -301,7 +292,7 @@ export const EncounterView = () => {
           handleDragEnd={handleDragEnd}
           data-testid="styledtabdisplaydraggable-f593"
         />
-      </ContentPane>
+      </StyledContentPane>
     </GridColumnContainer>
   );
 };

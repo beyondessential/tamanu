@@ -1,13 +1,10 @@
 ---
 name: interview
 description: "Interview me about this card to develop the acceptance criteria"
-label: "Interview me"
-pill-order:
-  not-started: 1
-  specifying: 1
+label: "Spec interview"
+category: spec
 surface: both
-jockey-hint: "Demote sharply once an interview has already happened — if the journal contains an interview entry, or if the recent conversation shows back-and-forth Q&A style exchange. Only re-suggest if the user explicitly asks for another round."
-workhorse-version: 0.3.0
+workhorse-version: 0.7.14
 ---
 
 ## Your task: Interview me
@@ -23,7 +20,9 @@ Methodology:
 3. **Surface decisions** — identify ambiguity and ask the user to resolve it
 4. **Track open questions** — maintain unresolved questions
 5. **Extract acceptance criteria** — as the conversation progresses, extract concrete criteria
-6. **Flow into writing specs** — as soon as enough detail exists in any area, start drafting or editing the relevant spec files. Don't wait for a "ready" signal and don't announce completion; the interview and the write-up are a continuous activity. Keep interviewing on the areas that are still thin while writing up the areas that are solid
+6. **Flow into writing** — as soon as enough detail exists in any area, start writing it up. Don't wait for a "ready" signal and don't announce completion; the interview and the write-up are a continuous activity. Keep interviewing on the areas that are still thin while writing up the areas that are solid
+
+**Where the write-up lands:** if a working doc exists for this card in `draft` status (`.workhorse/working-docs/{card-id}/working-doc.md`), write your findings into it — under the conventional sections in `.agents/docs/working-doc-format.md`, in working voice — rather than drafting specs directly. The working doc is the drafting home while the card is being shaped, and a later Split working doc turns it into specs. With no draft working doc, flow into drafting and editing the relevant spec files as normal.
 
 Ask focused questions — one or two at a time, not long lists. **Number your questions** (1., 2., etc.) so the user can reply by number. Example:
 
@@ -31,3 +30,13 @@ Ask focused questions — one or two at a time, not long lists. **Number your qu
 2. Should there be a confirmation step before it happens?
 
 **Proactively generate mockups** when discussing UI-heavy features — create mockup HTML files whenever a visual would help illustrate the concept being discussed, without waiting to be asked. Before writing any mockup HTML, follow the Design sourcing process from your system prompt: read the section's actual implementation first, then similar components, then cross-check against `.workhorse/design/`. Do not skip this reading pass just because you are mid-interview.
+
+### Last step: the progress summary
+
+When this stage's work is done, finish by bringing the card's progress summary up to date, so people who were not in this conversation can see where the card stands.
+
+1. Read the current summary with `get_card`, and the comments posted since its `readThrough` with `list_comments` (`since`), so decisions made in the discussion are not missed
+2. Revise it with `revise_progress`, passing back the `readAt` `get_card` reported and carrying over the sections this stage did not change, with a one-line note on what changed
+3. Tell the user in a line what you recorded; they can edit it from the card home
+
+Skip it when nothing has changed since the summary was last revised.

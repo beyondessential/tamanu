@@ -14,6 +14,7 @@ import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutM
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 import { getStatus } from '../../../utils/lab';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
+import { route } from '@tamanu/api-client';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -130,12 +131,15 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     error,
     isLoading,
   } = useQuery(['labRequests', encounter.id], async () => {
-    const result = await api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
-      includeNotes: 'true',
-      status: [LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED],
-      order: 'asc',
-      orderBy: 'requestedDate',
-    });
+    const result = await api.get(
+      route('encounter/:encounterId/labRequests', { encounterId: encounter.id }),
+      {
+        includeNotes: 'true',
+        status: [LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED],
+        order: 'asc',
+        orderBy: 'requestedDate',
+      },
+    );
     return result.data;
   });
 

@@ -1,12 +1,11 @@
 import {
   BlobBackfillTask,
-  SendStatusToMetaServer,
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
   FhirMissingResources,
   startFhirWorkerTasks,
 } from '@tamanu/shared/tasks';
-import { facilityDefaults } from '@tamanu/settings';
+import { facilityDefaults, globalDefaults } from '@tamanu/settings';
 
 import { getServerFacilityIds } from '../serverConfig';
 
@@ -20,12 +19,12 @@ import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
 import { CleanupIdempotencyKeys } from './CleanupIdempotencyKeys';
+import { CleanupBrowserTelemetry } from '@tamanu/shared/tasks/CleanupBrowserTelemetry';
 
 export { startFhirWorkerTasks };
 
 const DEFAULT_TASK_CLASSES = [
   RefreshUpcomingVaccinations,
-  SendStatusToMetaServer,
   TimeSyncTask,
   BlobOutboxPusherTask,
   BlobCacheEvictorTask,
@@ -39,6 +38,7 @@ const DEFAULT_TASK_CLASSES = [
   BedFeeCharger,
   BlobBackfillTask,
   CleanupIdempotencyKeys,
+  CleanupBrowserTelemetry,
 ];
 
 // Resolved once at startup (idempotent); schedule changes apply on server restart.
@@ -52,6 +52,12 @@ export async function resolveSchedules(context) {
   context.schedules ??= primaryFacilityId
     ? await context.settings[primaryFacilityId].get('schedules')
     : facilityDefaults.schedules;
+  // Telemetry is a global setting; the facility reader merges global scope, so it
+  // resolves through the facility reader (global defaults before the wizard runs).
+  // eslint-disable-next-line require-atomic-updates
+  context.telemetrySettings ??= primaryFacilityId
+    ? await context.settings[primaryFacilityId].get('telemetry')
+    : globalDefaults.telemetry;
   return context.schedules;
 }
 

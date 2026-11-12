@@ -28,7 +28,7 @@ const validationSchema = yup.object().shape({
       />,
     ),
   labSampleSiteId: yup.string(),
-  specimenTypeId: yup.string().when('mandateSpecimenType', {
+  specimenTypeId: yup.string().nullable().when('mandateSpecimenType', {
     is: true,
     then: schema =>
       schema
@@ -135,6 +135,10 @@ export const LabRequestRecordSampleModal = React.memo(
     const updateSample = async formValues => {
       await updateLabReq({
         ...formValues,
+        // Cleared fields are undefined, which is dropped from the request, so send null to clear them
+        collectedById: formValues.collectedById ?? null,
+        specimenTypeId: formValues.specimenTypeId ?? null,
+        labSampleSiteId: formValues.labSampleSiteId ?? null,
         // If lab request sample is marked as not collected in initial form - mark it as reception pending on submission
         ...(sampleNotCollected && {
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,

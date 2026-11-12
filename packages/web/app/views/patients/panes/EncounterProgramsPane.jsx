@@ -1,4 +1,5 @@
 import React from 'react';
+import { route } from '@tamanu/api-client';
 import { useParams, useNavigate } from 'react-router';
 import { TableButtonRow, NoteModalActionBlocker } from '../../../components';
 import { Button, TranslatedText } from '@tamanu/ui-components';
@@ -28,7 +29,7 @@ export const EncounterProgramsPane = React.memo(({ patient }) => {
         </NoteModalActionBlocker>
       </TableButtonRow>
       <DataFetchingProgramsTable
-        endpoint={`encounter/${params.encounterId}/programResponses`}
+        endpoint={route('encounter/:encounterId/programResponses', { encounterId: params.encounterId })}
         patient={patient}
         data-testid="datafetchingprogramstable-7e8f"
       />

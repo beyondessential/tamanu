@@ -3,6 +3,7 @@ import {
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
   INPATIENT_BUNDLED_CATEGORY_VALUES,
+  INVOICE_PRINT_LAYOUTS,
 } from '@tamanu/constants';
 
 import { extractDefaults } from './utils';
@@ -220,6 +221,7 @@ export const facilitySettings = {
     },
     facilityTimeZone: {
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       description: 'Time zone in IANA format',
       type: yup.string().nullable(),
       defaultValue: null,
@@ -302,7 +304,6 @@ export const facilitySettings = {
             ...batchingProperties(1000, 100),
           },
         ),
-        sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
         timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
         mSupplyMedIntegrationProcessor: scheduledTaskSchema(
           { schedule: '0 2 * * *', enabled: false },
@@ -318,6 +319,9 @@ export const facilitySettings = {
           batchingProperties(50, 1000),
         ),
         cleanupIdempotencyKeys: scheduledTaskSchema({ schedule: '0 * * * *' }),
+        // Retention horizon lives in the global `telemetry.retentionDays` setting,
+        // read by the cleanup task; this entry only controls the schedule.
+        cleanupBrowserTelemetry: scheduledTaskSchema({ schedule: '31 3 * * *' }),
       },
     },
     sync: {
@@ -499,6 +503,18 @@ export const facilitySettings = {
             },
           },
         },
+        printLayout: {
+          name: 'Invoice print layout',
+          description:
+            'Layout used when printing an invoice at this facility. Receipt prints on 80mm thermal roll paper.',
+          exposedToWeb: true,
+          type: yup.string().oneOf(Object.values(INVOICE_PRINT_LAYOUTS)),
+          defaultValue: INVOICE_PRINT_LAYOUTS.A4,
+          options: [
+            { value: INVOICE_PRINT_LAYOUTS.A4, label: 'A4' },
+            { value: INVOICE_PRINT_LAYOUTS.RECEIPT, label: 'Receipt' },
+          ],
+        },
       },
     },
     survey: {
@@ -520,6 +536,59 @@ export const facilitySettings = {
               defaultValue: 'GeneralClinic',
             },
           },
+        },
+      },
+    },
+    kiosk: {
+      name: 'Self check-in kiosk',
+      description: 'A tablet where patients check themselves in for appointments booked today',
+      properties: {
+        enabled: {
+          name: 'Enable kiosk',
+          description: 'Allow this facility to run the self check-in kiosk at /kiosk in Tamanu web',
+          exposedToWeb: true,
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        forms: {
+          name: 'Forms',
+          description:
+            'The forms a patient completes at the kiosk before checking in. Each entry sets the forms for an outpatient appointment type (appointmentTypeId) or a location booking type (bookingTypeId). Types not listed have no forms.',
+          type: yup.array(
+            yup
+              .object({
+                appointmentTypeId: yup.string(),
+                bookingTypeId: yup.string(),
+                surveyIds: yup.array(yup.string().required()).required(),
+              })
+              .noUnknown()
+              .test(
+                'one-type',
+                // eslint-disable-next-line no-template-curly-in-string
+                '${path} must have exactly one of appointmentTypeId or bookingTypeId',
+                value =>
+                  !value || Boolean(value.appointmentTypeId) !== Boolean(value.bookingTypeId),
+              ),
+          ),
+          defaultValue: [],
+        },
+        inactivityTimeout: {
+          name: 'Inactivity timeout',
+          description:
+            'How long the kiosk waits without interaction during a check-in before asking whether the patient is still there',
+          exposedToWeb: true,
+          type: yup.number().integer().positive(),
+          defaultValue: 90,
+          unit: 'seconds',
+        },
+        inactivityWarning: {
+          name: 'Inactivity warning',
+          description:
+            'How long the "Are you still there?" countdown runs before the kiosk clears the check-in and returns to the start',
+          exposedToWeb: true,
+          type: yup.number().integer().positive(),
+          defaultValue: 30,
+          unit: 'seconds',
         },
       },
     },

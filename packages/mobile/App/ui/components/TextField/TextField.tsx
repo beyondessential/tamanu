@@ -86,7 +86,7 @@ export const TextField = React.memo(
     fieldFontSize,
     readOnly,
     endAdornment,
-  }: TextFieldProps): JSX.Element => {
+  }: TextFieldProps) => {
     const [focused, setFocus] = useState(false);
     const defaultRef: RefObject<any> = useRef(null);
     const ref = inputRef || defaultRef;
@@ -165,7 +165,7 @@ export const TextField = React.memo(
   },
 );
 
-export const LimitedTextField = (props: TextFieldProps): JSX.Element => {
+export const LimitedTextField = (props: TextFieldProps) => {
   const { charLimit = 255 } = props;
   return <TextField {...props} charLimit={charLimit} />;
 };

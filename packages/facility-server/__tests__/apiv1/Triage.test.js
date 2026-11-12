@@ -8,8 +8,9 @@ import {
   randomReferenceId,
 } from '@tamanu/database/demoData';
 import { fake } from '@tamanu/fake-data/fake';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { ENCOUNTER_TYPES, REFERENCE_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { add } from 'date-fns';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
@@ -82,6 +83,57 @@ describe('Triage', () => {
 
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
     expect(createdEncounter).toBeTruthy();
+  });
+
+  it('should record the patient billing type on the encounter when admitting a patient to triage', async () => {
+    const patientBillingType = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.PATIENT_BILLING_TYPE }),
+    );
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: patientBillingType.id,
+      }),
+    );
+    expect(response).toHaveSucceeded();
+
+    const createdTriage = await models.Triage.findByPk(response.body.id);
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter.patientBillingTypeId).toEqual(patientBillingType.id);
+  });
+
+  it('should reject a patient billing type that does not exist', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: 'nonexistent-patient-billing-type',
+      }),
+    );
+    expect(response).toHaveRequestError();
+
+    const triageEncounter = await models.Encounter.findOne({
+      where: { patientId: encounterPatient.id },
+    });
+    expect(triageEncounter).toBeNull();
+  });
+
+  it('should reject reference data that is not a patient billing type', async () => {
+    const arrivalMode = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.ARRIVAL_MODE }),
+    );
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: arrivalMode.id,
+      }),
+    );
+    expect(response).toHaveRequestError();
   });
 
   it('should fail to triage if an encounter is already open', async () => {
@@ -280,6 +332,93 @@ describe('Triage', () => {
     await emergencyDepartment.update({ facilityId: facility.id });
   });
 
+  describe('vitals', () => {
+    let vitalsSurvey = null;
+    let otherSurvey = null;
+
+    const triageWithVitals = async surveyId => {
+      const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+      const triageBody = await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: emergencyDepartment.id,
+      });
+      const response = await app.post('/api/triage').send({
+        ...triageBody,
+        facilityId: facility.id,
+        vitals: {
+          surveyId,
+          patientId: encounterPatient.id,
+          locationId: triageBody.locationId,
+          departmentId: emergencyDepartment.id,
+          startTime: getCurrentDateTimeString(),
+          endTime: getCurrentDateTimeString(),
+          answers: {},
+        },
+      });
+      return { response, patientId: encounterPatient.id };
+    };
+
+    beforeAll(async () => {
+      const program = await models.Program.create(fake(models.Program));
+      [vitalsSurvey, otherSurvey] = await Promise.all([
+        models.Survey.create({
+          programId: program.id,
+          name: 'Triage vitals',
+          surveyType: SURVEY_TYPES.VITALS,
+        }),
+        models.Survey.create({
+          programId: program.id,
+          name: 'Not vitals',
+          surveyType: SURVEY_TYPES.PROGRAMS,
+        }),
+      ]);
+    });
+
+    it('records vitals given with a triage', async () => {
+      const { response } = await triageWithVitals(vitalsSurvey.id);
+
+      expect(response).toHaveSucceeded();
+      const triage = await models.Triage.findByPk(response.body.id);
+      const vitalsResponses = await models.SurveyResponse.findAll({
+        where: { encounterId: triage.encounterId, surveyId: vitalsSurvey.id },
+      });
+      expect(vitalsResponses).toHaveLength(1);
+    });
+
+    it('rejects vitals that are not a response to the vitals form, and triages no one', async () => {
+      const { response, patientId } = await triageWithVitals(otherSurvey.id);
+
+      expect(response).toHaveRequestError();
+      const encounters = await models.Encounter.findAll({ where: { patientId } });
+      expect(encounters).toHaveLength(0);
+      const responses = await models.SurveyResponse.findAll({
+        where: { surveyId: otherSurvey.id },
+      });
+      expect(responses).toHaveLength(0);
+    });
+  });
+
+  describe('Future time validation', () => {
+    it('should reject editing a triage with a future arrival time', async () => {
+      const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+      const createdTriage = await models.Triage.create(
+        await createDummyTriage(models, {
+          patientId: encounterPatient.id,
+          departmentId: await randomRecordId(models, 'Department'),
+        }),
+      );
+      const futureTime = toDateTimeString(add(new Date(), { days: 1 }));
+
+      const response = await app.put(`/api/triage/${createdTriage.id}`).send({
+        arrivalTime: futureTime,
+      });
+
+      expect(response).toHaveRequestError();
+      const unchanged = await models.Triage.findByPk(createdTriage.id);
+      expect(unchanged.arrivalTime).not.toEqual(futureTime);
+    });
+  });
+
   describe('Listing & filtering', () => {
     let createTestTriage;
     let bulkCreateTestTriage;
@@ -355,9 +494,9 @@ describe('Triage', () => {
         );
       };
 
-      bulkCreateTestTriage = async (triageConfigs) => {
+      bulkCreateTestTriage = async triageConfigs => {
         const promises = [];
-        triageConfigs.forEach((c) => {
+        triageConfigs.forEach(c => {
           promises.push(createTestTriage(c));
         });
         await Promise.all(promises);
@@ -458,7 +597,7 @@ describe('Triage', () => {
       });
       const response = await app.get(`/api/triage?facilityId=${facility.id}`);
 
-      expect(response.body.data.some((b) => b.encounterId === createdEncounter.id)).toEqual(true);
+      expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
     });
 
     it('should include active ED care patients in the triage list', async () => {
@@ -471,9 +610,9 @@ describe('Triage', () => {
       const response = await app.get(`/api/triage?facilityId=${facility.id}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body.data.some((b) => b.encounterId === createdEncounter.id)).toEqual(true);
+      expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
       expect(
-        response.body.data.find((b) => b.encounterId === createdEncounter.id).encounterType,
+        response.body.data.find(b => b.encounterId === createdEncounter.id).encounterType,
       ).toEqual(ENCOUNTER_TYPES.OBSERVATION);
     });
 

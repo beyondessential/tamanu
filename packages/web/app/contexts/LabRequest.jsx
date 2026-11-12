@@ -1,7 +1,9 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 import { useApi } from '../api';
+import { route } from '@tamanu/api-client';
+import { usePersistedSearchParameters } from '../hooks/usePersistedSearchParameters';
 
 const LabRequestContext = createContext({
   labRequest: {},
@@ -23,7 +25,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
-    (value) => {
+    value => {
       setAllSearchParameters({
         ...allSearchParameters,
         [key]: value,
@@ -35,22 +37,27 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
   return { searchParameters, setSearchParameters, ...otherProps };
 };
 
+const INITIAL_SEARCH_PARAMETERS = {
+  [LabRequestSearchParamKeys.All]: {},
+  [LabRequestSearchParamKeys.Finalised]: {},
+  [LabRequestSearchParamKeys.Other]: {},
+};
+
 export const LabRequestProvider = ({ children }) => {
-  const { getCurrentDateTime } = (useDateTimeIfAvailable() || {})
+  const { getCurrentDateTime } = useDateTimeIfAvailable() || {};
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [searchParameters, setSearchParameters] = useState({
-    [LabRequestSearchParamKeys.All]: {},
-    [LabRequestSearchParamKeys.Finalised]: {},
-    [LabRequestSearchParamKeys.Other]: {},
-  });
+  const [searchParameters, setSearchParameters] = usePersistedSearchParameters(
+    USER_PREFERENCES_KEYS.LAB_REQUEST_SEARCH_PARAMETERS,
+    INITIAL_SEARCH_PARAMETERS,
+  );
 
   const api = useApi();
 
   const loadLabRequest = useCallback(
-    async (labRequestId) => {
+    async labRequestId => {
       setIsLoading(true);
-      const data = await api.get(`labRequest/${labRequestId}`);
+      const data = await api.get(route('labRequest/:labRequestId', { labRequestId }));
       setLabRequest({ ...data });
       setIsLoading(false);
     },
@@ -66,7 +73,7 @@ export const LabRequestProvider = ({ children }) => {
       update.publishedDate = getCurrentDateTime();
     }
 
-    await api.put(`labRequest/${labRequestId}`, update);
+    await api.put(route('labRequest/:labRequestId', { labRequestId }), update);
     await loadLabRequest(labRequestId);
   };
 

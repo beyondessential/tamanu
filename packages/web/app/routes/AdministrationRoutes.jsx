@@ -6,10 +6,11 @@ import {
   AssetUploaderView,
   AiFormBuilderView,
   DesignationsAdminView,
-  InsurerPaymentsAdminView,
+  InsurancePlanPaymentsAdminView,
   LocationAssignmentsAdminView,
   ManageProgramRegistriesRoutes,
   ManageProgramsAdminView,
+  PatientDataAdminView,
   PatientMergeView,
   PermissionsAdminView,
   ProgramRegistriesAdminView,
@@ -33,6 +34,7 @@ export const AdministrationRoutes = React.memo(() => (
   <Routes>
     <Route path="assets" element={<AssetUploaderView />} />
     <Route path="fhir/*" element={<FhirAdminRoutes />} />
+    <Route path="patientData" element={<PatientDataAdminView />} />
     <Route path="patientMerge" element={<PatientMergeView />} />
     <Route path="permissions" element={<PermissionsAdminView />} />
     <Route path="programs">
@@ -82,7 +84,9 @@ export const AdministrationRoutes = React.memo(() => (
         }
       />
     </Route>
-    <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
-    <Route path="*" element={<Navigate to="referenceData" replace />} />
+    <Route path="insurancePlanPayments" element={<InsurancePlanPaymentsAdminView />} />
+    {/* Absolute: a relative target resolves against the splat, so an unknown path would redirect
+        under itself and match here again, appending for ever on a blank screen. */}
+    <Route path="*" element={<Navigate to="/admin/referenceData" replace />} />
   </Routes>
 ));

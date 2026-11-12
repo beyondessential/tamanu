@@ -10,7 +10,7 @@ import { getGender, joinNames } from '/helpers/user';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 
-export const PatientTile = (patient: IPatient): JSX.Element => {
+export const PatientTile = (patient: IPatient) => {
   const { firstName, lastName, sex } = patient;
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();

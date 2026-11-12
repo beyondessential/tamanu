@@ -1,6 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_TABLE_STATUS_GROUPINGS } from '@tamanu/constants';
+import {
+  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
+  TABLE_PAGE_SIZE_PREFERENCE_KEYS,
+} from '@tamanu/constants';
 import {
   ContentPane,
   LabRequestsSearchBar,
@@ -11,14 +14,16 @@ import {
 } from '../components';
 import { LabRequestsTable } from './LabRequestsTable';
 import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';
-import { useEncounter } from '../contexts/Encounter';
 
 const StyledContentPane = styled(ContentPane)`
   position: relative;
 `;
 
-const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKeys.All }) => {
-  const { loadEncounter } = useEncounter();
+const LabRequestListing = ({
+  statuses,
+  searchParamKey = LabRequestSearchParamKeys.All,
+  pageSizePreferenceKey,
+}) => {
   const { loadLabRequest, searchParameters } = useLabRequest(searchParamKey);
 
   return (
@@ -32,10 +37,10 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
       </SearchTableTitle>
       <LabRequestsSearchBar statuses={statuses} data-testid="labrequestssearchbar-xktv" />
       <LabRequestsTable
-        loadEncounter={loadEncounter}
         loadLabRequest={loadLabRequest}
         searchParameters={searchParameters}
         statuses={statuses}
+        pageSizePreferenceKey={pageSizePreferenceKey}
         data-testid="labrequeststable-s0ka"
       />
     </StyledContentPane>
@@ -56,6 +61,7 @@ export const LabRequestListingView = () => (
     />
     <LabRequestListing
       statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE}
+      pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.ACTIVE_LAB_REQUESTS}
       data-testid="labrequestlisting-bxu7"
     />
   </PageContainer>
@@ -76,6 +82,7 @@ export const FinalisedLabRequestListingView = () => (
     <LabRequestListing
       statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED}
       searchParamKey={LabRequestSearchParamKeys.Finalised}
+      pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.FINALISED_LAB_REQUESTS}
       data-testid="labrequestlisting-3j4y"
     />
   </PageContainer>

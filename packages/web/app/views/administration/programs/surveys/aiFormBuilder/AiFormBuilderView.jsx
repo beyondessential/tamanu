@@ -40,6 +40,7 @@ import {
   writeSessionChatState,
 } from './chatState';
 import { useProgramsQuery } from '../queries';
+import { route } from '@tamanu/api-client';
 
 const getProgramCode = programId => programId?.replace(/^program-/, '');
 const getProgramDefinitionFileName = programDefinition =>
@@ -60,7 +61,7 @@ const waitForChatJob = async ({ api, jobId, signal, getTranslation }) => {
     }
 
     const job = await api.get(
-      `admin/form-builder/chat/jobs/${encodeURIComponent(jobId)}`,
+      route('admin/form-builder/chat/jobs/:jobId', { jobId }),
       {},
       { signal, showUnknownErrorToast: false },
     );
@@ -469,7 +470,9 @@ export function AiFormBuilderView() {
     setIsSaving(true);
     try {
       const { surveys } = await api.post(
-        `admin/program/${encodeURIComponent(state.selectedProgramId)}/ai-form-builder-survey`,
+        route('admin/program/:selectedProgramId/ai-form-builder-survey', {
+          selectedProgramId: state.selectedProgramId,
+        }),
         {
           form: generatedForm,
         },

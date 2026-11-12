@@ -21,7 +21,7 @@ import type { PatientStateProps } from '~/ui/store/ducks/patient';
 import { parseISO } from 'date-fns';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
-export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
+export const VaccineFormGiven = ({ navigation }: VaccineFormProps) => {
   const { values } = useFormikContext();
   const { getSetting } = useSettings();
 

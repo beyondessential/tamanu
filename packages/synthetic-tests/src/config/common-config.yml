@@ -2,7 +2,7 @@ config:
   target: 'http://localhost:4000'
   plugins:
     metrics-by-endpoint: {}
-  processor: '../hooks/index.ts'
+  processor: '../hooks.bundle.cjs'
   phases:
     - name: 'Warmup'
       duration: 30s

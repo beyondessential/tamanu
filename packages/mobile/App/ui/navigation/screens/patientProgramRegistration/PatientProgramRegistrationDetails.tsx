@@ -1,23 +1,25 @@
+import { useQuery } from '@tanstack/react-query';
+import { groupBy, sortBy } from 'es-toolkit/compat';
 import React from 'react';
-import { sortBy, groupBy } from 'es-toolkit/compat';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
-import {
-  TranslatedReferenceData,
-  getReferenceDataStringId,
-} from '~/ui/components/Translations/TranslatedReferenceData';
-import { TranslatedText, type TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
-
-import { DateFormats } from '~/ui/helpers/constants';
-import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import { registrationKeys } from '~/ui/hooks/queries/queryKeys';
-import useFullProgramRegistrationQuery from '~/ui/hooks/queries/useFullProgramRegistrationQuery';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import {
+  getReferenceDataStringId,
+  TranslatedReferenceData,
+} from '~/ui/components/Translations/TranslatedReferenceData';
+import {
+  TranslatedText,
+  type TranslatedTextElement,
+} from '~/ui/components/Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { DateFormats } from '~/ui/helpers/constants';
+import { registrationKeys } from '~/ui/hooks/queries/queryKeys';
+import useFullProgramRegistrationQuery from '~/ui/hooks/queries/useFullProgramRegistrationQuery';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { theme } from '~/ui/styled/theme';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const styles = StyleSheet.create({
   scroll: {
@@ -134,12 +136,12 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
       <View style={styles.valueContainer}>
         {initConditions.length === 0 && <Text style={styles.value}>—</Text>}
         {groupedConditions.open?.map((condition, i) => (
-            <TranslatedCondition key={`open-condition-${i}`} condition={condition} />
-          ))}
+          <TranslatedCondition key={`open-condition-${i}`} condition={condition} />
+        ))}
         {needsDivider && <HorizontalLine marginBottom={10} />}
         {groupedConditions.closed?.map((condition, i) => (
-            <TranslatedCondition key={`closed-condition-${i}`} condition={condition} />
-          ))}
+          <TranslatedCondition key={`closed-condition-${i}`} condition={condition} />
+        ))}
       </View>
     </View>
   );

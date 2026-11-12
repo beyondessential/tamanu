@@ -2,7 +2,7 @@ import { upperFirst } from 'es-toolkit/compat';
 import { read, readFile } from 'xlsx';
 
 import { log } from '@tamanu/shared/services/logging';
-import { IMPORTABLE_PERMISSION_NOUN_OVERRIDES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { getImportablePermissionNoun, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { normaliseSheetName } from '../importer/importerEndpoint';
 
@@ -39,16 +39,9 @@ export async function referenceDataImporter({
 
   if (checkPermission) {
     for (const dataType of includedDataTypes) {
-      if (REFERENCE_TYPE_VALUES.includes(dataType)) {
-        checkPermission('create', 'ReferenceData');
-        checkPermission('write', 'ReferenceData');
-        continue;
-      }
-
-      const nonReferenceDataModalName =
-        IMPORTABLE_PERMISSION_NOUN_OVERRIDES[dataType] ?? upperFirst(dataType);
-      checkPermission('create', nonReferenceDataModalName);
-      checkPermission('write', nonReferenceDataModalName);
+      const noun = getImportablePermissionNoun(dataType);
+      checkPermission('create', noun);
+      checkPermission('write', noun);
     }
   }
 

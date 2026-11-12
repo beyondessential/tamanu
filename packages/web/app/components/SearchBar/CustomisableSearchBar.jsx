@@ -1,13 +1,11 @@
-import React, { useCallback, useId } from 'react';
-import styled from 'styled-components';
-import Box from '@material-ui/core/Box';
 import { IconButton } from '@material-ui/core';
-import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, Button, TextButton } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
+import React, { useCallback, useId, useState } from 'react';
+import styled from 'styled-components';
+
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
-import { TranslatedText } from '../Translation/TranslatedText';
-import { ThemedTooltip } from '../Tooltip';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Button, Form, TextButton, TranslatedText, ThemedTooltip } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 
@@ -51,7 +49,7 @@ const CustomisableSearchBarGrid = styled.div`
   }
 `;
 
-const ActionsContainer = styled(Box)`
+const ActionsContainer = styled.div`
   display: flex;
   align-items: center;
   margin-top: 20px;
@@ -89,12 +87,24 @@ export const CustomisableSearchBar = ({
   hiddenFields,
   hasPermission = true,
   className,
+  canSearch,
 }) => {
   const switchExpandValue = useCallback(() => {
     setIsExpanded(previous => !previous);
   }, [setIsExpanded]);
 
+  // Search and Clear stay available once a search has run, so emptying the fields can't strand its
+  // results. Searching with nothing filled in then clears.
+  const [hasSearched, setHasSearched] = useState(false);
+  const isBlank = values => Boolean(canSearch) && !canSearch(values);
+
   const handleSubmit = values => {
+    if (isBlank(values)) {
+      setHasSearched(false);
+      onSearch({});
+      return;
+    }
+    setHasSearched(true);
     onSearch({ ...values });
   };
 
@@ -131,6 +141,7 @@ export const CustomisableSearchBar = ({
               <SearchButton
                 type="submit"
                 hasPermission={hasPermission}
+                disabled={isBlank(values) && !hasSearched}
                 data-testid="searchbutton-nt24"
               >
                 <TranslatedText
@@ -140,9 +151,11 @@ export const CustomisableSearchBar = ({
                 />
               </SearchButton>
               <ClearButton
+                disabled={isBlank(values) && !hasSearched}
                 onClick={() => {
                   // Cant check for dirty as form is reinitialized with persisted values
                   if (Object.keys(values).length === 0) return;
+                  setHasSearched(false);
                   onSearch({});
                   // ClearForm needed to be deferred in order ensure that it re-initializes to an empty
                   // state rather than the previous state

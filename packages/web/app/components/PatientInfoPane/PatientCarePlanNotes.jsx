@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useApi } from '../../api';
 import { CarePlanNoteDisplay } from '../CarePlanNoteDisplay';
 import { CarePlanNoteForm } from '../CarePlanNoteForm';
+import { route } from '@tamanu/api-client';
 
 const Container = styled.div`
   min-height: 50vh;
@@ -51,7 +52,7 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
   const api = useApi();
 
   useEffect(() => {
-    api.get(`patientCarePlan/${item.id}/notes`).then((notes) => {
+    api.get(route('patientCarePlan/:itemId/notes', { itemId: item.id })).then(notes => {
       if (notes.length) {
         // first note is the main care plan
         setFirstNote(notes[0]);

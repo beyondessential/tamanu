@@ -1,7 +1,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useState } from 'react';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
+import { ENCOUNTER_TYPES, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
+import { LocationCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import {
   AllPatientsSearchBar,
@@ -15,6 +15,8 @@ import {
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { NewPatientModal } from './components';
+import { PatientSearchEmptyState } from './components/PatientSearchEmptyState';
+import { hasSearchCriteria } from '../../components/SearchBar/hasSearchCriteria';
 import {
   clinician,
   culturalName,
@@ -25,6 +27,7 @@ import {
   inpatientSex,
   firstName,
   lastName,
+  locationGroup,
   markedForSync,
   sex,
   status,
@@ -60,18 +63,6 @@ const location = {
   accessor: LocationCell,
 };
 
-const locationGroup = {
-  key: 'locationGroupName',
-  title: (
-    <TranslatedText
-      stringId="general.area.label"
-      fallback="Area"
-      data-testid="translatedtext-28c6"
-    />
-  ),
-  accessor: LocationGroupCell,
-};
-
 const OUTPATIENT_COLUMNS = [
   markedForSync,
   displayId,
@@ -98,7 +89,7 @@ const INPATIENT_COLUMNS = [
   { ...diet, sortable: false },
 ];
 
-const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters, pageSizePreferenceKey }) => {
   const { navigateToPatient } = usePatientNavigation();
   const { facilityId } = useAuth();
   const fetchOptionsWithSearchParameters = {
@@ -116,7 +107,9 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       verb="list"
       noun="Patient"
       columns={columns}
-      noDataMessage="No patients found"
+      noDataMessage={
+        <TranslatedText stringId="patientList.table.noData" fallback="No patients found" />
+      }
       onRowClick={handleViewPatient}
       rowStyle={({ dateOfDeath }) => {
         // Style rows for deceased patients red
@@ -124,6 +117,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       }}
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
+      pageSizePreferenceKey={pageSizePreferenceKey}
       data-testid="searchtablewithpermissioncheck-qyht"
     />
   );
@@ -177,7 +171,11 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
-  const { facilityId } = useAuth();
+  const { facilityId, ability } = useAuth();
+  // Without list permission the table shows its own no-permission message instead. While auth
+  // reloads, ability is briefly unset, and the empty state holds rather than loading every patient.
+  const isListingDenied = ability?.can?.('list', 'Patient') === false;
+  const isAwaitingSearch = !isListingDenied && !hasSearchCriteria(searchParameters);
 
   return (
     <PageContainer data-testid="pagecontainer-bbim">
@@ -206,13 +204,17 @@ export const PatientListingView = ({ onViewPatient }) => {
           onSearch={setSearchParameters}
           data-testid="allpatientssearchbar-f491"
         />
-        <PatientTable
-          onViewPatient={onViewPatient}
-          fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={{ isAllPatientsListing: true, facilityId, ...searchParameters }}
-          columns={LISTING_COLUMNS}
-          data-testid="patienttable-l8c2"
-        />
+        {isAwaitingSearch ? (
+          <PatientSearchEmptyState />
+        ) : (
+          <PatientTable
+            onViewPatient={onViewPatient}
+            fetchOptions={{ matchSecondaryIds: true }}
+            searchParameters={{ isAllPatientsListing: true, facilityId, ...searchParameters }}
+            columns={LISTING_COLUMNS}
+            data-testid="patienttable-l8c2"
+          />
+        )}
       </ContentPane>
     </PageContainer>
   );
@@ -258,6 +260,7 @@ export const AdmittedPatientsView = () => {
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
           columns={INPATIENT_COLUMNS}
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.INPATIENTS}
           data-testid="patienttable-w4sz"
         />
       </ContentPane>
@@ -304,6 +307,7 @@ export const OutpatientsView = () => {
           fetchOptions={{ outpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
           columns={OUTPATIENT_COLUMNS}
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.OUTPATIENTS}
           data-testid="patienttable-18bx"
         />
       </ContentPane>

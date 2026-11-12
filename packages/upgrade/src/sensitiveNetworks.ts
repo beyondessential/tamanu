@@ -44,6 +44,9 @@ export const ENCOUNTER_SCOPED_RECORD_TYPES = [
   'imaging_requests',
   'imaging_results',
   'invoice_discounts',
+  // Renamed to invoice_insurance_plan_payments by 1793218723948, long after the window
+  // BETWEEN_SCHEMA_MIGRATIONS pins these steps to, so the rows this rescopes are still under the
+  // old name when it runs. Renaming this entry would match nothing and silently rescope nothing.
   'invoice_insurer_payments',
   'invoice_item_discounts',
   'invoice_item_finalised_insurances',

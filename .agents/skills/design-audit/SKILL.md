@@ -2,12 +2,8 @@
 name: design-audit
 description: "Audit this card's mockups or implementation against the design library"
 label: "Design audit"
-pill-order:
-  specifying: 6
-  implementing: 3
-  reviewing: 3
-  complete: 2
-workhorse-version: 0.3.0
+category: design
+workhorse-version: 0.7.14
 ---
 
 ## Your task: Design audit

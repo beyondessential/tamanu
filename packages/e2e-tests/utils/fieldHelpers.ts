@@ -8,6 +8,19 @@ async function getBaseTestId(field: Locator, suffixToRemove: string): Promise<st
   return rawTestId.replace(suffixToRemove, '');
 }
 
+/**
+ * Locates a SuggesterSelectField's select by the label of the field wrapping it.
+ * SuggesterSelectField overrides the Field's own data-testid with `selectinput-phtg`, which every
+ * such select shares, so the test id alone can't tell two selects in the same container apart.
+ * @param container - Scope to search within, e.g. the modal's dialog.
+ * @param label - The field's visible label text.
+ */
+export const getSelectByFieldLabel = (container: Locator, label: string): Locator =>
+  container
+    .locator('label', { hasText: label })
+    .locator('xpath=..')
+    .getByTestId('selectinput-phtg-select');
+
 export const selectOptionFromPopper = async (
   baseTestId: string,
   popper: Locator,

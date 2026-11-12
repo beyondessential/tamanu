@@ -6,9 +6,10 @@ describe('getDefaultIdealTimes', () => {
   it('uses the configured times for a frequency a deployment can customise', () => {
     const configured = { [ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY]: ['07:00', '19:00'] };
 
-    expect(
-      getDefaultIdealTimes(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY, configured),
-    ).toEqual(['07:00', '19:00']);
+    expect(getDefaultIdealTimes(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY, configured)).toEqual([
+      '07:00',
+      '19:00',
+    ]);
   });
 
   it('falls back to the fixed times when a customisable frequency is unset', () => {

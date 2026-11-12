@@ -12,6 +12,7 @@ import { getCurrentUser } from '../store/auth';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { AI_PATIENT_SUMMARY_QUERY_KEY } from '../api/queries/useAiPatientSummaryQuery';
+import { route } from '@tamanu/api-client';
 
 export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const [currentTabKey, setCurrentTabKey] = useState(VACCINE_RECORDING_TYPES.GIVEN);
@@ -23,7 +24,7 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const currentUser = useSelector(getCurrentUser);
 
   const handleCreateVaccine = useCallback(
-    async (data) => {
+    async data => {
       const dataToSubmit = { ...data };
       if (currentTabKey === VACCINE_RECORDING_TYPES.GIVEN && data.givenElsewhere && data.givenBy) {
         const givenByCountry = (await countrySuggester.fetchCurrentOption(data.givenBy))?.label;
@@ -47,7 +48,7 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
         body.circumstanceIds = JSON.parse(dataToSubmit.circumstanceIds);
       }
 
-      await api.post(`patient/${patientId}/administeredVaccine`, body);
+      await api.post(route('patient/:patientId/administeredVaccine', { patientId }), body);
       queryClient.invalidateQueries([AI_PATIENT_SUMMARY_QUERY_KEY, patientId]);
       onClose();
     },
@@ -64,7 +65,7 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   );
 
   const getScheduledVaccines = useCallback(
-    async (query) => api.get(`patient/${patientId}/scheduledVaccines`, query),
+    async query => api.get(route('patient/:patientId/scheduledVaccines', { patientId }), query),
     [api, patientId],
   );
 

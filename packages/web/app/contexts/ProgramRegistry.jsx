@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useProgramRegistryContext, ProgramRegistryContext } from '@tamanu/ui-components';
 import { useApi } from '../api';
+import { route } from '@tamanu/api-client';
 
 export { useProgramRegistryContext };
 
@@ -12,7 +13,7 @@ export const ProgramRegistryProvider = ({ children }) => {
       setProgramRegistryId(null);
       return;
     }
-    const { programRegistries } = await api.get(`program/${programId}`);
+    const { programRegistries } = await api.get(route('program/:programId', { programId }));
     if (programRegistries.length > 0) {
       setProgramRegistryId(programRegistries[0].id);
       return;

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { resolveEndpoint } from '@tamanu/api-client';
 import { ASSET_NAMES, BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 
 import { createQueryClient } from '../../helpers';
@@ -26,9 +27,9 @@ const contentPending = () => ({
 });
 
 const respondWith = (byName) =>
-  apiGet.mockImplementation(async (endpoint) => byName[endpoint.replace('asset/', '')]);
+  apiGet.mockImplementation(async (endpoint) => byName[resolveEndpoint(endpoint).replace('asset/', '')]);
 
-const requestedAssets = () => apiGet.mock.calls.map(([endpoint]) => endpoint);
+const requestedAssets = () => apiGet.mock.calls.map(([endpoint]) => resolveEndpoint(endpoint));
 
 const renderAssetQuery = () => {
   const queryClient = createQueryClient();

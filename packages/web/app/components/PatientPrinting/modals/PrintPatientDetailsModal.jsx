@@ -23,6 +23,7 @@ import { BirthNotificationIcon } from '../icons/BirthNotificationIcon';
 import { InternationalPatientSummaryIcon } from '../icons/InternationalPatientSummaryIcon';
 import { useSettings } from '../../../contexts/Settings';
 import { PatientPortalIcon } from '../icons/PatientPortalIcon';
+import { route } from '@tamanu/api-client';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -366,7 +367,7 @@ const BLANK_PIXEL =
 
 async function getPatientProfileImage(api, patientId) {
   try {
-    const { data } = await api.get(`patient/${patientId}/profilePicture`);
+    const { data } = await api.get(route('patient/:patientId/profilePicture', { patientId }));
     // A picture whose bytes haven't arrived prints blank, as for a patient with none.
     return data ?? BLANK_PIXEL;
   } catch (e) {

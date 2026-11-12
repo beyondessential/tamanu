@@ -6,10 +6,12 @@ export class AdministeredVaccineExporter extends DefaultDataExporter {
     date: value => {
       return parseDate(value);
     },
-    consent: value => {
-      return value ? 'y' : 'n';
-    },
   };
+
+  formattedCell(header, value) {
+    if (header === 'consent') return value ? 'y' : 'n';
+    return super.formattedCell(header, value);
+  }
 
   async getData() {
     const administeredVaccines = await this.models.AdministeredVaccine.findAll({

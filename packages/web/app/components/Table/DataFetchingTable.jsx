@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'es-toolkit/compat';
+import { isRouteDescriptor, resolveEndpoint } from '@tamanu/api-client';
 import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 
@@ -9,7 +10,7 @@ import { TableRefreshButton } from './TableRefreshButton';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { useSettings } from '../../contexts/Settings';
-import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
+import { usePageSizePreference } from './usePageSizePreference';
 
 const DEFAULT_SORT = /** @type {const} */ ({ order: 'asc', orderBy: undefined });
 
@@ -39,13 +40,16 @@ export const DataFetchingTable = memo(
     autoRefresh,
     lazyLoading = false,
     hasPermission = true,
-    defaultRowsPerPage = ROWS_PER_PAGE_OPTIONS[0],
+    // Applies only to a table without a pageSizePreferenceKey (see usePageSizePreference)
+    defaultRowsPerPage,
+    pageSizePreferenceKey,
     'data-testid': dataTestId,
     ...props
   }) => {
     const { getCurrentDateTime } = useDateTime();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
+    const { rowsPerPage, rowsPerPageOptions, onChangeRowsPerPage, isPageSizeReady } =
+      usePageSizePreference({ preferenceKey: pageSizePreferenceKey, defaultRowsPerPage });
     const [sorting, setSorting] = useState(initialSort);
     const [fetchState, setFetchState] = useState(() => initialiseFetchState(getCurrentDateTime()));
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
@@ -85,6 +89,10 @@ export const DataFetchingTable = memo(
       },
       [sorting],
     );
+
+    // A route() descriptor is a fresh object each render, so key the fetch effect
+    // off its resolved path rather than its identity. A plain string is its own key.
+    const endpointKey = endpoint && isRouteDescriptor(endpoint) ? resolveEndpoint(endpoint) : endpoint;
 
     const fetchData = async () =>
       await api.get(
@@ -214,6 +222,9 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       if (!hasPermission) return;
+      // spec: TPAGE#remembered-page-size
+      // Wait for a remembered page size, so the table loads once at that size rather than twice
+      if (!isPageSizeReady) return;
 
       // Guards against a slower earlier request resolving after a newer one (eg
       // when filters change while a fetch is still in flight) and clobbering the
@@ -266,11 +277,13 @@ export const DataFetchingTable = memo(
         if (loadingDelay) clearTimeout(loadingDelay);
       };
 
-      // Needed to compare fetchOptions as a string instead of an object
+      // Needed to compare fetchOptions as a string instead of an object, and the
+      // endpoint by its resolved path rather than the route() descriptor's identity
+      // (a fresh object each render would otherwise refetch every render).
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       api,
-      endpoint,
+      endpointKey,
       lazyLoading,
       page,
       rowsPerPage,
@@ -282,6 +295,7 @@ export const DataFetchingTable = memo(
       onDataFetched,
       disablePagination,
       hasPermission,
+      isPageSizeReady,
     ]);
 
     useEffect(() => {
@@ -342,11 +356,11 @@ export const DataFetchingTable = memo(
           page={disablePagination ? null : page}
           count={count}
           onChangePage={setPage}
-          onChangeRowsPerPage={setRowsPerPage}
+          onChangeRowsPerPage={onChangeRowsPerPage}
           onChangeOrderBy={handleChangeOrderBy}
           order={order}
           orderBy={orderBy}
-          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          rowsPerPageOptions={rowsPerPageOptions}
           refreshTable={refreshTable}
           rowStyle={row => {
             const rowStyle = [];

@@ -14,6 +14,7 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { route } from '@tamanu/api-client';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -31,32 +32,30 @@ export const MultiplePrescriptionPrintoutModal = ({
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],
-    () => api.get(`patient/${encounter.patientId}`),
+    () => api.get(route('patient/:patientId', { patientId: encounter.patientId })),
   );
 
   const { data: prescriber, isLoading: isPrescriberLoading } = useQuery(
     ['prescriber', prescriberId],
-    () => api.get(`user/${prescriberId}`),
+    () => api.get(route('user/:prescriberId', { prescriberId })),
     {
       enabled: !!prescriberId,
     },
   );
 
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(encounter.patientId);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(encounter.patientId);
 
   const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['village', encounter.patientId],
-    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    () => api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
     {
       enabled: !!patient?.villageId,
     },
   );
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
+    api.get(route('facility/:facilityId', { facilityId })),
   );
 
   const isLoading =

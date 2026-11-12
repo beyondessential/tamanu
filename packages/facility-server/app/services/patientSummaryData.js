@@ -1,9 +1,33 @@
 import { differenceInYears, parseISO } from 'date-fns';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import { VACCINE_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ageInYears } from '@tamanu/utils/dateTime';
 
 const PATIENT_SUMMARY_DATA_LIMIT = 20;
+
+// The summary is stored against the patient and syncs to every facility, so it must not draw on
+// encounters at a facility in a sensitive network.
+const SENSITIVE_LOCATION_IDS = `
+  SELECT locations.id
+  FROM locations
+  JOIN facilities ON facilities.id = locations.facility_id
+  WHERE facilities.sensitive_network_id IS NOT NULL
+`;
+
+const OUTSIDE_SENSITIVE_NETWORKS = {
+  locationId: { [Op.notIn]: literal(`(${SENSITIVE_LOCATION_IDS})`) },
+};
+
+// Drops any prescription linked to an encounter at a sensitive facility.
+// For encounter prescriptions: also drops one linked to both a sensitive and an ordinary encounter.
+// For ongoing prescriptions: drops one prescribed in a sensitive encounter and made ongoing at discharge.
+const PRESCRIPTION_OUTSIDE_SENSITIVE_NETWORKS = literal(`NOT EXISTS (
+  SELECT 1
+  FROM encounter_prescriptions
+  JOIN encounters ON encounters.id = encounter_prescriptions.encounter_id
+  WHERE encounter_prescriptions.prescription_id = "Prescription".id
+    AND encounters.location_id IN (${SENSITIVE_LOCATION_IDS})
+)`);
 
 /**
  * Fetch the data needed to build a patient summary prompt.
@@ -31,6 +55,8 @@ export async function fetchPatientSummaryData(patientId, models) {
     Vitals,
     PatientDeathData,
   } = models;
+
+  const nonSensitiveEncounterWhere = { patientId, ...OUTSIDE_SENSITIVE_NETWORKS };
 
   // 1. Demographics
   const patient = await Patient.findByPk(patientId, {
@@ -78,7 +104,7 @@ export async function fetchPatientSummaryData(patientId, models) {
 
   // 7. Current active encounter (endDate IS NULL)
   const activeEncounter = await Encounter.findOne({
-    where: { patientId, endDate: null },
+    where: { ...nonSensitiveEncounterWhere, endDate: null },
     include: Encounter.getFullReferenceAssociations(),
     order: [['startDate', 'DESC']],
   });
@@ -124,7 +150,7 @@ export async function fetchPatientSummaryData(patientId, models) {
   }
 
   // 8. Past encounters (lightweight: dates, type, diagnoses)
-  const pastEncounterWhere = { patientId };
+  const pastEncounterWhere = { ...nonSensitiveEncounterWhere };
   if (activeEncounter) {
     pastEncounterWhere.id = { [Op.ne]: activeEncounter.id };
   }
@@ -169,7 +195,7 @@ export async function fetchPatientSummaryData(patientId, models) {
       {
         association: 'encounter',
         attributes: ['id'],
-        where: { patientId },
+        where: nonSensitiveEncounterWhere,
         required: true,
       },
       {
@@ -187,7 +213,7 @@ export async function fetchPatientSummaryData(patientId, models) {
       {
         association: 'encounter',
         attributes: ['id', 'startDate'],
-        where: { patientId },
+        where: nonSensitiveEncounterWhere,
         required: true,
       },
       { association: 'category' },
@@ -204,7 +230,7 @@ export async function fetchPatientSummaryData(patientId, models) {
       {
         association: 'encounter',
         attributes: ['id', 'startDate'],
-        where: { patientId },
+        where: nonSensitiveEncounterWhere,
         required: true,
       },
       { association: 'areas' },
@@ -220,6 +246,7 @@ export async function fetchPatientSummaryData(patientId, models) {
   const medicationInclude = [{ association: 'medication' }, { association: 'prescriber' }];
 
   const encounterMedications = await Prescription.findAll({
+    where: PRESCRIPTION_OUTSIDE_SENSITIVE_NETWORKS,
     include: [
       {
         association: 'encounters',
@@ -235,6 +262,7 @@ export async function fetchPatientSummaryData(patientId, models) {
   });
 
   const ongoingMedications = await Prescription.findAll({
+    where: PRESCRIPTION_OUTSIDE_SENSITIVE_NETWORKS,
     include: [
       {
         association: 'patients',

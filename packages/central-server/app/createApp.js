@@ -1,11 +1,10 @@
-import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { defineDbNotifier, exitOnDatabaseOutage } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
-import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
-import { log } from '@tamanu/shared/services/logging';
 
 import { createApi } from './createApi';
 import { createWebsocket } from './createWebsocket';
 import { registerSyncLookupUpdateListener } from './sync';
+import { registerSettingsListeners } from './settingsListeners';
 
 /**
  * @param {import('./ApplicationContext').ApplicationContext} ctx
@@ -13,18 +12,14 @@ import { registerSyncLookupUpdateListener } from './sync';
 export async function createApp(ctx) {
   const api = await createApi(ctx);
 
-  const dbNotifier = await defineDbNotifier(ctx.store.sequelize.config, [
-    NOTIFY_CHANNELS.TABLE_CHANGED,
-  ]);
+  const dbNotifier = await defineDbNotifier(
+    ctx.store.sequelize.config,
+    [NOTIFY_CHANNELS.TABLE_CHANGED],
+    { onOutageExceeded: exitOnDatabaseOutage },
+  );
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
-  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
-  dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
-    if (payload.table !== 'settings') return;
-    try {
-      await ctx.aiService?.refreshContexts(ctx.settings);
-    } catch (error) {
-      log.warn({ error }, 'Failed to refresh AI contexts after settings change');
-    }
+  registerSettingsListeners(ctx, dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+    onReconnect: dbNotifier.onReconnect,
   });
 
   if (await ctx.settings.get('websocket.enabled')) {

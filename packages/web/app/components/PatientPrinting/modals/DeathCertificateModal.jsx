@@ -11,12 +11,13 @@ import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 const useParentQuery = (enabled, parentId) => {
   const api = useApi();
   return useQuery(
     ['parentData', parentId],
-    async () => (parentId ? api.get(`patient/${encodeURIComponent(parentId)}`) : null),
+    async () => (parentId ? api.get(route('patient/:parentId', { parentId })) : null),
     { enabled },
   );
 };
@@ -34,10 +35,8 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   const { currentUser } = useAuth();
   const { primaryTimeZone } = useDateTime();
 
-  const {
-    data: additionalData,
-    isFetching: isAdditionalDataFetching,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isFetching: isAdditionalDataFetching } =
+    usePatientAdditionalDataQuery(patient.id);
   const { data: motherData, isLoading: isMotherDataLoading } = useParentQuery(
     !!additionalData,
     additionalData?.motherId,
@@ -60,11 +59,12 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
     village,
   };
 
-  const isLoading = isAdditionalDataFetching
-    || isCertificateFetching
-    || isMotherDataLoading
-    || isFatherDataLoading
-    || isVillageLoading;
+  const isLoading =
+    isAdditionalDataFetching ||
+    isCertificateFetching ||
+    isMotherDataLoading ||
+    isFatherDataLoading ||
+    isVillageLoading;
 
   return (
     <>

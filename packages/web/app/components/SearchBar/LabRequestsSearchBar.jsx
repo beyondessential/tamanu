@@ -1,10 +1,6 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import {
-  LAB_REQUEST_STATUSES,
-  LAB_REQUEST_STATUS_LABELS,
-  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
-} from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import { getEnumStringId } from '@tamanu/ui-components';
 import {
   AutocompleteField,
@@ -27,15 +23,6 @@ const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'
 const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate', 'status'];
 const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'priority', 'laboratory'];
 
-// Terminal and published statuses aren't offered as active-request filter options.
-const EXCLUDED_STATUS_FILTER_OPTIONS = [
-  LAB_REQUEST_STATUSES.PUBLISHED,
-  LAB_REQUEST_STATUSES.DELETED,
-  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-  LAB_REQUEST_STATUSES.CANCELLED,
-  LAB_REQUEST_STATUSES.INVALIDATED,
-];
-
 const FacilityCheckbox = styled.div`
   display: flex;
   align-items: center;
@@ -49,7 +36,7 @@ const Spacer = styled.div`
 `;
 
 export const LabRequestsSearchBar = ({ statuses }) => {
-  const publishedStatus = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
+  const publishedStatus = statuses.includes(LAB_REQUEST_STATUSES.PUBLISHED);
   const { searchParameters, setSearchParameters } = useLabRequest(
     publishedStatus ? LabRequestSearchParamKeys.Finalised : LabRequestSearchParamKeys.All,
   );
@@ -69,17 +56,14 @@ export const LabRequestsSearchBar = ({ statuses }) => {
   const { getTranslation } = useTranslation();
   const statusFilterOptions = useMemo(
     () =>
+      // Only offer the statuses this listing's table shows, so the two can't drift apart.
       Object.entries(LAB_REQUEST_STATUS_LABELS)
-        .filter(([value]) =>
-          publishedStatus
-            ? LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED.includes(value)
-            : !EXCLUDED_STATUS_FILTER_OPTIONS.includes(value),
-        )
+        .filter(([value]) => statuses.includes(value))
         .map(([value, label]) => ({
           value,
           label: getTranslation(getEnumStringId(value, LAB_REQUEST_STATUS_LABELS), label),
         })),
-    [getTranslation, publishedStatus],
+    [getTranslation, statuses],
   );
   // MultiAutocompleteField reads options through a suggester; serve the static enum locally.
   const statusSuggester = useMemo(

@@ -12,6 +12,7 @@ import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsP
 import { COLUMN_KEYS, FORM_COLUMNS } from './multipleImagingRequestsColumns';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
@@ -21,12 +22,15 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
     error,
     isLoading,
   } = useQuery(['imagingRequests', encounter.id], async () => {
-    const result = await api.get(`encounter/${encodeURIComponent(encounter.id)}/imagingRequests`, {
-      includeNotes: 'true',
-      status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-      orderBy: 'requestedDate',
-      order: 'ASC',
-    });
+    const result = await api.get(
+      route('encounter/:encounterId/imagingRequests', { encounterId: encounter.id }),
+      {
+        includeNotes: 'true',
+        status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+        orderBy: 'requestedDate',
+        order: 'ASC',
+      },
+    );
     return result.data;
   });
 

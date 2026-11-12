@@ -2,6 +2,7 @@ import * as React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { resolveEndpoint } from '@tamanu/api-client';
 import { ASSET_NAMES, BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 
 import { createQueryClient } from '../helpers';
@@ -27,7 +28,7 @@ const contentPending = () => ({
 });
 
 const respondWith = (byName, fallback) =>
-  apiGet.mockImplementation(async (endpoint) => byName[endpoint.replace('asset/', '')] ?? fallback);
+  apiGet.mockImplementation(async (endpoint) => byName[resolveEndpoint(endpoint).replace('asset/', '')] ?? fallback);
 
 const renderCertificate = () => {
   const queryClient = createQueryClient();

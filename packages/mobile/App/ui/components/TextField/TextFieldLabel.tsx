@@ -19,11 +19,7 @@ interface LabelProps {
   labelFontSize?: string | number;
 }
 
-export const TextFieldLabel = ({
-  children,
-  labelColor,
-  labelFontSize,
-}: LabelProps): JSX.Element => (
+export const TextFieldLabel = ({ children, labelColor, labelFontSize }: LabelProps) => (
   <StyledLabel
     style={{
       color: labelColor || theme.colors.TEXT_SUPER_DARK,

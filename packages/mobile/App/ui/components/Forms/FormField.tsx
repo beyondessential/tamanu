@@ -25,7 +25,7 @@ export const Field = ({
   onBlur,
   validateOnValueChange,
   ...rest
-}: FieldProps): JSX.Element => {
+}: FieldProps) => {
   const [field, meta, { setValue, setTouched }] = useField(name);
   const { onChange: fieldOnChange } = field;
   const { status, submitCount } = useFormikContext();

@@ -44,6 +44,76 @@ describe('SensitiveNetwork', () => {
     });
   });
 
+  describe('membership is fixed', () => {
+    it('refuses to move a facility to another network', async () => {
+      const facility = await createFacility((await createNetwork()).id);
+      const other = await createNetwork();
+
+      await expect(facility.update({ sensitiveNetworkId: other.id })).rejects.toThrow(
+        /cannot change sensitive network/,
+      );
+    });
+
+    it('refuses to enrol a facility that belongs to no network', async () => {
+      const facility = await createFacility();
+      const network = await createNetwork();
+
+      await expect(facility.update({ sensitiveNetworkId: network.id })).rejects.toThrow(
+        /cannot change sensitive network/,
+      );
+    });
+
+    it('refuses to remove a facility from its network', async () => {
+      const facility = await createFacility((await createNetwork()).id);
+
+      await expect(facility.update({ sensitiveNetworkId: null })).rejects.toThrow(
+        /cannot change sensitive network/,
+      );
+    });
+
+    it('treats a blank network as no network when editing a facility outside any network', async () => {
+      const facility = await createFacility();
+
+      await facility.update({ name: 'Renamed facility', sensitiveNetworkId: '' });
+
+      await facility.reload();
+      expect(facility.name).toBe('Renamed facility');
+      expect(facility.sensitiveNetworkId).toBeNull();
+    });
+
+    it('refuses a blank network for a member facility', async () => {
+      const facility = await createFacility((await createNetwork()).id);
+
+      await expect(facility.update({ sensitiveNetworkId: '' })).rejects.toThrow(
+        /cannot change sensitive network/,
+      );
+    });
+
+    it('allows other edits to a member facility', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility(network.id);
+
+      await facility.update({ name: 'renamed', sensitiveNetworkId: network.id });
+
+      await facility.reload();
+      expect(facility.name).toBe('renamed');
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('applies a change written with hooks off, as incoming sync does', async () => {
+      const facility = await createFacility((await createNetwork()).id);
+      const other = await createNetwork();
+
+      await models.Facility.update(
+        { sensitiveNetworkId: other.id },
+        { where: { id: facility.id }, hooks: false },
+      );
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(other.id);
+    });
+  });
+
   describe('deletion', () => {
     it('refuses to delete a network that has a member facility', async () => {
       const network = await createNetwork();

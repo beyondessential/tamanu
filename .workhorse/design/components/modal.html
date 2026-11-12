@@ -1,0 +1,179 @@
+<!-- component: Modal -->
+<!-- Preview for the Tamanu design system — see ../design-system.md (#modal) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamanu Design System — Modal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#326699;--primary-dark:#2f4358;--primary30:#C2D2E1;--primary10:#EBF0F5;
+  --blue:#1172D1;--bright-blue:#67A6E3;--very-light-blue:#F4F9FF;
+  --darkest:#444444;--dark:#666666;--mid:#888888;--soft:#b8b8b8;
+  --alert:#f76853;--light-alert:#fff0ee;--safe:#47ca80;--green:#19934E;
+  --orange:#f17f16;--dark-orange:#CB6100;--secondary:#ffcc24;
+  --white:#ffffff;--off-white:#fafafa;--bg:#f3f5f7;--bg2:#f9fafb;
+  --outline:#dedede;--soft-outline:#ebebeb;
+}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--darkest);background:var(--bg);line-height:1.4;}
+.page{max-width:980px;margin:0 auto;padding:40px 32px 80px;}
+.ds-title{font-size:24px;font-weight:500;line-height:32px;margin:0 0 4px;}
+.ds-sub{font-size:14px;color:var(--mid);margin:0 0 36px;}
+.ds-sub code{font-family:ui-monospace,monospace;font-size:12px;color:var(--dark);}
+.ds-section{margin-bottom:44px;}
+.ds-h{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mid);margin:0 0 18px;border-bottom:1px solid var(--soft-outline);padding-bottom:8px;}
+.ds-row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;}
+.ds-cell{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+.ds-caption{font-size:11px;line-height:15px;color:var(--mid);}
+
+/* ---- Modal ---- */
+.modal-stage{background:rgba(68,68,68,0.28);border-radius:6px;padding:40px;display:flex;justify-content:center;}
+.modal{background:#fff;border-radius:3px;box-shadow:0 8px 30px rgba(0,0,0,0.18);width:600px;max-width:100%;overflow:hidden;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 14px 32px;border-bottom:1px solid #ebebeb;}
+.modal-title{font-size:16px;font-weight:500;color:#444;}
+.modal-close{width:28px;height:28px;border:none;background:none;color:#888;font-size:18px;cursor:pointer;border-radius:50%;line-height:1;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:#f3f5f7;}
+.modal-body{background:#f3f5f7;padding:18px 32px;}
+.modal-footer{background:#f3f5f7;padding:0 32px 18px;display:flex;justify-content:flex-end;gap:16px;}
+
+/* ---- Buttons ---- */
+.btn{font:500 14px/16px Roboto;padding:11px 18px 12px;min-width:100px;border-radius:3px;border:1px solid transparent;cursor:pointer;}
+.btn-primary{background:#326699;color:#fff;border-color:#326699;}
+.btn-outlined{background:#fff;color:#326699;border-color:#326699;}
+.btn-danger{background:#d32f2f;color:#fff;border-color:#d32f2f;}
+
+/* ---- Field stub ---- */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem 1.2rem;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field-label{font-size:14px;font-weight:500;color:#444;}
+.field-input{height:40px;border:1px solid #dedede;border-radius:3px;background:#fff;padding:0 12px;display:flex;align-items:center;justify-content:space-between;font-size:14px;color:#888;}
+.field-input .chev{color:#888;font-size:12px;}
+
+/* ---- Confirm body ---- */
+.confirm-body{text-align:center;}
+.confirm-body h3{font-size:18px;font-weight:500;color:#444;margin:4px 0 8px;}
+.confirm-body p{font-size:14px;color:#666;margin:0;}
+.confirm-divider{border:none;border-top:1px solid #ebebeb;margin:24px -32px 0;}
+.confirm-actions{display:flex;justify-content:flex-end;gap:16px;padding-top:18px;}
+
+/* ---- Size tokens ---- */
+.size-list{display:flex;flex-direction:column;gap:14px;max-width:760px;}
+.size-item{display:flex;flex-direction:column;gap:5px;}
+.size-label{font-size:12px;color:#666;}
+.size-label strong{font-weight:500;color:#444;}
+.size-bar{height:28px;background:#EBF0F5;border:1px solid #C2D2E1;border-radius:3px;}
+
+/* ---- Note card ---- */
+.note-card{background:#fff;border:1px solid #dedede;border-radius:5px;padding:16px 20px;max-width:620px;font-size:14px;color:#666;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 class="ds-title">Modal</h1>
+  <p class="ds-sub">Dialogs — BaseModal → Modal / FormModal → ConfirmModal. Grounded in <code>packages/ui-components/src/components/BaseModal.jsx</code></p>
+
+  <!-- 1. Form modal -->
+  <section class="ds-section">
+    <h2 class="ds-h">Form modal (FormModal, sm / 600px)</h2>
+    <div class="ds-cell" style="align-items:stretch;width:100%;">
+      <div class="modal-stage">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-title">Record vaccine</span>
+            <button class="modal-close" aria-label="Close">&#10005;</button>
+          </div>
+          <div class="modal-body">
+            <div class="field-grid">
+              <div class="field">
+                <span class="field-label">Vaccine</span>
+                <div class="field-input"><span>Select</span><span class="chev">&#9662;</span></div>
+              </div>
+              <div class="field">
+                <span class="field-label">Date given</span>
+                <div class="field-input"><span>dd/mm/yyyy</span><span class="chev">&#128197;</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outlined">Cancel</button>
+            <button class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+      <p class="ds-caption">FormModal — close (✕) disables itself while the form is submitting. Body background #f3f5f7; header rule #ebebeb.</p>
+    </div>
+  </section>
+
+  <!-- 2. Confirm modal -->
+  <section class="ds-section">
+    <h2 class="ds-h">Confirm modal (ConfirmModal)</h2>
+    <div class="ds-cell" style="align-items:stretch;width:100%;">
+      <div class="modal-stage">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-title">Delete chart</span>
+            <button class="modal-close" aria-label="Close">&#10005;</button>
+          </div>
+          <div class="modal-body">
+            <div class="confirm-body">
+              <h3>Are you sure you want to delete this chart?</h3>
+              <p>This action cannot be undone.</p>
+              <hr class="confirm-divider">
+              <div class="confirm-actions">
+                <button class="btn btn-outlined">Cancel</button>
+                <button class="btn btn-danger">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="ds-caption">ConfirmModal — centred text, full-bleed divider, red confirm for destructive actions.</p>
+    </div>
+  </section>
+
+  <!-- 3. Size tokens -->
+  <section class="ds-section">
+    <h2 class="ds-h">Size tokens</h2>
+    <div class="ds-cell" style="align-items:stretch;width:100%;">
+      <div class="size-list">
+        <div class="size-item">
+          <span class="size-label"><strong>xs</strong> — 444px</span>
+          <div class="size-bar" style="width:29%;"></div>
+        </div>
+        <div class="size-item">
+          <span class="size-label"><strong>sm</strong> — 600px (default)</span>
+          <div class="size-bar" style="width:39%;"></div>
+        </div>
+        <div class="size-item">
+          <span class="size-label"><strong>md</strong> — 830px</span>
+          <div class="size-bar" style="width:54%;"></div>
+        </div>
+        <div class="size-item">
+          <span class="size-label"><strong>lg</strong> — 1200px</span>
+          <div class="size-bar" style="width:78%;"></div>
+        </div>
+        <div class="size-item">
+          <span class="size-label"><strong>xl</strong> — 1536px</span>
+          <div class="size-bar" style="width:100%;"></div>
+        </div>
+      </div>
+      <p class="ds-caption">MODAL_MAX_WIDTHS — max-width presets. Default is sm.</p>
+    </div>
+  </section>
+
+  <!-- 4. Note card -->
+  <section class="ds-section">
+    <h2 class="ds-h">Notes</h2>
+    <div class="note-card">
+      Backdrop clicks do nothing — close via the ✕ or Escape only. Use FormModal for forms, Modal for everything else, ConfirmModal for confirmations. There is no ConfirmModalV2.
+    </div>
+  </section>
+</div>
+</body>
+</html>

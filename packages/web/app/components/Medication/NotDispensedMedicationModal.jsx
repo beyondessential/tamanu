@@ -20,6 +20,7 @@ import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { FormModal } from '../FormModal';
 import { MedicationDetailsColumns } from './MedicationDetailsColumns';
+import { route } from '@tamanu/api-client';
 
 const Text = styled.div`
   font-size: 14px;
@@ -64,7 +65,9 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
 
   const leftDetails = [
     {
-      label: <TranslatedText stringId="medication.notDispensed.modal.patientId" fallback="Patient ID" />,
+      label: (
+        <TranslatedText stringId="medication.notDispensed.modal.patientId" fallback="Patient ID" />
+      ),
       value: patient?.displayId || '-',
     },
     {
@@ -90,7 +93,10 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
   const rightDetails = [
     {
       label: (
-        <TranslatedText stringId="medication.notDispensed.modal.patientName" fallback="Patient name" />
+        <TranslatedText
+          stringId="medication.notDispensed.modal.patientName"
+          fallback="Patient name"
+        />
       ),
       value: patient ? <PatientNameDisplay patient={patient} /> : '-',
     },
@@ -103,19 +109,26 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
       ),
       value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
     },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.notDispensed.modal.remainingRepeats"
-          fallback="Remaining repeats"
-        />
-      ),
-      value: remainingRepeats ?? 0,
-    },
+    ...(pharmacyOrder?.isDischargePrescription
+      ? [
+          {
+            label: (
+              <TranslatedText
+                stringId="medication.notDispensed.modal.remainingRepeats"
+                fallback="Remaining repeats"
+              />
+            ),
+            value: remainingRepeats ?? 0,
+          },
+        ]
+      : []),
   ];
 
   const handleSubmit = async values => {
-    await api.post(`medication/medication-requests/${request.id}/not-dispensed`, values);
+    await api.post(
+      route('medication/medication-requests/:requestId/not-dispensed', { requestId: request.id }),
+      values,
+    );
     onSuccess?.();
     onClose();
   };

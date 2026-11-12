@@ -8,11 +8,15 @@ import {
 } from './patientFields';
 import {
   INVOICE_STATUS_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
-import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters';
+import {
+  ENCOUNTER_TYPE_ABBREVIATION_LABELS,
+  ENCOUNTER_TYPE_LABELS,
+  PATIENT_STATUS_LABELS,
+} from './encounters';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
@@ -32,7 +36,7 @@ import {
   REPORT_STATUS_LABELS,
 } from './reports';
 import { TEMPLATE_TYPE_LABELS } from './templates';
-import { LAB_REQUEST_STATUS_LABELS } from './labs';
+import { LAB_REQUEST_STATUS_LABELS, VISIBILITY_STATUS_LABELS } from './labs';
 import { ASSET_NAME_LABELS } from './importable';
 import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import {
@@ -91,7 +95,7 @@ export const registeredEnums = {
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_STATUS_LABELS,
@@ -102,6 +106,7 @@ export const registeredEnums = {
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   MEDICATION_DURATION_UNITS_LABELS,
   PATIENT_ISSUE_LABELS,
+  PATIENT_STATUS_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
   PREGNANCY_MOMENTS,
@@ -124,6 +129,7 @@ export const registeredEnums = {
   TITLE_LABELS,
   VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
+  VISIBILITY_STATUS_LABELS,
   DRUG_STOCK_STATUS_LABELS,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
 };
@@ -156,7 +162,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS: 'invoice.property.insurerPaymentStatus',
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS: 'invoice.property.insurancePlanPaymentStatus',
   INVOICE_ITEMS_CATEGORY_LABELS: 'invoice.property.itemCategory',
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS: 'invoice.property.patientPaymentStatus',
   INVOICE_STATUS_LABELS: 'invoice.property.status',
@@ -167,6 +173,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS: 'medication.property.durationUnitDisplay',
   MEDICATION_DURATION_UNITS_LABELS: 'medication.property.durationUnit',
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
+  PATIENT_STATUS_LABELS: 'encounter.property.patientStatus',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
   PREGNANCY_MOMENTS: 'death.property.pregnancyMoment',
@@ -189,6 +196,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   TITLE_LABELS: 'patient.property.title',
   VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
+  VISIBILITY_STATUS_LABELS: 'referenceData.property.visibilityStatus',
   DRUG_STOCK_STATUS_LABELS: 'medication.property.drugStockStatus',
   PHARMACY_PRESCRIPTION_TYPE_LABELS: 'medication.property.pharmacyPrescriptionType',
 };

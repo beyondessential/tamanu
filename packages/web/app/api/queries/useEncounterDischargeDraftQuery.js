@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../index';
+import { route } from '@tamanu/api-client';
 
 export const ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY = 'encounterDischargeDraft';
 
@@ -12,7 +13,7 @@ export const useEncounterDischargeDraftQuery = (encounterId, { enabled = true } 
 
   return useQuery(
     [ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY, encounterId],
-    () => api.get(`encounter/${encodeURIComponent(encounterId)}/dischargeDraft`),
+    () => api.get(route('encounter/:encounterId/dischargeDraft', { encounterId })),
     { enabled: Boolean(encounterId) && enabled },
   );
 };

@@ -14,5 +14,8 @@ export const testData = {
   dietName:"Carbohydrate controlled",
   dietName2:"Citrus free",
   dietSearchResult1:"CarbControlled",
-  dietSearchResult2:"Citrusfree"
+  dietSearchResult2:"Citrusfree",
+  // Provisioned by .github/scripts/e2e-test-setup.sh and provisioning.local-example.json5
+  practitionerUser: { email: 'practitioner@tamanu.io', password: 'practitioner' },
+  receptionUser: { email: 'reception@tamanu.io', password: 'reception' },
 };

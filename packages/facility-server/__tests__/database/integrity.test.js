@@ -1,3 +1,4 @@
+import config from 'config';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants';
 
@@ -30,6 +31,7 @@ describe('performDatabaseIntegrityChecks', () => {
   });
 
   beforeEach(async () => {
+    process.env.SYNC_URL = DECLARED_HOST;
     await LocalSystemFact.set(FACT_CENTRAL_HOST, DECLARED_HOST);
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(['facility-a']));
   });
@@ -50,10 +52,15 @@ describe('performDatabaseIntegrityChecks', () => {
     expect(await LocalSystemFact.get(FACT_CENTRAL_HOST)).toBe('https://other.example.com');
   });
 
+  it('fails on a mismatch with the host declared in config alone', async () => {
+    expect(config.sync.host).toBeTruthy();
+    delete process.env.SYNC_URL;
+    await LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://other.example.com');
+    await expect(performDatabaseIntegrityChecks(ctx)).rejects.toThrow(/sync\.host mismatch/);
+  });
+
   it('fails when a recorded facility is not covered by the declaration', async () => {
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(['facility-other']));
-    await expect(performDatabaseIntegrityChecks(ctx)).rejects.toThrow(
-      /serverFacilityId mismatch/,
-    );
+    await expect(performDatabaseIntegrityChecks(ctx)).rejects.toThrow(/serverFacilityId mismatch/);
   });
 });

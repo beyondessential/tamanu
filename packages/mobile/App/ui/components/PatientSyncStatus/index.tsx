@@ -19,7 +19,7 @@ interface PatientSyncStatusProps {
   selectedPatient: IPatient;
 }
 
-export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): JSX.Element => {
+export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps) => {
   const queryClient = useQueryClient();
   const { syncManager } = useBackend();
   const { getTranslation } = useTranslation();

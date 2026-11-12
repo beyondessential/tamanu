@@ -12,7 +12,7 @@ import {
 import { extractDefaults } from '../src/schema/utils';
 import * as yup from 'yup';
 import { fail } from 'assert';
-import { VACCINE_STATUS } from '@tamanu/constants';
+import { INVOICE_PRINT_LAYOUTS, VACCINE_STATUS } from '@tamanu/constants';
 
 describe('Schemas', () => {
   describe('Extracting settings from schema', () => {
@@ -365,6 +365,36 @@ describe('Schemas', () => {
       ).resolves.not.toThrow();
     });
 
+    describe('Kiosk forms', () => {
+      const kioskForms = value =>
+        validateSettings({
+          settings: { kiosk: { forms: value } },
+          scope: 'facility',
+        });
+
+      it('accepts appointment types and booking types', async () => {
+        await expect(
+          kioskForms([
+            { appointmentTypeId: 'appointmentType-a', surveyIds: ['survey-a'] },
+            { bookingTypeId: 'bookingType-b', surveyIds: [] },
+          ]),
+        ).resolves.not.toThrow();
+      });
+
+      it('rejects an entry with neither or both types', async () => {
+        await expect(kioskForms([{ surveyIds: [] }])).rejects.toThrow(yup.ValidationError);
+        await expect(
+          kioskForms([
+            {
+              appointmentTypeId: 'appointmentType-a',
+              bookingTypeId: 'bookingType-b',
+              surveyIds: [],
+            },
+          ]),
+        ).rejects.toThrow(yup.ValidationError);
+      });
+    });
+
     // The task list time frames are handed to date-fns as an hour count, which truncates
     // toward zero: a floor of 0.5 becomes 0 and puts the cut-off on the current instant,
     // hiding every overdue task. Whole hours only.
@@ -401,6 +431,29 @@ describe('Schemas', () => {
       it('upcomingTasksTimeFrame is not nullable: the ceiling always applies', async () => {
         await expect(tasking({ upcomingTasksTimeFrame: null })).rejects.toThrow(
           yup.ValidationError,
+        );
+      });
+    });
+
+    describe('Invoice print layout', () => {
+      const printLayout = value =>
+        validateSettings({ settings: { invoicing: { printLayout: value } }, scope: 'facility' });
+
+      it('defaults to A4', () => {
+        expect(facilityDefaults.invoicing.printLayout).toBe(INVOICE_PRINT_LAYOUTS.A4);
+      });
+
+      it.each(Object.values(INVOICE_PRINT_LAYOUTS))('accepts %s', async value => {
+        await expect(printLayout(value)).resolves.not.toThrow();
+      });
+
+      it('rejects any other layout', async () => {
+        await expect(printLayout('letter')).rejects.toThrow(yup.ValidationError);
+      });
+
+      it('is sent to the web', () => {
+        expect(getKeysByFlag('exposedToWeb', [facilitySettings])).toContain(
+          'invoicing.printLayout',
         );
       });
     });

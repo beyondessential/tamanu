@@ -2,7 +2,7 @@ import HighPriorityIcon from '@mui/icons-material/PriorityHigh';
 import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
 import React from 'react';
-import { Link, generatePath, useNavigate } from 'react-router';
+import { Link, generatePath } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
 import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
@@ -11,7 +11,6 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
 import { LimitedLinesCell } from '../../FormattedTableCell';
 import { useTranslation } from '../../../contexts/Translation';
-import { useEncounter } from '../../../contexts/Encounter';
 
 const AppointmentDetailsContainer = styled('div')`
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -56,8 +55,6 @@ const ClinicianContainer = styled('div')`
 const LinkedEncounter = ({ encounter, isOvernight }) => {
   const { formatShort } = useDateTime();
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
-  const navigate = useNavigate();
-  const { loadEncounter } = useEncounter();
 
   const encounterPath = generatePath(PATIENT_PATHS.ENCOUNTER, {
     category: PATIENT_CATEGORIES.ALL,
@@ -76,18 +73,8 @@ const LinkedEncounter = ({ encounter, isOvernight }) => {
     fallback: encounter?.location?.facility.name,
   })}`;
 
-  const handleClick = async (e) => {
-    e.preventDefault();
-    await loadEncounter(encounter.id);
-    navigate((encounterPath));
-  };
-
   return (
-    <EncounterLink
-      to={encounterPath}
-      onClick={handleClick}
-      $isOvernight={isOvernight}
-    >
+    <EncounterLink to={encounterPath} $isOvernight={isOvernight}>
       <LimitedLinesCell
         value={encounterLabel}
         maxLines={isOvernight ? undefined : 1}
