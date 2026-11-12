@@ -8,17 +8,17 @@ import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text, TextWithoutContext } from '../pdf/Text';
 import { prepareDietSummary } from './prepareDietSummary';
-import { GLOBAL_PDF_FONT, estimateWardPresence } from './estimateWardPresence';
+import { GLOBAL_PDF_FONT } from '../pdf/fonts';
+import { estimateWardPresence } from './estimateWardPresence';
+import { CELL_PADDING_VERTICAL, COLUMN_HEADER_HEIGHT, NAME_WIDTH } from './layout';
 
 const borderStyle = '1 solid black';
 
-const NAME_WIDTH = 115;
 const NHN_WIDTH = 60;
 const BED_WIDTH = 35;
 const PATIENT_COLUMNS_WIDTH = NAME_WIDTH + NHN_WIDTH + BED_WIDTH;
 const CONTENT_WIDTH = 742;
 const MAX_DIET_COLUMN_WIDTH = 34;
-const HEADER_HEIGHT = 72;
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     borderLeft: borderStyle,
     justifyContent: 'center',
     paddingHorizontal: 4,
-    paddingVertical: 4,
+    paddingVertical: CELL_PADDING_VERTICAL,
     minHeight: 17,
   },
   totalRow: {
@@ -89,21 +89,21 @@ const styles = StyleSheet.create({
   },
   headerCell: {
     borderLeft: borderStyle,
-    height: HEADER_HEIGHT,
+    height: COLUMN_HEADER_HEIGHT,
     justifyContent: 'flex-end',
     paddingHorizontal: 4,
     paddingBottom: 4,
   },
   dietHeaderCell: {
     borderLeft: borderStyle,
-    height: HEADER_HEIGHT,
+    height: COLUMN_HEADER_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dietHeaderText: {
     fontSize: 7,
     transform: 'rotate(-90deg)',
-    width: HEADER_HEIGHT - 10,
+    width: COLUMN_HEADER_HEIGHT - 10,
   },
   // Drawn rather than typed: the standard PDF font the sheet falls back to has no tick glyph.
   tick: {

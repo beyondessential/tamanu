@@ -11,15 +11,18 @@
 //
 // spec: DIETSUM#layout
 
-export const GLOBAL_PDF_FONT = 'GlobalPdfFont';
+import {
+  CELL_PADDING_VERTICAL,
+  COLUMN_HEADER_HEIGHT,
+  NAME_CHAR_WIDTH,
+  NAME_WIDTH,
+} from './layout';
 
 const WARD_HEADING_HEIGHT = 15;
-const COLUMN_HEADER_HEIGHT = 72;
-const ROW_PADDING = 8;
+const ROW_PADDING = CELL_PADDING_VERTICAL * 2;
 const PLAIN_LINE_HEIGHT = 11;
 const GLOBAL_FONT_LINE_HEIGHT = 22;
-// What fits on one line of the name column: 115pt at 8pt, give or take the glyphs.
-const NAME_CHARS_PER_LINE = 26;
+const NAME_CHARS_PER_LINE = Math.floor(NAME_WIDTH / NAME_CHAR_WIDTH);
 
 const estimateRowHeight = (patient, lineHeight) => {
   const name = `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim();
