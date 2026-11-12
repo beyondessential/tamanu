@@ -52,17 +52,6 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
   );
 
   const BILLING_FIELDS = {
-    insurerPolicyNumber: {
-      component: TextField,
-      condition: () => !!enablePatientInsurer,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.insurerPolicyNumber.label"
-          fallback="Insurance policy number"
-          data-testid="translatedtext-kpjh"
-        />
-      ),
-    },
     invoiceInsurancePlanId: {
       component: SuggesterSelectField,
       endpoint: 'invoiceInsurancePlan',
@@ -136,6 +125,20 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
         <TranslatedText
           stringId="general.localisedField.payor2ReferenceNumber.label"
           fallback="Payor 2 reference number"
+        />
+      ),
+    },
+    // Last because it is the only field here a deployment can switch off. The grid fills two
+    // to a row, so the odd one out leaves the gap; keeping it at the end means family size sits
+    // beside annual income and each payor beside its reference number either way.
+    insurerPolicyNumber: {
+      component: TextField,
+      condition: () => !!enablePatientInsurer,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.insurerPolicyNumber.label"
+          fallback="Insurance policy number"
+          data-testid="translatedtext-kpjh"
         />
       ),
     },

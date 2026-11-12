@@ -22,7 +22,8 @@ The patient's Details tab, where their demographic, identification, contact, loc
 
 The details used to bill the patient, grouped together so they are found in one place.
 
-- Billing information holds, in order: insurance policy number (where a deployment enables it), insurance plan, patient type, family size, annual income, Payor 1, Payor 1 reference number, Payor 2, and Payor 2 reference number. Each payor's reference number sits beside it.
+- Billing information holds, in order: insurance plan, patient type, family size, annual income, Payor 1, Payor 1 reference number, Payor 2, Payor 2 reference number, and insurance policy number (where a deployment enables it).
+- Family size sits beside annual income, and each payor beside its own reference number.
 - Insurance plan accepts more than one plan, chosen from the insurance plans available to patients.
 - An insurance plan that is on one of the patient's in-progress invoices cannot be removed. Saving shows a message naming the plan and asking for it to be removed from the invoices first.
 - Patient type is chosen from the patient billing types.
@@ -38,6 +39,9 @@ The details used to bill the patient, grouped together so they are found in one 
 - Payor 1 and Payor 2 are each chosen by searching existing patient records, the same way as the patient's mother and father. Each match shows the patient's name, display ID, sex and date of birth. Deceased patients are not offered. The patient being edited can be chosen as their own payor.
 - Each payor's reference number is a free-text field.
 - Annual income, family size, both payors and their reference numbers are recorded on the patient's record and editable from the Details tab.
+
+> [!NOTE]
+> Insurance policy number comes last because it is the only field in the section a deployment can switch off. The fields lay out two to a row, so an odd number of them leaves one on a row of its own, and putting the field that can disappear at the end is what keeps the three pairs above it together whether or not it is shown.
 
 ## Creating a patient
 

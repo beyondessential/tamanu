@@ -27,9 +27,11 @@ Two things to know while testing:
       custom patient field groups (verifies spec: PDET)
 - [x] Patient type is shown in Billing information rather than Personal information, and
       saves and reads back from there (verifies spec: PDET)
-- [x] Billing information holds, in order: insurance policy number, insurance plan, patient
-      type, family size, annual income, Payor 1, Payor 1 reference number, Payor 2, Payor 2
-      reference number (verifies spec: PDET)
+- [ ] Billing information holds, in order: insurance plan, patient type, family size, annual
+      income, Payor 1, Payor 1 reference number, Payor 2, Payor 2 reference number, insurance
+      policy number (verifies spec: PDET)
+- [ ] Family size sits beside annual income, and each payor beside its reference number, both
+      with the insurance policy number shown and with it switched off (verifies spec: PDET)
 - [x] Identification information ends with adoption number then marriage licence
       (verifies spec: PDET)
 - [x] With every Billing information field hidden in patient field settings, the section and
