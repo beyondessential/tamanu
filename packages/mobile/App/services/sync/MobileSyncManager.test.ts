@@ -121,6 +121,16 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.progressMessage).toBe('');
     });
 
+    it('resets progress when a sync fails', async () => {
+      mobileSyncManager.setProgress(40, 'Pulling changes');
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: false } as any);
+
+      await mobileSyncManager.triggerSync();
+
+      expect(mobileSyncManager.progress).toBe(0);
+      expect(mobileSyncManager.progressMessage).toBe('');
+    });
+
     it('still tries to sync when the network state is unknown', async () => {
       jest.mocked(NetInfo.refresh).mockResolvedValueOnce({ isConnected: null } as any);
       const startSyncSessionSpy = jest

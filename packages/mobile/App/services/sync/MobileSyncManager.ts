@@ -211,8 +211,7 @@ export class MobileSyncManager {
         this.syncStage = null;
         this.isSyncing = false;
         this.isQueuing = false;
-        this.progressMessage = '';
-        this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
+        this.setProgress(0, ''); // also emits SYNC_STATE_CHANGED
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
         if (this.urgentSyncInterval) {
           clearInterval(this.urgentSyncInterval);
