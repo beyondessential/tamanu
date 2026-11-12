@@ -24,7 +24,7 @@ are shown on screen, see `labs/results.md`.
 - [ ] When the encounter has no eligible requests, "Print results" is hidden, and so is the overflow menu when it holds nothing else.
 - [ ] "Print results" appears only when the lab results printout setting is on and the user holds every permission the printout's own fetches need: read lab test results, and read and list lab requests and list lab tests. Reading the request status log is not among them — without it the printout still prints, naming no publisher.
 - [ ] "Print results" is available on a discharged or otherwise read-only encounter.
-- [ ] Requests appear in the order they were requested, oldest first.
+- [ ] Requests appear in the order they reached their current status, oldest first. Requests that reached their status at the same moment are ordered by requested date, oldest first. A request whose status change was never logged is ordered by its requested date.
 
 ## Printout layout
 

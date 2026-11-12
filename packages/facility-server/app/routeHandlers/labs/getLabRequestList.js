@@ -1,15 +1,44 @@
 import asyncHandler from 'express-async-handler';
+import { literal } from 'sequelize';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getLabRequestTestAndPanelNames } from '@tamanu/utils/labTests';
+
+// Sorts on when a request reached the status it currently holds, which no column records. Its
+// status changes are logged, so that moment is the newest log row carrying the status it still
+// has. A request older than the log, or arrived without one, falls back to its requested date,
+// which is also the tie-break so requests that reached their status together keep a fixed order.
+//
+// Log times are absolute while requested dates are primary-timezone strings, so the log time is
+// rendered into that form rather than the two being compared across types. The subquery is served
+// by lab_request_logs_lab_request_id_created_at.
+const ORDER_BY_STATUS_REACHED_AT = 'statusReachedAt';
+
+const buildStatusReachedAtOrder = (sequelize, direction) => () => [
+  [
+    literal(`COALESCE(
+        (SELECT TO_CHAR(
+                  MAX(status_log.created_at) AT TIME ZONE ${sequelize.escape(getPrimaryTimeZone())},
+                  'YYYY-MM-DD HH24:MI:SS'
+                )
+           FROM lab_request_logs status_log
+          WHERE status_log.lab_request_id = "LabRequest"."id"
+            AND status_log.status = "LabRequest"."status"
+            AND status_log.deleted_at IS NULL),
+        "LabRequest"."requested_date")`),
+    direction,
+  ],
+  ['requestedDate', direction],
+];
 
 export const getLabRequestList = (foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
-    const { includeNotes = false, status, excludeSensitive } = query;
+    const { models, query, db } = req;
+    const { includeNotes = false, status, excludeSensitive, orderBy, order = 'ASC' } = query;
     const newOptions = { ...options };
 
     // allow filter by status for encounter lab requests
@@ -18,6 +47,10 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
         ...options.additionalFilters,
         status,
       };
+    }
+
+    if (orderBy === ORDER_BY_STATUS_REACHED_AT) {
+      newOptions.buildOrder = buildStatusReachedAtOrder(db, order.toUpperCase());
     }
 
     const { data: labRequests, count } = await getResourceList(

@@ -35,7 +35,9 @@ const usePrintableLabRequestsQuery = (encounterId, refreshCount, { enabled }) =>
       api.get(route('encounter/:encounterId/labRequests', { encounterId }), {
         status: ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES,
         excludeSensitive: true,
-        orderBy: 'requestedDate',
+        // Oldest result first: when each request reached the status it holds now, which the
+        // server derives from the request's status log, falling back to its requested date.
+        orderBy: 'statusReachedAt',
         order: 'ASC',
       }),
     { enabled },

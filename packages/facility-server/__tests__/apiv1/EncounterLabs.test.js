@@ -27,6 +27,23 @@ async function createLabRequest(models, overrides) {
   return labRequest;
 }
 
+// The printout's list is ordered on when a request reached the status it now holds, which the
+// product records by logging each status change. A test that cares about that order moves a
+// request on and logs the move at the moment it chooses.
+async function reachStatus(models, labRequest, status, reachedAt) {
+  await labRequest.update({ status });
+  await models.LabRequestLog.create({
+    labRequestId: labRequest.id,
+    status,
+    createdAt: reachedAt,
+  });
+}
+
+// Far enough apart that no timezone offset can reorder them against a requested date.
+const EARLIER = new Date('2026-03-01T12:00:00Z');
+const LATER = new Date('2026-03-10T12:00:00Z');
+const LATEST = new Date('2026-03-20T12:00:00Z');
+
 describe('Encounter labs', () => {
   let patient = null;
   let user = null;
@@ -91,7 +108,7 @@ describe('Encounter labs', () => {
       ];
 
       await Promise.all(
-        statuses.map((status) =>
+        statuses.map(status =>
           createLabRequest(models, {
             patientId: patient.id,
             encounterId: encounter.id,
@@ -307,9 +324,7 @@ describe('Encounter labs', () => {
         }),
       );
 
-      const withSensitive = await sensitiveApp.get(
-        `/api/encounter/${encounter.id}/labRequests`,
-      );
+      const withSensitive = await sensitiveApp.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(withSensitive).toHaveSucceeded();
       expect(withSensitive.body.data.map(request => request.id).sort()).toEqual(
         [labRequest.id, sensitiveLabRequest.id].sort(),
@@ -395,13 +410,13 @@ describe('Encounter labs', () => {
       const published = await createLabRequest(models, {
         patientId: patient.id,
         encounterId: encounter.id,
-        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
         requestedDate: '2026-03-02 09:00:00',
       });
       const interim = await createLabRequest(models, {
         patientId: patient.id,
         encounterId: encounter.id,
-        status: LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
         requestedDate: '2026-03-01 09:00:00',
       });
       await createLabRequest(models, {
@@ -419,49 +434,133 @@ describe('Encounter labs', () => {
         }),
       );
 
+      await reachStatus(models, interim, LAB_REQUEST_STATUSES.INTERIM_RESULTS, EARLIER);
+      await reachStatus(models, published, LAB_REQUEST_STATUSES.PUBLISHED, LATER);
+
       const statusQuery = ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES.map(
         (status, index) => `status[${index}]=${status}`,
       ).join('&');
       const result = await sensitiveApp.get(
-        `/api/encounter/${encounter.id}/labRequests?${statusQuery}&excludeSensitive=true&orderBy=requestedDate&order=ASC`,
+        `/api/encounter/${encounter.id}/labRequests?${statusQuery}&excludeSensitive=true&orderBy=statusReachedAt&order=ASC`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body.data.map(request => request.id)).toEqual([interim.id, published.id]);
     });
 
-    it('orders by requested date, oldest first', async () => {
+    it('orders by when each request reached its current status, oldest first', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
       });
 
-      const newest = await createLabRequest(models, {
+      // Requested in one order and published in another, so only one of the two can be what the
+      // response is sorted on.
+      const requestedFirst = await createLabRequest(models, {
         patientId: patient.id,
         encounterId: encounter.id,
-        status: LAB_REQUEST_STATUSES.PUBLISHED,
-        requestedDate: '2026-03-02 09:00:00',
-      });
-      const oldest = await createLabRequest(models, {
-        patientId: patient.id,
-        encounterId: encounter.id,
-        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
         requestedDate: '2026-03-01 09:00:00',
       });
-      const middle = await createLabRequest(models, {
+      const requestedSecond = await createLabRequest(models, {
         patientId: patient.id,
         encounterId: encounter.id,
-        status: LAB_REQUEST_STATUSES.PUBLISHED,
-        requestedDate: '2026-03-01 15:30:00',
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        requestedDate: '2026-03-02 09:00:00',
+      });
+      const requestedThird = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        requestedDate: '2026-03-03 09:00:00',
       });
 
+      await reachStatus(models, requestedThird, LAB_REQUEST_STATUSES.PUBLISHED, EARLIER);
+      await reachStatus(models, requestedFirst, LAB_REQUEST_STATUSES.PUBLISHED, LATER);
+      await reachStatus(models, requestedSecond, LAB_REQUEST_STATUSES.PUBLISHED, LATEST);
+
       const result = await printoutApp.get(
-        `/api/encounter/${encounter.id}/labRequests?orderBy=requestedDate&order=ASC`,
+        `/api/encounter/${encounter.id}/labRequests?orderBy=statusReachedAt&order=ASC`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body.data.map(request => request.id)).toEqual([
-        oldest.id,
-        middle.id,
-        newest.id,
+        requestedThird.id,
+        requestedFirst.id,
+        requestedSecond.id,
+      ]);
+    });
+
+    it('orders a request whose status was never logged by its requested date', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const earlier = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        requestedDate: '2026-03-01 09:00:00',
+      });
+      const later = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        requestedDate: '2026-03-01 09:00:00',
+      });
+      await reachStatus(models, earlier, LAB_REQUEST_STATUSES.PUBLISHED, EARLIER);
+      await reachStatus(models, later, LAB_REQUEST_STATUSES.PUBLISHED, LATEST);
+
+      // Moved on without a log, as a request predating the status log would be. Its requested
+      // date sits between the other two, days clear of either, so the fallback has to be read in
+      // the same timezone as they are for it to land in the middle.
+      const unlogged = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        requestedDate: '2026-03-05 09:00:00',
+      });
+      await unlogged.update({ status: LAB_REQUEST_STATUSES.PUBLISHED });
+
+      const result = await printoutApp.get(
+        `/api/encounter/${encounter.id}/labRequests?orderBy=statusReachedAt&order=ASC`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(request => request.id)).toEqual([
+        earlier.id,
+        unlogged.id,
+        later.id,
+      ]);
+    });
+
+    it('breaks a tie on status time with the requested date, oldest first', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const requestedLater = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        requestedDate: '2026-03-02 09:00:00',
+      });
+      const requestedEarlier = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        requestedDate: '2026-03-01 09:00:00',
+      });
+
+      await reachStatus(models, requestedLater, LAB_REQUEST_STATUSES.PUBLISHED, EARLIER);
+      await reachStatus(models, requestedEarlier, LAB_REQUEST_STATUSES.PUBLISHED, EARLIER);
+
+      const result = await printoutApp.get(
+        `/api/encounter/${encounter.id}/labRequests?orderBy=statusReachedAt&order=ASC`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(request => request.id)).toEqual([
+        requestedEarlier.id,
+        requestedLater.id,
       ]);
     });
   });
