@@ -90,11 +90,11 @@ Two things to know while testing:
 
 ## Invoice discount assessment
 
-- [ ] The assessment opens with the patient's saved family size and annual income already
+- [x] The assessment opens with the patient's saved family size and annual income already
       selected (verifies spec: INVOICING)
-- [ ] A saved band the current scale no longer offers for that family size is left unselected
+- [x] A saved band the current scale no longer offers for that family size is left unselected
       (verifies spec: INVOICING)
-- [ ] Changing an answer in the assessment applies to that invoice's discount and leaves the
+- [x] Changing an answer in the assessment applies to that invoice's discount and leaves the
       patient's details unchanged (verifies spec: INVOICING)
 - [x] The discount is the remainder of the proportion the chosen band pays
 
