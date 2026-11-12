@@ -2232,7 +2232,8 @@ describe('Medication', () => {
 
       const row = result.body.data.find(item => item.id === pharmacyOrderPrescription.id);
       const { referenceDrug } = row.prescription.medication;
-      expect(referenceDrug.doseMin).toBeNull();
+      // A null column is dropped from the response, so an unset limit arrives absent.
+      expect(referenceDrug.doseMin).toBeUndefined();
       expect(Number(referenceDrug.doseMax)).toBe(2);
       expect(referenceDrug.dispensingQuantityMin).toBe(1);
       expect(referenceDrug.dispensingQuantityMax).toBe(100);

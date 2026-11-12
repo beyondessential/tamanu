@@ -2428,7 +2428,7 @@ medication.get(
 
     const referenceDrugs = await models.ReferenceDrug.findAll({
       where: { referenceDataId: { [Op.in]: medicationIds } },
-      attributes: ['id', 'isSensitive', 'referenceDataId'],
+      attributes: ['id', 'isSensitive', 'referenceDataId', ...DRUG_LIMIT_FIELDS],
       include: {
         model: models.ReferenceDrugFacility,
         as: 'facilities',
