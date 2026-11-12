@@ -46,9 +46,9 @@ Two things to know while testing:
       (verifies spec: PDET)
 - [x] Annual income offers the chosen family size's bands, each a range to the next band's
       lower bound, with the highest shown as above its own (verifies spec: PDET)
-- [ ] Annual income is disabled until a family size is chosen (verifies spec: PDET)
-- [ ] Changing the family size clears a previously chosen annual income (verifies spec: PDET)
-- [ ] Selecting the sliding fee scale plan marks family size and annual income as required
+- [x] Annual income is disabled until a family size is chosen (verifies spec: PDET)
+- [x] Changing the family size clears a previously chosen annual income (verifies spec: PDET)
+- [x] Selecting the sliding fee scale plan marks family size and annual income as required
       straight away, before Save is selected (verifies spec: PDET)
 - [x] Saving with the sliding fee scale plan and no family size shows "Family size is
       required for sliding fee scale" on the family size field (verifies spec: PDET)
