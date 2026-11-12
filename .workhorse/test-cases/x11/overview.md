@@ -57,7 +57,7 @@ Two things to know while testing:
 - [x] Neither message appears before Save is selected; choosing a value afterwards clears
       that field's message without raising one on the other until Save again
       (verifies spec: PDET)
-- [ ] Removing the sliding fee scale plan drops the required marks and clears both messages
+- [x] Removing the sliding fee scale plan drops the required marks and clears both messages
       (verifies spec: PDET)
 - [x] The requirement holds when the sliding fee scale plan is renamed, and does not apply to
       a plan whose code is not the configured one (verifies spec: PDET)
