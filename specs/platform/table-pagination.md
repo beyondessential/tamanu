@@ -4,7 +4,7 @@ id: TPAGE
 
 # Table pagination
 
-Applies to the footer every paginated table in the web app shares: what it tells the user about the records they are looking at, the choice of how many rows a page holds, and moving between pages.
+Applies to the footer every paginated table in the web app shares: what it tells the user about the records they are looking at, the choice of how many rows a page holds, and moving between pages, along with the column sort the patient lists and worklists remember.
 
 ## Rows per page
 
@@ -38,3 +38,16 @@ Applies to the footer every paginated table in the web app shares: what it tells
 
 > [!NOTE]
 > The remembered size belongs to the user rather than to the device, which is why it follows them to every device and facility they log in to.
+
+## Remembered sort
+
+- The tables that remember their search filters also remember the column sort the user applies: Inpatients, Emergency patients, Outpatients, Bed management, Recently discharged, Active and Finalised lab requests, Active and Completed imaging requests, Active medication requests, and Dispensed medications
+- Every other table opens at its default sort each time it is shown, and keeps a sort the user applies only until it is shown again
+- Once a user applies a sort on one of these tables, the table opens with that sort on their later visits, including after logging out and back in and on any other device they log in to
+- A sort is remembered for the user and the facility they are logged in to, the same as the search filters, so a sort applied at one facility leaves the sort at every other facility as it was
+- Each table remembers its own sort, so sorting one table leaves every other table's sort as it was. Active and Finalised lab requests are separate tables, as are Active and Completed imaging requests, and Active medication requests and Dispensed medications
+- A table opening with a remembered sort loads its first page in that sort, so it loads once rather than loading in the default sort and then reloading
+- An applied sort takes effect straight away, and the table keeps it when the user leaves and comes straight back, even before saving it has finished. If it wasn't saved, the table opens with the user's previously saved sort, or its default sort, after they next log in
+- Refreshing the table returns it to its default sort, and that is remembered as the user's sort
+- When a remembered sort is on a column the table can no longer sort by, the table opens at its default sort
+- When the user's remembered sorts can't be read, or haven't been read after a few seconds, the table opens at its default sort rather than waiting for them. If they are read later, the table moves to the remembered sort, unless the user has applied a sort on it by then
