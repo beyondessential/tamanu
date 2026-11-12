@@ -5,3 +5,5 @@ __disttests__
 
 # Local e2e provisioning file (copy of packages/e2e-tests/provisioning.local-example.json5)
 /provisioning.json5
+# Local provisioning file matching PR auto deploys (rendered from ops' pr/provisioning.json5.njk)
+/provisioning.pr.json5
