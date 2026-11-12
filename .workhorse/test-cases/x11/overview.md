@@ -110,7 +110,7 @@ Two things to know while testing:
       offer Policy number (verifies spec: PPDET)
 - [ ] An invoice record printout shows the invoice's insurance plans, and no longer falls back
       to the patient's insurer when the invoice has none
-- [ ] A patient saved before the upgrade keeps its insurance policy number
+- [x] A patient saved before the upgrade keeps its insurance policy number
 
 ## Importing
 
