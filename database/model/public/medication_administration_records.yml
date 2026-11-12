@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_medication_administration_records_from_sync_lookup
+              - flag_medication_administration_records_for_lookup_rebuild
               - record_medication_administration_records_changelog
               - set_medication_administration_records_updated_at
               - set_medication_administration_records_updated_at_sync_tick

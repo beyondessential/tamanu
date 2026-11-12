@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_invoices_from_sync_lookup
+              - flag_invoices_for_lookup_rebuild
               - record_invoices_changelog
               - set_invoices_updated_at
               - set_invoices_updated_at_sync_tick
