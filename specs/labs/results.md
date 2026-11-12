@@ -47,7 +47,7 @@ The patient's results table is filtered by a Test category field and a Test or p
 - With a test category picked and no tests or panels picked, the table shows the category's panels that the patient has a published lab request ordered under, and, as individual tests, the category's other tests the patient has results for that are not in any of those panels.
 - Once tests or panels are picked, the table shows only the picks, whether or not a test category is picked.
 - Panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
-- A panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
+- A panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own. With a test category picked, the table is scoped to that category throughout, so a panel shows only its tests in that category.
 - Individual tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
 - The heading rows show however few items there are: a single panel still sits under its heading, and individual tests still sit under "Individual tests" when there is no panel.
 - A test appears under every panel in the table that contains it.
