@@ -609,6 +609,32 @@ describe('Diet summary', () => {
     expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
   });
 
+  // The area filter narrows the locations the facility scope already picked, so a ward id from
+  // another facility matches nothing. Dropping that scope would hand back that facility's roster.
+  it('returns an empty sheet for an area id belonging to another facility', async () => {
+    const otherFacility = await models.Facility.create(fake(models.Facility));
+    const foreignWard = await models.LocationGroup.create({
+      name: 'Foreign maternity',
+      code: 'diet-summary-foreign-area-ward',
+      facilityId: otherFacility.id,
+    });
+    const foreignBed = await models.Location.create(
+      fake(models.Location, {
+        facilityId: otherFacility.id,
+        name: 'Bed 11',
+        code: 'diet-summary-foreign-area-bed',
+        locationGroupId: foreignWard.id,
+      }),
+    );
+    await admit({ location: foreignBed, diets: [glutenFree] });
+    await admit({ location: bed2, diets: [diabetic] });
+
+    const result = await getSummary(`?areaId=${foreignWard.id}`);
+    expect(result).toHaveSucceeded();
+
+    expect(result.body).toEqual({ columns: [], hospitalTotals: {}, areas: [] });
+  });
+
   it('rejects an area id that is not a single value', async () => {
     const result = await getSummary('?areaId[]=a');
     expect(result).toHaveRequestError();
