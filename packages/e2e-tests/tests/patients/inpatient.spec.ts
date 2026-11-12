@@ -5,7 +5,12 @@ import { testData } from '@utils/testData';
 import { test, expect } from '../../fixtures/baseFixture';
 import { LoginPage, SidebarPage } from '../../pages';
 import { InpatientsPage } from '../../pages/patients/InpatientsPage';
-import { getUser, setUserPreferenceViaApi } from '../../utils/apiHelpers';
+import {
+  getFacilityId,
+  getUser,
+  resetTableSortViaApi,
+  setUserPreferenceViaApi,
+} from '../../utils/apiHelpers';
 
 const getTestUser = () => {
   const email = process.env.TEST_EMAIL;
@@ -136,6 +141,39 @@ test.describe('inpatient table tests', () => {
   });
 
   test.describe('sorting', () => {
+    // These share the test user's remembered Inpatients sort, so they run in order
+    test.describe.configure({ mode: 'default' });
+    test.beforeEach(async ({ api, page, inpatientsPage }) => {
+      await resetTableSortViaApi(
+        api,
+        TABLE_PAGE_SIZE_PREFERENCE_KEYS.INPATIENTS,
+        await getFacilityId(page),
+      );
+      await inpatientsPage.goto();
+    });
+
+    test('a sort applied on Inpatients is kept after reloading the page', async ({
+      page,
+      inpatientsPage,
+    }) => {
+      const sortSaved = page.waitForResponse(
+        response =>
+          response.url().includes('/api/user/userPreferences') &&
+          response.request().method() === 'POST',
+      );
+      await inpatientsPage.sortByDOB();
+      await sortSaved;
+
+      const reloadedFetch = page.waitForRequest(request =>
+        new URL(request.url()).pathname.endsWith('/api/patient'),
+      );
+      await page.reload();
+      const { searchParams } = new URL((await reloadedFetch).url());
+
+      expect(searchParams.get('orderBy')).toBe('dateOfBirth');
+      expect(searchParams.get('order')).toBe('desc');
+    });
+
     test('[AT-0049]Sort table by DOB in descending order', async ({
       inpatientsPage,
       newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,

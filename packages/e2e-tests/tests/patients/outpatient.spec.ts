@@ -1,7 +1,12 @@
 import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { testData } from '../../utils/testData';
 import { test, expect } from '../../fixtures/baseFixture';
-import { getUser, setUserPreferenceViaApi } from '../../utils/apiHelpers';
+import {
+  getFacilityId,
+  getUser,
+  resetTableSortViaApi,
+  setUserPreferenceViaApi,
+} from '../../utils/apiHelpers';
 
 test.describe('outpatient table tests', () => {
   test.beforeEach(async ({ outpatientsPage }) => {
@@ -84,6 +89,15 @@ test.describe('outpatient table tests', () => {
   });
 
   test.describe('sorting', () => {
+    test.beforeEach(async ({ api, page, outpatientsPage }) => {
+      await resetTableSortViaApi(
+        api,
+        TABLE_PAGE_SIZE_PREFERENCE_KEYS.OUTPATIENTS,
+        await getFacilityId(page),
+      );
+      await outpatientsPage.goto();
+    });
+
     test('[AT-0127]Sort table by NHN in descending order', async ({
       outpatientsPage,
       newPatientWithClinicAdmission: _newPatientWithClinicAdmission,
