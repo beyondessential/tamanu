@@ -38,7 +38,6 @@ describe('Blob scope agrees with the record sync pull filter', () => {
     },
   };
 
-  const sessionConfig = { syncAllLabRequests: false, isMobile: false };
 
   const markedForSyncPatient = async (facility, patient) =>
     await models.PatientFacility.create({
@@ -94,6 +93,9 @@ describe('Blob scope agrees with the record sync pull filter', () => {
         facilityIds,
         -1,
       );
+      const facilities = await models.Facility.findAll({ where: { id: facilityIds } });
+      const sensitiveNetworkId = facilities.find(f => f.sensitiveNetworkId)?.sensitiveNetworkId;
+      const sessionConfig = { syncAllLabRequests: false, sensitiveNetworkId };
       const patientCount = await models.PatientFacility.count({
         where: { facilityId: facilityIds },
       });
@@ -149,7 +151,10 @@ describe('Blob scope agrees with the record sync pull filter', () => {
 
     facilityA = await models.Facility.create(fake(models.Facility));
     facilityB = await models.Facility.create(fake(models.Facility));
-    sensitiveFacility = await models.Facility.create(fake(models.Facility, { isSensitive: true }));
+    const network = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
+    sensitiveFacility = await models.Facility.create(
+      fake(models.Facility, { sensitiveNetworkId: network.id }),
+    );
 
     const patientAtA = await models.Patient.create(fake(models.Patient));
     const patientAtB = await models.Patient.create(fake(models.Patient));

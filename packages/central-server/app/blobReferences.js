@@ -91,8 +91,11 @@ export async function isHashReferencedInScope(sequelize, { hash, facilityIds }) 
         )
       )
       AND (
-        sync_lookup.facility_id IS NULL
+        (sync_lookup.facility_id IS NULL AND sync_lookup.sensitive_network_id IS NULL)
         OR sync_lookup.facility_id IN (:facilityIds)
+        OR sync_lookup.sensitive_network_id IN (
+          SELECT sensitive_network_id FROM facilities WHERE id IN (:facilityIds)
+        )
       )`;
   const replacements = { hash, facilityIds };
   const perSource = BLOB_REFERENCE_SOURCES.map(({ recordType, hashColumn }, index) => {

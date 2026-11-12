@@ -602,8 +602,9 @@ describe('Blob transfer channel', () => {
       await models.Setting.set('auth.restrictUsersToFacilities', true);
       facilityA = await models.Facility.create(fake(models.Facility));
       facilityB = await models.Facility.create(fake(models.Facility));
+      const network = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
       sensitiveFacility = await models.Facility.create(
-        fake(models.Facility, { isSensitive: true }),
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
       );
       patientAtA = await models.Patient.create(fake(models.Patient));
       await models.PatientFacility.create({
