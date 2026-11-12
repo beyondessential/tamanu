@@ -20,7 +20,7 @@ export const pushOutgoingChanges = async (
   syncSettings: MobileSyncSettings,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<void> => {
-  const { dynamicLimiter: dynamicLimiterSettings, maxUnreachableDuration } = syncSettings ?? {};
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings ?? {};
   let startOfPage = 0;
   let limit = calculatePageLimit(dynamicLimiterSettings);
   let pushedRecordsCount = 0;
@@ -34,7 +34,7 @@ export const pushOutgoingChanges = async (
     const onAttempt = () => {
       startTime = Date.now();
     };
-    await centralServer.push(sessionId, page, maxUnreachableDuration, onAttempt);
+    await centralServer.push(sessionId, page, onAttempt);
     const endTime = Date.now();
 
     startOfPage = endOfPage;
@@ -46,6 +46,5 @@ export const pushOutgoingChanges = async (
   await centralServer.completePush(
     sessionId,
     Object.values(outgoingModels).map(m => m.getTableName()),
-    maxUnreachableDuration,
   );
 };
