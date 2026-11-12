@@ -211,7 +211,7 @@ programRegistry.get(
           WHERE n.row_num = 1
         ),
         conditions as (
-          SELECT patient_program_registration_id,  array_agg(prc."name") condition_list, jsonb_agg(jsonb_build_object('id', prc.id, 'name', prc."name")) condition_record_list
+          SELECT patient_program_registration_id,  array_agg(prc."name") condition_list, string_agg(prc."name", ', ' ORDER BY UPPER(prc."name")) condition_names, jsonb_agg(jsonb_build_object('id', prc.id, 'name', prc."name")) condition_record_list
           FROM patient_program_registration_conditions pprc
           JOIN program_registry_conditions prc ON pprc.program_registry_condition_id = prc.id
           JOIN patient_program_registrations ppr ON ppr.id = pprc.patient_program_registration_id
@@ -283,6 +283,7 @@ programRegistry.get(
       registeringFacility: 'registering_facility.name',
       currentlyIn: 'COALESCE(UPPER(currently_at_village.name), UPPER(currently_at_facility.name))',
       clinicalStatus: 'mrr.clinical_status_id',
+      conditions: 'UPPER(conditions.condition_names)',
       divisionName: 'patient.division.name',
       subdivisionName: 'patient.subdivision.name',
     };

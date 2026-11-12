@@ -572,6 +572,69 @@ describe('ProgramRegistry', () => {
       ]);
     });
 
+    it('should sort by conditions', async () => {
+      const { id: programRegistryId } = await createProgramRegistry();
+      const category = await models.ProgramRegistryConditionCategory.create(
+        fake(models.ProgramRegistryConditionCategory, {
+          programRegistryId,
+          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+        }),
+      );
+      const createCondition = name =>
+        models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId, name }),
+        );
+      const asthma = await createCondition('Asthma');
+      const diabetes = await createCondition('diabetes');
+      const hypertension = await createCondition('Hypertension');
+
+      const register = async (displayId, conditions) => {
+        const patient = await models.Patient.create(fake(models.Patient, { displayId }));
+        const registration = await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId,
+            patientId: patient.id,
+            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+            clinicianId: app.user.id,
+          }),
+        );
+        for (const condition of conditions) {
+          await models.PatientProgramRegistrationCondition.create(
+            fake(models.PatientProgramRegistrationCondition, {
+              patientProgramRegistrationId: registration.id,
+              programRegistryConditionId: condition.id,
+              programRegistryConditionCategoryId: category.id,
+            }),
+          );
+        }
+      };
+      await register('hypertension', [hypertension]);
+      await register('none', []);
+      await register('diabetes-asthma', [diabetes, asthma]);
+      await register('diabetes', [diabetes]);
+
+      const getOrder = async order => {
+        const result = await app
+          .get(`/api/programRegistry/${programRegistryId}/registrations`)
+          .query({ orderBy: 'conditions', order });
+        expect(result).toHaveSucceeded();
+        return result.body.data.map(({ patient }) => patient.displayId);
+      };
+
+      expect(await getOrder('asc')).toEqual([
+        'none',
+        'diabetes-asthma',
+        'diabetes',
+        'hypertension',
+      ]);
+      expect(await getOrder('desc')).toEqual([
+        'hypertension',
+        'diabetes',
+        'diabetes-asthma',
+        'none',
+      ]);
+    });
+
     describe('Patient Filtering', () => {
       const patientFilters = [
         { filter: 'dateOfBirth', value: '3000-01-01' },
