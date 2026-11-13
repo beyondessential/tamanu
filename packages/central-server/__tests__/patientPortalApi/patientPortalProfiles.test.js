@@ -108,6 +108,21 @@ describe('Patient Portal profiles', () => {
     expect(response.body.data).toHaveLength(2);
   });
 
+  it('refuses a code redeemed with another email, and leaves it usable', async () => {
+    const oneTimeTokenService = new PortalOneTimeTokenService(store.models);
+    const { token: loginToken } = await oneTimeTokenService.createLoginToken(parentPortalUser.id);
+
+    const wrongEmail = await baseApp
+      .post('/api/portal/login')
+      .send({ loginToken, email: otherEmailPortalUser.email });
+    expect(wrongEmail).toHaveRequestError();
+
+    const rightEmail = await baseApp
+      .post('/api/portal/login')
+      .send({ loginToken, email: SHARED_EMAIL });
+    expect(rightEmail).toHaveSucceeded();
+  });
+
   it('signs in as whichever patient the code was issued against', async () => {
     const token = await loginAs(childPortalUser);
     expect(jose.decodeJwt(token).portalUserId).toBe(childPortalUser.id);
@@ -223,9 +238,7 @@ describe('Patient Portal profiles', () => {
       .get('/api/portal/profiles')
       .set('Authorization', `Bearer ${token}`);
     expect(profiles).toHaveSucceeded();
-    expect(profiles.body.data.map(({ portalUserId }) => portalUserId)).not.toContain(
-      otherFamilyPortalUser.id,
-    );
+    expect(profiles.body.data).toEqual([]);
 
     const select = await baseApp
       .post(`/api/portal/profiles/${otherFamilyPortalUser.id}/select`)
