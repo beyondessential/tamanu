@@ -142,7 +142,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   // that has none is checked first. A deployment that does not record insurance plans at all has
   // nothing to check.
   const onRecordPayment = () => {
-    if (isInsurancePlanFieldShown && invoice.insurancePlans?.length === 0) {
+    if (isInsurancePlanFieldShown && (invoice.insurancePlans?.length ?? 0) === 0) {
       setIsConfirmingNoInsurancePlan(true);
       return;
     }
