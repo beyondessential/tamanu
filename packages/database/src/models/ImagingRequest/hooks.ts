@@ -145,13 +145,22 @@ const addToInvoice = async (instance: ImagingRequest) => {
   }
 
   const products = await getItemsForImagingRequest(instance);
+  if (products.length === 0) {
+    return;
+  }
+
+  // Resolved once for the request rather than per item, as every item is charged to the same
+  // encounter and so to the same section. After the emptiness check, so a request with nothing
+  // billable pays for neither lookup.
+  const invoiceSectionId =
+    await instance.sequelize.models.Invoice.resolveInvoiceSectionIdForEncounter(encounterId);
   for (const { item, product, note } of products) {
     await instance.sequelize.models.Invoice.addItemToInvoice(
       item,
       encounterId,
       product,
       instance.requestedById,
-      { note },
+      { note, invoiceSectionId },
     );
   }
 };

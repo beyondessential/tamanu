@@ -117,3 +117,12 @@ sources:
             description: "{{ doc('invoice_items__is_fixed_price_final') }}"
             data_tests:
               - not_null
+          - name: invoice_section_id
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__invoice_section_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'invoiceSection'

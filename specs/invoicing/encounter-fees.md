@@ -23,7 +23,7 @@ Applies to the fees an encounter drives: the outpatient or emergency fee charged
 ### Encounter-type taxonomy
 
 - Outpatient covers clinic and imaging encounters.
-- Emergency covers triage, active ED care and emergency short-stay encounters — one emergency family, all charged the ED fee.
+- Emergency covers triage, active ED care and emergency short-stay encounters — one emergency category, all charged the ED fee.
 - Inpatient covers admission encounters.
 - Vaccination and form-response encounters carry no encounter fee.
 
@@ -47,7 +47,7 @@ Applies to the fees an encounter drives: the outpatient or emergency fee charged
 
 ### Walk-in pharmacy fee
 
-- Clinic encounter fees (standard, after-hours, weekend, emergency) are selected by encounter family and facility-local time-of-day.
+- Clinic encounter fees (standard, after-hours, weekend, emergency) are selected by encounter category and facility-local time-of-day.
 - A single flat pharmacy encounter-fee product is charged for an encounter created in the configured pharmacy department.
 - When adding the fee, the encounter's department is compared to the configured pharmacy department: a match resolves the pharmacy product, otherwise the clinic selector runs.
 - Both the clinic and pharmacy products live on the one facility price list; there is no department-scoped list and no department dimension on the price-list engine.
