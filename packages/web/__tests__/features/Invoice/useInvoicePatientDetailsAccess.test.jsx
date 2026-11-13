@@ -109,6 +109,17 @@ describe('useInvoicePatientDetailsAccess', () => {
     );
   });
 
+  describe('editing the invoice', () => {
+    // The menu reads this from here rather than deriving it again, so the two cannot disagree.
+    it('is allowed to a user with write permission on invoices', () => {
+      expect(access({}).canWriteInvoice).toBe(true);
+    });
+
+    it('is not allowed to a user without it', () => {
+      expect(access({ can: ['read:Patient'] }).canWriteInvoice).toBe(false);
+    });
+  });
+
   describe('the insurance plan field', () => {
     it('counts as shown when the deployment has not hidden it', () => {
       expect(access({}).isInsurancePlanFieldShown).toBe(true);

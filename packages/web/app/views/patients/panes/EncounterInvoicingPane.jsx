@@ -100,10 +100,9 @@ const PaymentsSection = styled.div`
 
 const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const { ability } = useAuth();
-  const { canViewPatientDetails, isInsurancePlanFieldShown } =
+  const { canViewPatientDetails, canWriteInvoice, isInsurancePlanFieldShown } =
     useInvoicePatientDetailsAccess(invoice);
   const canCreateInvoice = ability.can('create', 'Invoice');
-  const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
 
   const hasPayments = invoice.payments?.length > 0;

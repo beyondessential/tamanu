@@ -24,6 +24,7 @@ export const useInvoicePatientDetailsAccess = invoice => {
 
   return {
     canViewPatientDetails,
+    canWriteInvoice,
     isInsurancePlanFieldShown,
     // A settled invoice is a billing record, so its patient details are shown as they stand.
     isPatientDetailsEditable: isEditable && canEditPatient,
