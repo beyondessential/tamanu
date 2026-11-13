@@ -40,10 +40,14 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
     invoiceInsurancePlanId,
   );
 
-  // Annual income is disabled until a family size is chosen, so wherever it is required family
-  // size has to be on the form too — otherwise the form cannot be saved and cannot be fixed.
-  const isAnnualIncomeRequired =
-    isSlidingFeeScaleSelected || Boolean(getSetting('fields.annualIncome.requiredPatientData'));
+  // A deployment that requires annual income when creating a patient moves it to the form's
+  // mandatory section, and annual income is disabled until a family size is chosen, so family
+  // size has to move with it — otherwise the form cannot be saved and cannot be fixed. The
+  // sliding fee scale needs no such move: its plan is chosen here in Billing information,
+  // beside both fields, so they are already on screen whenever it makes them required.
+  const isAnnualIncomeRequiredOnCreate = Boolean(
+    getSetting('fields.annualIncome.requiredPatientData'),
+  );
 
   const familySizeOptions = useMemo(() => getFamilySizeOptions(slidingFeeScale), [slidingFeeScale]);
   const annualIncomeOptions = useMemo(
@@ -79,7 +83,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
       component: SelectField,
       options: familySizeOptions,
       required: isSlidingFeeScaleSelected || undefined,
-      alwaysShow: isAnnualIncomeRequired || undefined,
+      alwaysShow: isAnnualIncomeRequiredOnCreate || undefined,
       // The bands belong to a family size, so an income chosen against the old one is no longer
       // an answer to this question.
       onChange: () => setFieldValue('annualIncome', ''),
@@ -92,7 +96,6 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
       options: annualIncomeOptions,
       disabled: !familySize,
       required: isSlidingFeeScaleSelected || undefined,
-      alwaysShow: isSlidingFeeScaleSelected || undefined,
       label: (
         <TranslatedText
           stringId="general.localisedField.annualIncome.label"

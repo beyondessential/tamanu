@@ -46,4 +46,5 @@ The details used to bill the patient, grouped together so they are found in one 
 ## Creating a patient
 
 - When creating a patient, any field from any section that is set as required when creating a patient appears on the new patient form, including the Billing information fields and the adoption number and marriage licence fields.
-- When Sliding fee scale is selected on the new patient form, family size and annual income appear in Billing information and are required, with the same behaviour as on the Details tab. Removing Sliding fee scale takes them off the form again unless they are set as required when creating a patient.
+- When Sliding fee scale is selected on the new patient form, family size and annual income are required in Billing information, with the same behaviour as on the Details tab. Removing it lifts the requirement there in the same way.
+- A field a deployment requires when creating a patient is collected with the other details required at creation rather than in its own section. Family size is collected alongside annual income wherever annual income is required at creation, since annual income cannot be answered without it.

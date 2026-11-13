@@ -85,10 +85,13 @@ Two things to know while testing:
       patient form (verifies spec: PDET)
 - [x] Adoption number and marriage licence set as required when creating appear there too
       (verifies spec: PDET)
-- [x] Choosing the sliding fee scale plan on the new patient form brings up family size and
-      annual income as required, with the same messages (verifies spec: PDET)
-- [x] Removing the sliding fee scale plan takes them off the form again, unless they are set
-      as required when creating (verifies spec: PDET)
+- [ ] Choosing the sliding fee scale plan on the new patient form marks family size and
+      annual income required in Billing information, with the same messages, and removing it
+      lifts the requirement (verifies spec: PDET)
+- [x] Neither field appears a second time outside Billing information when the plan is chosen,
+      on either form (verifies spec: PDET)
+- [ ] With annual income required when creating a patient, it and family size are collected
+      with the other required details, and appear once (verifies spec: PDET)
 
 ## Invoice discount assessment
 
