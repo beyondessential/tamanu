@@ -17,11 +17,9 @@ vi.mock('../../../app/contexts/Auth', () => ({
   useAuth: () => ({ facilityId: 'facility-1' }),
 }));
 
-vi.mock('../../../app/contexts/Patient', () => ({
-  usePatient: () => ({ patient: { id: 'patient-1' }, patientId: 'patient-1', isLoading: false }),
-}));
-
+let isLoadingPatient = false;
 vi.mock('../../../app/api/queries', () => ({
+  usePatientDataQuery: () => ({ data: { id: 'patient-1' }, isLoading: isLoadingPatient }),
   usePatientAdditionalDataQuery: () => ({ data: {}, isLoading: false }),
   usePatientBirthDataQuery: () => ({ data: {}, isLoading: false }),
   usePatientInsurancePlansQuery: () => ({ data: [], isLoading: false }),
@@ -44,9 +42,14 @@ vi.mock('../../../app/forms/PatientDetailsForm/PatientDetailsForm', () => ({
   ),
 }));
 
+vi.mock('../../../app/forms/PatientDetailsForm/ConfiguredMandatoryPatientFields', () => ({
+  getPatientFieldTestId: name => `localisedfield-0jtf-${name}`,
+}));
+
+const resetForm = vi.fn();
 vi.mock('formik', async importActual => ({
   ...(await importActual()),
-  useFormikContext: () => ({ dirty: formIsDirty, isSubmitting: false }),
+  useFormikContext: () => ({ dirty: formIsDirty, isSubmitting: false, resetForm, values: {} }),
 }));
 
 const { InvoicePatientDetailsModal } = await import(
@@ -55,7 +58,13 @@ const { InvoicePatientDetailsModal } = await import(
 
 const renderModal = ({ editable = true, onClose = vi.fn(), onSaved = vi.fn() } = {}) => {
   renderElementWithTranslatedText(
-    <InvoicePatientDetailsModal open editable={editable} onClose={onClose} onSaved={onSaved} />,
+    <InvoicePatientDetailsModal
+      open
+      patientId="patient-1"
+      editable={editable}
+      onClose={onClose}
+      onSaved={onSaved}
+    />,
   );
   return { onClose, onSaved };
 };
@@ -67,6 +76,8 @@ const button = name => screen.getByRole('button', { name });
 describe('InvoicePatientDetailsModal', () => {
   beforeEach(() => {
     formIsDirty = false;
+    isLoadingPatient = false;
+    resetForm.mockReset();
     put.mockReset().mockResolvedValue(undefined);
   });
 
@@ -86,6 +97,19 @@ describe('InvoicePatientDetailsModal', () => {
       expect(action('close')).toBeTruthy();
       expect(screen.queryByTestId('patient-details-save')).toBeNull();
       expect(screen.queryByTestId('patient-details-cancel')).toBeNull();
+    });
+  });
+
+  // An enabled Save over a form that has not mounted yet does nothing when pressed, with no
+  // feedback, so the row waits for the form.
+  describe('while the form is still loading', () => {
+    it('offers no actions at all', () => {
+      isLoadingPatient = true;
+      renderModal();
+
+      expect(screen.queryByTestId('patient-details-save')).toBeNull();
+      expect(screen.queryByTestId('patient-details-cancel')).toBeNull();
+      expect(screen.queryByTestId('patient-details-close')).toBeNull();
     });
   });
 
@@ -155,6 +179,27 @@ describe('InvoicePatientDetailsModal', () => {
         firstName: 'Ada',
         facilityId: 'facility-1',
       });
+    });
+
+    // The caller may keep the modal up while it decides what comes next, and closing it then
+    // would otherwise offer to discard edits that are already written.
+    it('clears the form’s unsaved state once the save lands', async () => {
+      const { onSaved } = renderModal();
+
+      fireEvent.click(action('save'));
+
+      await waitFor(() => expect(onSaved).toHaveBeenCalled());
+      expect(resetForm).toHaveBeenCalled();
+    });
+
+    it('does not clear it when the save was rejected', async () => {
+      put.mockRejectedValue(new Error('nope'));
+      renderModal();
+
+      fireEvent.click(action('save'));
+
+      await waitFor(() => expect(put).toHaveBeenCalled());
+      expect(resetForm).not.toHaveBeenCalled();
     });
 
     // A failed save leaves the modal open on the details that did not save.

@@ -121,6 +121,7 @@ export const InsurancePlanFlow = ({
       {step === STEPS.PATIENT_DETAILS && (
         <InvoicePatientDetailsModal
           open
+          patientId={invoice?.encounter?.patientId}
           editable={isPatientDetailsEditable}
           focusField="invoiceInsurancePlanId"
           onClose={onClose}

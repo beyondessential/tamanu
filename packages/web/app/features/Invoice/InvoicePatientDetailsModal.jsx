@@ -16,9 +16,9 @@ import { useApi } from '../../api';
 import {
   usePatientAdditionalDataQuery,
   usePatientBirthDataQuery,
+  usePatientDataQuery,
   usePatientInsurancePlansQuery,
 } from '../../api/queries';
-import { usePatient } from '../../contexts/Patient';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 import { ConfirmModal } from '../../components/ConfirmModal';
@@ -46,9 +46,9 @@ const StyledButtonRow = styled(ButtonRow)`
  * dirty and submitting state up for the buttons and the unsaved-changes prompt.
  */
 const FormBridge = ({ submitForm, bridgeRef, onStateChange }) => {
-  const { dirty, isSubmitting } = useFormikContext();
+  const { dirty, isSubmitting, resetForm, values } = useFormikContext();
 
-  bridgeRef.current = { submitForm };
+  bridgeRef.current = { submitForm, resetForm: () => resetForm({ values }) };
 
   useEffect(() => {
     onStateChange({ dirty, isSubmitting });
@@ -62,21 +62,33 @@ const FormBridge = ({ submitForm, bridgeRef, onStateChange }) => {
  * insurance plan field when the modal is opened to add a plan. Searched within the modal's own
  * content, since the same field is on the patient's Details tab behind it.
  */
+const FOCUS_ATTEMPTS = 40;
+const FOCUS_RETRY_MS = 50;
+
 const useFocusField = (fieldName, isReady, containerRef) => {
   useEffect(() => {
     if (!fieldName || !isReady) return undefined;
 
-    // The field renders a frame or two after the form's queries settle, so wait for the paint
-    // rather than reading an element that is not there yet.
-    const timer = setTimeout(() => {
+    // The form fetches its own field definitions and values after the modal's queries settle, and
+    // renders nothing but a loading indicator until they land, so the field is not there to be
+    // found on the first look. Keep looking for a short while rather than silently giving up.
+    let attemptsLeft = FOCUS_ATTEMPTS;
+    let timer;
+
+    const attempt = () => {
       const field = containerRef.current?.querySelector(
         `[data-testid^="${getPatientFieldTestId(fieldName)}"]`,
       );
-      if (!field) return;
-      field.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      field.querySelector('input, [tabindex]')?.focus();
-    });
+      if (field) {
+        field.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        field.querySelector('input, [tabindex]')?.focus();
+        return;
+      }
+      attemptsLeft -= 1;
+      if (attemptsLeft > 0) timer = setTimeout(attempt, FOCUS_RETRY_MS);
+    };
 
+    timer = setTimeout(attempt);
     return () => clearTimeout(timer);
   }, [fieldName, isReady, containerRef]);
 };
@@ -89,6 +101,7 @@ const useFocusField = (fieldName, isReady, containerRef) => {
 export const InvoicePatientDetailsModal = ({
   open,
   onClose,
+  patientId,
   editable,
   focusField,
   onSaved = () => {},
@@ -96,13 +109,13 @@ export const InvoicePatientDetailsModal = ({
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId } = useAuth();
-  const { patient, patientId, isLoading: isLoadingPatient } = usePatient();
 
   const bridgeRef = useRef(null);
   const contentRef = useRef(null);
   const [formState, setFormState] = useState({ dirty: false, isSubmitting: false });
   const [isConfirmingDiscard, setIsConfirmingDiscard] = useState(false);
 
+  const { data: patient, isLoading: isLoadingPatient } = usePatientDataQuery(patientId);
   const { data: additionalData, isLoading: isLoadingAdditionalData } =
     usePatientAdditionalDataQuery(patientId);
   const { data: birthData, isLoading: isLoadingBirthData } = usePatientBirthDataQuery(patientId);
@@ -121,6 +134,11 @@ export const InvoicePatientDetailsModal = ({
       notifyError(e.message);
       return;
     }
+
+    // The edits are saved, so the form is no longer holding anything unsaved. Clear it before the
+    // caller decides what comes next: it may keep the modal up while it checks, and closing it
+    // then would otherwise offer to discard what has just been written.
+    bridgeRef.current?.resetForm();
 
     await invalidatePatientDataQueries(queryClient, patientId);
     notifySuccess(
@@ -165,31 +183,36 @@ export const InvoicePatientDetailsModal = ({
         width="md"
         fixedBottomRow
         bottomRowContent={
-          <BottomRow>
-            <StyledButtonRow>
-              {editable ? (
-                <>
-                  <OutlinedButton onClick={handleRequestClose} data-testid="patient-details-cancel">
-                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                  </OutlinedButton>
-                  <NoteModalActionBlocker>
-                    <Button
-                      data-testid="patient-details-save"
-                      onClick={handleSave}
-                      disabled={formState.isSubmitting}
-                      isSubmitting={formState.isSubmitting}
+          isLoading ? null : (
+            <BottomRow>
+              <StyledButtonRow>
+                {editable ? (
+                  <>
+                    <OutlinedButton
+                      onClick={handleRequestClose}
+                      data-testid="patient-details-cancel"
                     >
-                      <TranslatedText stringId="general.action.save" fallback="Save" />
-                    </Button>
-                  </NoteModalActionBlocker>
-                </>
-              ) : (
-                <Button onClick={handleRequestClose} data-testid="patient-details-close">
-                  <TranslatedText stringId="general.action.close" fallback="Close" />
-                </Button>
-              )}
-            </StyledButtonRow>
-          </BottomRow>
+                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                    </OutlinedButton>
+                    <NoteModalActionBlocker>
+                      <Button
+                        data-testid="patient-details-save"
+                        onClick={handleSave}
+                        disabled={formState.isSubmitting}
+                        isSubmitting={formState.isSubmitting}
+                      >
+                        <TranslatedText stringId="general.action.save" fallback="Save" />
+                      </Button>
+                    </NoteModalActionBlocker>
+                  </>
+                ) : (
+                  <Button onClick={handleRequestClose} data-testid="patient-details-close">
+                    <TranslatedText stringId="general.action.close" fallback="Close" />
+                  </Button>
+                )}
+              </StyledButtonRow>
+            </BottomRow>
+          )
         }
       >
         {isLoading ? (

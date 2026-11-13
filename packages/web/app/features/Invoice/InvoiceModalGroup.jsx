@@ -21,6 +21,7 @@ export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceMod
       {invoiceModalType === INVOICE_MODAL_TYPES.PATIENT_DETAILS && (
         <InvoicePatientDetailsModal
           open
+          patientId={invoice?.encounter?.patientId}
           editable={isPatientDetailsEditable}
           onClose={handleCloseInvoiceModal}
           onSaved={handleCloseInvoiceModal}
