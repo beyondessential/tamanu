@@ -16,7 +16,7 @@ scrolling sideways. The split encounter invoice mockup shows the approach:
 ## Scope
 
 - The printed invoice is covered by separate work
-- Insurance is out of scope entirely: per-section plans, per-section coverage lines and insurer balances all belong to the upcoming insurance card. This card leaves the Insurance plan action, the coverage line and the insurer payments table invoice-wide, exactly as they are today
+- Insurance per section is in scope: a plan is attached to a section, its coverage applies only to that section's items, and a payment names the section it settles. Patient payments and payment status stay invoice-wide
 - What is left here is the sectioned display of items: section headers, per-section Add item, the sectioned Edit invoice window, the per-section date limits, and the setting
 
 ## Setting
@@ -109,6 +109,35 @@ sync scope. Build so that absence degrades rather than breaks — see the fallba
 - [x] A new item in an ended period starts with an empty date; in the current period it starts at today and backdates as far as the section's start
 - [x] A date outside the range shows an inline error naming the first and last allowed dates, and blocks the save
 - [x] No front-end affordance anywhere for changing an item's section
+
+## Insurance per section
+
+Brought back into scope after the sectioned display landed. The grain was settled in the tech
+design: a plan is scoped to a section, a payment names its section, and per-item coverage stays
+derived rather than stored. `InvoiceItemFinalisedInsurance` already holds the per-item grain where
+it has to be frozen, so nothing new is stored per item.
+
+- [ ] Migration adding `invoices_invoice_insurance_plans.invoice_section_id` and `invoice_insurance_plan_payments.invoice_section_id`, both nullable and referencing `reference_data`. Null keeps today's meaning: the plan covers the whole invoice
+- [ ] Replace the unique constraint on `invoices_invoice_insurance_plans` from `(invoiceId, invoiceInsurancePlanId)` with one that includes the section. Postgres treats NULLs as distinct in a unique index, so an invoice-wide plan could otherwise be attached twice — use a partial unique index rather than `NULLS NOT DISTINCT`, which is PG15+ while the codebase still guards for PG13
+- [ ] Regenerate the dbt source models for both tables and clear the new `TODO`s
+- [ ] Filter an item against the plan row's section before applying its coverage percentage, in `getCoverageAmountPerInsurancePlan` and `getInsuranceCoverageTotalAmount`. TAM-7211 consolidated pricing into one calculation, so the invoice screen, the printout and the payment importer pick this up together
+- [ ] Key coverage per plan **row** rather than per plan — `getCoverageAmountPerInsurancePlan` keys per plan today, which collapses a plan covering two sections into one figure
+- [ ] Leave `getInsurancePlanPaymentBalance` alone: it derives coverage from the invoice's items, so once coverage is section-scoped the balance follows
+- [ ] Attach a plan from the section header's own Insurance plan action, writing the row with that section. Refuse a section that is not current, the same way the item path already does
+- [ ] Record a payment against a plan row (plan plus section) rather than a plan, so the section travels with it
+- [ ] Show each plan's coverage line within the section it covers; keep the invoice summary and patient payments invoice-wide
+
+### Mockup
+
+- [ ] The mockup was dropped in `85151927fd` and is a captured DOM snapshot rather than hand-written HTML, so it is re-captured from the running implementation rather than edited. The sectioned invoice now exists and is deployed, so the capture is of real UI
+- [ ] Per-section insurance does not exist yet, so its treatment is designed on top of the capture. `7a25e76c04` has the earlier per-section Insurance plan buttons to work from
+
+### Insurance tests
+
+- [ ] Endpoint: a plan attached to one section covers only that section's items, and an invoice-wide plan (null section) still covers everything
+- [ ] Endpoint: the same plan attached to two sections yields a separate coverage total and balance for each
+- [ ] Endpoint: attaching the same plan to the same section twice is refused, and attaching it invoice-wide twice is refused
+- [ ] Unit: coverage for an item whose section no plan covers is zero, and uncategorised items are covered only by an invoice-wide plan
 
 ## Tests
 

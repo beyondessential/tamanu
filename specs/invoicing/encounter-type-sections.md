@@ -38,7 +38,7 @@ Splitting an invoice into sections is a display rule read from the setting as it
 - The date range of a period that is still running reads as its start date followed by "Current".
 - A section whose period is unknown shows its name alone, and is listed after the sections with periods and above the unlabelled section.
 - Each section header is marked with the colour its category's encounter types carry in the encounter view, Outpatient carrying the clinic colour. A section that is not an encounter category carries a default colour.
-- Invoice-wide actions sit in a single overflow menu for the invoice; a section header carries no actions of its own.
+- Invoice-wide actions sit in a single overflow menu for the invoice. A section header carries only the actions belonging to that section.
 - Each section ends with its own Add item action. A section whose period holds no items shows its header and that action alone.
 - Invoice totals cover every section.
 - The invoice summary covers the whole invoice, sections included.
@@ -48,6 +48,24 @@ Splitting an invoice into sections is a display rule read from the setting as it
 
 > [!NOTE]
 > A section an item names is shown even when its period is unknown, because the item already carries which part of the stay it belongs to. Withholding the section until its dates are known would lose that, and the dates are the lesser half of what the header says.
+
+## Insurance across sections
+
+- An insurance plan is attached to a section rather than to the whole invoice, so a payer covering one part of a stay does not cover the rest of it.
+- A plan attached without naming a section covers every item on the invoice.
+- One plan covers several sections by being attached to each of them.
+- A plan's coverage applies only to the items in the section it is attached to.
+- Each section header carries its own Insurance plan action, so the section a plan covers is the one it was attached from, and a cashier never names it separately.
+- The coverage line for a plan sits with the section it covers.
+- A payment records the section it settles, so a plan covering two sections carries a balance for each.
+- A section with no plan attached is settled by the patient.
+- Patient payments and the invoice's payment status cover the whole invoice, sections included.
+
+> [!NOTE]
+> A plan is attached to a section rather than to each item because a section is what a payer actually covers. "NHI covers the inpatient part of this stay" still holds when a new charge arrives, where a list of covered items would have to be revisited every time one is added.
+
+> [!NOTE]
+> A payment names its section as well as its plan, because the plan alone cannot say which part of the invoice a payment settles once one plan covers two sections.
 
 ## Adding and editing items
 
