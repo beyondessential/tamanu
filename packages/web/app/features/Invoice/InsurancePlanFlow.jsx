@@ -44,11 +44,14 @@ export const InsurancePlanFlow = ({
     useInvoicePatientDetailsAccess(invoice);
   const [step, setStep] = useState(null);
 
-  const { data: availablePlans = [], refetch: refetchAvailablePlans } =
-    usePatientAvailableInsurancePlansQuery({
-      patientId: invoice?.encounter?.patientId,
-      enabled: open,
-    });
+  const {
+    data: availablePlans,
+    isError: hasPlansError,
+    refetch: refetchAvailablePlans,
+  } = usePatientAvailableInsurancePlansQuery({
+    patientId: invoice?.encounter?.patientId,
+    enabled: open,
+  });
 
   // The entry point decides the first window, once, as the flow opens.
   useEffect(() => {
@@ -56,13 +59,27 @@ export const InsurancePlanFlow = ({
       setStep(null);
       return;
     }
+
+    // The Insurance plan action always opens the picker, so it need not wait on the plans.
+    if (entry === INSURANCE_PLAN_ENTRY.PICKER) {
+      setStep(currentStep => currentStep ?? STEPS.PICKER);
+      return;
+    }
+
+    // Add insurance plan routes on what the patient already has, so the answer has to be in
+    // before the first window is chosen: an unresolved query reads the same as no plans, and
+    // would send a patient who has one to the details form instead of the picker. A failed
+    // query falls back to the picker, which asks again itself.
+    if (availablePlans === undefined && !hasPlansError) return;
+
+    const hasPlanAtThisFacility = Boolean(availablePlans?.length) || hasPlansError;
     setStep(currentStep => {
       if (currentStep) return currentStep;
-      if (entry === INSURANCE_PLAN_ENTRY.PICKER) return STEPS.PICKER;
-      if (availablePlans.length === 0 && canRecordPlanOnPatient) return STEPS.PATIENT_DETAILS;
-      return STEPS.PICKER;
+      return !hasPlanAtThisFacility && canRecordPlanOnPatient
+        ? STEPS.PATIENT_DETAILS
+        : STEPS.PICKER;
     });
-  }, [open, entry, availablePlans.length, canRecordPlanOnPatient]);
+  }, [open, entry, availablePlans, hasPlansError, canRecordPlanOnPatient]);
 
   // Read the plans back rather than the render's copy: the save that just landed is what may have
   // added one, so the question being asked is whether it did.

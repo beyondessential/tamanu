@@ -12,10 +12,17 @@ vi.mock('../../../app/features/Invoice/useInvoicePatientDetailsAccess', () => ({
 }));
 
 let queryEnabled;
+let plansHaveLoaded = true;
+let plansErrored = false;
 vi.mock('../../../app/api/queries', () => ({
   usePatientAvailableInsurancePlansQuery: ({ enabled }) => {
     queryEnabled = enabled;
-    return { data: availablePlans, refetch };
+    // An unresolved query has no data at all, which is what the flow must not read as "no plans".
+    return {
+      data: plansHaveLoaded ? availablePlans : undefined,
+      isError: plansErrored,
+      refetch,
+    };
   },
 }));
 
@@ -72,6 +79,8 @@ describe('InsurancePlanFlow', () => {
   beforeEach(() => {
     access = { canRecordPlanOnPatient: true, isPatientDetailsEditable: true };
     availablePlans = [];
+    plansHaveLoaded = true;
+    plansErrored = false;
     queryEnabled = undefined;
     refetch.mockReset().mockResolvedValue({ data: [] });
     notifyError.mockReset();
@@ -151,6 +160,46 @@ describe('InsurancePlanFlow', () => {
     // land rather than a form they cannot use.
     it('falls back to the picker when a plan cannot be recorded on the patient', () => {
       access = { canRecordPlanOnPatient: false, isPatientDetailsEditable: false };
+      renderFlow({ entry: INSURANCE_PLAN_ENTRY.AUTO });
+
+      expect(screen.getByTestId('picker')).toBeTruthy();
+    });
+
+    // An unresolved query carries no plans, which reads exactly like a patient who has none. On a
+    // cold cache that sent a patient with a plan to the details form instead of the picker.
+    it('opens nothing until the patient’s plans are known', () => {
+      plansHaveLoaded = false;
+      renderFlow({ entry: INSURANCE_PLAN_ENTRY.AUTO });
+
+      expect(screen.queryByTestId('picker')).toBeNull();
+      expect(screen.queryByTestId('patient-details')).toBeNull();
+    });
+
+    it('opens the picker once the plans arrive and the patient has one', () => {
+      plansHaveLoaded = false;
+      const { view } = renderFlow({ entry: INSURANCE_PLAN_ENTRY.AUTO });
+
+      plansHaveLoaded = true;
+      availablePlans = [{ id: 'plan-1' }];
+      view.rerender(
+        <InsurancePlanFlow
+          invoice={INVOICE}
+          open
+          entry={INSURANCE_PLAN_ENTRY.AUTO}
+          onClose={() => {}}
+          onApplied={() => {}}
+        />,
+      );
+
+      expect(screen.getByTestId('picker')).toBeTruthy();
+      expect(screen.queryByTestId('patient-details')).toBeNull();
+    });
+
+    // The picker asks the server again itself and shows its own empty state, so a failed lookup
+    // lands somewhere useful rather than hanging on an empty flow.
+    it('falls back to the picker when the plans cannot be fetched', () => {
+      plansHaveLoaded = false;
+      plansErrored = true;
       renderFlow({ entry: INSURANCE_PLAN_ENTRY.AUTO });
 
       expect(screen.getByTestId('picker')).toBeTruthy();
