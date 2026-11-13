@@ -4,6 +4,7 @@ import {
   buildEncounterPeriod,
   buildInvoiceSections,
   isInvoiceSectioned,
+  keepsRecordedDate,
   resolveEncounterPeriod,
   resolveSectionPeriods,
 } from '../src/invoice/sections';
@@ -295,5 +296,23 @@ describe('isInvoiceSectioned', () => {
 
   it('is sectioned where an item names a section the invoice no longer lists', () => {
     expect(isInvoiceSectioned([section('a')], [{ invoiceSectionId: 'hidden' }])).toBe(true);
+  });
+});
+
+describe('keepsRecordedDate', () => {
+  it('keeps an already-saved row whose date is untouched', () => {
+    expect(
+      keepsRecordedDate({ isExistingItem: true, orderDate: '2026-03-02', originalOrderDate: '2026-03-02' }),
+    ).toBe(true);
+  });
+
+  it('bounds an already-saved row once its date is edited', () => {
+    expect(
+      keepsRecordedDate({ isExistingItem: true, orderDate: '2026-03-06', originalOrderDate: '2026-03-02' }),
+    ).toBe(false);
+  });
+
+  it('bounds a row being added', () => {
+    expect(keepsRecordedDate({ orderDate: '2026-03-02' })).toBe(false);
   });
 });

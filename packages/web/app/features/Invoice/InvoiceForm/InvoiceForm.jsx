@@ -16,11 +16,17 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import {
   isInvoiceEditable,
   isInvoiceSectioned,
+  keepsRecordedDate,
   resolveEncounterPeriod,
   resolveSectionPeriods,
 } from '@tamanu/utils/invoice';
 import { Colors } from '../../../constants/styles';
-import { CELL_WIDTHS, CELL_WIDTHS_EDITABLE, INVOICE_FORM_TYPE } from '../constants';
+import {
+  CELL_WIDTHS,
+  CELL_WIDTHS_EDITABLE,
+  INVOICE_FORM_TYPE,
+  invoiceItemColumnCount,
+} from '../constants';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
 import {
@@ -164,7 +170,7 @@ export const InvoiceForm = ({
   // its own idea of what counts as split.
   const sections = isInvoiceSectioned(invoice.sections, invoice.items) ? invoice.sections : null;
   const isEditing = isAddForm || isEditForm;
-  const columnCount = isEditing ? 7 : 9;
+  const columnCount = invoiceItemColumnCount(isEditing);
   // Both come from the server already resolved to the facility's own calendar dates, so every
   // bound in the form has one source and cannot drift from the headers beside it.
   const sectionPeriods = resolveSectionPeriods(
@@ -307,7 +313,13 @@ export const InvoiceForm = ({
                         onUpdateApproval={updateItemApproval}
                         onUpdateInvoice={handleUpdateItem}
                         priceListId={invoice.priceList?.id}
-                        sectionPeriod={(sectionPeriods[item.invoiceSectionId] ?? encounterPeriod)}
+                        sectionPeriod={
+                          // A row keeping its recorded date is not bounded, so the picker does
+                          // not present that date as out of range when the row is opened.
+                          keepsRecordedDate(item)
+                            ? undefined
+                            : (sectionPeriods[item.invoiceSectionId] ?? encounterPeriod)
+                        }
                       />
                     );
 
