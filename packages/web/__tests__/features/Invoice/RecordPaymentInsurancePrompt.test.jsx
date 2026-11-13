@@ -55,7 +55,7 @@ const click = name => fireEvent.click(screen.getByRole('button', { name }));
 
 describe('recording a payment with no insurance plan', () => {
   beforeEach(() => {
-    access = { canAddPlanToPatient: true, isInsurancePlanFieldShown: true };
+    access = { canAddInsurancePlanToInvoice: true, isInsurancePlanFieldShown: true };
   });
 
   it('asks for confirmation before opening the payment form', () => {
@@ -78,7 +78,7 @@ describe('recording a payment with no insurance plan', () => {
 
   // A deployment that does not record insurance plans has nothing to be asked about.
   it('opens the payment form directly where the insurance plan field is hidden', () => {
-    access = { canAddPlanToPatient: false, isInsurancePlanFieldShown: false };
+    access = { canAddInsurancePlanToInvoice: false, isInsurancePlanFieldShown: false };
     renderTable(buildInvoice());
 
     click('Record payment');
@@ -118,7 +118,7 @@ describe('recording a payment with no insurance plan', () => {
   });
 
   it('does not offer Add insurance plan where no plan can be added to this invoice', () => {
-    access = { canAddPlanToPatient: false, isInsurancePlanFieldShown: true };
+    access = { canAddInsurancePlanToInvoice: false, isInsurancePlanFieldShown: true };
     renderTable(buildInvoice());
 
     click('Record payment');

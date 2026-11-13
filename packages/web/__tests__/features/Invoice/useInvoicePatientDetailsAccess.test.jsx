@@ -62,28 +62,28 @@ describe('useInvoicePatientDetailsAccess', () => {
 
   describe('adding an insurance plan', () => {
     it('is offered on an in-progress invoice to a user who can edit invoices and patients', () => {
-      expect(access({}).canAddPlanToPatient).toBe(true);
+      expect(access({}).canAddInsurancePlanToInvoice).toBe(true);
     });
 
     it.each([INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED])(
       'is not offered on a %s invoice, which can take no further plan',
       status => {
-        expect(access({ status }).canAddPlanToPatient).toBe(false);
+        expect(access({ status }).canAddInsurancePlanToInvoice).toBe(false);
       },
     );
 
     it('is not offered to a user who cannot edit invoices', () => {
-      expect(access({ can: ['write:Patient'] }).canAddPlanToPatient).toBe(false);
+      expect(access({ can: ['write:Patient'] }).canAddInsurancePlanToInvoice).toBe(false);
     });
 
     // Choosing which of the patient's plans apply is an invoice-only act, so a user who can edit
     // invoices keeps the button even without permission to edit patient records.
     it('is offered to a user who can edit invoices but not patient records', () => {
-      expect(access({ can: ['write:Invoice', 'read:Patient'] }).canAddPlanToPatient).toBe(true);
+      expect(access({ can: ['write:Invoice', 'read:Patient'] }).canAddInsurancePlanToInvoice).toBe(true);
     });
 
     it('is not offered where the deployment hides the insurance plan field', () => {
-      expect(access({ hidden: true }).canAddPlanToPatient).toBe(false);
+      expect(access({ hidden: true }).canAddInsurancePlanToInvoice).toBe(false);
     });
   });
 

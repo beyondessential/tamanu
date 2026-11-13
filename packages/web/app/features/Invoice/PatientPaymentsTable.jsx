@@ -96,7 +96,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [isConfirmingNoInsurancePlan, setIsConfirmingNoInsurancePlan] = useState(false);
   const [isAddingInsurancePlan, setIsAddingInsurancePlan] = useState(false);
 
-  const { canAddPlanToPatient, isInsurancePlanFieldShown } =
+  const { canAddInsurancePlanToInvoice, isInsurancePlanFieldShown } =
     useInvoicePatientDetailsAccess(invoice);
 
   const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
@@ -322,7 +322,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       <NoInsurancePlanModal
         open={isConfirmingNoInsurancePlan}
         onClose={() => setIsConfirmingNoInsurancePlan(false)}
-        onAddInsurancePlan={canAddPlanToPatient ? onAddInsurancePlan : undefined}
+        onAddInsurancePlan={canAddInsurancePlanToInvoice ? onAddInsurancePlan : undefined}
         onContinue={openPaymentForm}
       />
       <InsurancePlanFlow

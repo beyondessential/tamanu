@@ -28,8 +28,9 @@ export const useInvoicePatientDetailsAccess = invoice => {
     // A settled invoice is a billing record, so its patient details are shown as they stand.
     isPatientDetailsEditable: isEditable && canEditPatient,
     // Choosing which of the patient's plans apply is an invoice-only act, so it asks only what the
-    // spec asks: an invoice still open to change, and a user who can change it.
-    canAddPlanToPatient: isEditable && canWriteInvoice && isInsurancePlanFieldShown,
+    // spec asks: an invoice still open to change, and a user who can change it. Named for the
+    // invoice rather than the patient, since the two flags differ in exactly that.
+    canAddInsurancePlanToInvoice: isEditable && canWriteInvoice && isInsurancePlanFieldShown,
     // Recording a new plan against the patient is the one leg of that flow which writes to the
     // patient, so it alone also needs permission to edit patient records.
     canRecordPlanOnPatient:
