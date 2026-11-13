@@ -62,7 +62,7 @@ const RemoveLinkText = styled.span`
   }
 `;
 
-export const InvoiceSummaryPanel = ({ invoice }) => {
+export const InvoiceSummaryPanel = ({ invoice, patientId }) => {
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
   const { getSetting } = useSettings();
   const isSlidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
@@ -180,6 +180,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
       </Row>
       {isSlidingFeeScaleEnabled && (
         <InvoiceDiscountModal
+          patientId={patientId}
           open={discountModalOpen}
           onClose={() => setDiscountModalOpen(false)}
           handleUpdateDiscount={handleUpdateDiscount}

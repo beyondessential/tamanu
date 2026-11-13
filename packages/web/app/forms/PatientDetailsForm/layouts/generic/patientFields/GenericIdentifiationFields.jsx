@@ -7,10 +7,16 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { useSettings } from '../../../../../contexts/Settings';
 
-export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
+export const GenericIdentificationFields = ({
+  isEdit,
+  patientRegistryType,
+  filterByMandatory,
+  heading,
+  headingTestId,
+  gridTestId,
+}) => {
   const { getSetting } = useSettings();
   const canEditDisplayId = isEdit && getSetting('features.editPatientDisplayId');
-  const enablePatientInsurer = getSetting('features.enablePatientInsurer');
 
   const IDENTIFICATION_FIELDS = {
     displayId: {
@@ -26,17 +32,6 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
           data-testid="translatedtext-3f67"
         />
       ),
-    },
-    insurerPolicyNumber: {
-      component: TextField,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.insurerPolicyNumber.label"
-          fallback="Insurance policy number"
-          data-testid="translatedtext-kpjh"
-        />
-      ),
-      condition: () => !!enablePatientInsurer,
     },
     drivingLicense: {
       component: TextField,
@@ -59,12 +54,33 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         />
       ),
     },
+    adoptionNumber: {
+      component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.adoptionNumber.label"
+          fallback="Adoption number"
+        />
+      ),
+    },
+    marriageLicence: {
+      component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.marriageLicence.label"
+          fallback="Marriage licence"
+        />
+      ),
+    },
   };
 
   return (
     <ConfiguredMandatoryPatientFields
       fields={IDENTIFICATION_FIELDS}
       filterByMandatory={filterByMandatory}
+      heading={heading}
+      headingTestId={headingTestId}
+      gridTestId={gridTestId}
       data-testid="configuredmandatorypatientfields-y6v9"
     />
   );

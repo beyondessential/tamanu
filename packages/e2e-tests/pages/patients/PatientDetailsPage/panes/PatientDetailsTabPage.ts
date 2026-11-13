@@ -54,6 +54,13 @@ export class PatientDetailsTabPage extends BasePatientPane {
   readonly contactInformationHeading!: Locator;
   readonly personalInformationHeading!: Locator;
   readonly locationInformationHeading!: Locator;
+  readonly billingInformationHeading!: Locator;
+
+  // Every section heading, in the order the form renders them. Used to assert where a section
+  // sits relative to its neighbours, which plain visibility checks cannot.
+  readonly sectionHeadings: Locator;
+  readonly billingInformationGrid: Locator;
+  readonly personalInformationGrid: Locator;
 
   readonly sexMaleRadio!: Locator;
   readonly sexFemaleRadio!: Locator;
@@ -111,6 +118,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       contactInformationHeading: 'patientdetailsheading-pipb',
       personalInformationHeading: 'patientdetailsheading-vd0y',
       locationInformationHeading: 'patientdetailsheading-ccov',
+      billingInformationHeading: 'patientdetailsheading-bill',
       sexMaleRadio: 'radio-il3t-male',
       sexFemaleRadio: 'radio-il3t-female',
       sexOtherRadio: 'radio-il3t-other',
@@ -154,7 +162,27 @@ export class PatientDetailsTabPage extends BasePatientPane {
       (this as any)[key] = page.getByTestId(testId);
     }
     this.divisionInput = page.getByTestId('autocompleteinput-input').locator('input[name="divisionId"]');
-    this.patientTypeSelect=page.getByTestId('secondarydetailsformgrid-qrkb').getByTestId('selectinput-phtg-select');
+    this.sectionHeadings = page.getByTestId(/^patientdetailsheading-/);
+    this.billingInformationGrid = page.getByTestId('secondarydetailsformgrid-bill');
+    this.personalInformationGrid = page.getByTestId('secondarydetailsformgrid-qrkb');
+    this.patientTypeSelect = this.billingInformationGrid
+      .getByTestId('selectinput-phtg-select')
+      .first();
+  }
+
+  /** The section headings as the form renders them, top to bottom. */
+  async getSectionOrder(): Promise<string[]> {
+    const headings = await this.sectionHeadings.allTextContents();
+    return headings.map(heading => heading.trim());
+  }
+
+  /** Picks the first patient type on offer and returns its label. */
+  async selectPatientType(): Promise<string> {
+    const patientType = await selectFieldOption(this.page, this.patientTypeSelect, {
+      selectFirst: true,
+      returnOptionText: true,
+    });
+    return patientType ?? '';
   }
 
   async updatePatientDetailsFields(patientDetails: Partial<PatientDetails>): Promise<{
@@ -282,6 +310,12 @@ export class PatientDetailsTabPage extends BasePatientPane {
     await this.contactInformationHeading.waitFor({ state: 'visible', timeout: 10000 });
     await this.personalInformationHeading.waitFor({ state: 'visible', timeout: 10000 });
     await this.locationInformationHeading.waitFor({ state: 'visible', timeout: 10000 });
+  }
+
+  // Kept out of waitForSectionToLoad: a deployment that hides every billing field renders no
+  // Billing information section at all, and the other sections should not start waiting on it.
+  async waitForBillingSectionToLoad(): Promise<void> {
+    await this.billingInformationHeading.waitFor({ state: 'visible', timeout: 10000 });
   }
 }
 
