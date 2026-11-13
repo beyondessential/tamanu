@@ -1,0 +1,29 @@
+{
+  "sheetName": "Invoice Section",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "invoiceSection-outpatient",
+      "code": "outpatient",
+      "name": "Outpatient",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceSection-emergency",
+      "code": "emergency",
+      "name": "Emergency",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceSection-inpatient",
+      "code": "inpatient",
+      "name": "Inpatient",
+      "visibilityStatus": "current"
+    }
+  ]
+}

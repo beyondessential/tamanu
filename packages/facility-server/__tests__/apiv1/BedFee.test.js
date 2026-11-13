@@ -9,6 +9,8 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_STATUSES,
+  PATIENT_STATUSES,
+  REFERENCE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
@@ -121,6 +123,48 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
   });
 
   afterAll(() => ctx.close());
+
+  it("sections a bed-fee line against the encounter's inpatient category", async () => {
+    // Bed fees are only charged for an admission, so they belong in Inpatient.
+    const inpatientSection = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.INVOICE_SECTION,
+        code: PATIENT_STATUSES.INPATIENT,
+      }),
+    );
+
+    try {
+      const items = await admitAndRecompute({
+        locationId: bedLocation.id,
+        startDate: '2024-06-16 09:00:00',
+        endDate: '2024-06-16 14:00:00',
+      });
+
+      expect(items).toHaveLength(1);
+      expect(items[0].invoiceSectionId).toBe(inpatientSection.id);
+    } finally {
+      // Released here rather than left for the next test, which would otherwise be asserting
+      // against whatever this one happened to leave behind. Soft, because the item created above
+      // still references this row and a hard delete would violate the foreign key.
+      await inpatientSection.destroy();
+    }
+  });
+
+  it('leaves a bed-fee line unsectioned where no invoice section is configured', async () => {
+    // Arranged rather than inherited: this case means nothing unless no section is configured.
+    expect(
+      await models.ReferenceData.count({ where: { type: REFERENCE_TYPES.INVOICE_SECTION } }),
+    ).toBe(0);
+
+    const items = await admitAndRecompute({
+      locationId: bedLocation.id,
+      startDate: '2024-06-16 09:00:00',
+      endDate: '2024-06-16 14:00:00',
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items[0].invoiceSectionId).toBe(null);
+  });
 
   it('charges one night for a same-day admission', async () => {
     const items = await admitAndRecompute({
