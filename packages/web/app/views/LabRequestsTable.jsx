@@ -19,7 +19,7 @@ import { getApprovalStatus } from '../utils/invoice';
 import { useSettings } from '../contexts/Settings';
 
 export const LabRequestsTable = React.memo(
-  ({ statuses, loadLabRequest, searchParameters, pageSizePreferenceKey }) => {
+  ({ statuses, searchParameters, pageSizePreferenceKey }) => {
     const isPublishedTable = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
     const { getSetting } = useSettings();
     const isInvoicingEnabled = getSetting('features.invoicing.enabled');
@@ -95,9 +95,8 @@ export const LabRequestsTable = React.memo(
     }, [isPublishedTable, isInvoicingEnabled]);
     const navigate = useNavigate();
 
-    const selectLab = async lab => {
+    const selectLab = lab => {
       const { patientId } = lab;
-      await loadLabRequest(lab.id);
       navigate(`/patients/all/${patientId}/encounter/${lab.encounterId}/lab-request/${lab.id}`);
     };
 

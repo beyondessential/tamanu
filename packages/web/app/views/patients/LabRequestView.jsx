@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import AssignmentLate from '@mui/icons-material/AssignmentLate';
@@ -22,7 +23,6 @@ import {
   ReadOnlyTextField,
 } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
-import { useLabRequest } from '../../contexts/LabRequest';
 import { usePatient } from '../../contexts/Patient';
 import { useSettings } from '../../contexts/Settings';
 import {
@@ -35,6 +35,9 @@ import {
   TileTag,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { ErrorMessage } from '../../components/ErrorMessage';
+import { useLabRequestQuery } from '../../api/queries';
+import { useUpdateLabRequestMutation } from '../../api/mutations';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestChangeStatusModal } from './components/LabRequestChangeStatusModal';
@@ -210,14 +213,14 @@ const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResul
   );
 };
 
-export const LabRequestView = () => {
+const LabRequestViewContent = ({ labRequest, patient }) => {
   const query = useUrlSearchParams();
   const { ability } = useAuth();
   const { getSetting } = useSettings();
   const [modalId, setModalId] = useState(query.get('modal'));
   const [modalOpen, setModalOpen] = useState(false);
   const [labTestTableRefreshCount, setLabTestTableRefreshCount] = useState(0);
-  const { isLoading, labRequest, updateLabRequest } = useLabRequest();
+  const { mutateAsync: updateLabRequest } = useUpdateLabRequestMutation(labRequest.id);
 
   const enableLabResultsPrintout = getSetting('features.labRequest.enableLabResultsPrintout');
   const isPriorityEditingEnabled = getSetting('features.labRequest.priorityEditable');
@@ -235,14 +238,12 @@ export const LabRequestView = () => {
     }, MODAL_TRANSITION_DURATION);
   };
 
-  const { patient } = usePatient();
-
   const handleRefreshLabTestTable = () => {
     setLabTestTableRefreshCount(oldVal => oldVal + 1);
   };
 
   const updateLabReq = async data => {
-    await updateLabRequest(labRequest.id, data);
+    await updateLabRequest(data);
   };
 
   const autoPrintLabel = getSetting('labs.autoPrintSampleLabel');
@@ -261,8 +262,6 @@ export const LabRequestView = () => {
     setModalId(id);
     setModalOpen(true);
   };
-
-  if (isLoading || !patient) return <LoadingIndicator data-testid="loadingindicator-tn29" />;
 
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
@@ -672,4 +671,33 @@ export const LabRequestView = () => {
       )}
     </Container>
   );
+};
+
+// The request shown is always the one named in the URL, so the page can never pair one request
+// with another request's route (and so another patient's banner).
+export const LabRequestView = () => {
+  const { labRequestId, encounterId } = useParams();
+  const { patient } = usePatient();
+  const { data: labRequest, isLoading, error } = useLabRequestQuery(labRequestId);
+
+  if (isLoading || !patient) return <LoadingIndicator data-testid="loadingindicator-tn29" />;
+
+  // A failed background refetch keeps the request it already has on screen.
+  if (!labRequest || labRequest.encounterId !== encounterId) {
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText
+            stringId="lab.view.error.title"
+            fallback="Cannot load lab request"
+            data-testid="translatedtext-lab-request-load-error"
+          />
+        }
+        errorMessage={error?.message}
+        data-testid="errormessage-lab-request"
+      />
+    );
+  }
+
+  return <LabRequestViewContent key={labRequest.id} labRequest={labRequest} patient={patient} />;
 };

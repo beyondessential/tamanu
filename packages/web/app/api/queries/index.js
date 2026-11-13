@@ -11,6 +11,7 @@ export * from './usePatientAdditionalDataQuery';
 export * from './useEncounterDataQuery';
 export * from './useEncounterQuery';
 export * from './useLabRequestNotesQuery';
+export * from './useLabRequestQuery';
 export * from './usePatientCurrentEncounterQuery';
 export * from './useAdministeredVaccinesQuery';
 export * from './usePatientConditionsQuery';

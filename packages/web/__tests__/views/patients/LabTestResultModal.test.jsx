@@ -41,10 +41,6 @@ vi.mock('../../../app/api/queries', () => ({
   useLabTestResultHistoryQuery: () => ({ data: dataRef.current }),
 }));
 
-vi.mock('../../../app/contexts/LabRequest', () => ({
-  useLabRequest: () => ({ loadLabRequest: vi.fn() }),
-}));
-
 vi.mock('react-router', () => ({
   useParams: () => ({ category: 'all' }),
   useNavigate: () => vi.fn(),

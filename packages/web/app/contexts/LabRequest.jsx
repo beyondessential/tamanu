@@ -1,14 +1,10 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-import { LAB_REQUEST_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
-import { useDateTimeIfAvailable } from '@tamanu/ui-components';
-import { useApi } from '../api';
-import { route } from '@tamanu/api-client';
+import React, { createContext, useCallback, useContext } from 'react';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { usePersistedSearchParameters } from '../hooks/usePersistedSearchParameters';
 
-const LabRequestContext = createContext({
-  labRequest: {},
-  isLoading: false,
-});
+// Holds the lab request listing filters only. The request being viewed is loaded from the route
+// by `useLabRequestQuery`, never held here.
+const LabRequestContext = createContext({});
 
 export const LabRequestSearchParamKeys = {
   All: 'LabRequestListingView',
@@ -17,11 +13,8 @@ export const LabRequestSearchParamKeys = {
 };
 
 export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
-  const {
-    searchParameters: allSearchParameters,
-    setSearchParameters: setAllSearchParameters,
-    ...otherProps
-  } = useContext(LabRequestContext);
+  const { searchParameters: allSearchParameters, setSearchParameters: setAllSearchParameters } =
+    useContext(LabRequestContext);
 
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
@@ -34,7 +27,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
     [key, allSearchParameters, setAllSearchParameters],
   );
 
-  return { searchParameters, setSearchParameters, ...otherProps };
+  return { searchParameters, setSearchParameters };
 };
 
 const INITIAL_SEARCH_PARAMETERS = {
@@ -44,50 +37,13 @@ const INITIAL_SEARCH_PARAMETERS = {
 };
 
 export const LabRequestProvider = ({ children }) => {
-  const { getCurrentDateTime } = useDateTimeIfAvailable() || {};
-  const [labRequest, setLabRequest] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const [searchParameters, setSearchParameters] = usePersistedSearchParameters(
     USER_PREFERENCES_KEYS.LAB_REQUEST_SEARCH_PARAMETERS,
     INITIAL_SEARCH_PARAMETERS,
   );
 
-  const api = useApi();
-
-  const loadLabRequest = useCallback(
-    async labRequestId => {
-      setIsLoading(true);
-      const data = await api.get(route('labRequest/:labRequestId', { labRequestId }));
-      setLabRequest({ ...data });
-      setIsLoading(false);
-    },
-    [api],
-  );
-
-  const updateLabRequest = async (labRequestId, data) => {
-    const update = { ...data };
-    if (data.status) {
-      update.userId = api.user.id;
-    }
-    if (data.status === LAB_REQUEST_STATUSES.PUBLISHED) {
-      update.publishedDate = getCurrentDateTime();
-    }
-
-    await api.put(route('labRequest/:labRequestId', { labRequestId }), update);
-    await loadLabRequest(labRequestId);
-  };
-
   return (
-    <LabRequestContext.Provider
-      value={{
-        labRequest,
-        isLoading,
-        loadLabRequest,
-        updateLabRequest,
-        searchParameters,
-        setSearchParameters,
-      }}
-    >
+    <LabRequestContext.Provider value={{ searchParameters, setSearchParameters }}>
       {children}
     </LabRequestContext.Provider>
   );

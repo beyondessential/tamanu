@@ -10,7 +10,6 @@ import { useLabTestResultHistoryQuery } from '../../api/queries';
 import { DateDisplay } from '../../components/DateDisplay';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
-import { useLabRequest } from '../../contexts/LabRequest';
 
 const ModalBody = styled.div`
   display: grid;
@@ -101,17 +100,15 @@ export const LabTestResultModal = React.memo(
     // Whether the result cell is edited comes from the server (the same query the results tables
     // use), so the modal's change log and the tables' asterisk always agree.
     const hasEdits = data?.isEdited ?? false;
-    const { loadLabRequest } = useLabRequest();
     const navigate = useNavigate();
     const { category = 'all' } = useParams();
 
-    const handleViewLabRequest = async () => {
+    const handleViewLabRequest = () => {
       const { labRequest } = labTest;
       const {
         encounter: { id: encounterId, patientId },
       } = labRequest;
 
-      await loadLabRequest(labRequest.id);
       navigate(
         `/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${labRequest.id}`,
       );

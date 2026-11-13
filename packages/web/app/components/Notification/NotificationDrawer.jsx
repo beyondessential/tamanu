@@ -16,7 +16,6 @@ import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
-import { useLabRequest } from '../../contexts/LabRequest';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const NOTIFICATION_ICONS = {
@@ -182,7 +181,6 @@ const NoDataContainer = styled.div`
 `;
 
 const Card = ({ notification }) => {
-  const { loadLabRequest } = useLabRequest();
   const { getTranslation } = useTranslation();
   const { mutateAsync: markAsRead, isLoading: isMarkingAsRead } = useMarkAsRead(notification.id);
   const { type, createdTime, status, patient, metadata } = notification;
@@ -194,9 +192,6 @@ const Card = ({ notification }) => {
     if (isMarkingAsRead) return;
     if (status === NOTIFICATION_STATUSES.UNREAD) {
       await markAsRead();
-    }
-    if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
-      await loadLabRequest(id);
     }
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
       navigate(

@@ -2,7 +2,6 @@ import React from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { route } from '@tamanu/api-client';
 import { DataFetchingTable } from '../../components';
-import { useLabRequest } from '../../contexts/LabRequest';
 import {
   getDateWithTimeTooltip,
   getPriority,
@@ -89,10 +88,8 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId, refreshCount
   const { patientId, category } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { loadLabRequest } = useLabRequest();
 
-  const selectLab = async lab => {
-    await loadLabRequest(lab.id);
+  const selectLab = lab => {
     const path = `/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${lab.id}`;
     navigate(location.search ? `${path}${location.search}` : path);
   };

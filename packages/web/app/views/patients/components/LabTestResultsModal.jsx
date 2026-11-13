@@ -32,7 +32,6 @@ import { TableFormFields } from '../../../components/Table';
 import { BodyText } from '../../../components/Typography';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
-import { useLabRequest } from '../../../contexts/LabRequest';
 import { usePatient } from '../../../contexts/Patient';
 import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { route } from '@tamanu/api-client';
@@ -454,7 +453,6 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const api = useApi();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
-  const { loadLabRequest } = useLabRequest();
   const { getTranslation } = useTranslation();
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
   const areLabTestResultsReadOnly = !canWriteLabTestResult;
@@ -480,7 +478,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
           />,
         );
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
-        loadLabRequest(labRequest.id);
+        queryClient.invalidateQueries(['labRequest', labRequest.id]);
         refreshLabTestTable();
         onClose();
       },

@@ -24,7 +24,7 @@ const LabRequestListing = ({
   searchParamKey = LabRequestSearchParamKeys.All,
   pageSizePreferenceKey,
 }) => {
-  const { loadLabRequest, searchParameters } = useLabRequest(searchParamKey);
+  const { searchParameters } = useLabRequest(searchParamKey);
 
   return (
     <StyledContentPane data-testid="styledcontentpane-l071">
@@ -37,7 +37,6 @@ const LabRequestListing = ({
       </SearchTableTitle>
       <LabRequestsSearchBar statuses={statuses} data-testid="labrequestssearchbar-xktv" />
       <LabRequestsTable
-        loadLabRequest={loadLabRequest}
         searchParameters={searchParameters}
         statuses={statuses}
         pageSizePreferenceKey={pageSizePreferenceKey}
