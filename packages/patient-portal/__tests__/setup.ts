@@ -17,3 +17,9 @@ if (!HTMLDialogElement.prototype.showModal) {
 // jsdom does no layout, so there is nothing to scroll
 window.scrollTo = () => {};
 Element.prototype.scrollTo = () => {};
+document.elementFromPoint ??= () => null;
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};

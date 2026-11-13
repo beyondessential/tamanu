@@ -71,6 +71,7 @@ export const renderPortal = ({
       { path: routePath, element: <Route element={page} /> },
       { path: '/', element: <p>Dashboard</p> },
       { path: '/login', element: <p>Login</p> },
+      { path: '/select-profile', element: <p>Select profile</p> },
     ],
     { initialEntries: [path] },
   );

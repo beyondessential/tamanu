@@ -2,7 +2,11 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import * as jose from 'jose';
 
 import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { fake } from '@tamanu/fake-data/fake';
+import { settingsCache } from '@tamanu/settings';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
+import { buildToken } from '../../app/auth/utils';
 import { createTestContext } from '../utilities';
 import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
 
@@ -137,6 +141,48 @@ describe('Patient Portal profiles', () => {
     const me = await baseApp.get('/api/portal/me').set('Authorization', `Bearer ${childToken}`);
     expect(me).toHaveSucceeded();
     expect(me.body.id).toBe(childPortalUser.patientId);
+  });
+
+  it('lists the profiles for a session token that carries no email', async () => {
+    const token = await buildToken({ portalUserId: parentPortalUser.id }, undefined, {
+      expiresIn: '1h',
+      audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
+      issuer: getCanonicalHostName(),
+    });
+    const response = await baseApp
+      .get('/api/portal/profiles')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.data.map(({ portalUserId }) => portalUserId).sort()).toEqual(
+      [parentPortalUser.id, childPortalUser.id].sort(),
+    );
+  });
+
+  it('records an access for each patient listed and for the one switched to', async () => {
+    const { AccessLog, Setting } = store.models;
+    await Setting.set('audit.accesses.enabled', true);
+    settingsCache.reset();
+    try {
+      const token = await loginAs(parentPortalUser);
+      await AccessLog.truncate();
+
+      await baseApp.get('/api/portal/profiles').set('Authorization', `Bearer ${token}`);
+      const listed = await AccessLog.findAll();
+      expect(listed.map(({ recordId }) => recordId).sort()).toEqual(
+        [parentPortalUser.patientId, childPortalUser.patientId].sort(),
+      );
+
+      await AccessLog.truncate();
+      await baseApp
+        .post(`/api/portal/profiles/${childPortalUser.id}/select`)
+        .set('Authorization', `Bearer ${token}`);
+      const switched = await AccessLog.findAll();
+      expect(switched.map(({ recordId }) => recordId)).toEqual([childPortalUser.patientId]);
+    } finally {
+      await Setting.set('audit.accesses.enabled', false);
+      settingsCache.reset();
+    }
   });
 
   it.each([
