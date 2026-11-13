@@ -68,6 +68,7 @@ export const patientPortalMiddleware = ({ secret }) =>
 
     /* eslint-disable require-atomic-updates */
     req.portalUser = portalUser;
+    req.portalSessionExpiresAt = contents.payload.exp;
     req.patient = patient;
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */

@@ -45,7 +45,6 @@ sources:
             data_type: text
             description: "{{ doc('portal_users__email') }}"
             data_tests:
-              - unique
               - not_null
           - name: visibility_status
             data_type: text
