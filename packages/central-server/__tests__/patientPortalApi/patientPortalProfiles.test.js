@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import * as jose from 'jose';
 
-import { PORTAL_USER_STATUSES } from '@tamanu/constants';
+import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
@@ -17,11 +17,12 @@ describe('Patient Portal profiles', () => {
   let pendingChildPortalUser;
   let otherEmailPortalUser;
   let deceasedPortalUser;
+  let deactivatedPortalUser;
 
-  const createPortalUser = async ({ email, status, patient = {} }) => {
+  const createPortalUser = async ({ email, status, patient = {}, visibilityStatus }) => {
     const { Patient, PortalUser } = store.models;
     const createdPatient = await Patient.create(fake(Patient, patient));
-    return PortalUser.create({ email, status, patientId: createdPatient.id });
+    return PortalUser.create({ email, status, visibilityStatus, patientId: createdPatient.id });
   };
 
   const loginAs = async (portalUser, email = SHARED_EMAIL) => {
@@ -58,6 +59,11 @@ describe('Patient Portal profiles', () => {
       email: SHARED_EMAIL,
       status: PORTAL_USER_STATUSES.REGISTERED,
       patient: { dateOfDeath: new Date().toISOString() },
+    });
+    deactivatedPortalUser = await createPortalUser({
+      email: SHARED_EMAIL,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
     });
     otherEmailPortalUser = await createPortalUser({
       email: 'someone-else@test.com',
@@ -139,6 +145,7 @@ describe('Patient Portal profiles', () => {
     ['a patient with a different email', () => otherEmailPortalUser],
     ['a patient not yet registered', () => pendingChildPortalUser],
     ['a deceased patient', () => deceasedPortalUser],
+    ['a deactivated portal user', () => deactivatedPortalUser],
   ])('refuses to switch to %s', async (_, getPortalUser) => {
     const token = await loginAs(parentPortalUser);
     const response = await baseApp
