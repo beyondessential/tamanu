@@ -17,9 +17,11 @@ export const ProfileSummary = ({ patient }: { patient: ProfilePatient }) => {
 
   return (
     <RowText>
-      <RowTitle>{`${patient.firstName} ${patient.lastName}`}</RowTitle>
+      <RowTitle>{[patient.firstName, patient.lastName].filter(Boolean).join(' ')}</RowTitle>
       <RowDetail>
-        {[formatRecordDate(patient.dateOfBirth), sexInitial, patient.displayId].join(' • ')}
+        {[formatRecordDate(patient.dateOfBirth), sexInitial, patient.displayId]
+          .filter(Boolean)
+          .join(' • ')}
       </RowDetail>
     </RowText>
   );

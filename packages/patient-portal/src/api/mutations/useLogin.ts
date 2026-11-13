@@ -27,7 +27,7 @@ export const useLogin = () => {
       if (profiles) {
         queryClient.setQueryData(['profiles'], profiles);
       }
-      navigate(profiles && profiles.data.length > 1 ? '/select-profile' : '/');
+      navigate(profiles?.data.length === 1 ? '/' : '/select-profile');
     },
   });
 };

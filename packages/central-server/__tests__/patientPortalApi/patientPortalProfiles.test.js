@@ -16,6 +16,7 @@ describe('Patient Portal profiles', () => {
   let childPortalUser;
   let pendingChildPortalUser;
   let otherEmailPortalUser;
+  let deceasedPortalUser;
 
   const createPortalUser = async ({ email, status, patient = {} }) => {
     const { Patient, PortalUser } = store.models;
@@ -23,12 +24,12 @@ describe('Patient Portal profiles', () => {
     return PortalUser.create({ email, status, patientId: createdPatient.id });
   };
 
-  const loginAs = async portalUser => {
+  const loginAs = async (portalUser, email = SHARED_EMAIL) => {
     const oneTimeTokenService = new PortalOneTimeTokenService(store.models);
     const { token } = await oneTimeTokenService.createLoginToken(portalUser.id);
     const response = await baseApp
       .post('/api/portal/login')
-      .send({ loginToken: token, email: SHARED_EMAIL });
+      .send({ loginToken: token, email });
     expect(response).toHaveSucceeded();
     return response.body.token;
   };
@@ -53,7 +54,7 @@ describe('Patient Portal profiles', () => {
       email: SHARED_EMAIL.toUpperCase(),
       status: PORTAL_USER_STATUSES.REGISTERED,
     });
-    await createPortalUser({
+    deceasedPortalUser = await createPortalUser({
       email: SHARED_EMAIL,
       status: PORTAL_USER_STATUSES.REGISTERED,
       patient: { dateOfDeath: new Date().toISOString() },
@@ -74,6 +75,29 @@ describe('Patient Portal profiles', () => {
     expect(response).toHaveSucceeded();
     expect(spy).toHaveBeenCalledWith(parentPortalUser.id, expect.any(Number));
     spy.mockRestore();
+  });
+
+  it('refuses a login code for an email with no registered patient', async () => {
+    const email = 'pending-only@test.com';
+    await createPortalUser({ email, status: PORTAL_USER_STATUSES.PENDING });
+    const response = await baseApp.post('/api/portal/request-login-token').send({ email });
+    expect(response).toHaveRequestError();
+  });
+
+  it('lists a patient missing optional details', async () => {
+    const email = 'incomplete@test.com';
+    const portalUser = await createPortalUser({
+      email,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+      patient: { firstName: null, dateOfBirth: null },
+    });
+    await createPortalUser({ email, status: PORTAL_USER_STATUSES.REGISTERED });
+    const token = await loginAs(portalUser, email);
+    const response = await baseApp
+      .get('/api/portal/profiles')
+      .set('Authorization', `Bearer ${token}`);
+    expect(response).toHaveSucceeded();
+    expect(response.body.data).toHaveLength(2);
   });
 
   it('signs in as whichever patient the code was issued against', async () => {
@@ -114,6 +138,7 @@ describe('Patient Portal profiles', () => {
   it.each([
     ['a patient with a different email', () => otherEmailPortalUser],
     ['a patient not yet registered', () => pendingChildPortalUser],
+    ['a deceased patient', () => deceasedPortalUser],
   ])('refuses to switch to %s', async (_, getPortalUser) => {
     const token = await loginAs(parentPortalUser);
     const response = await baseApp

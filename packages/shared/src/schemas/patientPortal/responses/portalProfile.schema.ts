@@ -8,6 +8,9 @@ export const PortalProfileSchema = PatientSchema.pick({
   dateOfBirth: true,
   sex: true,
 }).extend({
+  firstName: z.string().nullish(),
+  lastName: z.string().nullish(),
+  dateOfBirth: z.string().nullish(),
   portalUserId: z.string(),
 });
 
