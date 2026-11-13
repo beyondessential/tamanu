@@ -209,6 +209,9 @@ const updateInvoiceSchema = z
         quantity: z.coerce.number().default(1),
         note: z.string().nullish(),
         sourceId: z.string().uuid().nullish(),
+        // Not .uuid(): provisioned section ids are codes such as 'invoiceSection-emergency'.
+        // min(1) keeps an empty string from reaching the foreign key as a value.
+        invoiceSectionId: z.string().min(1).nullish(),
         discount: z
           .object({
             id: z.string().uuid().default(() => crypto.randomUUID()),
@@ -284,10 +287,55 @@ invoiceRoute.put(
         where: { invoiceId, id: { [Op.notIn]: data.items.map(item => item.id) } },
       });
 
+      // This route is the create path for manual items as well as the update path, so an item's
+      // section is written when it is added and never again. Without that an edit which
+      // round-trips the item would let the client move it to another section.
+      const existingItems = await req.models.InvoiceItem.findAll({
+        where: { id: data.items.map(item => item.id) },
+        attributes: ['id', 'invoiceId', 'invoiceSectionId'],
+        paranoid: false,
+        raw: true,
+      });
+
+      // An id already belonging to another invoice is refused rather than placed: the upsert below
+      // writes by id, so accepting one would move that invoice's line onto this one.
+      const foreignItem = existingItems.find(existing => existing.invoiceId !== invoiceId);
+      if (foreignItem) {
+        throw new ValidationError(`Invoice item ${foreignItem.id} belongs to another invoice`);
+      }
+
+      const sectionByExistingItemId = new Map(
+        existingItems.map(existing => [existing.id, existing.invoiceSectionId]),
+      );
+
+      // Only a new item needs placing, so a save that just edits existing lines reads neither the
+      // configured sections nor the encounter's current one.
+      const hasNewItems = data.items.some(item => !sectionByExistingItemId.has(item.id));
+      const { configuredSectionIds, currentSectionId } = hasNewItems
+        ? await req.models.Invoice.resolveManualItemPlacement(foundInvoice.encounterId)
+        : { configuredSectionIds: new Set(), currentSectionId: null };
+
       for (const item of data.items) {
         const { discount: itemDiscount, ...itemData } = item;
-        //update or create item
-        await req.models.InvoiceItem.upsert({ ...itemData, invoiceId });
+        // An item added from a section's own Add item names its section. One added from an invoice
+        // showing no headers names none, so it belongs to the category the encounter is in now.
+        const isExistingItem = sectionByExistingItemId.has(item.id);
+        if (
+          !isExistingItem &&
+          item.invoiceSectionId &&
+          !configuredSectionIds.has(item.invoiceSectionId)
+        ) {
+          throw new ValidationError(
+            `Invoice section ${item.invoiceSectionId} is not a current invoice section`,
+          );
+        }
+        await req.models.InvoiceItem.upsert({
+          ...itemData,
+          invoiceSectionId: isExistingItem
+            ? sectionByExistingItemId.get(item.id)
+            : (item.invoiceSectionId ?? currentSectionId),
+          invoiceId,
+        });
 
         //remove any existing discount if discount info is not provided
         if (!itemDiscount) {
