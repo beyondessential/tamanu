@@ -35,6 +35,7 @@ export const selectProfile = ({ secret }) =>
     if (!selectedPortalUser) {
       throw new NotFoundError('Profile not found');
     }
+    await req.audit.access({ recordId: selectedPortalUser.patientId, model: req.models.Patient });
 
     // Keeps the signed-in session's expiry, so switching profile cannot extend it
     const token = await buildToken({ portalUserId: selectedPortalUser.id }, secret, {

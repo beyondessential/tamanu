@@ -121,4 +121,12 @@ describe('Patient Portal profiles', () => {
       .set('Authorization', `Bearer ${token}`);
     expect(response.status).toBe(404);
   });
+
+  it.each([
+    ['list profiles', () => baseApp.get('/api/portal/profiles')],
+    ['switch profile', () => baseApp.post(`/api/portal/profiles/${childPortalUser.id}/select`)],
+  ])('requires authentication to %s', async (_, request) => {
+    const response = await request();
+    expect(response).toHaveRequestError();
+  });
 });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Navigate } from 'react-router';
 import styled from 'styled-components';
 import { ChevronRight } from 'lucide-react';
 import { TranslatedText } from '@tamanu/ui-components';
@@ -36,6 +37,10 @@ const ProfileButton = styled.button.attrs({ type: 'button' })`
 export const SelectProfileView = () => {
   const { data: profiles, isPending } = useProfilesQuery();
   const { mutate: selectProfile, isPending: isSelecting } = useSelectProfile();
+
+  if (!isPending && !profiles?.data.length) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <PageColumn>
