@@ -2,6 +2,8 @@ import React from 'react';
 import * as yup from 'yup';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 import { Box } from '@material-ui/core';
 import { getAnswersFromData, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
@@ -23,6 +25,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
+import { invalidatePatientDataQueries } from '../utils';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -66,6 +69,7 @@ export const TriageForm = ({
   withExistingEncounterCheck,
 }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const { facilityId, currentUser } = useAuth();
   const navigate = useNavigate();
   const { getSetting } = useSettings();
@@ -246,11 +250,16 @@ export const TriageForm = ({
       facilityId,
     };
 
+    const triage = await api.post('triage', newTriage);
+
     if (typeof onSubmitEncounter === 'function') {
-      await onSubmitEncounter(newTriage);
+      const encounter = await api.get(
+        route('encounter/:encounterId', { encounterId: triage.encounterId }),
+      );
+      await onSubmitEncounter(encounter);
     }
 
-    await api.post('triage', newTriage);
+    invalidatePatientDataQueries(queryClient, patient.id);
 
     if (!noRedirectOnSubmit) {
       navigate('/patients/emergency');
