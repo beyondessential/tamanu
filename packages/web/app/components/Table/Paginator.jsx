@@ -52,7 +52,7 @@ const PageRecordCount = styled.span`
   color: ${Colors.darkText};
   white-space: nowrap;
   strong {
-    font-weight: 500;
+    font-weight: 700;
     color: ${Colors.darkestText};
   }
 `;
