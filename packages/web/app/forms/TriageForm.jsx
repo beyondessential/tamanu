@@ -252,14 +252,17 @@ export const TriageForm = ({
 
     const triage = await api.post('triage', newTriage);
 
+    // The encounter exists from here on, so refresh the patient's data before anything that can
+    // fail: a caller reading the current encounter (the appointment check-in button) would
+    // otherwise go on offering to admit a patient who has just been admitted.
+    invalidatePatientDataQueries(queryClient, patient.id);
+
     if (typeof onSubmitEncounter === 'function') {
       const encounter = await api.get(
         route('encounter/:encounterId', { encounterId: triage.encounterId }),
       );
       await onSubmitEncounter(encounter);
     }
-
-    invalidatePatientDataQueries(queryClient, patient.id);
 
     if (!noRedirectOnSubmit) {
       navigate('/patients/emergency');

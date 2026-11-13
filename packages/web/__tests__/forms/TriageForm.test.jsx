@@ -5,7 +5,17 @@ import '../../app/utils/errorMessages';
 import { renderElementWithTranslatedText } from '../helpers';
 import { TriageForm } from '../../app/forms/TriageForm';
 
-const { captured, settings, api } = vi.hoisted(() => ({ captured: {}, settings: {}, api: {} }));
+const { captured, settings, api, invalidatePatientDataQueries } = vi.hoisted(() => ({
+  captured: {},
+  settings: {},
+  api: {},
+  invalidatePatientDataQueries: vi.fn(),
+}));
+
+vi.mock('../../app/utils', async importOriginal => ({
+  ...(await importOriginal()),
+  invalidatePatientDataQueries,
+}));
 
 vi.mock('@tamanu/ui-components', async importOriginal => {
   const actual = await importOriginal();
@@ -83,6 +93,7 @@ describe('TriageForm submission', () => {
   beforeEach(() => {
     api.post = vi.fn().mockResolvedValue({ id: 'triage-1', encounterId: 'encounter-1' });
     api.get = vi.fn().mockResolvedValue({ id: 'encounter-1' });
+    invalidatePatientDataQueries.mockClear();
   });
 
   it('hands the encounter the triage created to onSubmitEncounter', async () => {
@@ -122,6 +133,24 @@ describe('TriageForm submission', () => {
     );
 
     await expect(captured.onSubmit(validTriage)).rejects.toThrow();
+    expect(onSubmitEncounter).not.toHaveBeenCalled();
+  });
+
+  it('refreshes the patient data even when the created encounter cannot be fetched', async () => {
+    api.get.mockRejectedValue(new Error('Network error'));
+    const onSubmitEncounter = vi.fn();
+    renderElementWithTranslatedText(
+      <TriageForm
+        patient={{ id: 'patient-1' }}
+        onSubmitEncounter={onSubmitEncounter}
+        noRedirectOnSubmit
+        withExistingEncounterCheck={onSuccess => onSuccess()}
+      />,
+    );
+
+    await expect(captured.onSubmit(validTriage)).rejects.toThrow();
+
+    expect(invalidatePatientDataQueries).toHaveBeenCalledWith(expect.anything(), 'patient-1');
     expect(onSubmitEncounter).not.toHaveBeenCalled();
   });
 });
