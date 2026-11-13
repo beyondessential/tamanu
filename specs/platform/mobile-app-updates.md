@@ -12,114 +12,114 @@ Installing closes the app, and Android does not reopen it, so the moment is left
 
 Servers reject a client below their minimum supported version and include the address the client should update from, taken from the `metaServer.updateUrls.mobile` setting with the minimum version substituted into it. Syncing is where an out-of-date mobile app is turned away; signing in is not, so staff can get into a device that is mid-update and work offline on it.
 
-- [ ] A mobile app below the minimum supported version can still sign in, and the rejection that starts its update comes from its next sync.
-- [ ] Other clients are still turned away at sign-in, where being out of date can be reported plainly rather than failing every call that follows.
-- [ ] Any rejection of the mobile app for being below the minimum supported version starts the download, wherever the app is and whatever the user is doing.
-- [ ] Staff stay signed in and carry on working. The screen they are on is undisturbed, and nothing they have part-filled is lost.
-- [ ] Signing in does not clear an outstanding update, since the server accepts the sign-in whatever version the app is on. Only a sync it accepts does.
-- [ ] Sync is paused for as long as the update is outstanding, since the server rejects this version. Changes recorded while it is paused are held on the device.
-- [ ] While sync is paused, the app keeps trying to sync in the background. The server turns each attempt away on its first request, before any records are sent, so the app always knows what the server wants now.
-- [ ] Where a rejection names a different release from the one being updated to, such as a corrected address or a newer release, anything downloaded for the old one is discarded and the update starts again from the new address. This holds even after the banner has said no update is available.
-- [ ] Where the server accepts the app's version again, such as after its required release is corrected, the outstanding update is dropped: the banner goes and sync resumes.
-- [ ] An outstanding update is remembered on the device, so closing and reopening the app resumes it rather than losing it.
-- [ ] An app rejected for being above the maximum supported version does not start an update, since a device cannot be moved backwards to an earlier release. It reports that the app is incompatible with its server, as any other sign-in failure does.
+- A mobile app below the minimum supported version can still sign in, and the rejection that starts its update comes from its next sync.
+- Other clients are still turned away at sign-in, where being out of date can be reported plainly rather than failing every call that follows.
+- Any rejection of the mobile app for being below the minimum supported version starts the download, wherever the app is and whatever the user is doing.
+- Staff stay signed in and carry on working. The screen they are on is undisturbed, and nothing they have part-filled is lost.
+- Signing in does not clear an outstanding update, since the server accepts the sign-in whatever version the app is on. Only a sync it accepts does.
+- Sync is paused for as long as the update is outstanding, since the server rejects this version. Changes recorded while it is paused are held on the device.
+- While sync is paused, the app keeps trying to sync in the background. The server turns each attempt away on its first request, before any records are sent, so the app always knows what the server wants now.
+- Where a rejection names a different release from the one being updated to, such as a corrected address or a newer release, anything downloaded for the old one is discarded and the update starts again from the new address. This holds even after the banner has said no update is available.
+- Where the server accepts the app's version again, such as after its required release is corrected, the outstanding update is dropped: the banner goes and sync resumes.
+- An outstanding update is remembered on the device, so closing and reopening the app resumes it rather than losing it.
+- An app rejected for being above the maximum supported version does not start an update, since a device cannot be moved backwards to an earlier release. It reports that the app is incompatible with its server, as any other sign-in failure does.
 
 ## The version a device must run
 
 A deployment's devices follow its central server. Central requires the mobile app to be at least the latest release in its own release line that changed the app, so a mobile hotfix reaches a deployment's devices when its central is upgraded to that release, and a release that changes only the servers asks nothing of them.
 
-- [ ] Central's minimum mobile version is the latest release, up to and including its own, in its minor line that published an Android package.
-- [ ] A mobile app on central's minor line but below that release is rejected and updates, in the same way as an app on an earlier minor line.
-- [ ] The address a rejected mobile app is given names that exact release, so every device at a deployment lands on the same version whichever release it started from.
-- [ ] Upgrading central to a release that changes only the servers leaves its minimum mobile version where it was, so no device is asked to update.
-- [ ] A mobile app above central's minimum but within its minor line, such as one installed by hand, is accepted and not asked to change.
-- [ ] Facility servers and the web app are unaffected: their minimum stays the first release of central's minor line.
+- Central's minimum mobile version is the latest release, up to and including its own, in its minor line that published an Android package.
+- A mobile app on central's minor line but below that release is rejected and updates, in the same way as an app on an earlier minor line.
+- The address a rejected mobile app is given names that exact release, so every device at a deployment lands on the same version whichever release it started from.
+- Upgrading central to a release that changes only the servers leaves its minimum mobile version where it was, so no device is asked to update.
+- A mobile app above central's minimum but within its minor line, such as one installed by hand, is accepted and not asked to change.
+- Facility servers and the web app are unaffected: their minimum stays the first release of central's minor line.
 
 ## Release packaging
 
 A release publishes an Android package only when it changes what goes into the app, so devices are never asked to download a package identical to the one they run.
 
-- [ ] A release builds and publishes an Android package when anything that goes into the app has changed since the previous release in its minor line: the mobile app itself, the shared packages it is built from, its dependencies, or their patches.
-- [ ] A release that changes only the servers publishes no Android package.
-- [ ] The first release of a minor line always publishes an Android package.
-- [ ] Each central server release records the latest release in its minor line that published an Android package, which becomes its minimum mobile version.
-- [ ] Where the comparison with the previous release cannot be made, the release publishes a package, so a doubtful case updates devices rather than sending them to a package that does not exist.
+- A release builds and publishes an Android package when anything that goes into the app has changed since the previous release in its minor line: the mobile app itself, the shared packages it is built from, its dependencies, or their patches.
+- A release that changes only the servers publishes no Android package.
+- The first release of a minor line always publishes an Android package.
+- Each central server release records the latest release in its minor line that published an Android package, which becomes its minimum mobile version.
+- Where the comparison with the previous release cannot be made, the release publishes a package, so a doubtful case updates devices rather than sending them to a package that does not exist.
 
 ## The update endpoint
 
 The meta server serves the Android package for a given version and branding at its own address, separate from the page a browser is sent to. The app knows its own branding; central does not, so the app adds its branding to the address central gives it.
 
-- [ ] The endpoint returns the Android package file itself, for the version and branding requested.
-- [ ] `metaServer.updateUrls.mobile` defaults to the package address, and the browser page stays available at its own address for devices that are sent there.
-- [ ] The app adds its own branding to the address it receives before requesting the package.
-- [ ] The response declares the package's size, so the app can check free space before downloading and detect a truncated download.
-- [ ] The endpoint supports resuming a partial download from a byte offset.
-- [ ] The endpoint serves exactly the release requested, since central names the release its devices must run.
-- [ ] A request for a version or branding the meta server has no package for is refused, and the app treats it as a failure it cannot retry its way out of, until it is reopened or the server names a different release.
-- [ ] The package is served over an encrypted connection.
+- The endpoint returns the Android package file itself, for the version and branding requested.
+- `metaServer.updateUrls.mobile` defaults to the package address, and the browser page stays available at its own address for devices that are sent there.
+- The app adds its own branding to the address it receives before requesting the package.
+- The response declares the package's size, so the app can check free space before downloading and detect a truncated download.
+- The endpoint supports resuming a partial download from a byte offset.
+- The endpoint serves exactly the release requested, since central names the release its devices must run.
+- A request for a version or branding the meta server has no package for is refused, and the app treats it as a failure it cannot retry its way out of, until it is reopened or the server names a different release.
+- The package is served over an encrypted connection.
 
 ## The update banner
 
 A banner on the home screen carries the whole state of the update, from downloading through to anything that has gone wrong. It is the only thing on the home screen that changes while an update is outstanding.
 
-- [ ] While downloading, the banner reads "Downloading a Tamanu update (:percent%). Sync paused."
-- [ ] Once the package is downloaded, the banner reads "Tamanu update ready. Install to sync." and offers Install.
-- [ ] Closing the banner hides it until staff next arrive at the home screen, where it returns. It keeps returning until the update is installed.
-- [ ] The banner does not block anything on the screen beneath it.
+- While downloading, the banner reads "Downloading a Tamanu update (:percent%). Sync paused."
+- Once the package is downloaded, the banner reads "Tamanu update ready. Install to sync." and offers Install.
+- Closing the banner hides it until staff next arrive at the home screen, where it returns. It keeps returning until the update is installed.
+- The banner does not block anything on the screen beneath it.
 
 ## Sync tab
 
 The Sync tab is where staff go when sync looks wrong, so it says why sync is paused rather than offering a manual sync that would be rejected.
 
-- [ ] While an update is outstanding, the Sync tab reads "Sync paused" instead of showing sync progress, and does not offer Manual sync.
-- [ ] While downloading, it reads "Downloading a Tamanu update (:percent%)."
-- [ ] Once downloaded, it reads "Tamanu needs to update before it can sync." and offers Install update.
-- [ ] Where the device does not yet allow Tamanu to install apps, it reads "Tamanu needs permission to update before it can sync." and offers Allow, which opens the Android settings screen that grants it.
-- [ ] Install update is available on the Sync tab whether or not the home screen banner has been closed.
-- [ ] The time of the last successful sync stays visible, so staff can see how long the device has been held back.
+- While an update is outstanding, the Sync tab reads "Sync paused" instead of showing sync progress, and does not offer Manual sync.
+- While downloading, it reads "Downloading a Tamanu update (:percent%)."
+- Once downloaded, it reads "Tamanu needs to update before it can sync." and offers Install update.
+- Where the device does not yet allow Tamanu to install apps, it reads "Tamanu needs permission to update before it can sync." and offers Allow, which opens the Android settings screen that grants it.
+- Install update is available on the Sync tab whether or not the home screen banner has been closed.
+- The time of the last successful sync stays visible, so staff can see how long the device has been held back.
 
 ## Installing
 
 Installing is the one step staff choose. It closes the app, so they are told before it happens and given the chance to finish what they are doing.
 
-- [ ] Install, from either the banner or the Sync tab, opens a confirmation over whatever screen staff are on.
-- [ ] The confirmation is titled "Install update" and reads "Save your work first. Tamanu will close to install the update. Open it again from the app icon."
-- [ ] The confirmation offers Install and close, and Cancel. Cancelling, closing it, or tapping outside it installs nothing and leaves the banner as it was.
-- [ ] Install and close hands the package to Android and replaces the confirmation with "Installing update", reading "Tamanu will close in a moment. Open it again from the app icon."
-- [ ] The installing message cannot be dismissed, since Android has the package from that point and the app is about to close.
-- [ ] After a successful install, a notification reading "Tamanu has been updated" opens the app when tapped.
-- [ ] The app asks for permission to post notifications when staff tap Install, where the device requires it, rather than while they are still working. Where it is refused the update still proceeds, and staff rely on the confirmation having told them to use the app icon.
-- [ ] Opening the updated app leads to the sign-in screen, and the first sync after signing in sends everything recorded while sync was paused.
-- [ ] The downloaded package is deleted once it has been installed.
-- [ ] A downloaded package that is no newer than the installed app, or cannot be read, is discarded and downloaded again rather than offered for install.
+- Install, from either the banner or the Sync tab, opens a confirmation over whatever screen staff are on.
+- The confirmation is titled "Install update" and reads "Save your work first. Tamanu will close to install the update. Open it again from the app icon."
+- The confirmation offers Install and close, and Cancel. Cancelling, closing it, or tapping outside it installs nothing and leaves the banner as it was.
+- Install and close hands the package to Android and replaces the confirmation with "Installing update", reading "Tamanu will close in a moment. Open it again from the app icon."
+- The installing message cannot be dismissed, since Android has the package from that point and the app is about to close.
+- After a successful install, a notification reading "Tamanu has been updated" opens the app when tapped.
+- The app asks for permission to post notifications when staff tap Install, where the device requires it, rather than while they are still working. Where it is refused the update still proceeds, and staff rely on the confirmation having told them to use the app icon.
+- Opening the updated app leads to the sign-in screen, and the first sync after signing in sends everything recorded while sync was paused.
+- The downloaded package is deleted once it has been installed.
+- A downloaded package that is no newer than the installed app, or cannot be read, is discarded and downloaded again rather than offered for install.
 
 ## Permission setup
 
 Installing a package requires the device to allow Tamanu to install apps, which is granted once per device through an Android settings screen. Asking while the download is still running means the one-off setup is done before staff need it.
 
-- [ ] Where the device does not already allow Tamanu to install apps, the banner reads "Tamanu needs permission to update. Sync paused. You are currently working offline." and offers Allow.
-- [ ] Allow opens the Android settings screen that grants the permission. Returning with it granted returns the banner to its downloading or ready state.
-- [ ] Returning without granting it leaves the banner asking, so staff can grant it when they are ready.
-- [ ] Android's own confirmation of the first install on a device is left to the user to accept; the app does not attempt to bypass or pre-empt it.
-- [ ] Cancelling Android's first-install confirmation installs nothing and returns the banner to its ready state.
+- Where the device does not already allow Tamanu to install apps, the banner reads "Tamanu needs permission to update. Sync paused. You are currently working offline." and offers Allow.
+- Allow opens the Android settings screen that grants the permission. Returning with it granted returns the banner to its downloading or ready state.
+- Returning without granting it leaves the banner asking, so staff can grant it when they are ready.
+- Android's own confirmation of the first install on a device is left to the user to accept; the app does not attempt to bypass or pre-empt it.
+- Cancelling Android's first-install confirmation installs nothing and returns the banner to its ready state.
 
 ## Downloading
 
 The download is built for the connections Tamanu is used on: slow, interrupted, and sometimes metered. It resumes rather than restarting, and retries on its own, all without staff needing to attend to it.
 
-- [ ] The download runs on whatever connection is available, including a metered one, since sync stays paused until it finishes.
-- [ ] An interrupted download resumes from where it stopped, including after the app is closed and reopened.
-- [ ] A partial download is only resumed if it is for the same address and the server confirms the package has not changed since; otherwise the download starts again, so bytes from two packages are never joined.
-- [ ] Before downloading, the app checks there is enough free space for the package and for installing it. If there is not, the banner says so and sync stays paused.
-- [ ] A failed download is retried automatically, with a longer gap before each successive attempt.
-- [ ] A download that completes at a size other than the one declared is discarded and retried rather than installed.
-- [ ] After three failed download attempts, the banner offers the address the package can be downloaded from by hand, alongside continuing to retry automatically. Not enough free space offers the same address without waiting for three attempts.
+- The download runs on whatever connection is available, including a metered one, since sync stays paused until it finishes.
+- An interrupted download resumes from where it stopped, including after the app is closed and reopened.
+- A partial download is only resumed if it is for the same address and the server confirms the package has not changed since; otherwise the download starts again, so bytes from two packages are never joined.
+- Before downloading, the app checks there is enough free space for the package and for installing it. If there is not, the banner says so and sync stays paused.
+- A failed download is retried automatically, with a longer gap before each successive attempt.
+- A download that completes at a size other than the one declared is discarded and retried rather than installed.
+- After three failed download attempts, the banner offers the address the package can be downloaded from by hand, alongside continuing to retry automatically. Not enough free space offers the same address without waiting for three attempts.
 
 ## When the install doesn't finish
 
 Android replaces the app only once the new version is in place, so a failed install leaves the device on the version it was already running, with the work on it untouched.
 
-- [ ] An install Android rejects replaces the installing message with "Update not installed", reading "The update couldn't be installed. Your work is unaffected.", offering Try again and Cancel.
-- [ ] Try again starts the install again, or downloads the update afresh where the downloaded package has since been discarded. Cancel, or closing it, returns to the ready banner so staff can install when they choose.
-- [ ] An install interrupted by the device restarting or the app closing leaves the device on its existing version with the update still waiting, and the banner returns to its ready state.
-- [ ] An app still rejected for its version immediately after installing an update does not download the same package again. The banner reads "Tamanu update was not accepted by the server. Please contact your system administrator."
+- An install Android rejects replaces the installing message with "Update not installed", reading "The update couldn't be installed. Your work is unaffected.", offering Try again and Cancel.
+- Try again starts the install again, or downloads the update afresh where the downloaded package has since been discarded. Cancel, or closing it, returns to the ready banner so staff can install when they choose.
+- An install interrupted by the device restarting or the app closing leaves the device on its existing version with the update still waiting, and the banner returns to its ready state.
+- An app still rejected for its version immediately after installing an update does not download the same package again. The banner reads "Tamanu update was not accepted by the server. Please contact your system administrator."
