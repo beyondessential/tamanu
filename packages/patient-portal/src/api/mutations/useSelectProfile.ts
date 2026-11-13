@@ -19,5 +19,6 @@ export const useSelectProfile = () => {
       await queryClient.resetQueries();
       navigate('/');
     },
+    onError: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
   });
 };
