@@ -1,7 +1,7 @@
 import { MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Pagination, PaginationItem } from '@material-ui/lab';
-import { getCurrentLanguageCode } from '@tamanu/ui-components';
+import { getCurrentLanguageCode, useTranslation } from '@tamanu/ui-components';
 import React, { useId, useRef } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
@@ -48,8 +48,20 @@ const StyledPagination = styled(Pagination)`
 `;
 
 const PageRecordCount = styled.span`
-  margin-right: 15px;
   font-size: 13px;
+  color: ${Colors.darkText};
+  white-space: nowrap;
+  strong {
+    font-weight: 700;
+    color: ${Colors.darkestText};
+  }
+`;
+
+const Divider = styled.span`
+  width: 1px;
+  height: 20px;
+  margin: 0 15px;
+  background: ${Colors.outline};
 `;
 
 const RowsPerPageLabel = styled.span`
@@ -87,41 +99,29 @@ const StyledMenuItem = styled(MenuItem)`
 
 // spec: TPAGE#record-count
 const RecordCount = ({ lowerRange, upperRange, count }) => {
+  const { getTranslation } = useTranslation();
   const numberFormatter = new Intl.NumberFormat(getCurrentLanguageCode());
-  const replacements = {
-    lowerRange: numberFormatter.format(lowerRange),
-    upperRange: numberFormatter.format(upperRange),
-    count: numberFormatter.format(count),
+  const numbers = {
+    ':lowerRange': numberFormatter.format(lowerRange),
+    ':upperRange': numberFormatter.format(upperRange),
+    ':count': numberFormatter.format(count),
   };
-
-  if (count === 1) {
-    return (
-      <TranslatedText
-        stringId="general.table.recordCount.onlyRecord"
-        fallback="Showing :lowerRange of :count record"
-        replacements={replacements}
-        data-testid="translatedtext-q3fe"
-      />
-    );
-  }
-  if (lowerRange === upperRange) {
-    return (
-      <TranslatedText
-        stringId="general.table.recordCount.singleRow"
-        fallback="Showing :lowerRange of :count records"
-        replacements={replacements}
-        data-testid="translatedtext-x7vk"
-      />
-    );
-  }
-  return (
-    <TranslatedText
-      stringId="general.table.recordCount.range"
-      fallback="Showing :lowerRange–:upperRange of :count records"
-      replacements={replacements}
-      data-testid="translatedtext-yhs4"
-    />
+  // The default-translations scraper only finds literal getTranslation calls.
+  const single = getTranslation(
+    'general.table.recordCount.singleRow',
+    'Showing :lowerRange of :count',
   );
+  const range = getTranslation(
+    'general.table.recordCount.range',
+    'Showing :lowerRange–:upperRange of :count',
+  );
+  const template = lowerRange === upperRange ? single : range;
+
+  return template
+    .split(/(:[a-zA-Z]+)/g)
+    .map((part, index) =>
+      Object.hasOwn(numbers, part) ? <strong key={index}>{numbers[part]}</strong> : part,
+    );
 };
 
 const ChevronComponent = React.forwardRef(({ children, ...props }, ref) => (
@@ -189,6 +189,7 @@ export const Paginator = React.memo(
                 <RecordCount lowerRange={lowerRange} upperRange={upperRange} count={count} />
               )}
             </PageRecordCount>
+            {isDataInTable && <Divider data-testid="divider-p4rc" />}
             <RowsPerPageLabel id={rowsPerPageLabelId} data-testid="rowsperpagelabel-k2dm">
               <TranslatedText
                 stringId="general.table.rowsPerPage"
