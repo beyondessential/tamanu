@@ -238,6 +238,8 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
   const { getCurrentDateTime } = useDateTime();
   const { ability } = useAuth();
   const [invoiceModalType, setInvoiceModalType] = useState(null);
+  // The section an Add item was pressed in, so the Add items window opens against that section.
+  const [activeSection, setActiveSection] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
 
@@ -305,6 +307,10 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
             invoice={invoice}
             setInvoiceModalType={setInvoiceModalType}
             invoiceFormType={INVOICE_FORM_TYPE.READ_ONLY}
+            onAddItemsForSection={section => {
+              setActiveSection(section);
+              setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+            }}
           />
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />
@@ -316,7 +322,11 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
       <InvoiceModalGroup
         invoiceModalType={invoiceModalType}
         invoice={invoice}
-        setOpenInvoiceModal={setInvoiceModalType}
+        section={activeSection}
+        setOpenInvoiceModal={modalType => {
+          setInvoiceModalType(modalType);
+          if (!modalType) setActiveSection(null);
+        }}
       />
     </>
   );

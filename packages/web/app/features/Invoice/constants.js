@@ -22,6 +22,15 @@ export const CELL_WIDTHS_EDITABLE = /** @type {const} */ ({
   ACTIONS: 0,
 });
 
+/**
+ * How many columns the item table renders, which the section headers and the per-section Add item
+ * rows span. Derived from the widths above rather than restated, so a new column reaches them
+ * too: the editable views drop Actions, and the read-only views add a leading insurance-toggle
+ * cell that carries no width of its own. Both match `InvoiceItemHeader`.
+ */
+export const invoiceItemColumnCount = isEditing =>
+  isEditing ? Object.keys(CELL_WIDTHS).length - 1 : Object.keys(CELL_WIDTHS).length + 1;
+
 export const INVOICE_FORM_TYPE = /** @type {const} */ ({
   ADD_ITEMS: 'add_items',
   READ_ONLY: 'read_only',

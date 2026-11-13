@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
@@ -13,9 +13,20 @@ import {
   TextButton,
 } from '@tamanu/ui-components';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { isInvoiceEditable } from '@tamanu/utils/invoice';
+import {
+  isInvoiceEditable,
+  isInvoiceSectioned,
+  keepsRecordedDate,
+  resolveEncounterPeriod,
+  resolveSectionPeriods,
+} from '@tamanu/utils/invoice';
 import { Colors } from '../../../constants/styles';
-import { CELL_WIDTHS, CELL_WIDTHS_EDITABLE, INVOICE_FORM_TYPE } from '../constants';
+import {
+  CELL_WIDTHS,
+  CELL_WIDTHS_EDITABLE,
+  INVOICE_FORM_TYPE,
+  invoiceItemColumnCount,
+} from '../constants';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
 import {
@@ -23,7 +34,8 @@ import {
   useUpdateInvoiceItemApproval,
 } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
-import { invoiceFormSchema } from './invoiceFormSchema';
+import { buildInvoiceFormSchema } from './invoiceFormSchema';
+import { InvoiceSectionHeader } from './InvoiceSectionHeader';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
@@ -101,7 +113,26 @@ const FormFooter = styled(({ children, ...props }) => (
   border-end-start-radius: inherit;
 `;
 
-const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
+// Rows grouped into the sections the invoice is divided into, each row keeping its index in the
+// formik array so field names and the save payload are unchanged. Items whose section the facility
+// does not hold fall into the trailing unlabelled group, which carries no header.
+const groupRowsBySection = (rows, sections) => {
+  const indexedRows = rows.map((item, index) => ({ item, index }));
+  const sectionIds = new Set(sections.map(section => section.invoiceSectionId));
+  return [
+    ...sections.map(section => ({
+      section,
+      rows: indexedRows.filter(({ item }) => item.invoiceSectionId === section.invoiceSectionId),
+    })),
+    {
+      section: null,
+      rows: indexedRows.filter(({ item }) => !sectionIds.has(item.invoiceSectionId)),
+    },
+  ];
+};
+
+// A new line in a section whose period has ended starts with no date, because today is outside it.
+const getDefaultRow = (getCurrentDate, orderedByUserId, section, period) => ({
   /**
    * `crypto.randomUUID` requires a secure context, but Tamanu is sometimes accessed via a literal
    * IP address over a LAN (e.g. Iti) using HTTP. (HTTPS not yet supported in this scenario.) Hence
@@ -111,22 +142,71 @@ const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
    */
   id: uuidv4(),
   quantity: 1,
-  orderDate: getCurrentDate(),
+  // A section whose period has ended starts empty; the current one starts at today. This is the
+  // resolved period the row will be validated against, so a new row never opens already invalid.
+  orderDate: period?.endDate && period.endDate < getCurrentDate() ? '' : getCurrentDate(),
   orderedByUserId,
+  invoiceSectionId: section?.invoiceSectionId ?? null,
 });
 
-export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModalType }) => {
+export const InvoiceForm = ({
+  invoice,
+  invoiceFormType,
+  onClose,
+  setInvoiceModalType,
+  onAddItemsForSection,
+  section,
+}) => {
   const { ability } = useAuth();
-  const { getCurrentDate } = useDateTime();
+  const { getCurrentDate, formatShort } = useDateTime();
   const isEditForm = invoiceFormType === INVOICE_FORM_TYPE.EDIT_ITEMS;
   const isReadOnlyForm = invoiceFormType === INVOICE_FORM_TYPE.READ_ONLY;
   const isAddForm = invoiceFormType === INVOICE_FORM_TYPE.ADD_ITEMS;
 
   const cellWidths = isReadOnlyForm ? CELL_WIDTHS : CELL_WIDTHS_EDITABLE;
 
+  // Null when the invoice has nothing to tell apart, so the table renders exactly as it did
+  // before sections existed. The rule itself lives beside the builder, so the view does not carry
+  // its own idea of what counts as split.
+  const sections = isInvoiceSectioned(invoice.sections, invoice.items) ? invoice.sections : null;
+  const isEditing = isAddForm || isEditForm;
+  const columnCount = invoiceItemColumnCount(isEditing);
+  // Both come from the server already resolved to the facility's own calendar dates, so every
+  // bound in the form has one source and cannot drift from the headers beside it.
+  const sectionPeriods = resolveSectionPeriods(
+    invoice.sections,
+    invoice.encounterPeriod,
+    getCurrentDate(),
+  );
+  const encounterPeriod = resolveEncounterPeriod(invoice.encounterPeriod, getCurrentDate());
+
+  // The table renders flat when there is nothing to tell apart, but a row added there still
+  // belongs to the one section the encounter has, so it carries its id and its date limits.
+  const soleSection = invoice.sections?.length === 1 ? invoice.sections[0] : null;
+  const addTargetSection = section ?? soleSection;
+  const periodFor = forSection =>
+    (forSection ? sectionPeriods[forSection.invoiceSectionId] : null) ?? encounterPeriod;
+
+  // Formik re-renders on every keystroke, so the schema is built from the resolved bounds rather
+  // than rebuilt each time.
+  const validationSchema = useMemo(
+    () => buildInvoiceFormSchema(sectionPeriods, encounterPeriod, formatShort),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(sectionPeriods), JSON.stringify(encounterPeriod), formatShort],
+  );
+
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
   const [inProgressItems, setInProgressItems] = useState(
-    isAddForm ? [getDefaultRow(getCurrentDate, invoice.encounter?.examinerId)] : [],
+    isAddForm
+      ? [
+          getDefaultRow(
+            getCurrentDate,
+            invoice.encounter?.examinerId,
+            addTargetSection,
+            periodFor(addTargetSection),
+          ),
+        ]
+      : [],
   );
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
@@ -195,7 +275,11 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
         invoiceItems: isAddForm
           ? inProgressItems
           : [
-              ...(invoice.items ?? []).map(item => ({ ...item, isExistingItem: true })),
+              ...(invoice.items ?? []).map(item => ({
+                ...item,
+                isExistingItem: true,
+                originalOrderDate: item.orderDate,
+              })),
               ...inProgressItems,
             ],
         insurers: invoice.insurers?.length
@@ -205,63 +289,114 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
             }))
           : [],
       }}
-      validationSchema={invoiceFormSchema}
+      validationSchema={validationSchema}
       render={({ submitForm, values }) => (
         <>
           <TableWrapper $bordered={isEditForm || isAddForm}>
             <Table>
               <FieldArray name="invoiceItems">
-                {formArrayMethods => (
-                  <>
-                    <InvoiceItemHeader
-                      cellWidths={cellWidths}
-                      isEditing={isAddForm || isEditForm}
-                    />
-                    <tbody>
-                      {values.invoiceItems?.map((item, index) => {
-                        // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
-                        // and the save payload are unchanged.
-                        if (isZeroedBedFeeItem(item)) return null;
-                        return (
-                          <InvoiceItemRow
-                            cellWidths={cellWidths}
-                            encounterId={invoice.encounterId}
-                            formArrayMethods={formArrayMethods}
-                            index={index}
-                            isCancelled={isCancelled}
-                            isEditing={isAddForm || isEditForm}
-                            isFinalised={isFinalised}
-                            item={item}
-                            key={item.id}
-                            onUpdateApproval={updateItemApproval}
-                            onUpdateInvoice={handleUpdateItem}
-                            priceListId={invoice.priceList?.id}
-                          />
-                        );
-                      })}
-                    </tbody>
-                    {editable && (isReadOnlyForm || isAddForm) && (
-                      <FormFooter>
-                        <AddButton
-                          onClick={() => {
-                            if (isReadOnlyForm) {
-                              setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
-                            } else {
-                              formArrayMethods.push(
-                                getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
-                              );
-                            }
-                          }}
-                        >
-                          <TranslatedText
-                            stringId="invoice.form.action.addItem"
-                            fallback="Add item"
-                          />
-                        </AddButton>
-                      </FormFooter>
-                    )}
-                  </>
-                )}
+                {formArrayMethods => {
+                  const renderRow = ({ item, index }) =>
+                    // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
+                    // and the save payload are unchanged.
+                    isZeroedBedFeeItem(item) ? null : (
+                      <InvoiceItemRow
+                        cellWidths={cellWidths}
+                        encounterId={invoice.encounterId}
+                        formArrayMethods={formArrayMethods}
+                        index={index}
+                        isCancelled={isCancelled}
+                        isEditing={isEditing}
+                        isFinalised={isFinalised}
+                        item={item}
+                        key={item.id}
+                        onUpdateApproval={updateItemApproval}
+                        onUpdateInvoice={handleUpdateItem}
+                        priceListId={invoice.priceList?.id}
+                        sectionPeriod={
+                          // A row keeping its recorded date is not bounded, so the picker does
+                          // not present that date as out of range when the row is opened.
+                          keepsRecordedDate(item)
+                            ? undefined
+                            : (sectionPeriods[item.invoiceSectionId] ?? encounterPeriod)
+                        }
+                      />
+                    );
+
+                  const handleAdd = targetSection => {
+                    if (isReadOnlyForm) {
+                      if (onAddItemsForSection) {
+                        onAddItemsForSection(targetSection);
+                      } else {
+                        setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                      }
+                      return;
+                    }
+                    const rowSection = targetSection ?? addTargetSection;
+                    formArrayMethods.push(
+                      getDefaultRow(
+                        getCurrentDate,
+                        invoice.encounter?.examinerId,
+                        rowSection,
+                        periodFor(rowSection),
+                      ),
+                    );
+                  };
+
+                  const addItemLabel = (
+                    <TranslatedText stringId="invoice.form.action.addItem" fallback="Add item" />
+                  );
+                  const showAddItem = editable && (isReadOnlyForm || isAddForm);
+
+                  return (
+                    <>
+                      <InvoiceItemHeader cellWidths={cellWidths} isEditing={isEditing} />
+                      {sections && !isAddForm ? (
+                        groupRowsBySection(values.invoiceItems ?? [], sections).map(group => {
+                          // A configured section always shows, so a period with no items still
+                          // offers its header and its own Add item. The unlabelled group has
+                          // nothing to show when it is empty.
+                          if (!group.section && group.rows.length === 0) return null;
+                          return (
+                            <tbody key={group.section?.invoiceSectionId ?? 'unlabelled'}>
+                              {group.section && (
+                                <InvoiceSectionHeader
+                                  section={group.section}
+                                  columnCount={columnCount}
+                                />
+                              )}
+                              {group.rows.map(renderRow)}
+                              {showAddItem && group.section && (
+                                <tr>
+                                  <td colSpan={columnCount}>
+                                    <AddButton onClick={() => handleAdd(group.section)}>
+                                      {addItemLabel}
+                                    </AddButton>
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          );
+                        })
+                      ) : (
+                        <>
+                          <tbody>
+                            {(values.invoiceItems ?? []).map((item, index) =>
+                              renderRow({ item, index }),
+                            )}
+                          </tbody>
+                          {showAddItem && (
+                            <FormFooter>
+                              <AddButton onClick={() => handleAdd(addTargetSection)}>
+                                {addItemLabel}
+                              </AddButton>
+                            </FormFooter>
+                          )}
+                        </>
+                      )}
+                    </>
+                  );
+                }}
               </FieldArray>
             </Table>
           </TableWrapper>

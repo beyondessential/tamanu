@@ -121,6 +121,7 @@ export const InvoiceItemRow = ({
   isFinalised,
   isCancelled,
   cellWidths,
+  sectionPeriod,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
@@ -191,7 +192,13 @@ export const InvoiceItemRow = ({
           )}
         </td>
       )}
-      <DateCell index={index} item={item} isEditing={isEditing} cellWidths={cellWidths} />
+      <DateCell
+        index={index}
+        item={item}
+        isEditing={isEditing}
+        cellWidths={cellWidths}
+        sectionPeriod={sectionPeriod}
+      />
       <DetailsCell
         cellWidths={cellWidths}
         index={index}

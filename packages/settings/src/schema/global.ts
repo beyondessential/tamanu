@@ -742,6 +742,13 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
+            splitByEncounterType: {
+              name: 'Split invoice by encounter type',
+              description:
+                'Divide an invoice into sections when its encounter has moved between encounter categories, so each charge shows which part of the stay it belongs to.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
           },
         },
         labRequest: {
