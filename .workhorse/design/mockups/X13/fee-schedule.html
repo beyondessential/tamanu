@@ -1,4 +1,4 @@
-<!-- spec: none yet (card X13, Linear TAM-6857) -->
+<!-- spec: invoicing/fee-schedule.md -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,6 +84,9 @@ tbody tr:hover td { background: var(--background-2); }
 .muted { color: var(--font-40); }
 .tag { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 999px; font: 400 11px/15px var(--font-family-base); background: var(--blue-t-20); color: var(--blue-t-100); }
 .na { color: var(--font-20); }
+tr.historical td { color: var(--font-40); }
+tr.historical .readonly { color: var(--font-40); }
+.filters .check { height: 36px; color: var(--font-60); }
 
 /* Toggle */
 .toggle { all: unset; cursor: pointer; width: 32px; height: 18px; border-radius: 999px; background: var(--default-off); position: relative; display: inline-block; vertical-align: middle; }
@@ -103,6 +106,8 @@ tbody tr:hover td { background: var(--background-2); }
 .radios { display: flex; gap: 16px; }
 .radio, .check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 .radio input, .check input { accent-color: var(--tamanu-blue-100); width: 16px; height: 16px; margin: 0; }
+.field-error { font: 400 11px/15px var(--font-family-base); color: var(--red-alert-100); /* danger */ }
+.inp.invalid { border-color: var(--red-alert-100); /* danger */ }
 .pop-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
 /* Buttons */
@@ -199,6 +204,7 @@ tbody tr:hover td { background: var(--background-2); }
           <input id="search" type="search" placeholder="Search products">
         </div>
       </div>
+      <label class="check"><input type="checkbox" id="historical"> Include historical products</label>
     </div>
 
     <div class="grid-wrap">
@@ -231,7 +237,8 @@ tbody tr:hover td { background: var(--background-2); }
   </div>
   <div class="field">
     <label for="pop-price">Price</label>
-    <div class="inp"><input id="pop-price" inputmode="decimal"></div>
+    <div class="inp" id="pop-price-box"><input id="pop-price" inputmode="decimal" aria-describedby="pop-price-error"></div>
+    <span class="field-error" id="pop-price-error" hidden>Enter a price above 0</span>
   </div>
   <div class="field" id="pop-charging">
     <span class="label">Charge</span>
@@ -244,6 +251,21 @@ tbody tr:hover td { background: var(--background-2); }
   <div class="pop-actions">
     <button class="btn secondary xs" id="pop-cancel">Cancel</button>
     <button class="btn primary xs" id="pop-apply">Apply</button>
+  </div>
+</div>
+
+<!-- Unsaved changes prompt -->
+<div class="backdrop" id="unsaved">
+  <div class="modal" role="dialog" aria-labelledby="unsaved-title">
+    <header id="unsaved-title">Unsaved changes</header>
+    <div class="body">
+      <p>Save or discard your changes before changing the filters.</p>
+    </div>
+    <footer>
+      <button class="btn secondary" id="unsaved-cancel">Cancel</button>
+      <button class="btn secondary" id="unsaved-discard">Discard</button>
+      <button class="btn primary" id="unsaved-save">Save changes</button>
+    </footer>
   </div>
 </div>
 
@@ -265,6 +287,7 @@ tbody tr:hover td { background: var(--background-2); }
 <script>
 const FACILITIES = [
   { id: 'chuuk', name: 'Chuuk State Hospital' },
+  { id: 'kolonia', name: 'Kolonia Dispensary' },
   { id: 'kosrae', name: 'Kosrae State Hospital' },
   { id: 'pohnpei', name: 'Pohnpei State Hospital' },
   { id: 'yap', name: 'Yap State Hospital' },
@@ -272,8 +295,7 @@ const FACILITIES = [
 // The signed-in cashier's allowed facilities. A price list is editable when it covers any of them.
 const USER_FACILITIES = ['yap'];
 
-// Each group is one facility (its Available toggle plus its own price lists), or a set of
-// facilities sharing price lists.
+// A price list with no facilities is the catch-all: it applies at every facility no other list names.
 const PRICE_LISTS = [
   { code: 'chuukNR', name: 'Chuuk Non-Resident', facilities: ['chuuk'], factor: 2 },
   { code: 'chuukR', name: 'Chuuk Resident', facilities: ['chuuk'], factor: 1 },
@@ -286,32 +308,42 @@ const PRICE_LISTS = [
   { code: 'yapR', name: 'Yap Resident', facilities: ['yap'], factor: 1 },
   { code: 'yapS', name: 'Yap Senior', facilities: ['yap'], factor: 0.5 },
   { code: 'referral', name: 'Outer island referral', facilities: ['pohnpei', 'yap'], factor: 0.5 },
+  { code: 'standard', name: 'Standard', facilities: [], factor: 1 },
 ];
 
 const products = [
-  { name: '1HR Post Parandial Blood Sugar', category: 'Lab test type', base: 5, coverage: 100, unavailable: [] },
+  { name: '1HR Post Parandial Blood Sugar', category: 'Lab test type', base: 5, coverage: 100 },
   { name: 'Abdomen | AXR-LD/RD', category: 'Imaging area', base: 10, coverage: 100, unavailable: ['kosrae'] },
-  { name: 'Amoxicillin 500mg capsule', category: 'Drug', base: 0.2, coverage: 80, unavailable: [], flatAt: { yap012: 2, yapS: 2, pohnpeiS: 1.5 } },
-  { name: 'Appendicectomy', category: 'Procedure type', base: 150, coverage: 100, unavailable: ['kosrae'], notChargedAt: ['yap012'] },
-  { name: 'Chest X-ray PA', category: 'Imaging area', base: 12, coverage: 100, unavailable: [] },
-  { name: 'Clinic visit, standard hours', category: 'Encounter fee', base: 5, coverage: null, notOrderable: true },
-  { name: 'Full blood count', category: 'Lab test panel', base: 6, coverage: 100, unavailable: [] },
+  { name: 'Amoxicillin 500mg capsule', category: 'Drug', base: 0.2, coverage: 80, flatAt: { yap012: 2, yapS: 2, pohnpeiS: 1.5 }, blankAt: ['yapNR'] },
+  { name: 'Appendicectomy', category: 'Procedure type', base: 150, coverage: 100, unavailable: ['kosrae', 'kolonia'], notChargedAt: ['yap012'], blankAt: ['chuukNR', 'chuukR'] },
+  { name: 'Chest X-ray PA', category: 'Imaging area', base: 12, coverage: null },
+  { name: 'Chloramphenicol 1% eye ointment', category: 'Drug', base: 1.5, coverage: 100, historical: true },
+  { name: 'Clinic visit, standard hours', category: 'Encounter fee', base: 5, insurable: false, notOrderable: true },
+  { name: 'Full blood count', category: 'Lab test panel', base: 6, coverage: 100 },
   { name: 'ICU bed', category: 'Bed fee', base: 60, coverage: 100, notOrderable: true },
+  { name: 'Malaria smear (old)', category: 'Lab test type', base: 4, coverage: 100, historical: true },
   { name: 'Paracetamol 500mg tablet', category: 'Drug', base: 0.05, coverage: 100, unavailable: ['yap'] },
-  { name: '25% Burn', category: null, base: 50, coverage: null, notOrderable: true },
+  { name: '25% Burn', category: null, base: 50, insurable: false, notOrderable: true },
 ].map(p => ({
   name: p.name,
   category: p.category,
-  coverage: p.coverage,
-  availability: p.notOrderable ? null : Object.fromEntries(FACILITIES.map(f => [f.id, !p.unavailable.includes(f.id)])),
+  historical: Boolean(p.historical),
+  insurable: p.insurable ?? true,
+  coverage: p.coverage ?? null,
+  availability: p.notOrderable
+    ? null
+    : Object.fromEntries(FACILITIES.map(f => [f.id, !(p.unavailable ?? []).includes(f.id)])),
   prices: Object.fromEntries(PRICE_LISTS.map(list => {
-    if (p.notChargedAt?.includes(list.code)) return [list.code, { price: null }];
-    if (p.flatAt?.[list.code] != null) return [list.code, { price: p.flatAt[list.code], flat: true }];
-    return [list.code, { price: Math.round(p.base * list.factor * 100) / 100 }];
+    const isFlat = p.flatAt?.[list.code] != null;
+    if (p.notChargedAt?.includes(list.code)) return [list.code, { price: null, hidden: true, flat: false }];
+    if (p.blankAt?.includes(list.code)) return [list.code, { price: null, hidden: false, flat: p.category === 'Drug' }];
+    if (isFlat) return [list.code, { price: p.flatAt[list.code], hidden: false, flat: true }];
+    return [list.code, { price: Math.round(p.base * list.factor * 100) / 100, hidden: false, flat: false }];
   })),
 }));
 
-const original = JSON.parse(JSON.stringify(products));
+const clone = value => JSON.parse(JSON.stringify(value));
+const original = clone(products);
 const pending = new Set();
 const setPending = (key, isChanged) => (isChanged ? pending.add(key) : pending.delete(key));
 
@@ -320,14 +352,19 @@ products[1].prices.yapNR.price = 22; setPending('1:yapNR', true);
 products[1].prices.yapR.price = 11; setPending('1:yapR', true);
 
 let selectedFacilities = FACILITIES.map(f => f.id);
+const filters = { search: '', category: '', historical: false };
 
 const fmt = n => n.toFixed(2);
 const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const facilityName = id => FACILITIES.find(f => f.id === id).name;
-const canEditList = list => list.facilities.some(id => USER_FACILITIES.includes(id));
+const shortName = id => facilityName(id).replace(' State Hospital', '');
+const isCatchAll = list => list.facilities.length === 0;
+const canEditList = list => isCatchAll(list) || list.facilities.some(id => USER_FACILITIES.includes(id));
+const namedFacilities = new Set(PRICE_LISTS.flatMap(l => l.facilities));
 const hintIcon = tip => `<span class="hint" data-tip="${tip}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>`;
 
-// Column groups for the selected facilities: one per facility, then one per shared set.
+// Column groups for the selected facilities: one per facility, one per shared set, then the
+// catch-all group when a selected facility has no price list of its own.
 function buildGroups() {
   const groups = FACILITIES.filter(f => selectedFacilities.includes(f.id)).map(f => ({
     label: f.name,
@@ -335,12 +372,14 @@ function buildGroups() {
     lists: PRICE_LISTS.filter(l => l.facilities.length === 1 && l.facilities[0] === f.id),
   }));
   const shared = PRICE_LISTS.filter(l => l.facilities.length > 1 && l.facilities.some(id => selectedFacilities.includes(id)));
-  const sharedSets = [...new Set(shared.map(l => l.facilities.join(',')))];
-  for (const set of sharedSets) {
+  for (const set of new Set(shared.map(l => l.facilities.join(',')))) {
     groups.push({
-      label: set.split(',').map(id => facilityName(id).replace(' State Hospital', '')).join(', '),
+      label: set.split(',').map(shortName).join(', '),
       lists: shared.filter(l => l.facilities.join(',') === set),
     });
+  }
+  if (selectedFacilities.some(id => !namedFacilities.has(id))) {
+    groups.push({ label: 'All other facilities', lists: PRICE_LISTS.filter(isCatchAll) });
   }
   return groups;
 }
@@ -365,46 +404,61 @@ function renderHead(groups) {
     </tr>`;
 }
 
+function priceLabel(cell) {
+  if (cell.hidden) return '<span class="muted">Not charged</span>';
+  const tag = cell.flat ? '<span class="tag">Flat fee</span>' : '';
+  return `${tag}${cell.price == null ? '' : fmt(cell.price)}`;
+}
+
 function priceCell(product, row, list, extraClass) {
   const cell = product.prices[list.code];
   const key = `${row}:${list.code}`;
-  const label = cell.price == null
-    ? '<span class="muted">Not charged</span>'
-    : `${cell.flat ? '<span class="tag">Flat fee</span>' : ''}${fmt(cell.price)}`;
-  const content = canEditList(list)
-    ? `<button class="cell ${pending.has(key) ? 'changed' : ''}" data-row="${row}" data-list="${list.code}">${label}</button>`
+  const label = priceLabel(cell);
+  const content = canEditList(list) && !product.historical
+    ? `<button class="cell ${pending.has(key) ? 'changed' : ''}" data-row="${row}" data-list="${list.code}"
+        ${cell.price == null && !cell.hidden ? 'aria-label="No price"' : ''}>${label}</button>`
     : `<span class="readonly">${label}</span>`;
   return `<td class="num ${extraClass}">${content}</td>`;
 }
 
 function availabilityCell(product, row, facilityId) {
-  if (product.availability == null) return '<td class="divide"><span class="na" title="Not orderable">—</span></td>';
+  if (product.availability == null) return '<td class="divide"></td>';
   const key = `${row}:avail:${facilityId}`;
-  const canEdit = USER_FACILITIES.includes(facilityId);
+  const canEdit = USER_FACILITIES.includes(facilityId) && !product.historical;
   return `<td class="divide"><span class="toggle-wrap ${pending.has(key) ? 'changed' : ''}"><button class="toggle" role="switch"
     aria-checked="${product.availability[facilityId]}" aria-label="Available at ${facilityName(facilityId)}"
     data-avail="${row}" data-facility="${facilityId}" ${canEdit ? '' : 'disabled'}></button></span></td>`;
 }
 
+function coverageCell(product, row) {
+  if (!product.insurable) return '';
+  const label = product.coverage == null ? '' : `${product.coverage}%`;
+  if (product.historical) return `<span class="readonly">${label}</span>`;
+  return `<button class="cell ${pending.has(`${row}:cov`) ? 'changed' : ''}" data-cov="${row}"
+    ${product.coverage == null ? 'aria-label="No coverage set"' : ''}>${label}</button>`;
+}
+
+function nameCell(product, row) {
+  if (product.historical) return esc(product.name);
+  return `<button class="cell left ${pending.has(`${row}:name`) ? 'changed' : ''}" data-name="${row}">${esc(product.name)}</button>`;
+}
+
 function render() {
   const groups = buildGroups();
   renderHead(groups);
-  const query = document.getElementById('search').value.toLowerCase();
-  const category = document.getElementById('category').value;
+  const query = filters.search.toLowerCase();
   document.getElementById('rows').innerHTML = products.map((product, row) => {
+    if (product.historical && !filters.historical) return '';
     if (query && !product.name.toLowerCase().includes(query)) return '';
-    if (category && product.category !== category) return '';
-    const coverage = product.coverage == null
-      ? '<span class="na" title="Not insurable">—</span>'
-      : `<button class="cell ${pending.has(`${row}:cov`) ? 'changed' : ''}" data-cov="${row}">${product.coverage}%</button>`;
+    if (filters.category && product.category !== filters.category) return '';
     const facilityCells = groups.map(g => [
       g.facilityId ? availabilityCell(product, row, g.facilityId) : '',
       ...g.lists.map((list, i) => priceCell(product, row, list, !g.facilityId && i === 0 ? 'divide' : '')),
     ].join('')).join('');
-    return `<tr>
-      <td class="sticky"><button class="cell left ${pending.has(`${row}:name`) ? 'changed' : ''}" data-name="${row}">${esc(product.name)}</button></td>
-      <td class="cat">${product.category ?? '<span class="na">—</span>'}</td>
-      <td class="num divide">${coverage}</td>
+    return `<tr class="${product.historical ? 'historical' : ''}">
+      <td class="sticky">${nameCell(product, row)}</td>
+      <td class="cat">${product.category ?? ''}</td>
+      <td class="num divide">${coverageCell(product, row)}</td>
       ${facilityCells}
     </tr>`;
   }).join('');
@@ -412,6 +466,49 @@ function render() {
   document.getElementById('savebar').hidden = count === 0;
   document.getElementById('change-count').textContent = `${count} unsaved ${count === 1 ? 'change' : 'changes'}`;
 }
+
+// ---- Unsaved changes guard on filters ----
+const unsavedModal = document.getElementById('unsaved');
+let deferredFilterChange = null;
+
+// Applies a filter change straight away, or holds it behind the unsaved changes prompt.
+function changeFilter(apply) {
+  if (pending.size === 0) {
+    apply();
+    render();
+    return;
+  }
+  deferredFilterChange = apply;
+  unsavedModal.classList.add('open');
+}
+
+function applyDeferredFilterChange() {
+  deferredFilterChange?.();
+  deferredFilterChange = null;
+  syncFilterControls();
+  render();
+}
+
+function syncFilterControls() {
+  document.getElementById('search').value = filters.search;
+  document.getElementById('category').value = filters.category;
+  document.getElementById('historical').checked = filters.historical;
+  renderFacilityFilter();
+}
+
+document.getElementById('unsaved-cancel').addEventListener('click', () => {
+  deferredFilterChange = null;
+  unsavedModal.classList.remove('open');
+});
+document.getElementById('unsaved-discard').addEventListener('click', () => {
+  unsavedModal.classList.remove('open');
+  discardChanges();
+  applyDeferredFilterChange();
+});
+document.getElementById('unsaved-save').addEventListener('click', () => {
+  unsavedModal.classList.remove('open');
+  openSaveConfirmation();
+});
 
 // ---- Facility multi-select ----
 const facilityButton = document.getElementById('facility-button');
@@ -428,30 +525,70 @@ function renderFacilityFilter() {
     ${FACILITIES.map(f => `<label><input type="checkbox" value="${f.id}" ${selectedFacilities.includes(f.id) ? 'checked' : ''}> ${f.name}</label>`).join('')}`;
 }
 
+function closeFacilityMenu() {
+  facilityMenu.classList.remove('open');
+  facilityButton.setAttribute('aria-expanded', 'false');
+}
+
 facilityButton.addEventListener('click', () => {
   const isOpen = facilityMenu.classList.toggle('open');
   facilityButton.setAttribute('aria-expanded', isOpen);
 });
 facilityMenu.addEventListener('change', e => {
-  if (e.target.dataset.all !== undefined) {
-    selectedFacilities = e.target.checked ? FACILITIES.map(f => f.id) : [];
-  } else {
-    const checked = [...facilityMenu.querySelectorAll('input[value]:checked')].map(i => i.value);
-    selectedFacilities = FACILITIES.map(f => f.id).filter(id => checked.includes(id));
+  const checked = [...facilityMenu.querySelectorAll('input[value]:checked')].map(i => i.value);
+  const nextSelection = e.target.dataset.all !== undefined
+    ? (e.target.checked ? FACILITIES.map(f => f.id) : [])
+    : FACILITIES.map(f => f.id).filter(id => checked.includes(id));
+  if (pending.size > 0) {
+    renderFacilityFilter();
+    closeFacilityMenu();
   }
-  renderFacilityFilter();
-  render();
+  changeFilter(() => { selectedFacilities = nextSelection; renderFacilityFilter(); });
 });
 document.addEventListener('mousedown', e => {
-  if (!e.target.closest('#facility-menu, #facility-button')) {
-    facilityMenu.classList.remove('open');
-    facilityButton.setAttribute('aria-expanded', 'false');
-  }
+  if (!e.target.closest('#facility-menu, #facility-button')) closeFacilityMenu();
+});
+
+// ---- Other filters ----
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', () => {
+  const value = searchInput.value;
+  searchInput.value = filters.search;
+  if (pending.size === 0) searchInput.value = value;
+  changeFilter(() => { filters.search = value; });
+});
+const categorySelect = document.getElementById('category');
+categorySelect.addEventListener('change', () => {
+  const value = categorySelect.value;
+  categorySelect.value = filters.category;
+  if (pending.size === 0) categorySelect.value = value;
+  changeFilter(() => { filters.category = value; });
+});
+const historicalCheckbox = document.getElementById('historical');
+historicalCheckbox.addEventListener('change', () => {
+  const value = historicalCheckbox.checked;
+  historicalCheckbox.checked = filters.historical;
+  if (pending.size === 0) historicalCheckbox.checked = value;
+  changeFilter(() => { filters.historical = value; });
 });
 
 // ---- Price editor ----
 const popover = document.getElementById('popover');
+const popPrice = document.getElementById('pop-price');
+const popHidden = document.getElementById('pop-hidden');
+const popError = document.getElementById('pop-price-error');
 let editing = null;
+
+function setPriceError(isShown) {
+  popError.hidden = !isShown;
+  document.getElementById('pop-price-box').classList.toggle('invalid', isShown);
+}
+
+function syncNotCharged() {
+  popPrice.disabled = popHidden.checked;
+  document.querySelectorAll('input[name="charging"]').forEach(input => { input.disabled = popHidden.checked; });
+  if (popHidden.checked) setPriceError(false);
+}
 
 function openPriceEditor(button) {
   const row = Number(button.dataset.row);
@@ -461,31 +598,47 @@ function openPriceEditor(button) {
   editing = { row, code: list.code };
   document.getElementById('pop-title').textContent = product.name;
   document.getElementById('pop-sub').textContent = list.name;
-  document.getElementById('pop-price').value = cell.price == null ? '' : fmt(cell.price);
-  document.getElementById('pop-hidden').checked = cell.price == null;
-  document.getElementById('pop-price').disabled = cell.price == null;
+  popPrice.value = cell.price == null ? '' : fmt(cell.price);
+  popHidden.checked = cell.hidden;
   document.getElementById('pop-charging').style.display = product.category === 'Drug' ? '' : 'none';
   document.querySelector(`input[name="charging"][value="${cell.flat ? 'flat' : 'perUnit'}"]`).checked = true;
+  setPriceError(false);
+  syncNotCharged();
   const rect = button.getBoundingClientRect();
   popover.classList.add('open');
   popover.style.left = `${Math.max(16, Math.min(rect.right - 260, window.innerWidth - 276))}px`;
   popover.style.top = `${Math.min(rect.bottom + 6, window.innerHeight - popover.offsetHeight - 16)}px`;
-  if (cell.price != null) document.getElementById('pop-price').select();
+  if (!cell.hidden) popPrice.select();
 }
 
 function closePriceEditor() { popover.classList.remove('open'); editing = null; }
 
-document.getElementById('pop-hidden').addEventListener('change', e => {
-  document.getElementById('pop-price').disabled = e.target.checked;
-});
+// Empty means no price; anything else must be a positive amount.
+function readPrice() {
+  const text = popPrice.value.trim();
+  if (text === '') return { price: null, isValid: true };
+  const price = Number(text);
+  return { price, isValid: !Number.isNaN(price) && price > 0 };
+}
+
+popHidden.addEventListener('change', syncNotCharged);
+popPrice.addEventListener('input', () => setPriceError(false));
 document.getElementById('pop-cancel').addEventListener('click', closePriceEditor);
 document.getElementById('pop-apply').addEventListener('click', () => {
   const { row, code } = editing;
   const cell = products[row].prices[code];
   const before = original[row].prices[code];
-  cell.price = document.getElementById('pop-hidden').checked ? null : Number(document.getElementById('pop-price').value || 0);
-  cell.flat = products[row].category === 'Drug' && document.querySelector('input[name="charging"]:checked').value === 'flat';
-  setPending(`${row}:${code}`, cell.price !== before.price || Boolean(cell.flat) !== Boolean(before.flat));
+  if (popHidden.checked) {
+    cell.hidden = true;
+    cell.price = null;
+  } else {
+    const { price, isValid } = readPrice();
+    if (!isValid) return setPriceError(true);
+    cell.hidden = false;
+    cell.price = price;
+    cell.flat = products[row].category === 'Drug' && document.querySelector('input[name="charging"]:checked').value === 'flat';
+  }
+  setPending(`${row}:${code}`, cell.price !== before.price || cell.hidden !== before.hidden || cell.flat !== before.flat);
   closePriceEditor();
   render();
 });
@@ -530,21 +683,21 @@ document.getElementById('rows').addEventListener('click', e => {
   }
   if (target.dataset.cov !== undefined) {
     const row = Number(target.dataset.cov);
-    return inlineEdit(target, String(products[row].coverage), value => {
+    // Coverage can be changed but not cleared; an empty or out-of-range entry keeps the old value.
+    return inlineEdit(target, products[row].coverage == null ? '' : String(products[row].coverage), value => {
       const coverage = Number(value.replace('%', ''));
-      if (!Number.isNaN(coverage)) products[row].coverage = Math.min(100, Math.max(0, coverage));
+      const isValid = value !== '' && !Number.isNaN(coverage) && coverage >= 0 && coverage <= 100;
+      if (isValid) products[row].coverage = coverage;
       setPending(`${row}:cov`, products[row].coverage !== original[row].coverage);
     });
   }
 });
 
-document.getElementById('search').addEventListener('input', render);
-document.getElementById('category').addEventListener('change', render);
-
 // ---- Save and discard ----
 const confirmModal = document.getElementById('confirm');
 const isPriceKey = key => PRICE_LISTS.some(l => key.endsWith(`:${l.code}`));
-document.getElementById('save').addEventListener('click', () => {
+
+function openSaveConfirmation() {
   const keys = [...pending];
   const priceChanges = keys.filter(isPriceKey).length;
   const otherChanges = keys.length - priceChanges;
@@ -554,17 +707,26 @@ document.getElementById('save').addEventListener('click', () => {
   document.getElementById('confirm-summary').textContent = `You are saving ${parts.join(' and ')}.`;
   document.getElementById('confirm-invoices').style.display = priceChanges ? '' : 'none';
   confirmModal.classList.add('open');
+}
+
+function discardChanges() {
+  products.splice(0, products.length, ...clone(original));
+  pending.clear();
+}
+
+document.getElementById('save').addEventListener('click', openSaveConfirmation);
+document.getElementById('confirm-cancel').addEventListener('click', () => {
+  deferredFilterChange = null;
+  confirmModal.classList.remove('open');
 });
-document.getElementById('confirm-cancel').addEventListener('click', () => confirmModal.classList.remove('open'));
 document.getElementById('confirm-save').addEventListener('click', () => {
-  original.splice(0, original.length, ...JSON.parse(JSON.stringify(products)));
+  original.splice(0, original.length, ...clone(products));
   pending.clear();
   confirmModal.classList.remove('open');
-  render();
+  applyDeferredFilterChange();
 });
 document.getElementById('discard').addEventListener('click', () => {
-  products.splice(0, products.length, ...JSON.parse(JSON.stringify(original)));
-  pending.clear();
+  discardChanges();
   render();
 });
 
