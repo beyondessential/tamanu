@@ -28,9 +28,7 @@ describe('Patient Portal profiles', () => {
   const loginAs = async (portalUser, email = SHARED_EMAIL) => {
     const oneTimeTokenService = new PortalOneTimeTokenService(store.models);
     const { token } = await oneTimeTokenService.createLoginToken(portalUser.id);
-    const response = await baseApp
-      .post('/api/portal/login')
-      .send({ loginToken: token, email });
+    const response = await baseApp.post('/api/portal/login').send({ loginToken: token, email });
     expect(response).toHaveSucceeded();
     return response.body.token;
   };
@@ -160,5 +158,32 @@ describe('Patient Portal profiles', () => {
   ])('requires authentication to %s', async (_, request) => {
     const response = await request();
     expect(response).toHaveRequestError();
+  });
+
+  it('keeps the session to the email signed in with after the email changes', async () => {
+    const otherFamilyEmail = 'other-family@test.com';
+    const movingPortalUser = await createPortalUser({
+      email: 'moving@test.com',
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+    const otherFamilyPortalUser = await createPortalUser({
+      email: otherFamilyEmail,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+    const token = await loginAs(movingPortalUser, 'moving@test.com');
+    await movingPortalUser.update({ email: otherFamilyEmail });
+
+    const profiles = await baseApp
+      .get('/api/portal/profiles')
+      .set('Authorization', `Bearer ${token}`);
+    expect(profiles).toHaveSucceeded();
+    expect(profiles.body.data.map(({ portalUserId }) => portalUserId)).not.toContain(
+      otherFamilyPortalUser.id,
+    );
+
+    const select = await baseApp
+      .post(`/api/portal/profiles/${otherFamilyPortalUser.id}/select`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(select.status).toBe(404);
   });
 });

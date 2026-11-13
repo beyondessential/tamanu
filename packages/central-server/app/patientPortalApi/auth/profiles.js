@@ -14,7 +14,7 @@ const getRegisteredPortalUsers = async (models, email) => {
 };
 
 export const getProfiles = asyncHandler(async (req, res) => {
-  const { email } = req.portalUser;
+  const email = req.portalSessionEmail;
   const portalUsers = await getRegisteredPortalUsers(req.store.models, email);
   for (const { patient } of portalUsers) {
     await req.audit.access({ recordId: patient.id, model: req.models.Patient });
@@ -30,7 +30,8 @@ export const getProfiles = asyncHandler(async (req, res) => {
 
 export const selectProfile = ({ secret }) =>
   asyncHandler(async (req, res) => {
-    const portalUsers = await getRegisteredPortalUsers(req.store.models, req.portalUser.email);
+    const email = req.portalSessionEmail;
+    const portalUsers = await getRegisteredPortalUsers(req.store.models, email);
     const selectedPortalUser = portalUsers.find(({ id }) => id === req.params.portalUserId);
     if (!selectedPortalUser) {
       throw new NotFoundError('Profile not found');
@@ -38,7 +39,7 @@ export const selectProfile = ({ secret }) =>
     await req.audit.access({ recordId: selectedPortalUser.patientId, model: req.models.Patient });
 
     // Keeps the signed-in session's expiry, so switching profile cannot extend it
-    const token = await buildToken({ portalUserId: selectedPortalUser.id }, secret, {
+    const token = await buildToken({ portalUserId: selectedPortalUser.id, email }, secret, {
       expiresIn: req.portalSessionExpiresAt,
       audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
       issuer: getCanonicalHostName(),

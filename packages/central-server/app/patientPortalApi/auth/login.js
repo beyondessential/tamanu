@@ -110,11 +110,15 @@ export const login = ({ secret }) =>
 
     const patientPortalTokenDuration = await settings.get('patientPortal.tokenDuration');
 
-    const token = await buildToken({ portalUserId: portalUser.id }, secret, {
-      expiresIn: patientPortalTokenDuration,
-      audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
-      issuer: canonicalHostName,
-    });
+    const token = await buildToken(
+      { portalUserId: portalUser.id, email: portalUser.email },
+      secret,
+      {
+        expiresIn: patientPortalTokenDuration,
+        audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
+        issuer: canonicalHostName,
+      },
+    );
 
     return res.status(200).json({ token });
   });
