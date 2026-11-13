@@ -48,7 +48,11 @@ const StyledButtonRow = styled(ButtonRow)`
 const FormBridge = ({ submitForm, bridgeRef, onStateChange }) => {
   const { dirty, isSubmitting, resetForm, values } = useFormikContext();
 
-  bridgeRef.current = { submitForm, resetForm: () => resetForm({ values }) };
+  // Written after the render commits, not during it: a render React discards or replays would
+  // otherwise leave the ref holding a closure from a render that never happened.
+  useEffect(() => {
+    bridgeRef.current = { submitForm, resetForm: () => resetForm({ values }) };
+  });
 
   useEffect(() => {
     onStateChange({ dirty, isSubmitting });
