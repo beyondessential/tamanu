@@ -11,6 +11,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { useSettings } from '../../contexts/Settings';
 import { usePageSizePreference } from './usePageSizePreference';
+import { useSortPreference } from './useSortPreference';
 
 const DEFAULT_SORT = /** @type {const} */ ({ order: 'asc', orderBy: undefined });
 
@@ -50,7 +51,11 @@ export const DataFetchingTable = memo(
     const [page, setPage] = useState(0);
     const { rowsPerPage, rowsPerPageOptions, onChangeRowsPerPage, isPageSizeReady } =
       usePageSizePreference({ preferenceKey: pageSizePreferenceKey, defaultRowsPerPage });
-    const [sorting, setSorting] = useState(initialSort);
+    const { sorting, onChangeSorting } = useSortPreference({
+      pageSizePreferenceKey,
+      columns: props.columns,
+      initialSort,
+    });
     const [fetchState, setFetchState] = useState(() => initialiseFetchState(getCurrentDateTime()));
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -74,20 +79,20 @@ export const DataFetchingTable = memo(
     }, []);
 
     const manualRefresh = useCallback(() => {
-      setSorting(initialSort);
+      onChangeSorting(initialSort);
       setPage(0);
       refreshTable();
-    }, [initialSort, refreshTable]);
+    }, [initialSort, onChangeSorting, refreshTable]);
 
     const handleChangeOrderBy = useCallback(
       columnKey => {
         const { order, orderBy } = sorting;
         const isDesc = orderBy === columnKey && order === 'desc';
         const newSorting = { order: isDesc ? 'asc' : 'desc', orderBy: columnKey };
-        setSorting(newSorting);
+        onChangeSorting(newSorting);
         setPage(0);
       },
-      [sorting],
+      [sorting, onChangeSorting],
     );
 
     // A route() descriptor is a fresh object each render, so key the fetch effect

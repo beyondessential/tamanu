@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 import { format } from 'date-fns';
 
+import { TABLE_SORT_PREFERENCE_KEYS } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 
 import { constructFacilityUrl } from './navigation';
@@ -27,18 +28,28 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
-// Saves one of the logged-in user's preferences with no facility, so it applies everywhere
+// Saves one of the logged-in user's preferences for one facility, or with no facility so it applies
+// everywhere. A facility's value overrides the no-facility one at that facility.
 export const setUserPreferenceViaApi = async (
   api: APIRequestContext,
   key: string,
   value: unknown,
+  facilityId?: string,
 ) => {
   const url = constructFacilityUrl('/api/user/userPreferences');
-  const response = await api.post(url, { data: { key, value } });
+  const response = await api.post(url, { data: { facilityId, key, value } });
   if (!response.ok()) {
     throw new Error(`Failed to set user preference: ${response.status()} ${await response.text()}`);
   }
 };
+
+// Puts a table that remembers its sort back to its default sort at the facility
+export const resetTableSortViaApi = (
+  api: APIRequestContext,
+  pageSizePreferenceKey: string,
+  facilityId: string,
+) =>
+  setUserPreferenceViaApi(api, TABLE_SORT_PREFERENCE_KEYS[pageSizePreferenceKey], {}, facilityId);
 
 export const getCurrentEncounterViaApi = async (api: APIRequestContext, patientId: string) => {
   const encounterUrl = constructFacilityUrl(`/api/patient/${patientId}/currentEncounter`);
