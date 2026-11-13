@@ -106,13 +106,16 @@ const RecordCount = ({ lowerRange, upperRange, count }) => {
     ':upperRange': numberFormatter.format(upperRange),
     ':count': numberFormatter.format(count),
   };
-  const template =
-    lowerRange === upperRange
-      ? getTranslation('general.table.recordCount.singleRow', 'Showing :lowerRange of :count')
-      : getTranslation(
-          'general.table.recordCount.range',
-          'Showing :lowerRange–:upperRange of :count',
-        );
+  // The default-translations scraper only finds literal getTranslation calls.
+  const single = getTranslation(
+    'general.table.recordCount.singleRow',
+    'Showing :lowerRange of :count',
+  );
+  const range = getTranslation(
+    'general.table.recordCount.range',
+    'Showing :lowerRange–:upperRange of :count',
+  );
+  const template = lowerRange === upperRange ? single : range;
 
   return template
     .split(/(:[a-zA-Z]+)/g)
