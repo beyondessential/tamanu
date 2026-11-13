@@ -18,9 +18,8 @@ import { ThreeDotMenu } from '../../components/ThreeDotMenu';
 import { Price } from './Price';
 import { PatientPaymentRefundModal } from './PatientPaymentRefundModal';
 import { NoInsurancePlanModal } from './NoInsurancePlanModal';
-import { INSURANCE_PLAN_STEPS, InsurancePlanFlow } from './InsurancePlanFlow';
+import { INSURANCE_PLAN_ENTRY, InsurancePlanFlow } from './InsurancePlanFlow';
 import { useInvoicePatientDetailsAccess } from './useInvoicePatientDetailsAccess';
-import { usePatientAvailableInsurancePlansQuery } from '../../api/queries';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -95,13 +94,10 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
   const [selectedPaymentRecord, setSelectedPaymentRecord] = useState(null);
   const [isConfirmingNoInsurancePlan, setIsConfirmingNoInsurancePlan] = useState(false);
-  const [insurancePlanStep, setInsurancePlanStep] = useState(null);
+  const [isAddingInsurancePlan, setIsAddingInsurancePlan] = useState(false);
 
   const { canAddPlanToPatient, isInsurancePlanFieldShown } =
     useInvoicePatientDetailsAccess(invoice);
-  const { data: availablePlans = [] } = usePatientAvailableInsurancePlansQuery({
-    patientId: invoice?.encounter?.patientId,
-  });
 
   const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
 
@@ -133,7 +129,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
 
   const openPaymentForm = () => {
     setIsConfirmingNoInsurancePlan(false);
-    setInsurancePlanStep(null);
+    setIsAddingInsurancePlan(false);
     setSelectedPaymentRecord(null);
     setPaymentModalIsOpen(true);
   };
@@ -151,16 +147,12 @@ export const PatientPaymentsTable = ({ invoice }) => {
 
   const onAddInsurancePlan = () => {
     setIsConfirmingNoInsurancePlan(false);
-    setInsurancePlanStep(
-      availablePlans.length > 0
-        ? INSURANCE_PLAN_STEPS.PICKER
-        : INSURANCE_PLAN_STEPS.PATIENT_DETAILS,
-    );
+    setIsAddingInsurancePlan(true);
   };
 
   const onCloseInsurancePlanFlow = () => {
     setIsConfirmingNoInsurancePlan(false);
-    setInsurancePlanStep(null);
+    setIsAddingInsurancePlan(false);
   };
 
   // Only a plan that was actually applied changes what is due, so only then does the payment form
@@ -335,8 +327,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
       />
       <InsurancePlanFlow
         invoice={invoice}
-        step={insurancePlanStep}
-        setStep={setInsurancePlanStep}
+        open={isAddingInsurancePlan}
+        entry={INSURANCE_PLAN_ENTRY.AUTO}
         onClose={onCloseInsurancePlanFlow}
         onApplied={onInsurancePlansApplied}
       />

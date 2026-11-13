@@ -76,14 +76,37 @@ describe('useInvoicePatientDetailsAccess', () => {
       expect(access({ can: ['write:Patient'] }).canAddPlanToPatient).toBe(false);
     });
 
-    // The route exists to record a plan on the patient, which a read-only form cannot do.
-    it('is not offered to a user who cannot edit patient records', () => {
-      expect(access({ can: ['write:Invoice', 'read:Patient'] }).canAddPlanToPatient).toBe(false);
+    // Choosing which of the patient's plans apply is an invoice-only act, so a user who can edit
+    // invoices keeps the button even without permission to edit patient records.
+    it('is offered to a user who can edit invoices but not patient records', () => {
+      expect(access({ can: ['write:Invoice', 'read:Patient'] }).canAddPlanToPatient).toBe(true);
     });
 
     it('is not offered where the deployment hides the insurance plan field', () => {
       expect(access({ hidden: true }).canAddPlanToPatient).toBe(false);
     });
+  });
+
+  describe('recording a plan on the patient', () => {
+    it('is allowed to a user who can edit both invoices and patient records', () => {
+      expect(access({}).canRecordPlanOnPatient).toBe(true);
+    });
+
+    // This leg writes to the patient, so it is the one that needs patient-edit permission.
+    it('is not allowed to a user who cannot edit patient records', () => {
+      expect(access({ can: ['write:Invoice', 'read:Patient'] }).canRecordPlanOnPatient).toBe(false);
+    });
+
+    it('is not allowed to a user who cannot edit invoices', () => {
+      expect(access({ can: ['write:Patient'] }).canRecordPlanOnPatient).toBe(false);
+    });
+
+    it.each([INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED])(
+      'is not allowed on a %s invoice',
+      status => {
+        expect(access({ status }).canRecordPlanOnPatient).toBe(false);
+      },
+    );
   });
 
   describe('the insurance plan field', () => {

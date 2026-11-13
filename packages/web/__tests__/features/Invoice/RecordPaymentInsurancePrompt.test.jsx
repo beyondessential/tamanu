@@ -7,14 +7,9 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import { renderElementWithTranslatedText } from '../../helpers/render';
 
 let access = {};
-let availablePlans = [];
 
 vi.mock('../../../app/features/Invoice/useInvoicePatientDetailsAccess', () => ({
   useInvoicePatientDetailsAccess: () => access,
-}));
-
-vi.mock('../../../app/api/queries', () => ({
-  usePatientAvailableInsurancePlansQuery: () => ({ data: availablePlans, refetch: vi.fn() }),
 }));
 
 vi.mock('../../../app/contexts/Auth', () => ({
@@ -37,7 +32,7 @@ vi.mock('../../../app/features/Invoice/InsurancePlanFlow', async importActual =>
   const actual = await importActual();
   return {
     ...actual,
-    InsurancePlanFlow: ({ step }) => (step ? <div data-testid={`flow-${step}`} /> : null),
+    InsurancePlanFlow: ({ open, entry }) => (open ? <div data-testid={`flow-${entry}`} /> : null),
   };
 });
 
@@ -61,7 +56,6 @@ const click = name => fireEvent.click(screen.getByRole('button', { name }));
 describe('recording a payment with no insurance plan', () => {
   beforeEach(() => {
     access = { canAddPlanToPatient: true, isInsurancePlanFieldShown: true };
-    availablePlans = [];
   });
 
   it('asks for confirmation before opening the payment form', () => {
@@ -114,22 +108,13 @@ describe('recording a payment with no insurance plan', () => {
       expect(screen.queryByTestId('payment-form')).toBeNull();
     });
 
-    // The patient has no plan this facility can bill, so their details come first.
-    it('opens the patient details from Add insurance plan when no plan is available', () => {
+    // Where the flow then goes is the flow's own decision, from the patient's plans.
+    it('hands Add insurance plan to the flow, to route from the patient’s plans', async () => {
       click('Add insurance plan');
 
-      expect(screen.getByTestId('flow-patientDetails')).toBeTruthy();
+      expect(screen.getByTestId('flow-auto')).toBeTruthy();
+      await waitForElementToBeRemoved(() => screen.queryByText('No insurance plan added'));
     });
-  });
-
-  it('opens the picker from Add insurance plan when the patient already has a plan', () => {
-    availablePlans = [{ id: 'plan-1' }];
-    renderTable(buildInvoice());
-    click('Record payment');
-
-    click('Add insurance plan');
-
-    expect(screen.getByTestId('flow-picker')).toBeTruthy();
   });
 
   it('does not offer Add insurance plan where no plan can be added to this invoice', () => {

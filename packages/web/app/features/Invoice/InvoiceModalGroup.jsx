@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { INVOICE_MODAL_TYPES } from '../../constants';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
@@ -8,18 +8,13 @@ import { InvoicePatientDetailsModal } from './InvoicePatientDetailsModal';
 import { InvoiceRecordModal } from '../../components/PatientPrinting/modals/InvoiceRecordModal';
 import { TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_FORM_TYPE } from './constants.js';
-import { INSURANCE_PLAN_STEPS, InsurancePlanFlow } from './InsurancePlanFlow';
+import { INSURANCE_PLAN_ENTRY, InsurancePlanFlow } from './InsurancePlanFlow';
 import { useInvoicePatientDetailsAccess } from './useInvoicePatientDetailsAccess';
 
 export const InvoiceModalGroup = ({ invoice, invoiceModalType, section, setOpenInvoiceModal }) => {
   const { isPatientDetailsEditable } = useInvoicePatientDetailsAccess(invoice);
-  // Where the insurance plan flow has got to, once the Insurance plan action has handed over to it.
-  const [insurancePlanStep, setInsurancePlanStep] = useState(INSURANCE_PLAN_STEPS.PICKER);
 
-  const handleCloseInvoiceModal = () => {
-    setInsurancePlanStep(INSURANCE_PLAN_STEPS.PICKER);
-    setOpenInvoiceModal(null);
-  };
+  const handleCloseInvoiceModal = () => setOpenInvoiceModal(null);
 
   return (
     <>
@@ -34,8 +29,8 @@ export const InvoiceModalGroup = ({ invoice, invoiceModalType, section, setOpenI
       {invoiceModalType === INVOICE_MODAL_TYPES.INSURANCE && (
         <InsurancePlanFlow
           invoice={invoice}
-          step={insurancePlanStep}
-          setStep={setInsurancePlanStep}
+          open
+          entry={INSURANCE_PLAN_ENTRY.PICKER}
           onClose={handleCloseInvoiceModal}
           onApplied={handleCloseInvoiceModal}
         />
