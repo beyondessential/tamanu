@@ -17,6 +17,15 @@
 - **Price lists themselves.** Creating price lists and changing their name, facility, patient type and age rules and evaluation order stays with the reference data import. The page edits only what sits inside existing lists.
 - **Clashes.** The last save wins, field by field. No stale-edit check.
 - **Unsaved changes.** Changing a filter or leaving the page with unsaved changes asks the user to save or discard first.
+- **Price validation.** A price is a positive amount; zero and negative prices are rejected. To not charge, use Not charged. Zero prices that came in by import still display.
+- **Coverage.** Follows the import's behaviour: a blank coverage cell means the plan has no coverage entry for the product, and once set a coverage can be changed but not cleared (set it to 0 instead). Coverage is a percentage from 0 to 100.
+- **Products listed.** Current products by default, with a toggle to include historical products, shown read-only. Adding and retiring products stays with import.
+- **Read and write.** The fee schedule permission has read (page opens with everything read-only) and write levels.
+- **Flat fee without a price.** A medication's charge type is kept independently of its price, so it can be a flat fee with a blank price. The cashier's invoice override is then charged once, per the fixed-price medications spec.
+- **No export from the page.** The reference data export already produces the price list sheets.
+- **Saving is all or nothing.** All unsaved changes go in one transaction; if any is rejected, none are saved and the rejected cells are marked.
+- **No edit history in the grid.** The change log records every edit for support.
+- **Multi-facility rule format.** In the price list's `rules` JSON, `facilityId` accepts either a single facility id (as today) or an array of ids, so existing spreadsheets keep working.
 - **Product names.** An invoice product's name is separate from its source record's name (a lab test type, a drug), so renaming a product changes only what appears on invoices.
 
 ## Open
