@@ -25,6 +25,7 @@ import { ConfirmModal } from '../../components/ConfirmModal';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { NoteModalActionBlocker } from '../../components';
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm/PatientDetailsForm';
+import { getPatientFieldTestId } from '../../forms/PatientDetailsForm/ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../components/Translation';
 import { invalidatePatientDataQueries, notifyError, notifySuccess } from '../../utils';
 
@@ -58,23 +59,26 @@ const FormBridge = ({ submitForm, bridgeRef, onStateChange }) => {
 
 /**
  * Brings a named field into view and focuses it once the form has rendered. Used to land on the
- * insurance plan field when the modal is opened to add a plan.
+ * insurance plan field when the modal is opened to add a plan. Searched within the modal's own
+ * content, since the same field is on the patient's Details tab behind it.
  */
-const useFocusField = (fieldName, isReady) => {
+const useFocusField = (fieldName, isReady, containerRef) => {
   useEffect(() => {
     if (!fieldName || !isReady) return undefined;
 
     // The field renders a frame or two after the form's queries settle, so wait for the paint
     // rather than reading an element that is not there yet.
     const timer = setTimeout(() => {
-      const field = document.querySelector(`[data-testid^="localisedfield-0jtf-${fieldName}"]`);
+      const field = containerRef.current?.querySelector(
+        `[data-testid^="${getPatientFieldTestId(fieldName)}"]`,
+      );
       if (!field) return;
       field.scrollIntoView({ block: 'center', behavior: 'smooth' });
       field.querySelector('input, [tabindex]')?.focus();
     });
 
     return () => clearTimeout(timer);
-  }, [fieldName, isReady]);
+  }, [fieldName, isReady, containerRef]);
 };
 
 /**
@@ -95,6 +99,7 @@ export const InvoicePatientDetailsModal = ({
   const { patient, patientId, isLoading: isLoadingPatient } = usePatient();
 
   const bridgeRef = useRef(null);
+  const contentRef = useRef(null);
   const [formState, setFormState] = useState({ dirty: false, isSubmitting: false });
   const [isConfirmingDiscard, setIsConfirmingDiscard] = useState(false);
 
@@ -107,7 +112,7 @@ export const InvoicePatientDetailsModal = ({
   const isLoading =
     isLoadingPatient || isLoadingAdditionalData || isLoadingBirthData || isLoadingInsurancePlans;
 
-  useFocusField(focusField, open && !isLoading);
+  useFocusField(focusField, open && !isLoading, contentRef);
 
   const handleSubmit = async data => {
     try {
@@ -191,21 +196,23 @@ export const InvoicePatientDetailsModal = ({
           <LoadingIndicator />
         ) : (
           <ReadOnlyFormProvider readOnly={!editable}>
-            <PatientDetailsForm
-              patient={patient}
-              additionalData={additionalData}
-              birthData={birthData}
-              insurancePlans={insurancePlans}
-              onSubmit={handleSubmit}
-              hideSubmitButton
-              renderExtraContent={({ submitForm }) => (
-                <FormBridge
-                  submitForm={submitForm}
-                  bridgeRef={bridgeRef}
-                  onStateChange={setFormState}
-                />
-              )}
-            />
+            <div ref={contentRef}>
+              <PatientDetailsForm
+                patient={patient}
+                additionalData={additionalData}
+                birthData={birthData}
+                insurancePlans={insurancePlans}
+                onSubmit={handleSubmit}
+                hideSubmitButton
+                renderExtraContent={({ submitForm }) => (
+                  <FormBridge
+                    submitForm={submitForm}
+                    bridgeRef={bridgeRef}
+                    onStateChange={setFormState}
+                  />
+                )}
+              />
+            </div>
           </ReadOnlyFormProvider>
         )}
       </BaseModal>
