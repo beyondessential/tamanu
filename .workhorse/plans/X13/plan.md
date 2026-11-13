@@ -13,6 +13,11 @@
 - **Availability.** Hiding a product at a facility removes that facility from the source record's available facilities list. Hiding a product that is available everywhere means listing every other facility. Showing it everywhere again resets the list to empty.
 - **Layout.** A multi-select facility filter defaulting to all facilities. Columns are grouped per facility (its Available toggle and its own price lists), with a further group for each set of facilities sharing price lists. Product, Category and insurance coverage come first, with Product pinned.
 - **Saving.** Edits are held as unsaved changes and saved together. Saving asks for confirmation, and says unfinalised invoices will use the new prices when any price changed.
+- **Price states.** A cell can hold a price, be blank (the item is still added and the cashier types the price on the invoice), or be not charged (`isHidden`, no line is added). Cashiers can move a cell between all three, including clearing a price back to blank.
+- **Price lists themselves.** Creating price lists and changing their name, facility, patient type and age rules and evaluation order stays with the reference data import. The page edits only what sits inside existing lists.
+- **Clashes.** The last save wins, field by field. No stale-edit check.
+- **Unsaved changes.** Changing a filter or leaving the page with unsaved changes asks the user to save or discard first.
+- **Product names.** An invoice product's name is separate from its source record's name (a lab test type, a drug), so renaming a product changes only what appears on invoices.
 
 ## Open
 
