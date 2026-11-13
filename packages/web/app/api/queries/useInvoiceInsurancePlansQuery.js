@@ -25,12 +25,15 @@ export const useInvoiceInsurancePlansQuery = ({ enabled = true } = {}) => {
  * The patient's own insurance plans that are available at the current facility — the set an invoice
  * can actually draw on. A patient whose only plans are restricted to other facilities comes back
  * empty, which is what decides whether adding a plan leads on to the invoice's plan picker.
+ *
+ * Keyed under the patient's own insurance plans, so saving their details invalidates this with the
+ * rest of their data: a plan recorded on the patient changes what this answers.
  */
 export const usePatientAvailableInsurancePlansQuery = ({ patientId, enabled = true } = {}) => {
   const api = useApi();
   const { facilityId } = useAuth();
   return useQuery(
-    ['patientAvailableInsurancePlans', facilityId, patientId],
+    ['insurancePlans', patientId, 'available', facilityId],
     () =>
       api.get(route('suggestions/:endpoint/all', { endpoint: 'invoiceInsurancePlan' }), {
         facilityId,
