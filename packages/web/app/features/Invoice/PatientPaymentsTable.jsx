@@ -17,6 +17,10 @@ import { NoteModalActionBlocker } from '../../components';
 import { ThreeDotMenu } from '../../components/ThreeDotMenu';
 import { Price } from './Price';
 import { PatientPaymentRefundModal } from './PatientPaymentRefundModal';
+import { NoInsurancePlanModal } from './NoInsurancePlanModal';
+import { INSURANCE_PLAN_STEPS, InsurancePlanFlow } from './InsurancePlanFlow';
+import { useInvoicePatientDetailsAccess } from './useInvoicePatientDetailsAccess';
+import { usePatientAvailableInsurancePlansQuery } from '../../api/queries';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -90,6 +94,14 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [patientPaymentRefundModalIsOpen, setPatientPaymentRefundModalIsOpen] = useState(false);
   const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
   const [selectedPaymentRecord, setSelectedPaymentRecord] = useState(null);
+  const [isConfirmingNoInsurancePlan, setIsConfirmingNoInsurancePlan] = useState(false);
+  const [insurancePlanStep, setInsurancePlanStep] = useState(null);
+
+  const { canAddPlanToPatient, isInsurancePlanFieldShown } =
+    useInvoicePatientDetailsAccess(invoice);
+  const { data: availablePlans = [] } = usePatientAvailableInsurancePlansQuery({
+    patientId: invoice?.encounter?.patientId,
+  });
 
   const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
 
@@ -119,9 +131,46 @@ export const PatientPaymentsTable = ({ invoice }) => {
     setPatientPaymentRefundModalIsOpen(false);
   };
 
-  const onRecordPayment = () => {
+  const openPaymentForm = () => {
+    setIsConfirmingNoInsurancePlan(false);
+    setInsurancePlanStep(null);
     setSelectedPaymentRecord(null);
     setPaymentModalIsOpen(true);
+  };
+
+  // What the patient owes depends on the invoice's plans, so recording a payment against an invoice
+  // that has none is checked first. A deployment that does not record insurance plans at all has
+  // nothing to check.
+  const onRecordPayment = () => {
+    if (isInsurancePlanFieldShown && invoice.insurancePlans?.length === 0) {
+      setIsConfirmingNoInsurancePlan(true);
+      return;
+    }
+    openPaymentForm();
+  };
+
+  const onAddInsurancePlan = () => {
+    setIsConfirmingNoInsurancePlan(false);
+    setInsurancePlanStep(
+      availablePlans.length > 0
+        ? INSURANCE_PLAN_STEPS.PICKER
+        : INSURANCE_PLAN_STEPS.PATIENT_DETAILS,
+    );
+  };
+
+  const onCloseInsurancePlanFlow = () => {
+    setIsConfirmingNoInsurancePlan(false);
+    setInsurancePlanStep(null);
+  };
+
+  // Only a plan that was actually applied changes what is due, so only then does the payment form
+  // follow; leaving the picker with nothing selected ends the flow at the invoice.
+  const onInsurancePlansApplied = appliedPlans => {
+    if (appliedPlans.length > 0) {
+      openPaymentForm();
+      return;
+    }
+    onCloseInsurancePlanFlow();
   };
 
   const onClosePaymentModal = () => {
@@ -277,6 +326,19 @@ export const PatientPaymentsTable = ({ invoice }) => {
         selectedPaymentRecord={selectedPaymentRecord}
         isOpen={patientPaymentRefundModalIsOpen}
         onClose={onClosePatientPaymentRefundModal}
+      />
+      <NoInsurancePlanModal
+        open={isConfirmingNoInsurancePlan}
+        onClose={() => setIsConfirmingNoInsurancePlan(false)}
+        onAddInsurancePlan={canAddPlanToPatient ? onAddInsurancePlan : undefined}
+        onContinue={openPaymentForm}
+      />
+      <InsurancePlanFlow
+        invoice={invoice}
+        step={insurancePlanStep}
+        setStep={setInsurancePlanStep}
+        onClose={onCloseInsurancePlanFlow}
+        onApplied={onInsurancePlansApplied}
       />
     </>
   );

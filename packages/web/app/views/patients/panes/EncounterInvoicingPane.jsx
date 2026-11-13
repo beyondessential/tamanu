@@ -28,6 +28,7 @@ import {
   useBulkUpdateInvoiceItemApproval,
 } from '../../../api/mutations/useInvoiceMutation';
 import { INVOICE_FORM_TYPE } from '../../../features/Invoice/constants.js';
+import { useInvoicePatientDetailsAccess } from '../../../features/Invoice/useInvoicePatientDetailsAccess';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -99,6 +100,8 @@ const PaymentsSection = styled.div`
 
 const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const { ability } = useAuth();
+  const { canViewPatientDetails, isInsurancePlanFieldShown } =
+    useInvoicePatientDetailsAccess(invoice);
   const canCreateInvoice = ability.can('create', 'Invoice');
   const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
@@ -111,7 +114,11 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
     invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice && !hasPayments;
   const { mutate: bulkUpdateApproval } = useBulkUpdateInvoiceItemApproval(invoice);
   const finalisable =
-    invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
+    invoice &&
+    isInvoiceEditable(invoice) &&
+    canCreateInvoice &&
+    canWriteInvoice &&
+    encounter.endDate;
   const allItemsAreApproved = invoice.items.every(item => item.approved);
   const someItemsAreApproved = invoice.items.some(item => item.approved);
   const zeroItems = invoice.items.length === 0;
@@ -130,7 +137,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => handleAllApprovals(true),
-      hidden: allItemsAreApproved || isCancelled,
+      hidden: allItemsAreApproved || isCancelled || !canWriteInvoice,
     },
     {
       label: (
@@ -141,7 +148,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => handleAllApprovals(false),
-      hidden: !someItemsAreApproved || isCancelled || zeroItems,
+      hidden: !someItemsAreApproved || isCancelled || zeroItems || !canWriteInvoice,
     },
     {
       label: (
@@ -188,9 +195,17 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.EDIT_ITEMS),
-      hidden: !isInvoiceEditable(invoice),
+      hidden: !isInvoiceEditable(invoice) || !canWriteInvoice,
     });
   }
+
+  ACTIONS.unshift({
+    label: (
+      <TranslatedText stringId="invoice.action.viewPatientDetails" fallback="View patient details" />
+    ),
+    onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.PATIENT_DETAILS),
+    hidden: !canViewPatientDetails,
+  });
 
   const hasVisibleActions = ACTIONS.some(action => !action.hidden);
 
@@ -209,7 +224,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
           <TranslatedText stringId="general.action.print" fallback="Print" />
         </PrintButton>
       )}
-      {isInProgress && (
+      {isInProgress && canWriteInvoice && isInsurancePlanFieldShown && (
         <NoteModalActionBlocker>
           <Button
             onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}

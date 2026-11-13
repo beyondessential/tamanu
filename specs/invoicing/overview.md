@@ -34,10 +34,17 @@ The patient's details can be viewed and edited from an invoice without leaving i
 - [ ] View patient details opens the patient details modal over the invoice. The modal
       holds the Details tab's sections, fields and validation (see `patient/details.md`),
       with Cancel and Save kept in view at the bottom however far the form is scrolled.
-- [ ] For users who cannot edit patient records, every field in the modal is read-only, and
-      a single Close button takes the place of Cancel and Save.
+- [ ] The modal is editable only on an in-progress invoice, and only for users who can edit
+      patient records. Otherwise every field in it is read-only and a single Close button
+      takes the place of Cancel and Save.
+
+> [!NOTE]
+> A finalised or cancelled invoice is a settled billing record, so the details it was billed
+> against are shown as they stand rather than opened for editing. Correcting them is still
+> possible from the patient's Details tab.
+
 - [ ] Saving updates the patient's record, closes the modal and shows "Patient details
-      successfully updated". 
+      successfully updated".
 - [ ] A save blocked by validation keeps the modal open and brings the first field with a
       message into view.
 - [ ] Cancel, Escape and the close button close the modal without saving.

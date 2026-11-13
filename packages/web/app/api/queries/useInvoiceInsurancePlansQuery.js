@@ -22,6 +22,25 @@ export const useInvoiceInsurancePlansQuery = ({ enabled = true } = {}) => {
 };
 
 /**
+ * The patient's own insurance plans that are available at the current facility — the set an invoice
+ * can actually draw on. A patient whose only plans are restricted to other facilities comes back
+ * empty, which is what decides whether adding a plan leads on to the invoice's plan picker.
+ */
+export const usePatientAvailableInsurancePlansQuery = ({ patientId, enabled = true } = {}) => {
+  const api = useApi();
+  const { facilityId } = useAuth();
+  return useQuery(
+    ['patientAvailableInsurancePlans', facilityId, patientId],
+    () =>
+      api.get(route('suggestions/:endpoint/all', { endpoint: 'invoiceInsurancePlan' }), {
+        facilityId,
+        patientId,
+      }),
+    { enabled: enabled && Boolean(patientId) },
+  );
+};
+
+/**
  * The plan the deployment has named as its sliding fee scale plan, which is what makes family size
  * and annual income required on a patient's billing details. Matched on the plan's code rather
  * than its name, which is translated and worded differently between deployments. The id is null
