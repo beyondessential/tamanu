@@ -116,7 +116,9 @@ const RecordCount = ({ lowerRange, upperRange, count }) => {
 
   return template
     .split(/(:[a-zA-Z]+)/g)
-    .map((part, index) => (part in numbers ? <strong key={index}>{numbers[part]}</strong> : part));
+    .map((part, index) =>
+      Object.hasOwn(numbers, part) ? <strong key={index}>{numbers[part]}</strong> : part,
+    );
 };
 
 const ChevronComponent = React.forwardRef(({ children, ...props }, ref) => (
