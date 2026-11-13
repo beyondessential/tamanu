@@ -1,6 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { TranslatedText } from '@tamanu/ui-components';
+import { keepsRecordedDate } from '@tamanu/utils/invoice';
 
 const REQUIRED_MESSAGE = (
   <TranslatedText
@@ -45,10 +46,9 @@ export const buildInvoiceFormSchema = (
           .string()
           .required(REQUIRED_MESSAGE)
           .test('within-section', '', function testWithinSection(orderDate) {
-            const { invoiceSectionId, isExistingItem, originalOrderDate } = this.parent;
-            if (isExistingItem && orderDate === originalOrderDate) return true;
+            if (keepsRecordedDate(this.parent)) return true;
 
-            const period = sectionPeriods[invoiceSectionId] ?? encounterPeriod;
+            const period = sectionPeriods[this.parent.invoiceSectionId] ?? encounterPeriod;
             if (!orderDate || !period?.startDate || !period?.endDate) return true;
             const date = orderDate.slice(0, 10);
             if (date >= period.startDate && date <= period.endDate) return true;

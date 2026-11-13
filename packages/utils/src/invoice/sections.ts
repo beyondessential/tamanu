@@ -249,3 +249,15 @@ export const isInvoiceSectioned = (
     item => !item.invoiceSectionId || !listed.has(item.invoiceSectionId),
   );
 };
+
+/**
+ * Whether a row keeps the date it already holds rather than being held to its section's period.
+ * An item saved before the admission time was corrected can sit outside its period, and the spec
+ * leaves it at the date it holds; only a row being added or edited is bounded. The picker and the
+ * form's schema both read this, so the two halves of the rule cannot disagree about one row.
+ */
+export const keepsRecordedDate = (row: {
+  isExistingItem?: boolean;
+  orderDate?: string | null;
+  originalOrderDate?: string | null;
+}): boolean => Boolean(row?.isExistingItem) && row?.orderDate === row?.originalOrderDate;
