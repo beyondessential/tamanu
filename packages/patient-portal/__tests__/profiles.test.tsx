@@ -46,6 +46,19 @@ describe('Select profile', () => {
     expect(resolveEndpoint(api.post.mock.calls[0][0])).toBe('profiles/portal-tui/select');
     expect(api.setToken).toHaveBeenCalledWith('tui-token');
   });
+
+  it('says so when the profile chosen cannot be opened', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient(), profiles: profilesOf(ANA, TUI) });
+    api.post.mockRejectedValue(new Error('Profile not found'));
+    renderPortal({ page: <SelectProfileView />, path: '/select-profile', api });
+
+    await userEvent.click(await screen.findByRole('button', { name: /Tui Kamaka/ }));
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/couldn't be opened/);
+    expect(api.setToken).not.toHaveBeenCalled();
+    expect(screen.queryByText('Dashboard')).toBeNull();
+  });
 });
 
 describe('Menu', () => {

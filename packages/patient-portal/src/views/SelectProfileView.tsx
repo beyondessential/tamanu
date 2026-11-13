@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router';
 import styled from 'styled-components';
 import { ChevronRight } from 'lucide-react';
-import { TranslatedText } from '@tamanu/ui-components';
+import { FormErrorMessage, TranslatedText } from '@tamanu/ui-components';
 import { useSelectProfile } from '@api/mutations';
 import { useProfilesQuery } from '@api/queries/useProfilesQuery';
 import { Loading, PageColumn, Panel, rowLayout } from '@components/layout';
@@ -36,7 +36,11 @@ const ProfileButton = styled.button.attrs({ type: 'button' })`
 
 export const SelectProfileView = () => {
   const { data: profiles, isPending } = useProfilesQuery();
-  const { mutate: selectProfile, isPending: isSelecting } = useSelectProfile();
+  const {
+    mutate: selectProfile,
+    isPending: isSelecting,
+    isError: hasSelectFailed,
+  } = useSelectProfile();
 
   if (!isPending && !profiles?.data.length) {
     return <Navigate to="/" replace />;
@@ -50,6 +54,14 @@ export const SelectProfileView = () => {
           fallback="Select a profile to continue"
         />
       </Prompt>
+      {hasSelectFailed && (
+        <FormErrorMessage role="alert">
+          <TranslatedText
+            stringId="patientPortal.selectProfile.error"
+            fallback="That profile couldn't be opened. Please try again."
+          />
+        </FormErrorMessage>
+      )}
       {isPending ? (
         <Loading />
       ) : (
