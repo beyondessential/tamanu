@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { route } from '@tamanu/api-client';
 import { useParams, useNavigate } from 'react-router';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { DateDisplay } from '@tamanu/ui-components';
 import { MenuButton, SearchTable } from '../../components';
@@ -104,7 +104,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             fallback="Related conditions"
           />
         ),
-        sortable: false,
         accessor: ({ conditions }) => (
           <ConditionsCell conditions={conditions} getTranslation={getTranslation} />
         ),
@@ -237,6 +236,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         rowIdKey="patientId"
         refreshCount={refreshCount}
         endpoint={route('programRegistry/:programRegistryId/registrations', { programRegistryId: params.programRegistryId })}
+        pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.PROGRAM_REGISTRY_PATIENTS}
         columns={columns}
         noDataMessage={
           <TranslatedText

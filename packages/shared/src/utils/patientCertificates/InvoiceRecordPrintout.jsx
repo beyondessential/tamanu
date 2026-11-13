@@ -23,14 +23,14 @@ import {
   getFormattedInvoiceItemCoverageAmount,
   getFormattedInvoiceItemNetCost,
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
-  getInvoiceSummary,
+  getInvoicePrintTotalsDisplay,
 } from '@tamanu/utils/invoice';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { getDrugUnitLabel } from '../medication';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { InvoiceEncounterDetails } from './printComponents/InvoiceEncounterDetails';
+import { InvoiceItemQuantity } from './printComponents/InvoiceItemQuantity';
 
 const borderStyle = '1 solid black';
 
@@ -176,14 +176,6 @@ const Cell = ({ children, style = {} }) => (
 const CustomCellComponent = ({ children, style = {} }) => (
   <View style={[baseTableStyles.baseCell, style]}>{children}</View>
 );
-
-// Reads the language context itself so the dispensing unit can be pluralised
-// without threading getEnumTranslation through the shared formatters object.
-const QuantityCell = ({ quantity, dispensingUnit }) => {
-  const { getEnumTranslation } = useLanguageContext();
-  if (!dispensingUnit) return quantity != null ? String(quantity) : '';
-  return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
-};
 
 const getPrice = item => {
   const price = getInvoiceItemPriceDisplay(item);
@@ -342,7 +334,10 @@ const getColumns = (getTranslation, getEnumTranslation) => ({
       title: getTranslation('invoice.modal.editInvoice.quantity.label', 'Quantity'),
       style: { width: '12%' },
       accessor: ({ quantity, sourcePrescription }) => (
-        <QuantityCell quantity={quantity} dispensingUnit={sourcePrescription?.dispensingUnit} />
+        <InvoiceItemQuantity
+          quantity={quantity}
+          dispensingUnit={sourcePrescription?.dispensingUnit}
+        />
       ),
     },
     {
@@ -613,30 +608,19 @@ const PaymentTableSection = ({ title, data, columns, formatters }) => {
 
 const SummaryPane = ({ invoice }) => {
   const { getTranslation } = useLanguageContext();
-  const {
-    invoiceItemsUndiscountedTotal,
-    patientPaymentRemainingBalance,
-    patientSubtotal,
-    discountTotal,
-    patientPaymentsTotal,
-    itemAdjustmentsTotal,
-  } = getInvoiceSummary(invoice);
+  const totals = getInvoicePrintTotalsDisplay(invoice);
+  const { feeScaleAdjustment } = totals;
   const insurancePlanCoverages = getFormattedCoverageAmountPerInsurancePlanForInvoice(invoice);
-  const patientPaymentsTotalDisplay = patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0;
-  const hasDiscount = Boolean(invoice.discount?.percentage);
-  const discountPercentage = hasDiscount
-    ? Math.round(invoice.discount.percentage * 100)
-    : 0;
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
         <P>{getTranslation('invoice.summary.invoiceTotal', 'Invoice total')}</P>
-        <P>{formatDisplayPrice(invoiceItemsUndiscountedTotal)}</P>
+        <P>{totals.invoiceTotal}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>{getTranslation('invoice.summary.itemAdjustments', 'Item adjustments')}</P>
-        <P>{formatDisplayPrice(itemAdjustmentsTotal)}</P>
+        <P>{totals.itemAdjustments}</P>
       </View>
       {insurancePlanCoverages.length > 0 && (
         <>
@@ -652,29 +636,29 @@ const SummaryPane = ({ invoice }) => {
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P bold>{getTranslation('invoice.summary.patientSubtotal', 'Patient subtotal')}</P>
-        <P>{formatDisplayPrice(patientSubtotal)}</P>
+        <P>{totals.patientSubtotal}</P>
       </View>
       <HorizontalRule />
-      {hasDiscount && (
+      {feeScaleAdjustment && (
         <View style={summaryPaneStyles.item}>
           <P>
             {getTranslation(
               'invoice.summary.feeScaleAdjustment',
               'Fee scale adjustment - :percentage%',
-              { replacements: { percentage: discountPercentage } },
+              { replacements: { percentage: feeScaleAdjustment.percentage } },
             )}
           </P>
-          <P>{formatDisplayPrice(discountTotal * -1)}</P>
+          <P>{feeScaleAdjustment.amount}</P>
         </View>
       )}
       <View style={summaryPaneStyles.item}>
         <P>{getTranslation('invoice.summary.patientPayments', 'Patient payments')}</P>
-        <P>{formatDisplayPrice(patientPaymentsTotalDisplay)}</P>
+        <P>{totals.patientPayments}</P>
       </View>
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
         <P bold>{getTranslation('invoice.summary.patientTotal', 'Patient total due')}</P>
-        <P bold>{formatDisplayPrice(patientPaymentRemainingBalance)}</P>
+        <P bold>{totals.patientTotalDue}</P>
       </View>
     </View>
   );

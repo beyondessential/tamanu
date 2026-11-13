@@ -40,12 +40,11 @@ import {
   urlSchema,
   msDurationSchema,
 } from './definitions';
-import { encounterSummaryProperties } from './definitions/encounterSummary';
+import { experimentalAiProperties } from './definitions/experimentalAi';
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
-import { patientSummaryProperties } from './definitions/patientSummary';
 import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
@@ -231,17 +230,19 @@ export const globalSettings = {
         'alpha-2': {
           name: 'Alpha-2 code',
           description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
-          type: yup
-            .string()
-            .matches(/^[A-Z]{2}$/, { excludeEmptyString: true, message: 'must be two uppercase letters' }),
+          type: yup.string().matches(/^[A-Z]{2}$/, {
+            excludeEmptyString: true,
+            message: 'must be two uppercase letters',
+          }),
           defaultValue: '',
         },
         'alpha-3': {
           name: 'Alpha-3 code',
           description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
-          type: yup
-            .string()
-            .matches(/^[A-Z]{3}$/, { excludeEmptyString: true, message: 'must be three uppercase letters' }),
+          type: yup.string().matches(/^[A-Z]{3}$/, {
+            excludeEmptyString: true,
+            message: 'must be three uppercase letters',
+          }),
           defaultValue: '',
         },
       },
@@ -310,8 +311,7 @@ export const globalSettings = {
     rateLimit: {
       highRisk: true,
       name: 'Rate limiting',
-      description:
-        'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
+      description: 'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
       requiresRestart: true,
       properties: {
         enabled: {
@@ -550,7 +550,7 @@ export const globalSettings = {
         },
         enablePatientInsurer: {
           description:
-            'Include insurer and policy number as fields in patient details identification section',
+            'Include insurance policy number as a field in patient details identification section',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -760,7 +760,7 @@ export const globalSettings = {
             enableLabResultsPrintout: {
               name: 'Lab results printout',
               description:
-                'Enable lab results printout (print results button and interim report option)',
+                "Enable lab results printout (print results button, interim report option, and printing an encounter's results from the Labs tab)",
               type: yup.boolean(),
               defaultValue: true,
             },
@@ -1104,14 +1104,6 @@ export const globalSettings = {
         },
         birthCertificate: {
           name: 'Birth certificate',
-          description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
-        },
-        insurerId: {
-          name: 'Insurer',
           description: '_',
           properties: generateFieldSchema({
             isPatientDetails: true,
@@ -2049,6 +2041,20 @@ export const globalSettings = {
         },
       },
     },
+    syndromicSurveillance: {
+      name: 'Syndromic surveillance',
+      description: 'Settings related to syndromic surveillance',
+      exposedToWeb: true,
+      properties: {
+        mandatorySyndromicSurveillanceOnDischarge: {
+          name: 'Mandatory syndromic surveillance on discharge',
+          description:
+            'Require syndromic surveillance to be completed before a patient can be manually discharged. Not enforced on the server, so an encounter that discharges automatically (e.g. outpatient) is unaffected.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     notifications: {
       description: 'Notification settings',
       properties: {
@@ -2070,8 +2076,7 @@ export const globalSettings = {
         },
       },
     },
-    patientSummary: patientSummaryProperties,
-    encounterSummary: encounterSummaryProperties,
+    experimentalAi: experimentalAiProperties,
     medications: {
       description: 'Medication settings',
       exposedToWeb: true,

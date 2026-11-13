@@ -20,7 +20,11 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
-import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
+import {
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
+  PHARMACY_PRESCRIPTION_TYPES,
+  TABLE_PAGE_SIZE_PREFERENCE_KEYS,
+} from '@tamanu/constants';
 import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { NotDispensedMedicationModal } from './Medication/NotDispensedMedicationModal';
@@ -431,6 +435,7 @@ export const MedicationRequestsTable = () => {
         noun="MedicationRequest"
         autoRefresh={true}
         endpoint="medication/medication-requests"
+        pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.ACTIVE_MEDICATION_REQUESTS}
         columns={columns}
         noDataMessage={
           <NoDataContainer>

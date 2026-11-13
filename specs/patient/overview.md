@@ -4,4 +4,4 @@ id: PATIENT
 
 # Patient
 
-Patient records: registration, demographics, identifiers, and merging.
+Applies to patient records: registration, demographics, identifiers, and merging.

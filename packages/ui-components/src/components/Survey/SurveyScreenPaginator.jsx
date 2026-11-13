@@ -17,15 +17,28 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
 `;
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, summarySubmitButton, completeButtonDisabled }) => (
+const CancelButton = styled(OutlinedButton)`
+  margin-right: auto;
+`;
+
+const SurveySummaryScreen = ({
+  onStepBack,
+  onSurveyComplete,
+  onCancel,
+  summaryHeading,
+  summarySubmitButton,
+  completeButtonDisabled,
+}) => (
   <div>
-    <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
-      <TranslatedText
-        stringId="program.modal.surveyResponse.complete"
-        fallback="Survey complete"
-        data-testid="translatedtext-97rx"
-      />
-    </Typography>
+    {summaryHeading ?? (
+      <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
+        <TranslatedText
+          stringId="program.modal.surveyResponse.complete"
+          fallback="Survey complete"
+          data-testid="translatedtext-97rx"
+        />
+      </Typography>
+    )}
     <Text data-testid="text-am03">
       <TranslatedText
         stringId="program.modal.surveyResponse.completeMessage"
@@ -35,6 +48,15 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, summarySubmitButton
     </Text>
     <div>
       <StyledButtonRow data-testid="styledbuttonrow-ljfc">
+        {onCancel && (
+          <CancelButton onClick={onCancel} data-testid="cancelbutton-survey-summary">
+            <TranslatedText
+              stringId="general.action.cancel"
+              fallback="Cancel"
+              data-testid="translatedtext-survey-summary-cancel"
+            />
+          </CancelButton>
+        )}
         <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-c5qp">
           <TranslatedText
             stringId="general.action.prev"
@@ -44,12 +66,12 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, summarySubmitButton
         </OutlinedButton>
         {summarySubmitButton || (
           <FormSubmitButton
-          color="primary"
-          data-testid="formsubmitbutton-pufy"
-          disabled={completeButtonDisabled}
-          onClick={onSurveyComplete}
-          variant="contained"
-        >
+            color="primary"
+            data-testid="formsubmitbutton-pufy"
+            disabled={completeButtonDisabled}
+            onClick={onSurveyComplete}
+            variant="contained"
+          >
             <TranslatedText
               stringId="general.action.complete"
               fallback="Complete"
@@ -75,9 +97,14 @@ export const SurveyScreenPaginator = ({
   status,
   setStatus,
   showCancelButton,
+  showButtonRowDivider = true,
   encounterType,
   getComponentForQuestionType,
   summarySubmitButton = null,
+  // Replaces the summary screen's heading.
+  summaryHeading = null,
+  // Offers to cancel from the summary screen too, not only from the form's screens.
+  showSummaryCancelButton = false,
   onScreenIndexChange = undefined,
   completeButtonDisabled = false,
   editedDataElementIds = null,
@@ -122,6 +149,7 @@ export const SurveyScreenPaginator = ({
         status={status}
         setStatus={setStatus}
         showCancelButton={showCancelButton}
+        showButtonRowDivider={showButtonRowDivider}
         encounterType={encounterType}
         getComponentForQuestionType={getComponentForQuestionType}
         editedDataElementIds={editedDataElementIds}
@@ -135,6 +163,8 @@ export const SurveyScreenPaginator = ({
     <SurveySummaryScreen
       onStepBack={onStepBack}
       onSurveyComplete={onSurveyComplete}
+      onCancel={showSummaryCancelButton ? onCancel : null}
+      summaryHeading={summaryHeading}
       summarySubmitButton={summarySubmitButton}
       completeButtonDisabled={completeButtonDisabled}
       data-testid="surveysummaryscreen-1jn5"

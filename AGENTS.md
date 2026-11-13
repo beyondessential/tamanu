@@ -1,4 +1,4 @@
-<!-- BEGIN:workhorse 0.7.9 -->
+<!-- BEGIN:workhorse 0.7.14 -->
 # Workhorse framework
 
 This workspace uses [Workhorse](https://github.com/beyondessential/workhorse), a spec-driven development workbench. Workhorse ships skills (invokable prompts) and reference docs into this repo to shape how AI agents work here.
@@ -25,6 +25,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Release Branches**: See @llm/project-rules/release-branches.md for finding releases
 - **Configuration Guides**: See @.agents/docs/config-guide-format.md for user configuration guides (written by the `draft-config-guide` skill)
 - **User Guides**: See @.agents/docs/user-guide-format.md for end user guides (written by the `draft-user-guide` skill)
+- **Guide Release Targeting**: See @.agents/docs/guide-release-targeting.md for which branch a user or configuration guide is raised against
 - **Important Rules**: See @llm/project-rules/important-project-rules.md for coding preferences and conventions
 - **Coding Rules**: See @llm/project-rules/coding-rules.md for domain-specific rules and antipatterns
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows

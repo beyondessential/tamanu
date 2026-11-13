@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { format } from 'date-fns';
 import { routes } from '../../config/routes';
 import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
 import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
@@ -55,6 +56,7 @@ export class AllPatientsPage extends BasePatientListPage {
   readonly DOBFromTxt!: Locator;
   readonly DOBToTxt!: Locator;
   readonly clearSearchBtn!: Locator;
+  readonly emptyState!: Locator;
   readonly patientPageRecordCount25!: Locator;
   readonly patientPageRecordCount50!: Locator;
   readonly patientPage2!: Locator;
@@ -69,7 +71,7 @@ export class AllPatientsPage extends BasePatientListPage {
       // Override base locators with AllPatients-specific test IDs
       searchTitle: 'searchtabletitle-09n6',
       tableFooter: 'styledtablefooter-0eff',
-      downloadButton: 'downloadbutton-0eff',
+      downloadButton: 'download-data-button',
       hideAdvancedSearchBtn: 'iconbutton-zrkv',
       searchButton: 'searchbutton-nt24',
       clearButton: 'clearbutton-z9x3',
@@ -103,6 +105,7 @@ export class AllPatientsPage extends BasePatientListPage {
       DOBFromTxt: 'joinedfield-swzm',
       DOBToTxt: 'field-aax5',
       clearSearchBtn: 'clearbutton-z9x3',
+      emptyState: 'patientsearchemptystate',
       patientPageRecordCount25: 'styledmenuitem-fkrw-undefined',
       patientPageRecordCount50: 'styledmenuitem-fkrw-undefined',
       patientPage2: 'paginationitem-c5vg',
@@ -122,7 +125,7 @@ export class AllPatientsPage extends BasePatientListPage {
     this.patientListingsHeader = page.getByRole('heading', { name: 'Patient listing' });
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
-      .filter({ hasText: '1–1 of 1' });
+      .filter({ hasText: 'Showing 1 of 1 record' });
     this.DOBInput = page.getByTestId('field-qk60').getByRole('textbox');
     this.newPatientVillageSearchBox = page
       .getByTestId('localisedfield-rpma-input')
@@ -176,6 +179,21 @@ export class AllPatientsPage extends BasePatientListPage {
   }
 
   // Implement abstract method from base class
+  // The listing loads no patients until a search runs, so this matches everyone born since 1900.
+  async searchAllPatients(): Promise<void> {
+    await this.searchTable({
+      DOBFrom: '1900-01-01',
+      DOBTo: format(new Date(), 'yyyy-MM-dd'),
+      advancedSearch: true,
+    });
+  }
+
+  // Clear swaps the results for the guided empty state rather than reloading the table.
+  async clearSearch() {
+    await this.clearSearchBtn.click();
+    await expect(this.emptyState).toBeVisible();
+  }
+
   async searchTable(searchCriteria: PatientSearchCriteria): Promise<void> {
     if (searchCriteria.advancedSearch) {
       await this.advanceSearchIcon.click();

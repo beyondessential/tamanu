@@ -3,7 +3,11 @@ import { Divider } from '@mui/material';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CAN_ACCESS_ALL_FACILITIES,
+  VISIBILITY_STATUSES,
+  TABLE_PAGE_SIZE_PREFERENCE_KEYS,
+} from '@tamanu/constants';
 import { PlusIcon } from '../../../../assets/icons/PlusIcon';
 import {
   Button,
@@ -272,7 +276,7 @@ export const UserProfilesAdminView = React.memo(() => {
           noDataMessage={
             <TranslatedText stringId="admin.users.noData.message" fallback="No users found" />
           }
-          defaultRowsPerPage={10}
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.USER_PROFILES}
           initialSort={{ orderBy: 'displayName', order: 'asc' }}
           fetchOptions={searchParameters}
           onRowClick={handleRowClick}

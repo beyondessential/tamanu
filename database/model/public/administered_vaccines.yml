@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_administered_vaccines_from_sync_lookup
+              - flag_administered_vaccines_for_lookup_rebuild
               - record_administered_vaccines_changelog
               - set_administered_vaccines_updated_at
               - set_administered_vaccines_updated_at_sync_tick

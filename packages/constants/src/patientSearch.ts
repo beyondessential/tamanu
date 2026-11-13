@@ -39,7 +39,6 @@ export const PAD_REFERENCE_DATA_FIELDS = [
   'religionId',
   'patientBillingTypeId',
   'countryOfBirthId',
-  'insurerId',
   'secondaryVillageId',
 ] as const;
 

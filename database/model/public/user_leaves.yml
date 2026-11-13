@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_user_leaves_from_sync_lookup
+              - flag_user_leaves_for_lookup_rebuild
               - record_user_leaves_changelog
               - set_user_leaves_updated_at
               - set_user_leaves_updated_at_sync_tick

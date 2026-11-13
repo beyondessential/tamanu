@@ -550,6 +550,27 @@ describe('Reference Data Manage', () => {
       expect(labTestType.unit).toBe('');
     });
 
+    it('should clear a nullable numeric column to null', async () => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      });
+      const labTestType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        maleMin: 1.5,
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${labTestType.id}`).send({
+        referenceDataType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
+        maleMin: '',
+      });
+      expect(response).toHaveSucceeded();
+
+      await labTestType.reload();
+      expect(labTestType.maleMin).toBeNull();
+    });
+
     it('should update a drug detail field', async () => {
       const created = await adminApp.post(BASE_URL).send({
         referenceDataType: REFERENCE_TYPES.DRUG,

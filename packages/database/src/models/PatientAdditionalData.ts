@@ -43,7 +43,6 @@ export class PatientAdditionalData extends Model {
   declare religionId?: string;
   declare patientBillingTypeId?: string;
   declare countryOfBirthId?: string;
-  declare insurerId?: string;
 
   static initModel(options: InitOptions) {
     super.init(
@@ -143,7 +142,6 @@ export class PatientAdditionalData extends Model {
     referenceRelation('religion');
     referenceRelation('patientBillingType');
     referenceRelation('countryOfBirth');
-    referenceRelation('insurer');
   }
 
   static getFullReferenceAssociations() {
@@ -152,7 +150,6 @@ export class PatientAdditionalData extends Model {
       'country',
       'nationality',
       'ethnicity',
-      'insurer',
       'division',
       'subdivision',
     ];

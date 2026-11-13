@@ -40,10 +40,26 @@ export const UpdatePatientDetailsRequestSchema = z
     emergencyContactNumber: phoneNumber,
     insurerPolicyNumber: text,
     ethnicityId: referenceDataId,
-    insurerId: referenceDataId,
     occupationId: referenceDataId,
   })
   .partial()
   .strict();
 
 export type UpdatePatientDetailsRequest = z.infer<typeof UpdatePatientDetailsRequestSchema>;
+
+const INSURANCE_DETAIL_NAMES = ['insurerPolicyNumber'];
+
+/**
+ * The deployment's field settings for patient details, with insurance treated as hidden unless the
+ * deployment uses it, as on Patient details in Tamanu.
+ */
+export const getPatientDetailFieldSettings = <T extends { hidden?: boolean }>(
+  fieldSettings: Record<string, T>,
+  isPatientInsurerEnabled: boolean,
+): Record<string, T> => {
+  if (isPatientInsurerEnabled) return fieldSettings;
+  const hiddenInsuranceDetails = Object.fromEntries(
+    INSURANCE_DETAIL_NAMES.map(name => [name, { ...fieldSettings[name], hidden: true } as T]),
+  );
+  return { ...fieldSettings, ...hiddenInsuranceDetails };
+};

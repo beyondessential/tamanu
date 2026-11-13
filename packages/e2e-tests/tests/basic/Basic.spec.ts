@@ -1,3 +1,4 @@
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
 import { test } from '../../fixtures/baseFixture';
 import { expect } from '@playwright/test';
@@ -13,7 +14,13 @@ import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
 import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
-import { getUser, createApiContext, getCurrentEncounterViaApi } from '@utils/apiHelpers';
+import {
+  getUser,
+  createApiContext,
+  getCurrentEncounterViaApi,
+  getFacilityId,
+  resetTableSortViaApi,
+} from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
 import { format } from 'date-fns';
 import path from 'path';
@@ -37,8 +44,14 @@ test.describe('Basic tests', () => {
   test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({
     newPatient,
     patientDetailsPage,
+    api,
   }) => {
     test.setTimeout(100000);
+    await resetTableSortViaApi(
+      api,
+      TABLE_PAGE_SIZE_PREFERENCE_KEYS.EMERGENCY_PATIENTS,
+      await getFacilityId(patientDetailsPage.page),
+    );
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.admitOrCheckinButton.click();
     const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -82,17 +95,22 @@ test.describe('Basic tests', () => {
     const level1Value = await emergencyPatientsPage.getLevelCardValue(1);
     expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
 
-    // The encounter view doesn't show patient type for emergency encounters, so check the record
-    const api = await createApiContext({ page: patientDetailsPage.page });
+    // This journey ends on the emergency board, so check the patient type was saved to the encounter
+    // through the API rather than opening the encounter view
     const triageEncounter = await getCurrentEncounterViaApi(api, newPatient.id);
-    await api.dispose();
     expect(triageEncounter.patientBillingTypeId).toBe(testData.patientBillingTypeId);
   });
   test('[BT-0003][AT-2002]Admit the patient to Triage with adding vitals', async ({
     newPatient,
     patientDetailsPage,
+    api,
   }) => {
     test.setTimeout(100000);
+    await resetTableSortViaApi(
+      api,
+      TABLE_PAGE_SIZE_PREFERENCE_KEYS.EMERGENCY_PATIENTS,
+      await getFacilityId(patientDetailsPage.page),
+    );
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.admitOrCheckinButton.click();
     const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -368,6 +386,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.navigateToDiagnosisTab();
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();
@@ -377,10 +396,8 @@ test.describe('Basic tests', () => {
     expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUserDisplayName);
     const formValues = await diagnosisModal.fillForm(true);
     await diagnosisModal.confirmButton.click();
-    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('P');
-    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(
-      `${formValues.diagnosis} (primary diagnosis)`,
-    );
+    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('Primary');
+    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(formValues.diagnosis);
   });
   test('[BT-0022][AT-2016]Add a not primary diagnosis', async ({
     newPatientWithHospitalAdmission,
@@ -390,15 +407,14 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.navigateToDiagnosisTab();
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();
     const formValues = await diagnosisModal.fillForm(false);
     await diagnosisModal.confirmButton.click();
-    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('S');
-    await expect(patientDetailsPage.diagnosisName.first()).toHaveText([
-      `${formValues.diagnosis} (secondary diagnosis)`,
-    ]);
+    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('Secondary');
+    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(formValues.diagnosis);
   });
   test('[BT-0023][AT-2017] Add a new task set', async ({
     newPatientWithHospitalAdmission,

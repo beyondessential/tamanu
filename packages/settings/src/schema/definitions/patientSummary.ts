@@ -186,7 +186,7 @@ export const patientSummaryProperties = {
   properties: {
     enabled: {
       name: 'Enabled',
-      description: 'Enable or disable the patient summary',
+      description: 'Enable or disable the patient summary. Experimental AI must also be enabled.',
       type: yup.boolean(),
       defaultValue: false,
       exposedToWeb: true,

@@ -4,12 +4,12 @@ id: FREQ
 
 # Administration frequencies
 
-How often a prescribed medication is given. The frequency sets how many doses fall in a day, which windows of the medication administration schedule they occupy, and where doses appear on the medication administration record (MAR).
+Applies to how often a prescribed medication is given: how many doses fall in a day, which windows of the medication administration schedule they occupy, and where doses appear on the medication administration record (MAR).
 
 ## Frequency list
 
-- [ ] Typing a synonym in the frequency field finds the frequency it belongs to.
-- [ ] Each frequency has default administration times, used to prefill the medication administration schedule.
+- Typing a synonym in the frequency field finds the frequency it belongs to.
+- Each frequency has default administration times, used to prefill the medication administration schedule.
 
 | Frequency | Synonyms | Default administration times |
 |---|---|---|
@@ -35,22 +35,24 @@ How often a prescribed medication is given. The frequency sets how many doses fa
 
 ## Settings
 
-- [ ] The "Frequencies enabled" setting lists every frequency, and only enabled frequencies are offered when prescribing.
-- [ ] Every frequency is enabled by default.
-- [ ] The "Default administration times" setting overrides a frequency's default administration times for a deployment.
-- [ ] "Default administration times" lists every frequency except Immediately, As directed, Hourly and Half-hourly.
+- The "Frequencies enabled" setting lists every frequency, and only enabled frequencies are offered when prescribing.
+- Every frequency is enabled by default.
+- The "Default administration times" setting overrides a frequency's default administration times for a deployment.
+- "Default administration times" lists every frequency except Immediately, As directed, Hourly and Half-hourly.
 
 ## Medication administration schedule
 
-- [ ] The schedule shows twelve two-hour windows across the day, each with an ideal administration time.
-- [ ] Choosing a frequency selects the windows that hold its default administration times.
-- [ ] A prescriber can select different windows, as long as the number selected matches the frequency's number of default administration times.
-- [ ] The ideal administration time of a selected window can be edited within that window.
-- [ ] With Every 2 hours, every window is selected and none can be deselected.
-- [ ] Immediately and As directed have no schedule, and the windows are unavailable.
-- [ ] Hourly and Half-hourly show no schedule, and their doses fall at their default administration times.
+- The schedule shows twelve two-hour windows across the day, each with an ideal administration time.
+- Choosing a frequency selects the windows that hold its default administration times.
+- A prescriber can select different windows, as long as the number selected matches the frequency's number of default administration times.
+- The ideal administration time of a selected window can be edited within that window.
+- With Every 2 hours, every window is selected and none can be deselected.
+- Immediately and As directed have no schedule, and the windows are unavailable.
+- Hourly and Half-hourly show no schedule, and their doses fall at their default administration times.
 
 ## Medication administration record
 
-- [ ] The first dose on the MAR is the earliest ideal administration time after the prescription's start, or in the same window as the start.
-- [ ] Later doses fall at the selected ideal administration times, on each day the frequency is due.
+- The first dose on the MAR is the earliest ideal administration time after the prescription's start, or in the same window as the start.
+- Later doses fall at the selected ideal administration times, on each day the frequency is due.
+- An Immediately medication shows a STAT label alongside its name and dose on the MAR.
+- Each MAR list shows active Immediately medications first, then other active medications, then discontinued medications, each group in order of prescription date.
