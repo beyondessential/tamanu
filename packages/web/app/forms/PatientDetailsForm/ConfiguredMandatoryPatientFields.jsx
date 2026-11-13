@@ -6,6 +6,13 @@ import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker'
 import { PatientDetailsHeading, SecondaryDetailsFormGrid } from './PatientDetailsCommonElements';
 
 /**
+ * The test id a configured patient field renders with. Exported so a caller that needs to find one
+ * in the DOM — the invoicing patient details modal, landing on the insurance plan field — asks for
+ * it here rather than rebuilding the literal and silently missing when it changes.
+ */
+export const getPatientFieldTestId = name => `localisedfield-0jtf-${name}`;
+
+/**
  * Pass `heading` to render the group as a headed section of the details form. The heading and its
  * grid go with the fields, so a group a deployment has hidden entirely leaves no empty section
  * behind.
@@ -35,7 +42,7 @@ export const ConfiguredMandatoryPatientFields = ({
             key={field.name}
             enablePasting
             {...field}
-            data-testid={`localisedfield-0jtf-${field.name}`}
+            data-testid={getPatientFieldTestId(field.name)}
           />
         </NoteModalActionBlocker>
       ))}

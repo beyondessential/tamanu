@@ -70,12 +70,19 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
+/**
+ * `hideSubmitButton` and `renderExtraContent` are for a caller that owns the form's actions itself —
+ * the invoicing patient details modal, whose Cancel and Save sit in the modal's fixed bottom row,
+ * outside this form element.
+ */
 export const PatientDetailsForm = ({
   patient,
   additionalData,
   birthData,
   insurancePlans,
   onSubmit,
+  hideSubmitButton = false,
+  renderExtraContent = () => null,
 }) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
@@ -142,7 +149,7 @@ export const PatientDetailsForm = ({
 
   return (
     <Form
-      render={({ values = {} }) => (
+      render={({ values = {}, ...formProps }) => (
         <>
           <PrimaryDetails
             registeredBirthPlace={values.registeredBirthPlace}
@@ -164,16 +171,19 @@ export const PatientDetailsForm = ({
             fieldValues={fieldValuesResponse?.data}
             data-testid="patientfields-csd1"
           />
-          <ButtonRow data-testid="buttonrow-92zi">
-            <NoteModalActionBlocker>
-              <FormSubmitButton
-                variant="contained"
-                color="primary"
-                text="Save"
-                data-testid="formsubmitbutton-dzgy"
-              />
-            </NoteModalActionBlocker>
-          </ButtonRow>
+          {!hideSubmitButton && (
+            <ButtonRow data-testid="buttonrow-92zi">
+              <NoteModalActionBlocker>
+                <FormSubmitButton
+                  variant="contained"
+                  color="primary"
+                  text="Save"
+                  data-testid="formsubmitbutton-dzgy"
+                />
+              </NoteModalActionBlocker>
+            </ButtonRow>
+          )}
+          {renderExtraContent(formProps)}
         </>
       )}
       initialValues={{
