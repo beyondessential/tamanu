@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
+import { SectionName, SectionPeriod } from './InvoiceForm/SectionTitle';
 import { InvoiceForm } from './InvoiceForm';
 
 const ModalBody = styled.div`
@@ -17,17 +18,38 @@ const Description = styled(Typography)`
   }
 `;
 
-export const InvoiceItemsModal = ({ open, onClose, invoice, title, invoiceFormType }) => {
+const SectionDescription = ({ section }) => (
+  <>
+    <SectionName section={section} />
+    {section.startDate && (
+      <>
+        {': '}
+        <SectionPeriod section={section} />
+      </>
+    )}
+  </>
+);
+
+export const InvoiceItemsModal = ({ open, onClose, invoice, title, invoiceFormType, section }) => {
   return (
     <Modal title={title} open={open} onClose={onClose} width="lg">
       <ModalBody>
         <Description>
-          <TranslatedText
-            stringId="invoice.modal.edit.description"
-            fallback="Edit invoice items below"
-          />
+          {section ? (
+            <SectionDescription section={section} />
+          ) : (
+            <TranslatedText
+              stringId="invoice.modal.edit.description"
+              fallback="Edit invoice items below"
+            />
+          )}
         </Description>
-        <InvoiceForm invoice={invoice} invoiceFormType={invoiceFormType} onClose={onClose} />
+        <InvoiceForm
+          invoice={invoice}
+          invoiceFormType={invoiceFormType}
+          onClose={onClose}
+          section={section}
+        />
       </ModalBody>
     </Modal>
   );

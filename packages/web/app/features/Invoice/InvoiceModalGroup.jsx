@@ -9,7 +9,7 @@ import { InvoiceRecordModal } from '../../components/PatientPrinting/modals/Invo
 import { TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_FORM_TYPE } from './constants.js';
 
-export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceModal }) => {
+export const InvoiceModalGroup = ({ invoice, invoiceModalType, section, setOpenInvoiceModal }) => {
   const handleCloseInvoiceModal = () => setOpenInvoiceModal(null);
 
   return (
@@ -71,6 +71,7 @@ export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceMod
           invoiceFormType={INVOICE_FORM_TYPE.ADD_ITEMS}
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
+          section={section}
           data-testid="addinvoiceitemsmodal-x7zy"
         />
       )}
