@@ -143,6 +143,26 @@ describe('FacilitySyncManager edge cases', () => {
       });
     });
 
+    // Moves on the push phase starting rather than a timer.
+    const heldPush = () => {
+      let started;
+      let release;
+      const hasStarted = new Promise(resolve => {
+        started = resolve;
+      });
+      const isReleased = new Promise(resolve => {
+        release = () => resolve(true);
+      });
+      vi.doMock('../../app/sync/pushOutgoingChanges', async () => ({
+        ...(await vi.importActual('../../app/sync/pushOutgoingChanges')),
+        pushOutgoingChanges: vi.fn().mockImplementation(() => {
+          started();
+          return isReleased;
+        }),
+      }));
+      return { hasStarted, release: () => release() };
+    };
+
     const initializeSyncManager = async (configToOverride = null) => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
@@ -198,45 +218,27 @@ describe('FacilitySyncManager edge cases', () => {
     });
 
     it('does not throw an error if pulled records was not updated between push and pull', async () => {
-      let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise(resolve => {
-        resolvePushOutgoingChangesPromise = async () => resolve(true);
-      });
-      vi.doMock('../../app/sync/pushOutgoingChanges', async () => ({
-        ...(await vi.importActual('../../app/sync/pushOutgoingChanges')),
-        pushOutgoingChanges: vi.fn().mockImplementation(() => {
-          return pushOutgoingChangesPromise;
-        }),
-      }));
+      const push = heldPush();
 
       await initializeSyncManager();
 
       // start the sync
       const syncPromise = syncManager.runSync();
 
-      await sleepAsync(200);
+      await push.hasStarted;
 
       // Update patient which is not one of the pulled records
       patient.lastName = 'Updated';
       await patient.save();
 
-      await resolvePushOutgoingChangesPromise();
+      push.release();
 
       // No expects as if there is an error, it should fail the test
       await syncPromise;
     });
 
     it('throws an error if a pulled record was updated between push and pull', async () => {
-      let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise(resolve => {
-        resolvePushOutgoingChangesPromise = async () => resolve(true);
-      });
-      vi.doMock('../../app/sync/pushOutgoingChanges', async () => ({
-        ...(await vi.importActual('../../app/sync/pushOutgoingChanges')),
-        pushOutgoingChanges: vi.fn().mockImplementation(() => {
-          return pushOutgoingChangesPromise;
-        }),
-      }));
+      const push = heldPush();
 
       const configToOverride = {
         sync: {
@@ -251,13 +253,13 @@ describe('FacilitySyncManager edge cases', () => {
       // start the sync
       const syncPromise = syncManager.runSync();
 
-      await sleepAsync(200);
+      await push.hasStarted;
 
       // Update encounter which is one of the pulled records
       encounter.reasonForEncounter = 'Updated';
       await encounter.save();
 
-      await resolvePushOutgoingChangesPromise();
+      push.release();
 
       await expect(async () => {
         await syncPromise;
@@ -267,16 +269,7 @@ describe('FacilitySyncManager edge cases', () => {
     });
 
     it('does not throw an error if a pulled record was updated between push and pull, but the config was disabled', async () => {
-      let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise(resolve => {
-        resolvePushOutgoingChangesPromise = async () => resolve(true);
-      });
-      vi.doMock('../../app/sync/pushOutgoingChanges', async () => ({
-        ...(await vi.importActual('../../app/sync/pushOutgoingChanges')),
-        pushOutgoingChanges: vi.fn().mockImplementation(() => {
-          return pushOutgoingChangesPromise;
-        }),
-      }));
+      const push = heldPush();
 
       const configToOverride = {
         sync: {
@@ -291,13 +284,13 @@ describe('FacilitySyncManager edge cases', () => {
       // start the sync
       const syncPromise = syncManager.runSync();
 
-      await sleepAsync(200);
+      await push.hasStarted;
 
       // Update encounter which is one of the pulled records
       encounter.reasonForEncounter = 'Updated';
       await encounter.save();
 
-      await resolvePushOutgoingChangesPromise();
+      push.release();
 
       // No expects as if there is an error, it should fail the test
       await syncPromise;

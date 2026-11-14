@@ -122,6 +122,28 @@ test('configMap reads web replica counts from web options, not db options', (t) 
   );
 });
 
+test('the blob volume marker turns on shared blob storage', (t) => {
+  t.plan(3);
+
+  const parse = (body) =>
+    parseDeployConfig({ body, ref: 'refs/heads/ci/k8s-deploy', control: 'pr=1' })[0].options;
+
+  const off = parse('- [x] **Deploy** <!-- #deploy -->');
+  t.equal(off.blobvolume, false, 'defaults off, so a deploy keeps the pod-local store');
+
+  const on = parse(
+    `- [x] **Deploy** <!-- #deploy -->
+- [x] Blob store on a shared volume <!-- #deployopt %blobvolume -->`,
+  );
+  t.equal(on.blobvolume, true, 'the marker sets it');
+
+  t.equal(
+    configMap('ci-k8s-deploy', 'latest', on)['tamanu-on-k8s:sharedBlobStorage'].value,
+    true,
+    'and it reaches the pulumi config the ops stack reads',
+  );
+});
+
 test('infra options default to the main branch and the on-k8s stack', (t) => {
   t.plan(2);
 

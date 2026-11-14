@@ -1,6 +1,8 @@
 import { log } from '@tamanu/shared/services/logging';
 import { CleanupBrowserTelemetry } from '@tamanu/shared/tasks/CleanupBrowserTelemetry';
 
+import { BlobAntivirusScanTask } from './BlobAntivirusScanTask';
+import { BlobIntegrityScrubTask } from './BlobIntegrityScrubTask';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
@@ -18,6 +20,7 @@ import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { SnapshotTableCleaner } from './SnapshotTableCleaner';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
 import {
+  BlobBackfillTask,
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
   FhirMissingResources,
@@ -79,6 +82,9 @@ export async function startScheduledTasks(context) {
     AutoDeleteMedicationRequests,
     DHIS2IntegrationProcessor,
     ProgramRegistryPltfuFlagger,
+    BlobBackfillTask,
+    BlobIntegrityScrubTask,
+    BlobAntivirusScanTask,
     // spec: BTEL — central stores telemetry from the admin panel and the patient
     // portal, so it needs the same retention prune as a facility server.
     CleanupBrowserTelemetry,

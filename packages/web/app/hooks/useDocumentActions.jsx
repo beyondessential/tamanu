@@ -3,7 +3,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { TranslatedText } from '@tamanu/ui-components';
 import { useApi } from '../api';
-import { notify, notifyError, notifySuccess } from '../utils';
+import {
+  AttachmentUnavailableError,
+  getAttachmentUnavailableMessage,
+  notify,
+  notifyError,
+  notifySuccess,
+} from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
 import { route } from '@tamanu/api-client';
 
@@ -37,24 +43,27 @@ export const useDocumentActions = () => {
   const onDownload = useCallback(
     async document => {
       try {
-        // Give feedback to user that download is starting
-        notify(
-          <TranslatedText
-            stringId="document.notification.downloadStart"
-            fallback="Your download has started, please wait"
-          />,
-          { replacement: { type: 'info' } },
-        );
-
         const saved = await saveFile({
           defaultFileName: document.name,
           getData: async () => {
-            // Download attachment (*currently the API only supports base64 responses)
-            const { data } = await api.get(
+            // Runs once the save picker is accepted, so cancelling it says nothing started.
+            notify(
+              <TranslatedText
+                stringId="document.notification.downloadStart"
+                fallback="Your download has started, please wait"
+              />,
+              { replacement: { type: 'info' } },
+            );
+
+            const response = await api.get(
               route('attachment/:attachmentId', { attachmentId: document.attachmentId }),
               { base64: true },
             );
-            return base64ToUint8Array(data);
+            const unavailableMessage = getAttachmentUnavailableMessage(response);
+            if (unavailableMessage) {
+              throw new AttachmentUnavailableError(unavailableMessage);
+            }
+            return base64ToUint8Array(response.data);
           },
           extension: extension(document.type),
           mimetype: document.type,
@@ -69,7 +78,9 @@ export const useDocumentActions = () => {
           );
         }
       } catch (error) {
-        notifyError(error.message);
+        notifyError(
+          error instanceof AttachmentUnavailableError ? error.userMessage : error.message,
+        );
       }
     },
     [api],
@@ -78,11 +89,16 @@ export const useDocumentActions = () => {
   const onPrintPDF = useCallback(
     async attachmentId => {
       try {
-        const { data } = await api.get(route('attachment/:attachmentId', { attachmentId }), {
+        const response = await api.get(route('attachment/:attachmentId', { attachmentId }), {
           base64: true,
         });
+        const unavailableMessage = getAttachmentUnavailableMessage(response);
+        if (unavailableMessage) {
+          notifyError(unavailableMessage);
+          return;
+        }
         const url = URL.createObjectURL(
-          new Blob([Buffer.from(data, 'base64').buffer], { type: 'application/pdf' }),
+          new Blob([Buffer.from(response.data, 'base64').buffer], { type: 'application/pdf' }),
         );
 
         // Triggers the useEffect that handles printing logic

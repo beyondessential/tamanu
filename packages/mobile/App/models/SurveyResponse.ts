@@ -16,6 +16,7 @@ import {
   getResultValue,
   getStringValue,
 } from '~/ui/helpers/fields';
+import { Attachment } from './Attachment';
 import { BaseModel } from './BaseModel';
 import { DateTimeStringColumn } from './DateColumns';
 import { Encounter } from './Encounter';
@@ -270,6 +271,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
             body,
             response: responseRecord.id,
           });
+
+          if (dataElement.type === FieldTypes.PHOTO && body) {
+            // spec: ATCH
+            await Attachment.updateValues(body, {
+              patientId,
+              encounterId: encounter.id,
+            });
+          }
 
           if (!isVitalSurvey || body === '') continue;
           setNote(`Attaching initial vital log for ${answerRecord.id}...`);

@@ -1,12 +1,15 @@
+export { blobAntivirusProperties, blobScanProperties } from './blobAntivirus';
 export { datelessTimeStringSchema } from './bookingSlots';
 export { dhis2IdSchemeSchema } from './dhis2';
 export { vaccinationsSchema } from './vaccinations';
 export { ageDisplayFormatDefault, ageDisplayFormatSchema } from './ageDisplayFormat';
 export { durationStringSchema } from './durationStringSchema';
+export { errorCorrectionProperties } from './errorCorrection';
 export {
   cronExpressionSchema,
   scheduledTaskSchema,
   batchingProperties,
+  blobScrubProperties,
   limitProperty,
 } from './scheduledTask';
 export { LOCALISED_FIELD_TYPES, generateFieldSchema, displayIdFieldProperties } from './fields';

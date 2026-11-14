@@ -71,6 +71,26 @@ export const batchingProperties = (
   },
 });
 
+// spec: SCRUB
+// These decide how quickly the store is covered, not whether.
+export const blobScrubProperties = (): Record<string, Setting> => ({
+  maxBlobsPerPass: {
+    name: 'Blobs per pass',
+    description:
+      'Most blobs one scrub pass verifies. Together with the schedule this sets how long a full cycle of the store takes',
+    type: yup.number().integer().positive(),
+    defaultValue: 500,
+  },
+  maxGigabytesPerPass: {
+    name: 'Gigabytes per pass',
+    description:
+      'Most content one scrub pass reads. Verification is disk-read bound, so this is what keeps the scrub off the same IO the clinical workload needs',
+    type: yup.number().positive(),
+    defaultValue: 2,
+    unit: 'GB',
+  },
+});
+
 export const limitProperty = (limit: number): Record<string, Setting> => ({
   limit: {
     name: 'Limit',

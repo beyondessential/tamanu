@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ASSET_FALLBACK_NAMES } from '@tamanu/constants';
+import { ASSET_FALLBACK_NAMES, BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
 import { route } from '@tamanu/api-client';
@@ -27,11 +27,16 @@ export const useAssetQuery = assetName => {
     enabled: Boolean(assetName),
   });
 
+  // spec: ASSET
+  // Pending isn't never-uploaded, so the fallback must not stand in: a different image would
+  // misrepresent the document.
+  const isPending = queryData?.availability === BLOB_AVAILABILITY_STATES.AWAITING_FETCH;
+
   const { data: fallbackQueryData, isFetching: isFallbackFetching } = useQuery({
     queryKey: ['asset', fallbackAssetName, facilityId],
     queryFn: () =>
       api.get(route('asset/:fallbackAssetName', { fallbackAssetName }), { facilityId }),
-    enabled: Boolean(fallbackAssetName) && assetFetched && !queryData?.data,
+    enabled: Boolean(fallbackAssetName) && assetFetched && !queryData?.data && !isPending,
   });
 
   if (queryData?.data) {
@@ -43,5 +48,6 @@ export const useAssetQuery = assetName => {
   return {
     data: dataURL,
     isFetching: isAssetFetching || isFallbackFetching,
+    isPending,
   };
 };
