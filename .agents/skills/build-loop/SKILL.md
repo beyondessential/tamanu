@@ -3,7 +3,7 @@ name: build-loop
 description: "Build this card from its specs to a working feature, then refine it in rounds until a full round finds nothing to add, change or cut"
 label: "Build loop"
 category: build
-workhorse-version: 0.7.14
+workhorse-version: 0.7.15
 ---
 
 ## Your task: build the feature, then refine it in rounds

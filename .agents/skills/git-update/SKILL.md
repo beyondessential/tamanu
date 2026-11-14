@@ -3,7 +3,7 @@ name: git-update
 description: "Rebase onto latest upstream, checking for soft conflicts"
 label: "Update"
 category: other
-workhorse-version: 0.7.14
+workhorse-version: 0.7.15
 ---
 
 ## Your task: Update branch from upstream

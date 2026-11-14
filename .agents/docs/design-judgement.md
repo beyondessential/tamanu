@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.7.14
+workhorse-version: 0.7.15
 ---
 
 # Design judgement
