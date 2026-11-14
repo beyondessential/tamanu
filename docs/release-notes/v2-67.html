@@ -1,7 +1,7 @@
 <!-- Styled rendering of the Tamanu v2.67 release notes. -->
 <!-- Companion to docs/release-notes/v2-67.md, which is the source of truth for the wording. -->
-<!-- Content sourced from origin/release/2.66...origin/release/2.67, the Linear v2.67.0 label, -->
-<!-- and the Workhorse cards Q8 and Q9 found in the release branch history. -->
+<!-- Content sourced from origin/release/2.66...v2.67.0, the Linear v2.67.0 label, the Workhorse -->
+<!-- cards found in the release branch history, and tamanu-source-dbt origin/2.66...v2.67.0. -->
 <!-- Styling copied from docs/release-notes/v2-66.html. -->
 <!DOCTYPE html>
 <html lang="en-AU">
@@ -169,6 +169,21 @@
     font-weight: 600;
   }
 
+  /* Reporting schema */
+  .section-intro {
+    margin: 0 0 16px;
+    color: var(--text-secondary);
+  }
+
+  code {
+    background: #fafaf9;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
   /* Documentation placeholders */
   .docs {
     margin-top: 20px;
@@ -255,7 +270,7 @@
 
   <div class="masthead">
     <div class="eyebrow">
-      <span class="released">Released <span class="placeholder">[RELEASE_DATE_PLACEHOLDER]</span></span>
+      <span class="released">Released 12-11-2026</span>
     </div>
     <h1>Tamanu v2.67 release notes</h1>
     <p class="lede">
@@ -263,6 +278,8 @@
       server as soon as setup finishes, without waiting for its first sync. It also moves
       patient record import and export into a 'Patient data' view in the admin panel, adds
       'Patient type' to emergency encounters, and shows stock in the 'Send to pharmacy' modal.
+      Custom reports that read the discharge, invoice, outpatient appointment or vaccine change
+      logs need updating, as some of their columns are renamed or change type.
     </p>
   </div>
 
@@ -304,7 +321,7 @@
     <div class="group">
       <ul>
         <li><strong>Patient data view</strong> - Patients and administered vaccines are imported and exported through a new 'Patient data' view in the admin panel, separate from reference data. The spreadsheet format and the test import are as before. Before an import runs, a confirmation explains that it creates new records and overwrites matching patient data, and cannot be undone.</li>
-        <li><strong>Patient type on emergency encounters</strong> - The 'New emergency triage' form has a 'Patient type' field, filled in from the patient's details where one is recorded. Changing it on the form does not change the patient's details. The patient type carries through when the patient is admitted to hospital.</li>
+        <li><strong>Patient type on emergency encounters</strong> - The 'New emergency triage' form has a 'Patient type' field, filled in from the patient's details where one is recorded, and price lists set up for a patient type apply to the emergency encounter. Changing it on the form does not change the patient's details. The encounter's details show its patient type, which can be changed through 'Edit encounter details' and carries through when the patient is admitted to hospital.</li>
         <li><strong>Stock when sending to pharmacy</strong> - The 'Send to pharmacy' modal has a 'Stock' column showing whether each medication is in stock at the facility, matching the 'Dispense medication' modal. Hovering over an in-stock medication shows the quantity on hand. Stock is for information only and does not stop a medication being sent.</li>
         <li><strong>AI settings</strong> - The AI model settings suggest the models available to the deployment's Anthropic account, and changes to AI settings take effect without restarting the central server.</li>
         <li><strong>Longer form logic</strong> - Program form questions accept longer visibility criteria and calculations, so complex conditions no longer hit a length limit.</li>
@@ -322,12 +339,12 @@
       <ul>
         <li><strong>Encounters</strong> - Where 'Patient type' is set as required, every encounter form enforces it, including when editing an encounter and admitting to hospital. 'Patient type' is filled in when admitting from triage or from a referral. Editing an emergency encounter refuses an arrival or triage time in the future.</li>
         <li><strong>Patients</strong> - The duplicate NHN check when editing a patient ignores capitalisation. Recording a death with an empty contributing condition row saves without it. A patient removed from a program registry can be registered again.</li>
-        <li><strong>Medications</strong> - A medication marked unavailable at the facility shows 'Unavailable' stock rather than 'Unknown'. Users without permission to see the medication administration record or not dispensed details see a message rather than a blank page.</li>
-        <li><strong>Labs and imaging</strong> - The active lab requests status filter no longer offers 'Rejected'. Changing the imaging type clears 'Areas to be imaged'.</li>
-        <li><strong>Invoicing</strong> - Saving a procedure no longer overwrites changes the cashier has made to the invoice. An insurance plan, lab test or lab panel with every facility removed from it is offered at all facilities, where before it was offered at none.</li>
+        <li><strong>Medications</strong> - A medication marked unavailable at the facility shows 'Unavailable' stock rather than 'Unknown'. Users without permission to see the medication administration record or not dispensed details see a message rather than a blank page. Pharmacy note and not dispensed notifications open straight away.</li>
+        <li><strong>Labs and imaging</strong> - The active lab requests status filter no longer offers 'Rejected'. Clearing 'Date &amp; time collected' clears the sample details recorded with it. Changing the imaging type clears 'Areas to be imaged'.</li>
+        <li><strong>Invoicing</strong> - Saving a procedure no longer overwrites changes the cashier has made to the invoice. An insurance plan, lab test or lab panel with every facility removed from it is offered at all facilities, where before it was offered at none. Clearing an invoice item's quantity no longer causes an error.</li>
+        <li><strong>Vitals and charts</strong> - Editing a recorded value no longer fails where the chart includes a question showing the patient's previous answer.</li>
         <li><strong>Tables</strong> - Newly added rows stay selected in selection tables, and removing the last rows on a page no longer leaves an empty page.</li>
-        <li><strong>Admin panel</strong> - The reference data 'Manage' tab checks permissions for each data type, applies the same code and id rules as the import, and enforces required fields when editing. Drug routes are checked on import. Vaccine consent import and export are tightened, and re-importing administered vaccines keeps their existing encounters. Export is unavailable until a data type is selected. The hidden sync button is removed from the central server's admin panel.</li>
-        <li><strong>Forms</strong> - Signature questions save and display correctly.</li>
+        <li><strong>Admin panel</strong> - The reference data 'Manage' tab checks permissions for each data type, applies the same code and id rules as the import, enforces required fields when editing, and saves an optional number field once it is cleared. Drug routes are checked on import. Vaccine consent import and export are tightened, and re-importing an exported administered vaccines sheet keeps the vaccines' encounters and circumstances. Imported dates of birth and vaccine dates are no longer shifted by the server's timezone. Export is unavailable until a data type is selected. The hidden sync button is removed from the central server's admin panel.</li>
       </ul>
     </div>
 
@@ -335,7 +352,7 @@
       <p class="platform">Mobile</p>
       <ul>
         <li><strong>Sync</strong> - Saving pulled data during sync is faster.</li>
-        <li><strong>Forms</strong> - Multi-select answers display correctly, the village is kept after submitting a program form, and the hardware back button leaves the 'Programs' screen.</li>
+        <li><strong>Forms</strong> - The village is kept after submitting a program form, and the hardware back button leaves the 'Programs' screen.</li>
         <li><strong>Patients</strong> - A patient with no recorded allergies shows 'None recorded'.</li>
       </ul>
     </div>
@@ -343,8 +360,8 @@
     <div class="group">
       <p class="platform">System</p>
       <ul>
-        <li><strong>Sync</strong> - Sync no longer fails when a record deleted on the central server has also been updated at a facility. Resolving duplicate patient display IDs ignores capitalisation. Settings that only apply to the central server are kept off facility servers and mobile devices, and removed from them at upgrade.</li>
-        <li><strong>Sensitive networks</strong> - AI patient summaries leave out everything recorded in encounters at facilities in a sensitive network, wherever the summary is generated. Editing a facility in the reference data admin cannot change its network.</li>
+        <li><strong>Sync</strong> - Sync no longer fails when a record deleted on the central server has also been updated at a facility. Prescriptions pulled to a facility are no longer pushed straight back, which could keep them syncing between facilities indefinitely. Resolving duplicate patient display IDs ignores capitalisation. Settings that only apply to the central server are kept off facility servers and mobile devices, and removed from them at upgrade.</li>
+        <li><strong>Sensitive networks</strong> - AI patient summaries leave out everything recorded in encounters at facilities in a sensitive network, wherever the summary is generated.</li>
         <li><strong>Integrations</strong> - FHIR medication requests carry the dispense quantity in the standard format.</li>
       </ul>
     </div>
@@ -353,8 +370,48 @@
   <section>
     <h2><span class="marker">📊</span>Reporting Schema Changes</h2>
 
+    <p class="section-intro">The change-log base models are made consistent with each other, which renames some of their columns, and new metrics cover prescribing, medication given and antenatal contacts. The encounter summary and invoice products summary reports change what they output, and the immunisation metrics count doses they previously left out. These changes were also released in reporting release v2.66.1, so a deployment already running it has them in place.</p>
+
     <div class="group">
-      <p><span class="placeholder">[REPORTING_SCHEMA_PLACEHOLDER]</span></p>
+      <p class="platform">Breaking changes</p>
+      <ul>
+        <li><strong>Discharge change log</strong> - In <code>discharges_change_logs</code>, <code>change_id</code> is renamed <code>changelog_id</code>, <code>changed_datetime</code> is renamed <code>logged_at</code>, and <code>changed_by_user_id</code> is renamed <code>updated_by_user_id</code>.</li>
+        <li><strong>Invoice change log</strong> - In <code>invoices_change_logs</code>, <code>change_id</code> is renamed <code>changelog_id</code>. <code>logged_at</code> changes from a timestamp with time zone to a timestamp in the deployment's local time, so comparisons against it shift by the UTC offset.</li>
+        <li><strong>Outpatient appointment change events</strong> - In <code>outpatient_appointments_change_events</code>, <code>id</code> is renamed <code>changelog_id</code> and <code>record_id</code> is renamed <code>appointment_id</code>. <code>logged_at</code> and <code>record_updated_at</code> change from UTC timestamps with time zone to timestamps in local time.</li>
+        <li><strong>Vaccine change log</strong> - In <code>vaccine_administrations_change_logs</code>, <code>created_at</code> is renamed <code>record_created_at</code> and <code>updated_at</code> is renamed <code>record_updated_at</code>. Their values are unchanged, and <code>ds__vaccinations</code> still outputs <code>updated_at</code>.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">New</p>
+      <ul>
+        <li><strong>Discharge change events</strong> - <code>discharges_change_events</code> is a lighter version of the discharge change log, quicker to filter by discharge or encounter.</li>
+        <li><strong>Medication doses</strong> - <code>medication_administration_record_doses</code> holds one row per dose recorded as given.</li>
+        <li><strong>Medication metrics</strong> - <code>metric__prescription</code>, <code>metric__prescription_discontinuation</code> (with <code>discontinuing_reason</code>) and <code>metric__medication_administration</code> are added. <code>metric__pharmacy_order</code> gains <code>has_dispense</code> and <code>minutes_to_first_dispense</code>.</li>
+        <li><strong>Antenatal metric</strong> - <code>metric__who_dak_anc_indicators</code> counts antenatal contacts under the <code>who_dak_anc_contact</code> metric, with <code>contact_number</code> and <code>gestational_age_weeks</code>.</li>
+        <li><strong>Inpatient separations</strong> - <code>metric__inpatient_admission</code> adds an <code>inpatient_separation</code> metric, one row per closed admission dated at discharge, with <code>patient_days</code> and <code>is_same_day</code> filled on those rows.</li>
+        <li><strong>Immunisation metrics</strong> - <code>metric__immunisation_dose</code> and <code>metric__immunisation_refusal</code> gain <code>person_id</code>, <code>vaccine_id</code>, <code>vaccine_label</code>, <code>vaccine_category</code>, <code>location_group_id</code>, <code>age_days</code>, <code>age_years</code>, <code>facility_source</code> and <code>is_given_elsewhere</code>.</li>
+        <li><strong>Lab and birth metrics</strong> - <code>metric__lab_order</code> gains <code>request_status</code>, <code>cancellation_reason</code>, <code>location_group_name</code> and <code>turnaround__minutes</code>. <code>metric__birth</code> gains <code>patient_location_id</code>, the newborn's village.</li>
+        <li><strong>Other columns</strong> - <code>encounter_diets</code> gains <code>created_datetime</code> and <code>ds__invoice_products</code> gains <code>available_facility_ids</code>. The patient, patient additional data, program registration, invoice, discharge and vaccine change logs and the outpatient appointment change events gain <code>logged_at_utc</code>, and the program registration, vaccine and appointment ones also gain <code>record_updated_at_utc</code>, for ordering history across a daylight saving change.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">Changed</p>
+      <ul>
+        <li><strong>Encounter summary reports</strong> - In the standard and sensitive reports, by start and by end date, vaccinations list only vaccines that were given, and an encounter with several triages gives one row for its earliest triage, so row counts can fall. The encounter type parameter offers Outpatient, Emergency and Inpatient, and an emergency encounter later admitted appears under both Emergency and Inpatient.</li>
+        <li><strong>Invoice products summary</strong> - The report takes a facility parameter. With a facility set, it lists only products available there, and leaves the price columns blank for price lists that don't apply to it.</li>
+        <li><strong>Immunisation metrics</strong> - Doses and refusals with no location of their own take the encounter's location, and doses given elsewhere are kept, so counts rise.</li>
+        <li><strong>Inpatient admission metric</strong> - Admission rows are unchanged, but the separation rows roughly double the model, so a query summing <code>value_numeric</code> without filtering on <code>metric_id</code> over-counts.</li>
+        <li><strong>Encounter diets line list</strong> - The report no longer fails for a patient in an open encounter aged between 8 days and 1 month.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">Supporting documentation</p>
+      <ul>
+        <li>Reporting schema reference - <span class="placeholder">[REPORTING_DOCS_LINK_PLACEHOLDER]</span></li>
+      </ul>
     </div>
   </section>
 
@@ -376,6 +433,14 @@
         <p class="name">Patient data</p>
         <ul>
           <li>Patients and administered vaccines are imported and exported only through the new 'Patient data' view, not the reference data view. Let anyone who imports or exports patient records know where to find them.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Reports</p>
+        <ul>
+          <li>Some columns in the discharge, invoice, outpatient appointment and vaccine change logs are renamed, and some times in the invoice and appointment change logs now hold local time. Custom reports that use them will fail or show shifted times after upgrade. Update them using the reporting schema changes above.</li>
+          <li>Immunisation dose and refusal figures rise, as doses with no location of their own and doses given elsewhere are now counted. Encounter summary reports list only given vaccines and one triage per encounter. Let anyone who tracks these figures know.</li>
         </ul>
       </div>
     </div>
@@ -418,6 +483,13 @@
           <li>Run a test import of a patient spreadsheet in the 'Patient data' view, and export patients and administered vaccines from it.</li>
         </ul>
       </div>
+
+      <div class="upgrade-item">
+        <p class="name">Reports</p>
+        <ul>
+          <li>Run any custom reports that read the discharge, invoice, outpatient appointment or vaccine change logs, and confirm they complete.</li>
+        </ul>
+      </div>
     </div>
 
     <div class="group">
@@ -440,7 +512,7 @@
   </section>
 
   <footer>
-    The release date, supporting documentation links and reporting schema section are placeholders awaiting a human.
+    The supporting documentation links are placeholders awaiting a human.
   </footer>
 
 </div>
