@@ -26,33 +26,17 @@ const getPatientOrThrow = async ({ models, patientId }) => {
 };
 
 const registerPatient = async ({ patientId, email, models }) => {
-  let portalUser = await models.PortalUser.findOne({
+  const portalUser = await models.PortalUser.findOne({
     where: { patientId },
   });
 
-  const existingEmailUser = await models.PortalUser.findOne({
-    where: { email },
-  });
-
   if (!portalUser) {
-    if (existingEmailUser) {
-      throw new ValidationError(`Email ${email} is already registered to another patient`);
-    }
+    return [await models.PortalUser.create({ patientId, email })];
+  }
 
-    portalUser = await models.PortalUser.create({
-      patientId,
-      email,
-    });
-  } else {
-    // Portal user exists, update email if provided and different
-    if (portalUser.email !== email) {
-      if (existingEmailUser && existingEmailUser.patientId !== patientId) {
-        throw new ValidationError(`Email ${email} is already registered to another patient`);
-      }
-
-      portalUser.email = email;
-      await portalUser.save();
-    }
+  if (portalUser.email !== email) {
+    portalUser.email = email;
+    await portalUser.save();
   }
 
   return [portalUser];

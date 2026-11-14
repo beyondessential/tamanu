@@ -13,6 +13,7 @@ import {
   LoginView,
   RegistrationView,
   RequestLoginTokenView,
+  SelectProfileView,
   SurveyView,
 } from './views';
 import { PublicRoute } from '@routes/PublicRoute';
@@ -34,6 +35,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<PrivateRoute element={<DashboardView />} />} />
       <Route path="/survey/:surveyId" element={<PrivateRoute element={<SurveyView />} />} />
       <Route path="/details/edit" element={<PrivateRoute element={<EditPatientDetailsView />} />} />
+      <Route path="/select-profile" element={<PrivateRoute element={<SelectProfileView />} />} />
       <Route path="/login" element={<PublicRoute element={<RequestLoginTokenView />} />} />
       <Route path="/login-submit" element={<PublicRoute element={<LoginView />} />} />
       <Route path="/register/:token" element={<PublicRoute element={<RegistrationView />} />} />

@@ -4,3 +4,4 @@ export { RequestLoginTokenView } from './RequestLoginTokenView';
 export { DashboardView } from './DashboardView';
 export { SurveyView } from './SurveyView';
 export { EditPatientDetailsView } from './details/EditPatientDetailsView';
+export { SelectProfileView } from './SelectProfileView';

@@ -7,8 +7,7 @@ Foreign key reference to the patients table. Links the portal user account to a 
 {% enddocs %}
 
 {% docs portal_users__email %}
-Unique email address used for patient portal authentication and communication. This serves as the primary identifier for login purposes and must be unique across all patient portal accounts. The field is optional to allow for patients who may not have email addresses, or who have not yet completed the
-registration flow.
+Email address used for patient portal authentication and communication. Several patients can share one email (for example, a parent and their children), and signing in with it gives access to every registered patient that uses it.
 {% enddocs %}
 
 {% docs portal_users__status %}
