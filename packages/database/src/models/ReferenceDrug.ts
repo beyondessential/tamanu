@@ -12,6 +12,10 @@ export class ReferenceDrug extends Model {
   declare unitConversion: number;
   declare notes?: string;
   declare isSensitive: boolean;
+  declare doseMin?: number | string | null;
+  declare doseMax?: number | string | null;
+  declare dispensingQuantityMin?: number | null;
+  declare dispensingQuantityMax?: number | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -51,6 +55,23 @@ export class ReferenceDrug extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
+        },
+        // spec: DQLIM#configuring-limits
+        doseMin: {
+          type: DataTypes.DECIMAL,
+          allowNull: true,
+        },
+        doseMax: {
+          type: DataTypes.DECIMAL,
+          allowNull: true,
+        },
+        dispensingQuantityMin: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+        },
+        dispensingQuantityMax: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
         },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },

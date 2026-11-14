@@ -1549,6 +1549,29 @@ describe('Medication', () => {
       expect(Number(row.doseAmount)).toBe(250);
     });
 
+    // spec: DQLIM#dispensing
+    it('should return the limits of both the prescribed and the dispensed drug', async () => {
+      const { dispenseId, medication, substitute } = await arrangeModifiedDispense();
+      await models.ReferenceDrug.update(
+        { doseMax: 2, dispensingQuantityMax: 100 },
+        { where: { referenceDataId: medication.id } },
+      );
+      await models.ReferenceDrug.update(
+        { doseMin: 1, dispensingQuantityMin: 5 },
+        { where: { referenceDataId: substitute.id } },
+      );
+
+      const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(d => d.id === dispenseId);
+      const prescribedDrug = row.pharmacyOrderPrescription.prescription.medication.referenceDrug;
+      expect(Number(prescribedDrug.doseMax)).toBe(2);
+      expect(prescribedDrug.dispensingQuantityMax).toBe(100);
+      expect(Number(row.medication.referenceDrug.doseMin)).toBe(1);
+      expect(row.medication.referenceDrug.dispensingQuantityMin).toBe(5);
+    });
+
     it('should filter by the dispensed medication rather than the prescribed one', async () => {
       const { dispenseId, medication, substitute } = await arrangeModifiedDispense();
 
@@ -1904,6 +1927,22 @@ describe('Medication', () => {
       return row;
     };
 
+    // spec: DQLIM#sending-to-pharmacy
+    it('should return the drug limits with each ongoing prescription', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      await models.ReferenceDrug.update(
+        { doseMin: 1, doseMax: 2, dispensingQuantityMin: 1, dispensingQuantityMax: 30 },
+        { where: { referenceDataId: arranged.ongoingPrescription.medicationId } },
+      );
+
+      const row = await fetchOngoingPrescription(arranged);
+      const { referenceDrug } = row.medication;
+      expect(Number(referenceDrug.doseMin)).toBe(1);
+      expect(Number(referenceDrug.doseMax)).toBe(2);
+      expect(referenceDrug.dispensingQuantityMin).toBe(1);
+      expect(referenceDrug.dispensingQuantityMax).toBe(30);
+    });
+
     const sendToPharmacy = async ({ localPatient, ongoingPrescription }) => {
       const result = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
         patientId: localPatient.id,
@@ -2173,6 +2212,31 @@ describe('Medication', () => {
       });
       // unitConversion is a DECIMAL, serialised as a string.
       expect(Number(row.prescription.unitConversion)).toBe(250);
+    });
+
+    // spec: DQLIM#dispensing
+    it('should return the drug limits with each dispensable prescription', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, medication } = await createDispensablePrescription({
+        patientId: localPatient.id,
+      });
+      await models.ReferenceDrug.update(
+        { doseMax: 2, dispensingQuantityMin: 1, dispensingQuantityMax: 100 },
+        { where: { referenceDataId: medication.id } },
+      );
+
+      const result = await app.get(
+        `/api/medication/dispensable-medications?patientId=${localPatient.id}&facilityId=${facilityId}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(item => item.id === pharmacyOrderPrescription.id);
+      const { referenceDrug } = row.prescription.medication;
+      // A null column is dropped from the response, so an unset limit arrives absent.
+      expect(referenceDrug.doseMin).toBeUndefined();
+      expect(Number(referenceDrug.doseMax)).toBe(2);
+      expect(referenceDrug.dispensingQuantityMin).toBe(1);
+      expect(referenceDrug.dispensingQuantityMax).toBe(100);
     });
 
     it('should not list a prescription whose drug has no reference drug record', async () => {

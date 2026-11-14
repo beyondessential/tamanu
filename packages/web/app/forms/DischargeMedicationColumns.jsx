@@ -6,6 +6,7 @@ import * as yup from 'yup';
 
 import { MAX_REPEATS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import {
+  getDispensingQuantityLimitBreach,
   getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
@@ -21,6 +22,10 @@ import {
 } from '@tamanu/ui-components';
 import { CheckField } from '../components/Field';
 import { LastSentCell } from '../components/Medication/LastSentCell';
+import {
+  DoseLimitWarning,
+  renderLimitWarning,
+} from '../components/Medication/MedicationLimitWarning';
 import { Colors } from '../constants';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
 import { getStockStatus } from '../utils/medications';
@@ -126,9 +131,10 @@ const NumberFieldWithoutLabel = ({ field, unitKey, ...props }) => {
 
 /** Mirrors getMedicationsValidationSchema: a quantity is only required, and the floor only lifts to
  * 1, once the row is being sent to pharmacy. */
-const DispensingQuantityField = ({ medicationId, dispensingUnit, disabled }) => {
+const DispensingQuantityField = ({ medicationId, dispensingUnit, referenceDrug, disabled }) => {
   const { values } = useFormikContext();
   const isSentToPharmacy = Boolean(values.medications?.[medicationId]?.sendToPharmacy);
+  const quantity = values.medications?.[medicationId]?.quantity;
 
   return (
     <Field
@@ -138,6 +144,11 @@ const DispensingQuantityField = ({ medicationId, dispensingUnit, disabled }) => 
       min={isSentToPharmacy ? 1 : 0}
       required={isSentToPharmacy}
       disabled={disabled}
+      // spec: DQLIM#discharging
+      helperText={renderLimitWarning(
+        getDispensingQuantityLimitBreach(quantity, referenceDrug),
+        dispensingUnit,
+      )}
       data-testid="field-ksmf"
     />
   );
@@ -174,6 +185,13 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
           .filter(Boolean)
           .join(', ')}
       </Box>
+      {/* spec: DQLIM#discharging */}
+      <DoseLimitWarning
+        doseAmount={medication.doseAmount}
+        isVariableDose={medication.isVariableDose}
+        referenceDrug={medicationReferenceData.referenceDrug}
+        dosingUnit={medication.dosingUnit}
+      />
     </Box>
   );
 };
@@ -247,6 +265,7 @@ export const MEDICATION_COLUMNS = ({
       <DispensingQuantityField
         medicationId={id}
         dispensingUnit={dispensingUnit}
+        referenceDrug={medication?.referenceDrug}
         disabled={
           !canUpdateMedication ||
           (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)

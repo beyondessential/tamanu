@@ -3,8 +3,12 @@ import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'styled-components';
 import { TranslationProvider } from '../../app/contexts/Translation';
+import { SettingsContext } from '@tamanu/ui-components';
 import { createTheme } from '@material-ui/core/styles';
 import { vi } from 'vitest';
+
+/** Field components read settings (`features.disableInputPasting`), so every render needs one. */
+const stubSettings = { getSetting: () => undefined };
 
 export const createQueryClient = () =>
   new QueryClient({
@@ -29,6 +33,23 @@ const createStubTranslationContext = () => {
   };
 };
 
+/**
+ * A translation context that fills in replacements and translates enum values to their labels, for
+ * tests asserting on text assembled from both, such as "Above expected max of 2 tablets".
+ */
+export const createTranslationContextWithReplacements = () => ({
+  getTranslation: (_stringId, fallback, { replacements = {} } = {}) =>
+    Object.entries(replacements).reduce(
+      (text, [key, value]) => text.replaceAll(`:${key}`, String(value)),
+      fallback,
+    ),
+  getEnumTranslation: (enumValues, value) => enumValues[value],
+  getReferenceDataTranslation: ({ fallback }) => fallback,
+  updateStoredLanguage: () => {},
+  storedLanguage: 'aa',
+  translations: {},
+});
+
 /** The “minimum” context providers needed to render `<TranslatedText>` elements. */
 const CompositeTranslationProvider = ({
   translationContext = createStubTranslationContext(),
@@ -36,9 +57,11 @@ const CompositeTranslationProvider = ({
 }) => (
   <QueryClientProvider client={createQueryClient()}>
     <ThemeProvider theme={createStubTheme()}>
-      <TranslationProvider value={translationContext}>
-        {children}
-      </TranslationProvider>
+      <SettingsContext.Provider value={stubSettings}>
+        <TranslationProvider value={translationContext}>
+          {children}
+        </TranslationProvider>
+      </SettingsContext.Provider>
     </ThemeProvider>
   </QueryClientProvider>
 );
