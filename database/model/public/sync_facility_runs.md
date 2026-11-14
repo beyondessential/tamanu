@@ -37,7 +37,7 @@ never completed.
 
 {% docs sync_facility_runs__session_id %}
 The sync session the central server issued for this attempt. Null if the attempt
-failed or was queued before a session was started.
+failed, was queued, or found nothing to pull so needed no session.
 {% enddocs %}
 
 {% docs sync_facility_runs__trigger_type %}

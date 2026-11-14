@@ -10,6 +10,7 @@ import { DEVICE_SCOPES } from '@tamanu/constants';
 
 import { buildFacilityBootstrap } from './buildFacilityBootstrap';
 import { CentralSyncManager } from './CentralSyncManager';
+import { changesPendingHandler } from './changesPending';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -50,6 +51,9 @@ export const buildSyncRoutes = ctx => {
 
     next();
   });
+
+  // spec: SYNCHK#the-check
+  syncRoutes.get('/pending', changesPendingHandler);
 
   // create new sync session or join/update the queue for one
   syncRoutes.post(

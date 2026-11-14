@@ -139,19 +139,21 @@ describe('CentralServerConnection', () => {
     }),
   );
 
-  describe('authentication', () => {
-    let fetch;
-    let centralServer;
-    beforeEach(() => {
-      fetch = vi.spyOn(global, 'fetch');
-      centralServer = new CentralServerConnection({ deviceId: 'test' });
-      centralServer.fetchImplementation = fetch;
-    });
-    afterEach(() => {
-      fetch.mockReset();
-      fetch.mockRestore();
-    });
+  let fetch;
+  let centralServer;
 
+  beforeEach(() => {
+    fetch = vi.spyOn(global, 'fetch');
+    centralServer = new CentralServerConnection({ deviceId: 'test' });
+    centralServer.fetchImplementation = fetch;
+  });
+
+  afterEach(() => {
+    fetch.mockReset();
+    fetch.mockRestore();
+  });
+
+  describe('authentication', () => {
     it('authenticates against a central server', async () => {
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
       const { token, user } = await centralServer.connect();
@@ -262,6 +264,80 @@ describe('CentralServerConnection', () => {
       const connectPromise = centralServer.connect();
       vi.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');
+    });
+  });
+
+  describe('changes-pending check and waking central', () => {
+    const waking = retryAfter =>
+      fakeFailure(503, {}, retryAfter === undefined ? {} : { 'retry-after': retryAfter });
+
+    // Calls made after the login and the user lookup that precede the first request
+    const requestCalls = () => fetch.mock.calls.slice(2);
+
+    beforeEach(() => {
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
+    });
+
+    // spec: SYNCHK#the-check
+    it('asks central for changes since the pull cursor', async () => {
+      fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: true }));
+
+      expect(await centralServer.checkChangesPending(42)).toBe(true);
+
+      const [[url]] = requestCalls();
+      expect(new URL(url).pathname).toMatch(/\/sync\/pending$/);
+      expect(new URL(url).searchParams.get('since')).toBe('42');
+    });
+
+    it('leaves the cursor out when the device has never pulled', async () => {
+      fetch.mockReturnValueOnce(fakeSuccess({ changesToPull: false }));
+
+      expect(await centralServer.checkChangesPending(undefined)).toBe(false);
+
+      expect(new URL(requestCalls()[0][0]).searchParams.has('since')).toBe(false);
+    });
+
+    it('fails when central answers the check with no flag', async () => {
+      fetch.mockReturnValueOnce(fakeSuccess({}));
+
+      await expect(centralServer.checkChangesPending(1)).rejects.toThrow('changesToPull');
+    });
+
+    // spec: SYNCHK#while-central-wakes
+    it('leaves it to the session start when central is waking', async () => {
+      fetch.mockReturnValueOnce(waking('7'));
+
+      expect(await centralServer.checkChangesPending(1)).toBe(true);
+      expect(requestCalls()).toHaveLength(1);
+    });
+
+    it('waits in line when central is waking as the session starts', async () => {
+      fetch.mockReturnValueOnce(waking('7'));
+
+      expect(await centralServer.startSyncSession({ urgent: false, lastSyncedTick: 5 })).toEqual({
+        status: 'centralWaking',
+      });
+      expect(requestCalls()).toHaveLength(1);
+    });
+
+    it.each([
+      ['has no Retry-After', undefined],
+      ['has an empty Retry-After', '  '],
+    ])('fails when a 503 %s', async (_, retryAfter) => {
+      fetch.mockReturnValueOnce(waking(retryAfter)).mockReturnValueOnce(waking(retryAfter));
+
+      await expect(centralServer.checkChangesPending(1)).rejects.toMatchObject({ status: 503 });
+      await expect(
+        centralServer.startSyncSession({ urgent: false, lastSyncedTick: 5 }),
+      ).rejects.toMatchObject({ status: 503 });
+    });
+
+    it('does not treat other failures as waking', async () => {
+      fetch.mockReturnValueOnce(fakeFailure(500));
+
+      await expect(centralServer.checkChangesPending(1)).rejects.toBeProblemOfType(
+        ERROR_TYPE.REMOTE,
+      );
     });
   });
 });

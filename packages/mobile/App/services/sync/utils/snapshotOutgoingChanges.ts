@@ -18,6 +18,14 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): Omit<SyncRe
   };
 };
 
+// Shared with hasOutgoingChanges, which must select exactly the rows a push sends (deleted ones
+// included).
+const outgoingChangesQuery = (since: number) => ({
+  where: { updatedAtSyncTick: MoreThan(since) },
+  withDeleted: true,
+  loadEagerRelations: false,
+});
+
 /**
  * Get all the records that have updatedAtSyncTick > the last successful sync index,
  * meaning that these records have been updated since the last successful sync
@@ -37,11 +45,7 @@ export const snapshotOutgoingChanges = async (
   return Database.client.transaction(async () => {
     const outgoingChanges = [];
     for (const model of Object.values(outgoingModels)) {
-      const changesForModel = await model.find({
-        where: { updatedAtSyncTick: MoreThan(since) },
-        withDeleted: true,
-        loadEagerRelations: false,
-      });
+      const changesForModel = await model.find(outgoingChangesQuery(since));
       const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
       const hasSanitizeMethod = 'sanitizeRecordDataForPush' in model;
       const sanitizedSyncRecords = hasSanitizeMethod
@@ -52,4 +56,22 @@ export const snapshotOutgoingChanges = async (
     }
     return outgoingChanges;
   });
+};
+
+/**
+ * Whether any of these models has a row a push from `since` would send;
+ * reads only ids, up to the first.
+ */
+export const hasOutgoingChanges = async (
+  outgoingModels: Partial<typeof MODELS_MAP>,
+  since: number,
+): Promise<boolean> => {
+  for (const model of Object.values(outgoingModels)) {
+    const changedRecord = await model.findOne({
+      ...outgoingChangesQuery(since),
+      select: { id: true },
+    });
+    if (changedRecord) return true;
+  }
+  return false;
 };

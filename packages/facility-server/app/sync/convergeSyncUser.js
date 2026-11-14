@@ -14,6 +14,9 @@ import { initServerConfig } from '../serverConfig';
 // central mints, so the deployment can tell a facility server apart from a person:
 // central serves the settings PSK to kind:sync only. Runs on sync rather than on
 // upgrade so a facility that was offline during its upgrade still converges.
+//
+// Added in v2.62. Retire it once every facility server has synced on v2.62 or later; until then
+// one that has not is never served the settings PSK.
 export async function convergeSyncUser({ sequelize, models, centralServer }) {
   // Provisioning rotates the password, so only act on a positive answer: an
   // unknown kind means try again next sync, not rotate now.

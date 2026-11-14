@@ -97,7 +97,7 @@ export class BackendManager {
         // Don't start the sync service yet until the facility for the device is selected
         const facilityId = await readConfig('facilityId', '');
         if (facilityId) {
-          await this.syncManager.triggerSync();
+          await this.syncManager.triggerSync({ urgent: false, scheduled: true });
         }
       } catch (e) {
         if (e instanceof AuthenticationError) {

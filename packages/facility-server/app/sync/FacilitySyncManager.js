@@ -24,6 +24,7 @@ import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledR
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { applyBootstrap } from './facilityBootstrap';
+import { hasUnpushedChanges } from './hasUnpushedChanges';
 import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
@@ -194,6 +195,21 @@ export class FacilitySyncManager {
       await this.bootstrap();
     }
 
+    // spec: SYNCHK#facility-servers
+    // Only a scheduled sync with nothing to push asks first: a push needs a session whatever
+    // central answers.
+    if (this.reason?.type === 'scheduled' && !(await hasUnpushedChanges(this.models))) {
+      // spec: SYNCHK#the-check
+      const pullCursor = Number(pullSince);
+      const changesToPull = await this.centralServer.checkChangesPending(
+        pullCursor === -1 ? undefined : pullCursor,
+      );
+      if (!changesToPull) {
+        log.info('FacilitySyncManager.upToDate', { pullSince });
+        return this.completeSync(startTime);
+      }
+    }
+
     // the first step of sync is to start a session and retrieve the session id
     const {
       status,
@@ -237,6 +253,17 @@ export class FacilitySyncManager {
       await dropSnapshotTable(this.sequelize, sessionId);
     }
 
+    const result = await this.completeSync(startTime);
+    log.info('FacilitySyncManager.completedSession', { durationMs: this.lastDurationMs });
+
+    return result;
+  }
+
+  // Runs after every successful sync, with or without a session, so a facility whose syncs find
+  // nothing to pull still converges. Provisions from central, then moves the last successful sync
+  // time the sync status reports. Deliberately not the pull cursor, which only a session's pull
+  // moves.
+  async completeSync(startTime) {
     // Provisioning that needs a live central, ordered: the PSK read is served to a
     // dedicated sync user only, so the swap has to land first. Neither may fail the
     // sync it rode in on, and both retry on the next one.
@@ -256,13 +283,8 @@ export class FacilitySyncManager {
       log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
     }
 
-    const durationMs = Date.now() - startTime;
-    log.info('FacilitySyncManager.completedSession', {
-      durationMs,
-    });
-    this.lastDurationMs = durationMs;
+    this.lastDurationMs = Date.now() - startTime;
     this.lastCompletedAt = new Date();
-
     return { queued: false, ran: true };
   }
 

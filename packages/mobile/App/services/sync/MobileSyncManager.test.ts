@@ -4,9 +4,13 @@ import { CentralServerConnection } from './CentralServerConnection';
 import {
   getModelsForDirection,
   getSyncTick,
+  hasOutgoingChanges,
   pushOutgoingChanges,
+  setSyncTick,
   snapshotOutgoingChanges,
 } from './utils';
+import { LAST_SUCCESSFUL_PULL } from './constants';
+import { SYNC_EVENT_ACTIONS } from './types';
 
 jest.mock('./utils', () => ({
   setSyncTick: jest.fn(),
@@ -17,6 +21,7 @@ jest.mock('./utils', () => ({
   getModelsForDirection: jest.fn(),
   getTableNamesForDirection: jest.fn(() => []),
   getSyncTick: jest.fn(),
+  hasOutgoingChanges: jest.fn(),
   clearPersistedSyncSessionRecords: jest.fn(),
 }));
 
@@ -239,6 +244,127 @@ describe('MobileSyncManager', () => {
         expect(activateKeepAwake).not.toBeCalled();
         expect(deactivateKeepAwake).not.toBeCalled();
       });
+    });
+  });
+
+  describe('runSync() changes-pending check', () => {
+    const scheduled = { urgent: false, scheduled: true };
+    const lastPullTick = 120;
+    let findFact: jest.Mock;
+    let updateFact: jest.Mock;
+    let checkSpy: jest.SpyInstance;
+    let startSessionSpy: jest.SpyInstance;
+    beforeEach(() => {
+      findFact = jest.fn().mockResolvedValue(null);
+      updateFact = jest.fn();
+      mobileSyncManager.models = { LocalSystemFact: { findOne: findFact, update: updateFact } };
+      (getSyncTick as jest.Mock).mockResolvedValue(lastPullTick);
+      (hasOutgoingChanges as jest.Mock).mockResolvedValue(false);
+      checkSpy = jest
+        .spyOn(centralServerConnection, 'checkForChangesToPull')
+        .mockResolvedValue(false);
+      startSessionSpy = jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockResolvedValue({ sessionId: mockSessionId, startedAtTick: mockSyncTick });
+      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockResolvedValue(undefined);
+      jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockResolvedValue(undefined);
+      jest.spyOn(centralServerConnection, 'endSyncSession').mockResolvedValue(undefined);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('checks with the pull cursor, then ends the scheduled sync without a session when there is nothing to pull', async () => {
+      expect(mobileSyncManager.lastSuccessfulSyncTime).toBeNull();
+      const onSuccess = jest.fn();
+      const onError = jest.fn();
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, onSuccess);
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, onError);
+
+      await mobileSyncManager.triggerSync(scheduled);
+
+      expect(checkSpy).toBeCalledWith(lastPullTick);
+      expect(startSessionSpy).not.toBeCalled();
+      expect(activateKeepAwake).not.toBeCalled();
+      // the displayed last synced time moves, but not the pull cursor
+      expect(mobileSyncManager.lastSuccessfulSyncTime).toBeInstanceOf(Date);
+      expect(updateFact).toBeCalledTimes(1);
+      expect(updateFact).toBeCalledWith(
+        { key: LAST_SUCCESSFUL_PULL },
+        { updatedAt: mobileSyncManager.lastSuccessfulSyncTime },
+      );
+      // neither the update above nor a pull writes the cursor's value
+      expect(setSyncTick).not.toBeCalled();
+      expect(mobileSyncManager.pullIncomingChanges).not.toBeCalled();
+      expect(onSuccess).toBeCalledTimes(1);
+      expect(onError).not.toBeCalled();
+      expect(mobileSyncManager.isSyncing).toBe(false);
+    });
+
+    it('opens a session when there are changes to pull', async () => {
+      checkSpy.mockResolvedValueOnce(true);
+
+      await mobileSyncManager.runSync(scheduled);
+
+      expect(startSessionSpy).toBeCalledWith({ urgent: false, lastSyncedTick: lastPullTick });
+      expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
+    });
+
+    it('leaves out the cursor when the device has never pulled', async () => {
+      (getSyncTick as jest.Mock).mockResolvedValue(-1);
+
+      await mobileSyncManager.runSync(scheduled);
+
+      expect(checkSpy).toBeCalledWith(undefined);
+    });
+
+    it.each([
+      [
+        'there are outgoing changes',
+        () => (hasOutgoingChanges as jest.Mock).mockResolvedValue(true),
+      ],
+      [
+        'tables are waiting for a full resync',
+        () => findFact.mockResolvedValue({ key: 'tablesForFullResync', value: 'patients' }),
+      ],
+    ])('opens a session without checking when %s', async (_, arrange) => {
+      arrange();
+
+      await mobileSyncManager.runSync(scheduled);
+
+      expect(findFact).toBeCalledWith({ where: { key: 'tablesForFullResync' } });
+      expect(checkSpy).not.toBeCalled();
+      expect(startSessionSpy).toBeCalledTimes(1);
+    });
+
+    it.each([
+      ['an ordinary', { urgent: false }],
+      ['an urgent', { urgent: true }],
+    ])('opens a session without checking for %s sync', async (_, options) => {
+      await mobileSyncManager.runSync(options);
+
+      expect(checkSpy).not.toBeCalled();
+      expect(startSessionSpy).toBeCalledWith({ ...options, lastSyncedTick: lastPullTick });
+    });
+
+    it('fails the sync, without opening a session, when central cannot be reached for the check', async () => {
+      checkSpy.mockRejectedValueOnce(new Error('Network Error'));
+      const onSuccess = jest.fn();
+      const onError = jest.fn();
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, onSuccess);
+      mobileSyncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, onError);
+
+      await mobileSyncManager.triggerSync(scheduled);
+
+      expect(onError).toBeCalledWith({
+        error: expect.objectContaining({ message: 'Network Error' }),
+      });
+      expect(onSuccess).not.toBeCalled();
+      expect(startSessionSpy).not.toBeCalled();
+      expect(mobileSyncManager.lastSuccessfulSyncTime).toBeNull();
+      expect(updateFact).not.toBeCalled();
+      expect(mobileSyncManager.isSyncing).toBe(false);
     });
   });
 

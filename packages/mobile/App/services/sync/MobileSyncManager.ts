@@ -15,6 +15,7 @@ import {
   getSyncTick,
   getTableNamesForDirection,
   getTransactingModelsForDirection,
+  hasOutgoingChanges,
   pushOutgoingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
@@ -45,6 +46,11 @@ const STAGE_MAX_PROGRESS_INITIAL: StageMaxProgress = {
 
 type SyncOptions = {
   urgent: boolean;
+  /**
+   * The periodic background sync, the only one that asks central whether there is anything to
+   * pull before opening a session (spec: SYNCHK#mobile-devices)
+   */
+  scheduled?: boolean;
 };
 
 export interface MobileSyncSettings {
@@ -188,7 +194,7 @@ export class MobileSyncManager {
    * Trigger syncing and send through the sync errors if there is any
    * @returns
    */
-  async triggerSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
+  async triggerSync(options: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
@@ -199,7 +205,7 @@ export class MobileSyncManager {
     const startTime = Date.now();
 
     try {
-      await this.runSync({ urgent });
+      await this.runSync(options);
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_SUCCESS);
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
@@ -219,7 +225,7 @@ export class MobileSyncManager {
     }
   }
 
-  async runSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
+  async runSync({ urgent, scheduled }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       throw new Error('MobileSyncManager.runSync(): Tried to start syncing while sync in progress');
     }
@@ -245,6 +251,19 @@ export class MobileSyncManager {
     this.progressMaxByStage = this.isInitialSync
       ? STAGE_MAX_PROGRESS_INITIAL
       : STAGE_MAX_PROGRESS_INCREMENTAL;
+
+    if (scheduled && !(await this.hasLocalWorkToSync())) {
+      // spec: SYNCHK#mobile-devices
+      // a failed check fails the sync, as a failed session start does
+      const hasChangesToPull = await this.centralServer.checkForChangesToPull(
+        this.isInitialSync ? undefined : pullSince,
+      );
+      if (!hasChangesToPull) {
+        console.log('MobileSyncManager.runSync(): Central has nothing to pull, no session needed');
+        await this.recordSyncWithNothingToPull();
+        return;
+      }
+    }
 
     const {
       sessionId,
@@ -296,6 +315,32 @@ export class MobileSyncManager {
     } finally {
       deactivateKeepAwake();
     }
+  }
+
+  /**
+   * Whether this device has something that only a session can deal with: records to push, or
+   * tables that a pull must fully resync after an app upgrade. The check cannot see either.
+   */
+  async hasLocalWorkToSync(): Promise<boolean> {
+    const tablesForFullResync = await this.models.LocalSystemFact.findOne({
+      where: { key: 'tablesForFullResync' },
+    });
+    if (tablesForFullResync) return true;
+
+    const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
+    const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+    return hasOutgoingChanges(modelsToPush, pushSince);
+  }
+
+  /**
+   * Moves the "last synced" time, in memory and on the pull cursor's fact (which patient sync info
+   * shows), without changing the cursor's value.
+   */
+  async recordSyncWithNothingToPull(): Promise<void> {
+    const now = new Date();
+    // a query builder update, so the sync tick bookkeeping that saving a model does is skipped
+    await this.models.LocalSystemFact.update({ key: LAST_SUCCESSFUL_PULL }, { updatedAt: now });
+    this.lastSuccessfulSyncTime = now;
   }
 
   /**

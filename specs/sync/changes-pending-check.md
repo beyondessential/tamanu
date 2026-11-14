@@ -23,19 +23,17 @@ Applies to the check a facility server or a mobile device makes before opening a
 - A device's own pushes can bring the highest real-change tick above its pull cursor, so the check can answer that there are changes for one session that then pulls nothing. The next check after that session answers that there is nothing to pull.
 
 > [!NOTE]
+> Central accepts facility servers and mobile devices only on its own minor version, so a device that makes the check never meets a central without it.
+>
 > A device with nothing to push and nothing to pull opens no session at all, so an idle device costs central almost nothing and does not keep a [sleeping central](../platform/supervisor/sleep-and-wake.md) awake.
-
-## Recording the device as seen
-
-- A check, and the start of a sync session, update the calling device's last-seen time when the stored time is older than a short interval. A device that checks often writes it at most every few minutes, so the change log is not flooded.
-- The last-seen time therefore stays accurate as the time a device last contacted central, whether or not it opens sessions.
 
 ## Facility servers
 
 - A scheduled sync, including the one at start-up, checks first and opens a session only when the answer is that there are changes to pull.
-- A scheduled sync opens a session without checking when the facility has local changes to push, has not yet obtained the [settings PSK](../administration/settings/secret-encryption.md), or still syncs as a user other than its dedicated sync user.
+- A scheduled sync opens a session without checking when the facility has local changes to push.
+- A sync that the check answers with nothing to pull still does the provisioning a facility does after a session: swapping to its dedicated sync user, and obtaining the [settings PSK](../administration/settings/secret-encryption.md).
 - A sync that a user asks for, a sync triggered by a patient being marked for sync, and the sync subcommand open a session without checking.
-- A facility server that cannot reach central for the check treats it as a failed sync, as it would a failed session.
+- A facility server that cannot reach central for the check, or cannot read its answer, treats it as a failed sync, as it would a failed session.
 - A scheduled sync that the check answers with nothing to pull is a successful sync: the facility's last successful sync time moves, and its pull cursor does not.
 
 ## Mobile devices
@@ -43,10 +41,12 @@ Applies to the check a facility server or a mobile device makes before opening a
 - A scheduled sync checks first and opens a session only when the answer is that there are changes to pull.
 - A scheduled sync opens a session without checking when the device has local changes to push, or has tables waiting for a full resync after an app upgrade.
 - Signing in, reconnecting with a password, selecting the device's facility (which runs the initial sync), a sync the user starts by hand, and urgent syncs open a session without checking.
-- A device that cannot reach central for the check treats it as a failed sync.
+- A device that cannot reach central for the check, or cannot read its answer, treats it as a failed sync.
 - A scheduled sync that the check answers with nothing to pull is a successful sync: the "last synced" time shown to the user moves, and the pull cursor does not.
 
 ## While central wakes
 
-- A sync client whose check or session start gets `503 Service Unavailable` with a `Retry-After` header, as a [waking central](../platform/supervisor/sleep-and-wake.md#waking) answers, waits for that long and tries again within the same sync, for as long as central keeps answering that it is waking.
-- Waiting for a waking central is not a failed sync.
+- A sync client whose session start gets `503 Service Unavailable` with a `Retry-After` header, as a [waking central](../platform/supervisor/sleep-and-wake.md#waking) answers, waits in line as a queued sync does, and tries again at its next sync.
+- A check answered that way is left to the session start.
+- The `Retry-After` header is what marks central as waking. A `503` without one is an ordinary failure, so an overloaded central, or an address with nothing behind it, fails the sync.
+- A sync that meets a waking central is not a failed sync.

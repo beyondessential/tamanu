@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosHeaders, type AxiosRequestConfig } from 'axios';
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -32,7 +32,32 @@ interface RefreshResponse {
 
 const API_PREFIX = 'api';
 
+/**
+ * Central answered `503 Service Unavailable` with a `Retry-After` header, as it does while it is
+ * waking from sleep.
+ * spec: SYNCHK#while-central-wakes
+ */
+export class CentralWakingError extends Error {
+  constructor() {
+    super('Central server is waking up and not ready yet');
+    this.name = 'CentralWakingError';
+  }
+}
+
+function whenCentralWakes<T>(fallback: T) {
+  return (error: unknown): T => {
+    if (!(error instanceof CentralWakingError)) throw error;
+    return fallback;
+  };
+}
+
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
+  // a bare 503 (overloaded central, empty proxy) falls through as an ordinary failure
+  const retryAfter = (err.response?.headers as AxiosHeaders | undefined)?.get('retry-after');
+  if (err.response?.status === 503 && typeof retryAfter === 'string' && retryAfter.trim()) {
+    return new CentralWakingError();
+  }
+
   const problemJson = err.response?.data || {};
   const problem = Problem.fromJSON(problemJson);
 
@@ -202,6 +227,21 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
+  /**
+   * @param since the tick the last successful pull reached; leave out if the device never pulled
+   * spec: SYNCHK#the-check
+   */
+  async checkForChangesToPull(since?: number): Promise<boolean> {
+    const response = await this.get<{ changesToPull?: boolean }>('sync/pending', { since }).catch(
+      // a waking central cannot say, so leave it to the session start, which waits in line
+      whenCentralWakes({ changesToPull: true }),
+    );
+    if (typeof response?.changesToPull !== 'boolean') {
+      throw new Error('central answered the changes-pending check without a changesToPull flag');
+    }
+    return response.changesToPull;
+  }
+
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityId = await readConfig('facilityId', '');
 
@@ -216,6 +256,9 @@ export class CentralServerConnection {
         deviceId: this.deviceId,
         isMobile: true,
       },
+    ).catch(
+      // a waking central cannot start a session yet, so wait in line as a queued sync does
+      whenCentralWakes({ status: 'centralWaking' }),
     )) as { sessionId?: string; status?: string };
 
     if (!sessionId) {

@@ -5,7 +5,7 @@ import {
   invalidTokenMessage,
   OutdatedVersionError,
 } from '../error';
-import { CentralServerConnection } from './CentralServerConnection';
+import { CentralServerConnection, CentralWakingError } from './CentralServerConnection';
 import axios from 'axios';
 import { sleepAsync } from './utils';
 import { ERROR_TYPE } from '@tamanu/errors';
@@ -24,6 +24,8 @@ jest.mock('./utils', () => ({
 }));
 
 jest.mock('axios');
+// the automock would stub the real header class that the waking-central cases need
+const { AxiosHeaders, default: actualAxios } = jest.requireActual<typeof import('axios')>('axios');
 
 jest.mock('uuid', () => ({
   v4: jest.fn().mockReturnValue('test-device-id'),
@@ -88,6 +90,81 @@ describe('CentralServerConnection', () => {
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
     });
   });
+  describe('checkForChangesToPull', () => {
+    // axios drops an undefined param, so what central receives is the URL it builds
+    it.each([
+      ['asks central with the pull cursor', 42, false, `${mockHost}/api/sync/pending?since=42`],
+      [
+        'leaves out since for a device that never pulled',
+        undefined,
+        true,
+        `${mockHost}/api/sync/pending`,
+      ],
+    ])('%s', async (_, since, changesToPull, expectedUri) => {
+      mockAxiosRequest.mockResolvedValueOnce({ data: { changesToPull } });
+
+      await expect(centralServerConnection.checkForChangesToPull(since)).resolves.toBe(
+        changesToPull,
+      );
+      const { url, params } = mockAxiosRequest.mock.calls[0][0];
+      expect(actualAxios.getUri({ url, params })).toBe(expectedUri);
+    });
+
+    it('fails when central answers the check with no flag', async () => {
+      jest.spyOn(centralServerConnection, 'get').mockResolvedValue({});
+
+      await expect(centralServerConnection.checkForChangesToPull(1)).rejects.toThrow(
+        'changesToPull',
+      );
+    });
+
+    it('fails when central cannot be reached', async () => {
+      mockAxiosRequest.mockRejectedValueOnce({ message: 'Network Error' });
+
+      await expect(centralServerConnection.checkForChangesToPull(5)).rejects.toMatchObject({
+        title: 'Network Error',
+      });
+    });
+  });
+
+  // spec: SYNCHK#while-central-wakes
+  describe('waking central', () => {
+    // axios hands the rejection's headers over as an AxiosHeaders instance
+    const wakingResponse = (retryAfter?: string): object => ({
+      response: {
+        status: 503,
+        headers: new AxiosHeaders(retryAfter === undefined ? {} : { 'retry-after': retryAfter }),
+      },
+    });
+
+    it('leaves the check to the session start', async () => {
+      mockAxiosRequest.mockRejectedValueOnce(wakingResponse('4'));
+
+      await expect(centralServerConnection.checkForChangesToPull(1)).resolves.toBe(true);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it('waits in line at session start, as a queued sync does', async () => {
+      mockAxiosRequest.mockRejectedValueOnce(wakingResponse('4'));
+
+      await expect(
+        centralServerConnection.startSyncSession({ urgent: false, lastSyncedTick: 3 }),
+      ).resolves.toEqual({ status: 'centralWaking' });
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      ['without Retry-After', undefined],
+      ['whose Retry-After is empty', '  '],
+    ])('does not treat a 503 %s as central waking', async (_, retryAfter) => {
+      mockAxiosRequest.mockRejectedValueOnce(wakingResponse(retryAfter));
+
+      await expect(centralServerConnection.checkForChangesToPull(1)).rejects.not.toBeInstanceOf(
+        CentralWakingError,
+      );
+    });
+  });
+
   describe('initiatePull', () => {
     it('coerces the pull count to a number, since the server sends a bigint count as a string', async () => {
       jest.spyOn(centralServerConnection, 'post').mockResolvedValue(undefined);

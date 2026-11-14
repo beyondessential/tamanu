@@ -6,7 +6,7 @@ import { ReferenceDataType } from '~/types';
 import { fakePatient } from '/root/tests/helpers/fake';
 import { CURRENT_SYNC_TIME } from '../constants';
 import { setSyncTick } from './setSyncTick';
-import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
+import { hasOutgoingChanges, snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
 jest.mock('~/services/config');
 const mockedReadConfig = mocked(readConfig);
@@ -114,6 +114,38 @@ describe('snapshotOutgoingChanges', () => {
       );
     } finally {
       find.mockRestore();
+    }
+  });
+});
+
+describe('hasOutgoingChanges', () => {
+  it('is false when nothing changed since the given tick', async () => {
+    const { models } = Database;
+    await models.Patient.createAndSaveOne(fakePatient());
+
+    expect(await hasOutgoingChanges({ Patient: models.Patient }, SNAPSHOT_TICK)).toBe(false);
+  });
+
+  it('is true for a row updated after the given tick', async () => {
+    const { models } = Database;
+    await models.Patient.createAndSaveOne(fakePatient());
+
+    expect(await hasOutgoingChanges({ Patient: models.Patient }, SNAPSHOT_TICK - 1)).toBe(true);
+  });
+
+  it('is true for a soft-deleted row updated after the given tick', async () => {
+    const { models } = Database;
+    const patient = await models.Patient.createAndSaveOne(fakePatient());
+    const laterTick = SNAPSHOT_TICK + 10;
+    await setSyncTick(models, CURRENT_SYNC_TIME, laterTick);
+    try {
+      patient.deletedAt = new Date();
+      await patient.save();
+
+      // every other row is at SNAPSHOT_TICK, so only the deletion is past this tick
+      expect(await hasOutgoingChanges({ Patient: models.Patient }, laterTick - 1)).toBe(true);
+    } finally {
+      await setSyncTick(models, CURRENT_SYNC_TIME, SNAPSHOT_TICK);
     }
   });
 });
