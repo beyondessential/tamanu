@@ -9,6 +9,7 @@ import {
 import { extractDefaults } from './utils';
 import {
   batchingProperties,
+  dietSummaryProperties,
   emailSchema,
   letterheadProperties,
   nationalityIdSchema,
@@ -311,6 +312,18 @@ export const facilitySettings = {
           type: yup.number().integer().positive().nullable(),
           unit: 'hours',
           defaultValue: null,
+        },
+      },
+    },
+    bedManagement: {
+      name: 'Bed management',
+      description: 'Settings related to bed management',
+      properties: {
+        dietSummary: {
+          name: 'Diet summary sheet',
+          description:
+            'Settings for the diet summary sheet printed from bed management. Overrides the deployment-wide regular diet for this facility.',
+          properties: dietSummaryProperties,
         },
       },
     },
