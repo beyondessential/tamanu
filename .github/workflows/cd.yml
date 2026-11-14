@@ -65,10 +65,38 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: ${{ steps.ref.outputs.result }}
+          # full history and tags, to compare with earlier releases
+          fetch-depth: 0
       - name: Find the real sha
         if: steps.ref.outputs.result != ''
         id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # The latest release on this minor line that changed the mobile app. Central requires
+      # devices to run it, and a release only builds an Android package if it is that release.
+      - name: Find the mobile release
+        if: steps.ref.outputs.result != ''
+        id: mobile-release
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { readFileSync } = await import('node:fs');
+            const { findMobileRelease, gitHistory, mobilePackagePaths } = await import(`${cwd}/packages/scripts/src/mobileRelease.mjs`);
+            const { version } = JSON.parse(readFileSync(`${cwd}/package.json`, 'utf8'));
+            let mobileRelease = version;
+            try {
+              mobileRelease = findMobileRelease({
+                version,
+                history: gitHistory(cwd),
+                paths: mobilePackagePaths(cwd),
+              });
+            } catch (error) {
+              console.log('Could not find the mobile release, assuming this one:', error.message);
+            }
+            console.log('Version', version, 'mobile release', mobileRelease);
+            core.setOutput('version', version);
+            core.setOutput('mobile-release', mobileRelease);
 
       - name: Find the control PR/issue body text
         id: control
@@ -165,6 +193,8 @@ jobs:
       go-up: ${{ steps.config.outputs.go-up == 'true' }}
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
       go-mobile: ${{ steps.config.outputs.go-mobile == 'true' }}
+      version: ${{ steps.mobile-release.outputs.version }}
+      mobile-release: ${{ steps.mobile-release.outputs.mobile-release }}
 
       # whether to build the full image set (amd64 + Windows), vs arm64 only
       all-images: ${{ steps.scope.outputs.all }}
@@ -234,6 +264,12 @@ jobs:
       - name: Extract version
         id: version
         run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Record the mobile release
+        if: matrix.package.name == 'central'
+        run: |
+          echo '{ "version": "${{ needs.config.outputs.mobile-release || needs.config.outputs.version }}" }' \
+            > packages/central-server/mobile-release.json
 
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v4
@@ -305,6 +341,13 @@ jobs:
       - name: Extract version
         shell: bash
         run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
+
+      - name: Record the mobile release
+        if: matrix.package.name == 'central'
+        shell: bash
+        run: |
+          echo '{ "version": "${{ needs.config.outputs.mobile-release || needs.config.outputs.version }}" }' \
+            > packages/central-server/mobile-release.json
 
       # Stage what the linux image's /app is built from (see /Dockerfile) rather
       # than the whole worktree, so the bundle — and the release tarball made
@@ -728,7 +771,12 @@ jobs:
       META_KEY: ${{ secrets.META_KEY }}
 
   package-android-release:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: config
+    # A release that doesn't change the mobile app publishes no package: central keeps devices on
+    # the last release that did.
+    if: >-
+      github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      && needs.config.outputs.mobile-release == needs.config.outputs.version
     name: Package release Android ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-android.yml
     secrets:

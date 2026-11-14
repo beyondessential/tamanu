@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { parse } from 'semver';
+import { compare, parse } from 'semver';
 import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -25,6 +25,21 @@ export const MIN_CLIENT_VERSION = MIN_CLIENT_OVERRIDE ?? `${major}.${minor}.0`;
 export const MAX_CLIENT_VERSION = `${major}.${minor}.999`;
 // Note that .999 is only for clarity; higher patch versions will always be allowed
 
+// spec: MUPD#the-version-a-device-must-run
+// Devices run the latest release on this minor line that changed the mobile app, which CI records
+// beside package.json when it builds a release. Without that record, devices follow this release.
+function readMobileRelease() {
+  try {
+    const recordPath = join(dirname(fileURLToPath(import.meta.url)), '../../mobile-release.json');
+    return JSON.parse(readFileSync(recordPath, 'utf8')).version;
+  } catch {
+    return VERSION;
+  }
+}
+const mobileRelease = readMobileRelease();
+export const MIN_MOBILE_VERSION =
+  compare(mobileRelease, MIN_CLIENT_VERSION) > 0 ? mobileRelease : MIN_CLIENT_VERSION;
+
 export const VERSION_CONTROLLED_CLIENTS = {
   [SERVER_TYPES.FACILITY]: {
     min: MIN_CLIENT_VERSION,
@@ -35,7 +50,7 @@ export const VERSION_CONTROLLED_CLIENTS = {
     max: MAX_CLIENT_VERSION,
   },
   [SERVER_TYPES.MOBILE]: {
-    min: MIN_CLIENT_VERSION,
+    min: MIN_MOBILE_VERSION,
     max: MAX_CLIENT_VERSION,
   },
 };
