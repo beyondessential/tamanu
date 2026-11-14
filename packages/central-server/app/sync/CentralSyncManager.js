@@ -217,6 +217,14 @@ export class CentralSyncManager {
     return Boolean(session);
   }
 
+  async hasSessionEndedCleanly(sessionId) {
+    const session = await this.store.sequelize.models.SyncSession.findOne({
+      attributes: ['completedAt', 'errors'],
+      where: { id: sessionId },
+    });
+    return Boolean(session?.completedAt) && !session.errors;
+  }
+
   async connectToSession(sessionId) {
     const session = await this.store.sequelize.models.SyncSession.findOne({
       where: { id: sessionId },
@@ -227,9 +235,12 @@ export class CentralSyncManager {
     }
 
     const { syncSessionTimeoutMs } = this.constructor.config.sync;
+    // a session that has already ended can't time out: ending it moves updatedAt on, which would
+    // otherwise let a later request stamp a timeout onto a session that completed cleanly
     if (
       syncSessionTimeoutMs &&
       !session.errors &&
+      !session.completedAt &&
       session.updatedAt - session.createdAt > syncSessionTimeoutMs
     ) {
       await session.markErrored(`Sync session ${sessionId} timed out`);
@@ -252,6 +263,14 @@ export class CentralSyncManager {
   }
 
   async endSession(sessionId, error) {
+    // A client whose request got through but never saw the response will repeat it, so ending a
+    // session that has already ended cleanly succeeds without doing anything. This is checked
+    // ahead of connecting, which rejects a completed session
+    if (!error && (await this.hasSessionEndedCleanly(sessionId))) {
+      log.debug('CentralSyncManager.endSession: session already ended', { sessionId });
+      return;
+    }
+
     const session = await this.connectToSession(sessionId);
     const durationMs = Date.now() - session.startTime;
     log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
