@@ -1,1 +1,1 @@
-export { useSuggester, usePatientSuggester } from '@tamanu/ui-components';
+export { useSuggester, usePatientSuggester, usePatientPayorSuggester } from '@tamanu/ui-components';

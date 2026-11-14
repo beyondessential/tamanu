@@ -9,12 +9,7 @@ import {
   TITLE_LABELS,
 } from '@tamanu/constants';
 
-import {
-  TextField,
-  AutocompleteField,
-  SuggesterSelectField,
-  TranslatedSelectField,
-} from '../../../../../components';
+import { TextField, AutocompleteField, TranslatedSelectField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
@@ -23,6 +18,9 @@ export const GenericPersonalFields = ({
   patientRegistryType,
   filterByMandatory,
   isEdit,
+  heading,
+  headingTestId,
+  gridTestId,
 }) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -157,17 +155,6 @@ export const GenericPersonalFields = ({
         />
       ),
     },
-    patientBillingTypeId: {
-      component: SuggesterSelectField,
-      endpoint: 'patientBillingType',
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.patientBillingTypeId.label"
-          fallback="Patient type"
-          data-testid="translatedtext-c6cp"
-        />
-      ),
-    },
     motherId: {
       component: AutocompleteField,
       suggester: motherSuggester,
@@ -190,24 +177,15 @@ export const GenericPersonalFields = ({
         />
       ),
     },
-    invoiceInsurancePlanId: {
-      component: SuggesterSelectField,
-      endpoint: 'invoiceInsurancePlan',
-      isMulti: true,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.invoiceInsurancePlanId.label"
-          fallback="Insurance plan"
-          data-testid="translatedtext-73e2"
-        />
-      ),
-    },
   };
 
   return (
     <ConfiguredMandatoryPatientFields
       fields={PERSONAL_FIELDS}
       filterByMandatory={filterByMandatory}
+      heading={heading}
+      headingTestId={headingTestId}
+      gridTestId={gridTestId}
       data-testid="configuredmandatorypatientfields-vhzu"
     />
   );

@@ -649,6 +649,16 @@ const MODEL_SPECIFIC_OVERRIDES = {
         chance.natural({ min: 10000000, max: 99999999 }).toString(),
       emergencyContactName: chance.name(),
       emergencyContactNumber: chance.phone(),
+      adoptionNumber: `AD${chance.natural({ min: 100000, max: 999999 })}`,
+      marriageLicence: `ML${chance.natural({ min: 100000, max: 999999 })}`,
+      // The payors themselves are patient references, which fake() nulls, so a generated
+      // reference number would describe a payor that isn't there.
+      payor1ReferenceNumber: null,
+      payor2ReferenceNumber: null,
+      // Only meaningful against the deployment's configured sliding fee scale, so a generated
+      // value would be a band no scale has. Seeded patients answer these through the UI.
+      familySize: null,
+      annualIncome: null,
       secondaryVillageId: null,
       updatedAtByField: null, // this is to allow the trigger to properly populate it
     };

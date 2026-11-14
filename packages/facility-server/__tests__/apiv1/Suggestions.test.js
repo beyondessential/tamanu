@@ -201,6 +201,68 @@ describe('Suggestions', () => {
     });
   });
 
+  // Payors on a patient's billing details. Same search as the patient suggester, but a deceased
+  // patient cannot be billed so they are not offered (spec: patient/details.md).
+  describe('Patient payors', () => {
+    let livingPayor;
+    let deceasedPayor;
+
+    beforeAll(async () => {
+      livingPayor = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Payor',
+          lastName: 'Living',
+          displayId: 'payorliving1',
+        }),
+      );
+      deceasedPayor = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Payor',
+          lastName: 'Deceased',
+          displayId: 'payordeceased1',
+          dateOfDeath: '2024-01-01 00:00:00',
+        }),
+      );
+    });
+
+    it('offers a living patient as a payor', async () => {
+      const result = await userApp.get('/api/suggestions/patientPayor').query({ q: 'Payor' });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ id }) => id)).toContain(livingPayor.id);
+    });
+
+    it('does not offer a deceased patient as a payor', async () => {
+      const result = await userApp.get('/api/suggestions/patientPayor').query({ q: 'Payor' });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ id }) => id)).not.toContain(deceasedPayor.id);
+    });
+
+    it('returns the details the payor is identified by', async () => {
+      const result = await userApp.get('/api/suggestions/patientPayor').query({ q: 'payorliving1' });
+      expect(result).toHaveSucceeded();
+      expect(result.body[0]).toMatchObject({
+        id: livingPayor.id,
+        firstName: 'Payor',
+        lastName: 'Living',
+        displayId: 'payorliving1',
+        sex: livingPayor.sex,
+        dateOfBirth: livingPayor.dateOfBirth,
+      });
+    });
+
+    it('still offers the deceased patient through the plain patient suggester', async () => {
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'payordeceased1' });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ id }) => id)).toContain(deceasedPayor.id);
+    });
+
+    it('should not get payors without permission', async () => {
+      const noPermsApp = await baseApp.asRole('base');
+      const result = await noPermsApp.get('/api/suggestions/patientPayor').query({ q: 'anything' });
+      expect(result).toBeForbidden();
+    });
+  });
+
   // Locations suggester has specialised functionality for determining location availability
   describe('Locations', () => {
     let occupiedLocation;
@@ -1051,6 +1113,21 @@ describe('Suggestions', () => {
       );
       expect(byName).toHaveSucceeded();
       expect(byName.body.map(({ id }) => id)).not.toContain(drug.id);
+    });
+
+    // The web resolves the deployment's sliding fee scale plan by matching this code (see
+    // useSlidingFeeScalePlanId). Dropping it from the mapper would silently switch the sliding
+    // fee scale requirement off rather than fail.
+    it('returns each invoiceInsurancePlan with its code', async () => {
+      const plan = await models.InvoiceInsurancePlan.create(fake(models.InvoiceInsurancePlan));
+
+      const result = await userApp.get('/api/suggestions/invoiceInsurancePlan/all').query({});
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.find(({ id }) => id === plan.id)).toMatchObject({
+        id: plan.id,
+        code: plan.code,
+      });
     });
 
     it('should filter invoiceInsurancePlan suggestions by availableFacilities', async () => {

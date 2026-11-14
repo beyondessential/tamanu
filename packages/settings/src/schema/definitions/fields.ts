@@ -7,7 +7,12 @@ export const LOCALISED_FIELD_TYPES = {
   STRING: 'string',
 };
 
-export const generateFieldSchema = ({ isPatientDetails = false, hideable = true, type }) => {
+export const generateFieldSchema = ({
+  isPatientDetails = false,
+  hideable = true,
+  defaultHidden = false,
+  type,
+}) => {
   const schema: Record<string, Setting> = {
     required: {
       description: 'Field is required',
@@ -25,7 +30,7 @@ export const generateFieldSchema = ({ isPatientDetails = false, hideable = true,
     schema.hidden = {
       description: 'Field should not display on forms',
       type: yup.boolean(),
-      defaultValue: false,
+      defaultValue: defaultHidden,
     };
   }
 

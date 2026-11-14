@@ -41,5 +41,9 @@ export { useLabTestResultHistoryQuery } from './useLabTestResultHistoryQuery';
 export { useFacilityQuery } from './useFacilityQuery';
 export { usePatientInsurancePlansQuery } from './usePatientInsurancePlansQuery';
 export { usePatientInsurancePlansInUseQuery } from './usePatientInsurancePlansInUseQuery';
+export {
+  useInvoiceInsurancePlansQuery,
+  useSlidingFeeScalePlanId,
+} from './useInvoiceInsurancePlansQuery';
 export { useAiPatientSummaryQuery } from './useAiPatientSummaryQuery';
 export { useSurveyResponseChangesQuery } from './useSurveyResponseChangesQuery';

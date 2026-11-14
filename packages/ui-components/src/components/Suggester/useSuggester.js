@@ -17,17 +17,22 @@ export const useSuggester = (type, options) => {
   );
 };
 
-export const usePatientSuggester = () => {
+const usePatientRecordSuggester = endpoint => {
   const api = useApi();
   const { formatShort } = useDateTime();
   return useMemo(
     () =>
-      new Suggester(api, 'patient', {
+      new Suggester(api, endpoint, {
         formatter: ({ id, ...patient }) => ({
           label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${patient.sex} - ${formatShort(patient.dateOfBirth)}`,
           value: id,
         }),
       }),
-    [api, formatShort],
+    [api, endpoint, formatShort],
   );
 };
+
+export const usePatientSuggester = () => usePatientRecordSuggester('patient');
+
+/** Patients who can be billed, so the deceased are left out. */
+export const usePatientPayorSuggester = () => usePatientRecordSuggester('patientPayor');

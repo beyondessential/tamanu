@@ -18,6 +18,7 @@ export const SUGGESTER_ENDPOINTS = [
   'location',
   'multiReferenceData',
   'patient',
+  'patientPayor',
   'patientLabTestCategories',
   'patientLabTestPanelTypes',
   'patientLabTestTypes',
