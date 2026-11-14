@@ -234,8 +234,19 @@ async function isRepoClean(): Promise<boolean> {
 }
 
 async function listCommitsSince(limitCommitRef: string): Promise<string[]> {
-  const stdout = await gitCommand(['log', '--format=%H', `${limitCommitRef}^..HEAD`]);
-  return (stdout.split(/\s+/) ?? []).reverse();
+  // Lists the commits under test: what HEAD has that the base ref doesn't, base ref excluded
+  // (the caller holds that separately, as the baseline).
+  //
+  // --topo-order, not the default commit-date order: a branch that has merged a newer base
+  // branch in carries commits *older* than that base, and date order lists those first. The
+  // caller walks this list forwards from the base, so it has to follow history, not dates.
+  const stdout = await gitCommand([
+    'log',
+    '--format=%H',
+    '--topo-order',
+    `${limitCommitRef}..HEAD`,
+  ]);
+  return (stdout.split(/\s+/) ?? []).filter(Boolean).reverse();
 }
 
 async function listCommitFiles(commitRef: string): Promise<string[]> {
@@ -363,18 +374,22 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   }
 
   const commits = await listCommitsSince(opts.sinceRef);
-  if (commits.length < 2) {
-    throw new Error('we need at least two commits to proceed');
+  if (!commits.length) {
+    throw new Error('we need at least one commit past the base ref to proceed');
   }
 
-  // commit list is from oldest to newest, so HEAD is at the bottom
-  const HEAD = commits[commits.length - 1]!;
+  const HEAD = await gitCommand(['rev-parse', 'HEAD']);
 
-  let commitBeforeMigration: string = commits[0]!;
+  // The base ref holds none of the commits under test, so it is the baseline until a commit
+  // that leaves migrations alone moves it forward. Taking the oldest listed commit instead
+  // makes one of the commits under test the baseline whenever the branch has merged a newer
+  // base in, so the "before" database gets built from a tree that already carries the
+  // migrations under test — and seeded by that commit's fake-data generator, not HEAD's.
+  let commitBeforeMigration: string = await gitCommand(['rev-parse', opts.sinceRef]);
 
   // find the first migration-touching commit
   let firstMigrationCommit: string | undefined;
-  for (const commit of commits.slice(1)) {
+  for (const commit of commits) {
     if (await commitTouchesMigrations(commit)) {
       firstMigrationCommit = commit;
       break;
