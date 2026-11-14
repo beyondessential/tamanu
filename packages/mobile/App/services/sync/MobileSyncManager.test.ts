@@ -1,6 +1,13 @@
+import NetInfo, {
+  type NetInfoNoConnectionState,
+  NetInfoStateType,
+  type NetInfoUnknownState,
+} from '@react-native-community/netinfo';
+import { RemoteUnreachableError } from '@tamanu/errors';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
+import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -37,6 +44,19 @@ jest.mock('../../infra/db', () => ({
 const mockSessionId = 'xxx';
 const mockSyncTick = 5;
 
+const offlineState: NetInfoNoConnectionState = {
+  type: NetInfoStateType.none,
+  isConnected: false,
+  isInternetReachable: false,
+  details: null,
+};
+const unknownState: NetInfoUnknownState = {
+  type: NetInfoStateType.unknown,
+  isConnected: null,
+  isInternetReachable: null,
+  details: null,
+};
+
 describe('MobileSyncManager', () => {
   const centralServerConnection = new CentralServerConnection();
   const mockSettingsService = {
@@ -52,6 +72,7 @@ describe('MobileSyncManager', () => {
         maxLimitChangePerPage: 0.3,
         optimalTimePerPage: 500,
       },
+      maxUnreachableDuration: 600_000,
     }),
   };
   let mobileSyncManager;
@@ -87,6 +108,67 @@ describe('MobileSyncManager', () => {
       await expect(mobileSyncManager.runSync()).rejects.toThrow(
         'MobileSyncManager.runSync(): Tried to start syncing while sync in progress',
       );
+    });
+
+    it('does not start a sync session when the device is offline', async () => {
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce(offlineState);
+      const startSyncSessionSpy = jest.spyOn(centralServerConnection, 'startSyncSession');
+      const emitSpy = jest.spyOn(mobileSyncManager.emitter, 'emit');
+
+      await mobileSyncManager.triggerSync();
+
+      expect(startSyncSessionSpy).not.toHaveBeenCalled();
+      expect(emitSpy).toHaveBeenCalledWith(SYNC_EVENT_ACTIONS.SYNC_ERROR, {
+        error: expect.any(RemoteUnreachableError),
+      });
+      expect(mobileSyncManager.isSyncing).toBe(false);
+    });
+
+    it('clears the queue state when a queued sync then fails to start', async () => {
+      jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockResolvedValueOnce({ status: 'waitingInQueue' } as any);
+      await mobileSyncManager.triggerSync();
+      expect(mobileSyncManager.isQueuing).toBe(true);
+      expect(mobileSyncManager.progressMessage).toBe('Sync in queue');
+
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce(offlineState);
+      await mobileSyncManager.triggerSync();
+
+      expect(mobileSyncManager.isQueuing).toBe(false);
+      expect(mobileSyncManager.progressMessage).toBe('');
+    });
+
+    it('resets progress when a sync fails', async () => {
+      mobileSyncManager.setProgress(40, 'Pulling changes');
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce(offlineState);
+
+      await mobileSyncManager.triggerSync();
+
+      expect(mobileSyncManager.progress).toBe(0);
+      expect(mobileSyncManager.progressMessage).toBe('');
+    });
+
+    it('still tries to sync when the network state is unknown', async () => {
+      jest.mocked(NetInfo.refresh).mockResolvedValueOnce(unknownState);
+      const startSyncSessionSpy = jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockResolvedValueOnce({ status: 'waitingInQueue' } as any);
+
+      await mobileSyncManager.triggerSync();
+
+      expect(startSyncSessionSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('still tries to sync when the network state cannot be read', async () => {
+      jest.mocked(NetInfo.refresh).mockRejectedValueOnce(new Error('native module unavailable'));
+      const startSyncSessionSpy = jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockResolvedValueOnce({ status: 'waitingInQueue' } as any);
+
+      await mobileSyncManager.triggerSync();
+
+      expect(startSyncSessionSpy).toHaveBeenCalledTimes(1);
     });
   });
 

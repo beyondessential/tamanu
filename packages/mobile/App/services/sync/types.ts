@@ -35,6 +35,8 @@ export interface LoginResponse {
 
 export type FetchOptions = {
   backoff?: callWithBackoffOptions;
+  /** Called as each attempt at the request starts, so a caller can time the one that succeeds */
+  onAttempt?: () => void;
   skipAttemptRefresh?: boolean;
   timeout?: number;
   /**

@@ -4,6 +4,7 @@ import type { MODELS_MAP } from '../../../models/modelsMap';
 import type { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import type { MobileSyncSettings } from '../MobileSyncManager';
+import { timeSuccessfulAttempt } from './timeSuccessfulAttempt';
 
 /**
  * Push outgoing changes in batches
@@ -28,12 +29,12 @@ export const pushOutgoingChanges = async (
   while (startOfPage < changes.length) {
     const endOfPage = Math.min(startOfPage + limit, changes.length);
     const page = changes.slice(startOfPage, endOfPage);
-    const startTime = Date.now();
-    await centralServer.push(sessionId, page);
-    const endTime = Date.now();
+    const { durationMs: pushTime } = await timeSuccessfulAttempt(onAttempt =>
+      centralServer.push(sessionId, page, onAttempt),
+    );
 
     startOfPage = endOfPage;
-    limit = calculatePageLimit(dynamicLimiterSettings, limit, endTime - startTime);
+    limit = calculatePageLimit(dynamicLimiterSettings, limit, pushTime);
     pushedRecordsCount += page.length;
 
     progressCallback(changes.length, pushedRecordsCount);

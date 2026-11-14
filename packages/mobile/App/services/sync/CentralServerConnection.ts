@@ -3,7 +3,7 @@ import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
-import { ERROR_TYPE, Problem } from '@tamanu/errors';
+import { ERROR_TYPE, Problem, RemoteUnreachableError } from '@tamanu/errors';
 import { CentralConnectionStatus } from '~/types';
 import { readConfig, writeConfig } from '../config';
 import {
@@ -17,6 +17,7 @@ import {
 import type { FetchOptions, LoginResponse, SyncRecord } from './types';
 import { callWithBackoff, sleepAsync } from './utils';
 import { compressibleRequestBody } from './utils/compressibleRequestBody';
+import { DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS } from './constants';
 import { version } from '/root/package.json';
 
 interface PullMetadataResponse {
@@ -32,13 +33,29 @@ interface RefreshResponse {
 
 const API_PREFIX = 'api';
 
+/** Statuses a proxy or gateway in front of the central server responds with when it can't reach it */
+const GATEWAY_ERROR_STATUSES = new Set([502, 503, 504]);
+
+/** Codes axios gives a request that was sent but got no response: the connection dropped or timed out */
+const NO_RESPONSE_ERROR_CODES = new Set(['ERR_NETWORK', 'ECONNABORTED', 'ETIMEDOUT']);
+
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
-  const problemJson = err.response?.data || {};
-  const problem = Problem.fromJSON(problemJson);
+  if (!err.response) {
+    if (NO_RESPONSE_ERROR_CODES.has(err.code)) {
+      return new RemoteUnreachableError(err.message).withCause(err);
+    }
+    // the request never went out (e.g. it was cancelled or couldn't be built), so retrying won't help
+    return err;
+  }
+
+  const problem = Problem.fromJSON(err.response.data || {});
 
   if (!problem) {
     // React Native's XHR has no statusText, so describe the failure from axios instead
-    return new Problem(ERROR_TYPE.UNKNOWN, err.message, err.response?.status);
+    if (GATEWAY_ERROR_STATUSES.has(err.response.status)) {
+      return new RemoteUnreachableError(err.message).withCause(err);
+    }
+    return new Problem(ERROR_TYPE.UNKNOWN, err.message, err.response.status);
   }
 
   if (problem.type === ERROR_TYPE.AUTH_QUOTA_EXCEEDED) {
@@ -70,6 +87,20 @@ export class CentralServerConnection {
     timeout: 45 * 1000,
   });
 
+  /**
+   * How long a request that is safe to repeat keeps retrying while the central server is
+   * unreachable. The sync manager sets this from the mobileSync settings before each sync.
+   */
+  maxUnreachableDurationMs = DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS;
+
+  /**
+   * Retry requests that are safe to repeat through a network drop, so a brief outage doesn't throw
+   * away a sync that may have been running for a long time
+   */
+  private get retryThroughNetworkDrops() {
+    return { maxRetryDurationMs: this.maxUnreachableDurationMs };
+  }
+
   async connect(host: string): Promise<void> {
     this.host = host;
     this.deviceId = await readConfig('deviceId');
@@ -84,11 +115,14 @@ export class CentralServerConnection {
     path: string,
     query: Record<string, string | number | boolean>,
     {
-      backoff,
+      method = 'GET',
+      // a GET is safe to repeat, so it gets a few attempts to ride out a blip. Anything else only
+      // retries where a caller knows the request is safe to repeat
+      backoff = { maxAttempts: method === 'GET' ? 3 : 1 },
+      onAttempt,
       skipAttemptRefresh,
       timeout,
       headers: extraHeaders,
-      method = 'GET',
       body,
       ...rest
     }: FetchOptions = {},
@@ -107,6 +141,7 @@ export class CentralServerConnection {
     const isLogin = path.startsWith('login');
     try {
       const response = await callWithBackoff(async () => {
+        onAttempt?.();
         const configAxios: AxiosRequestConfig = {
           url,
           method,
@@ -134,6 +169,7 @@ export class CentralServerConnection {
           // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
           const updatedConfig: FetchOptions = {
             backoff,
+            onAttempt,
             skipAttemptRefresh: true,
             timeout,
             headers: extraHeaders,
@@ -193,7 +229,7 @@ export class CentralServerConnection {
     const waitTime = 1000; // retry once per second
     const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.get(endpoint, {});
+      const response = await this.get(endpoint, {}, { backoff: this.retryThroughNetworkDrops });
       if (response) {
         return response;
       }
@@ -202,7 +238,7 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async startSyncSession({ urgent, lastSyncedTick }) {
+  async startSyncSession({ urgent, lastSyncedTick }: { urgent: boolean; lastSyncedTick: number }) {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
@@ -216,6 +252,10 @@ export class CentralServerConnection {
         deviceId: this.deviceId,
         isMobile: true,
       },
+      // safe to repeat: central closes any session this device left open before starting a new one.
+      // Only a few attempts, to ride out a blip: there's no session to keep alive yet, and the next
+      // scheduled sync tries again
+      { backoff: { maxAttempts: 3 } },
     )) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
@@ -229,15 +269,22 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
 
     // finally, fetch the new tick from starting the session
-    const { startedAtTick } = (await this.get(`sync/${sessionId}/metadata`, {})) as {
-      startedAtTick: number;
-    };
+    const { startedAtTick } = (await this.get(
+      `sync/${sessionId}/metadata`,
+      {},
+      { backoff: this.retryThroughNetworkDrops },
+    )) as { startedAtTick: number };
 
     return { sessionId, startedAtTick };
   }
 
   async endSyncSession(sessionId: string) {
-    return this.delete(`sync/${sessionId}`, {});
+    return this.fetch(
+      `sync/${sessionId}`,
+      {},
+      // safe to repeat: central rejects ending a session that has already ended
+      { method: 'DELETE', backoff: this.retryThroughNetworkDrops },
+    );
   }
 
   async markSessionErrored(sessionId: string, error: string): Promise<unknown> {
@@ -258,6 +305,7 @@ export class CentralServerConnection {
       tablesForFullResync,
       deviceId: this.deviceId,
     };
+    // not retried: central errors the session if the snapshot it started is still being built
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
 
     // poll the pull/ready endpoint until we get a valid response - it takes a while for
@@ -268,11 +316,17 @@ export class CentralServerConnection {
     const { totalToPull, pullUntil } = await this.get<PullMetadataResponse>(
       `sync/${sessionId}/pull/metadata`,
       {},
+      { backoff: this.retryThroughNetworkDrops },
     );
     return { totalToPull: Number.parseInt(totalToPull, 10), pullUntil };
   }
 
-  async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
+  async pull(
+    sessionId: string,
+    limit = 100,
+    fromId?: string,
+    onAttempt?: () => void,
+  ): Promise<SyncRecord[]> {
     const query: { limit: number; fromId?: string } = { limit };
     if (fromId) {
       query.fromId = fromId;
@@ -281,15 +335,28 @@ export class CentralServerConnection {
       // allow 5 minutes for the sync pull as it can take a while
       // (the full 5 minutes would be pretty unusual! but just to be safe)
       timeout: 5 * 60 * 1000,
+      // safe to repeat: pages are read from the session's snapshot by cursor
+      backoff: this.retryThroughNetworkDrops,
+      onAttempt,
     });
   }
 
-  async push(sessionId: string, changes): Promise<unknown> {
-    return this.post(`sync/${sessionId}/push`, {}, { changes }, { compress: true });
+  async push(sessionId: string, changes, onAttempt?: () => void): Promise<unknown> {
+    return this.post(
+      `sync/${sessionId}/push`,
+      {},
+      { changes },
+      // Safe to repeat:
+      // - a page whose response was lost lands twice in the session’s snapshot; and
+      // - central persists both copies to the same result (creates are deduped by id, and a
+      //   repeated update merges to the same values). Facility servers retry pushes the same way.
+      { compress: true, backoff: this.retryThroughNetworkDrops, onAttempt },
+    );
   }
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
+    // not retried: a repeat would persist the pushed records again
     await this.post(
       `sync/${sessionId}/push/complete`,
       {},
@@ -301,7 +368,11 @@ export class CentralServerConnection {
     const waitTime = 1000; // retry once per second
     const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const isComplete = await this.get(`sync/${sessionId}/push/complete`, {});
+      const isComplete = await this.get(
+        `sync/${sessionId}/push/complete`,
+        {},
+        { backoff: this.retryThroughNetworkDrops },
+      );
       if (isComplete) {
         return;
       }
