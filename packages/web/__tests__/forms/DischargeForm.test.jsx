@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { Formik } from 'formik';
-import { RequiredOrnament } from '@tamanu/ui-components';
+import { RequiredOrnament, SettingsContext } from '@tamanu/ui-components';
 
 // Registers yup's translatedLabel method, which the medication schema uses.
 import '../../app/utils/errorMessages';
@@ -263,16 +263,18 @@ describe('MEDICATION_COLUMNS dose and dispensing quantity limits', () => {
     });
     const rowData = { ...row, ...rowOverrides };
     return renderElementWithTranslatedText(
-      <Formik
-        initialValues={{ medications: { [row.id]: { quantity, sendToPharmacy } } }}
-        initialStatus={{}}
-        onSubmit={() => {}}
-      >
-        <div>
-          {accessorFor(columns, 'medication')(rowData)}
-          {accessorFor(columns, 'quantity')(rowData)}
-        </div>
-      </Formik>,
+      <SettingsContext.Provider value={{ getSetting: () => undefined }}>
+        <Formik
+          initialValues={{ medications: { [row.id]: { quantity, sendToPharmacy } } }}
+          initialStatus={{}}
+          onSubmit={() => {}}
+        >
+          <div>
+            {accessorFor(columns, 'medication')(rowData)}
+            {accessorFor(columns, 'quantity')(rowData)}
+          </div>
+        </Formik>
+      </SettingsContext.Provider>,
       undefined,
       translationContext,
     );

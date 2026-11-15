@@ -2297,7 +2297,7 @@ medication.get(
                   include: {
                     model: models.ReferenceDrug,
                     as: 'referenceDrug',
-                    attributes: ['id', 'isSensitive', ...DRUG_LIMIT_FIELDS],
+                    attributes: ['id', 'isSensitive'],
                     required: true,
                   },
                 },
@@ -2327,7 +2327,7 @@ medication.get(
           include: {
             model: models.ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['id', 'isSensitive', ...DRUG_LIMIT_FIELDS],
+            attributes: ['id', 'isSensitive'],
             required: false,
           },
         },
@@ -2428,7 +2428,8 @@ medication.get(
 
     const referenceDrugs = await models.ReferenceDrug.findAll({
       where: { referenceDataId: { [Op.in]: medicationIds } },
-      attributes: ['id', 'isSensitive', 'referenceDataId'],
+      // spec: DQLIM#dispensing
+      attributes: ['id', 'isSensitive', 'referenceDataId', ...DRUG_LIMIT_FIELDS],
       include: {
         model: models.ReferenceDrugFacility,
         as: 'facilities',
