@@ -43,9 +43,13 @@ export const saveChangesForModel = async (
     return sanitized;
   };
 
-  const safeChanges = changes.filter(change => change.data.id);
+  /**
+   * Only for the lookups below, which need an ID to key on. Changes without one are not dropped:
+   * they can’t match an existing record, so they are still written as creates from `changes`.
+   */
+  const changesWithId = changes.filter(change => change.data.id);
 
-  const idsForIncomingRecords = safeChanges.map(c => c.data.id);
+  const idsForIncomingRecords = changesWithId.map(c => c.data.id);
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
@@ -54,7 +58,7 @@ export const saveChangesForModel = async (
    * Follow the same pattern for incoming records
    * @see https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
    */
-  const idToIncomingRecord = keyBy(safeChanges, change => change.data.id);
+  const idToIncomingRecord = keyBy(changesWithId, change => change.data.id);
   /** Own-property check, so an ID like `constructor` doesn’t match an inherited member */
   const isExistingRecord = (id: SyncSnapshotData['id']) => Object.hasOwn(idToExistingRecord, id);
   const idsForRestore = new Set();
