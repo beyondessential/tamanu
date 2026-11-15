@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 import {
@@ -87,10 +87,12 @@ vi.mock('../../../app/utils/medications', () => ({
     isVariableDose ? 'Take as directed' : `Take ${doseAmount}`,
 }));
 
+const fetchCurrentOption = vi.fn().mockResolvedValue(null);
+
 vi.mock('../../../app/api', () => ({
   useSuggester: () => ({
     fetchSuggestions: vi.fn().mockResolvedValue([]),
-    fetchCurrentOption: vi.fn().mockResolvedValue(null),
+    fetchCurrentOption,
   }),
 }));
 
@@ -160,6 +162,30 @@ describe('ModifyPrescriptionModal form logic', () => {
     expect(screen.getByTestId('modify-prescription-label-notes-input').value).toBe(
       'Take with food in the morning',
     );
+  });
+
+  it('confirms a substituted drug with its stock record', async () => {
+    const referenceDrug = { facilities: [{ stockStatus: 'out_of_stock', quantity: 0 }] };
+    fetchCurrentOption.mockResolvedValueOnce({ label: 'Ibuprofen', value: 'drug-2', referenceDrug });
+    const onConfirm = vi.fn();
+    renderModal({
+      onConfirm,
+      modification: {
+        ...prescription,
+        medicationId: 'drug-2',
+        modifiedReasonId: 'reason-1',
+        modifiedById: 'user-1',
+      },
+    });
+
+    fireEvent.click(screen.getByTestId('modify-prescription-confirm'));
+
+    await waitFor(() => expect(onConfirm).toHaveBeenCalled());
+    expect(onConfirm.mock.calls[0][0].medication).toEqual({
+      id: 'drug-2',
+      name: 'Ibuprofen',
+      referenceDrug,
+    });
   });
 
   it('auto-selects and disables the "Display on MAR" checkbox', () => {
