@@ -43,20 +43,17 @@ export const saveChangesForModel = async (
     return sanitized;
   };
 
-  /**
-   * Follow the same pattern for incoming records
-   * @see https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
-   */
   const safeChanges = changes.filter(change => change.data.id);
 
-  // split changes into creates and updates; soft deletes and restores ride along on the update
   const idsForIncomingRecords = safeChanges.map(c => c.data.id);
-  // add all records that already exist in the db to the list to be updated
-  // even if they are being deleted or restored, we should also run an update query to keep the data in sync
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
   const idToExistingRecord = keyBy(existingRecords, record => record.id);
+  /**
+   * Follow the same pattern for incoming records
+   * @see https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
+   */
   const idToIncomingRecord = keyBy(safeChanges, change => change.data.id);
   /** Own-property check, so an id like `constructor` doesn’t match an inherited member */
   const isExistingRecord = (id: SyncSnapshotData['id']) => Object.hasOwn(idToExistingRecord, id);
@@ -104,6 +101,11 @@ export const saveChangesForModel = async (
     return deletedAt === undefined ? sanitized : { ...sanitized, deletedAt };
   };
 
+  /**
+   * - Soft deletes and restores are considered updates.
+   * - All records that already exist in the DB are updated. Even if they are being deleted or
+   *   restored, we should also run an update query to keep the data in sync.
+   */
   const [recordsForUpdate, recordsForCreate] = partition(
     changes.map(({ data }) => toRecordToWrite(data)),
     record => isExistingRecord(record.id),
