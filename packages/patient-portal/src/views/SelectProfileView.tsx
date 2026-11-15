@@ -42,7 +42,7 @@ export const SelectProfileView = () => {
     isError: hasSelectFailed,
   } = useSelectProfile();
 
-  if (!isPending && !profiles?.data.length) {
+  if (!isPending && (profiles?.data.length ?? 0) < 2) {
     return <Navigate to="/" replace />;
   }
 

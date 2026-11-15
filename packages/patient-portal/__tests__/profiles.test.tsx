@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { resolveEndpoint } from '@tamanu/api-client';
 import { LoginView } from '../src/views/LoginView';
 import { SelectProfileView } from '../src/views/SelectProfileView';
+import { PrivateRoute } from '../src/routes/PrivateRoute';
 import { createFakeApi, fakePatient, renderPortal, stubTranslations } from './renderPortal';
 
 const ANA = {
@@ -59,6 +60,13 @@ describe('Select profile', () => {
     expect(api.setToken).not.toHaveBeenCalled();
     expect(screen.queryByText('Dashboard')).toBeNull();
   });
+
+  it('goes to the dashboard when the email has one profile', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient(), profiles: profilesOf(ANA) });
+    renderPortal({ page: <SelectProfileView />, path: '/select-profile', api });
+    expect(await screen.findByText('Dashboard')).toBeTruthy();
+  });
 });
 
 describe('Menu', () => {
@@ -86,8 +94,21 @@ describe('Menu', () => {
 describe('Logging in', () => {
   const logIn = async (profiles: ReturnType<typeof profilesOf>) => {
     stubTranslations();
-    const api = createProfilesApi({ profiles });
-    renderPortal({ page: <LoginView />, path: '/login-submit', access: 'public', api });
+    const responses: Record<string, unknown> = { profiles };
+    const api = createProfilesApi(responses);
+    api.tokenLogin.mockImplementation(async () => {
+      responses.me = fakePatient();
+      return { token: 'login-token', user: fakePatient() };
+    });
+    renderPortal({
+      page: <LoginView />,
+      path: '/login-submit',
+      access: 'public',
+      api,
+      routes: [
+        { path: '/select-profile', element: <PrivateRoute element={<SelectProfileView />} /> },
+      ],
+    });
     await userEvent.type(
       await screen.findByLabelText(/Email address/),
       'kamaka.family@example.com',
@@ -99,7 +120,8 @@ describe('Logging in', () => {
 
   it('asks which profile to open when the email has several', async () => {
     await logIn(profilesOf(ANA, TUI));
-    expect(await screen.findByText('Select profile')).toBeTruthy();
+    expect(await screen.findByText('Select a profile to continue')).toBeTruthy();
+    expect(screen.queryByText('Dashboard')).toBeNull();
   });
 
   it('goes straight to the dashboard when the email has one', async () => {

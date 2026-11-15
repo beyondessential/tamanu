@@ -2,7 +2,7 @@ import React from 'react';
 import { vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMemoryRouter, RouterProvider } from 'react-router';
+import { createMemoryRouter, type RouteObject, RouterProvider } from 'react-router';
 import { ApiContext } from '@tamanu/ui-components';
 import { type Endpoint, resolveEndpoint } from '@tamanu/api-client';
 import { TranslationProvider } from '../src/contexts';
@@ -58,21 +58,23 @@ export const renderPortal = ({
   routePath = path,
   access = 'private',
   api,
+  routes = [],
 }: {
   page: React.ReactElement;
   path: string;
   routePath?: string;
   access?: 'private' | 'public';
   api: ReturnType<typeof createFakeApi>;
+  routes?: RouteObject[];
 }) => {
   const Route = access === 'private' ? PrivateRoute : PublicRoute;
+  const defaultRoutes = [
+    { path: '/', element: <p>Dashboard</p> },
+    { path: '/login', element: <p>Login</p> },
+    { path: '/select-profile', element: <p>Select profile</p> },
+  ].filter(route => !routes.some(({ path: overridden }) => overridden === route.path));
   const router = createMemoryRouter(
-    [
-      { path: routePath, element: <Route element={page} /> },
-      { path: '/', element: <p>Dashboard</p> },
-      { path: '/login', element: <p>Login</p> },
-      { path: '/select-profile', element: <p>Select profile</p> },
-    ],
+    [{ path: routePath, element: <Route element={page} /> }, ...routes, ...defaultRoutes],
     { initialEntries: [path] },
   );
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
