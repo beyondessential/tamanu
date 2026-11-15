@@ -35,7 +35,8 @@ import { STOCK_STATUS_COLORS } from '../constants';
 import { singularize } from './utils';
 
 // spec: DSPDET
-// A pharmacy order with no recorded type reads as Inpatient, as in the medication requests table.
+// TODO(TAM-7087): awaiting product owner confirmation of how an order with no recorded
+// prescription type should read. Until then it reads as Inpatient.
 export const PharmacyPrescriptionTypeLabel = ({ isDischargePrescription }) => (
   <TranslatedEnum
     value={

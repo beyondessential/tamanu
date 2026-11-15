@@ -13,13 +13,8 @@ import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { useTranslation } from '../../contexts/Translation';
-import { useAuth } from '../../contexts/Auth';
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
-import {
-  buildInstructionText,
-  PharmacyPrescriptionTypeLabel,
-  usePresetLabelsQuery,
-} from '../../utils/medications';
+import { buildInstructionText, PharmacyPrescriptionTypeLabel } from '../../utils/medications';
 import { MedicationDetailsColumns } from './MedicationDetailsColumns';
 
 const StyledModal = styled(BaseModal)`
@@ -43,8 +38,6 @@ const ActionRow = styled(Box)`
 export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
   const { formatShortest } = useDateTime();
   const { getTranslation, getEnumTranslation } = useTranslation();
-  const { facilityId } = useAuth();
-  const { hasPresetLabels } = usePresetLabelsQuery({ enabled: open, facilityId });
   if (!item || !open) return null;
 
   const {
@@ -56,7 +49,6 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     dispensedAt,
     dispensedBy,
     patient,
-    medicationPresetLabel,
     isDischargePrescription,
   } = item;
 
@@ -152,12 +144,6 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     label: <TranslatedText stringId="medication.dispenseDetails.labelText" fallback="Label text" />,
     value: instructions || '-',
   };
-  const presetLabelDetail = {
-    label: (
-      <TranslatedText stringId="medication.dispenseDetails.presetLabels" fallback="Preset labels" />
-    ),
-    value: medicationPresetLabel?.code || '-',
-  };
 
   // spec: DSPDET
   const leftDetails = [
@@ -175,7 +161,6 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     dispensedByDetail,
     remainingRepeatsDetail,
     labelTextDetail,
-    ...(hasPresetLabels ? [presetLabelDetail] : []),
   ];
 
   return (

@@ -8,14 +8,13 @@ Automated cases are covered by `packages/web/__tests__/components/Medication/Dis
 - [ ] Right column reads Patient name, Prescription date, Request no., Dispensed by, Remaining repeats, Label text (verifies spec: DSPDET)
 - [ ] An Inpatient order shows Prescription type "Inpatient" (verifies spec: DSPDET)
 - [ ] An Outpatient/Discharge order shows "Outpatient/Discharge" in full (verifies spec: DSPDET)
-- [ ] An order with no recorded type shows "Inpatient" (verifies spec: DSPDET)
-- [ ] At a facility with preset labels, Preset labels follows Label text and shows the preset's code (verifies spec: DSPDET)
-- [ ] At a facility without preset labels, Preset labels is not shown (verifies spec: DSPDET)
+- [ ] An order with no recorded type shows "Inpatient" (verifies spec: DSPDET). TODO: pending product owner confirmation of this reading
+- [ ] Preset labels is not shown, even for a dispense that used a preset (verifies spec: DSPDET)
 
 ## Not dispensed medication modal
 
 - [ ] Left column reads Patient ID, Medication, Prescription type, Request no., Reason not dispensed (verifies spec: DSPDET)
-- [ ] Inpatient, Outpatient/Discharge and no recorded type show as Inpatient, Outpatient/Discharge and Inpatient (verifies spec: DSPDET)
+- [ ] Inpatient, Outpatient/Discharge and no recorded type show as Inpatient, Outpatient/Discharge and Inpatient (verifies spec: DSPDET). TODO: no-recorded-type reading pending product owner confirmation
 
 ## Manual checks
 
@@ -24,3 +23,5 @@ Automated cases are covered by `packages/web/__tests__/components/Medication/Dis
 - [ ] Open a not dispensed request from the encounter's Medication tab and see its prescription type
 - [ ] An order sent from ongoing medications shows Outpatient/Discharge in both modals (verifies spec: PHORD)
 - [ ] Layout matches the Figma frame, with no field overflowing its column
+- [ ] At a facility with preset labels, the dispense workflow still offers a preset for each item
+- [ ] The medication requests table still shows Inpatient, and OP/Discharge with Outpatient/Discharge on hover

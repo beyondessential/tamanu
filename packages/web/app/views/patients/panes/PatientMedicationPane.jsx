@@ -581,7 +581,6 @@ export const PatientMedicationPane = ({ patient }) => {
         instructions,
         dispensedAt,
         dispensedBy,
-        medicationPresetLabel,
       } = dispenseData;
       const mappedItem = {
         id,
@@ -593,7 +592,6 @@ export const PatientMedicationPane = ({ patient }) => {
         dispensedAt,
         dispensedBy,
         prescription: getDispensedPrescription(dispenseData),
-        medicationPresetLabel,
         patient,
       };
       setSelectedDetailItem(mappedItem);

@@ -1,22 +1,39 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { screen, within } from '@testing-library/react';
 
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 
-vi.mock('../../../app/contexts/Auth', () => ({
-  useAuth: () => ({ facilityId: 'facility-1' }),
-}));
-
-const presetLabelsQuery = vi.hoisted(() => ({ hasPresetLabels: false }));
 vi.mock('../../../app/utils/medications', async importOriginal => {
   const actual = await importOriginal();
   return {
     ...actual,
     buildInstructionText: () => '1 tab daily at night',
-    usePresetLabelsQuery: () => presetLabelsQuery,
+  };
+});
+
+// Stands in for the two-column layout so the tests read each column's fields
+// without depending on how MedicationDetailsColumns arranges its markup.
+vi.mock('../../../app/components/Medication/MedicationDetailsColumns', () => {
+  const Column = ({ testId, details }) => (
+    <dl data-testid={testId}>
+      {details.map((detail, index) => (
+        <div key={index} data-testid="detail">
+          <dt>{detail.label}</dt>
+          <dd>{detail.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+  return {
+    MedicationDetailsColumns: ({ leftDetails, rightDetails }) => (
+      <>
+        <Column testId="left-column" details={leftDetails} />
+        <Column testId="right-column" details={rightDetails} />
+      </>
+    ),
   };
 });
 
@@ -65,7 +82,6 @@ const buildDispensedItem = overrides => ({
   dispensedAt: '2025-10-01 09:00:00',
   dispensedBy: { id: 'user-1', displayName: 'Bethany Peters' },
   prescription: { date: '2025-10-01 08:00:00', medication },
-  medicationPresetLabel: { id: 'preset-1', code: 'PRN-PAIN' },
   patient,
   ...overrides,
 });
@@ -80,26 +96,24 @@ const buildNotDispensedRecord = isDischargePrescription => ({
   pharmacyOrder: { isDischargePrescription, encounter: { patient } },
 });
 
-// Each column lists label/value pairs; the label is the first child of each pair.
-const columnLabels = labelText => {
-  const pair = screen.getByText(labelText).parentElement;
-  return [...pair.parentElement.children].map(child => child.firstChild.textContent);
+const columnLabels = columnTestId =>
+  within(screen.getByTestId(columnTestId))
+    .getAllByRole('term')
+    .map(term => term.textContent);
+
+const valueOf = labelText => {
+  const detail = screen.getByText(labelText).closest('[data-testid="detail"]');
+  return within(detail).getByRole('definition').textContent;
 };
 
-const valueOf = labelText => screen.getByText(labelText).nextSibling.textContent;
-
 describe('DispensedMedicationDetailsModal', () => {
-  beforeEach(() => {
-    presetLabelsQuery.hasPresetLabels = false;
-  });
-
   const renderModal = item =>
     renderWithDateTime(<DispensedMedicationDetailsModal open onClose={() => {}} item={item} />);
 
   it('lays out the fields in the designed order', () => {
     renderModal(buildDispensedItem({ isDischargePrescription: false }));
 
-    expect(columnLabels('Patient ID')).toEqual([
+    expect(columnLabels('left-column')).toEqual([
       'Patient ID',
       'Medication',
       'Prescription type',
@@ -107,7 +121,7 @@ describe('DispensedMedicationDetailsModal', () => {
       'Qty dispensed',
       'Instructions',
     ]);
-    expect(columnLabels('Patient name')).toEqual([
+    expect(columnLabels('right-column')).toEqual([
       'Patient name',
       'Prescription date',
       'Request no.',
@@ -120,6 +134,7 @@ describe('DispensedMedicationDetailsModal', () => {
   it.each([
     [false, 'Inpatient'],
     [true, 'Outpatient/Discharge'],
+    // TODO(TAM-7087): pending product owner confirmation of the no-recorded-type reading.
     [null, 'Inpatient'],
   ])('shows prescription type for isDischargePrescription=%s as %s', (isDischarge, expected) => {
     renderModal(buildDispensedItem({ isDischargePrescription: isDischarge }));
@@ -127,18 +142,16 @@ describe('DispensedMedicationDetailsModal', () => {
     expect(valueOf('Prescription type')).toBe(expected);
   });
 
-  it('shows Preset labels after Label text only where the facility has preset labels', () => {
-    presetLabelsQuery.hasPresetLabels = true;
-    renderModal(buildDispensedItem({ isDischargePrescription: true }));
-
-    expect(columnLabels('Patient name').slice(-2)).toEqual(['Label text', 'Preset labels']);
-    expect(valueOf('Preset labels')).toBe('PRN-PAIN');
-  });
-
-  it('omits Preset labels where the facility has none', () => {
-    renderModal(buildDispensedItem({ isDischargePrescription: true }));
+  it('does not show Preset labels, even for a dispense that used a preset', () => {
+    renderModal(
+      buildDispensedItem({
+        isDischargePrescription: true,
+        medicationPresetLabel: { id: 'preset-1', code: 'PRN-PAIN' },
+      }),
+    );
 
     expect(screen.queryByText('Preset labels')).toBeNull();
+    expect(screen.queryByText('PRN-PAIN')).toBeNull();
   });
 });
 
@@ -151,7 +164,7 @@ describe('NotDispensedMedicationDetailsModal', () => {
   it('shows prescription type third in the left column', () => {
     renderModal(buildNotDispensedRecord(false));
 
-    expect(columnLabels('Patient ID')).toEqual([
+    expect(columnLabels('left-column')).toEqual([
       'Patient ID',
       'Medication',
       'Prescription type',
@@ -163,6 +176,7 @@ describe('NotDispensedMedicationDetailsModal', () => {
   it.each([
     [false, 'Inpatient'],
     [true, 'Outpatient/Discharge'],
+    // TODO(TAM-7087): pending product owner confirmation of the no-recorded-type reading.
     [null, 'Inpatient'],
   ])('shows prescription type for isDischargePrescription=%s as %s', (isDischarge, expected) => {
     renderModal(buildNotDispensedRecord(isDischarge));

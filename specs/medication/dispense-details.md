@@ -17,7 +17,6 @@ Applies to the details window opened from a dispensed medication, in the pharmac
 
 - The left column shows, top to bottom: Patient ID, Medication, Prescription type, Date dispensed, Qty dispensed and Instructions.
 - The right column shows, top to bottom: Patient name, Prescription date, Request no., Dispensed by, Remaining repeats and Label text.
-- At facilities that have preset labels set up, Preset labels follows Label text, showing the code of the preset used for the dispense, or a dash where none was used.
 
 ## Not dispensed medication
 
