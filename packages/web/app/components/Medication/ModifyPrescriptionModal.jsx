@@ -116,6 +116,7 @@ export const ModifyPrescriptionModal = ({
   // Retains the dose amount when variable dose is toggled on (which clears the field), so
   // unticking it restores the previous value instead of leaving it empty.
   const retainedDoseAmount = useRef(null);
+  const pickedMedication = useRef(null);
 
   const defaultPharmacyNote = getTranslation(
     'medication.modify.defaultPharmacyNote',
@@ -132,18 +133,12 @@ export const ModifyPrescriptionModal = ({
 
   const source = modification ?? prescription;
 
-  const fetchMedication = medicationId =>
-    drugSuggester.fetchCurrentOption(medicationId).then(option => ({
-      id: medicationId,
-      name: option?.label ?? '',
-      referenceDrug: option?.referenceDrug,
-    }));
-
-  const onSubmit = async values => {
-    const knownMedication = [prescription, modification].find(
-      known => known?.medicationId === values.medicationId,
-    )?.medication;
-    const medication = knownMedication ?? (await fetchMedication(values.medicationId));
+  const onSubmit = values => {
+    const medication = [
+      prescription.medication,
+      modification?.medication,
+      pickedMedication.current,
+    ].find(known => known?.id === values.medicationId);
     onConfirm({
       medicationId: values.medicationId,
       // Kept for display in the dispense workflow (table row, printed label) and for
@@ -215,6 +210,11 @@ export const ModifyPrescriptionModal = ({
                 suggester={drugSuggester}
                 onChange={e => {
                   const referenceDrug = e.target.referenceDrug;
+                  pickedMedication.current = {
+                    id: e.target.value,
+                    name: e.target.label,
+                    referenceDrug,
+                  };
                   setValues({
                     ...values,
                     medicationId: e.target.value,

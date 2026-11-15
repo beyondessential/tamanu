@@ -62,7 +62,9 @@ vi.mock('../../../app/components/Field', async importOriginal => {
       <input
         data-testid={`${testId}-input`}
         value={field?.value ?? ''}
-        onChange={e => onChange?.({ target: { value: e.target.value } })}
+        onChange={e =>
+          onChange?.({ target: { ...pickableOptions[e.target.value], value: e.target.value } })
+        }
       />
     ),
   };
@@ -91,7 +93,12 @@ vi.mock('../../../app/utils/medications', () => ({
     isVariableDose ? 'Take as directed' : `Take ${doseAmount}`,
 }));
 
-const fetchCurrentOption = vi.fn().mockResolvedValue(null);
+const substituteReferenceDrug = { facilities: [{ stockStatus: 'out_of_stock', quantity: 0 }] };
+const pickableOptions = {
+  'drug-2': { label: 'Ibuprofen', referenceDrug: substituteReferenceDrug },
+};
+
+const fetchCurrentOption = vi.fn();
 
 vi.mock('../../../app/api', () => ({
   useSuggester: () => ({
@@ -169,8 +176,6 @@ describe('ModifyPrescriptionModal form logic', () => {
   });
 
   it('confirms a substituted drug with its stock record', async () => {
-    const referenceDrug = { facilities: [{ stockStatus: 'out_of_stock', quantity: 0 }] };
-    fetchCurrentOption.mockResolvedValueOnce({ label: 'Ibuprofen', value: 'drug-2', referenceDrug });
     const onConfirm = vi.fn();
     renderModal({
       onConfirm,
@@ -190,8 +195,9 @@ describe('ModifyPrescriptionModal form logic', () => {
     expect(onConfirm.mock.calls[0][0].medication).toEqual({
       id: 'drug-2',
       name: 'Ibuprofen',
-      referenceDrug,
+      referenceDrug: substituteReferenceDrug,
     });
+    expect(fetchCurrentOption).not.toHaveBeenCalled();
   });
 
   it('keeps the substituted drug already chosen when confirmed again', async () => {
@@ -200,7 +206,6 @@ describe('ModifyPrescriptionModal form logic', () => {
       name: 'Ibuprofen',
       referenceDrug: { facilities: [{ stockStatus: 'in_stock', quantity: 8 }] },
     };
-    fetchCurrentOption.mockClear();
     const onConfirm = vi.fn();
     renderModal({
       onConfirm,
