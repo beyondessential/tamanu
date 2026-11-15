@@ -117,9 +117,10 @@ design: a plan is scoped to a section, a payment names its section, and per-item
 derived rather than stored. `InvoiceItemFinalisedInsurance` already holds the per-item grain where
 it has to be frozen, so nothing new is stored per item.
 
-- [ ] Migration adding `invoices_invoice_insurance_plans.invoice_section_id` and `invoice_insurance_plan_payments.invoice_section_id`, both nullable and referencing `reference_data`. Null keeps today's meaning: the plan covers the whole invoice
-- [ ] Replace the unique constraint on `invoices_invoice_insurance_plans` from `(invoiceId, invoiceInsurancePlanId)` with one that includes the section. Postgres treats NULLs as distinct in a unique index, so an invoice-wide plan could otherwise be attached twice — use a partial unique index rather than `NULLS NOT DISTINCT`, which is PG15+ while the codebase still guards for PG13
-- [ ] Regenerate the dbt source models for both tables and clear the new `TODO`s
+- [x] Migration adding `invoices_invoice_insurance_plans.invoice_section_id` and `invoice_insurance_plan_payments.invoice_section_id`, both nullable and referencing `reference_data`. Null keeps today's meaning: the plan covers the whole invoice
+- [x] Add the section-aware unique indexes to `invoices_invoice_insurance_plans`. There was no unique constraint to replace: the model declares `(invoiceId, invoiceInsurancePlanId)` as unique but Tamanu builds schema from migrations, so it never reached the database and only the route's own check stopped a plan being attached twice. Postgres treats NULLs as distinct in a unique index, so two partial indexes are used rather than `NULLS NOT DISTINCT`, which is PG15+ while the codebase still guards for PG13
+- [x] Carry `invoiceSectionId` on the `InvoicesInvoiceInsurancePlan` and `InvoiceInsurancePlanPayment` models, each with a `invoiceSection` association, and drop the join model's unique index declaration now that the real uniqueness is two partial indexes
+- [x] Regenerate the dbt source models for both tables and clear the new `TODO`s
 - [ ] Filter an item against the plan row's section before applying its coverage percentage, in `getCoverageAmountPerInsurancePlan` and `getInsuranceCoverageTotalAmount`. TAM-7211 consolidated pricing into one calculation, so the invoice screen, the printout and the payment importer pick this up together
 - [ ] Key coverage per plan **row** rather than per plan — `getCoverageAmountPerInsurancePlan` keys per plan today, which collapses a plan covering two sections into one figure
 - [ ] Leave `getInsurancePlanPaymentBalance` alone: it derives coverage from the invoice's items, so once coverage is section-scoped the balance follows
