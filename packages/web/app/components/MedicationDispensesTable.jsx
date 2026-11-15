@@ -337,6 +337,8 @@ export const MedicationDispensesTable = () => {
     const mappedItem = {
       id: dispenseData.id,
       displayId: dispenseData.pharmacyOrderPrescription?.displayId,
+      isDischargePrescription:
+        dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.isDischargePrescription,
       quantity: dispenseData.quantity,
       instructions: dispenseData.instructions,
       remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,

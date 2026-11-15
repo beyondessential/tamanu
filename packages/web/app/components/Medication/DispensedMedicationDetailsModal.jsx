@@ -15,7 +15,11 @@ import { PatientNameDisplay } from '../PatientNameDisplay';
 import { useTranslation } from '../../contexts/Translation';
 import { useAuth } from '../../contexts/Auth';
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
-import { buildInstructionText, usePresetLabelsQuery } from '../../utils/medications';
+import {
+  buildInstructionText,
+  PharmacyPrescriptionTypeLabel,
+  usePresetLabelsQuery,
+} from '../../utils/medications';
 import { MedicationDetailsColumns } from './MedicationDetailsColumns';
 
 const StyledModal = styled(BaseModal)`
@@ -53,118 +57,125 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     dispensedBy,
     patient,
     medicationPresetLabel,
+    isDischargePrescription,
   } = item;
 
   // The dispense stores the label text in `instructions`; the clinical Instructions
   // shown here are derived from the details it was dispensed with.
   const derivedInstructions = buildInstructionText(prescription, getTranslation, getEnumTranslation);
 
-  const leftDetails = [
-    {
-      label: (
-        <TranslatedText stringId="medication.dispenseDetails.patientId" fallback="Patient ID" />
-      ),
-      value: patient?.displayId || '-',
-    },
-    {
-      label: (
-        <TranslatedText stringId="medication.dispenseDetails.medication" fallback="Medication" />
-      ),
-      value: (
-        <TranslatedReferenceData
-          fallback={prescription?.medication?.name}
-          value={prescription?.medication?.id}
-          category={prescription?.medication?.type}
-        />
-      ),
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.dispenseDetails.dateDispensed"
-          fallback="Date dispensed"
-        />
-      ),
-      value: dispensedAt ? formatShortest(dispensedAt) : '-',
-    },
-    {
-      label: (
-        <TranslatedText stringId="medication.dispenseDetails.dispensedBy" fallback="Dispensed by" />
-      ),
-      value: dispensedBy?.displayName || '-',
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.dispenseDetails.instructions"
-          fallback="Instructions"
-        />
-      ),
-      value: derivedInstructions || '-',
-    },
-    ...(hasPresetLabels
-      ? [
-          {
-            label: (
-              <TranslatedText
-                stringId="medication.dispenseDetails.presetLabels"
-                fallback="Preset labels"
-              />
-            ),
-            value: medicationPresetLabel?.code || '-',
-          },
-        ]
-      : []),
-  ];
+  const patientIdDetail = {
+    label: <TranslatedText stringId="medication.dispenseDetails.patientId" fallback="Patient ID" />,
+    value: patient?.displayId || '-',
+  };
+  const medicationDetail = {
+    label: (
+      <TranslatedText stringId="medication.dispenseDetails.medication" fallback="Medication" />
+    ),
+    value: (
+      <TranslatedReferenceData
+        fallback={prescription?.medication?.name}
+        value={prescription?.medication?.id}
+        category={prescription?.medication?.type}
+      />
+    ),
+  };
+  const prescriptionTypeDetail = {
+    label: (
+      <TranslatedText
+        stringId="medication.dispenseDetails.prescriptionType"
+        fallback="Prescription type"
+      />
+    ),
+    value: <PharmacyPrescriptionTypeLabel isDischargePrescription={isDischargePrescription} />,
+  };
+  const dateDispensedDetail = {
+    label: (
+      <TranslatedText
+        stringId="medication.dispenseDetails.dateDispensed"
+        fallback="Date dispensed"
+      />
+    ),
+    value: dispensedAt ? formatShortest(dispensedAt) : '-',
+  };
+  const qtyDispensedDetail = {
+    label: (
+      <TranslatedText stringId="medication.dispenseDetails.qtyDispensed" fallback="Qty dispensed" />
+    ),
+    value: prescription?.dispensingUnit
+      ? `${quantity} ${getDrugUnitLabel(prescription.dispensingUnit, quantity, getEnumTranslation)}`
+      : (quantity ?? '-'),
+  };
+  const instructionsDetail = {
+    label: (
+      <TranslatedText stringId="medication.dispenseDetails.instructions" fallback="Instructions" />
+    ),
+    value: derivedInstructions || '-',
+  };
+  const patientNameDetail = {
+    label: (
+      <TranslatedText stringId="medication.dispenseDetails.patientName" fallback="Patient name" />
+    ),
+    value: patient ? <PatientNameDisplay patient={patient} /> : '-',
+  };
+  const prescriptionDateDetail = {
+    label: (
+      <TranslatedText
+        stringId="medication.dispenseDetails.prescriptionDate"
+        fallback="Prescription date"
+      />
+    ),
+    value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
+  };
+  const requestNoDetail = {
+    label: (
+      <TranslatedText stringId="medication.dispenseDetails.requestNo" fallback="Request no." />
+    ),
+    value: displayId || '-',
+  };
+  const dispensedByDetail = {
+    label: (
+      <TranslatedText stringId="medication.dispenseDetails.dispensedBy" fallback="Dispensed by" />
+    ),
+    value: dispensedBy?.displayName || '-',
+  };
+  const remainingRepeatsDetail = {
+    label: (
+      <TranslatedText
+        stringId="medication.dispenseDetails.remainingRepeats"
+        fallback="Remaining repeats"
+      />
+    ),
+    value: remainingRepeats ?? 0,
+  };
+  const labelTextDetail = {
+    label: <TranslatedText stringId="medication.dispenseDetails.labelText" fallback="Label text" />,
+    value: instructions || '-',
+  };
+  const presetLabelDetail = {
+    label: (
+      <TranslatedText stringId="medication.dispenseDetails.presetLabels" fallback="Preset labels" />
+    ),
+    value: medicationPresetLabel?.code || '-',
+  };
 
+  // spec: DSPDET
+  const leftDetails = [
+    patientIdDetail,
+    medicationDetail,
+    prescriptionTypeDetail,
+    dateDispensedDetail,
+    qtyDispensedDetail,
+    instructionsDetail,
+  ];
   const rightDetails = [
-    {
-      label: (
-        <TranslatedText stringId="medication.dispenseDetails.patientName" fallback="Patient name" />
-      ),
-      value: patient ? <PatientNameDisplay patient={patient} /> : '-',
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.dispenseDetails.prescriptionDate"
-          fallback="Prescription date"
-        />
-      ),
-      value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.dispenseDetails.qtyDispensed"
-          fallback="Qty dispensed"
-        />
-      ),
-      value: prescription?.dispensingUnit
-        ? `${quantity} ${getDrugUnitLabel(prescription.dispensingUnit, quantity, getEnumTranslation)}`
-        : (quantity ?? '-'),
-    },
-    {
-      label: (
-        <TranslatedText stringId="medication.dispenseDetails.requestNo" fallback="Request no." />
-      ),
-      value: displayId || '-',
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.dispenseDetails.remainingRepeats"
-          fallback="Remaining repeats"
-        />
-      ),
-      value: remainingRepeats ?? 0,
-    },
-    {
-      label: (
-        <TranslatedText stringId="medication.dispenseDetails.labelText" fallback="Label text" />
-      ),
-      value: instructions || '-',
-    },
+    patientNameDetail,
+    prescriptionDateDetail,
+    requestNoDetail,
+    dispensedByDetail,
+    remainingRepeatsDetail,
+    labelTextDetail,
+    ...(hasPresetLabels ? [presetLabelDetail] : []),
   ];
 
   return (

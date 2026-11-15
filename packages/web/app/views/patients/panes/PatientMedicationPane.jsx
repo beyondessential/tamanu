@@ -586,6 +586,7 @@ export const PatientMedicationPane = ({ patient }) => {
       const mappedItem = {
         id,
         displayId: pharmacyOrderPrescription?.displayId,
+        isDischargePrescription: pharmacyOrderPrescription?.pharmacyOrder?.isDischargePrescription,
         quantity,
         instructions,
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
