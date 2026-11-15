@@ -104,9 +104,9 @@ export const saveChangesForModel = async (
     return deletedAt === undefined ? sanitized : { ...sanitized, deletedAt };
   };
 
-  const [recordsForCreate, recordsForUpdate] = partition(
+  const [recordsForUpdate, recordsForCreate] = partition(
     changes.map(({ data }) => toRecordToWrite(data)),
-    record => !isExistingRecord(record.id),
+    record => isExistingRecord(record.id),
   );
 
   // run each import process
