@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 import { format } from 'date-fns';
 
-import { TABLE_SORT_PREFERENCE_KEYS } from '@tamanu/constants';
+import { IMAGING_TYPES, TABLE_SORT_PREFERENCE_KEYS } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 
 import { constructFacilityUrl } from './navigation';
@@ -588,6 +588,24 @@ export const recordPatientDeathViaApi = async (
     console.error('Response status:', response.status());
     console.error('Response text:', responseText);
     throw new Error(`Failed to record patient death: ${response.statusText()} - ${responseText}`);
+  }
+
+  return response.json();
+};
+
+export const createImagingRequestViaApi = async (
+  api: APIRequestContext,
+  encounterId: string,
+  status: string,
+) => {
+  const user = await getUser(api);
+  const url = constructFacilityUrl('/api/imagingRequest');
+  const response = await api.post(url, {
+    data: { encounterId, requestedById: user.id, imagingType: IMAGING_TYPES.X_RAY, status },
+  });
+
+  if (!response.ok()) {
+    throw new Error(`Failed to create imaging request: ${response.status()} ${await response.text()}`);
   }
 
   return response.json();
