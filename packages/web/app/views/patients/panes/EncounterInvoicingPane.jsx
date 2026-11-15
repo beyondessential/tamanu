@@ -112,12 +112,10 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const deletable =
     invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice && !hasPayments;
   const { mutate: bulkUpdateApproval } = useBulkUpdateInvoiceItemApproval(invoice);
+  // Finalise asks for `create` on Invoice alone, as it always has. A deployment may hold a role
+  // with create and not write, and adding write here would take the action away from it.
   const finalisable =
-    invoice &&
-    isInvoiceEditable(invoice) &&
-    canCreateInvoice &&
-    canWriteInvoice &&
-    encounter.endDate;
+    invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
   const allItemsAreApproved = invoice.items.every(item => item.approved);
   const someItemsAreApproved = invoice.items.some(item => item.approved);
   const zeroItems = invoice.items.length === 0;

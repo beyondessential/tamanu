@@ -15,7 +15,8 @@ Applies to patient billing: invoices and their items, products, price lists, pay
 
 ## Invoice actions
 
-- Users who cannot edit invoices are offered only the invoice actions that leave the invoice unchanged, such as View patient details and Print invoice. Insurance plan, Add item, Edit items, Mark all as approved, Remove all approvals, Cancel invoice and Finalise are hidden from them, as is each item's actions menu.
+- Users who cannot edit invoices are offered only the invoice actions that leave the invoice unchanged, such as View patient details and Print invoice. Insurance plan, Add item, Edit items, Mark all as approved, Remove all approvals and Cancel invoice are hidden from them, as is each item's actions menu.
+- Finalise is offered to the users who can create invoices, whether or not they can edit one.
 - When the patient field settings hide the insurance plan field, the invoice's Insurance plan action is hidden, and Record payment opens the record payment form without the "No insurance plan added" confirmation.
 
 ## Patient details
