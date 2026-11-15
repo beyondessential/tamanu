@@ -317,7 +317,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
           const isBeingCompleted =
             value === IMAGING_REQUEST_STATUS_TYPES.COMPLETED &&
             values.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
-          if (isBeingCompleted && !values.newResult?.completedById) {
+          if (isBeingCompleted && !values.newResult.completedById) {
             setFieldValue('newResult.completedById', currentUser.id);
           }
         };

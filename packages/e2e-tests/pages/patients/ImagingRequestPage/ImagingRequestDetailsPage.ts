@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { routes } from '@config/routes';
 import { editFieldOption, selectFieldOption } from '@utils/fieldHelpers';
 import { constructFacilityUrl } from '@utils/navigation';
 
@@ -18,7 +19,7 @@ export class ImagingRequestDetailsPage {
   async goto(patientId: string, encounterId: string, imagingRequestId: string) {
     await this.page.goto(
       constructFacilityUrl(
-        `/patients/all/${patientId}/encounter/${encounterId}/imaging-request/${imagingRequestId}`,
+        `${routes.patients.all}/${patientId}/encounter/${encounterId}/imaging-request/${imagingRequestId}`,
       ),
     );
     await this.statusSelect.waitFor({ state: 'visible' });
