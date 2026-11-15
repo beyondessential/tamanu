@@ -55,13 +55,14 @@ export const saveChangesForModel = async (
    * @see https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
    */
   const idToIncomingRecord = keyBy(safeChanges, change => change.data.id);
-  /** Own-property check, so an id like `constructor` doesn’t match an inherited member */
+  /** Own-property check, so an ID like `constructor` doesn’t match an inherited member */
   const isExistingRecord = (id: SyncSnapshotData['id']) => Object.hasOwn(idToExistingRecord, id);
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
   for (const existing of existingRecords) {
     // compares incoming and existing records by id
+    // (Technically an unsafe access; `existing.id` may match an inherited member.)
     const incoming = idToIncomingRecord[existing.id];
 
     // Restores only originate from central server
