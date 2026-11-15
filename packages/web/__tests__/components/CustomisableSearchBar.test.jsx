@@ -28,6 +28,26 @@ describe('CustomisableSearchBar', () => {
     expect(clearButton()).toHaveProperty('disabled', false);
   });
 
+  it('searches with leading and trailing spaces removed', async () => {
+    const onSearch = vi.fn();
+    renderSearchBar({ onSearch });
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'First name' }), '  Ana  ');
+    await userEvent.click(searchButton());
+
+    expect(onSearch).toHaveBeenLastCalledWith({ firstName: 'Ana' });
+  });
+
+  it('searches a field of only spaces as blank', async () => {
+    const onSearch = vi.fn();
+    renderSearchBar({ onSearch });
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'First name' }), '   ');
+    await userEvent.click(searchButton());
+
+    expect(onSearch).toHaveBeenLastCalledWith({ firstName: '' });
+  });
+
   describe('with canSearch', () => {
     it('disables Search and Clear until a field has a value', async () => {
       renderSearchBar({ canSearch: hasSearchCriteria });
