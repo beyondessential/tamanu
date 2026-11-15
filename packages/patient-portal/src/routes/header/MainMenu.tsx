@@ -40,7 +40,7 @@ const CurrentProfile = styled('div')(() => ({
   gap: 16,
   padding: 16,
   border: '1px solid var(--pf-primary)',
-  borderRadius: 8,
+  borderRadius: 4,
   background: 'var(--pf-primary-tint)',
 }));
 

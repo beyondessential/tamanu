@@ -13,8 +13,18 @@ const Prompt = styled.p`
   color: var(--pf-text-secondary);
 `;
 
+const ProfileCard = styled(Panel)`
+  border-radius: 4px;
+
+  & + & {
+    margin-top: 8px;
+  }
+`;
+
 const ProfileButton = styled.button.attrs({ type: 'button' })`
   ${rowLayout}
+  min-height: 70px;
+  padding: 14px 16px;
   width: 100%;
   border: none;
   background: none;
@@ -66,7 +76,7 @@ export const SelectProfileView = () => {
         <Loading />
       ) : (
         profiles?.data.map(profile => (
-          <Panel key={profile.portalUserId}>
+          <ProfileCard key={profile.portalUserId}>
             <ProfileButton
               disabled={isSelecting}
               onClick={() => selectProfile(profile.portalUserId)}
@@ -74,7 +84,7 @@ export const SelectProfileView = () => {
               <ProfileSummary patient={profile} />
               <ChevronRight aria-hidden />
             </ProfileButton>
-          </Panel>
+          </ProfileCard>
         ))
       )}
     </PageColumn>
