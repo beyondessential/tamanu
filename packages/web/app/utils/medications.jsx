@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 
@@ -89,20 +89,11 @@ export const InstructionsInput = memo(({ value, onChange, disabled, testId, ...p
   );
 });
 
-const StyledQuantityTextInput = styled(NumberInput)`
+export const QuantityInput = styled(NumberInput)`
   .MuiInputBase-root {
     font-size: 14px;
   }
 `;
-
-export const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-  return <StyledQuantityTextInput {...props} value={value} onChange={handleChange} />;
-});
 
 export const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`
   .MuiInputBase-input {

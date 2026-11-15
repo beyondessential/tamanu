@@ -37,6 +37,7 @@ import {
 } from './PrescriptionFields';
 import { prescriptionClinicalValidation } from './prescriptionValidation';
 import { DispensingQuantityAutocalculator } from './DispensingQuantityAutocalculator';
+import { LabelNotesAutofill } from './LabelNotesAutofill';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -135,9 +136,11 @@ export const ModifyPrescriptionModal = ({
     const medication =
       values.medicationId === prescription.medicationId
         ? prescription.medication
-        : await drugSuggester
-            .fetchCurrentOption(values.medicationId)
-            .then(option => ({ id: values.medicationId, name: option?.label ?? '' }));
+        : await drugSuggester.fetchCurrentOption(values.medicationId).then(option => ({
+            id: values.medicationId,
+            name: option?.label ?? '',
+            referenceDrug: option?.referenceDrug,
+          }));
     onConfirm({
       medicationId: values.medicationId,
       // Kept for display in the dispense workflow (table row, printed label) and for
@@ -203,6 +206,7 @@ export const ModifyPrescriptionModal = ({
               enabled={isDispensingQuantityAutocalculationEnabled}
               isOngoing={Boolean(prescription.isOngoing)}
             />
+            <LabelNotesAutofill prescription={prescription} />
             <div style={{ gridColumn: '1 / -1' }}>
               <MedicationAutocompleteField
                 suggester={drugSuggester}

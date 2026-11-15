@@ -83,6 +83,8 @@ vi.mock('@tamanu/ui-components', async importOriginal => {
 // to avoid pulling the whole medications util graph into the test.
 vi.mock('../../../app/utils/medications', () => ({
   getDrugUnitLabel: () => '',
+  buildLabelText: ({ isVariableDose, doseAmount }) =>
+    isVariableDose ? 'Take as directed' : `Take ${doseAmount}`,
 }));
 
 vi.mock('../../../app/api', () => ({
@@ -139,6 +141,22 @@ const renderModal = (props = {}) =>
 describe('ModifyPrescriptionModal form logic', () => {
   it('prefills the label notes from the workflow row', () => {
     renderModal();
+    expect(screen.getByTestId('modify-prescription-label-notes-input').value).toBe(
+      'Take with food in the morning',
+    );
+  });
+
+  it('rebuilds generated label notes when the dose changes', () => {
+    renderModal({ labelNotes: 'Take 5' });
+    fireEvent.click(screen.getByTestId('modify-prescription-variable-dose'));
+    expect(screen.getByTestId('modify-prescription-label-notes-input').value).toBe(
+      'Take as directed',
+    );
+  });
+
+  it('leaves hand-written label notes alone when the dose changes', () => {
+    renderModal();
+    fireEvent.click(screen.getByTestId('modify-prescription-variable-dose'));
     expect(screen.getByTestId('modify-prescription-label-notes-input').value).toBe(
       'Take with food in the morning',
     );

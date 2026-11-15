@@ -256,7 +256,8 @@ export const DispenseMedicationWorkflowModal = memo(
 
     const selectedItems = items.filter(({ selected }) => selected);
     const stockColumnEnabled = items.some(
-      ({ prescription }) => prescription?.medication?.referenceDrug?.facilities?.[0]?.stockStatus,
+      item =>
+        getEffectivePrescription(item)?.medication?.referenceDrug?.facilities?.[0]?.stockStatus,
     );
 
     useEffect(() => {
@@ -401,7 +402,11 @@ export const DispenseMedicationWorkflowModal = memo(
         const current = next[rowIndex];
         if (!current) return prev;
 
-        const fallback = buildLabelText(current.prescription, getTranslation, getEnumTranslation);
+        const fallback = buildLabelText(
+          getEffectivePrescription(current),
+          getTranslation,
+          getEnumTranslation,
+        );
         const nextLabelText = resolvePresetLabelText(presetId, presetName, fallback);
 
         next[rowIndex] = {
@@ -779,7 +784,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Stock"
             />
           ),
-          accessor: getStockStatus,
+          accessor: item => getStockStatus({ prescription: getEffectivePrescription(item) }),
         });
       }
 
