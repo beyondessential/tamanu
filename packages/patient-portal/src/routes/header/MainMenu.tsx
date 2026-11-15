@@ -76,6 +76,8 @@ export const MainMenu = ({ open, onClose }: MainMenuProps) => {
             <Button
               variant="contained"
               fullWidth
+              disableElevation
+              sx={{ textTransform: 'none' }}
               onClick={() => {
                 onClose();
                 navigate('/select-profile');
