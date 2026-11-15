@@ -24,4 +24,5 @@ Automated cases are covered by `packages/web/__tests__/components/Medication/Dis
 - [ ] An order sent from ongoing medications shows Outpatient/Discharge in both modals (verifies spec: PHORD)
 - [ ] Layout matches the Figma frame, with no field overflowing its column
 - [ ] At a facility with preset labels, the dispense workflow still offers a preset for each item
+- [ ] Editing a dispense that used a preset opens with that preset selected, from both the pharmacy's Dispensed medications list and the patient's Medication tab
 - [ ] The medication requests table still shows Inpatient, and OP/Discharge with Outpatient/Discharge on hover
