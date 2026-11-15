@@ -7,5 +7,6 @@ export const useProfilesQuery = () => {
   return useQuery<unknown, Error, PortalProfiles>({
     queryKey: ['profiles'],
     queryFn: () => api.get('profiles'),
+    staleTime: Infinity,
   });
 };
