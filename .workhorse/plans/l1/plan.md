@@ -121,9 +121,9 @@ it has to be frozen, so nothing new is stored per item.
 - [x] Add the section-aware unique indexes to `invoices_invoice_insurance_plans`. There was no unique constraint to replace: the model declares `(invoiceId, invoiceInsurancePlanId)` as unique but Tamanu builds schema from migrations, so it never reached the database and only the route's own check stopped a plan being attached twice. Postgres treats NULLs as distinct in a unique index, so two partial indexes are used rather than `NULLS NOT DISTINCT`, which is PG15+ while the codebase still guards for PG13
 - [x] Carry `invoiceSectionId` on the `InvoicesInvoiceInsurancePlan` and `InvoiceInsurancePlanPayment` models, each with a `invoiceSection` association, and drop the join model's unique index declaration now that the real uniqueness is two partial indexes
 - [x] Regenerate the dbt source models for both tables and clear the new `TODO`s
-- [ ] Filter an item against the plan row's section before applying its coverage percentage, in `getCoverageAmountPerInsurancePlan` and `getInsuranceCoverageTotalAmount`. TAM-7211 consolidated pricing into one calculation, so the invoice screen, the printout and the payment importer pick this up together
-- [ ] Key coverage per plan **row** rather than per plan — `getCoverageAmountPerInsurancePlan` keys per plan today, which collapses a plan covering two sections into one figure
-- [ ] Leave `getInsurancePlanPaymentBalance` alone: it derives coverage from the invoice's items, so once coverage is section-scoped the balance follows
+- [x] Filter an item against the plan row's section before applying its coverage percentage, in `getCoverageAmountPerInsurancePlan` and `getInsuranceCoverageTotalAmount`. TAM-7211 consolidated pricing into one calculation, so the invoice screen, the printout and the payment importer pick this up together
+- [x] Key coverage per plan **row** rather than per plan — `getCoverageAmountPerInsurancePlan` keys per plan today, which collapses a plan covering two sections into one figure
+- [x] Narrow `getInsurancePlanPaymentBalance` to a section. It could not be left alone after all: it looked coverage up by plan id, which no longer keys the map, so every insurance payment would have read as owing nothing. It now takes an optional section, and without one spans every section the plan is attached to, which is what an unsectioned invoice has always meant
 - [ ] Attach a plan from the section header's own Insurance plan action, writing the row with that section. Refuse a section that is not current, the same way the item path already does
 - [ ] Record a payment against a plan row (plan plus section) rather than a plan, so the section travels with it
 - [ ] Show each plan's coverage line within the section it covers; keep the invoice summary and patient payments invoice-wide
@@ -138,7 +138,8 @@ it has to be frozen, so nothing new is stored per item.
 - [ ] Endpoint: a plan attached to one section covers only that section's items, and an invoice-wide plan (null section) still covers everything
 - [ ] Endpoint: the same plan attached to two sections yields a separate coverage total and balance for each
 - [ ] Endpoint: attaching the same plan to the same section twice is refused, and attaching it invoice-wide twice is refused
-- [ ] Unit: coverage for an item whose section no plan covers is zero, and uncategorised items are covered only by an invoice-wide plan
+- [x] Unit: coverage for an item whose section no plan covers is zero, and uncategorised items are covered only by an invoice-wide plan
+- [x] Unit: a plan attached to two sections carries a separate balance for each, and a payment against one section leaves the other's balance alone
 
 ## Tests
 

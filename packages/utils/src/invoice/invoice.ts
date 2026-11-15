@@ -8,7 +8,7 @@ import {
   type InvoiceItemPricing,
 } from './invoiceItem';
 import { getInvoiceLevelDiscountAmount } from './discount';
-import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
+import type { InsurancePlan, Invoice, InvoiceItem, InvoiceSummary } from './types';
 
 export const isInvoiceEditable = (invoice: Invoice): boolean =>
   invoice.status === INVOICE_STATUSES.IN_PROGRESS;
@@ -17,13 +17,15 @@ export interface InvoicePlanCoverage {
   id: string;
   name: string | undefined;
   code: string | undefined;
+  /** The section this coverage applies to, or null where the plan covers the whole invoice */
+  invoiceSectionId: string | null;
   totalCoverage: number;
 }
 
 export interface InvoicePricing {
   /** One entry per invoice item, in the same order as `invoice.items` */
   items: InvoiceItemPricing[];
-  /** One entry per insurance plan attached to the invoice */
+  /** One entry per attachment of an insurance plan to the invoice, section by section */
   coverageByPlan: InvoicePlanCoverage[];
   summary: InvoiceSummary;
 }
@@ -55,6 +57,30 @@ const getItemCoverageTowardsTotal = (
 export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): Decimal =>
   sumOf(invoiceItems.map(item => getItemCoverageTowardsTotal(item, calculateInvoiceItem(item))));
 
+// Sequelize nests the attachment row under the through model's name
+const ATTACHMENT_KEY = 'InvoicesInvoiceInsurancePlan';
+
+/**
+ * The invoice's plans as attachments: one entry per attachment, each carrying the section it
+ * covers. A plan attached to two sections arrives twice, which is the grain coverage is keyed at.
+ *
+ * An invoice loaded from the database nests the attachment row inside each plan, so the section
+ * has to be lifted out before anything prices it; one left nested reads as covering the whole
+ * invoice, which overstates what every sectioned plan owes.
+ */
+export const withInsuranceAttachments = (invoice: Invoice): Invoice => ({
+  ...invoice,
+  insurancePlans: (invoice.insurancePlans || []).map(plan => {
+    const attachment = (plan as Record<string, any>)[ATTACHMENT_KEY];
+    if (!attachment) return plan;
+    return {
+      ...plan,
+      attachmentId: attachment.id,
+      invoiceSectionId: attachment.invoiceSectionId ?? null,
+    };
+  }),
+});
+
 /**
  * An invoice whose items carry the plan rows the coverage functions read.
  *
@@ -62,16 +88,26 @@ export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): De
  * has to pass through here before any coverage total means anything — skip it and every plan reads
  * as covering nothing, which silently caps payments at zero rather than failing.
  */
-export const withInsurancePlanItems = (invoice: Invoice): Invoice => ({
-  ...invoice,
-  items: (invoice.items || []).map(item => ({
-    ...item,
-    insurancePlanItems: getInsurancePlanItemsForInvoiceItem(item, invoice.insurancePlans),
-  })),
-});
+export const withInsurancePlanItems = (invoice: Invoice): Invoice => {
+  const withAttachments = withInsuranceAttachments(invoice);
+  return {
+    ...withAttachments,
+    items: (withAttachments.items || []).map(item => ({
+      ...item,
+      insurancePlanItems: getInsurancePlanItemsForInvoiceItem(item, withAttachments.insurancePlans),
+    })),
+  };
+};
 
 /**
- * The coverage each of the invoice's insurance plans provides, keyed by plan id. Totals add up to
+ * What identifies one lot of coverage. The same plan attached to two sections is two lots, so the
+ * attachment is the key where the invoice carries its plan rows; an invoice built without them
+ * still keys by the plan itself, and keeps the whole-invoice behaviour it had.
+ */
+const coverageKeyOf = (plan: InsurancePlan): string => plan.attachmentId ?? plan.id;
+
+/**
+ * The coverage each attachment of an insurance plan provides, keyed as above. Totals add up to
  * the invoice's insurance total: where several plans together cover a line beyond its price, the
  * line's capped coverage is shared between them in proportion to what each would have covered, so
  * no plan is credited with money the invoice never owed. Only plans attached to the invoice count.
@@ -81,24 +117,25 @@ const getCoverageTotalsByPlan = (
   itemPricings: InvoiceItemPricing[],
 ): Map<string, Decimal> => {
   const planCoverageTotals = new Map<string, Decimal>(
-    (invoice.insurancePlans || []).map(plan => [plan.id, new Decimal(0)]),
+    (invoice.insurancePlans || []).map(plan => [coverageKeyOf(plan), new Decimal(0)]),
   );
 
   for (const { coverageByPlan, discountedPrice } of itemPricings) {
-    const attachedPlanCoverages = coverageByPlan.filter(({ insurancePlanId }) =>
-      planCoverageTotals.has(insurancePlanId),
-    );
+    const attachedPlanCoverages = coverageByPlan
+      .map(planCoverage => ({
+        ...planCoverage,
+        key: planCoverage.attachmentId ?? planCoverage.insurancePlanId,
+      }))
+      .filter(({ key }) => planCoverageTotals.has(key));
     const itemCoverageTotal = sumOf(attachedPlanCoverages.map(({ coverage }) => coverage));
     const cappedShare = itemCoverageTotal.greaterThan(discountedPrice)
       ? new Decimal(discountedPrice).dividedBy(itemCoverageTotal)
       : new Decimal(1);
 
-    for (const { insurancePlanId, coverage } of attachedPlanCoverages) {
+    for (const { key, coverage } of attachedPlanCoverages) {
       planCoverageTotals.set(
-        insurancePlanId,
-        (planCoverageTotals.get(insurancePlanId) as Decimal).plus(
-          new Decimal(coverage).times(cappedShare),
-        ),
+        key,
+        (planCoverageTotals.get(key) as Decimal).plus(new Decimal(coverage).times(cappedShare)),
       );
     }
   }
@@ -119,7 +156,8 @@ const getCoverageByPlan = (
     id: plan.id,
     name: plan.name,
     code: plan.code,
-    totalCoverage: (planCoverageTotals.get(plan.id) as Decimal).toNumber(),
+    invoiceSectionId: plan.invoiceSectionId ?? null,
+    totalCoverage: (planCoverageTotals.get(coverageKeyOf(plan)) as Decimal).toNumber(),
   }));
 };
 

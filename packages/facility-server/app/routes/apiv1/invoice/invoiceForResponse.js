@@ -1,4 +1,7 @@
-import { getInsurancePlanItemsForInvoiceItem } from '@tamanu/utils/invoice';
+import {
+  getInsurancePlanItemsForInvoiceItem,
+  withInsuranceAttachments,
+} from '@tamanu/utils/invoice';
 
 /**
  * The invoice as it is priced: a plain object whose insurable items carry the coverage each of the
@@ -6,6 +9,12 @@ import { getInsurancePlanItemsForInvoiceItem } from '@tamanu/utils/invoice';
  * shape, so they agree on what is owed.
  */
 export const invoiceForPricing = invoiceRecord => {
+  const { insurancePlans } = withInsuranceAttachments({
+    insurancePlans: (invoiceRecord.insurancePlans ?? []).map(
+      plan => plan.get?.({ plain: true }) ?? plan,
+    ),
+  });
+
   const pricedItems = invoiceRecord.items.map(item => {
     const plainItem = item.get?.({ plain: true }) ?? item;
 
@@ -15,7 +24,7 @@ export const invoiceForPricing = invoiceRecord => {
 
     return {
       ...plainItem,
-      insurancePlanItems: getInsurancePlanItemsForInvoiceItem(item, invoiceRecord.insurancePlans),
+      insurancePlanItems: getInsurancePlanItemsForInvoiceItem(plainItem, insurancePlans),
     };
   });
 
@@ -23,6 +32,7 @@ export const invoiceForPricing = invoiceRecord => {
   const plainInvoice = invoiceRecord.get?.({ plain: true }) ?? invoiceRecord;
   return {
     ...plainInvoice,
+    insurancePlans,
     items: pricedItems,
   };
 };

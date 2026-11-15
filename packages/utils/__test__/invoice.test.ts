@@ -15,6 +15,8 @@ import {
   getCoverageAmountPerInsurancePlan,
   getInsuranceCoverageTotalAmount,
   getInvoiceDiscountReason,
+  getInsurancePlanPaymentBalance,
+  withInsurancePlanItems,
   getInvoicePrintTotalsDisplay,
 } from '../src';
 
@@ -937,6 +939,163 @@ describe('Invoice Utils', () => {
       ).toEqual({ kind: 'recorded', text: 'Override note' });
     });
   });
+
+  describe('coverage across invoice sections', () => {
+    const attachment = (attachmentId: string, planId: string, invoiceSectionId: string | null) => ({
+      id: planId,
+      attachmentId,
+      invoiceSectionId,
+    });
+
+    const sectionItem = (invoiceSectionId: string | null, coverages: Record<string, number>) => ({
+      manualEntryPrice: 100,
+      quantity: 1,
+      invoiceSectionId,
+      product: {
+        insurable: true,
+        invoiceInsurancePlanItems: Object.entries(coverages).map(
+          ([invoiceInsurancePlanId, coverageValue]) => ({
+            invoiceInsurancePlanId,
+            coverageValue,
+          }),
+        ),
+      },
+    });
+
+    const coverageFor = (invoice: any, key: string) =>
+      (
+        getCoverageAmountPerInsurancePlan(withInsurancePlanItems(invoice)).get(key) as any
+      ).toNumber();
+
+    it('covers only its own section, for a plan attached to one', () => {
+      const invoice = {
+        insurancePlans: [attachment('attach-emergency', 'plan-a', 'section-emergency')],
+        items: [
+          sectionItem('section-emergency', { 'plan-a': 50 }),
+          sectionItem('section-inpatient', { 'plan-a': 50 }),
+        ],
+      };
+
+      expect(coverageFor(invoice, 'attach-emergency')).toEqual(50);
+    });
+
+    it('covers every section, and items in none, for a plan attached invoice-wide', () => {
+      const invoice = {
+        insurancePlans: [attachment('attach-whole', 'plan-a', null)],
+        items: [
+          sectionItem('section-emergency', { 'plan-a': 50 }),
+          sectionItem('section-inpatient', { 'plan-a': 50 }),
+          sectionItem(null, { 'plan-a': 50 }),
+        ],
+      };
+
+      expect(coverageFor(invoice, 'attach-whole')).toEqual(150);
+    });
+
+    it('keeps a separate total per section, for one plan attached to two', () => {
+      const invoice = {
+        insurancePlans: [
+          attachment('attach-emergency', 'plan-a', 'section-emergency'),
+          attachment('attach-inpatient', 'plan-a', 'section-inpatient'),
+        ],
+        items: [
+          sectionItem('section-emergency', { 'plan-a': 50 }),
+          sectionItem('section-inpatient', { 'plan-a': 25 }),
+        ],
+      };
+
+      expect(coverageFor(invoice, 'attach-emergency')).toEqual(50);
+      expect(coverageFor(invoice, 'attach-inpatient')).toEqual(25);
+    });
+
+    it('covers nothing on an item whose section no plan covers', () => {
+      const invoice = {
+        insurancePlans: [attachment('attach-emergency', 'plan-a', 'section-emergency')],
+        items: [sectionItem('section-outpatient', { 'plan-a': 50 })],
+      };
+
+      expect(coverageFor(invoice, 'attach-emergency')).toEqual(0);
+      expect(
+        getInsuranceCoverageTotalAmount(withInsurancePlanItems(invoice).items as any).toNumber(),
+      ).toEqual(0);
+    });
+
+    describe('getInsurancePlanPaymentBalance', () => {
+      const twoSectionInvoice = {
+        insurancePlans: [
+          attachment('attach-emergency', 'plan-a', 'section-emergency'),
+          attachment('attach-inpatient', 'plan-a', 'section-inpatient'),
+        ],
+        items: [
+          sectionItem('section-emergency', { 'plan-a': 50 }),
+          sectionItem('section-inpatient', { 'plan-a': 25 }),
+        ],
+        payments: [
+          {
+            amount: 10,
+            insurancePlanPayment: {
+              id: 'payment-emergency',
+              invoiceInsurancePlanId: 'plan-a',
+              invoiceSectionId: 'section-emergency',
+            },
+          },
+        ],
+      };
+
+      const balanceOf = (invoice: any, planId: string, ...section: Array<string | null>) =>
+        getInsurancePlanPaymentBalance(
+          withInsurancePlanItems(invoice) as any,
+          planId,
+          ...(section as [string | null]),
+        );
+
+      it('owes one section its own coverage, less what has been paid against it', () => {
+        expect(balanceOf(twoSectionInvoice, 'plan-a', 'section-emergency')).toEqual({
+          planCoverageTotal: 50,
+          planPaymentsTotal: 10,
+          planPaymentRemainingBalance: 40,
+        });
+      });
+
+      it("leaves another section untouched by the first section's payment", () => {
+        expect(balanceOf(twoSectionInvoice, 'plan-a', 'section-inpatient')).toEqual({
+          planCoverageTotal: 25,
+          planPaymentsTotal: 0,
+          planPaymentRemainingBalance: 25,
+        });
+      });
+
+      it('spans every section the plan covers when no section is named', () => {
+        expect(balanceOf(twoSectionInvoice, 'plan-a')).toEqual({
+          planCoverageTotal: 75,
+          planPaymentsTotal: 10,
+          planPaymentRemainingBalance: 65,
+        });
+      });
+
+      it('owes nothing for a section the plan is not attached to', () => {
+        expect(balanceOf(twoSectionInvoice, 'plan-a', 'section-outpatient')).toEqual({
+          planCoverageTotal: 0,
+          planPaymentsTotal: 0,
+          planPaymentRemainingBalance: 0,
+        });
+      });
+    });
+
+    it('leaves an uncategorised item to the invoice-wide plan alone', () => {
+      const invoice = {
+        insurancePlans: [
+          attachment('attach-emergency', 'plan-a', 'section-emergency'),
+          attachment('attach-whole', 'plan-b', null),
+        ],
+        items: [sectionItem(null, { 'plan-a': 50, 'plan-b': 20 })],
+      };
+
+      expect(coverageFor(invoice, 'attach-emergency')).toEqual(0);
+      expect(coverageFor(invoice, 'attach-whole')).toEqual(20);
+    });
+  });
+
   describe('getCoverageAmountPerInsurancePlan', () => {
     const insurancePlans = [{ id: 'plan-a' }, { id: 'plan-b' }];
 
@@ -1001,7 +1160,10 @@ describe('Invoice Utils', () => {
         getInsuranceCoverageTotalAmount(invoice.items as any).toNumber(),
         10,
       );
-      expect(perPlanTotal).toBeCloseTo(getInvoiceSummary(invoice as any).insuranceCoverageTotal, 10);
+      expect(perPlanTotal).toBeCloseTo(
+        getInvoiceSummary(invoice as any).insuranceCoverageTotal,
+        10,
+      );
     });
   });
 });

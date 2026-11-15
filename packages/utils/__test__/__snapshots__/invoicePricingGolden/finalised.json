@@ -33,12 +33,14 @@
       "id": "plan-a",
       "name": "Plan A",
       "code": "PA",
+      "invoiceSectionId": null,
       "totalCoverage": "-70.67"
     },
     {
       "id": "plan-b",
       "name": "Plan B",
       "code": "PB",
+      "invoiceSectionId": null,
       "totalCoverage": "-117.33"
     }
   ],

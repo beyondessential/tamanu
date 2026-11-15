@@ -109,32 +109,47 @@ export const getInsurancePlanPaymentsWithRemainingBalance = (
 export const getInsurancePlanPaymentsWithRemainingBalanceDisplay = (
   invoice: Invoice,
 ): Array<PaymentWithDisplayAmounts> => {
-  return formatPaymentsWithRemainingBalanceDisplay(getInsurancePlanPaymentsWithRemainingBalance(invoice));
+  return formatPaymentsWithRemainingBalanceDisplay(
+    getInsurancePlanPaymentsWithRemainingBalance(invoice),
+  );
 };
 
 /**
  * What one insurance plan still owes on an invoice. Coverage comes from the invoice's items, the
  * same basis the invoice screen and the printout show, so a plan that covers nothing on this
  * invoice owes nothing and can take no payment.
+ *
+ * Pass `invoiceSectionId` to narrow this to one section of a split invoice, `null` meaning the
+ * attachment that covers the whole invoice. Leave it out and the balance spans every section the
+ * plan is attached to, which is what an invoice with no sections has always meant.
  */
 export const getInsurancePlanPaymentBalance = (
   invoice: Invoice,
   invoiceInsurancePlanId: string,
+  invoiceSectionId?: string | null,
 ): {
   planCoverageTotal: number;
   planPaymentsTotal: number;
   planPaymentRemainingBalance: number;
 } => {
-  const planCoverageTotal =
-    getCoverageAmountPerInsurancePlan(invoice)
-      .get(invoiceInsurancePlanId)
-      ?.toNumber() ?? 0;
+  const coversThisSection = (section: string | null | undefined) =>
+    invoiceSectionId === undefined || (section ?? null) === (invoiceSectionId ?? null);
+
+  const coverageByKey = getCoverageAmountPerInsurancePlan(invoice);
+  const planCoverageTotal = (invoice.insurancePlans || [])
+    .filter(plan => plan.id === invoiceInsurancePlanId && coversThisSection(plan.invoiceSectionId))
+    .reduce(
+      (total, plan) => total.plus(coverageByKey.get(plan.attachmentId ?? plan.id) ?? 0),
+      new Decimal(0),
+    )
+    .toNumber();
 
   const planPaymentsTotal = (invoice.payments || [])
     .filter(
       payment =>
         payment?.insurancePlanPayment?.id &&
-        payment.insurancePlanPayment.invoiceInsurancePlanId === invoiceInsurancePlanId,
+        payment.insurancePlanPayment.invoiceInsurancePlanId === invoiceInsurancePlanId &&
+        coversThisSection(payment.insurancePlanPayment.invoiceSectionId),
     )
     .filter(payment => !payment?.refundPayment?.id) // refunded payments are not included in the total
     .filter(payment => !payment?.originalPayment?.id) // refund payments are not included in the total
