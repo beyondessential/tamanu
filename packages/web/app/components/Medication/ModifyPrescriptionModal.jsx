@@ -132,15 +132,18 @@ export const ModifyPrescriptionModal = ({
 
   const source = modification ?? prescription;
 
+  const fetchMedication = medicationId =>
+    drugSuggester.fetchCurrentOption(medicationId).then(option => ({
+      id: medicationId,
+      name: option?.label ?? '',
+      referenceDrug: option?.referenceDrug,
+    }));
+
   const onSubmit = async values => {
-    const medication =
-      values.medicationId === prescription.medicationId
-        ? prescription.medication
-        : await drugSuggester.fetchCurrentOption(values.medicationId).then(option => ({
-            id: values.medicationId,
-            name: option?.label ?? '',
-            referenceDrug: option?.referenceDrug,
-          }));
+    const knownMedication = [prescription, modification].find(
+      known => known?.medicationId === values.medicationId,
+    )?.medication;
+    const medication = knownMedication ?? (await fetchMedication(values.medicationId));
     onConfirm({
       medicationId: values.medicationId,
       // Kept for display in the dispense workflow (table row, printed label) and for

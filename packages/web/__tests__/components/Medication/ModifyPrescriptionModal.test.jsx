@@ -58,8 +58,12 @@ vi.mock('../../../app/components/Field', async importOriginal => {
         toggle
       </button>
     ),
-    AutocompleteField: ({ field, ['data-testid']: testId }) => (
-      <input data-testid={`${testId}-input`} value={field?.value ?? ''} readOnly />
+    AutocompleteField: ({ field, onChange, ['data-testid']: testId }) => (
+      <input
+        data-testid={`${testId}-input`}
+        value={field?.value ?? ''}
+        onChange={e => onChange?.({ target: { value: e.target.value } })}
+      />
     ),
   };
 });
@@ -172,12 +176,14 @@ describe('ModifyPrescriptionModal form logic', () => {
       onConfirm,
       modification: {
         ...prescription,
-        medicationId: 'drug-2',
         modifiedReasonId: 'reason-1',
         modifiedById: 'user-1',
       },
     });
 
+    fireEvent.change(screen.getByTestId('modify-prescription-medication-input'), {
+      target: { value: 'drug-2' },
+    });
     fireEvent.click(screen.getByTestId('modify-prescription-confirm'));
 
     await waitFor(() => expect(onConfirm).toHaveBeenCalled());
@@ -186,6 +192,32 @@ describe('ModifyPrescriptionModal form logic', () => {
       name: 'Ibuprofen',
       referenceDrug,
     });
+  });
+
+  it('keeps the substituted drug already chosen when confirmed again', async () => {
+    const medication = {
+      id: 'drug-2',
+      name: 'Ibuprofen',
+      referenceDrug: { facilities: [{ stockStatus: 'in_stock', quantity: 8 }] },
+    };
+    fetchCurrentOption.mockClear();
+    const onConfirm = vi.fn();
+    renderModal({
+      onConfirm,
+      modification: {
+        ...prescription,
+        medicationId: 'drug-2',
+        medication,
+        modifiedReasonId: 'reason-1',
+        modifiedById: 'user-1',
+      },
+    });
+
+    fireEvent.click(screen.getByTestId('modify-prescription-confirm'));
+
+    await waitFor(() => expect(onConfirm).toHaveBeenCalled());
+    expect(onConfirm.mock.calls[0][0].medication).toBe(medication);
+    expect(fetchCurrentOption).not.toHaveBeenCalled();
   });
 
   it('auto-selects and disables the "Display on MAR" checkbox', () => {
