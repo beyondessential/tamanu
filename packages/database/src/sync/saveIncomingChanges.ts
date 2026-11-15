@@ -1,5 +1,5 @@
 import config from 'config';
-import { keyBy } from 'es-toolkit';
+import { keyBy, partition } from 'es-toolkit';
 import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 
@@ -58,14 +58,12 @@ export const saveChangesForModel = async (
   );
   const idToExistingRecord = keyBy(existingRecords, record => record.id);
   const idToIncomingRecord = keyBy(safeChanges, change => change.data.id);
-  const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
   for (const existing of existingRecords) {
     // compares incoming and existing records by id
     const incoming = idToIncomingRecord[existing.id];
-    idsForUpdate.add(existing.id);
 
     // Restores only originate from central server
     if (isCentralServer === false && existing.deletedAt && !incoming?.isDeleted) {
@@ -104,13 +102,10 @@ export const saveChangesForModel = async (
     return deletedAt === undefined ? sanitized : { ...sanitized, deletedAt };
   };
 
-  const recordsForCreate: Record<string, any>[] = [];
-  const recordsForUpdate: Record<string, any>[] = [];
-  for (const { data } of changes) {
-    const record = toRecordToWrite(data);
-    if (idToExistingRecord[data.id] === undefined) recordsForCreate.push(record);
-    if (idsForUpdate.has(data.id)) recordsForUpdate.push(record);
-  }
+  const [recordsForCreate, recordsForUpdate] = partition(
+    changes.map(({ data }) => toRecordToWrite(data)),
+    record => idToExistingRecord[record.id] === undefined,
+  );
 
   // run each import process
   log.debug('Sync: saveIncomingChanges: Creating new records', { count: recordsForCreate.length });
