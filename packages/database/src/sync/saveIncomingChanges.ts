@@ -58,6 +58,8 @@ export const saveChangesForModel = async (
   );
   const idToExistingRecord = keyBy(existingRecords, record => record.id);
   const idToIncomingRecord = keyBy(safeChanges, change => change.data.id);
+  /** Own-property check, so an id like `constructor` doesn’t match an inherited member */
+  const isExistingRecord = (id: SyncSnapshotData['id']) => Object.hasOwn(idToExistingRecord, id);
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
@@ -81,7 +83,7 @@ export const saveChangesForModel = async (
    * (The same record can turn up more than once, see {@link saveCreates}.)
    */
   for (const c of changes) {
-    if (c.isDeleted && idToExistingRecord[c.data.id] === undefined) {
+    if (c.isDeleted && !isExistingRecord(c.data.id)) {
       idsForDelete.add(c.data.id);
     }
   }
@@ -104,7 +106,7 @@ export const saveChangesForModel = async (
 
   const [recordsForCreate, recordsForUpdate] = partition(
     changes.map(({ data }) => toRecordToWrite(data)),
-    record => idToExistingRecord[record.id] === undefined,
+    record => !isExistingRecord(record.id),
   );
 
   // run each import process
