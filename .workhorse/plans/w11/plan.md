@@ -53,8 +53,8 @@ rebases; the conflict surface is small and the cards stay independently mergeabl
       Reuse `ConfirmModal` with the existing Go back and Discard changes string ids.
 - [x] **Invoice actions menu.** View patient details first, on every status, for users who can read,
       write or create patient records. Hide Insurance plan, Add item, Edit items, Mark all as
-      approved, Remove all approvals, Cancel invoice and Finalise from users who cannot edit
-      invoices, and each item's actions menu with them.
+      approved, Remove all approvals and Cancel invoice from users who cannot edit invoices, and
+      each item's actions menu with them. Finalise keeps the create permission it has always had.
 - [x] **Insurance plan field hidden in settings** hides the invoice's Insurance plan action and drops
       the Record payment confirmation.
 - [x] **Adding an insurance plan.** The No insurance plan recorded empty state's Go to patient

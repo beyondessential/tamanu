@@ -18,8 +18,10 @@ End-to-end coverage of the whole chain is recorded as needing a card of its own.
       Patient details).
 - [ ] A user with no Patient permission at all is not offered it, and sees no empty menu left behind.
 - [ ] A user without `write` on Invoice sees View patient details and Print invoice, and none of
-      Insurance plan, Add item, Edit items, Mark all as approved, Remove all approvals, Cancel
-      invoice or Finalise (verifies spec: invoicing overview, Invoice actions).
+      Insurance plan, Add item, Edit items, Mark all as approved, Remove all approvals or Cancel
+      invoice (verifies spec: invoicing overview, Invoice actions).
+- [ ] A user who can create invoices but not edit one is still offered Finalise (verifies spec:
+      invoicing overview, Invoice actions).
 - [ ] That user also sees no actions menu on any invoice item.
 - [ ] A user with `write` on Invoice still sees every action they saw before this card.
 
