@@ -64,7 +64,7 @@
     box-shadow: 0 20px 60px rgb(0 0 0 / 0.35), 0 4px 12px rgb(0 0 0 / 0.2);
   }
 
-  /* ---------- Changed: the query row now carries the scope and Ask AI ---------- */
+  /* ---------- Changed: the query row leads with the scope and ends with Ask AI ---------- */
   .fieldRow {
     display: flex;
     align-items: center;
@@ -258,21 +258,20 @@
     font-size: 0.875rem;
   }
 
-  /* ---------- Phone width: scope and Ask AI drop below the query ---------- */
+  /* ---------- Phone width: Ask AI wraps to fill its own row, as on the home page ---------- */
   .panel.phone {
     inline-size: 375px;
     border-radius: 0 0 14px 14px;
   }
 
-  .phone .fieldRow { flex-wrap: wrap; row-gap: 0.6rem; }
+  .phone .fieldRow { flex-wrap: wrap; row-gap: 0.75rem; }
 
-  .phone .field { flex-basis: calc(100% - 5rem); }
-
-  .phone .rowDivider { display: none; }
-
-  .phone .scope { order: 3; }
-
-  .phone .askAi { order: 4; margin-inline-start: auto; }
+  .phone .askAi {
+    order: 1;
+    flex-basis: 100%;
+    justify-content: center;
+    padding-block: 0.6rem;
+  }
 </style>
 </head>
 <body>
@@ -291,8 +290,6 @@
     <div class="state-label">Opened, no query</div>
     <search class="panel">
       <div class="fieldRow">
-        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
-        <input class="field" type="text" placeholder="Search the docs" aria-label="Search the docs">
         <span class="scope">
           <select class="scopeSelect" aria-label="Search in release" title="Search in release">
             <option>v2.68</option>
@@ -301,6 +298,9 @@
           </select>
           <svg class="scopeChevron" width="12" height="12"><use href="#i-chevron"/></svg>
         </span>
+        <span class="rowDivider"></span>
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" placeholder="Search the docs" aria-label="Search the docs">
         <button type="button" class="askAi">
           <svg width="15" height="15"><use href="#i-ask"/></svg>
           Ask AI
@@ -329,8 +329,6 @@
     <div class="state-label">Query with results</div>
     <search class="panel">
       <div class="fieldRow">
-        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
-        <input class="field" type="text" value="allergies" aria-label="Search the docs">
         <span class="scope">
           <select class="scopeSelect" aria-label="Search in release" title="Search in release">
             <option>v2.68</option>
@@ -339,6 +337,9 @@
           </select>
           <svg class="scopeChevron" width="12" height="12"><use href="#i-chevron"/></svg>
         </span>
+        <span class="rowDivider"></span>
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" value="allergies" aria-label="Search the docs">
         <button type="button" class="askAi">
           <svg width="15" height="15"><use href="#i-ask"/></svg>
           Ask AI
@@ -378,8 +379,6 @@
     <div class="state-label">No results, Ask AI active</div>
     <search class="panel">
       <div class="fieldRow">
-        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
-        <input class="field" type="text" value="how do I merge two patients" aria-label="Search the docs">
         <span class="scope">
           <select class="scopeSelect" aria-label="Search in release" title="Search in release">
             <option>v2.68</option>
@@ -388,6 +387,9 @@
           </select>
           <svg class="scopeChevron" width="12" height="12"><use href="#i-chevron"/></svg>
         </span>
+        <span class="rowDivider"></span>
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" value="how do I merge two patients" aria-label="Search the docs">
         <button type="button" class="askAi is-active">
           <svg width="15" height="15"><use href="#i-ask"/></svg>
           Ask AI
@@ -409,9 +411,10 @@
     <div class="state-label">On a preview</div>
     <search class="panel">
       <div class="fieldRow">
+        <span class="scopeLabel" title="Searching in">Preview: main</span>
+        <span class="rowDivider"></span>
         <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
         <input class="field" type="text" placeholder="Search the docs" aria-label="Search the docs">
-        <span class="scopeLabel" title="Searching in">Preview: main</span>
         <button type="button" class="askAi">
           <svg width="15" height="15"><use href="#i-ask"/></svg>
           Ask AI
@@ -437,11 +440,6 @@
     <div class="state-label">Phone width</div>
     <search class="panel phone">
       <div class="fieldRow">
-        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
-        <input class="field" type="text" placeholder="Search the docs" aria-label="Search the docs">
-        <button type="button" class="close" aria-label="Close search" title="Close search">
-          <svg width="18" height="18"><use href="#i-close"/></svg>
-        </button>
         <span class="scope">
           <select class="scopeSelect" aria-label="Search in release" title="Search in release">
             <option>v2.68</option>
@@ -450,6 +448,12 @@
           </select>
           <svg class="scopeChevron" width="12" height="12"><use href="#i-chevron"/></svg>
         </span>
+        <span class="rowDivider"></span>
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" placeholder="Search the docs" aria-label="Search the docs">
+        <button type="button" class="close" aria-label="Close search" title="Close search">
+          <svg width="18" height="18"><use href="#i-close"/></svg>
+        </button>
         <button type="button" class="askAi">
           <svg width="15" height="15"><use href="#i-ask"/></svg>
           Ask AI
