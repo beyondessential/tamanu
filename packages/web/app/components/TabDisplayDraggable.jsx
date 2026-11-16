@@ -3,6 +3,7 @@ import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { Colors } from '../constants';
+import { tabScrollButtonStyles } from './TabDisplay';
 
 const TabBar = styled.div`
   display: flex;
@@ -21,6 +22,7 @@ const TabContainer = styled(Tabs)`
   .${tabsClasses.scroller} {
     border-block-end: 0;
   }
+  ${tabScrollButtonStyles}
 `;
 
 const StyledTab = styled.div.attrs({ role: 'tab' })`

@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 import { format } from 'date-fns';
 
+import { IMAGING_TYPES, TABLE_SORT_PREFERENCE_KEYS } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 
 import { constructFacilityUrl } from './navigation';
@@ -27,18 +28,28 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
-// Saves one of the logged-in user's preferences with no facility, so it applies everywhere
+// Saves one of the logged-in user's preferences for one facility, or with no facility so it applies
+// everywhere. A facility's value overrides the no-facility one at that facility.
 export const setUserPreferenceViaApi = async (
   api: APIRequestContext,
   key: string,
   value: unknown,
+  facilityId?: string,
 ) => {
   const url = constructFacilityUrl('/api/user/userPreferences');
-  const response = await api.post(url, { data: { key, value } });
+  const response = await api.post(url, { data: { facilityId, key, value } });
   if (!response.ok()) {
     throw new Error(`Failed to set user preference: ${response.status()} ${await response.text()}`);
   }
 };
+
+// Puts a table that remembers its sort back to its default sort at the facility
+export const resetTableSortViaApi = (
+  api: APIRequestContext,
+  pageSizePreferenceKey: string,
+  facilityId: string,
+) =>
+  setUserPreferenceViaApi(api, TABLE_SORT_PREFERENCE_KEYS[pageSizePreferenceKey], {}, facilityId);
 
 export const getCurrentEncounterViaApi = async (api: APIRequestContext, patientId: string) => {
   const encounterUrl = constructFacilityUrl(`/api/patient/${patientId}/currentEncounter`);
@@ -577,6 +588,24 @@ export const recordPatientDeathViaApi = async (
     console.error('Response status:', response.status());
     console.error('Response text:', responseText);
     throw new Error(`Failed to record patient death: ${response.statusText()} - ${responseText}`);
+  }
+
+  return response.json();
+};
+
+export const createImagingRequestViaApi = async (
+  api: APIRequestContext,
+  encounterId: string,
+  status: string,
+) => {
+  const user = await getUser(api);
+  const url = constructFacilityUrl('/api/imagingRequest');
+  const response = await api.post(url, {
+    data: { encounterId, requestedById: user.id, imagingType: IMAGING_TYPES.X_RAY, status },
+  });
+
+  if (!response.ok()) {
+    throw new Error(`Failed to create imaging request: ${response.status()} ${await response.text()}`);
   }
 
   return response.json();

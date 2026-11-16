@@ -42,3 +42,20 @@ export const TABLE_PAGE_SIZE_PREFERENCE_KEYS = {
   TRANSLATIONS: 'tablePageSize.translations',
   SYSTEM_ERRORS: 'tablePageSize.systemErrors',
 };
+
+// spec: TPAGE#remembered-sort
+export const TABLE_SORT_PREFERENCE_KEYS = {
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.INPATIENTS]: 'tableSort.inpatients',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.EMERGENCY_PATIENTS]: 'tableSort.emergencyPatients',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.OUTPATIENTS]: 'tableSort.outpatients',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.BED_MANAGEMENT]: 'tableSort.bedManagement',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.RECENTLY_DISCHARGED]: 'tableSort.recentlyDischarged',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.ACTIVE_LAB_REQUESTS]: 'tableSort.activeLabRequests',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.FINALISED_LAB_REQUESTS]: 'tableSort.finalisedLabRequests',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.ACTIVE_IMAGING_REQUESTS]: 'tableSort.activeImagingRequests',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.COMPLETED_IMAGING_REQUESTS]:
+    'tableSort.completedImagingRequests',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.ACTIVE_MEDICATION_REQUESTS]:
+    'tableSort.activeMedicationRequests',
+  [TABLE_PAGE_SIZE_PREFERENCE_KEYS.DISPENSED_MEDICATIONS]: 'tableSort.dispensedMedications',
+};

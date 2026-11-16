@@ -3,7 +3,7 @@ name: design-loop
 description: "Design this card's UI in loops, from references and three directions to a refined build, until fresh critiques find nothing above minor"
 label: "Design loop"
 category: design
-workhorse-version: 0.7.14
+workhorse-version: 0.7.15
 ---
 
 ## Your task: design a UI in loops until it is refined

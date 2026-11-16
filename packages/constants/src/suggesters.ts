@@ -21,6 +21,7 @@ export const SUGGESTER_ENDPOINTS = [
   'patientPayor',
   'patientLabTestCategories',
   'patientLabTestPanelTypes',
+  'patientLabTestTypes',
   'template',
   'practitioner',
   'programRegistry',
