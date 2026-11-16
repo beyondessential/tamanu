@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { FACT_SYNC_EMAIL } from '@tamanu/constants';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
@@ -116,7 +117,10 @@ export function createApiv1({ authLimiter } = {}) {
       // web app already makes rather than a separate endpoint/request.
       return res.send({
         ok: 'ok',
-        setupRequired: !isServerConfigured(),
+        // isServerConfigured() is per process, so also ask the database: another API process
+        // may have just served the wizard.
+        setupRequired:
+          !isServerConfigured() && !(await req.models.LocalSystemFact.get(FACT_SYNC_EMAIL)),
         isSettingUp: await isSettingUp(req.models),
       });
     }),

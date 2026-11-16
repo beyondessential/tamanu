@@ -12,6 +12,7 @@ Applies to the setup wizard a facility server serves in place of the login scree
 - The wizard asks for the central server address, the email and password of a central administrator, and the facilities the server serves.
 - The wizard is only available to requests from local or private network addresses.
 - The wizard refuses to run on a server that is already configured.
+- Once setup has completed the wizard stops showing, whichever of the server's processes answers.
 - A wizard submitted again after setup has completed is refused before central is asked for sync credentials, so the credentials the server stored stay valid.
 - The credentials entered must belong to a central administrator with full access. Central uses them to mint a dedicated sync user for this server, and the server does not store them.
 - The wizard then logs in to central as the minted sync user and fetches the [facility bootstrap](../sync/bootstrap.md). If this fails, the wizard reports that the server could not be set up, and the server stays unconfigured.

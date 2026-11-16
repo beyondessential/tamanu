@@ -119,6 +119,16 @@ describe('setup wizard bootstrap', () => {
     expect(central.provisions).toBe(1);
   });
 
+  it('stops asking for setup once another process has configured the server', async () => {
+    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
+    const setupRequired = async () => (await baseApp.get('/api/public/ping')).body.setupRequired;
+    expect(await setupRequired()).toBe(true);
+
+    expect(await submit()).toHaveSucceeded();
+
+    expect(await setupRequired()).toBe(false);
+  });
+
   it('stays unconfigured when the bootstrap cannot be fetched', async () => {
     central.serveBootstrap = vi.fn(async () => {
       throw new Error('central unreachable');
