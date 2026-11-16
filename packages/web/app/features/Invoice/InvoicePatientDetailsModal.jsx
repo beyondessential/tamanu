@@ -1,8 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
-import { useFormikContext } from 'formik';
-import { route } from '@tamanu/api-client';
 
 import {
   BaseModal,
@@ -12,22 +9,20 @@ import {
   ReadOnlyFormProvider,
 } from '@tamanu/ui-components';
 
-import { useApi } from '../../api';
 import {
   usePatientAdditionalDataQuery,
   usePatientBirthDataQuery,
   usePatientDataQuery,
   usePatientInsurancePlansQuery,
 } from '../../api/queries';
-import { useAuth } from '../../contexts/Auth';
+import { useSavePatientDetails } from '../../api/mutations';
 import { Colors } from '../../constants';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { NoteModalActionBlocker } from '../../components';
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm/PatientDetailsForm';
-import { getPatientFieldClassName } from '../../forms/PatientDetailsForm/ConfiguredMandatoryPatientFields';
+import { useFocusPatientField } from './useFocusPatientField';
 import { TranslatedText } from '../../components/Translation';
-import { invalidatePatientDataQueries, notifyError, notifySuccess } from '../../utils';
 
 const BottomRow = styled.div`
   padding-block: 1rem 1.25rem;
@@ -39,97 +34,6 @@ const BottomRow = styled.div`
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 0;
 `;
-
-/**
- * Lifts the form's submit handler out of the render prop, so the modal's bottom row — which sits
- * outside the form element and so cannot submit it natively — can call it, and reports the form's
- * dirty and submitting state up for the buttons and the unsaved-changes prompt.
- */
-const FormBridge = ({ submitForm, bridgeRef, onStateChange }) => {
-  const { dirty, isSubmitting, resetForm, values } = useFormikContext();
-
-  // Written after the render commits, not during it: a render React discards or replays would
-  // otherwise leave the ref holding a closure from a render that never happened.
-  useEffect(() => {
-    bridgeRef.current = { submitForm, resetForm: () => resetForm({ values }) };
-  });
-
-  useEffect(() => {
-    onStateChange({ dirty, isSubmitting });
-  }, [dirty, isSubmitting, onStateChange]);
-
-  return null;
-};
-
-/**
- * Brings a named field into view and focuses it once the form has rendered. Used to land on the
- * insurance plan field when the modal is opened to add a plan. Searched within the modal's own
- * content, since the same field is on the patient's Details tab behind it.
- */
-const FIELD_WAIT_ATTEMPTS = 100;
-const FOCUS_HOLD_ATTEMPTS = 40;
-const RETRY_MS = 50;
-
-const useFocusField = (fieldName, isReady, containerRef) => {
-  useEffect(() => {
-    if (!fieldName || !isReady) return undefined;
-
-    let waitAttemptsLeft = FIELD_WAIT_ATTEMPTS;
-    let holdAttemptsLeft = FOCUS_HOLD_ATTEMPTS;
-    let hasScrolled = false;
-    let hasFocused = false;
-    let timer;
-
-    const scrollTo = field => {
-      // The section's heading, so the field arrives with the section it belongs to rather than
-      // alone in the middle of the modal. A deployment that marks the field mandatory moves it
-      // into the form's headless top section, which has no heading to scroll to.
-      const grid = field.closest('[data-testid^="secondarydetailsformgrid-"]');
-      (grid?.previousElementSibling ?? field).scrollIntoView({ block: 'start', behavior: 'smooth' });
-    };
-
-    const attempt = () => {
-      const container = containerRef.current;
-      const field = container?.querySelector(`.${getPatientFieldClassName(fieldName)}`);
-
-      // The form fetches its own field definitions and values after the modal's queries settle,
-      // and renders nothing but a loading indicator until they land, so the field is not there to
-      // be found on the first look.
-      if (!field) {
-        waitAttemptsLeft -= 1;
-        if (waitAttemptsLeft > 0) timer = setTimeout(attempt, RETRY_MS);
-        return;
-      }
-
-      if (!hasScrolled) {
-        scrollTo(field);
-        hasScrolled = true;
-      }
-
-      const active = document.activeElement;
-
-      // Once the user has put themselves in another field, the modal has no business pulling them
-      // back out of it.
-      if (hasFocused && container.contains(active) && !field.contains(active)) return;
-
-      // A suggester-backed field shows a plain input while its options load and swaps in the real
-      // control when they arrive, dropping the focus placed on the placeholder. The swap can come
-      // after the focus has sat still for several turns, so hold the field rather than stopping at
-      // the first turn the focus survives.
-      const input = field.querySelector('input, [tabindex]');
-      if (input && active !== input) {
-        input.focus();
-        hasFocused = true;
-      }
-
-      holdAttemptsLeft -= 1;
-      if (holdAttemptsLeft > 0) timer = setTimeout(attempt, RETRY_MS);
-    };
-
-    timer = setTimeout(attempt);
-    return () => clearTimeout(timer);
-  }, [fieldName, isReady, containerRef]);
-};
 
 /**
  * The patient's Details tab shown over an invoice, so billing details can be checked and corrected
@@ -144,11 +48,9 @@ export const InvoicePatientDetailsModal = ({
   focusField,
   onSaved = () => {},
 }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
-  const { facilityId } = useAuth();
+  const savePatientDetails = useSavePatientDetails(patientId);
 
-  const bridgeRef = useRef(null);
+  const formActionsRef = useRef(null);
   const contentRef = useRef(null);
   const [formState, setFormState] = useState({ dirty: false, isSubmitting: false });
   const [isConfirmingDiscard, setIsConfirmingDiscard] = useState(false);
@@ -163,45 +65,33 @@ export const InvoicePatientDetailsModal = ({
   const isLoading =
     isLoadingPatient || isLoadingAdditionalData || isLoadingBirthData || isLoadingInsurancePlans;
 
-  useFocusField(focusField, open && !isLoading, contentRef);
+  useFocusPatientField(focusField, open && !isLoading, contentRef);
 
   const handleSubmit = async data => {
-    try {
-      await api.put(route('patient/:patientId', { patientId }), { ...data, facilityId });
-    } catch (e) {
-      notifyError(e.message);
-      return;
-    }
+    if (!(await savePatientDetails(data))) return;
 
     // The edits are saved, so the form is no longer holding anything unsaved. Clear it before the
     // caller decides what comes next: it may keep the modal up while it checks, and closing it
     // then would otherwise offer to discard what has just been written.
-    bridgeRef.current?.resetForm();
-
-    await invalidatePatientDataQueries(queryClient, patientId);
-    notifySuccess(
-      <TranslatedText
-        stringId="patient.details.notification.saveSuccess"
-        fallback="Patient details successfully updated"
-      />,
-    );
+    formActionsRef.current?.resetForm();
     onSaved();
   };
 
   // Escape, the corner close button and Cancel all land here, so the unsaved-changes prompt covers
-  // every way out of the modal.
+  // every way out of the modal. A save already in flight is not unsaved work, so it is not offered
+  // for discarding while the server has it.
   const handleRequestClose = useCallback(() => {
-    if (formState.dirty) {
+    if (formState.dirty && !formState.isSubmitting) {
       setIsConfirmingDiscard(true);
       return;
     }
     onClose();
-  }, [formState.dirty, onClose]);
+  }, [formState.dirty, formState.isSubmitting, onClose]);
 
   // The handler rejects when validation fails, having already put the messages on the fields.
   // Nothing is awaiting it here, so swallow the rejection rather than leaving it unhandled.
   const handleSave = event => {
-    Promise.resolve(bridgeRef.current?.submitForm(event)).catch(() => {});
+    Promise.resolve(formActionsRef.current?.submitForm(event)).catch(() => {});
   };
 
   const handleDiscard = () => {
@@ -265,13 +155,8 @@ export const InvoicePatientDetailsModal = ({
                 insurancePlans={insurancePlans}
                 onSubmit={handleSubmit}
                 hideSubmitButton
-                renderExtraContent={({ submitForm }) => (
-                  <FormBridge
-                    submitForm={submitForm}
-                    bridgeRef={bridgeRef}
-                    onStateChange={setFormState}
-                  />
-                )}
+                formActionsRef={formActionsRef}
+                onFormStateChange={setFormState}
               />
             </div>
           </ReadOnlyFormProvider>

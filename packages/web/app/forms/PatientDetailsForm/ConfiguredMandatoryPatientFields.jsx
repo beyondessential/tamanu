@@ -14,6 +14,12 @@ import { PatientDetailsHeading, SecondaryDetailsFormGrid } from './PatientDetail
 export const getPatientFieldClassName = name => `patient-field-${name}`;
 
 /**
+ * The class a headed group's grid of fields carries. A caller scrolling to a field reaches its
+ * heading through this, the heading being the grid's own preceding sibling.
+ */
+export const PATIENT_FIELD_SECTION_CLASS = 'patient-field-section';
+
+/**
  * Pass `heading` to render the group as a headed section of the details form. The heading and its
  * grid go with the fields, so a group a deployment has hidden entirely leaves no empty section
  * behind.
@@ -56,7 +62,9 @@ export const ConfiguredMandatoryPatientFields = ({
   return (
     <>
       <PatientDetailsHeading data-testid={headingTestId}>{heading}</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid data-testid={gridTestId}>{fields}</SecondaryDetailsFormGrid>
+      <SecondaryDetailsFormGrid className={PATIENT_FIELD_SECTION_CLASS} data-testid={gridTestId}>
+        {fields}
+      </SecondaryDetailsFormGrid>
     </>
   );
 };
