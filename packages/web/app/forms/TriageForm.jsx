@@ -254,9 +254,12 @@ export const TriageForm = ({
     // The encounter exists from here on, so refresh the patient's data before anything that can
     // fail: a caller reading the current encounter (the appointment check-in button) would
     // otherwise go on offering to admit a patient who has just been admitted.
-    await invalidatePatientDataQueries(queryClient, patient.id);
+    const patientDataRefreshed = invalidatePatientDataQueries(queryClient, patient.id);
 
     if (typeof onSubmitEncounter === 'function') {
+      // Only a caller reads the refreshed data, so this is the one path that waits for it; the
+      // redirect below leaves the patient's screen anyway.
+      await patientDataRefreshed;
       // The triage carries the encounter it opened, so hand that straight over: fetching the
       // encounter to pass the same id would only add a request that can fail once the triage is
       // already saved, leaving the caller to retry into a duplicate.
