@@ -1,0 +1,471 @@
+<!-- source: beyondessential/knowledge-hub src/components/Search (SearchPalette, SearchField, SearchScope, AskAiEntry) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search palette with inline release and gold Ask AI</title>
+<style>
+  /* Knowledge Hub tokens (src/css/custom.css) and the Infima values they resolve to */
+  :root {
+    --kh-color-interactive: #326699;
+    --kh-color-navy: #2f4358;
+    --kh-color-gold: #ffcc24;
+    --kh-color-canvas: #f3f5f7;
+    --kh-font-text: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --ifm-font-color-base: #1c1e21;
+    --ifm-background-surface-color: #fff;
+    --ifm-color-emphasis-100: #f5f6f7;
+    --ifm-color-emphasis-200: #ebedf0;
+    --ifm-color-emphasis-300: #dadde1;
+    --ifm-color-emphasis-600: #606770;
+    --ifm-color-emphasis-700: #444950;
+    --ifm-color-emphasis-800: #303846;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 20px 60px;
+    background: #8a8c90; /* the palette's dimmed backdrop over the canvas */
+    color: var(--ifm-font-color-base);
+    font-family: var(--kh-font-text);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .states {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px 40px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .state { display: flex; flex-direction: column; gap: 10px; }
+
+  .state-label {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ---------- Unchanged: the panel (styles.module.css .panel) ---------- */
+  .panel {
+    --kh-search-line: var(--ifm-color-emphasis-300);
+    --kh-search-fill: var(--ifm-color-emphasis-100);
+    display: flex;
+    flex-direction: column;
+    inline-size: 640px;
+    max-inline-size: 100%;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--ifm-background-surface-color);
+    box-shadow: 0 20px 60px rgb(0 0 0 / 0.35), 0 4px 12px rgb(0 0 0 / 0.2);
+  }
+
+  /* ---------- Changed: the query row now carries the scope and Ask AI ---------- */
+  .fieldRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.85rem;
+    padding-inline: 1.1rem 0.9rem;
+    border-block-end: 1px solid var(--kh-search-line);
+  }
+
+  .fieldIcon { flex: none; color: var(--kh-color-interactive); }
+
+  .field {
+    flex: 1;
+    min-inline-size: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--ifm-font-color-base);
+    font: inherit;
+    font-size: 1rem;
+  }
+
+  .field::placeholder { color: var(--ifm-color-emphasis-600); }
+
+  /*
+   * The scope: a native select styled as a chip. appearance: none keeps the
+   * OS menu and keyboard handling while dropping the default form control look.
+   */
+  .scope {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+  }
+
+  .scopeSelect {
+    appearance: none;
+    padding-block: 0.3rem;
+    padding-inline: 0.65rem 1.65rem;
+    border: 1px solid var(--kh-search-line);
+    border-radius: 999px;
+    background: var(--kh-search-fill);
+    color: var(--ifm-font-color-base);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+
+  .scopeSelect:hover { border-color: var(--ifm-color-emphasis-600); }
+
+  .scopeSelect:focus-visible {
+    outline: 2px solid var(--kh-color-interactive); /* interactive */
+    outline-offset: 2px;
+  }
+
+  .scopeChevron {
+    position: absolute;
+    inset-inline-end: 0.6rem;
+    color: var(--ifm-color-emphasis-700);
+    pointer-events: none;
+  }
+
+  /* A preview revision's scope can't be changed, so it is a plain label */
+  .scopeLabel {
+    flex: none;
+    padding-block: 0.3rem;
+    padding-inline: 0.65rem;
+    border: 1px dashed var(--kh-search-line);
+    border-radius: 999px;
+    color: var(--ifm-color-emphasis-800);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  /* Ask AI: the top bar's gold control (TopBar/styles.module.css .control.askAi) */
+  .askAi {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.45rem;
+    padding-block: 0.4rem;
+    padding-inline: 0.85rem;
+    border: none;
+    border-radius: 999px;
+    background: var(--kh-color-gold); /* gold */
+    color: var(--kh-color-navy); /* navy */
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: box-shadow 200ms;
+  }
+
+  .askAi:hover { box-shadow: 0 0 0 3px rgb(255 204 36 / 0.35); }
+
+  .askAi.is-active {
+    outline: 2px solid var(--kh-color-navy);
+    outline-offset: 2px;
+  }
+
+  .rowDivider {
+    flex: none;
+    inline-size: 1px;
+    block-size: 1.5rem;
+    background: var(--kh-search-line);
+  }
+
+  /* ---------- Unchanged: close button ---------- */
+  .close {
+    display: grid;
+    flex: none;
+    place-items: center;
+    padding: 0.3rem;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--ifm-color-emphasis-700);
+    cursor: pointer;
+  }
+
+  .close:hover { background: var(--kh-search-fill); color: var(--ifm-font-color-base); }
+
+  /* ---------- Unchanged: body, note, results (results.module.css) ---------- */
+  .body { padding: 0.5rem; }
+
+  .note {
+    margin-block: 0.15rem 0.6rem;
+    margin-inline: 0.15rem;
+    padding-block: 0.55rem;
+    padding-inline: 0.75rem;
+    border-inline-start: 3px solid var(--kh-color-gold);
+    border-radius: 0 8px 8px 0;
+    background: rgb(255 204 36 / 0.16);
+    color: var(--ifm-color-emphasis-800);
+    font-size: 0.875rem;
+  }
+
+  .groupLabel {
+    margin: 0;
+    padding-block: 0.85rem 0.35rem;
+    padding-inline: 0.65rem;
+    color: var(--ifm-color-emphasis-700);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-block: 0.6rem;
+    padding-inline: 0.65rem;
+    border-radius: 9px;
+    color: var(--ifm-font-color-base);
+    text-decoration: none;
+  }
+
+  .row[aria-selected='true'],
+  .row:hover { background: rgb(50 102 153 / 0.1); }
+
+  .rowTitle { font-size: 0.875rem; font-weight: 600; }
+
+  .rowMeta { color: var(--ifm-color-emphasis-700); font-size: 0.75rem; }
+
+  .rowExcerpt {
+    color: var(--ifm-color-emphasis-800);
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .rowSection { display: block; color: var(--ifm-font-color-base); font-weight: 500; }
+
+  .rowExcerpt mark {
+    padding: 0;
+    background: transparent;
+    color: var(--kh-color-interactive);
+    font-weight: 700;
+  }
+
+  .statement {
+    margin-block: 0.4rem 0.6rem;
+    margin-inline: 0.65rem;
+    color: var(--ifm-color-emphasis-800);
+    font-size: 0.875rem;
+  }
+
+  /* ---------- Phone width: scope and Ask AI drop below the query ---------- */
+  .panel.phone {
+    inline-size: 375px;
+    border-radius: 0 0 14px 14px;
+  }
+
+  .phone .fieldRow { flex-wrap: wrap; row-gap: 0.6rem; }
+
+  .phone .field { flex-basis: calc(100% - 5rem); }
+
+  .phone .rowDivider { display: none; }
+
+  .phone .scope { order: 3; }
+
+  .phone .askAi { order: 4; margin-inline-start: auto; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-ask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+</svg>
+
+<div class="states">
+
+  <!-- 1. Opened, empty query -->
+  <section class="state">
+    <div class="state-label">Opened, no query</div>
+    <search class="panel">
+      <div class="fieldRow">
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" placeholder="Search the docs" aria-label="Search the docs">
+        <span class="scope">
+          <select class="scopeSelect" aria-label="Search in release" title="Search in release">
+            <option>v2.68</option>
+            <option>v2.67</option>
+            <option>Next</option>
+          </select>
+          <svg class="scopeChevron" width="12" height="12"><use href="#i-chevron"/></svg>
+        </span>
+        <button type="button" class="askAi">
+          <svg width="15" height="15"><use href="#i-ask"/></svg>
+          Ask AI
+        </button>
+        <span class="rowDivider"></span>
+        <button type="button" class="close" aria-label="Close search" title="Close search">
+          <svg width="18" height="18"><use href="#i-close"/></svg>
+        </button>
+      </div>
+      <div class="body">
+        <p class="note">Do not enter patient details</p>
+        <div role="listbox" aria-label="Search results">
+          <div class="groupLabel">Recently updated</div>
+          <a class="row" href="#" aria-selected="true"><span class="rowTitle">v2.66</span><span class="rowMeta">Release notes · v2.66</span></a>
+          <a class="row" href="#"><span class="rowTitle">v2.65</span><span class="rowMeta">Release notes · v2.65</span></a>
+          <a class="row" href="#"><span class="rowTitle">v2.64</span><span class="rowMeta">Release notes · v2.64</span></a>
+          <a class="row" href="#"><span class="rowTitle">v2.63</span><span class="rowMeta">Release notes · v2.63</span></a>
+          <a class="row" href="#"><span class="rowTitle">v2.62</span><span class="rowMeta">Release notes · v2.62</span></a>
+        </div>
+      </div>
+    </search>
+  </section>
+
+  <!-- 2. Query with results -->
+  <section class="state">
+    <div class="state-label">Query with results</div>
+    <search class="panel">
+      <div class="fieldRow">
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" value="allergies" aria-label="Search the docs">
+        <span class="scope">
+          <select class="scopeSelect" aria-label="Search in release" title="Search in release">
+            <option>v2.68</option>
+            <option>v2.67</option>
+            <option>Next</option>
+          </select>
+          <svg class="scopeChevron" width="12" height="12"><use href="#i-chevron"/></svg>
+        </span>
+        <button type="button" class="askAi">
+          <svg width="15" height="15"><use href="#i-ask"/></svg>
+          Ask AI
+        </button>
+        <span class="rowDivider"></span>
+        <button type="button" class="close" aria-label="Close search" title="Close search">
+          <svg width="18" height="18"><use href="#i-close"/></svg>
+        </button>
+      </div>
+      <div class="body">
+        <p class="note">Do not enter patient details</p>
+        <div role="listbox" aria-label="Search results">
+          <div class="groupLabel">User guides</div>
+          <a class="row" href="#" aria-selected="true">
+            <span class="rowTitle">5.2 Record allergies</span>
+            <span class="rowMeta">User guide · Tamanu desktop › 5. Patient summary</span>
+            <span class="rowExcerpt"><span class="rowSection">Add an <mark>allergy</mark></span>Select <b>Add</b> beside <b>Allergies</b> on the patient summary, then choose the <mark>allergy</mark> and its reaction.</span>
+          </a>
+          <a class="row" href="#">
+            <span class="rowTitle">5.1 Reference data</span>
+            <span class="rowMeta">User guide · Configuration guides › 5. Patient summary</span>
+            <span class="rowExcerpt"><span class="rowSection">Allergy</span>Each <mark>allergy</mark> offered on the patient summary is a reference data record of type <code>allergy</code>.</span>
+          </a>
+          <div class="groupLabel">Release notes</div>
+          <a class="row" href="#">
+            <span class="rowTitle">v2.64</span>
+            <span class="rowMeta">Release notes · 2 Sept 2026</span>
+            <span class="rowExcerpt"><span class="rowSection">Patient summary</span><mark>Allergies</mark> recorded on mobile now show their reaction on desktop.</span>
+          </a>
+        </div>
+      </div>
+    </search>
+  </section>
+
+  <!-- 3. Query matching nothing: Ask AI is the way forward -->
+  <section class="state">
+    <div class="state-label">No results, Ask AI active</div>
+    <search class="panel">
+      <div class="fieldRow">
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" value="how do I merge two patients" aria-label="Search the docs">
+        <span class="scope">
+          <select class="scopeSelect" aria-label="Search in release" title="Search in release">
+            <option>v2.68</option>
+            <option>v2.67</option>
+            <option>Next</option>
+          </select>
+          <svg class="scopeChevron" width="12" height="12"><use href="#i-chevron"/></svg>
+        </span>
+        <button type="button" class="askAi is-active">
+          <svg width="15" height="15"><use href="#i-ask"/></svg>
+          Ask AI
+        </button>
+        <span class="rowDivider"></span>
+        <button type="button" class="close" aria-label="Close search" title="Close search">
+          <svg width="18" height="18"><use href="#i-close"/></svg>
+        </button>
+      </div>
+      <div class="body">
+        <p class="note">Do not enter patient details</p>
+        <p class="statement">No results for “how do I merge two patients”</p>
+      </div>
+    </search>
+  </section>
+
+  <!-- 4. Preview revision: the scope is a label, not a choice -->
+  <section class="state">
+    <div class="state-label">On a preview</div>
+    <search class="panel">
+      <div class="fieldRow">
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" placeholder="Search the docs" aria-label="Search the docs">
+        <span class="scopeLabel" title="Searching in">Preview: main</span>
+        <button type="button" class="askAi">
+          <svg width="15" height="15"><use href="#i-ask"/></svg>
+          Ask AI
+        </button>
+        <span class="rowDivider"></span>
+        <button type="button" class="close" aria-label="Close search" title="Close search">
+          <svg width="18" height="18"><use href="#i-close"/></svg>
+        </button>
+      </div>
+      <div class="body">
+        <p class="note">Do not enter patient details</p>
+        <div role="listbox" aria-label="Search results">
+          <div class="groupLabel">Recently updated</div>
+          <a class="row" href="#"><span class="rowTitle">10.1 Record vitals</span><span class="rowMeta">User guide · Tamanu desktop › 10. Vitals</span></a>
+          <a class="row" href="#"><span class="rowTitle">15.2 Settings</span><span class="rowMeta">User guide · Configuration guides › 15. Medications</span></a>
+        </div>
+      </div>
+    </search>
+  </section>
+
+  <!-- 5. Phone width -->
+  <section class="state">
+    <div class="state-label">Phone width</div>
+    <search class="panel phone">
+      <div class="fieldRow">
+        <svg class="fieldIcon" width="18" height="18"><use href="#i-search"/></svg>
+        <input class="field" type="text" placeholder="Search the docs" aria-label="Search the docs">
+        <button type="button" class="close" aria-label="Close search" title="Close search">
+          <svg width="18" height="18"><use href="#i-close"/></svg>
+        </button>
+        <span class="scope">
+          <select class="scopeSelect" aria-label="Search in release" title="Search in release">
+            <option>v2.68</option>
+            <option>v2.67</option>
+            <option>Next</option>
+          </select>
+          <svg class="scopeChevron" width="12" height="12"><use href="#i-chevron"/></svg>
+        </span>
+        <button type="button" class="askAi">
+          <svg width="15" height="15"><use href="#i-ask"/></svg>
+          Ask AI
+        </button>
+      </div>
+      <div class="body">
+        <p class="note">Do not enter patient details</p>
+        <div role="listbox" aria-label="Search results">
+          <div class="groupLabel">Recently updated</div>
+          <a class="row" href="#"><span class="rowTitle">v2.66</span><span class="rowMeta">Release notes · v2.66</span></a>
+          <a class="row" href="#"><span class="rowTitle">v2.65</span><span class="rowMeta">Release notes · v2.65</span></a>
+        </div>
+      </div>
+    </search>
+  </section>
+
+</div>
+</body>
+</html>
