@@ -14,7 +14,8 @@ These go to main only. Release branches keep their format docs, since the skills
 
 Every image has a uniform border on all four edges: 2px on most, 4px on the Medications config guide and Vitals user guide shots. No red outline falls inside the border band, so trimming that many pixels from each side removes the border and nothing else. Measure each image's border before trimming rather than assuming the width.
 
-- One image needs padding after the trim: in the Users config guide's Add user dialog (`reference-data-add-user.png`), the Confirm outline sits flush against the bottom border. Add a few pixels of the dialog footer's colour along the bottom so the outline has clear space below it
+- One image needs padding after the trim: in the Users config guide's Add user dialog (`reference-data-add-user.png`), the Confirm outline sits flush against the bottom border. Add a few pixels of the dialog footer's colour along the bottom so the outline has clear space below it (16px added)
+- Two sidebar shots keep only a 1px gap between outline and edge once trimmed: the menu button in Use the sidebar, and the expand-sidebar arrow in Change language. Left as they are by decision; the clear-space rule applies to new captures
 - Each `<img>` keeps its displayed scale: reduce its `width` attribute in proportion to the pixels trimmed
 
 ## Commits and branches
@@ -29,7 +30,10 @@ The card's branch targets main, carrying the rule change and both trim commits. 
 - `chore/u14/guide-screenshot-borders-to-2.69`: commits 1 and 2
 - `chore/u14/guide-screenshot-borders-to-2.68`: commit 1
 
-- [ ] Trim commit 1
-- [ ] Trim commit 2
+2.68's guides still use the older `<p align="center">` image block, so its cherry-pick conflicted on the guide text. Resolved by keeping 2.68's markup and applying only the rescaled widths.
+
+- [x] Trim commit 1
+- [x] Trim commit 2
 - [ ] Raise the main pull request
-- [ ] Build, push and raise the 2.69 and 2.68 branches
+- [x] Build the 2.69 and 2.68 branches locally
+- [ ] Push the 2.69 and 2.68 branches and raise their pull requests (needs someone with a GitHub login on this machine)
