@@ -1,7 +1,9 @@
 <!--
 Canonical format example for the Draft release notes skill.
-This is the published Tamanu v2.44 release notes, kept verbatim as the reference
-for section order, headings, emoji markers, voice, and level of detail.
+This is the published Tamanu v2.44 release notes, kept as the reference for
+section order, headings, emoji markers, voice, and level of detail. Its wording
+is as published, apart from the headings, which were published in title case and
+are converted here to the sentence case that new notes use.
 Match this shape when drafting a new version. Slab links here are real; in a
 fresh draft they are left as [SLAB_LINK_PLACEHOLDER].
 -->
@@ -12,11 +14,11 @@ One of our biggest recent releases - Tamanu v2.44 introduces the new Patient Por
 
 ---
 
-# 🌟 Major Features and Changes
+# 🌟 Major features and changes
 
 ## Tamanu Desktop
 
-### _Location Bookings Calendar Enhancements_
+### Location bookings calendar enhancements
 
 Significant enhancements to the **Location Bookings** calendar provide more flexibility and detail when scheduling patient bookings. The addition of a daily calendar alongside the existing weekly calendar gives users different views on the schedule, while new fields capture more comprehensive booking information to better support use cases such as surgical lists.
 
@@ -67,9 +69,9 @@ Please reach out to your Tamanu system administrator/project manager to discuss 
 
 ---
 
-## System Administration
+## System administration
 
-### _User Management Admin Panel_
+### User management admin panel
 
 The new User Management component in the admin panel provides administrators with tools to manage Tamanu users. This enhancement centralises user administration, making it easier to maintain accurate user records, manage access, and oversee staff scheduling.
 
@@ -86,7 +88,7 @@ The new User Management component in the admin panel provides administrators wit
 
 ---
 
-### _Location Assignment Calendar_
+### Location assignment calendar
 
 The Location Assignment Calendar introduces a visual weekly calendar for managing clinician assignments to specific locations. These location assignments are specifically displayed on the location bookings 'Daily' view on the Tamanu Desktop frontend.
 
@@ -106,9 +108,9 @@ This tool helps administrators plan and track which staff members are working in
 
 ---
 
-# 🔧 System Enhancements
+# 🔧 System enhancements
 
-### _DHIS2 Integration_
+### DHIS2 integration
 
 This release introduces integration capabilities with DHIS2, enabling automated data sharing between Tamanu and DHIS2. This integration supports health information exchange and reporting workflows required by many health ministries.
 
@@ -124,7 +126,7 @@ Please reach out to your Tamanu system administrator/project manager to discuss 
 
 ---
 
-# 🐛Tweaks and Bug Fixes
+# 🐛Tweaks and bug fixes
 
 ## Desktop
 
@@ -156,11 +158,11 @@ Please reach out to your Tamanu system administrator/project manager to discuss 
 
 ---
 
-# ⚠️ Critical Upgrade Notes
+# ⚠️ Critical upgrade notes
 
 ### Required
 
-**_User Management and Location Bookings_**
+**_User management and location bookings_**
 
 - Review the new User Management admin panel and plan how your team will use it to manage user accounts and scheduled leave. Consider which staff need permissions to manage user accounts.
 - Familiarise yourself with the Location Assignment Calendar and determine how it will support your resource allocation processes. Configure location bookings settings (`appointments.bookingSlots.startTime`, `appointments.bookingSlots.endTime`, `appointments.bookingSlots.slotDuration`) at the facility level if not already set.
@@ -174,43 +176,43 @@ Please reach out to your Tamanu system administrator/project manager to discuss 
 - If implementing the portal, request devops to setup portal.
 - Set up appropriate permissions for staff who will register patients and assign portal forms.
 
-**_DHIS2 Integration_**
+**_DHIS2 integration_**
 
 - If your facility reports to DHIS2, review the integration capabilities and determine which Tamanu reports should be automatically sent to DHIS2.
 - Configure DHIS2 connection settings and test the integration in a non-production environment before deploying to production.
 
 ---
 
-## Upgrade Steps and Recommended Testing
+## Upgrade steps and recommended testing
 
 ### Required
 
-### _User Management_
+### User management
 
 - Test user creation, editing, and leave scheduling through the new admin panel
 
 **Optional**
 
-**_Location Bookings_**
+**_Location bookings_**
 
 - Verify that location schedule assignments work as expected for your bookable locations
 - Test both daily and weekly views of the location bookings calendar with real appointment scenarios
 - Confirm that facility filtering works correctly in multi-facility deployments
 - Verify that permissions control access appropriately for user management and scheduling features
 
-### _Patient Portal_
+### Patient Portal
 
 - Test the complete patient registration workflow from invitation to login
 - Verify that forms can be assigned to patients and completed through the portal
 - Confirm that form submissions appear correctly in patient records
 - Test permission controls to ensure only authorised staff can manage portal access
 
-### _DHIS2 Integration_
+### DHIS2 integration
 
 - If enabling DHIS2 integration, test the scheduled report execution and data push to DHIS2
 - Verify that connection retry logic works appropriately
 
-### _General_
+### General
 
 - Test all bug fixes mentioned in the release notes
 - Verify that existing workflows continue to function as expected

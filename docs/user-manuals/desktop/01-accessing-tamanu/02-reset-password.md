@@ -16,7 +16,7 @@ You need access to the email inbox for your Tamanu account, because Tamanu sends
      <img
        src="images/reset-password-forgot-password.png"
        alt="The Forgot password screen, with the Send reset code button outlined in red"
-       width="289"
+       width="288"
      />
      <figcaption>Enter your email address, then select <b>Send reset code</b>.</figcaption>
    </figure>
@@ -41,7 +41,7 @@ You need access to the email inbox for your Tamanu account, because Tamanu sends
      <img
        src="images/reset-password-filled-form.png"
        alt="The Reset password screen with a new password entered in both password fields, with the Reset password button outlined in red"
-       width="289"
+       width="288"
      />
      <figcaption>Enter the reset code and your new password, then select <b>Reset password</b>.</figcaption>
    </figure>
@@ -53,7 +53,7 @@ You need access to the email inbox for your Tamanu account, because Tamanu sends
      <img
        src="images/reset-password-success.png"
        alt="The Password successfully reset screen, with the Back to login button outlined in red"
-       width="289"
+       width="288"
      />
      <figcaption>Select <b>Back to login</b> to log in with your new password.</figcaption>
    </figure>

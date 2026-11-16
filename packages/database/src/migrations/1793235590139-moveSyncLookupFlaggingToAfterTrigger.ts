@@ -12,9 +12,14 @@ import { addOrReplaceSyncLookupDisabledFlagTrigger } from '../services/migration
 // The per-table triggers are installed here as well as by the post-migration hook, because that
 // hook only runs after the whole batch: without this, a later migration in the same batch that
 // writes to a lookup-tracked table would not be flagged for rebuild.
+//
+// The timestamp deliberately sorts just before 1793235590140-migrateInsurancePlanPaymentTranslations,
+// the first migration to write to translated_strings: migrations apply in timestamp order, and that
+// one fails while the BEFORE trigger still flags with a NULL id. It is idempotent, so a database
+// that already applied it under its earlier timestamp (1794455924699) re-runs it harmlessly.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    CREATE FUNCTION flag_sync_lookup_for_rebuild_when_sync_trigger_disabled()
+    CREATE OR REPLACE FUNCTION flag_sync_lookup_for_rebuild_when_sync_trigger_disabled()
       RETURNS trigger
       LANGUAGE plpgsql AS
       $func$

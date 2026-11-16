@@ -9,6 +9,16 @@ import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
 import { getSyncSettings } from './syncSettings';
 
+// spec: SYNCHK#while-central-wakes
+// Only a 503 with a Retry-After is a waking central; a bare 503 (overloaded central, empty proxy)
+// is an ordinary failure.
+const whenCentralWakes = fallback => error => {
+  const waking =
+    error.response?.status === 503 && Boolean(error.response.headers.get('retry-after')?.trim());
+  if (!waking) throw error;
+  return fallback;
+};
+
 export class CentralServerConnection extends TamanuApi {
   #loginData;
 
@@ -134,7 +144,10 @@ export class CentralServerConnection extends TamanuApi {
         urgent,
         lastSyncedTick,
       },
-    });
+    })
+      // a waking central, whether it answers the session start or the login before it, cannot
+      // start a session yet, so wait in line as a queued sync does
+      .catch(whenCentralWakes({ status: 'centralWaking' }));
 
     if (!sessionId) {
       // we're waiting in a queue

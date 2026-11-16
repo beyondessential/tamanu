@@ -62,7 +62,7 @@ action achieves and where in the product the reader starts. Then, only if there 
 
 Guides are markdown. Stick to the standard set of structure and formatting options, apart from the
 image blocks below. Markdown carries no styling, so **never rely on styling to carry meaning**: an
-image's border and outlines are drawn into the image itself.
+image's red outlines are drawn into the image itself.
 
 ## Screenshots
 
@@ -79,9 +79,8 @@ shots everywhere are found by one search.
 - **Crop to the part of the screen the step is about**, so the words it names are readable. A shot of a
   dialog or form window is that window alone
 - **Capture at twice screen resolution**, so text stays sharp when shown smaller
-- **Every image has a thin black border**, drawn into the image itself
-- **Outline in red the control the step asks the reader to select**, drawn into the image. Which
-  controls are outlined is the author's call, so ask
+- **Outline in red the control the step asks the reader to select**, with clear space between the
+  outline and the image's edge. Which controls are outlined is the author's call, so ask
 - **Every image has alt text** describing what the shot shows, including any red outline
 - **Every image has a caption**: one short sentence describing what the image
   shows or the action it illustrates, with Tamanu front-end text word for word in bold

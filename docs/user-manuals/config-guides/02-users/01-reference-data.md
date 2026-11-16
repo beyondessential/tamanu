@@ -55,7 +55,7 @@ Roles can also be added and deleted on the **Roles** tab of **Users** > **Roles 
   <img
     src="images/reference-data-roles.png"
     alt="The Roles tab of Roles & designations, listing roles, with Add role outlined in red"
-    width="732"
+    width="731"
   />
   <figcaption>Select <b>Add role</b> on the <b>Roles</b> tab.</figcaption>
 </figure>
@@ -98,7 +98,7 @@ Designations can also be added and deleted on the **Designations** tab of **User
   <img
     src="images/reference-data-designations.png"
     alt="The Designations tab of Roles & designations, listing designations, with Add designation outlined in red"
-    width="732"
+    width="731"
   />
   <figcaption>Select <b>Add designation</b> on the <b>Designations</b> tab.</figcaption>
 </figure>
@@ -149,7 +149,7 @@ Users can also be added and edited one at a time on **Users** > **User profiles*
   <img
     src="images/reference-data-user-profiles.png"
     alt="The User profiles screen listing users, with Add user outlined in red"
-    width="732"
+    width="731"
   />
   <figcaption>Select <b>Add user</b> on <b>User profiles</b>.</figcaption>
 </figure>
@@ -165,7 +165,7 @@ accept several values.
   <img
     src="images/reference-data-add-user.png"
     alt="The Add user window with its fields empty, with Confirm outlined in red"
-    width="497"
+    width="496"
   />
   <figcaption>Complete the <b>Add user</b> form, then select <b>Confirm</b>.</figcaption>
 </figure>
@@ -183,7 +183,7 @@ Select a user's row to open their **User profile**. The same fields can be chang
   <img
     src="images/reference-data-user-profile.png"
     alt="A user's User profile window, showing their details and the Change password fields"
-    width="497"
+    width="496"
   />
   <figcaption>A user's <b>User profile</b>, with <b>Change password</b> beneath their details.</figcaption>
 </figure>
@@ -211,7 +211,7 @@ is listed under **Upcoming scheduled leave**, where **Remove** cancels it. See t
   <img
     src="images/reference-data-schedule-leave.png"
     alt="The Schedule leave section of a User profile, with Schedule leave outlined in red"
-    width="497"
+    width="496"
   />
   <figcaption>Enter a <b>Start date</b> and <b>End date</b>, then select <b>Schedule leave</b>.</figcaption>
 </figure>

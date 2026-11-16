@@ -1,16 +1,10 @@
 /*
- * Regression test for the "Normal range" column of PatientLabTestsTable.
+ * Tests for PatientLabTestsTable:
+ *  - the "Normal range" column accessor (regression: sex "other" and a zero minimum), and
+ *  - how picked panels and individual tests are grouped into rows and heading boundaries.
  *
- * The column accessor read `row.normalRanges[patient?.sex]` directly. The
- * server only ever builds "male"/"female" keys, so a patient with sex
- * "other" produced `undefined`, and accessing `range.min` on it threw a
- * TypeError (rendered as an error cell by the table's per-cell error
- * boundary). Separately, the accessor used a truthiness check on
- * `range.min`, so a legitimate range of `{ min: 0, max: ... }` was treated
- * as absent and rendered the no-range fallback instead of "0–...".
- *
- * We stub the heavy Table component to invoke only the "normalRange"
- * column's accessor, so we can exercise the accessor logic in isolation.
+ * We stub the heavy Table component to capture the props the table is given, so we can exercise
+ * the column accessors and the grouping/heading logic in isolation.
  */
 
 import * as React from 'react';
@@ -34,14 +28,18 @@ vi.mock('../../../app/views/patients/LabTestResultModal', () => ({
   LabTestResultModal: () => null,
 }));
 
+let capturedTableProps;
+
 vi.mock('../../../app/components/Table', () => ({
-  Table: ({ columns, data }) => {
+  Table: props => {
+    capturedTableProps = props;
+    const { columns, data } = props;
     const normalRangeColumn = columns.find(column => column.key === 'normalRange');
     expect(normalRangeColumn).toBeDefined();
     return (
       <div>
         {data.map((row, index) => (
-          <div key={row.testType} data-testid={`normal-range-cell-${index}`}>
+          <div key={row.rowKey ?? row.testType} data-testid={`normal-range-cell-${index}`}>
             {normalRangeColumn.accessor(row)}
           </div>
         ))}
@@ -52,14 +50,24 @@ vi.mock('../../../app/components/Table', () => ({
 
 import { PatientLabTestsTable } from '../../../app/views/patients/PatientLabTestsTable';
 
-const renderTable = (patient, labTests) =>
+const makeTest = (id, name) => ({
+  testType: name,
+  testTypeId: id,
+  testCategory: 'Category A',
+  unit: 'mg',
+  rangeText: null,
+  normalRanges: { male: { min: 1, max: 5 } },
+  results: {},
+});
+
+const renderTable = (patient, labTests, props = {}) =>
   renderElementWithTranslatedText(
     <PatientLabTestsTable
       patient={patient}
       labTests={labTests}
       count={labTests.length}
       isLoading={false}
-      searchParameters={{}}
+      {...props}
     />,
   );
 
@@ -115,5 +123,65 @@ describe('PatientLabTestsTable normal range column', () => {
     renderTable({ sex: 'male' }, labTests);
 
     expect(screen.getByTestId('normal-range-cell-0').textContent).toBe('—');
+  });
+});
+
+describe('PatientLabTestsTable grouping', () => {
+  const labTests = [
+    makeTest('t1', 'Alpha'),
+    makeTest('t2', 'Bravo'),
+    makeTest('t3', 'Charlie'),
+    makeTest('t4', 'Delta'),
+  ];
+  const groups = [
+    { id: 'p1', name: 'Full blood count', testTypeIds: ['t1', 't2'] },
+    { id: 'p2', name: 'Lipid profile', testTypeIds: ['t3'] },
+  ];
+
+  it('orders panels (members in configured order) first, then the other tests as individual A–Z, without repeating a panel member', () => {
+    renderTable({ sex: 'male' }, labTests, { groups });
+
+    // Panels A–Z with members in configured order, then every test not under a panel, A–Z. t1 and
+    // t2 (in Full blood count) and t3 (in Lipid profile) are not repeated; only t4 is individual.
+    expect(capturedTableProps.data.map(row => row.rowKey)).toEqual([
+      'p1:t1',
+      'p1:t2',
+      'p2:t3',
+      '__individual__:t4',
+    ]);
+  });
+
+  it('shows a heading at each group boundary and none within a group', () => {
+    renderTable({ sex: 'male' }, labTests, { groups });
+    const { data, getRowGroupHeader } = capturedTableProps;
+
+    expect(getRowGroupHeader(data[0], undefined).props.fallback).toBe('Full blood count');
+    expect(getRowGroupHeader(data[1], data[0])).toBeNull();
+    expect(getRowGroupHeader(data[2], data[1]).props.fallback).toBe('Lipid profile');
+    expect(getRowGroupHeader(data[3], data[2]).props.fallback).toBe('Individual tests');
+  });
+
+  it('shows an "Individual tests" heading when there are no panels', () => {
+    renderTable({ sex: 'male' }, [makeTest('t2', 'Bravo')], { groups: [] });
+    const { data, getRowGroupHeader } = capturedTableProps;
+
+    expect(data.map(row => row.rowKey)).toEqual(['__individual__:t2']);
+    expect(getRowGroupHeader(data[0], undefined).props.fallback).toBe('Individual tests');
+  });
+
+  it('groups a category view: its ordered panels first, then the category\'s other tests as individual', () => {
+    renderTable({ sex: 'male' }, labTests, {
+      groups: [{ id: 'p1', name: 'Full blood count', testTypeIds: ['t1', 't2'] }],
+    });
+    const { data, getRowGroupHeader } = capturedTableProps;
+
+    expect(data.map(row => row.rowKey)).toEqual([
+      'p1:t1',
+      'p1:t2',
+      '__individual__:t3',
+      '__individual__:t4',
+    ]);
+    expect(getRowGroupHeader(data[0], undefined).props.fallback).toBe('Full blood count');
+    expect(getRowGroupHeader(data[2], data[1]).props.fallback).toBe('Individual tests');
   });
 });

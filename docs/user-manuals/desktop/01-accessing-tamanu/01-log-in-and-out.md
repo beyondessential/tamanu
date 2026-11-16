@@ -17,7 +17,7 @@ system administrator gives you these.
      <img
        src="images/log-in-and-out-empty-form.png"
        alt="The empty Log in screen"
-       width="289"
+       width="288"
      />
      <figcaption>The <b>Log in</b> screen.</figcaption>
    </figure>
@@ -35,7 +35,7 @@ system administrator gives you these.
      <img
        src="images/log-in-and-out-filled-form.png"
        alt="The Log in screen with an email address and password entered, with the Log in button outlined in red"
-       width="289"
+       width="288"
      />
      <figcaption>Enter your email address and password, then select <b>Log in</b>.</figcaption>
    </figure>
@@ -69,7 +69,7 @@ log out straight away.
      <img
        src="images/log-in-and-out-log-out.png"
        alt="The bottom of the expanded sidebar, with the Log out button outlined in red"
-       width="262"
+       width="260"
      />
      <figcaption>Select <b>Log out</b> at the bottom of the sidebar.</figcaption>
    </figure>

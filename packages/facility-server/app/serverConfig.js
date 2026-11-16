@@ -123,6 +123,21 @@ export async function isSettingUp(models) {
   }
 }
 
+// isServerConfigured() reads this process's holder, which misses a setup another API process
+// has just completed. The legacy upgrade step can record the email without facility ids, which
+// is not a configured server.
+export async function isSetUpInDatabase(models) {
+  const email = await models.LocalSystemFact.get(FACT_SYNC_EMAIL);
+  const facilityIds = await models.LocalSystemFact.get(FACT_FACILITY_IDS);
+  if (!email || !facilityIds) return false;
+  try {
+    return JSON.parse(facilityIds).length > 0;
+  } catch {
+    // An unreadable fact is not a configured server; the wizard overwrites it.
+    return false;
+  }
+}
+
 // What the server is *declared* to use (env/config, never the fact). Integrity
 // checks drift-check these against the recorded facts, and skip when null.
 export function getDeclaredFacilityIds() {
