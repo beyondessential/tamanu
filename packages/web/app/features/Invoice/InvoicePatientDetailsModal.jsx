@@ -66,7 +66,7 @@ const FormBridge = ({ submitForm, bridgeRef, onStateChange }) => {
  * insurance plan field when the modal is opened to add a plan. Searched within the modal's own
  * content, since the same field is on the patient's Details tab behind it.
  */
-const FOCUS_ATTEMPTS = 40;
+const FOCUS_ATTEMPTS = 100;
 const FOCUS_RETRY_MS = 50;
 
 const useFocusField = (fieldName, isReady, containerRef) => {
@@ -75,17 +75,42 @@ const useFocusField = (fieldName, isReady, containerRef) => {
 
     // The form fetches its own field definitions and values after the modal's queries settle, and
     // renders nothing but a loading indicator until they land, so the field is not there to be
-    // found on the first look. Keep looking for a short while rather than silently giving up.
+    // found on the first look. Keep looking for a while rather than silently giving up.
     let attemptsLeft = FOCUS_ATTEMPTS;
+    let hasScrolled = false;
+    let lastFocused = null;
     let timer;
+
+    const scrollTo = field => {
+      // The section's heading, so the field arrives with the section it belongs to rather than
+      // alone in the middle of the modal. A deployment that marks the field mandatory moves it
+      // into the form's headless top section, which has no heading to scroll to.
+      const grid = field.closest('[data-testid^="secondarydetailsformgrid-"]');
+      const target = grid?.previousElementSibling ?? field;
+      target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    };
 
     const attempt = () => {
       const field = containerRef.current?.querySelector(`.${getPatientFieldClassName(fieldName)}`);
-      if (field) {
-        field.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        field.querySelector('input, [tabindex]')?.focus();
-        return;
+
+      if (field && !hasScrolled) {
+        scrollTo(field);
+        hasScrolled = true;
       }
+
+      const input = field?.querySelector('input, [tabindex]');
+      const active = document.activeElement;
+
+      // A suggester-backed field shows a plain input while its options load and swaps in the real
+      // control when they arrive, dropping the focus placed on the placeholder. Keep at it until
+      // the focus survives a turn — but leave the user alone once they have moved on themselves.
+      if (lastFocused && active !== lastFocused && containerRef.current?.contains(active)) return;
+      if (input && input === lastFocused && active === input) return;
+      if (input) {
+        input.focus();
+        lastFocused = input;
+      }
+
       attemptsLeft -= 1;
       if (attemptsLeft > 0) timer = setTimeout(attempt, FOCUS_RETRY_MS);
     };
