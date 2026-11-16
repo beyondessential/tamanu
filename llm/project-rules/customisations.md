@@ -1,14 +1,14 @@
 # Component customisations - Tamanu
 
-`Customisations` (`packages/web/app/components/Customisations/`) swaps a web
-component for a deployment-specific version, chosen by the
+`Customisations` (`packages/web/app/components/Customisations/`) swaps a React
+component in the web app for a deployment-specific version, chosen by the
 `customisations.componentVersions` global setting.
 
 ## When to suggest it
 
 Prefer a customisation over a new feature flag where one can do the job. Suggest
 it before writing code when a request would add a flag, a deployment check or a
-fork to a shared web component.
+fork to a shared React component in the web app.
 
 Use a setting (`llm/project-rules/settings.md`) only when a customisation can't
 do it: the difference is a value, it varies per facility, or it reaches the
