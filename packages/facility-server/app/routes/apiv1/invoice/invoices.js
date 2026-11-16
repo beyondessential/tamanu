@@ -72,12 +72,29 @@ invoiceRoute.get(
     req.checkPermission('read', 'Invoice');
 
     const { encounterId, productId } = req.query;
+    // Express parses a repeated parameter into an array and a bracketed one into an object, and
+    // either would reach the where clause as it stands; this refuses both rather than letting
+    // Sequelize fail on them. Not .uuid(): provisioned section ids are codes.
+    const { data: invoiceSectionId, error: sectionError } = z
+      .string()
+      .min(1)
+      .nullish()
+      .safeParse(req.query.invoiceSectionId);
+    if (sectionError) {
+      throw new ValidationError(sectionError.message);
+    }
 
     if (!encounterId || !productId) {
       throw new ValidationError('encounterId and productId are required');
     }
 
-    const { Invoice, InvoiceInsurancePlanItem, InvoiceInsurancePlan, InvoiceProduct } = req.models;
+    const {
+      Invoice,
+      InvoiceInsurancePlanItem,
+      InvoiceInsurancePlan,
+      InvoicesInvoiceInsurancePlan,
+      InvoiceProduct,
+    } = req.models;
 
     // If the product is not insurable, there are no insurance plan items to return
     const product = await InvoiceProduct.findByPk(productId, { attributes: ['id', 'insurable'] });
@@ -86,23 +103,41 @@ invoiceRoute.get(
     }
 
     // Find the invoice for the encounter (there should be at most one per encounter)
-    const invoice = await Invoice.findOne({
-      where: { encounterId },
-      attributes: ['id'],
+    const invoice = await Invoice.findOne({ where: { encounterId }, attributes: ['id'] });
+
+    if (!invoice) {
+      // If no invoice yet, there will be no linked plans
+      return res.json([]);
+    }
+
+    // What the saved item will actually be covered by: a plan attached to the row's section, or
+    // one attached to no section and so covering the whole invoice. Answering for every plan on
+    // the invoice would advertise coverage the item is never going to get.
+    const attachments = await InvoicesInvoiceInsurancePlan.findAll({
+      where: {
+        invoiceId: invoice.id,
+        invoiceSectionId: invoiceSectionId ? { [Op.or]: [null, invoiceSectionId] } : null,
+      },
       include: [
         {
           model: InvoiceInsurancePlan,
-          as: 'insurancePlans',
+          as: 'invoiceInsurancePlan',
+          required: true,
           attributes: ['name', 'id', 'defaultCoverage'],
           where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
         },
       ],
     });
 
-    if (!invoice) {
-      // If no invoice yet, there will be no linked plans
-      return res.json([]);
-    }
+    // One entry per plan: a plan reaching this item through two attachments is still one payer.
+    const coveringPlans = [
+      ...new Map(
+        attachments.map(({ invoiceInsurancePlan }) => [
+          invoiceInsurancePlan.id,
+          invoiceInsurancePlan,
+        ]),
+      ).values(),
+    ];
 
     // Get the plan items for this product and the linked plans
     const items = await InvoiceInsurancePlanItem.findAll({
@@ -123,7 +158,7 @@ invoiceRoute.get(
     const itemsById = keyBy(items, 'invoiceInsurancePlanId');
 
     // Normalise to the shape expected by the client UI
-    const response = invoice.insurancePlans.map(insurancePlan => {
+    const response = coveringPlans.map(insurancePlan => {
       const planItem = itemsById[insurancePlan.id];
       const coverageValue = planItem?.coverageValue ?? insurancePlan.defaultCoverage;
       return {
@@ -185,7 +220,10 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z.string().uuid().default(() => crypto.randomUUID()),
+        id: z
+          .string()
+          .uuid()
+          .default(() => crypto.randomUUID()),
         percentage: z.coerce
           .number()
           .min(0)
@@ -198,7 +236,10 @@ const updateInvoiceSchema = z
       .nullish(),
     items: z
       .object({
-        id: z.string().uuid().default(() => crypto.randomUUID()),
+        id: z
+          .string()
+          .uuid()
+          .default(() => crypto.randomUUID()),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
@@ -214,7 +255,10 @@ const updateInvoiceSchema = z
         invoiceSectionId: z.string().min(1).nullish(),
         discount: z
           .object({
-            id: z.string().uuid().default(() => crypto.randomUUID()),
+            id: z
+              .string()
+              .uuid()
+              .default(() => crypto.randomUUID()),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().nullish(),

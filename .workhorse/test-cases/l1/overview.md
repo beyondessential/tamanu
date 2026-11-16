@@ -62,10 +62,26 @@ fault. Every case assumes invoicing is on.
 - [ ] The invoice total is the sum of every section's items, including the unlabelled one (verifies spec: INVGRP)
 - [ ] The summary panel's rows cover the whole invoice, not the first section (verifies spec: INVGRP)
 - [ ] Discounts and item adjustments reach the total from every section (verifies spec: INVGRP)
-- [ ] Insurance stays invoice-wide: one Insurance plan action and one coverage line, whatever the sections
-- [ ] Invoice-wide actions sit in one overflow menu for the invoice, and no section header carries an action of its own (verifies spec: INVGRP)
+- [ ] Invoice-wide actions sit in one overflow menu for the invoice, and a section header carries only the actions belonging to that section (verifies spec: INVGRP)
 - [ ] Each section header is marked with the colour its category carries in the encounter view, Outpatient taking the clinic colour (verifies spec: INVGRP)
 - [ ] A configured section that is not an encounter category carries the default colour rather than none (verifies spec: INVGRP)
+
+## Insurance across sections
+
+- [x] A plan attached from a section's Insurance plan action covers that section's items and leaves the other sections uncovered (verifies spec: INVGRP)
+- [x] A plan attached without a section covers every item, including those in no section (verifies spec: INVGRP)
+- [x] The same plan attached to two sections carries a coverage total and a balance for each (verifies spec: INVGRP)
+- [x] An imported insurance payment is held to the coverage of the sections its plan is attached to, not the whole invoice (verifies spec: INVGRP)
+- [x] A plan already covering the whole invoice is refused a section, and one already on a section is refused the whole invoice (verifies spec: INVGRP)
+- [x] Reconciling one section's plans leaves the other sections' plans where they are (verifies spec: INVGRP)
+- [x] A section that is not currently configured is refused (verifies spec: INVGRP)
+- [x] The window opened from a section starts on that section's plans, and the one opened from an invoice with no sections starts on the invoice's (verifies spec: INVGRP)
+- [x] A split invoice offers no invoice-level Insurance plan action once its plans all name a section, and an invoice with no sections still does (verifies spec: INVGRP)
+- [x] A split invoice still holding a plan covering the whole invoice keeps the invoice-level action, so that plan can be removed (verifies spec: INVGRP)
+- [x] An item's coverage line names only the plans covering its own section (verifies spec: INVGRP)
+- [x] Picking a product on a row previews only the coverage that row's section will get, and a plan reaching it through two attachments is named once (verifies spec: INVGRP)
+- [x] The summary panel's Insurance coverage is the sum across every section (verifies spec: INVGRP)
+- [x] The patient is held to the whole of an uncovered section plus their share of a covered one (verifies spec: INVGRP)
 
 ## Adding and editing items
 

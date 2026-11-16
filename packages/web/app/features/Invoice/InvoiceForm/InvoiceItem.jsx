@@ -87,6 +87,7 @@ const useInvoiceItemPrice = ({
 const useInvoiceItemInsurance = ({
   encounterId,
   productId,
+  invoiceSectionId,
   existingPrice,
   index,
   formArrayMethods,
@@ -96,6 +97,7 @@ const useInvoiceItemInsurance = ({
   useInvoiceInsurancePlanItemsQuery({
     encounterId,
     productId,
+    invoiceSectionId,
     enabled: Boolean(productId) && !existingPrice,
     onSuccess: data => {
       if (!data || data.length === 0) return;
@@ -164,6 +166,8 @@ export const InvoiceItemRow = ({
   useInvoiceItemInsurance({
     encounterId,
     productId,
+    // The row's own section, so the preview promises only the coverage it will be saved with.
+    invoiceSectionId: item.invoiceSectionId,
     existingPrice: priceListPrice || item.manualEntryPrice,
     index,
     formArrayMethods,

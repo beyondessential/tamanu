@@ -119,7 +119,15 @@ export async function insurancePlanPaymentImporter({
       continue;
     }
 
-    const invoicePlanIds = (invoice?.insurancePlans ?? []).map(plan => plan.id);
+    // Straight off the attachment rows, which is what the invoice carries: pricing it maps every
+    // item against every plan, and a row naming a plan the invoice does not hold needs none of it.
+    const invoicePlanIds = [
+      ...new Set(
+        (invoice.insurancePlanAttachments ?? []).map(
+          attachment => attachment.invoiceInsurancePlanId,
+        ),
+      ),
+    ];
     if (!invoicePlanIds.includes(data.invoiceInsurancePlanId)) {
       errors.push(
         new ValidationError(

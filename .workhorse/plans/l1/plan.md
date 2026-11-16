@@ -16,7 +16,7 @@ scrolling sideways. The split encounter invoice mockup shows the approach:
 ## Scope
 
 - The printed invoice is covered by separate work
-- Insurance is out of scope entirely: per-section plans, per-section coverage lines and insurer balances all belong to the upcoming insurance card. This card leaves the Insurance plan action, the coverage line and the insurer payments table invoice-wide, exactly as they are today
+- Insurance per section is in scope: a plan is attached to a section, its coverage applies only to that section's items, and a payment names the section it settles. Patient payments and payment status stay invoice-wide
 - What is left here is the sectioned display of items: section headers, per-section Add item, the sectioned Edit invoice window, the per-section date limits, and the setting
 
 ## Setting
@@ -109,6 +109,38 @@ sync scope. Build so that absence degrades rather than breaks — see the fallba
 - [x] A new item in an ended period starts with an empty date; in the current period it starts at today and backdates as far as the section's start
 - [x] A date outside the range shows an inline error naming the first and last allowed dates, and blocks the save
 - [x] No front-end affordance anywhere for changing an item's section
+
+## Insurance per section
+
+Brought back into scope after the sectioned display landed. The grain was settled in the tech
+design: a plan is scoped to a section, a payment names its section, and per-item coverage stays
+derived rather than stored. `InvoiceItemFinalisedInsurance` already holds the per-item grain where
+it has to be frozen, so nothing new is stored per item.
+
+- [x] Migration adding `invoices_invoice_insurance_plans.invoice_section_id` and `invoice_insurance_plan_payments.invoice_section_id`, both nullable and referencing `reference_data`. Null keeps today's meaning: the plan covers the whole invoice
+- [x] Add the section-aware unique indexes to `invoices_invoice_insurance_plans`. There was no unique constraint to replace: the model declares `(invoiceId, invoiceInsurancePlanId)` as unique but Tamanu builds schema from migrations, so it never reached the database and only the route's own check stopped a plan being attached twice. Postgres treats NULLs as distinct in a unique index, so two partial indexes are used rather than `NULLS NOT DISTINCT`, which is PG15+ while the codebase still guards for PG13
+- [x] Carry `invoiceSectionId` on the `InvoicesInvoiceInsurancePlan` and `InvoiceInsurancePlanPayment` models, each with a `invoiceSection` association, and drop the join model's unique index declaration now that the real uniqueness is two partial indexes
+- [x] Regenerate the dbt source models for both tables and clear the new `TODO`s
+- [x] Filter an item against the plan row's section before applying its coverage percentage, in `getCoverageAmountPerInsurancePlan` and `getInsuranceCoverageTotalAmount`. TAM-7211 consolidated pricing into one calculation, so the invoice screen, the printout and the payment importer pick this up together
+- [x] Key coverage per plan **row** rather than per plan — `getCoverageAmountPerInsurancePlan` keys per plan today, which collapses a plan covering two sections into one figure
+- [x] Narrow `getInsurancePlanPaymentBalance` to a section. It could not be left alone after all: it looked coverage up by plan id, which no longer keys the map, so every insurance payment would have read as owing nothing. It now takes an optional section, and without one spans every section the plan is attached to, which is what an unsectioned invoice has always meant
+- [x] Take the section on the insurance plans endpoint and reconcile within it alone, so a section's own Insurance plan action leaves the other sections' attachments where they are. A section that is not currently configured is refused, as the item path already does, and a plan already covering the whole invoice is refused a section as well, since its coverage would then be counted twice. The handler was passing its transaction to `destroy` as a second argument, where Sequelize takes one options object, so that delete ran outside the transaction; it is a managed transaction now, as the item path is
+- [x] Put the Insurance plan action on the section header and send its section, through the same `activeSection` the per-section Add item already uses. The window starts on that section's plans and sends them back against it, and a split invoice drops the invoice-level action, since a plan covering the whole invoice cannot also cover one of its sections
+- [x] Record a payment against a plan row (plan plus section) rather than a plan. The column and the balance that reads it are done here; the only writer is the central server's payment importer, which identifies a payment by invoice number and plan alone. Giving it a section changes an admin import file format and needs a product decision, so it moved to its own card, S14
+- [x] Show each plan's coverage line within the section it covers; keep the invoice summary and patient payments invoice-wide. No web change was needed: the coverage lines are built server-side by `invoiceForPricing`, which every path the web reads goes through, so they scope themselves once the plan rows carry a section
+
+### Mockup
+
+- [x] Re-captured from the running implementation, as the dropped mockup was a captured DOM snapshot rather than hand-written HTML. The sectioned invoice is deployed, so the capture is of real UI
+- [x] Per-section insurance designed on top of that capture, following the earlier per-section Insurance plan buttons in `7a25e76c04`: each section header carries its own outlined action and the invoice-level one goes, matching the per-section Add item the shipped UI already has. The invoice summary stays invoice-wide
+
+### Insurance tests
+
+- [x] Endpoint: a plan attached to one section covers only that section's items, and an invoice-wide plan (null section) still covers everything, through the invoice the web reads and through what the patient is held to
+- [x] Endpoint: the same plan attached to two sections yields a separate coverage total for each. These caught the invoice loading its plans through `belongsToMany`, which keys them by the plan and so dropped one of the two sections; it loads the attachment rows now
+- [x] Endpoint: a plan is attached against the section named, two sections carry the same plan as two attachments, reconciling one section leaves the others alone, attaching the same plan to the same section twice is a no-op rather than a duplicate, and a plan cannot cover both a section and the whole invoice
+- [x] Unit: coverage for an item whose section no plan covers is zero, and uncategorised items are covered only by an invoice-wide plan
+- [x] Unit: a plan attached to two sections carries a separate balance for each, and a payment against one section leaves the other's balance alone
 
 ## Tests
 

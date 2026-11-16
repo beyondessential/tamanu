@@ -31,6 +31,8 @@ export interface InvoiceItemDiscount {
 
 export interface InsurancePlanItem {
   id: string;
+  /** The attachment this coverage comes from, where the invoice was loaded with its plan rows */
+  attachmentId?: string;
   name?: string;
   code?: string;
   label?: string;
@@ -40,6 +42,13 @@ export interface InsurancePlanItem {
 /** An insurance plan attached to an invoice. */
 export interface InsurancePlan {
   id: string;
+  /**
+   * The attachment row's id. A plan covering several sections is attached once per section, so the
+   * plan's own id no longer identifies one lot of coverage.
+   */
+  attachmentId?: string;
+  /** The section this attachment covers. Null or absent covers the whole invoice. */
+  invoiceSectionId?: string | null;
   name?: string;
   code?: string;
   defaultCoverage?: number;
@@ -52,6 +61,7 @@ export interface FinalisedInsurance {
 
 export interface InvoiceItem {
   id?: string;
+  invoiceSectionId?: string | null;
   priceFinal?: number;
   manualEntryPrice?: number;
   isFixedPriceFinal?: boolean;
@@ -69,6 +79,7 @@ export interface PatientPayment {
 export interface InsurancePlanPayment {
   id: string;
   invoiceInsurancePlanId?: string;
+  invoiceSectionId?: string | null;
 }
 
 export interface Payment {

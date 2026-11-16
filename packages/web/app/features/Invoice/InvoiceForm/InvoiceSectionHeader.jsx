@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import { OutlinedButton, TranslatedText } from '@tamanu/ui-components';
 import { PATIENT_STATUSES } from '@tamanu/constants';
 import { Colors, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import { NoteModalActionBlocker } from '../../../components';
 import { SectionName, SectionPeriod } from './SectionTitle';
 
 // The section's own colour, the one its encounter types carry in the encounter view. Keyed by the
@@ -41,18 +43,36 @@ const Period = styled.span`
   margin-inline-start: 8px;
 `;
 
-export const InvoiceSectionHeader = ({ section, columnCount }) => (
+const HeaderContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+`;
+
+export const InvoiceSectionHeader = ({ section, columnCount, onInsurance }) => (
   <HeaderRow>
     <HeaderCell colSpan={columnCount}>
-      <Marker
-        style={{ backgroundColor: SECTION_COLORS[section.code] ?? OTHER_SECTION_COLOUR }}
-      />
-      <SectionName section={section} />
-      {section.startDate && (
-        <Period>
-          <SectionPeriod section={section} />
-        </Period>
-      )}
+      <HeaderContent>
+        <span>
+          <Marker
+            style={{ backgroundColor: SECTION_COLORS[section.code] ?? OTHER_SECTION_COLOUR }}
+          />
+          <SectionName section={section} />
+          {section.startDate && (
+            <Period>
+              <SectionPeriod section={section} />
+            </Period>
+          )}
+        </span>
+        {onInsurance && (
+          <NoteModalActionBlocker>
+            <OutlinedButton size="small" onClick={onInsurance}>
+              <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
+            </OutlinedButton>
+          </NoteModalActionBlocker>
+        )}
+      </HeaderContent>
     </HeaderCell>
   </HeaderRow>
 );
