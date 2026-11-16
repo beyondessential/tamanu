@@ -7,6 +7,9 @@ export abstract class BaseNoteModal {
   readonly writtenByInput!: Locator;
   readonly dateTimeInput!: Locator;
   readonly noteContentInput!: Locator;
+  readonly boldButton!: Locator;
+  readonly italicButton!: Locator;
+  readonly underlineButton!: Locator;
   
   // Common action buttons
   readonly confirmButton!: Locator;
@@ -18,6 +21,9 @@ export abstract class BaseNoteModal {
     // TestId mapping for BaseNoteModal elements
     const testIds = {
       confirmButton: 'formsubmitcancelrow-confirmButton',
+      boldButton: 'field-wxzr-bold',
+      italicButton: 'field-wxzr-italic',
+      underlineButton: 'field-wxzr-underline',
     } as const;
 
     // Create locators using the testId mapping

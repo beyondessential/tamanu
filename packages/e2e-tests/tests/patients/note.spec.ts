@@ -1,3 +1,4 @@
+import { Locator } from '@playwright/test';
 import { test, expect } from '@fixtures/baseFixture';
 import { getUser } from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
@@ -126,6 +127,59 @@ test.describe('Notes Tests', () => {
       await expect(
         patientDetailsPage.notesPane!.getNewNoteModal().noteContentRequiredIndicator,
       ).toBeVisible();
+    });
+
+    test('should create a note with bold, italic and underlined text', async ({
+      patientDetailsPage,
+    }) => {
+      const notesPane = patientDetailsPage.notesPane!;
+      const newNoteModal = notesPane.getNewNoteModal();
+      const editNoteModal = notesPane.getEditNoteModal();
+      const changeLogModal = notesPane.getChangeLogModal();
+      const { keyboard } = newNoteModal.page;
+
+      await notesPane.newNoteButton.click();
+      await newNoteModal.waitForModalToLoad();
+      await newNoteModal.selectType(NOTE_TYPES.OTHER);
+      await newNoteModal.noteContentInput.click();
+      const styledParts = [
+        [newNoteModal.boldButton, 'Bold text'],
+        [newNoteModal.italicButton, 'Italic text'],
+        [newNoteModal.underlineButton, 'Underlined text'],
+      ] as const;
+      for (const [index, [button, text]] of styledParts.entries()) {
+        if (index > 0) await keyboard.type(' ');
+        await button.click();
+        await keyboard.type(text);
+        await button.click();
+      }
+      await newNoteModal.confirmButton.click();
+      await newNoteModal.waitForModalToClose();
+      await notesPane.waitForNotesPaneToLoad();
+
+      const expectStyled = async (container: Locator) => {
+        await expect(container.getByText('Bold text', { exact: true })).toHaveCSS(
+          'font-weight',
+          '700',
+        );
+        await expect(container.getByText('Italic text', { exact: true })).toHaveCSS(
+          'font-style',
+          'italic',
+        );
+        await expect(container.getByText('Underlined text', { exact: true })).toHaveCSS(
+          'text-decoration-line',
+          'underline',
+        );
+      };
+      await expectStyled(notesPane.noteContents.first());
+
+      await notesPane.editIcons.nth(0).click();
+      await editNoteModal.editNote('Plain text');
+      await notesPane.waitForNotesPaneToLoad();
+      await notesPane.editedButtons.first().click();
+      await changeLogModal.waitForModalToLoad();
+      await expectStyled(changeLogModal.changelogTextContents.nth(1));
+      await changeLogModal.closeButton.click();
     });
 
     test('[T-0186][AT-0080]should allow cancelling note creation', async ({
