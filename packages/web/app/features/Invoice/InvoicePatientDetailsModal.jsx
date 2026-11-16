@@ -66,19 +66,18 @@ const FormBridge = ({ submitForm, bridgeRef, onStateChange }) => {
  * insurance plan field when the modal is opened to add a plan. Searched within the modal's own
  * content, since the same field is on the patient's Details tab behind it.
  */
-const FOCUS_ATTEMPTS = 100;
-const FOCUS_RETRY_MS = 50;
+const FIELD_WAIT_ATTEMPTS = 100;
+const FOCUS_HOLD_ATTEMPTS = 40;
+const RETRY_MS = 50;
 
 const useFocusField = (fieldName, isReady, containerRef) => {
   useEffect(() => {
     if (!fieldName || !isReady) return undefined;
 
-    // The form fetches its own field definitions and values after the modal's queries settle, and
-    // renders nothing but a loading indicator until they land, so the field is not there to be
-    // found on the first look. Keep looking for a while rather than silently giving up.
-    let attemptsLeft = FOCUS_ATTEMPTS;
+    let waitAttemptsLeft = FIELD_WAIT_ATTEMPTS;
+    let holdAttemptsLeft = FOCUS_HOLD_ATTEMPTS;
     let hasScrolled = false;
-    let lastFocused = null;
+    let hasFocused = false;
     let timer;
 
     const scrollTo = field => {
@@ -86,33 +85,45 @@ const useFocusField = (fieldName, isReady, containerRef) => {
       // alone in the middle of the modal. A deployment that marks the field mandatory moves it
       // into the form's headless top section, which has no heading to scroll to.
       const grid = field.closest('[data-testid^="secondarydetailsformgrid-"]');
-      const target = grid?.previousElementSibling ?? field;
-      target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      (grid?.previousElementSibling ?? field).scrollIntoView({ block: 'start', behavior: 'smooth' });
     };
 
     const attempt = () => {
-      const field = containerRef.current?.querySelector(`.${getPatientFieldClassName(fieldName)}`);
+      const container = containerRef.current;
+      const field = container?.querySelector(`.${getPatientFieldClassName(fieldName)}`);
 
-      if (field && !hasScrolled) {
+      // The form fetches its own field definitions and values after the modal's queries settle,
+      // and renders nothing but a loading indicator until they land, so the field is not there to
+      // be found on the first look.
+      if (!field) {
+        waitAttemptsLeft -= 1;
+        if (waitAttemptsLeft > 0) timer = setTimeout(attempt, RETRY_MS);
+        return;
+      }
+
+      if (!hasScrolled) {
         scrollTo(field);
         hasScrolled = true;
       }
 
-      const input = field?.querySelector('input, [tabindex]');
       const active = document.activeElement;
 
+      // Once the user has put themselves in another field, the modal has no business pulling them
+      // back out of it.
+      if (hasFocused && container.contains(active) && !field.contains(active)) return;
+
       // A suggester-backed field shows a plain input while its options load and swaps in the real
-      // control when they arrive, dropping the focus placed on the placeholder. Keep at it until
-      // the focus survives a turn — but leave the user alone once they have moved on themselves.
-      if (lastFocused && active !== lastFocused && containerRef.current?.contains(active)) return;
-      if (input && input === lastFocused && active === input) return;
-      if (input) {
+      // control when they arrive, dropping the focus placed on the placeholder. The swap can come
+      // after the focus has sat still for several turns, so hold the field rather than stopping at
+      // the first turn the focus survives.
+      const input = field.querySelector('input, [tabindex]');
+      if (input && active !== input) {
         input.focus();
-        lastFocused = input;
+        hasFocused = true;
       }
 
-      attemptsLeft -= 1;
-      if (attemptsLeft > 0) timer = setTimeout(attempt, FOCUS_RETRY_MS);
+      holdAttemptsLeft -= 1;
+      if (holdAttemptsLeft > 0) timer = setTimeout(attempt, RETRY_MS);
     };
 
     timer = setTimeout(attempt);
