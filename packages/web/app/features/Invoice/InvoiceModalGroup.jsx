@@ -18,6 +18,7 @@ export const InvoiceModalGroup = ({ invoice, invoiceModalType, section, setOpenI
         <InvoiceInsuranceModal
           open
           invoice={invoice}
+          section={section}
           onClose={() => handleCloseInvoiceModal()}
           data-testid="upsertinvoicemodal-wt5z"
         />

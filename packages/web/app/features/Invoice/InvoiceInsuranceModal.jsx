@@ -11,6 +11,7 @@ import { SuggesterSelectField } from '../../components/Field';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../../constants/patientPaths';
+import { SectionName, SectionPeriod } from './InvoiceForm/SectionTitle';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root,
@@ -28,9 +29,16 @@ const ModalBody = styled.div`
   }
 `;
 
-export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
+export const InvoiceInsuranceModal = ({ open, onClose, invoice, section }) => {
   const patientId = invoice?.encounter?.patientId;
-  const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
+  // A plan is attached to one section of a split invoice, so the same plan can be on the invoice
+  // more than once. Only the attachments covering this section are the window's business, and
+  // without a section only those covering the whole invoice are.
+  const invoiceSectionId = section?.invoiceSectionId ?? null;
+  const defaultValues =
+    invoice?.insurancePlans
+      ?.filter(plan => (plan.invoiceSectionId ?? null) === invoiceSectionId)
+      .map(({ id }) => id) || [];
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId, patientId);
   const { data: insurancePlans = [], isLoading: isLoadingInsurancePlans } =
@@ -42,7 +50,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
   };
 
   const onConfirm = async () => {
-    const data = { invoiceInsurancePlanIds: selectedPlans };
+    const data = { invoiceInsurancePlanIds: selectedPlans, invoiceSectionId };
     mutate(data, {
       onSuccess: () => {
         onClose();
@@ -124,10 +132,22 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
     >
       <ModalBody>
         <Typography>
-          <TranslatedText
-            stringId="invoice.modal.insurancePlans.text"
-            fallback="Select or remove the insurance plans you would like to apply to this patient invoice below."
-          />
+          {section ? (
+            <>
+              <SectionName section={section} />
+              {section.startDate && (
+                <>
+                  {': '}
+                  <SectionPeriod section={section} />
+                </>
+              )}
+            </>
+          ) : (
+            <TranslatedText
+              stringId="invoice.modal.insurancePlans.text"
+              fallback="Select or remove the insurance plans you would like to apply to this patient invoice below."
+            />
+          )}
         </Typography>
         <SuggesterSelectField
           label={

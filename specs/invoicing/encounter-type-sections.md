@@ -54,8 +54,11 @@ Splitting an invoice into sections is a display rule read from the setting as it
 - An insurance plan is attached to a section rather than to the whole invoice, so a payer covering one part of a stay does not cover the rest of it.
 - A plan attached without naming a section covers every item on the invoice.
 - One plan covers several sections by being attached to each of them.
+- A plan covers either the whole invoice or sections of it, never both, so its coverage cannot be counted twice against the same item.
 - A plan's coverage applies only to the items in the section it is attached to.
 - Each section header carries its own Insurance plan action, so the section a plan covers is the one it was attached from, and a cashier never names it separately.
+- An invoice with no sections offers the action once for the invoice, where a split invoice offers it on its section headers alone.
+- The action works on the plans covering the section it was opened from, leaving the plans on the invoice's other sections as they are.
 - The coverage line for a plan sits with the section it covers.
 - A payment records the section it settles, so a plan covering two sections carries a balance for each.
 - A section with no plan attached is settled by the patient.

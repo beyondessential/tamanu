@@ -6,7 +6,7 @@ import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@mui/icons-material/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { isInvoiceEditable } from '@tamanu/utils/invoice';
+import { isInvoiceEditable, isInvoiceSectioned } from '@tamanu/utils/invoice';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
@@ -193,6 +193,9 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   }
 
   const hasVisibleActions = ACTIONS.some(action => !action.hidden);
+  // A split invoice attaches its plans from each section's own header instead, since a plan
+  // covering the whole invoice cannot also cover one of its sections.
+  const isSectioned = isInvoiceSectioned(invoice.sections, invoice.items);
 
   return (
     <ActionsPane data-testid="actionspane-l9ey">
@@ -209,7 +212,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
           <TranslatedText stringId="general.action.print" fallback="Print" />
         </PrintButton>
       )}
-      {isInProgress && (
+      {isInProgress && !isSectioned && (
         <NoteModalActionBlocker>
           <Button
             onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
@@ -238,7 +241,7 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
   const { getCurrentDateTime } = useDateTime();
   const { ability } = useAuth();
   const [invoiceModalType, setInvoiceModalType] = useState(null);
-  // The section an Add item was pressed in, so the Add items window opens against that section.
+  // The section an Add item or Insurance plan was pressed in, so the window opens against it.
   const [activeSection, setActiveSection] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
@@ -310,6 +313,10 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
             onAddItemsForSection={section => {
               setActiveSection(section);
               setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+            }}
+            onInsuranceForSection={section => {
+              setActiveSection(section);
+              setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE);
             }}
           />
           <PaymentsSection>

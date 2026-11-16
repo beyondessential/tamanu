@@ -155,6 +155,7 @@ export const InvoiceForm = ({
   onClose,
   setInvoiceModalType,
   onAddItemsForSection,
+  onInsuranceForSection,
   section,
 }) => {
   const { ability } = useAuth();
@@ -363,6 +364,11 @@ export const InvoiceForm = ({
                                 <InvoiceSectionHeader
                                   section={group.section}
                                   columnCount={columnCount}
+                                  onInsurance={
+                                    editable && onInsuranceForSection
+                                      ? () => onInsuranceForSection(group.section)
+                                      : undefined
+                                  }
                                 />
                               )}
                               {group.rows.map(renderRow)}
