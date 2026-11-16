@@ -9,6 +9,10 @@ export const PrintActionButton = styled(Button)`
   color: ${Colors.primary};
   margin-top: auto;
   margin-bottom: auto;
+  /* Keep each label on one line and let the pair use the spacer column beside it, rather than
+     wrapping to two lines as the search bar's grid column narrows. */
+  white-space: nowrap;
+  flex-shrink: 0;
   &:hover {
     text-decoration: underline;
   }
