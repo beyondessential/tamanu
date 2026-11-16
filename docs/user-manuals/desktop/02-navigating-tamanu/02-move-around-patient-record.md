@@ -21,7 +21,7 @@ from the **Dashboard**, or a patient list under **Patients** in the sidebar.
      <img
        src="images/move-around-patient-record-recently-viewed.png"
        alt="Recently viewed on the Dashboard, showing one patient, with the patient outlined in red"
-       width="331"
+       width="329"
      />
      <figcaption>Select a patient in <b>Recently viewed</b> to open their record.</figcaption>
    </figure>
@@ -43,7 +43,7 @@ record you are in, such as an encounter. The last item is the page you are on.
      <img
        src="images/move-around-patient-record-breadcrumbs.png"
        alt="The bar at the top of an encounter, showing Back then All Patients, Roy Antonini and Clinic, with the patient's name outlined in red"
-       width="399"
+       width="397"
      />
      <figcaption>Select a level in the bar, or select <b>Back</b>.</figcaption>
    </figure>
