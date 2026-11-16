@@ -92,7 +92,6 @@ describe('TriageForm patient type validation', () => {
 describe('TriageForm submission', () => {
   beforeEach(() => {
     api.post = vi.fn().mockResolvedValue({ id: 'triage-1', encounterId: 'encounter-1' });
-    api.get = vi.fn().mockResolvedValue({ id: 'encounter-1' });
     invalidatePatientDataQueries.mockClear();
   });
 
@@ -110,10 +109,6 @@ describe('TriageForm submission', () => {
     await captured.onSubmit(validTriage);
 
     expect(api.post).toHaveBeenCalledWith('triage', expect.objectContaining(validTriage));
-    expect(api.get.mock.calls[0][0]).toMatchObject({
-      template: 'encounter/:encounterId',
-      params: { encounterId: 'encounter-1' },
-    });
     expect(onSubmitEncounter).toHaveBeenCalledWith({ id: 'encounter-1' });
     expect(api.post.mock.invocationCallOrder[0]).toBeLessThan(
       onSubmitEncounter.mock.invocationCallOrder[0],
@@ -136,9 +131,8 @@ describe('TriageForm submission', () => {
     expect(onSubmitEncounter).not.toHaveBeenCalled();
   });
 
-  it('refreshes the patient data even when the created encounter cannot be fetched', async () => {
-    api.get.mockRejectedValue(new Error('Network error'));
-    const onSubmitEncounter = vi.fn();
+  it('refreshes the patient data even when linking the appointment fails', async () => {
+    const onSubmitEncounter = vi.fn().mockRejectedValue(new Error('Network error'));
     renderElementWithTranslatedText(
       <TriageForm
         patient={{ id: 'patient-1' }}
@@ -151,6 +145,5 @@ describe('TriageForm submission', () => {
     await expect(captured.onSubmit(validTriage)).rejects.toThrow();
 
     expect(invalidatePatientDataQueries).toHaveBeenCalledWith(expect.anything(), 'patient-1');
-    expect(onSubmitEncounter).not.toHaveBeenCalled();
   });
 });

@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { route } from '@tamanu/api-client';
 import { Box } from '@material-ui/core';
 import { getAnswersFromData, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
@@ -258,10 +257,10 @@ export const TriageForm = ({
     await invalidatePatientDataQueries(queryClient, patient.id);
 
     if (typeof onSubmitEncounter === 'function') {
-      const encounter = await api.get(
-        route('encounter/:encounterId', { encounterId: triage.encounterId }),
-      );
-      await onSubmitEncounter(encounter);
+      // The triage carries the encounter it opened, so hand that straight over: fetching the
+      // encounter to pass the same id would only add a request that can fail once the triage is
+      // already saved, leaving the caller to retry into a duplicate.
+      await onSubmitEncounter({ id: triage.encounterId });
     }
 
     if (!noRedirectOnSubmit) {
