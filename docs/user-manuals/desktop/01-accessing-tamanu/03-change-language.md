@@ -15,7 +15,7 @@ single language. Contact your system administrator if you believe you should be 
      <img
        src="images/change-language-log-in-selector.png"
        alt="The Log in screen with the language selector open at the bottom right, showing English and Français, with the selector outlined in red"
-       width="448"
+       width="447"
      />
      <figcaption>Select the language selector at the bottom right of the <b>Log in</b> screen.</figcaption>
    </figure>
@@ -32,7 +32,7 @@ single language. Contact your system administrator if you believe you should be 
      <img
        src="images/change-language-expand-sidebar.png"
        alt="The top of the collapsed sidebar, with the expand arrow outlined in red"
-       width="108"
+       width="106"
      />
      <figcaption>Select the arrow at the top of the collapsed sidebar to expand it.</figcaption>
    </figure>
@@ -45,7 +45,7 @@ single language. Contact your system administrator if you believe you should be 
      <img
        src="images/change-language-three-dot-menu.png"
        alt="The bottom of the expanded sidebar with the three-dot menu open, with the three dots and Change language outlined in red"
-       width="262"
+       width="260"
      />
      <figcaption>Select the three dots beside your name, then <b>Change language</b>.</figcaption>
    </figure>
@@ -58,7 +58,7 @@ single language. Contact your system administrator if you believe you should be 
      <img
        src="images/change-language-window.png"
        alt="The Change language window, with English selected in Language"
-       width="277"
+       width="276"
      />
      <figcaption>The <b>Change language</b> window.</figcaption>
    </figure>

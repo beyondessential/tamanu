@@ -3,7 +3,7 @@ name: handoff
 description: "Generate a context-rich briefing prompt for an external agent (Claude Code, Cursor, etc.)"
 label: "Handoff"
 category: other
-workhorse-version: 0.7.14
+workhorse-version: 0.7.15
 ---
 
 ## Your task: Hand off to an external agent

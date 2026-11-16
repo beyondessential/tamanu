@@ -29,7 +29,7 @@ Applies to the listing, under the Facility admin section of the sidebar, of pati
 - Department shows the department the encounter was assigned to when it was discharged.
 - Clinician shows the clinician recorded as discharging the encounter, or "N/A" when the system discharged it without recording a clinician.
 - Discharge date shows the date of the encounter's end date, and hovering over it shows both the date and time.
-- Rows are ordered by discharge date and time, most recent first, until the user picks another sort.
+- Rows are ordered by discharge date and time, most recent first, until the user picks another sort, which the table [remembers for them](../platform/table-pagination.md#remembered-sort).
 - Every column except Patient ID is sortable, with text sorted ignoring case. Sorting by Encounter type groups rows by patient status.
 - Clicking a row opens that patient's summary page.
 - When no patients match, the table shows "No patients found".

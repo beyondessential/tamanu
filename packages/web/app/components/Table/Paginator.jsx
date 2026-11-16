@@ -2,7 +2,7 @@ import { MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Pagination, PaginationItem } from '@material-ui/lab';
 import { getCurrentLanguageCode } from '@tamanu/ui-components';
-import React, { useRef } from 'react';
+import React, { useId, useRef } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
@@ -52,6 +52,13 @@ const PageRecordCount = styled.span`
   font-size: 13px;
 `;
 
+const RowsPerPageLabel = styled.span`
+  margin-right: 8px;
+  font-size: 13px;
+  color: ${Colors.darkText};
+  white-space: nowrap;
+`;
+
 const StyledSelectField = styled(Select)`
   border: 1px ${Colors.outline} solid;
   border-radius: 20px;
@@ -77,6 +84,45 @@ const StyledSelectField = styled(Select)`
 const StyledMenuItem = styled(MenuItem)`
   font-size: 13px;
 `;
+
+// spec: TPAGE#record-count
+const RecordCount = ({ lowerRange, upperRange, count }) => {
+  const numberFormatter = new Intl.NumberFormat(getCurrentLanguageCode());
+  const replacements = {
+    lowerRange: numberFormatter.format(lowerRange),
+    upperRange: numberFormatter.format(upperRange),
+    count: numberFormatter.format(count),
+  };
+
+  if (count === 1) {
+    return (
+      <TranslatedText
+        stringId="general.table.recordCount.onlyRecord"
+        fallback="Showing :lowerRange of :count record"
+        replacements={replacements}
+        data-testid="translatedtext-q3fe"
+      />
+    );
+  }
+  if (lowerRange === upperRange) {
+    return (
+      <TranslatedText
+        stringId="general.table.recordCount.singleRow"
+        fallback="Showing :lowerRange of :count records"
+        replacements={replacements}
+        data-testid="translatedtext-x7vk"
+      />
+    );
+  }
+  return (
+    <TranslatedText
+      stringId="general.table.recordCount.range"
+      fallback="Showing :lowerRange–:upperRange of :count records"
+      replacements={replacements}
+      data-testid="translatedtext-yhs4"
+    />
+  );
+};
 
 const ChevronComponent = React.forwardRef(({ children, ...props }, ref) => (
   <div ref={ref} {...props}>
@@ -122,6 +168,7 @@ export const Paginator = React.memo(
   }) => {
     const wasLastItemEllipses = useRef(false);
     const classes = useStyles();
+    const rowsPerPageLabelId = useId();
 
     const selectedPageNumber = pageIndex + 1;
     const numberOfPages = Math.ceil(count / rowsPerPage);
@@ -132,8 +179,6 @@ export const Paginator = React.memo(
     // This is the index of the bottom row of the table (set it to total count if less than a whole page is present or on last page)
     const upperRange = isLastPage || !isDataInTable ? count : selectedPageNumber * rowsPerPage;
 
-    const numberFormatter = new Intl.NumberFormat(getCurrentLanguageCode());
-
     return (
       <PaginatorWrapper colSpan={colSpan} data-testid="paginatorwrapper-l9c5">
         <FooterContent data-testid="footercontent-yb09">
@@ -141,26 +186,18 @@ export const Paginator = React.memo(
           <RightAlignedContent data-testid="rightalignedcontent-t3nx">
             <PageRecordCount data-testid="pagerecordcount-m8ne">
               {isDataInTable && (
-                <TranslatedText
-                  stringId="general.table.pageRecordCount"
-                  fallback=":lowerRange–:upperRange of :count"
-                  replacements={{
-                    lowerRange: numberFormatter.format(lowerRange),
-                    upperRange: numberFormatter.format(upperRange),
-                    count: numberFormatter.format(count),
-                  }}
-                  data-testid="translatedtext-yhs4"
-                />
+                <RecordCount lowerRange={lowerRange} upperRange={upperRange} count={count} />
               )}
             </PageRecordCount>
+            <RowsPerPageLabel id={rowsPerPageLabelId} data-testid="rowsperpagelabel-k2dm">
+              <TranslatedText
+                stringId="general.table.rowsPerPage"
+                fallback="Rows per page"
+                data-testid="translatedtext-rylc"
+              />
+            </RowsPerPageLabel>
             <StyledSelectField
-              label={
-                <TranslatedText
-                  stringId="general.table.rowsPerPage"
-                  fallback="Rows per page"
-                  data-testid="translatedtext-rylc"
-                />
-              }
+              labelId={rowsPerPageLabelId}
               onChange={onRowsPerPageChange}
               value={rowsPerPage || rowsPerPageOptions[0]}
               IconComponent={ChevronIcon}
