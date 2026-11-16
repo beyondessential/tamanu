@@ -1104,6 +1104,18 @@ describe('Invoice Utils', () => {
     });
 
     describe('getInsurancePlanPaymentBalance', () => {
+      it('refuses a section on an invoice whose plans carry no attachment', () => {
+        const invoice = {
+          insurancePlans: [{ id: 'plan-a' }],
+          items: [sectionItem('section-emergency', { 'plan-a': 50 })],
+          payments: [],
+        } as any;
+
+        expect(() =>
+          getInsurancePlanPaymentBalance(invoice, 'plan-a', 'section-emergency'),
+        ).toThrow();
+      });
+
       const twoSectionInvoice = {
         insurancePlans: [
           attachment('attach-emergency', 'plan-a', 'section-emergency'),

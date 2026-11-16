@@ -132,6 +132,18 @@ export const getInsurancePlanPaymentBalance = (
   planPaymentsTotal: number;
   planPaymentRemainingBalance: number;
 } => {
+  // An invoice whose plans were not loaded with their attachment rows carries no section on any
+  // of them, so naming one would match nothing and report the plan as owing nothing. Refused
+  // rather than answered, because a silent zero reads as a settled plan.
+  if (invoiceSectionId !== undefined) {
+    const plans = invoice.insurancePlans || [];
+    if (plans.length && plans.some(plan => !plan.attachmentId)) {
+      throw new Error(
+        "Pass an invoice loaded with its insurance plan attachments to ask for one section's balance",
+      );
+    }
+  }
+
   const coversThisSection = (section: string | null | undefined) =>
     invoiceSectionId === undefined || (section ?? null) === (invoiceSectionId ?? null);
 

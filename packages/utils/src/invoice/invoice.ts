@@ -5,6 +5,7 @@ import {
   calculateInvoiceItem,
   capInsuranceCoverage,
   getInsurancePlanItemsForInvoiceItem,
+  type InvoiceItemPlanCoverage,
   type InvoiceItemPricing,
 } from './invoiceItem';
 import { getInvoiceLevelDiscountAmount } from './discount';
@@ -151,22 +152,25 @@ const getCoverageTotalsByPlan = (
     (invoice.insurancePlans || []).map(plan => [coverageKeyOf(plan), new Decimal(0)]),
   );
 
+  const keyOfCoverage = (planCoverage: InvoiceItemPlanCoverage) =>
+    planCoverage.attachmentId ?? planCoverage.insurancePlanId;
+
   for (const { coverageByPlan, discountedPrice } of itemPricings) {
-    const attachedPlanCoverages = coverageByPlan
-      .map(planCoverage => ({
-        ...planCoverage,
-        key: planCoverage.attachmentId ?? planCoverage.insurancePlanId,
-      }))
-      .filter(({ key }) => planCoverageTotals.has(key));
+    const attachedPlanCoverages = coverageByPlan.filter(planCoverage =>
+      planCoverageTotals.has(keyOfCoverage(planCoverage)),
+    );
     const itemCoverageTotal = sumOf(attachedPlanCoverages.map(({ coverage }) => coverage));
     const cappedShare = itemCoverageTotal.greaterThan(discountedPrice)
       ? new Decimal(discountedPrice).dividedBy(itemCoverageTotal)
       : new Decimal(1);
 
-    for (const { key, coverage } of attachedPlanCoverages) {
+    for (const planCoverage of attachedPlanCoverages) {
+      const key = keyOfCoverage(planCoverage);
       planCoverageTotals.set(
         key,
-        (planCoverageTotals.get(key) as Decimal).plus(new Decimal(coverage).times(cappedShare)),
+        (planCoverageTotals.get(key) as Decimal).plus(
+          new Decimal(planCoverage.coverage).times(cappedShare),
+        ),
       );
     }
   }
