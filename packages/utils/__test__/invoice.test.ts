@@ -18,6 +18,7 @@ import {
   getInsurancePlanPaymentBalance,
   withInsurancePlanItems,
   withInsuranceAttachments,
+  getDistinctInsurancePlans,
   getInvoicePrintTotalsDisplay,
 } from '../src';
 
@@ -967,6 +968,27 @@ describe('Invoice Utils', () => {
       (
         getCoverageAmountPerInsurancePlan(withInsurancePlanItems(invoice)).get(key) as any
       ).toNumber();
+
+    describe('getDistinctInsurancePlans', () => {
+      it('names a plan covering two sections once', () => {
+        const invoice = {
+          insurancePlans: [
+            attachment('attach-emergency', 'plan-a', 'section-emergency'),
+            attachment('attach-inpatient', 'plan-a', 'section-inpatient'),
+            attachment('attach-whole', 'plan-b', null),
+          ],
+        } as any;
+
+        expect(getDistinctInsurancePlans(invoice).map(plan => plan.id)).toEqual([
+          'plan-a',
+          'plan-b',
+        ]);
+      });
+
+      it('reads an invoice carrying no plans as none', () => {
+        expect(getDistinctInsurancePlans({} as any)).toEqual([]);
+      });
+    });
 
     describe('withInsuranceAttachments', () => {
       it('reads the attachment rows an invoice loaded for pricing carries', () => {

@@ -99,6 +99,20 @@ export const withInsuranceAttachments = (invoice: Invoice): Invoice => {
 };
 
 /**
+ * The plans covering an invoice, one entry each. The invoice carries an entry per attachment, so
+ * a plan covering two sections appears twice; anything naming the payers rather than pricing them
+ * wants this instead.
+ */
+export const getDistinctInsurancePlans = (invoice: Invoice): InsurancePlan[] => {
+  const seen = new Set<string>();
+  return (invoice.insurancePlans || []).filter(plan => {
+    if (seen.has(plan.id)) return false;
+    seen.add(plan.id);
+    return true;
+  });
+};
+
+/**
  * An invoice whose items carry the plan rows the coverage functions read.
  *
  * Invoice items hold no plan rows of their own, so an invoice loaded straight from the database
