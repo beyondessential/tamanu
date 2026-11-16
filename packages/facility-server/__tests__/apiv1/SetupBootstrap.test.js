@@ -12,7 +12,7 @@ import { fake } from '@tamanu/fake-data/fake';
 
 // A central that accepts the administrator, mints a sync user, and serves whatever bootstrap the
 // test sets. Subclassed rather than replaced, so the test context's own connection still builds.
-const central = vi.hoisted(() => ({ logins: [], serveBootstrap: null }));
+const central = vi.hoisted(() => ({ logins: [], provisions: 0, serveBootstrap: null }));
 vi.mock('@tamanu/api-client', async importOriginal => {
   const original = await importOriginal();
   class TamanuApi extends original.TamanuApi {
@@ -23,6 +23,7 @@ vi.mock('@tamanu/api-client', async importOriginal => {
 
     async post(endpoint, body) {
       if (endpoint === 'admin/syncCredentials') {
+        central.provisions += 1;
         return { email: 'sync.minted@sync.tamanu', password: 'minted-password' };
       }
       if (endpoint === 'sync/bootstrap') return central.serveBootstrap(body);
@@ -83,6 +84,7 @@ describe('setup wizard bootstrap', () => {
   });
   beforeEach(async () => {
     central.logins.length = 0;
+    central.provisions = 0;
     await resetConfiguration();
   });
   afterAll(async () => {
@@ -103,6 +105,27 @@ describe('setup wizard bootstrap', () => {
     expect(central.serveBootstrap).toHaveBeenCalledWith({ facilityIds: [FACILITY_ID] });
     expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBe('sync.minted@sync.tamanu');
     expect(await models.Facility.findByPk(FACILITY_ID)).not.toBeNull();
+  });
+
+  // isServerConfigured is mocked false throughout, as it is on an API process that did not
+  // handle the first submit.
+  it('does not provision again when another process has already configured the server', async () => {
+    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
+    expect(await submit()).toHaveSucceeded();
+
+    const result = await submit();
+
+    expect(result.status).toBe(409);
+    expect(central.provisions).toBe(1);
+  });
+
+  it('provisions once when two submits arrive together', async () => {
+    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
+
+    const results = await Promise.all([submit(), submit()]);
+
+    expect(results.map(result => result.status).sort()).toEqual([200, 409]);
+    expect(central.provisions).toBe(1);
   });
 
   it('stays unconfigured when the bootstrap cannot be fetched', async () => {

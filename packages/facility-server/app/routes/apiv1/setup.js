@@ -153,59 +153,60 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     });
   }
 
-  // Have central provision a dedicated sync user rather than storing the admin's.
-  let syncCredentials;
-  try {
-    syncCredentials = await probe.post('admin/syncCredentials', {
-      deviceId: req.deviceId,
-      facilityIds: uniqueFacilityIds,
-    });
-  } catch (error) {
-    log.warn(`Sync credential provisioning failed: ${error.type ?? error.name}`);
-    return res
-      .status(502)
-      .send({ error: { message: 'Could not provision sync credentials on the central server' } });
-  }
-
-  // spec: FSETUP#setup-wizard
-  // Log in as the minted sync user, which proves its credentials work end to end, and fetch what
-  // the facility needs to be logged into before its first sync completes.
-  let bootstrapRecords;
-  try {
-    const syncApi = new TamanuApi({
-      endpoint: `${normalisedHost}/api`,
-      agentName: SERVER_TYPES.FACILITY,
-      agentVersion: version,
-      deviceId: req.deviceId,
-      logger: log,
-    });
-    await syncApi.login(syncCredentials.email, syncCredentials.password, {
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-      backoff: { maxAttempts: 1 },
-    });
-    ({ records: bootstrapRecords } = await syncApi.post('sync/bootstrap', {
-      facilityIds: uniqueFacilityIds,
-    }));
-  } catch (error) {
-    log.warn(`Facility bootstrap failed: ${error.type ?? error.name}`);
-    return res.status(502).send({
-      error: { message: "Could not load this facility's data from the central server" },
-    });
-  }
-
   const { LocalSystemFact, LocalSystemSecret } = req.models;
-  // Atomic write; advisory lock + re-check closes the TOCTOU with the
-  // isServerConfigured() check above so concurrent requests can't both configure.
+  // Central rotates the sync user's password each time it provisions, so the lock and the
+  // configured check come before that call: a second submit, here or on another API process,
+  // must stop without leaving central holding a password nobody stored.
   let alreadyConfigured = false;
+  let failure = null;
   await req.db.transaction(async () => {
     await req.db.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:facility-setup'));`);
-    // Re-check via the sync email — written only by a completed wizard run, unlike
+    // Checked via the sync email — written only by a completed wizard run, unlike
     // syncHost/facilityIds which the boot integrity check can drift-stamp. Keeps this
     // consistent with the isServerConfigured() gate above (a lone syncHost ≠ configured).
     if (await LocalSystemFact.get(FACT_SYNC_EMAIL)) {
       alreadyConfigured = true;
       return;
     }
+
+    // Have central provision a dedicated sync user rather than storing the admin's.
+    let syncCredentials;
+    try {
+      syncCredentials = await probe.post('admin/syncCredentials', {
+        deviceId: req.deviceId,
+        facilityIds: uniqueFacilityIds,
+      });
+    } catch (error) {
+      log.warn(`Sync credential provisioning failed: ${error.type ?? error.name}`);
+      failure = 'Could not provision sync credentials on the central server';
+      return;
+    }
+
+    // spec: FSETUP#setup-wizard
+    // Log in as the minted sync user, which proves its credentials work end to end, and fetch
+    // what the facility needs to be logged into before its first sync completes.
+    let bootstrapRecords;
+    try {
+      const syncApi = new TamanuApi({
+        endpoint: `${normalisedHost}/api`,
+        agentName: SERVER_TYPES.FACILITY,
+        agentVersion: version,
+        deviceId: req.deviceId,
+        logger: log,
+      });
+      await syncApi.login(syncCredentials.email, syncCredentials.password, {
+        scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+        backoff: { maxAttempts: 1 },
+      });
+      ({ records: bootstrapRecords } = await syncApi.post('sync/bootstrap', {
+        facilityIds: uniqueFacilityIds,
+      }));
+    } catch (error) {
+      log.warn(`Facility bootstrap failed: ${error.type ?? error.name}`);
+      failure = "Could not load this facility's data from the central server";
+      return;
+    }
+
     await LocalSystemFact.set(FACT_CENTRAL_HOST, normalisedHost);
     await LocalSystemFact.set(FACT_SYNC_EMAIL, syncCredentials.email);
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
@@ -223,6 +224,10 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     // In the same transaction as the configuration, so a server is never configured without it.
     await applyBootstrap({ sequelize: req.db, models: req.models }, bootstrapRecords);
   });
+
+  if (failure) {
+    return res.status(502).send({ error: { message: failure } });
+  }
 
   if (alreadyConfigured) {
     return res.status(409).send({ error: { message: 'Server is already configured' } });
