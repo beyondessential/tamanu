@@ -390,7 +390,7 @@ export const buildSyncRoutes = ctx => {
       const { error } = await postErrorBodySchema.parseAsync(req.body);
 
       await syncManager.endSession(sessionId, error);
-      res.json({});
+      res.status(204).send();
     }),
   );
 

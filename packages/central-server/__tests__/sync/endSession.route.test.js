@@ -106,10 +106,10 @@ describe('ending a sync session over HTTP', () => {
     const sessionId = await startSyncSession();
 
     const firstResponse = await reportSyncError(sessionId, 'The sync failed on the client');
-    expect(firstResponse.status).toBe(200);
+    expect(firstResponse.status).toBe(204);
 
     const repeatedResponse = await reportSyncError(sessionId, 'The sync failed on the client');
-    expect(repeatedResponse.status).toBe(200);
+    expect(repeatedResponse.status).toBe(204);
 
     const session = await models.SyncSession.findByPk(sessionId);
     expect(session.errors).toEqual(['The sync failed on the client']);
@@ -120,7 +120,7 @@ describe('ending a sync session over HTTP', () => {
     await endSyncSession(sessionId);
 
     const response = await reportSyncError(sessionId, 'The sync failed on the client');
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(204);
 
     const session = await models.SyncSession.findByPk(sessionId);
     expect(session.errors).toBeNull();
