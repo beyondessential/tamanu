@@ -4,7 +4,7 @@ id: SUPV
 
 # Supervisor
 
-Applies to the supervisor, the small always-on process that sits in front of every Tamanu server as its front door, lets the rest of the server [sleep while nobody is using it and wake on real demand](sleep-and-wake.md) where the platform provides an actuator, and on central [answers sync checks and serves logins itself](serving-while-asleep.md) while the database is down.
+Applies to the supervisor, the small always-on process that sits in front of every Tamanu server as its front door and, where the platform provides an actuator, lets the rest of the server [sleep while nobody is using it and wake on use](sleep-and-wake.md).
 
 ## Front door
 
@@ -22,26 +22,26 @@ Applies to the supervisor, the small always-on process that sits in front of eve
 - The supervisor knows nothing about the platform it runs on: Kubernetes, Linux and Windows deployments differ only in the actuator they provide, or do not provide, and in the configuration they give the supervisor.
 - The actuator is the platform's component that starts and stops the server's parts. The supervisor finds it through configuration and talks to it only through the [actuator contract](sleep-and-wake.md#actuator-contract).
 - A supervisor with no actuator configured never puts its server to sleep and only routes traffic. This is how a platform keeps a server always on.
-- The supervisor runs PostgreSQL as a child process too, on central only, and only when an actuator is configured.
-- The supervisor finds the Caddy and PostgreSQL programs it runs through configuration. The supervisor's container image bundles both, and on Linux and Windows the installation provides them.
+- The supervisor finds the Caddy program it runs through configuration. The supervisor's container image bundles it, and on Linux and Windows the installation provides it.
 - The same supervisor, from the same release, runs unchanged on Kubernetes, Linux and Windows.
 
-## Database access
+## Talking to the server
 
-- The supervisor connects to its server's database as the server's other parts do: with the same role, from the same connection configuration, a `DATABASE_URL` environment variable when one is set.
-- On a facility server, the supervisor is given the facility's key file, so it can decrypt the sync password it reads at sleep.
+- The supervisor talks only to its server's api and to the actuator. It has no connection to the server's database.
+- What the supervisor needs to know about the server (whether it is busy, when its next scheduled task that cannot sleep is due, and whether its database is migrated) and the facility's final sync it asks of the api, on routes that only the supervisor can call.
+- The supervisor authenticates to those routes with a credential from its configuration.
 
 ## Resilience
 
 - The supervisor's memory use has a fixed ceiling, so the platform can reserve that much memory for it and it is never killed for exceeding it.
-- The supervisor keeps its state on durable storage that it owns: its PostgreSQL data, the copy of login's tables and what was written to it, and the values it held at sleep. That state survives the supervisor restarting and, on Kubernetes, being rescheduled.
-- When the supervisor starts, it asks the actuator for the state of each part and continues from what it finds. A hand-back that had not finished is finished.
-- A supervisor that starts on an asleep server whose state was made by the same release keeps it asleep, and serves it as before the restart.
+- The supervisor keeps how far its last sleep or wake got, and the next time it is to wake the server, on durable storage that it owns. That state survives the supervisor restarting and, on Kubernetes, being rescheduled.
+- When the supervisor starts, it asks the actuator for the state of each part and continues from what it finds.
+- A supervisor that starts on an asleep server whose state was made by the same release keeps it asleep.
 - A supervisor that starts on an asleep server whose state was made by a different release wakes the server. This is how a [rollout](sleep-and-wake.md#rollouts) of a new release reaches the database.
 - Repeating any step of a sleep or a wake, after a retry or a restart, leaves the server in the same state as doing it once.
 
 ## Status
 
 - The supervisor reports, over HTTP, whether the server is awake, asleep or waking, the state of each part, and any failure of its last sleep or wake.
-- The supervisor reports whether the database is clear for other writers: true once a hand-back has finished, or when there was nothing to hand back. A rollout's migrations wait on this before they run.
+- A server that is asleep reports as asleep rather than as down, so monitoring can tell a sleeping server from a broken one.
 - The supervisor's own health is reported separately from the server's, so a probe of the supervisor neither wakes the server nor counts as activity.

@@ -21,17 +21,17 @@ Dropped with the earlier design: the changes-pending check and its tick, central
 - Automatic discharge (`OutpatientDischarger`, `DeceasedPatientDischarger`) runs on central.
 - Each scheduled task says whether it can sleep: a task that can sleep does not wake a sleeping server when due, and catches up once on the next wake. A task wakes the server unless it declares it can sleep, so a missed declaration costs uptime rather than a skipped run. Only tasks whose output leaves the system on time are expected to wake (scheduled reports, vaccination reminders, patient communications); generators, dischargers, queue processors and cleaners can sleep. If every facility task can sleep, facilities need no timed wakes at all.
 - A `503` with a `Retry-After` from central, anywhere before a sync session opens (the session start, or the login or token refresh before it), puts the sync in line as a queued one, on facility and mobile. A `503` without one is an ordinary failure. This is the only change under the sync code-owned paths.
-- The specs land separately from the sync PR. Until then, specs on main still describe the earlier design.
+- The specs land separately from the sync PR.
 
 ## Order of work
 
 - [x] **PR 2 (#11617, reworked):** a waking central queues the sync, facility and mobile, with tests. Nothing else. The earlier version of this branch is kept locally as `archive/l13-2-changes-pending`; it holds a first version of central's busy route (`app/supervisor/index.js`, `app/tasks/pendingWork.js`, at `d43d9b606e`) and of `TamanuApi.whileServerWakes` (at `2801922c59`), both reusable.
-- [ ] **PR 3: specs.** Realign the specs on main with the model above:
-  - Supervisor (SUPV) and Sleep and wake (SLPWK): rewrite. No Postgres, copy, hand-back or database-clear gate; idle time per server role; central logins count as activity; the facility's final sync; timed wakes only for tasks that cannot sleep.
-  - Serving central while asleep (ASLEEP): delete.
-  - Changes-pending check (SYNCHK): reduce to its "While central wakes" section, retitled and widened to the login and refresh before a session. Keep the id and that heading, which PR 2's code cites.
-  - Sync lookup table (LOOKUP): delete "Refreshing on demand".
-  - Run history: delete the line about attempts the check answered.
+- [x] **PR 3: specs.** Realigned the specs on main with the model above:
+  - Supervisor (SUPV) and Sleep and wake (SLPWK): rewritten. No Postgres, copy, hand-back or database-clear gate; idle time per server role (30 minutes on a facility, 15 on central); sync requests are activity on central; the facility's final sync; facility logins fall back at once against a waking central; timed wakes only for tasks that cannot sleep.
+  - Serving central while asleep (ASLEEP): deleted.
+  - Changes-pending check (SYNCHK): reduced to its "While central wakes" section, now "Syncing with a waking central" at `specs/sync/waking-central.md`. Same id and heading, which PR 2's code cites.
+  - Sync lookup table (LOOKUP): "Refreshing on demand" deleted.
+  - Run history: the line about attempts the check answered deleted.
 - [ ] **Supervisor phases**, outside the sync code-owned paths, as three PRs, each started once the one before is approved:
   - PR 4: supervisor skeleton, actuator contract, sleep and wake
   - PR 5: scheduled tasks

@@ -4,34 +4,38 @@ id: SLPWK
 
 # Sleep and wake
 
-Applies to a server whose platform provides an actuator sleeping when nobody has used it for a while and waking when someone does, each server having its own supervisor and sleeping and waking on its own, so the servers of one deployment can be in different states.
+Applies to a server whose platform provides an actuator sleeping when its own users have gone quiet and waking when someone uses it, each server having its own supervisor and sleeping and waking on its own traffic alone, so the servers of one deployment can be in different states.
 
 ## Activity
 
 - Activity is every request through the supervisor's Caddy, except:
   - health probes, monitoring checks, and probes of the supervisor itself
-  - the [changes-pending check](../../sync/changes-pending-check.md)
   - time synchronisation requests
-  - on central, logins and token refreshes, which central's supervisor [serves itself while central is asleep](serving-while-asleep.md)
 - A request counts as activity from when it starts until it finishes, so a long-running import or report holds the server awake while it runs.
 - Websocket upgrade requests are not activity, and frames on an open socket are invisible to the supervisor.
-- A server goes to sleep after its idle time passes with no activity. The idle time is supervisor configuration, and defaults to 30 minutes.
+- A server goes to sleep after its idle time passes with no activity. The idle time is supervisor configuration, and defaults to 30 minutes on a facility server and 15 minutes on central.
 - A server with steady use never goes quiet, and so never sleeps.
+- Sync requests to central are activity there. An awake facility server syncs with central every minute, so central goes quiet only once every facility server is asleep.
+
+> [!NOTE]
+> A facility's syncs are requests it makes to central, which never pass through its own supervisor, so they keep central awake and not the facility. Central needs to know nothing about facilities to sleep after them.
 
 ## Going to sleep
 
 - A server's parts are its database, api, web, sync, tasks and fhir, and asleep means every one of them is stopped.
-- When the idle time is reached, the supervisor first stops forwarding requests that count as activity, and handles them itself, so nothing new reaches the database.
+- When the idle time is reached, the supervisor first stops forwarding requests that count as activity, and handles them itself, so nothing new reaches the server.
 - It then asks the api whether the server is busy: a scheduled task is running, or a work queue (report requests, FHIR jobs, communications, integration pushes) has pending items. A busy server goes back to forwarding requests and stays awake, and the supervisor tries again after the next idle time.
-- It then asks the actuator to stop tasks, fhir and sync, and waits until they have stopped. A task that is running when tasks is stopped finishes first.
-- On central, it then asks the api for a final [sync lookup refresh](../../sync/lookup-table.md#refreshing-on-demand), which returns the highest real-change sync tick, and for the next time a time-driven scheduled task is due. The supervisor holds both for the sleep.
-- On a facility server, it reads, from the facility database, the facility's pull cursor, whether the facility holds changes it has not yet pushed to central, the next time a time-driven scheduled task is due, and the central address, device id and sync credentials the facility syncs with. The supervisor holds them for the sleep.
-- It then asks the actuator to stop the api and web, and waits until they have stopped.
-- On central, it then [copies login's tables](serving-while-asleep.md#the-copy) into its own PostgreSQL.
+- It then asks the actuator to stop tasks and fhir, and waits until they have stopped. A task that is running when tasks is stopped finishes first.
+- On a facility server, it then asks the api to sync with central once more. A final sync that does not complete, such as when central cannot be reached, cancels the sleep, and the facility stays awake until its next idle time.
+- It then asks the api for the next time a scheduled task that [cannot sleep](#scheduled-tasks) is due, and holds it for the sleep.
+- It then asks the actuator to stop sync, the api and web, and waits until they have stopped.
 - Only then does it ask the actuator to stop the database.
 - A request that counts as activity, arriving while the server is going to sleep, cancels the sleep. The supervisor wakes the server again from whatever point the sleep had reached.
-- A step that fails, such as a lookup refresh that aborts, cancels the sleep in the same way. The supervisor reports the failure and tries again after the next idle time.
+- A step that fails cancels the sleep in the same way. The supervisor reports the failure and tries again after the next idle time.
 - The supervisor only puts a server to sleep when the server's database is migrated to the supervisor's own release.
+
+> [!NOTE]
+> The final sync is what lets a facility sleep without holding data that central and the other facilities have not had.
 
 ## Waking
 
@@ -39,42 +43,34 @@ Applies to a server whose platform provides an actuator sleeping when nobody has
 - While the server wakes, a request to an API path is answered at once with `503 Service Unavailable` and a `Retry-After` header.
 - While the server wakes, a browser request gets a waking page, which reloads itself once the server is up.
 - While the server is asleep or waking, a websocket upgrade request gets `503 Service Unavailable` and does not start a wake. Clients reconnect by themselves once the server is up.
-- To wake, the supervisor first asks the actuator to start the database, and waits until it is ready.
-- On central, it then [hands back](serving-while-asleep.md#handing-back) what was written to the copy, and deletes the copy.
-- Only then does it ask the actuator to start the other parts, so the database has a single writer until the hand-back is done.
+- To wake, the supervisor first asks the actuator to start the database, and waits until it is ready. Only then does it ask the actuator to start the other parts.
 - The supervisor starts forwarding requests to each part once that part is ready.
 - A wake that the supervisor started is finished even if the request that started it has gone.
 - A wake that stalls, such as a part that never becomes ready, is retried. Requests keep getting the waking response meanwhile, and the supervisor reports the failure.
 
-## Partial wakes
+## Facilities and a sleeping central
 
-- A partial wake starts only the parts some piece of work needs, such as database and sync for a facility to pull.
-- A sleeping facility server's supervisor acts on the facility's normal sync schedule. When the facility held unpushed changes at sleep, it starts a partial wake. Otherwise it makes the changes-pending check against central with the values it held at sleep, and starts a partial wake when the answer is that there are changes to pull.
-- A facility's partial wake starts database and sync. Sync runs once, and the partial wake ends when that sync has finished.
-- Any server's supervisor wakes database and tasks when a time-driven scheduled task is due, and on central also the api. The partial wake ends once the due tasks have run and the work queues they fed are empty.
-- A partial wake follows the same order as a full wake: database first, then on central the hand-back, then the parts the work needs.
-- A partial wake that is making no progress within a bounded time is ended. A sync that is still pulling or pushing is making progress.
-- Ending a partial wake runs the going-to-sleep sequence again, so the values the supervisor holds are read afresh.
-- During a partial wake the supervisor keeps handling requests that count as activity itself. One arriving turns the partial wake into a full wake.
-
-## Serving checks and logins between states
-
-- On central, while the api is up, the supervisor forwards changes-pending checks, logins and token refreshes to it, including during a partial wake.
-- On central, from when the final lookup refresh returns until the api is up again, the supervisor answers changes-pending checks from the tick it holds.
-- On central, logins and token refreshes get the waking response from when the api stops until the copy is ready, and from when the hand-back starts until the api is up.
+- A facility server's first sync after central has gone to sleep wakes central. That sync [waits in line](../../sync/waking-central.md) while central wakes, and the facility's next scheduled sync goes ahead once central is up.
+- A login at a facility server that central answers with the waking response falls back to the facility's own login at once.
+- Data entered at one facility server reaches the others the next time they are awake and sync, which for a facility asleep through a quiet period is when it is next used.
 
 ## Scheduled tasks
 
-- Each scheduled task is either time-driven, meaning its work arises from the passage of time (scheduled reports, vaccination reminders, generating repeating appointments and tasks, generating medication administration records, automatic discharges, bed fees), or activity-driven, meaning its work arises only from what users and integrations do (queue processors, cleaners).
-- While a server sleeps, its supervisor wakes it for the next time a time-driven task is due. Activity-driven tasks never wake a server.
-- When the tasks part starts after any wake, each task whose scheduled run fell while the server was asleep runs once, whatever number of runs it missed.
+- Each scheduled task declares whether it can sleep. A task that can sleep does not wake a sleeping server when it falls due. A task that declares nothing cannot sleep.
+- A task can sleep when running it late, on the server's next wake, loses nothing: generators, automatic discharges, queue processors and cleaners. A task whose output leaves the system at a set time, such as scheduled reports, vaccination reminders and patient communications, cannot.
+- While a server sleeps, its supervisor wakes it for the next time a task that cannot sleep is due. This is a timed wake.
+- A timed wake starts the database, then the api and tasks. It ends once the due tasks have run and the work queues they fed are empty, and the server then goes to sleep as after any idle time, final sync included.
+- During a timed wake the supervisor keeps handling requests that count as activity itself. One arriving turns the timed wake into a full wake.
+- A timed wake that is making no progress within a bounded time is ended.
+- When the tasks part starts after any wake, each task whose scheduled run fell while the server was asleep runs once, whatever number of runs it missed. A task whose work accrues for each day, such as charging bed fees, covers every day it missed in that one run.
 - Each task records when it last ran, which is how missed runs are found after a wake.
+
+> [!NOTE]
+> A task wakes the server unless it says otherwise, so a task that forgets to declare itself costs uptime rather than a run that never happens.
 
 ## Rollouts
 
-- A rollout replaces the supervisor along with the rest of the server, so a rollout to a [sleeping server wakes it](overview.md#resilience).
-- A new supervisor that finds a copy made by the previous release hands it back before anything else, using the columns that the copy and the database have in common.
-- A rollout's migrations wait until the supervisor [reports that the database is clear for other writers](overview.md#status).
+- A rollout replaces the supervisor along with the rest of the server, so a rollout to a [sleeping server wakes it](overview.md#resilience), and the rollout's migrations find the database up.
 - After a rollout, the server sleeps again when it has been idle for the usual time.
 
 ## Actuator contract
