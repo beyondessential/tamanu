@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { Bold, Italic, Underline } from 'lucide-react';
@@ -109,8 +109,10 @@ export const NoteContentEditor = ({
   const { getSetting } = useSettings();
   const isPastingDisabled = getSetting('features.disableInputPasting');
 
+  const labelId = useId();
   const editorRef = useRef(null);
   const lastContentRef = useRef(null);
+  const isDraggingFromEditorRef = useRef(false);
   const [activeStyles, setActiveStyles] = useState({});
 
   useLayoutEffect(() => {
@@ -157,12 +159,19 @@ export const NoteContentEditor = ({
   };
 
   const handleDrop = event => {
-    if (isPastingDisabled) event.preventDefault();
+    if (isDraggingFromEditorRef.current && !isPastingDisabled) return;
+    event.preventDefault();
+    if (isPastingDisabled) return;
+    const position = document.caretPositionFromPoint?.(event.clientX, event.clientY);
+    if (!position) return;
+    editorRef.current.focus();
+    document.getSelection().collapse(position.offsetNode, position.offset);
+    document.execCommand('insertText', false, event.dataTransfer.getData('text/plain'));
   };
 
   return (
     <OuterLabelFieldWrapper
-      label={label}
+      label={label && <span id={labelId}>{label}</span>}
       required={required}
       data-testid={dataTestId}
       style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, paddingBottom: 12 }}
@@ -189,11 +198,18 @@ export const NoteContentEditor = ({
           suppressContentEditableWarning
           role="textbox"
           aria-multiline="true"
+          aria-labelledby={label ? labelId : undefined}
           aria-required={required}
           aria-invalid={Boolean(error)}
           onInput={handleInput}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
+          onDragStart={() => {
+            isDraggingFromEditorRef.current = true;
+          }}
+          onDragEnd={() => {
+            isDraggingFromEditorRef.current = false;
+          }}
           onDrop={handleDrop}
           data-testid={`${dataTestId}-input`}
         />
