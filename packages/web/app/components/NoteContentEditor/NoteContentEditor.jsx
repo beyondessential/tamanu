@@ -159,7 +159,9 @@ export const NoteContentEditor = ({
   };
 
   const handleDrop = event => {
-    if (isDraggingFromEditorRef.current && !isPastingDisabled) return;
+    const isDraggingFromEditor = isDraggingFromEditorRef.current;
+    isDraggingFromEditorRef.current = false;
+    if (isDraggingFromEditor && !isPastingDisabled) return;
     event.preventDefault();
     if (isPastingDisabled) return;
     const position = document.caretPositionFromPoint?.(event.clientX, event.clientY);
