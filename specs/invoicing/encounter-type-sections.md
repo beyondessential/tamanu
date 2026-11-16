@@ -57,7 +57,7 @@ Splitting an invoice into sections is a display rule read from the setting as it
 - A plan covers either the whole invoice or sections of it, never both, so its coverage cannot be counted twice against the same item.
 - A plan's coverage applies only to the items in the section it is attached to.
 - Each section header carries its own Insurance plan action, so the section a plan covers is the one it was attached from, and a cashier never names it separately.
-- An invoice with no sections offers the action once for the invoice, where a split invoice offers it on its section headers alone.
+- An invoice with no sections offers the action once for the invoice. A split invoice offers it on its section headers, and keeps the invoice-level one only while it still holds a plan covering the whole invoice.
 - The action works on the plans covering the section it was opened from, leaving the plans on the invoice's other sections as they are.
 - The coverage line for a plan sits with the section it covers.
 - A payment records the section it settles, so a plan covering two sections carries a balance for each.
@@ -69,6 +69,9 @@ Splitting an invoice into sections is a display rule read from the setting as it
 
 > [!NOTE]
 > A payment names its section as well as its plan, because the plan alone cannot say which part of the invoice a payment settles once one plan covers two sections.
+
+> [!NOTE]
+> An invoice can gain its first section after a plan was attached to the whole of it, so withholding the invoice-level action from every split invoice would leave that plan covering everything with no way to reach it.
 
 ## Adding and editing items
 

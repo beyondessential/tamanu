@@ -6,7 +6,7 @@ import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@mui/icons-material/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { isInvoiceEditable, isInvoiceSectioned } from '@tamanu/utils/invoice';
+import { isInvoiceEditable, offersInvoiceWideInsurance } from '@tamanu/utils/invoice';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
@@ -193,9 +193,9 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   }
 
   const hasVisibleActions = ACTIONS.some(action => !action.hidden);
-  // A split invoice attaches its plans from each section's own header instead, since a plan
-  // covering the whole invoice cannot also cover one of its sections.
-  const isSectioned = isInvoiceSectioned(invoice.sections, invoice.items);
+  // A split invoice attaches its plans from each section's own header instead. The rule lives
+  // beside the sectioning it depends on, so the view does not carry its own idea of it.
+  const offersInvoiceInsurance = offersInvoiceWideInsurance(invoice);
 
   return (
     <ActionsPane data-testid="actionspane-l9ey">
@@ -212,7 +212,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
           <TranslatedText stringId="general.action.print" fallback="Print" />
         </PrintButton>
       )}
-      {isInProgress && !isSectioned && (
+      {isInProgress && offersInvoiceInsurance && (
         <NoteModalActionBlocker>
           <Button
             onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}

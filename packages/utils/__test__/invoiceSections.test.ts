@@ -7,6 +7,7 @@ import {
   keepsRecordedDate,
   resolveEncounterPeriod,
   resolveSectionPeriods,
+  offersInvoiceWideInsurance,
 } from '../src/invoice/sections';
 
 const configuredSections = [
@@ -23,9 +24,7 @@ describe('buildInvoiceSections', () => {
     expect(
       build({
         encounter: { encounterType: ENCOUNTER_TYPES.CLINIC, startDate: '2026-03-01 09:00:00' },
-        revisions: [
-          { encounterType: ENCOUNTER_TYPES.CLINIC, startDate: '2026-03-01 09:00:00' },
-        ],
+        revisions: [{ encounterType: ENCOUNTER_TYPES.CLINIC, startDate: '2026-03-01 09:00:00' }],
       }),
     ).toEqual([
       {
@@ -215,7 +214,15 @@ describe('resolveSectionPeriods', () => {
 
   it("keeps a section's own period where it is known", () => {
     const periods = resolveSectionPeriods(
-      [{ invoiceSectionId: EMERGENCY, code: 'emergency', name: 'Emergency', startDate: '2026-03-01', endDate: '2026-03-04' }],
+      [
+        {
+          invoiceSectionId: EMERGENCY,
+          code: 'emergency',
+          name: 'Emergency',
+          startDate: '2026-03-01',
+          endDate: '2026-03-04',
+        },
+      ],
       encounterPeriod,
       TODAY,
     );
@@ -224,7 +231,15 @@ describe('resolveSectionPeriods', () => {
 
   it('ends a still-running period today', () => {
     const periods = resolveSectionPeriods(
-      [{ invoiceSectionId: EMERGENCY, code: 'emergency', name: 'Emergency', startDate: '2026-03-04', endDate: null }],
+      [
+        {
+          invoiceSectionId: EMERGENCY,
+          code: 'emergency',
+          name: 'Emergency',
+          startDate: '2026-03-04',
+          endDate: null,
+        },
+      ],
       { startDate: '2026-03-01', endDate: null },
       TODAY,
     );
@@ -233,7 +248,15 @@ describe('resolveSectionPeriods', () => {
 
   it("falls back to the encounter's own span where the period is unknown", () => {
     const periods = resolveSectionPeriods(
-      [{ invoiceSectionId: EMERGENCY, code: 'emergency', name: 'Emergency', startDate: null, endDate: null }],
+      [
+        {
+          invoiceSectionId: EMERGENCY,
+          code: 'emergency',
+          name: 'Emergency',
+          startDate: null,
+          endDate: null,
+        },
+      ],
       encounterPeriod,
       TODAY,
     );
@@ -247,9 +270,9 @@ describe('resolveSectionPeriods', () => {
 
 describe('resolveEncounterPeriod', () => {
   it('resolves an open encounter to today', () => {
-    expect(resolveEncounterPeriod({ startDate: '2026-03-01', endDate: null }, '2026-03-20')).toEqual(
-      { startDate: '2026-03-01', endDate: '2026-03-20' },
-    );
+    expect(
+      resolveEncounterPeriod({ startDate: '2026-03-01', endDate: null }, '2026-03-20'),
+    ).toEqual({ startDate: '2026-03-01', endDate: '2026-03-20' });
   });
 
   it('keeps a closed encounter at its end', () => {
@@ -276,7 +299,13 @@ describe('buildEncounterPeriod', () => {
 });
 
 describe('isInvoiceSectioned', () => {
-  const section = (id: string) => ({ invoiceSectionId: id, code: id, name: id, startDate: null, endDate: null });
+  const section = (id: string) => ({
+    invoiceSectionId: id,
+    code: id,
+    name: id,
+    startDate: null,
+    endDate: null,
+  });
 
   it('is not sectioned where splitting gives no sections', () => {
     expect(isInvoiceSectioned(null, [{ invoiceSectionId: null }])).toBe(false);
@@ -299,16 +328,66 @@ describe('isInvoiceSectioned', () => {
   });
 });
 
+describe('offersInvoiceWideInsurance', () => {
+  const section = (id: string) => ({
+    invoiceSectionId: id,
+    code: id,
+    name: id,
+    startDate: null,
+    endDate: null,
+  });
+
+  it('offers it on an invoice with nothing to tell apart', () => {
+    expect(
+      offersInvoiceWideInsurance({ sections: null, items: [{ invoiceSectionId: null }] }),
+    ).toBe(true);
+  });
+
+  it('withholds it on a split invoice whose plans all name a section', () => {
+    expect(
+      offersInvoiceWideInsurance({
+        sections: [section('a'), section('b')],
+        items: [],
+        insurancePlans: [{ invoiceSectionId: 'a' }],
+      }),
+    ).toBe(false);
+  });
+
+  it('keeps it on a split invoice still holding a plan covering the whole of it', () => {
+    expect(
+      offersInvoiceWideInsurance({
+        sections: [section('a'), section('b')],
+        items: [],
+        insurancePlans: [{ invoiceSectionId: 'a' }, { invoiceSectionId: null }],
+      }),
+    ).toBe(true);
+  });
+
+  it('withholds it on a split invoice carrying no plans at all', () => {
+    expect(offersInvoiceWideInsurance({ sections: [section('a'), section('b')], items: [] })).toBe(
+      false,
+    );
+  });
+});
+
 describe('keepsRecordedDate', () => {
   it('keeps an already-saved row whose date is untouched', () => {
     expect(
-      keepsRecordedDate({ isExistingItem: true, orderDate: '2026-03-02', originalOrderDate: '2026-03-02' }),
+      keepsRecordedDate({
+        isExistingItem: true,
+        orderDate: '2026-03-02',
+        originalOrderDate: '2026-03-02',
+      }),
     ).toBe(true);
   });
 
   it('bounds an already-saved row once its date is edited', () => {
     expect(
-      keepsRecordedDate({ isExistingItem: true, orderDate: '2026-03-06', originalOrderDate: '2026-03-02' }),
+      keepsRecordedDate({
+        isExistingItem: true,
+        orderDate: '2026-03-06',
+        originalOrderDate: '2026-03-02',
+      }),
     ).toBe(false);
   });
 

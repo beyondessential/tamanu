@@ -245,10 +245,22 @@ export const isInvoiceSectioned = (
   if (sectionCount > 1) return true;
 
   const listed = new Set((sections ?? []).map(section => section.invoiceSectionId));
-  return (items ?? []).some(
-    item => !item.invoiceSectionId || !listed.has(item.invoiceSectionId),
-  );
+  return (items ?? []).some(item => !item.invoiceSectionId || !listed.has(item.invoiceSectionId));
 };
+
+/**
+ * Whether the invoice as a whole offers the Insurance plan action, rather than each of its
+ * sections. An invoice with nothing to tell apart does; a split one offers the action on its
+ * section headers, and keeps the invoice-level one only while it still holds plans covering the
+ * whole invoice, which nothing else can reach.
+ */
+export const offersInvoiceWideInsurance = (invoice: {
+  sections?: InvoiceSection[] | null;
+  items?: { invoiceSectionId?: string | null }[] | null;
+  insurancePlans?: { invoiceSectionId?: string | null }[] | null;
+}): boolean =>
+  !isInvoiceSectioned(invoice.sections, invoice.items) ||
+  (invoice.insurancePlans ?? []).some(plan => !plan.invoiceSectionId);
 
 /**
  * Whether a row keeps the date it already holds rather than being held to its section's period.
