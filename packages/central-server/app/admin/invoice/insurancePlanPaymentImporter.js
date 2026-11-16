@@ -119,11 +119,15 @@ export async function insurancePlanPaymentImporter({
       continue;
     }
 
-    const pricedInvoice = withInsurancePlanItems(invoice.get({ plain: true }));
-
-    // Read from the priced invoice, whose plans are the attachment rows: the invoice carries the
-    // attachments rather than the plans, since a plan on two sections loads once through them.
-    const invoicePlanIds = (pricedInvoice.insurancePlans ?? []).map(plan => plan.id);
+    // Straight off the attachment rows, which is what the invoice carries: pricing it maps every
+    // item against every plan, and a row naming a plan the invoice does not hold needs none of it.
+    const invoicePlanIds = [
+      ...new Set(
+        (invoice.insurancePlanAttachments ?? []).map(
+          attachment => attachment.invoiceInsurancePlanId,
+        ),
+      ),
+    ];
     if (!invoicePlanIds.includes(data.invoiceInsurancePlanId)) {
       errors.push(
         new ValidationError(
@@ -134,6 +138,8 @@ export async function insurancePlanPaymentImporter({
       );
       continue;
     }
+
+    const pricedInvoice = withInsurancePlanItems(invoice.get({ plain: true }));
 
     const {
       insuranceCoverageTotal: allPlansCoverageTotal,

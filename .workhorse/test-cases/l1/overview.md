@@ -71,6 +71,7 @@ fault. Every case assumes invoicing is on.
 - [x] A plan attached from a section's Insurance plan action covers that section's items and leaves the other sections uncovered (verifies spec: INVGRP)
 - [x] A plan attached without a section covers every item, including those in no section (verifies spec: INVGRP)
 - [x] The same plan attached to two sections carries a coverage total and a balance for each (verifies spec: INVGRP)
+- [x] An imported insurance payment is held to the coverage of the sections its plan is attached to, not the whole invoice (verifies spec: INVGRP)
 - [x] A plan already covering the whole invoice is refused a section, and one already on a section is refused the whole invoice (verifies spec: INVGRP)
 - [x] Reconciling one section's plans leaves the other sections' plans where they are (verifies spec: INVGRP)
 - [x] A section that is not currently configured is refused (verifies spec: INVGRP)
