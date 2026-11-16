@@ -309,6 +309,12 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
+      # ubuntu-latest now ships Python 3.14, which the pinned dbt can't import
+      # on; match the Python that cd-deploy-dbt-docs uses
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
       - parallel:
           - name: Install and start postgres
             run: |
@@ -349,12 +355,6 @@ jobs:
               echo "Run 'npm run dbt-generate-model' and commit the result."
               exit 1
           fi
-
-      # ubuntu-latest now ships Python 3.14, which the pinned dbt can't import
-      # on; match the Python that cd-deploy-dbt-docs uses
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
 
       - name: Check model is valid (ie that docs can generate)
         run: npm run dbt-generate-docs
