@@ -105,7 +105,14 @@ export const CustomisableSearchBar = ({
       return;
     }
     setHasSearched(true);
-    onSearch({ ...values });
+    onSearch(
+      Object.fromEntries(
+        Object.entries(values).map(([field, value]) => [
+          field,
+          typeof value === 'string' ? value.trim() : value,
+        ]),
+      ),
+    );
   };
 
   const hiddenFieldsId = useId();

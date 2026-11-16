@@ -28,6 +28,26 @@ describe('CustomisableSearchBar', () => {
     expect(clearButton()).toHaveProperty('disabled', false);
   });
 
+  it('searches with leading and trailing spaces removed', async () => {
+    const onSearch = vi.fn();
+    renderSearchBar({ onSearch });
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'First name' }), '  Ana  ');
+    await userEvent.click(searchButton());
+
+    expect(onSearch).toHaveBeenLastCalledWith({ firstName: 'Ana' });
+  });
+
+  it('searches a field of only spaces as blank', async () => {
+    const onSearch = vi.fn();
+    renderSearchBar({ onSearch });
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'First name' }), '   ');
+    await userEvent.click(searchButton());
+
+    expect(onSearch).toHaveBeenLastCalledWith({ firstName: '' });
+  });
+
   describe('with canSearch', () => {
     it('disables Search and Clear until a field has a value', async () => {
       renderSearchBar({ canSearch: hasSearchCriteria });
@@ -50,6 +70,24 @@ describe('CustomisableSearchBar', () => {
 
       expect(searchButton()).toHaveProperty('disabled', false);
       expect(clearButton()).toHaveProperty('disabled', false);
+    });
+
+    it('ignores a field of only spaces when another field is filled', async () => {
+      const onSearch = vi.fn();
+      renderElementWithTranslatedText(
+        <SettingsContext.Provider value={{ getSetting: () => undefined }}>
+          <CustomisableSearchBar onSearch={onSearch} canSearch={hasSearchCriteria}>
+            <Field name="firstName" label="First name" component={TextField} />
+            <Field name="lastName" label="Last name" component={TextField} />
+          </CustomisableSearchBar>
+        </SettingsContext.Provider>,
+      );
+
+      await userEvent.type(screen.getByRole('textbox', { name: 'First name' }), '   ');
+      await userEvent.type(screen.getByRole('textbox', { name: 'Last name' }), 'Ana');
+      await userEvent.click(searchButton());
+
+      expect(onSearch).toHaveBeenLastCalledWith({ firstName: '', lastName: 'Ana' });
     });
 
     it('clears when searching with the fields emptied', async () => {
