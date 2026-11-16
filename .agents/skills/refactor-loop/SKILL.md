@@ -3,7 +3,7 @@ name: refactor-loop
 description: "Take stock of this card's code and refactor it, in loops, until it is as small, DRY and well structured as it sensibly can be, with behaviour unchanged"
 label: "Refactor loop"
 category: build
-workhorse-version: 0.7.14
+workhorse-version: 0.7.15
 ---
 
 ## Your task: make the code smaller and better structured, behaviour unchanged
