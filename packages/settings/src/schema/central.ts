@@ -259,6 +259,36 @@ export const centralSettings = {
         },
       },
     },
+    facilitySync: {
+      description:
+        'Sync tuning that facility servers fetch each time they log in to central. A SYNC_* env var on a facility server overrides it there',
+      exposedToWeb: true,
+      highRisk: true,
+      properties: {
+        persistedCacheBatchSize: {
+          description: 'The number of records to persist in a single batch',
+          type: yup.number().integer().min(1),
+          defaultValue: 10000,
+        },
+        pauseBetweenPersistedCacheBatchesInMilliseconds: {
+          description: 'The pause between batches of persisted records',
+          type: yup.number().integer().min(0),
+          defaultValue: 50,
+          unit: 'ms',
+        },
+        pauseBetweenCacheBatchInMilliseconds: {
+          description: 'The pause between batches of pulled records',
+          type: yup.number().integer().min(0),
+          defaultValue: 50,
+          unit: 'ms',
+        },
+        persistUpdateWorkerPoolSize: {
+          description: 'The number of concurrent workers persisting updated records',
+          type: yup.number().integer().min(1),
+          defaultValue: 5,
+        },
+      },
+    },
     mobileSync: {
       description: 'Settings related to mobile sync',
       exposedToWeb: true,

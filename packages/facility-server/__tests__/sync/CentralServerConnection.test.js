@@ -16,6 +16,7 @@ import {
   ValidationError,
 } from '@tamanu/errors';
 import * as jose from 'jose';
+import { getSyncTuning, setSyncTuningFromCentral } from '@tamanu/database/sync';
 
 const { CentralServerConnection } = (await vi.importActual('../../app/sync/CentralServerConnection'));
 
@@ -229,6 +230,24 @@ describe('CentralServerConnection', () => {
           streaming: false,
         },
       });
+    });
+
+    it("applies central's sync tuning on login", async () => {
+      const { settings, ...body } = await (await authSuccess).json();
+      fetch
+        .mockReturnValueOnce(
+          fakeSuccess({
+            ...body,
+            settings: { ...settings, facilitySync: { persistUpdateWorkerPoolSize: 2 } },
+          }),
+        )
+        .mockReturnValueOnce(meSuccess);
+      try {
+        await centralServer.connect();
+        expect(getSyncTuning().persistUpdateWorkerPoolSize).toBe(2);
+      } finally {
+        setSyncTuningFromCentral(undefined);
+      }
     });
 
     it('retrieves user data', async () => {

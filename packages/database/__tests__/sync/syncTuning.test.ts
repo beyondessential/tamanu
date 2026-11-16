@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import config from 'config';
 
-import { getSyncTuning } from '../../src/sync/syncTuning';
+import { getSyncTuning, setSyncTuningFromCentral } from '../../src/sync/syncTuning';
 
 describe('getSyncTuning', () => {
   afterEach(() => {
     delete process.env.SYNC_PERSIST_UPDATE_WORKER_POOL_SIZE;
     delete process.env.SYNC_PAUSE_BETWEEN_CACHE_BATCHES_MS;
+    setSyncTuningFromCentral(undefined);
   });
 
   it('refuses a zero size but accepts a zero pause', () => {
@@ -23,6 +24,17 @@ describe('getSyncTuning', () => {
   });
 
   it('prefers the env var over config', () => {
+    process.env.SYNC_PERSIST_UPDATE_WORKER_POOL_SIZE = '3';
+    expect(getSyncTuning().persistUpdateWorkerPoolSize).toBe(3);
+  });
+
+  it("prefers central's value over config", () => {
+    setSyncTuningFromCentral({ persistUpdateWorkerPoolSize: 2 });
+    expect(getSyncTuning().persistUpdateWorkerPoolSize).toBe(2);
+  });
+
+  it("prefers the env var over central's value", () => {
+    setSyncTuningFromCentral({ persistUpdateWorkerPoolSize: 2 });
     process.env.SYNC_PERSIST_UPDATE_WORKER_POOL_SIZE = '3';
     expect(getSyncTuning().persistUpdateWorkerPoolSize).toBe(3);
   });
