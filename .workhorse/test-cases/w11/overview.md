@@ -25,7 +25,7 @@ End-to-end coverage of the whole chain is recorded as needing a card of its own.
 
 ## The patient details modal
 
-- [ ] It opens over the invoice, with the invoice still behind it.
+- [x] It opens over the invoice, with the invoice still behind it.
 - [ ] It holds the same sections and fields as the patient's Details tab, Billing information
       included.
 - [ ] Cancel and Save stay in view when the form is scrolled to the bottom.
@@ -50,8 +50,8 @@ End-to-end coverage of the whole chain is recorded as needing a card of its own.
 
 - [ ] The plan picker's empty state offers Go to patient details only where a plan can still be added
       to this invoice.
-- [ ] Go to patient details opens the modal, which lands focused on the insurance plan field.
-- [ ] The field is actually scrolled into view, not merely focused off-screen.
+- [x] Go to patient details opens the modal, which lands focused on the insurance plan field.
+- [x] The field is actually scrolled into view, not merely focused off-screen.
 - [ ] Saving the modal with a plan now available at this facility opens the plan picker.
 - [ ] Saving it with no plan available at this facility returns to the invoice.
 - [ ] A patient whose only plans are restricted to other facilities counts as having none.
