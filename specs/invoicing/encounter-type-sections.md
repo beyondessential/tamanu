@@ -60,6 +60,7 @@ Splitting an invoice into sections is a display rule read from the setting as it
 - An invoice with no sections offers the action once for the invoice. A split invoice offers it on its section headers, and keeps the invoice-level one only while it still holds a plan covering the whole invoice.
 - The action works on the plans covering the section it was opened from, leaving the plans on the invoice's other sections as they are.
 - The coverage line for a plan sits with the section it covers.
+- The coverage offered while a charge is being added is the coverage its section will get once saved.
 - A payment records the section it settles, so a plan covering two sections carries a balance for each.
 - A section with no plan attached is settled by the patient.
 - Patient payments and the invoice's payment status cover the whole invoice, sections included.

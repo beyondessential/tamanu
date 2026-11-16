@@ -78,6 +78,7 @@ fault. Every case assumes invoicing is on.
 - [x] A split invoice offers no invoice-level Insurance plan action once its plans all name a section, and an invoice with no sections still does (verifies spec: INVGRP)
 - [x] A split invoice still holding a plan covering the whole invoice keeps the invoice-level action, so that plan can be removed (verifies spec: INVGRP)
 - [x] An item's coverage line names only the plans covering its own section (verifies spec: INVGRP)
+- [x] Picking a product on a row previews only the coverage that row's section will get, and a plan reaching it through two attachments is named once (verifies spec: INVGRP)
 - [x] The summary panel's Insurance coverage is the sum across every section (verifies spec: INVGRP)
 - [x] The patient is held to the whole of an uncovered section plus their share of a covered one (verifies spec: INVGRP)
 

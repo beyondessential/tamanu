@@ -192,6 +192,58 @@ describe('Insurance across invoice sections', () => {
     });
   });
 
+  describe('the coverage preview for a new item', () => {
+    const previewFor = (encounterId, invoiceSectionId) =>
+      app.get('/api/invoices/insurance-plan-items').query({
+        encounterId,
+        productId: insurableProduct.id,
+        ...(invoiceSectionId ? { invoiceSectionId } : {}),
+      });
+
+    it("offers the plans covering the row's own section", async () => {
+      const { encounter, invoice } = await createInvoice();
+      await attach(invoice.id, plan, emergencySection.id);
+      await attach(invoice.id, otherPlan, inpatientSection.id);
+
+      const result = await previewFor(encounter.id, emergencySection.id);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(entry => entry.id)).toEqual([plan.id]);
+    });
+
+    it('offers a plan covering the whole invoice to every section', async () => {
+      const { encounter, invoice } = await createInvoice();
+      await attach(invoice.id, plan);
+
+      const result = await previewFor(encounter.id, inpatientSection.id);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(entry => entry.id)).toEqual([plan.id]);
+    });
+
+    it('offers a row in no section only the plans covering the whole invoice', async () => {
+      const { encounter, invoice } = await createInvoice();
+      await attach(invoice.id, plan, emergencySection.id);
+      await attach(invoice.id, otherPlan);
+
+      const result = await previewFor(encounter.id, null);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(entry => entry.id)).toEqual([otherPlan.id]);
+    });
+
+    it('names a plan reaching the row through two attachments once', async () => {
+      const { encounter, invoice } = await createInvoice();
+      await attach(invoice.id, plan, emergencySection.id);
+      await attach(invoice.id, plan, inpatientSection.id);
+
+      const result = await previewFor(encounter.id, emergencySection.id);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(1);
+    });
+  });
+
   describe('what the patient is held to', () => {
     it('leaves the uncovered section wholly to the patient', async () => {
       const { invoice } = await createInvoice();
