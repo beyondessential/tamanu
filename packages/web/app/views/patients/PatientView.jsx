@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import styled from 'styled-components';
+import { tabsClasses } from '@mui/material/Tabs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { TabDisplay } from '../../components/TabDisplay';
+import { TabDisplay, tabScrollButtonStyles } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
 import { useApi } from '../../api';
@@ -36,6 +37,10 @@ const StyledDisplayTabs = styled(TabDisplay)`
   position: sticky;
   top: ${NAVIGATION_CONTAINER_HEIGHT};
   z-index: 9;
+  ${tabScrollButtonStyles}
+  .${tabsClasses.scrollButtons}:last-child {
+    margin-inline-end: 30px;
+  }
 `;
 
 const TABS = [

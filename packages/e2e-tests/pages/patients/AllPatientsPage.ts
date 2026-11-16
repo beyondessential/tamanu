@@ -125,7 +125,7 @@ export class AllPatientsPage extends BasePatientListPage {
     this.patientListingsHeader = page.getByRole('heading', { name: 'Patient listing' });
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
-      .filter({ hasText: '1–1 of 1' });
+      .filter({ hasText: 'Showing 1 of 1 record' });
     this.DOBInput = page.getByTestId('field-qk60').getByRole('textbox');
     this.newPatientVillageSearchBox = page
       .getByTestId('localisedfield-rpma-input')

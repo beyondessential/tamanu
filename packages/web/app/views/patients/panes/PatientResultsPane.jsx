@@ -94,9 +94,8 @@ export const PatientResultsPane = React.memo(({ patient }) => {
             {dirty && (
               <PatientLabTestsTable
                 patient={patient}
-                searchParameters={searchParameters}
                 labTests={data?.data}
-                count={data?.count}
+                groups={data?.groups}
                 isLoading={isLoading}
                 data-testid="patientlabteststable-9cgh"
               />

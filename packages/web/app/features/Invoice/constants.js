@@ -14,7 +14,7 @@ export const CELL_WIDTHS = /** @type {const} */ ({
 export const CELL_WIDTHS_EDITABLE = /** @type {const} */ ({
   DATE: '12em',
   DETAILS: '16em',
-  QUANTITY: '6em',
+  QUANTITY: '8em', // fits a 4-digit quantity beside the browser's spin buttons
   APPROVED: '6em',
   ORDERED_BY: '14em',
   PRICE: '6em',
