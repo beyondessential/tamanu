@@ -7,7 +7,7 @@ sidebar.
   <img
     src="images/use-your-dashboard-overview.png"
     alt="The dashboard showing Recently viewed, Upcoming tasks, Today's appointments and Today's bookings, with Dashboard in the sidebar outlined in red"
-    width="600"
+    width="599"
   />
   <figcaption>Select <b>Dashboard</b> in the sidebar to open your dashboard.</figcaption>
 </figure>
@@ -39,7 +39,7 @@ administrator if you believe you should see a section that is missing.
      <img
        src="images/use-your-dashboard-highlight-recently-viewed.png"
        alt="The dashboard with the Recently viewed row outlined in red"
-       width="492"
+       width="491"
      />
      <figcaption><b>Recently viewed</b> runs across the top of the dashboard.</figcaption>
    </figure>
@@ -52,7 +52,7 @@ administrator if you believe you should see a section that is missing.
      <img
        src="images/use-your-dashboard-recently-viewed.png"
        alt="A patient's card in Recently viewed, outlined in red"
-       width="244"
+       width="242"
      />
      <figcaption>Select a patient's card to open their record.</figcaption>
    </figure>
@@ -72,7 +72,7 @@ administrator if you believe you should see a section that is missing.
      <img
        src="images/use-your-dashboard-highlight-todays-appointments.png"
        alt="The dashboard with the Today's appointments pane outlined in red"
-       width="492"
+       width="491"
      />
      <figcaption><b>Today’s appointments</b> sits at the top right of the dashboard.</figcaption>
    </figure>
@@ -83,7 +83,7 @@ administrator if you believe you should see a section that is missing.
      <img
        src="images/use-your-dashboard-todays-appointments.png"
        alt="The Today's appointments pane listing four appointments, one seen, with View all… outlined in red"
-       width="309"
+       width="307"
      />
      <figcaption>Select <b>View all…</b> to open the outpatient appointments calendar.</figcaption>
    </figure>
@@ -101,7 +101,7 @@ administrator if you believe you should see a section that is missing.
      <img
        src="images/use-your-dashboard-highlight-todays-bookings.png"
        alt="The dashboard with the Today's bookings pane outlined in red"
-       width="492"
+       width="491"
      />
      <figcaption><b>Today's bookings</b> sits below <b>Today’s appointments</b>.</figcaption>
    </figure>
@@ -112,7 +112,7 @@ administrator if you believe you should see a section that is missing.
      <img
        src="images/use-your-dashboard-todays-bookings.png"
        alt="The Today's bookings pane listing three bookings, with View all… outlined in red"
-       width="309"
+       width="307"
      />
      <figcaption>Select <b>View all…</b> to open the location bookings calendar.</figcaption>
    </figure>
@@ -135,7 +135,7 @@ Tamanu notifies you when:
      <img
        src="images/use-your-dashboard-highlight-notifications.png"
        alt="The dashboard with the notification bell outlined in red, showing a red dot"
-       width="492"
+       width="491"
      />
      <figcaption>Select the bell at the top right of the dashboard.</figcaption>
    </figure>
@@ -149,7 +149,7 @@ Tamanu notifies you when:
      <img
        src="images/use-your-dashboard-notifications.png"
        alt="The Notifications panel with four unread notifications and one recent one, with Mark all as read outlined in red"
-       width="300"
+       width="298"
      />
      <figcaption>The <b>Notifications</b> panel lists <b>Unread</b> notifications above <b>Recent (last 48 hours)</b>.</figcaption>
    </figure>
