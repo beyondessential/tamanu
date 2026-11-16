@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useId, useLayoutEffect, useRef, useState
 import styled from 'styled-components';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { Bold, Italic, Underline } from 'lucide-react';
-import { OuterLabelFieldWrapper, useSettings } from '@tamanu/ui-components';
+import { OuterLabelFieldWrapper, ThemedTooltip, useSettings } from '@tamanu/ui-components';
 
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
@@ -179,19 +179,23 @@ export const NoteContentEditor = ({
     >
       <EditorBox $error={error} style={{ minHeight }}>
         <Toolbar role="toolbar">
-          {STYLE_BUTTONS.map(({ command, Icon, stringId, fallback }) => (
-            <ToolbarButton
-              key={command}
-              type="button"
-              aria-label={getTranslation(stringId, fallback)}
-              aria-pressed={Boolean(activeStyles[command])}
-              onMouseDown={event => event.preventDefault()}
-              onClick={() => applyStyle(command)}
-              data-testid={`${dataTestId}-${command}`}
-            >
-              <Icon size={18} strokeWidth={1.75} aria-hidden />
-            </ToolbarButton>
-          ))}
+          {STYLE_BUTTONS.map(({ command, Icon, stringId, fallback }) => {
+            const buttonLabel = getTranslation(stringId, fallback);
+            return (
+              <ThemedTooltip key={command} title={buttonLabel} placement="top">
+                <ToolbarButton
+                  type="button"
+                  aria-label={buttonLabel}
+                  aria-pressed={Boolean(activeStyles[command])}
+                  onMouseDown={event => event.preventDefault()}
+                  onClick={() => applyStyle(command)}
+                  data-testid={`${dataTestId}-${command}`}
+                >
+                  <Icon size={18} strokeWidth={1.75} aria-hidden />
+                </ToolbarButton>
+              </ThemedTooltip>
+            );
+          })}
         </Toolbar>
         <Editable
           ref={editorRef}
