@@ -19,6 +19,7 @@ import {
   withInsurancePlanItems,
   withInsuranceAttachments,
   getDistinctInsurancePlans,
+  getFormattedCoverageAmountPerInsurancePlanForInvoice,
   getInvoicePrintTotalsDisplay,
 } from '../src';
 
@@ -968,6 +969,25 @@ describe('Invoice Utils', () => {
       (
         getCoverageAmountPerInsurancePlan(withInsurancePlanItems(invoice)).get(key) as any
       ).toNumber();
+
+    describe('getFormattedCoverageAmountPerInsurancePlanForInvoice', () => {
+      it('names a payer once, totalling what it covers across its sections', () => {
+        const invoice = {
+          insurancePlans: [
+            { ...attachment('attach-emergency', 'plan-a', 'section-emergency'), name: 'Plan A' },
+            { ...attachment('attach-inpatient', 'plan-a', 'section-inpatient'), name: 'Plan A' },
+          ],
+          items: [
+            sectionItem('section-emergency', { 'plan-a': 50 }),
+            sectionItem('section-inpatient', { 'plan-a': 25 }),
+          ],
+        } as any;
+
+        expect(
+          getFormattedCoverageAmountPerInsurancePlanForInvoice(withInsurancePlanItems(invoice)),
+        ).toEqual([{ id: 'plan-a', name: 'Plan A', code: undefined, totalCoverage: '-75.00' }]);
+      });
+    });
 
     describe('getDistinctInsurancePlans', () => {
       it('names a plan covering two sections once', () => {

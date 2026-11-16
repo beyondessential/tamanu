@@ -74,10 +74,9 @@ const asAttachment = (
  * The invoice's plans as attachments: one entry per attachment, each carrying the section it
  * covers. A plan attached to two sections is two entries, which is the grain coverage is keyed at.
  *
- * An invoice loaded for pricing carries the attachment rows themselves, since loading through the
- * plans keys them by the plan and drops one of the two sections. The nested form is still read for
- * an invoice loaded that way; a section left nested reads as covering the whole invoice, which
- * overstates what every sectioned plan owes.
+ * An invoice loaded from the database carries the attachment rows, which is the only association
+ * onto them. An invoice built in code carries its plans directly and they cover the whole of it,
+ * which is what an invoice meant before sections and what the pricing tests build.
  */
 export const withInsuranceAttachments = (invoice: Invoice): Invoice => {
   const attachments = (invoice as Record<string, any>).insurancePlanAttachments;
@@ -293,8 +292,24 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = (
   name: string | undefined;
   code: string | undefined;
   totalCoverage: string | undefined;
-}> =>
-  calculateInvoice(invoice).coverageByPlan.map(planCoverage => ({
-    ...planCoverage,
-    totalCoverage: formatDisplayPrice(new Decimal(planCoverage.totalCoverage).negated().toNumber()),
+}> => {
+  // Coverage is keyed per attachment, so a plan covering two sections carries a total for each.
+  // One line per payer here: this names who is covering the invoice, not which part they cover.
+  const totalByPlan = new Map<string, { name?: string; code?: string; total: Decimal }>();
+  for (const planCoverage of calculateInvoice(invoice).coverageByPlan) {
+    const payer = totalByPlan.get(planCoverage.id) ?? {
+      name: planCoverage.name,
+      code: planCoverage.code,
+      total: new Decimal(0),
+    };
+    payer.total = payer.total.plus(planCoverage.totalCoverage);
+    totalByPlan.set(planCoverage.id, payer);
+  }
+
+  return [...totalByPlan].map(([id, { name, code, total }]) => ({
+    id,
+    name,
+    code,
+    totalCoverage: formatDisplayPrice(total.negated().toNumber()),
   }));
+};

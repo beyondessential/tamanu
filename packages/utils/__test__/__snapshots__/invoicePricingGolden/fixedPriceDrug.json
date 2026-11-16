@@ -33,7 +33,6 @@
       "id": "plan-a",
       "name": "Plan A",
       "code": "PA",
-      "invoiceSectionId": null,
       "totalCoverage": "-15.00"
     }
   ],

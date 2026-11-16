@@ -31,8 +31,12 @@ export const invoiceForPricing = invoiceRecord => {
     };
   });
 
-  // Convert to plain object to avoid circular references
-  const plainInvoice = invoiceRecord.get?.({ plain: true }) ?? invoiceRecord;
+  // Convert to plain object to avoid circular references. The attachment rows are dropped: the
+  // flattened plans below are the same truth, and carrying both doubles the plan payload and
+  // leaves a client to choose between two shapes of it.
+  // eslint-disable-next-line no-unused-vars
+  const { insurancePlanAttachments, ...plainInvoice } =
+    invoiceRecord.get?.({ plain: true }) ?? invoiceRecord;
   return {
     ...plainInvoice,
     insurancePlans,

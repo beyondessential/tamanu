@@ -103,20 +103,10 @@ export class Invoice extends Model {
       as: 'discount',
     });
 
-    this.hasMany(models.InvoicesInvoiceInsurancePlan, {
-      foreignKey: 'invoiceId',
-      as: 'invoiceInsurancePlans',
-    });
-
-    this.belongsToMany(models.InvoiceInsurancePlan, {
-      through: models.InvoicesInvoiceInsurancePlan,
-      foreignKey: 'invoiceId',
-      otherKey: 'invoiceInsurancePlanId',
-      as: 'insurancePlans',
-    });
-
-    // The attachments themselves, which pricing reads. `insurancePlans` above is keyed by the
-    // plan, so a plan attached to two sections loads once and one of the two sections is lost.
+    // The one association onto the attachment table. Reaching the plans through a belongsToMany
+    // keys them by the plan, so an invoice holding one plan against two sections loads it once
+    // and the second section's coverage goes missing; there is deliberately no such association
+    // to reach for.
     this.hasMany(models.InvoicesInvoiceInsurancePlan, {
       foreignKey: 'invoiceId',
       as: 'insurancePlanAttachments',

@@ -72,11 +72,17 @@ invoiceRoute.get(
     req.checkPermission('read', 'Invoice');
 
     const { encounterId, productId } = req.query;
-    // A query parameter repeated in the URL arrives as an array, which would reach the where
-    // clause as one; the last value wins, as it does for the rest of the query.
-    const invoiceSectionId = Array.isArray(req.query.invoiceSectionId)
-      ? req.query.invoiceSectionId.at(-1)
-      : req.query.invoiceSectionId;
+    // Express parses a repeated parameter into an array and a bracketed one into an object, and
+    // either would reach the where clause as it stands; this refuses both rather than letting
+    // Sequelize fail on them. Not .uuid(): provisioned section ids are codes.
+    const { data: invoiceSectionId, error: sectionError } = z
+      .string()
+      .min(1)
+      .nullish()
+      .safeParse(req.query.invoiceSectionId);
+    if (sectionError) {
+      throw new ValidationError(sectionError.message);
+    }
 
     if (!encounterId || !productId) {
       throw new ValidationError('encounterId and productId are required');

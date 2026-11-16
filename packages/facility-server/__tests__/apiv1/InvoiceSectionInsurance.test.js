@@ -232,6 +232,24 @@ describe('Insurance across invoice sections', () => {
       expect(result.body.map(entry => entry.id)).toEqual([otherPlan.id]);
     });
 
+    it('refuses a section id repeated or bracketed in the query string', async () => {
+      const { encounter, invoice } = await createInvoice();
+      await attach(invoice.id, plan, emergencySection.id);
+
+      const repeated = await app.get(
+        `/api/invoices/insurance-plan-items?encounterId=${encounter.id}` +
+          `&productId=${insurableProduct.id}` +
+          `&invoiceSectionId=${emergencySection.id}&invoiceSectionId=${inpatientSection.id}`,
+      );
+      expect(repeated).toHaveRequestError();
+
+      const bracketed = await app.get(
+        `/api/invoices/insurance-plan-items?encounterId=${encounter.id}` +
+          `&productId=${insurableProduct.id}&invoiceSectionId[x]=1`,
+      );
+      expect(bracketed).toHaveRequestError();
+    });
+
     it('names a plan reaching the row through two attachments once', async () => {
       const { encounter, invoice } = await createInvoice();
       await attach(invoice.id, plan, emergencySection.id);
