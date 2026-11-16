@@ -189,8 +189,6 @@ outstanding shots across all Tamanu documentation are found by one search.
   shot of a dialog or form window is that window alone; a settings shot is the settings editor
   without the sidebar
 - **Capture at twice screen resolution**, so text stays sharp when shown smaller
-- **No border is drawn around the image.** The Tamanu Knowledge Base frames images itself, so a
-  drawn-in border would double it
 - **Outline in red the action buttons the reader should find**, drawn into the image with clear
   space between the outline and the image's edge. Which buttons are outlined is the author's call,
   so ask

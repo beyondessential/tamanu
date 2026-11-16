@@ -79,8 +79,6 @@ shots everywhere are found by one search.
 - **Crop to the part of the screen the step is about**, so the words it names are readable. A shot of a
   dialog or form window is that window alone
 - **Capture at twice screen resolution**, so text stays sharp when shown smaller
-- **No border is drawn around the image.** The Tamanu Knowledge Base frames images itself, so a
-  drawn-in border would double it
 - **Outline in red the control the step asks the reader to select**, drawn into the image with
   clear space between the outline and the image's edge. Which controls are outlined is the
   author's call, so ask

@@ -4,7 +4,7 @@ The user and configuration guide format docs no longer call for a black border a
 
 ## The rule
 
-- [x] User guide format doc: no border, outlines keep clear space from the image edge
+- [x] User guide format doc: drop the border point, and outlines keep clear space from the image edge
 - [x] Configuration guide format doc: the same
 - [x] Configuration guide skill's capture step: drop the black border
 

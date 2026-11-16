@@ -3,7 +3,7 @@
 ## Rule
 
 - [ ] Neither format doc nor either guide skill calls for a border around a screenshot
-- [ ] Both format docs say why no border is drawn, and still call for red outlines with clear space from the image edge
+- [ ] Both format docs still call for red outlines, with clear space from the image edge
 
 ## Trimmed images
 
