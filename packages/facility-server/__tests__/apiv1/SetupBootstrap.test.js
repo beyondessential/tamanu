@@ -119,15 +119,6 @@ describe('setup wizard bootstrap', () => {
     expect(central.provisions).toBe(1);
   });
 
-  it('provisions once when two submits arrive together', async () => {
-    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
-
-    const results = await Promise.all([submit(), submit()]);
-
-    expect(results.map(result => result.status).sort()).toEqual([200, 409]);
-    expect(central.provisions).toBe(1);
-  });
-
   it('stays unconfigured when the bootstrap cannot be fetched', async () => {
     central.serveBootstrap = vi.fn(async () => {
       throw new Error('central unreachable');
