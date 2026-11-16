@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { BaseModal } from '@tamanu/ui-components';
 
 import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
 import { InvoicePatientDetailsModal } from './InvoicePatientDetailsModal';
 import { usePatientAvailableInsurancePlansQuery } from '../../api/queries';
 import { useInvoicePatientDetailsAccess } from './useInvoicePatientDetailsAccess';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { notifyError } from '../../utils';
 import { TranslatedText } from '../../components/Translation';
 
@@ -43,43 +45,39 @@ export const InsurancePlanFlow = ({
   const { canRecordPlanOnPatient, isPatientDetailsEditable } =
     useInvoicePatientDetailsAccess(invoice);
   const [step, setStep] = useState(null);
+  const [wasOpen, setWasOpen] = useState(open);
 
   const {
     data: availablePlans,
     isError: hasPlansError,
+    isFetching: isFetchingPlans,
     refetch: refetchAvailablePlans,
   } = usePatientAvailableInsurancePlansQuery({
     patientId: invoice?.encounter?.patientId,
     enabled: open,
   });
 
-  // The entry point decides the first window, once, as the flow opens.
-  useEffect(() => {
-    if (!open) {
-      setStep(null);
-      return;
-    }
+  // The flow starts at its first window each time it opens, rather than wherever it last left off.
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (!open) setStep(null);
+  }
 
-    // The Insurance plan action always opens the picker, so it need not wait on the plans.
-    if (entry === INSURANCE_PLAN_ENTRY.PICKER) {
-      setStep(currentStep => currentStep ?? STEPS.PICKER);
-      return;
-    }
-
-    // Add insurance plan routes on what the patient already has, so the answer has to be in
-    // before the first window is chosen: an unresolved query reads the same as no plans, and
-    // would send a patient who has one to the details form instead of the picker. A failed
-    // query falls back to the picker, which asks again itself.
-    if (availablePlans === undefined && !hasPlansError) return;
-
+  // Add insurance plan routes on what the patient already has, so the answer has to be in before
+  // the first window is chosen, and it has to be current: react-query serves a cached answer while
+  // a refetch is in flight, and a patient may have gained a plan since it was cached. The
+  // Insurance plan action always opens the picker, so it waits on nothing.
+  const plansAnswered = hasPlansError || (availablePlans !== undefined && !isFetchingPlans);
+  const chooseFirstStep = () => {
+    if (entry === INSURANCE_PLAN_ENTRY.PICKER) return STEPS.PICKER;
+    if (!plansAnswered) return null;
+    // A failed query falls back to the picker, which reports the failure itself.
     const hasPlanAtThisFacility = Boolean(availablePlans?.length) || hasPlansError;
-    setStep(currentStep => {
-      if (currentStep) return currentStep;
-      return !hasPlanAtThisFacility && canRecordPlanOnPatient
-        ? STEPS.PATIENT_DETAILS
-        : STEPS.PICKER;
-    });
-  }, [open, entry, availablePlans, hasPlansError, canRecordPlanOnPatient]);
+    return !hasPlanAtThisFacility && canRecordPlanOnPatient
+      ? STEPS.PATIENT_DETAILS
+      : STEPS.PICKER;
+  };
+  const currentStep = step ?? chooseFirstStep();
 
   // Read the plans back rather than the render's copy: the save that just landed is what may have
   // added one, so the question being asked is whether it did.
@@ -89,7 +87,7 @@ export const InsurancePlanFlow = ({
       ({ data: plans } = await refetchAvailablePlans());
     } catch (error) {
       // The plan may well have saved, so end on the picker rather than on the invoice: it asks the
-      // server again itself, and shows its own empty state if there is still nothing to choose.
+      // server again itself, and says so in its own right if it cannot get an answer either.
       notifyError(
         <TranslatedText
           stringId="invoice.error.insurancePlansUnavailable"
@@ -107,9 +105,21 @@ export const InsurancePlanFlow = ({
     onClose();
   };
 
+  if (!open) return null;
+
+  // Which window opens is not known until the patient's plans are in, and the window the user came
+  // from has already closed, so stand in for it rather than leaving them looking at the invoice.
+  if (!currentStep) {
+    return (
+      <BaseModal open width="sm" onClose={onClose}>
+        <LoadingIndicator />
+      </BaseModal>
+    );
+  }
+
   return (
     <>
-      {step === STEPS.PICKER && (
+      {currentStep === STEPS.PICKER && (
         <InvoiceInsuranceModal
           open
           invoice={invoice}
@@ -118,7 +128,7 @@ export const InsurancePlanFlow = ({
           onAddToPatient={canRecordPlanOnPatient ? () => setStep(STEPS.PATIENT_DETAILS) : undefined}
         />
       )}
-      {step === STEPS.PATIENT_DETAILS && (
+      {currentStep === STEPS.PATIENT_DETAILS && (
         <InvoicePatientDetailsModal
           open
           patientId={invoice?.encounter?.patientId}
