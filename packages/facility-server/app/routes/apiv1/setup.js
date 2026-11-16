@@ -202,10 +202,7 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   let alreadyConfigured = false;
   await req.db.transaction(async () => {
     await req.db.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:facility-setup'));`);
-    // Re-check via the sync email — written only by a completed wizard run, unlike
-    // syncHost/facilityIds which the boot integrity check can drift-stamp. Keeps this
-    // consistent with the isServerConfigured() gate above (a lone syncHost ≠ configured).
-    if (await LocalSystemFact.get(FACT_SYNC_EMAIL)) {
+    if (await isSetUpInDatabase(req.models)) {
       alreadyConfigured = true;
       return;
     }

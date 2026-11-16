@@ -170,7 +170,7 @@ describe('serverConfig', () => {
       expect(await setUp({ [FACT_SYNC_EMAIL]: 'admin@x.io' })).toBe(false);
     });
 
-    it('is false when the database cannot be read', async () => {
+    it('rejects when the database cannot be read', async () => {
       const models = {
         LocalSystemFact: {
           get: async () => {
@@ -178,7 +178,7 @@ describe('serverConfig', () => {
           },
         },
       };
-      expect(await isSetUpInDatabase(models)).toBe(false);
+      await expect(isSetUpInDatabase(models)).rejects.toThrow('connection refused');
     });
   });
 });

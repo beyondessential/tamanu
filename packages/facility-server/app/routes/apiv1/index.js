@@ -116,7 +116,9 @@ export function createApiv1({ authLimiter } = {}) {
       // web app already makes rather than a separate endpoint/request.
       return res.send({
         ok: 'ok',
-        setupRequired: !isServerConfigured() && !(await isSetUpInDatabase(req.models)),
+        // The alive check answers without the database, so a failed read reports not set up.
+        setupRequired:
+          !isServerConfigured() && !(await isSetUpInDatabase(req.models).catch(() => false)),
         isSettingUp: await isSettingUp(req.models),
       });
     }),

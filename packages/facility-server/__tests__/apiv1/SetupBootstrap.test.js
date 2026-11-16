@@ -119,6 +119,15 @@ describe('setup wizard bootstrap', () => {
     expect(central.provisions).toBe(1);
   });
 
+  it('completes on a server holding a sync email but no facilities', async () => {
+    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
+    await models.LocalSystemFact.set(FACT_SYNC_EMAIL, 'legacy-admin@example.com');
+
+    expect(await submit()).toHaveSucceeded();
+
+    expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBe('sync.minted@sync.tamanu');
+  });
+
   it('stops asking for setup once another process has configured the server', async () => {
     central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
     const setupRequired = async () => (await baseApp.get('/api/public/ping')).body.setupRequired;
