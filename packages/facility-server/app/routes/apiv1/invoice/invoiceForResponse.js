@@ -10,6 +10,9 @@ import {
  */
 export const invoiceForPricing = invoiceRecord => {
   const { insurancePlans } = withInsuranceAttachments({
+    insurancePlanAttachments: invoiceRecord.insurancePlanAttachments?.map(
+      attachment => attachment.get?.({ plain: true }) ?? attachment,
+    ),
     insurancePlans: (invoiceRecord.insurancePlans ?? []).map(
       plan => plan.get?.({ plain: true }) ?? plan,
     ),

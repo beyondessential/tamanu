@@ -115,6 +115,13 @@ export class Invoice extends Model {
       as: 'insurancePlans',
     });
 
+    // The attachments themselves, which pricing reads. `insurancePlans` above is keyed by the
+    // plan, so a plan attached to two sections loads once and one of the two sections is lost.
+    this.hasMany(models.InvoicesInvoiceInsurancePlan, {
+      foreignKey: 'invoiceId',
+      as: 'insurancePlanAttachments',
+    });
+
     this.hasMany(models.InvoiceItem, {
       foreignKey: 'invoiceId',
       as: 'items',
@@ -176,8 +183,10 @@ export class Invoice extends Model {
           : {}),
       },
       {
-        model: models.InvoiceInsurancePlan,
-        as: 'insurancePlans',
+        model: models.InvoicesInvoiceInsurancePlan,
+        as: 'insurancePlanAttachments',
+        required: false,
+        include: [{ model: models.InvoiceInsurancePlan, as: 'invoiceInsurancePlan' }],
       },
     ];
   }

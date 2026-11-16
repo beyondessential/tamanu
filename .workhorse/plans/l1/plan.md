@@ -136,8 +136,8 @@ it has to be frozen, so nothing new is stored per item.
 
 ### Insurance tests
 
-- [ ] Endpoint: a plan attached to one section covers only that section's items, and an invoice-wide plan (null section) still covers everything
-- [ ] Endpoint: the same plan attached to two sections yields a separate coverage total and balance for each
+- [x] Endpoint: a plan attached to one section covers only that section's items, and an invoice-wide plan (null section) still covers everything, through the invoice the web reads and through what the patient is held to
+- [x] Endpoint: the same plan attached to two sections yields a separate coverage total for each. These caught the invoice loading its plans through `belongsToMany`, which keys them by the plan and so dropped one of the two sections; it loads the attachment rows now
 - [x] Endpoint: a plan is attached against the section named, two sections carry the same plan as two attachments, reconciling one section leaves the others alone, attaching the same plan to the same section twice is a no-op rather than a duplicate, and a plan cannot cover both a section and the whole invoice
 - [x] Unit: coverage for an item whose section no plan covers is zero, and uncategorised items are covered only by an invoice-wide plan
 - [x] Unit: a plan attached to two sections carries a separate balance for each, and a payment against one section leaves the other's balance alone

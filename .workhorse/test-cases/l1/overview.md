@@ -76,8 +76,9 @@ fault. Every case assumes invoicing is on.
 - [x] A section that is not currently configured is refused (verifies spec: INVGRP)
 - [x] The window opened from a section starts on that section's plans, and the one opened from an invoice with no sections starts on the invoice's (verifies spec: INVGRP)
 - [ ] A split invoice offers no invoice-level Insurance plan action, and an invoice with no sections still does (verifies spec: INVGRP)
-- [ ] An item's coverage line names only the plans covering its own section (verifies spec: INVGRP)
-- [ ] The summary panel's Insurance coverage is the sum across every section (verifies spec: INVGRP)
+- [x] An item's coverage line names only the plans covering its own section (verifies spec: INVGRP)
+- [x] The summary panel's Insurance coverage is the sum across every section (verifies spec: INVGRP)
+- [x] The patient is held to the whole of an uncovered section plus their share of a covered one (verifies spec: INVGRP)
 
 ## Adding and editing items
 

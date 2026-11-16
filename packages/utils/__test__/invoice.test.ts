@@ -17,6 +17,7 @@ import {
   getInvoiceDiscountReason,
   getInsurancePlanPaymentBalance,
   withInsurancePlanItems,
+  withInsuranceAttachments,
   getInvoicePrintTotalsDisplay,
 } from '../src';
 
@@ -966,6 +967,66 @@ describe('Invoice Utils', () => {
       (
         getCoverageAmountPerInsurancePlan(withInsurancePlanItems(invoice)).get(key) as any
       ).toNumber();
+
+    describe('withInsuranceAttachments', () => {
+      it('reads the attachment rows an invoice loaded for pricing carries', () => {
+        const invoice = {
+          insurancePlanAttachments: [
+            {
+              id: 'attach-emergency',
+              invoiceSectionId: 'section-emergency',
+              invoiceInsurancePlan: { id: 'plan-a', name: 'Plan A' },
+            },
+            {
+              id: 'attach-inpatient',
+              invoiceSectionId: null,
+              invoiceInsurancePlan: { id: 'plan-a', name: 'Plan A' },
+            },
+          ],
+        } as any;
+
+        expect(withInsuranceAttachments(invoice).insurancePlans).toEqual([
+          {
+            id: 'plan-a',
+            name: 'Plan A',
+            attachmentId: 'attach-emergency',
+            invoiceSectionId: 'section-emergency',
+          },
+          {
+            id: 'plan-a',
+            name: 'Plan A',
+            attachmentId: 'attach-inpatient',
+            invoiceSectionId: null,
+          },
+        ]);
+      });
+
+      it('lifts the section out of a plan carrying its attachment nested', () => {
+        const invoice = {
+          insurancePlans: [
+            {
+              id: 'plan-a',
+              InvoicesInvoiceInsurancePlan: {
+                id: 'attach-emergency',
+                invoiceSectionId: 'section-emergency',
+              },
+            },
+          ],
+        } as any;
+
+        expect(withInsuranceAttachments(invoice).insurancePlans).toEqual([
+          {
+            id: 'plan-a',
+            InvoicesInvoiceInsurancePlan: {
+              id: 'attach-emergency',
+              invoiceSectionId: 'section-emergency',
+            },
+            attachmentId: 'attach-emergency',
+            invoiceSectionId: 'section-emergency',
+          },
+        ]);
+      });
+    });
 
     it('covers only its own section, for a plan attached to one', () => {
       const invoice = {

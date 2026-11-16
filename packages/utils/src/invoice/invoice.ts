@@ -60,26 +60,43 @@ export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): De
 // Sequelize nests the attachment row under the through model's name
 const ATTACHMENT_KEY = 'InvoicesInvoiceInsurancePlan';
 
+const asAttachment = (
+  attachment: Record<string, any>,
+  plan: Record<string, any>,
+): InsurancePlan => ({
+  ...plan,
+  attachmentId: attachment.id,
+  invoiceSectionId: attachment.invoiceSectionId ?? null,
+});
+
 /**
  * The invoice's plans as attachments: one entry per attachment, each carrying the section it
- * covers. A plan attached to two sections arrives twice, which is the grain coverage is keyed at.
+ * covers. A plan attached to two sections is two entries, which is the grain coverage is keyed at.
  *
- * An invoice loaded from the database nests the attachment row inside each plan, so the section
- * has to be lifted out before anything prices it; one left nested reads as covering the whole
- * invoice, which overstates what every sectioned plan owes.
+ * An invoice loaded for pricing carries the attachment rows themselves, since loading through the
+ * plans keys them by the plan and drops one of the two sections. The nested form is still read for
+ * an invoice loaded that way; a section left nested reads as covering the whole invoice, which
+ * overstates what every sectioned plan owes.
  */
-export const withInsuranceAttachments = (invoice: Invoice): Invoice => ({
-  ...invoice,
-  insurancePlans: (invoice.insurancePlans || []).map(plan => {
-    const attachment = (plan as Record<string, any>)[ATTACHMENT_KEY];
-    if (!attachment) return plan;
+export const withInsuranceAttachments = (invoice: Invoice): Invoice => {
+  const attachments = (invoice as Record<string, any>).insurancePlanAttachments;
+  if (attachments) {
     return {
-      ...plan,
-      attachmentId: attachment.id,
-      invoiceSectionId: attachment.invoiceSectionId ?? null,
+      ...invoice,
+      insurancePlans: attachments.map((attachment: Record<string, any>) =>
+        asAttachment(attachment, attachment.invoiceInsurancePlan ?? {}),
+      ),
     };
-  }),
-});
+  }
+
+  return {
+    ...invoice,
+    insurancePlans: (invoice.insurancePlans || []).map(plan => {
+      const attachment = (plan as Record<string, any>)[ATTACHMENT_KEY];
+      return attachment ? asAttachment(attachment, plan) : plan;
+    }),
+  };
+};
 
 /**
  * An invoice whose items carry the plan rows the coverage functions read.
