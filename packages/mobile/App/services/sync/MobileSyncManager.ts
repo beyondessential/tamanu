@@ -1,6 +1,9 @@
+import NetInfo from '@react-native-community/netinfo';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
+
+import { RemoteUnreachableError } from '@tamanu/errors';
 
 import { SETTING_KEYS } from '~/constants/settings';
 import { Database } from '../../infra/db';
@@ -8,7 +11,12 @@ import type { MODELS_MAP } from '../../models/modelsMap';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import type { SettingsService } from '../settings';
 import type { CentralServerConnection } from './CentralServerConnection';
-import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
+import {
+  CURRENT_SYNC_TIME,
+  DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS,
+  LAST_SUCCESSFUL_PULL,
+  LAST_SUCCESSFUL_PUSH,
+} from './constants';
 import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
@@ -54,6 +62,7 @@ export interface MobileSyncSettings {
   maxRecordsPerUpdateBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
+  maxUnreachableDuration: number;
 }
 
 export interface PullParams {
@@ -208,7 +217,8 @@ export class MobileSyncManager {
       if (this.isSyncing) {
         this.syncStage = null;
         this.isSyncing = false;
-        this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
+        this.isQueuing = false;
+        this.setProgress(0, ''); // also emits SYNC_STATE_CHANGED
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
         if (this.urgentSyncInterval) {
           clearInterval(this.urgentSyncInterval);
@@ -216,6 +226,21 @@ export class MobileSyncManager {
         }
         console.log(`Sync took ${Date.now() - startTime} ms`);
       }
+    }
+  }
+
+  /**
+   * Only an optimisation, so it errs towards letting the sync try: a reading that is unknown or
+   * can't be taken doesn't count as offline.
+   */
+  private async isOffline(): Promise<boolean> {
+    try {
+      // refresh rather than fetch: the cached state can be stale just after the app is foregrounded
+      const { isConnected } = await NetInfo.refresh();
+      return isConnected === false;
+    } catch (error) {
+      console.warn('MobileSyncManager.isOffline(): Couldn’t read network state', error);
+      return false;
     }
   }
 
@@ -246,14 +271,21 @@ export class MobileSyncManager {
       ? STAGE_MAX_PROGRESS_INITIAL
       : STAGE_MAX_PROGRESS_INCREMENTAL;
 
+    // the setting is missing when the central server is older than this app
+    this.centralServer.maxUnreachableDurationMs =
+      this.syncSettings.maxUnreachableDuration ?? DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS;
+
+    // there's no point opening a session if we already know the device is offline. Checked last,
+    // since the maintenance wait above can be long enough for the connection to change
+    if (await this.isOffline()) {
+      throw new RemoteUnreachableError('Currently offline');
+    }
+
     const {
       sessionId,
       startedAtTick: newSyncClockTime,
       status,
-    } = await this.centralServer.startSyncSession({
-      urgent,
-      lastSyncedTick: pullSince,
-    });
+    } = await this.centralServer.startSyncSession({ urgent, lastSyncedTick: pullSince });
 
     if (!sessionId) {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);

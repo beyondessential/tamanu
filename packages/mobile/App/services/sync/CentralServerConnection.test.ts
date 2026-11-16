@@ -8,7 +8,8 @@ import {
 import { CentralServerConnection } from './CentralServerConnection';
 import axios from 'axios';
 import { sleepAsync } from './utils';
-import { ERROR_TYPE } from '@tamanu/errors';
+import { DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS } from './constants';
+import { ERROR_TYPE, Problem, RemoteUnreachableError } from '@tamanu/errors';
 
 jest.mock('~/infra/db', () => ({
   Database: {
@@ -20,6 +21,11 @@ jest.mock('~/infra/db', () => ({
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
+  sleepAsync: jest.fn(),
+}));
+
+// callWithBackoff imports sleepAsync directly, so the mock of ./utils above doesn't reach it
+jest.mock('./utils/sleepAsync', () => ({
   sleepAsync: jest.fn(),
 }));
 
@@ -38,6 +44,13 @@ const mockSleepAsync = sleepAsync as jest.MockedFunction<any>;
 
 const mockSessionId = 'test-session-id';
 const mockHost = 'http://test-host';
+
+const retryThroughNetworkDrops = {
+  backoff: { maxRetryDurationMs: DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS },
+};
+
+// the shape of the error axios rejects with when the connection drops before a response arrives
+const networkError = () => ({ code: 'ERR_NETWORK', message: 'Network Error' });
 
 const getHeadersWithToken = (token: string): any => ({
   Authorization: `Bearer ${token}`,
@@ -62,9 +75,13 @@ describe('CentralServerConnection', () => {
 
   describe('endSyncSession', () => {
     it('should call delete with correct parameters', async () => {
-      const deleteSpy = jest.spyOn(centralServerConnection, 'delete').mockResolvedValue(null);
+      const fetchSpy = jest.spyOn(centralServerConnection, 'fetch').mockResolvedValue(null);
       await centralServerConnection.endSyncSession(mockSessionId);
-      expect(deleteSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), {});
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.stringContaining(mockSessionId),
+        {},
+        { method: 'DELETE', ...retryThroughNetworkDrops },
+      );
     });
   });
   describe('startSyncSession', () => {
@@ -84,8 +101,21 @@ describe('CentralServerConnection', () => {
       });
       expect(postSpy).toHaveBeenCalled();
       expect(pollUntilTrueSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId));
-      expect(getSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), {});
+      expect(getSpy).toHaveBeenCalledWith(
+        expect.stringContaining(mockSessionId),
+        {},
+        retryThroughNetworkDrops,
+      );
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
+    });
+
+    it('retries starting the session a few times when the connection drops, then gives up', async () => {
+      mockAxiosRequest.mockRejectedValue(networkError());
+
+      await expect(
+        centralServerConnection.startSyncSession({ urgent: false, lastSyncedTick: -1 }),
+      ).rejects.toBeInstanceOf(RemoteUnreachableError);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(3);
     });
   });
   describe('initiatePull', () => {
@@ -100,6 +130,15 @@ describe('CentralServerConnection', () => {
 
       expect(metadata).toEqual({ totalToPull: 0, pullUntil: 999 });
     });
+
+    it('does not retry initiating the pull when the connection drops', async () => {
+      mockAxiosRequest.mockRejectedValueOnce(networkError());
+
+      await expect(
+        centralServerConnection.initiatePull(mockSessionId, 100, [], []),
+      ).rejects.toBeInstanceOf(RemoteUnreachableError);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('pull', () => {
@@ -112,8 +151,35 @@ describe('CentralServerConnection', () => {
           fromId: 'test-from-id',
           limit: 1,
         },
-        { timeout: expect.any(Number) },
+        { timeout: expect.any(Number), ...retryThroughNetworkDrops },
       );
+    });
+
+    it('retries for as long as the network retry budget set on the connection', async () => {
+      const getSpy = jest.spyOn(centralServerConnection, 'get').mockResolvedValue(null);
+      centralServerConnection.maxUnreachableDurationMs = 30_000;
+      await centralServerConnection.pull(mockSessionId, 1, 'test-from-id');
+      expect(getSpy).toHaveBeenCalledWith(
+        expect.stringContaining(mockSessionId),
+        expect.anything(),
+        {
+          timeout: expect.any(Number),
+          backoff: { maxRetryDurationMs: 30_000 },
+        },
+      );
+    });
+
+    it('retries the page when the connection drops', async () => {
+      const mockRecords = [{ id: 'test-record-id' }];
+      mockAxiosRequest
+        .mockRejectedValueOnce(networkError())
+        .mockRejectedValueOnce(networkError())
+        .mockResolvedValueOnce({ data: mockRecords });
+
+      const records = await centralServerConnection.pull(mockSessionId, 1, 'test-from-id');
+
+      expect(records).toEqual(mockRecords);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(3);
     });
   });
   describe('push', () => {
@@ -134,7 +200,7 @@ describe('CentralServerConnection', () => {
         {
           changes: mockChanges,
         },
-        { compress: true },
+        { compress: true, ...retryThroughNetworkDrops },
       );
     });
 
@@ -413,7 +479,7 @@ describe('CentralServerConnection', () => {
         {},
         {
           skipAttemptRefresh: true,
-          backoff: undefined,
+          backoff: { maxAttempts: 3 },
           body: undefined,
           headers: undefined,
           method: 'GET',
@@ -454,25 +520,104 @@ describe('CentralServerConnection', () => {
     });
 
     describe('when the failure is not a Problem', () => {
-      it('describes a failure with no response using the axios message', async () => {
-        mockAxiosRequest.mockRejectedValueOnce({ message: 'Network Error', code: 'ERR_NETWORK' });
+      it('treats a dropped connection as the central server being unreachable', async () => {
+        mockAxiosRequest.mockRejectedValue(networkError());
+        await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toBeInstanceOf(
+          RemoteUnreachableError,
+        );
+      });
+
+      it('describes a dropped connection using the axios message', async () => {
+        mockAxiosRequest.mockRejectedValue(networkError());
         await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
-          type: ERROR_TYPE.UNKNOWN,
-          title: 'Network Error',
+          type: ERROR_TYPE.REMOTE_UNREACHABLE,
+          detail: 'Network Error',
         });
       });
 
-      it('keeps the status of a response whose body is not Problem JSON', async () => {
-        mockAxiosRequest.mockRejectedValueOnce({
+      it('treats a gateway error page as the central server being unreachable', async () => {
+        mockAxiosRequest.mockRejectedValue({
           message: 'Request failed with status code 502',
           code: 'ERR_BAD_RESPONSE',
           response: { status: 502, data: '<html><body>Bad Gateway</body></html>' },
         });
+        await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toBeInstanceOf(
+          RemoteUnreachableError,
+        );
+      });
+
+      it('keeps the status of a response whose body is not Problem JSON', async () => {
+        mockAxiosRequest.mockRejectedValueOnce({
+          message: 'Request failed with status code 500',
+          code: 'ERR_BAD_RESPONSE',
+          response: { status: 500, data: '<html><body>Internal Server Error</body></html>' },
+        });
         await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
-          title: 'Request failed with status code 502',
-          status: 502,
+          type: ERROR_TYPE.UNKNOWN,
+          title: 'Request failed with status code 500',
+          status: 500,
         });
       });
+    });
+
+    it('passes through an error response from the central server', async () => {
+      mockAxiosRequest.mockRejectedValueOnce({
+        response: {
+          status: 404,
+          data: { status: 404, type: ERROR_TYPE.NOT_FOUND, title: 'Not found' },
+        },
+      });
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toBeInstanceOf(
+        Problem,
+      );
+    });
+
+    it('retries a GET a few times by default when the connection drops, then gives up', async () => {
+      mockAxiosRequest.mockRejectedValue(networkError());
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toBeInstanceOf(
+        RemoteUnreachableError,
+      );
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(3);
+    });
+
+    it('does not retry a GET whose caller asks for a single attempt', async () => {
+      mockAxiosRequest.mockRejectedValue(networkError());
+      await expect(
+        centralServerConnection.fetch('test-path', {}, { backoff: { maxAttempts: 1 } }),
+      ).rejects.toBeInstanceOf(RemoteUnreachableError);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not retry a POST by default when the connection drops', async () => {
+      mockAxiosRequest.mockRejectedValue(networkError());
+      await expect(
+        centralServerConnection.fetch('test-path', {}, { method: 'POST' }),
+      ).rejects.toBeInstanceOf(RemoteUnreachableError);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not treat a request that was never sent as the central server being unreachable', async () => {
+      const cancellation = { code: 'ERR_CANCELED', message: 'canceled' };
+      mockAxiosRequest.mockRejectedValueOnce(cancellation);
+      await expect(
+        centralServerConnection.fetch(
+          'test-path',
+          {},
+          { backoff: retryThroughNetworkDrops.backoff },
+        ),
+      ).rejects.toBe(cancellation);
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it('tells the caller as each attempt starts', async () => {
+      const onAttempt = jest.fn();
+      mockAxiosRequest.mockRejectedValueOnce(networkError()).mockResolvedValueOnce({ data: {} });
+      await centralServerConnection.fetch(
+        'test-path',
+        {},
+        { backoff: retryThroughNetworkDrops.backoff, onAttempt },
+      );
+      expect(onAttempt).toHaveBeenCalledTimes(2);
     });
   });
 });

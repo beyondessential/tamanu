@@ -1,4 +1,5 @@
 import { calculatePageLimit } from './calculatePageLimit';
+import { timeSuccessfulAttempt } from './timeSuccessfulAttempt';
 import { SYNC_SESSION_DIRECTION } from '../constants';
 import type { PullParams } from '../MobileSyncManager';
 import type { SyncRecord } from '../types';
@@ -13,14 +14,15 @@ export const pullRecordsInBatches = async (
     return;
   }
 
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings ?? {};
+
   const fetchPage = async (pageLimit: number, pageFromId?: string): Promise<PulledPage> => {
-    const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, pageLimit, pageFromId);
-    const pullTime = Date.now() - startTime;
+    const { result: records, durationMs: pullTime } = await timeSuccessfulAttempt(onAttempt =>
+      centralServer.pull(sessionId, pageLimit, pageFromId, onAttempt),
+    );
     return { records, pullTime };
   };
 
-  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings ?? {};
   let limit = calculatePageLimit(dynamicLimiterSettings);
   let totalPulled = 0;
   let current = await fetchPage(limit);

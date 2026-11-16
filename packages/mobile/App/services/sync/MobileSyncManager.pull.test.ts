@@ -99,6 +99,7 @@ const makeSettings = (overrides: Partial<MobileSyncSettings> = {}) => ({
         maxLimitChangePerPage: 0.3,
         optimalTimePerPage: 500,
       },
+      maxUnreachableDuration: 600_000,
       ...overrides,
     } as MobileSyncSettings;
   }),

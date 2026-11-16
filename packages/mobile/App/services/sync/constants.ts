@@ -9,3 +9,6 @@ export type SYNC_SESSION_DIRECTION =
 export const CURRENT_SYNC_TIME = 'currentSyncTick';
 export const LAST_SUCCESSFUL_PUSH = 'lastSuccessfulSyncPush';
 export const LAST_SUCCESSFUL_PULL = 'lastSuccessfulSyncPull';
+
+// This default is duplicated in the central settings schema mobileSync.maxUnreachableDuration
+export const DEFAULT_SYNC_MAX_UNREACHABLE_DURATION_MS = 10 * 60 * 1000;
