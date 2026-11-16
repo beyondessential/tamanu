@@ -102,7 +102,7 @@ describe('ending a sync session over HTTP', () => {
     expect(session.errors).toBeNull();
   });
 
-  it('accepts an error report, and records it again when the request is repeated', async () => {
+  it('accepts an error report, and does so again when the request is repeated', async () => {
     const sessionId = await startSyncSession();
 
     const firstResponse = await reportSyncError(sessionId, 'The sync failed on the client');
@@ -112,10 +112,7 @@ describe('ending a sync session over HTTP', () => {
     expect(repeatedResponse.status).toBe(200);
 
     const session = await models.SyncSession.findByPk(sessionId);
-    expect(session.errors).toEqual([
-      'The sync failed on the client',
-      'The sync failed on the client',
-    ]);
+    expect(session.errors).toEqual(['The sync failed on the client']);
   });
 
   it('accepts an error report on a session that ended cleanly, without recording it', async () => {

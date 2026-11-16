@@ -6,12 +6,6 @@ import { type InitOptions } from '../types/model';
 
 const MAX_STORED_ERROR_LENGTH = 5000;
 
-// error messages may embed raw binary (e.g. the body of a failed request);
-// Postgres rejects NUL bytes in TEXT columns, so sanitise before persisting
-// lest recording the error itself fail
-const sanitizeErrorForStorage = (error: string) =>
-  String(error).replaceAll('\u0000', '').slice(0, MAX_STORED_ERROR_LENGTH);
-
 export class SyncSession extends Model {
   declare id: string;
   declare startTime?: Date;
@@ -97,16 +91,15 @@ export class SyncSession extends Model {
   }
 
   async markErrored(error: string) {
+    // error messages may embed raw binary (e.g. the body of a failed request);
+    // Postgres rejects NUL bytes in TEXT columns, so sanitize before persisting
+    // lest recording the error itself fail
+    const sanitized = String(error).replaceAll('\u0000', '').slice(0, MAX_STORED_ERROR_LENGTH);
     const errors = this.errors || [];
     await this.update({
-      errors: [...errors, sanitizeErrorForStorage(error)],
+      errors: [...errors, sanitized],
       completedAt: new Date(),
     });
-  }
-
-  async recordFurtherError(error: string) {
-    const errors = this.errors || [];
-    await this.update({ errors: [...errors, sanitizeErrorForStorage(error)] });
   }
 
   static async markSessionErrored(id: string, error: string) {
