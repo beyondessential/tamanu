@@ -30,7 +30,7 @@ relevant to your deployment. Updates apply to all facilities in the deployment.
   <img
     src="images/settings-frequencies-enabled.png"
     alt="Frequencies enabled in Settings, with Save changes and Reset to default outlined in red"
-    width="712"
+    width="710"
   />
   <figcaption>Turn a frequency off, then select <b>Save changes</b>.</figcaption>
 </figure>
@@ -51,7 +51,7 @@ For each frequency, the default administration schedule and ideal administration
   <img
     src="images/settings-default-administration-times.png"
     alt="Default administration times in Settings, with Save changes and Reset to default outlined in red"
-    width="712"
+    width="710"
   />
   <figcaption>Each frequency lists its ideal times under <b>Default administration times</b>.</figcaption>
 </figure>
@@ -110,7 +110,7 @@ the prescribed medication.
   <img
     src="images/settings-medication-administration-record.png"
     alt="The medication admin record showing its 12 two-hour administration windows, with New prescription outlined in red"
-    width="531"
+    width="529"
   />
   <figcaption>The <b>Medication admin record</b> shows 12 two-hour windows.</figcaption>
 </figure>
@@ -126,7 +126,7 @@ administration time displays in a tooltip when hovering over a due dose on the M
   <img
     src="images/settings-ideal-administration-time-tooltip.png"
     alt="Tooltip on a due dose showing its ideal administration time"
-    width="531"
+    width="529"
   />
   <figcaption>Hovering over <b>Dose due</b> shows <b>Cannot record future dose. Due at 2:00pm.</b></figcaption>
 </figure>
@@ -140,7 +140,7 @@ selected frequency and can be edited if required.
   <img
     src="images/settings-administration-schedule-prescription-form.png"
     alt="The medication administration schedule in the new prescription form"
-    width="415"
+    width="413"
   />
   <figcaption>The <b>Medication administration schedule</b> fills in from the chosen frequency.</figcaption>
 </figure>

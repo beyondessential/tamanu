@@ -25,7 +25,7 @@ able to open a section you cannot see.
      <img
        src="images/use-sidebar-patients-open.png"
        alt="The sidebar with the Patients section open, listing All patients, Inpatients, Emergency patients and Outpatients, with All patients outlined in red"
-       width="162"
+       width="161"
      />
      <figcaption>Select a section, then select the page you want.</figcaption>
    </figure>
@@ -45,7 +45,7 @@ able to open a section you cannot see.
      <img
        src="images/use-sidebar-collapsed.png"
        alt="The collapsed sidebar showing only section icons, with the expand arrow outlined in red"
-       width="68"
+       width="67"
      />
      <figcaption>Select the arrow to expand the sidebar.</figcaption>
    </figure>
@@ -67,7 +67,7 @@ able to open a section you cannot see.
      <img
        src="images/use-sidebar-menu-button.png"
        alt="The bottom of the sidebar showing Dr Ruth Kaupa, Medical Officer, Tamanu Hospital and the version number, with the menu button outlined in red"
-       width="162"
+       width="161"
      />
      <figcaption>Select the menu button beside your name.</figcaption>
    </figure>

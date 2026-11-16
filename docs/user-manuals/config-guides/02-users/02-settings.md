@@ -20,7 +20,7 @@ Login lockout, idle logout, password reset and mobile device registration are co
   <img
     src="images/settings-auth-category.png"
     alt="The Auth category in Settings, with a high risk marker beside each setting"
-    width="717"
+    width="716"
   />
   <figcaption>The <b>Auth</b> settings, each marked high risk.</figcaption>
 </figure>

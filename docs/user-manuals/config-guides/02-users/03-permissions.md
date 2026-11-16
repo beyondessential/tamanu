@@ -98,7 +98,7 @@ Turning a verb off turns off only that verb.
   <img
     src="images/permissions-edit-tab.png"
     alt="The Edit tab of the Permissions screen filtered to Encounter, with each role's verb checkboxes outlined in red"
-    width="732"
+    width="731"
   />
   <figcaption>Expand a noun to tick or untick each verb for each role.</figcaption>
 </figure>
@@ -153,7 +153,7 @@ on desktop only.
   <img
     src="images/permissions-impersonate-role.png"
     alt="The Impersonate role list opened from the avatar at the foot of the sidebar"
-    width="162"
+    width="161"
   />
   <figcaption>The <b>Impersonate role</b> list.</figcaption>
 </figure>

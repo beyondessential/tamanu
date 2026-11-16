@@ -21,7 +21,7 @@ your system administrator if you believe you should see it.
      <img
        src="images/work-through-upcoming-tasks-highlight.png"
        alt="The dashboard with the Upcoming tasks pane outlined in red"
-       width="492"
+       width="491"
      />
      <figcaption><b>Upcoming tasks</b> sits below <b>Recently viewed</b> on your dashboard.</figcaption>
    </figure>
@@ -34,7 +34,7 @@ your system administrator if you believe you should see it.
      <img
        src="images/work-through-upcoming-tasks-filtered.png"
        alt="Upcoming tasks filtered to the Outpatient area and location, with Area and Location outlined in red"
-       width="477"
+       width="476"
      />
      <figcaption>Choose an <b>Area</b> and <b>Location</b> to list only those patients' tasks.</figcaption>
    </figure>
