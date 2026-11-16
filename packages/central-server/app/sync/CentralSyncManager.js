@@ -217,14 +217,6 @@ export class CentralSyncManager {
     return Boolean(session);
   }
 
-  async hasSessionEndedCleanly(sessionId) {
-    const session = await this.store.sequelize.models.SyncSession.findOne({
-      attributes: ['completedAt', 'errors'],
-      where: { id: sessionId },
-    });
-    return Boolean(session?.completedAt) && !session.errors;
-  }
-
   async connectToSession(sessionId) {
     const session = await this.store.sequelize.models.SyncSession.findOne({
       where: { id: sessionId },
@@ -263,11 +255,14 @@ export class CentralSyncManager {
   }
 
   async endSession(sessionId, error) {
-    // A client whose request got through but never saw the response will repeat it, so ending a
-    // session that has already ended cleanly succeeds without doing anything. This is checked
-    // ahead of connecting, which rejects a completed session
-    if (!error && (await this.hasSessionEndedCleanly(sessionId))) {
-      log.debug('CentralSyncManager.endSession: session already ended', { sessionId });
+    // A client whose request got through but never saw the response will ask again, or report
+    // the missing response as an error. Either succeeds without changing how the session
+    // ended. This is checked ahead of connecting, which rejects an ended session
+    const endedSession = await this.store.sequelize.models.SyncSession.findOne({
+      where: { id: sessionId, completedAt: { [Op.not]: null } },
+    });
+    if (endedSession) {
+      await this.endAlreadyEndedSession(endedSession, error);
       return;
     }
 
@@ -291,6 +286,37 @@ export class CentralSyncManager {
         deviceId: session.parameters.deviceId,
       });
     }
+  }
+
+  // A session keeps the outcome it first ended with: one that completed stays completed, and
+  // one that errored stays errored, gaining any further error reported against it
+  async endAlreadyEndedSession(session, error) {
+    const sessionId = session.id;
+    const hasErrored = Boolean(session.errors);
+
+    if (error && hasErrored) {
+      await session.recordFurtherError(error);
+      log.warn('CentralSyncManager.endSession: further error reported on errored session', {
+        sessionId,
+        error,
+      });
+      return;
+    }
+
+    if (error) {
+      log.warn('CentralSyncManager.endSession: ignoring error reported on completed session', {
+        sessionId,
+        error,
+      });
+      return;
+    }
+
+    if (hasErrored) {
+      log.warn('CentralSyncManager.endSession: ignoring end of errored session', { sessionId });
+      return;
+    }
+
+    log.debug('CentralSyncManager.endSession: session already ended', { sessionId });
   }
 
   async markSessionAsProcessing(sessionId) {

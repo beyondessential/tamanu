@@ -36,6 +36,13 @@ describe('ending a sync session over HTTP', () => {
       .set('Authorization', `Bearer ${token}`)
       .set('X-Tamanu-Client', SERVER_TYPES.MOBILE);
 
+  const reportSyncError = (sessionId, error) =>
+    baseApp
+      .post(`/api/sync/${sessionId}/error`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
+      .send({ error });
+
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
@@ -93,5 +100,44 @@ describe('ending a sync session over HTTP', () => {
     const session = await models.SyncSession.findByPk(sessionId);
     expect(session.completedAt).toBeTruthy();
     expect(session.errors).toBeNull();
+  });
+
+  it('accepts an error report, and records it again when the request is repeated', async () => {
+    const sessionId = await startSyncSession();
+
+    const firstResponse = await reportSyncError(sessionId, 'The sync failed on the client');
+    expect(firstResponse.status).toBe(200);
+
+    const repeatedResponse = await reportSyncError(sessionId, 'The sync failed on the client');
+    expect(repeatedResponse.status).toBe(200);
+
+    const session = await models.SyncSession.findByPk(sessionId);
+    expect(session.errors).toEqual([
+      'The sync failed on the client',
+      'The sync failed on the client',
+    ]);
+  });
+
+  it('accepts an error report on a session that ended cleanly, without recording it', async () => {
+    const sessionId = await startSyncSession();
+    await endSyncSession(sessionId);
+
+    const response = await reportSyncError(sessionId, 'The sync failed on the client');
+    expect(response.status).toBe(200);
+
+    const session = await models.SyncSession.findByPk(sessionId);
+    expect(session.errors).toBeNull();
+  });
+
+  it('responds with no content when ending a session that errored, leaving it errored', async () => {
+    const sessionId = await startSyncSession();
+    await reportSyncError(sessionId, 'The sync failed on the client');
+
+    const response = await endSyncSession(sessionId);
+    expect(response.status).toBe(204);
+    expect(response.text).toBe('');
+
+    const session = await models.SyncSession.findByPk(sessionId);
+    expect(session.errors).toEqual(['The sync failed on the client']);
   });
 });

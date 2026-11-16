@@ -75,26 +75,61 @@ describe('CentralSyncManager.endSession', () => {
     expect(sessionAfterSecondEnd.errors).toBeNull();
   });
 
-  it('throws an error when ending a session that already ended with an error', async () => {
+  it('adds a repeated error to a session that already ended with an error', async () => {
     const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
     await centralSyncManager.endSession(sessionId, 'The sync failed on the client');
-    await expect(centralSyncManager.endSession(sessionId)).rejects.toThrow();
+    const sessionAfterFirstReport = await models.SyncSession.findOne({ where: { id: sessionId } });
+
+    await expect(
+      centralSyncManager.endSession(sessionId, 'The sync failed on the client'),
+    ).resolves.toBeUndefined();
+    await expect(
+      centralSyncManager.endSession(sessionId, 'A second thing went wrong'),
+    ).resolves.toBeUndefined();
+    const sessionAfterLastReport = await models.SyncSession.findOne({ where: { id: sessionId } });
+
+    expect(sessionAfterLastReport.errors).toEqual([
+      'The sync failed on the client',
+      'The sync failed on the client',
+      'A second thing went wrong',
+    ]);
+    expect(sessionAfterLastReport.completedAt).toEqual(sessionAfterFirstReport.completedAt);
   });
 
-  it('throws an error when reporting an error on a session that already ended cleanly', async () => {
+  it('leaves a session completed when an error is reported after it ended cleanly', async () => {
     const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
     await centralSyncManager.endSession(sessionId);
+    const sessionAfterEnd = await models.SyncSession.findOne({ where: { id: sessionId } });
+
     await expect(
       centralSyncManager.endSession(sessionId, 'The sync failed on the client'),
-    ).rejects.toThrow();
+    ).resolves.toBeUndefined();
+    const sessionAfterReport = await models.SyncSession.findOne({ where: { id: sessionId } });
 
-    const session = await models.SyncSession.findOne({ where: { id: sessionId } });
-    expect(session.errors).toBeNull();
+    expect(sessionAfterReport.errors).toBeNull();
+    expect(sessionAfterReport.completedAt).toEqual(sessionAfterEnd.completedAt);
+    expect(sessionAfterReport.updatedAt).toEqual(sessionAfterEnd.updatedAt);
+  });
+
+  it('leaves a session errored when it is ended after an error was reported', async () => {
+    const centralSyncManager = await initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    await centralSyncManager.endSession(sessionId, 'The sync failed on the client');
+    const sessionAfterReport = await models.SyncSession.findOne({ where: { id: sessionId } });
+
+    await expect(centralSyncManager.endSession(sessionId)).resolves.toBeUndefined();
+    const sessionAfterEnd = await models.SyncSession.findOne({ where: { id: sessionId } });
+
+    expect(sessionAfterEnd.errors).toEqual(['The sync failed on the client']);
+    expect(sessionAfterEnd.completedAt).toEqual(sessionAfterReport.completedAt);
+    expect(sessionAfterEnd.updatedAt).toEqual(sessionAfterReport.updatedAt);
   });
 });
