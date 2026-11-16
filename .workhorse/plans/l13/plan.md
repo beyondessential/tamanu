@@ -19,7 +19,7 @@ Dropped with the earlier design: the changes-pending check and its tick, central
 - A facility whose final sync does not complete (central unreachable) stays awake and tries again after its next idle time. Unpushed data is work in flight.
 - A facility's timed wake for a scheduled task ends with a sync, like any facility sleep.
 - Automatic discharge (`OutpatientDischarger`, `DeceasedPatientDischarger`) runs on central.
-- Each scheduled task says whether it can sleep: a task that can sleep does not wake a sleeping server when due, and catches up once on the next wake. Proposed default: a task wakes the server unless it declares it can sleep, so a missed declaration costs uptime rather than a skipped run. Only tasks whose output leaves the system on time are expected to wake (scheduled reports, vaccination reminders, patient communications); generators, dischargers, queue processors and cleaners can sleep. If every facility task can sleep, facilities need no timed wakes at all.
+- Each scheduled task says whether it can sleep: a task that can sleep does not wake a sleeping server when due, and catches up once on the next wake. A task wakes the server unless it declares it can sleep, so a missed declaration costs uptime rather than a skipped run. Only tasks whose output leaves the system on time are expected to wake (scheduled reports, vaccination reminders, patient communications); generators, dischargers, queue processors and cleaners can sleep. If every facility task can sleep, facilities need no timed wakes at all.
 - A `503` with a `Retry-After` from central, anywhere before a sync session opens (the session start, or the login or token refresh before it), puts the sync in line as a queued one, on facility and mobile. A `503` without one is an ordinary failure. This is the only change under the sync code-owned paths.
 - The specs land separately from the sync PR. Until then, specs on main still describe the earlier design.
 
@@ -32,7 +32,10 @@ Dropped with the earlier design: the changes-pending check and its tick, central
   - Changes-pending check (SYNCHK): reduce to its "While central wakes" section, retitled and widened to the login and refresh before a session. Keep the id and that heading, which PR 2's code cites.
   - Sync lookup table (LOOKUP): delete "Refreshing on demand".
   - Run history: delete the line about attempts the check answered.
-- [ ] **Supervisor phases**, outside the sync code-owned paths. Whether they land as one PR or split (sleep and wake; scheduled tasks; mobile, health and packaging) is still to decide.
+- [ ] **Supervisor phases**, outside the sync code-owned paths, as three PRs, each started once the one before is approved:
+  - PR 4: supervisor skeleton, actuator contract, sleep and wake
+  - PR 5: scheduled tasks
+  - PR 6: mobile, health, packaging and docs
 
 ### Supervisor skeleton (SUPV)
 
