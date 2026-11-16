@@ -8,8 +8,6 @@ Match this shape when drafting a new version. Slab links here are real; in a
 fresh draft they are left as [SLAB_LINK_PLACEHOLDER].
 -->
 
-Released 17-11-2025
-
 One of our biggest recent releases - Tamanu v2.44 introduces the new Patient Portal feature that enables secure patient engagement outside of clinical settings. It additionally introduces major enhancements to user and location scheduling management.
 
 ---
