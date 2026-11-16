@@ -4,6 +4,7 @@ import {
   COLUMNS_EXCLUDED_FROM_SYNC,
   getSnapshotTableName,
   SYNC_SESSION_DIRECTION,
+  updatedAtByFieldSumClause,
 } from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
@@ -42,7 +43,6 @@ const snapshotChangesForModel = async (
   const { tableName: table } = model;
 
   const attributes = model.getAttributes();
-  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   const snapshotTableName = getSnapshotTableName(sessionId);
 
@@ -68,11 +68,7 @@ const snapshotChangesForModel = async (
           '${table}',
           ${table}.id,
           ${table}.updated_at_sync_tick,
-          ${
-            useUpdatedAtByFieldSum
-              ? `(SELECT sum(value::text::bigint) FROM json_each(${table}.updated_at_by_field)),`
-              : 'NULL,'
-          }
+          ${updatedAtByFieldSumClause(model)},
           json_build_object(
             ${Object.keys(attributes)
               .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
