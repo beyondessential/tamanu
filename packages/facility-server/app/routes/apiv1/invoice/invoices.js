@@ -71,7 +71,12 @@ invoiceRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Invoice');
 
-    const { encounterId, productId, invoiceSectionId } = req.query;
+    const { encounterId, productId } = req.query;
+    // A query parameter repeated in the URL arrives as an array, which would reach the where
+    // clause as one; the last value wins, as it does for the rest of the query.
+    const invoiceSectionId = Array.isArray(req.query.invoiceSectionId)
+      ? req.query.invoiceSectionId.at(-1)
+      : req.query.invoiceSectionId;
 
     if (!encounterId || !productId) {
       throw new ValidationError('encounterId and productId are required');

@@ -324,6 +324,19 @@ describe('Invoice Insurance Plans API', () => {
         );
       });
 
+      it('refuses a request carrying no session', async () => {
+        const invoice = await createInvoice();
+        const plan = await createPlan();
+
+        const result = await baseApp.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
+          invoiceInsurancePlanIds: [plan.id],
+          invoiceSectionId: emergencySection.id,
+        });
+
+        expect(result).toHaveRequestError();
+        expect(await attachmentsFor(invoice.id)).toHaveLength(0);
+      });
+
       // The route's own check is one of two that stop this, so the case pins the contract
       // rather than the line enforcing it.
       it('refuses a user without write access to invoices', async () => {

@@ -84,9 +84,14 @@ export const withInsuranceAttachments = (invoice: Invoice): Invoice => {
   if (attachments) {
     return {
       ...invoice,
-      insurancePlans: attachments.map((attachment: Record<string, any>) =>
-        asAttachment(attachment, attachment.invoiceInsurancePlan ?? {}),
-      ),
+      // An attachment whose plan did not load — the plan having been deleted since — is dropped
+      // rather than carried as a plan with no id, which would read as a nameless payer covering
+      // nothing.
+      insurancePlans: attachments
+        .filter((attachment: Record<string, any>) => attachment.invoiceInsurancePlan)
+        .map((attachment: Record<string, any>) =>
+          asAttachment(attachment, attachment.invoiceInsurancePlan),
+        ),
     };
   }
 

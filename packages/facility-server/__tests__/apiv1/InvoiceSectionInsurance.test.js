@@ -244,6 +244,31 @@ describe('Insurance across invoice sections', () => {
     });
   });
 
+  describe('reading the preview', () => {
+    it('refuses a request carrying no session', async () => {
+      const { encounter } = await createInvoice();
+
+      const result = await ctx.baseApp.get('/api/invoices/insurance-plan-items').query({
+        encounterId: encounter.id,
+        productId: insurableProduct.id,
+      });
+
+      expect(result).toHaveRequestError();
+    });
+
+    it('refuses a user without read access to invoices', async () => {
+      const { encounter } = await createInvoice();
+      const readOnlyApp = await ctx.baseApp.asRole('base');
+
+      const result = await readOnlyApp.get('/api/invoices/insurance-plan-items').query({
+        encounterId: encounter.id,
+        productId: insurableProduct.id,
+      });
+
+      expect(result).toBeForbidden();
+    });
+  });
+
   describe('what the patient is held to', () => {
     it('leaves the uncovered section wholly to the patient', async () => {
       const { invoice } = await createInvoice();

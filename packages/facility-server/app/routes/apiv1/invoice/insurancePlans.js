@@ -60,8 +60,16 @@ insurancePlansRoute.put(
     // reconcile below rolls back as a whole.
     await req.db.transaction(async () => {
       // The whole-invoice-or-section rule below is a read and a check, which two reconciles
-      // running at once would both pass; locking the invoice makes them take turns.
-      await req.models.Invoice.findByPk(invoiceId, { attributes: ['id'], lock: true });
+      // running at once would both pass; locking the invoice makes them take turns. The status
+      // is re-read under that lock, since a finalise committing since it was first checked would
+      // otherwise let this reconcile change an invoice that is no longer in progress.
+      const lockedInvoice = await req.models.Invoice.findByPk(invoiceId, {
+        attributes: ['id', 'status'],
+        lock: true,
+      });
+      if (lockedInvoice?.status !== INVOICE_STATUSES.IN_PROGRESS) {
+        throw new InvalidOperationError('Only in progress invoices can be updated');
+      }
 
       // Scoped to the named section, so attaching a plan to one section leaves the plans on the
       // other sections where they are.

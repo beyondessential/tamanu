@@ -1023,6 +1023,23 @@ describe('Invoice Utils', () => {
         ]);
       });
 
+      it('drops an attachment whose plan no longer loads', () => {
+        const invoice = {
+          insurancePlanAttachments: [
+            {
+              id: 'attach-emergency',
+              invoiceSectionId: 'section-emergency',
+              invoiceInsurancePlan: { id: 'plan-a' },
+            },
+            { id: 'attach-gone', invoiceSectionId: null, invoiceInsurancePlan: null },
+          ],
+        } as any;
+
+        expect(withInsuranceAttachments(invoice).insurancePlans).toEqual([
+          { id: 'plan-a', attachmentId: 'attach-emergency', invoiceSectionId: 'section-emergency' },
+        ]);
+      });
+
       it('lifts the section out of a plan carrying its attachment nested', () => {
         const invoice = {
           insurancePlans: [
