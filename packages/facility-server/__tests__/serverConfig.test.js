@@ -170,6 +170,12 @@ describe('serverConfig', () => {
       expect(await setUp({ [FACT_SYNC_EMAIL]: 'admin@x.io' })).toBe(false);
     });
 
+    it('is false for facilities that cannot be parsed', async () => {
+      expect(await setUp({ [FACT_SYNC_EMAIL]: 'admin@x.io', [FACT_FACILITY_IDS]: '[fac-a' })).toBe(
+        false,
+      );
+    });
+
     it('rejects when the database cannot be read', async () => {
       const models = {
         LocalSystemFact: {
