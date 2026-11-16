@@ -278,6 +278,46 @@ describe('Invoice Insurance Plans API', () => {
         ]);
       });
 
+      // The invoice-level action stays on a split invoice still holding a whole-invoice plan, so
+      // this is the path behind it.
+      it('attaches a plan to the whole of an invoice whose items are split', async () => {
+        const invoice = await createInvoice();
+        const plan = await createPlan();
+        for (const section of [emergencySection, inpatientSection]) {
+          await models.InvoiceItem.create(
+            fake(models.InvoiceItem, {
+              id: crypto.randomUUID(),
+              invoiceId: invoice.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              invoiceSectionId: section.id,
+            }),
+          );
+        }
+
+        const result = await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
+          invoiceInsurancePlanIds: [plan.id],
+        });
+
+        expect(result).toHaveSucceeded();
+        expect(await attachmentsFor(invoice.id)).toEqual([
+          { invoiceInsurancePlanId: plan.id, invoiceSectionId: null },
+        ]);
+      });
+
+      it('refuses a plan id naming no insurance plan', async () => {
+        const invoice = await createInvoice();
+
+        const result = await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
+          invoiceInsurancePlanIds: [crypto.randomUUID()],
+          invoiceSectionId: emergencySection.id,
+        });
+
+        expect(result).toHaveRequestError();
+        expect(result.body.error.message).toContain('does not exist');
+        expect(await attachmentsFor(invoice.id)).toHaveLength(0);
+      });
+
       it('refuses the same plan named twice in one request', async () => {
         const invoice = await createInvoice();
         const plan = await createPlan();

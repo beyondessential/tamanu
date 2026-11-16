@@ -1059,32 +1059,6 @@ describe('Invoice Utils', () => {
           { id: 'plan-a', attachmentId: 'attach-emergency', invoiceSectionId: 'section-emergency' },
         ]);
       });
-
-      it('lifts the section out of a plan carrying its attachment nested', () => {
-        const invoice = {
-          insurancePlans: [
-            {
-              id: 'plan-a',
-              InvoicesInvoiceInsurancePlan: {
-                id: 'attach-emergency',
-                invoiceSectionId: 'section-emergency',
-              },
-            },
-          ],
-        } as any;
-
-        expect(withInsuranceAttachments(invoice).insurancePlans).toEqual([
-          {
-            id: 'plan-a',
-            InvoicesInvoiceInsurancePlan: {
-              id: 'attach-emergency',
-              invoiceSectionId: 'section-emergency',
-            },
-            attachmentId: 'attach-emergency',
-            invoiceSectionId: 'section-emergency',
-          },
-        ]);
-      });
     });
 
     it('covers only its own section, for a plan attached to one', () => {

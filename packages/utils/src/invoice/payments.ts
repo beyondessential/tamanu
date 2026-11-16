@@ -119,9 +119,11 @@ export const getInsurancePlanPaymentsWithRemainingBalanceDisplay = (
  * same basis the invoice screen and the printout show, so a plan that covers nothing on this
  * invoice owes nothing and can take no payment.
  *
- * Pass `invoiceSectionId` to narrow this to one section of a split invoice, `null` meaning the
- * attachment that covers the whole invoice. Leave it out and the balance spans every section the
- * plan is attached to, which is what an invoice with no sections has always meant.
+ * Pass `invoiceSectionId` to select one of the plan's attachments: a section's id for the
+ * attachment covering that section, `null` for the one covering the whole invoice. The two are
+ * exclusive, a plan covering the whole invoice having no per-section attachment, so asking a
+ * whole-invoice plan about a section answers zero. Leave it out and the balance spans every
+ * attachment the plan has, which is what an invoice with no sections has always meant.
  */
 export const getInsurancePlanPaymentBalance = (
   invoice: Invoice,

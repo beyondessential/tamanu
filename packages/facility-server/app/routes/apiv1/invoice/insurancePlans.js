@@ -56,6 +56,21 @@ insurancePlansRoute.put(
       }
     }
 
+    // A plan the suggester offered but that has gone since reaches the foreign key otherwise,
+    // which answers with the table and constraint names rather than which plan was wrong.
+    if (invoiceInsurancePlanIds.length) {
+      const known = await req.models.InvoiceInsurancePlan.findAll({
+        where: { id: invoiceInsurancePlanIds },
+        attributes: ['id'],
+        raw: true,
+      });
+      const knownIds = new Set(known.map(plan => plan.id));
+      const missing = invoiceInsurancePlanIds.filter(planId => !knownIds.has(planId));
+      if (missing.length) {
+        throw new ValidationError(`Insurance plan ${missing.join(', ')} does not exist`);
+      }
+    }
+
     // Managed transaction: CLS binds it to every Sequelize call inside the callback, so the
     // reconcile below rolls back as a whole.
     await req.db.transaction(async () => {

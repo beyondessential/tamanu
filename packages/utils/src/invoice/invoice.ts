@@ -59,8 +59,6 @@ export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): De
   sumOf(invoiceItems.map(item => getItemCoverageTowardsTotal(item, calculateInvoiceItem(item))));
 
 // Sequelize nests the attachment row under the through model's name
-const ATTACHMENT_KEY = 'InvoicesInvoiceInsurancePlan';
-
 const asAttachment = (
   attachment: Record<string, any>,
   plan: Record<string, any>,
@@ -94,13 +92,7 @@ export const withInsuranceAttachments = (invoice: Invoice): Invoice => {
     };
   }
 
-  return {
-    ...invoice,
-    insurancePlans: (invoice.insurancePlans || []).map(plan => {
-      const attachment = (plan as Record<string, any>)[ATTACHMENT_KEY];
-      return attachment ? asAttachment(attachment, plan) : plan;
-    }),
-  };
+  return invoice;
 };
 
 /**
