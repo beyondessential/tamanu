@@ -124,7 +124,8 @@ it has to be frozen, so nothing new is stored per item.
 - [x] Filter an item against the plan row's section before applying its coverage percentage, in `getCoverageAmountPerInsurancePlan` and `getInsuranceCoverageTotalAmount`. TAM-7211 consolidated pricing into one calculation, so the invoice screen, the printout and the payment importer pick this up together
 - [x] Key coverage per plan **row** rather than per plan — `getCoverageAmountPerInsurancePlan` keys per plan today, which collapses a plan covering two sections into one figure
 - [x] Narrow `getInsurancePlanPaymentBalance` to a section. It could not be left alone after all: it looked coverage up by plan id, which no longer keys the map, so every insurance payment would have read as owing nothing. It now takes an optional section, and without one spans every section the plan is attached to, which is what an unsectioned invoice has always meant
-- [ ] Attach a plan from the section header's own Insurance plan action, writing the row with that section. Refuse a section that is not current, the same way the item path already does
+- [x] Take the section on the insurance plans endpoint and reconcile within it alone, so a section's own Insurance plan action leaves the other sections' attachments where they are. A section that is not currently configured is refused, as the item path already does, and a plan already covering the whole invoice is refused a section as well, since its coverage would then be counted twice. The handler was passing its transaction to `destroy` as a second argument, where Sequelize takes one options object, so that delete ran outside the transaction; it is a managed transaction now, as the item path is
+- [ ] Put the Insurance plan action on the section header and send its section. Waits on the mockup below, since per-section insurance has no design yet
 - [ ] Record a payment against a plan row (plan plus section) rather than a plan, so the section travels with it
 - [ ] Show each plan's coverage line within the section it covers; keep the invoice summary and patient payments invoice-wide
 
@@ -137,7 +138,7 @@ it has to be frozen, so nothing new is stored per item.
 
 - [ ] Endpoint: a plan attached to one section covers only that section's items, and an invoice-wide plan (null section) still covers everything
 - [ ] Endpoint: the same plan attached to two sections yields a separate coverage total and balance for each
-- [ ] Endpoint: attaching the same plan to the same section twice is refused, and attaching it invoice-wide twice is refused
+- [x] Endpoint: a plan is attached against the section named, two sections carry the same plan as two attachments, reconciling one section leaves the others alone, attaching the same plan to the same section twice is a no-op rather than a duplicate, and a plan cannot cover both a section and the whole invoice
 - [x] Unit: coverage for an item whose section no plan covers is zero, and uncategorised items are covered only by an invoice-wide plan
 - [x] Unit: a plan attached to two sections carries a separate balance for each, and a payment against one section leaves the other's balance alone
 

@@ -10,6 +10,9 @@ export const insurancePlansRoute = express.Router();
 const updateInvoiceInsurancePlansSchema = z
   .object({
     invoiceInsurancePlanIds: z.array(z.string()).default([]),
+    // Not .uuid(): provisioned section ids are codes such as 'invoiceSection-emergency'.
+    // min(1) keeps an empty string from reaching the foreign key as a value.
+    invoiceSectionId: z.string().min(1).nullish(),
   })
   .strip();
 
@@ -35,47 +38,78 @@ insurancePlansRoute.put(
     }
 
     const { invoiceInsurancePlanIds } = data;
-    const transaction = await req.db.transaction();
+    // A section header's own Insurance plan action names its section; an invoice showing no
+    // headers names none, and its attachments cover the whole invoice.
+    const invoiceSectionId = data.invoiceSectionId ?? null;
 
-    try {
-      // Remove links not in provided list (or all if list empty)
-      await req.models.InvoicesInvoiceInsurancePlan.destroy(
-        invoiceInsurancePlanIds.length
-          ? {
-              where: { invoiceId, invoiceInsurancePlanId: { [Op.notIn]: invoiceInsurancePlanIds } },
-            }
-          : { where: { invoiceId } },
-        { transaction },
-      );
+    if (invoiceSectionId) {
+      const configuredSections = await req.models.Invoice.listConfiguredInvoiceSections();
+      if (!configuredSections.some(section => section.id === invoiceSectionId)) {
+        throw new ValidationError(
+          `Invoice section ${invoiceSectionId} is not a current invoice section`,
+        );
+      }
+    }
 
-      // Find existing links to avoid duplicates
-      const existing = await req.models.InvoicesInvoiceInsurancePlan.findAll({
-        where: { invoiceId },
-        attributes: ['invoiceInsurancePlanId'],
-        transaction,
+    // Managed transaction: CLS binds it to every Sequelize call inside the callback, so the
+    // reconcile below rolls back as a whole.
+    await req.db.transaction(async () => {
+      // Scoped to the named section, so attaching a plan to one section leaves the plans on the
+      // other sections where they are.
+      const scope = { invoiceId, invoiceSectionId };
+
+      await req.models.InvoicesInvoiceInsurancePlan.destroy({
+        where: invoiceInsurancePlanIds.length
+          ? { ...scope, invoiceInsurancePlanId: { [Op.notIn]: invoiceInsurancePlanIds } }
+          : scope,
       });
-      const existingIds = new Set(existing.map(r => r.invoiceInsurancePlanId));
 
-      const toCreate = invoiceInsurancePlanIds.filter(id => !existingIds.has(id));
+      const attachments = await req.models.InvoicesInvoiceInsurancePlan.findAll({
+        where: { invoiceId },
+        attributes: ['invoiceInsurancePlanId', 'invoiceSectionId'],
+        raw: true,
+      });
 
-      if (toCreate.length) {
-        await req.models.InvoicesInvoiceInsurancePlan.bulkCreate(
-          toCreate.map(planId => ({ id: crypto.randomUUID(), invoiceId, invoiceInsurancePlanId: planId })),
-          { transaction },
+      // A plan covering the whole invoice already covers every section's items, so holding both
+      // would count its coverage twice.
+      const conflicting = attachments.find(
+        attachment =>
+          Boolean(attachment.invoiceSectionId) !== Boolean(invoiceSectionId) &&
+          invoiceInsurancePlanIds.includes(attachment.invoiceInsurancePlanId),
+      );
+      if (conflicting) {
+        throw new ValidationError(
+          invoiceSectionId
+            ? `Insurance plan ${conflicting.invoiceInsurancePlanId} already covers the whole invoice`
+            : `Insurance plan ${conflicting.invoiceInsurancePlanId} is already attached to a section of this invoice`,
         );
       }
 
-      await transaction.commit();
+      const attachedToScope = new Set(
+        attachments
+          .filter(attachment => (attachment.invoiceSectionId ?? null) === invoiceSectionId)
+          .map(attachment => attachment.invoiceInsurancePlanId),
+      );
+      const toCreate = invoiceInsurancePlanIds.filter(planId => !attachedToScope.has(planId));
 
-      // Return the current set of linked plans
-      const linked = await req.models.InvoicesInvoiceInsurancePlan.findAll({
-        where: { invoiceId },
-        include: [{ model: req.models.InvoiceInsurancePlan, as: 'invoiceInsurancePlan' }],
-      });
-      res.json({ count: linked.length, data: linked });
-    } catch (e) {
-      await transaction.rollback();
-      throw e;
-    }
+      if (toCreate.length) {
+        await req.models.InvoicesInvoiceInsurancePlan.bulkCreate(
+          toCreate.map(planId => ({
+            id: crypto.randomUUID(),
+            invoiceId,
+            invoiceInsurancePlanId: planId,
+            invoiceSectionId,
+          })),
+        );
+      }
+    });
+
+    // Return every linked plan, not just the named section's, so a caller showing the whole
+    // invoice does not have to refetch the sections it did not touch.
+    const linked = await req.models.InvoicesInvoiceInsurancePlan.findAll({
+      where: { invoiceId },
+      include: [{ model: req.models.InvoiceInsurancePlan, as: 'invoiceInsurancePlan' }],
+    });
+    res.json({ count: linked.length, data: linked });
   }),
 );
