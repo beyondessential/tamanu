@@ -164,10 +164,9 @@ export const NoteContentEditor = ({
     if (isDraggingFromEditor && !isPastingDisabled) return;
     event.preventDefault();
     if (isPastingDisabled) return;
-    const position = document.caretPositionFromPoint?.(event.clientX, event.clientY);
-    if (!position) return;
     editorRef.current.focus();
-    document.getSelection().collapse(position.offsetNode, position.offset);
+    const position = document.caretPositionFromPoint?.(event.clientX, event.clientY);
+    if (position) document.getSelection().collapse(position.offsetNode, position.offset);
     document.execCommand('insertText', false, event.dataTransfer.getData('text/plain'));
   };
 
