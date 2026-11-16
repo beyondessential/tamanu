@@ -131,5 +131,6 @@ export const refresh = asyncHandler(async (req, res) => {
   res.send({
     token,
     refreshToken: newRefreshToken,
+    settings: await settings.getFrontEndSettings(),
   });
 });

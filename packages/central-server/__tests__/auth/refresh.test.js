@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import config from 'config';
 import * as jose from 'jose';
 
+import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { settingsCache } from '@tamanu/settings';
@@ -142,6 +143,31 @@ describe('Auth', () => {
         bcrypt.compare(newRefreshTokenContents.refreshId, refreshTokenRecord.refreshId),
       ).resolves.toBe(true);
     });
+    it('Should send a facility server its sync tuning on refresh', async () => {
+      const loginResponse = await baseApp
+        .post('/api/login')
+        .set('X-Tamanu-Client', SERVER_TYPES.FACILITY)
+        .send({
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+          deviceId: TEST_DEVICE_ID,
+        });
+      expect(loginResponse).toHaveSucceeded();
+
+      const refreshResponse = await baseApp
+        .post('/api/refresh')
+        .set('X-Tamanu-Client', SERVER_TYPES.FACILITY)
+        .send({
+          refreshToken: loginResponse.body.refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        });
+      expect(refreshResponse).toHaveSucceeded();
+      expect(refreshResponse.body).toHaveProperty(
+        'settings.facilitySync.persistUpdateWorkerPoolSize',
+        5,
+      );
+    });
+
     it('Should reject if external client', async () => {
       const loginResponse = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,

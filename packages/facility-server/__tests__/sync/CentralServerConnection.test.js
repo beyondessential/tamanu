@@ -250,6 +250,27 @@ describe('CentralServerConnection', () => {
       }
     });
 
+    it("applies central's sync tuning on token refresh", async () => {
+      const { settings, ...body } = await (await authSuccess).json();
+      fetch
+        .mockReturnValueOnce(fakeSuccess({ ...body, refreshToken: 'first-refresh', settings }))
+        .mockReturnValueOnce(meSuccess)
+        .mockReturnValueOnce(
+          fakeSuccess({
+            token: validTestToken,
+            refreshToken: 'second-refresh',
+            settings: { ...settings, facilitySync: { persistUpdateWorkerPoolSize: 3 } },
+          }),
+        );
+      try {
+        await centralServer.connect();
+        await centralServer.connect();
+        expect(getSyncTuning().persistUpdateWorkerPoolSize).toBe(3);
+      } finally {
+        setSyncTuningFromCentral(undefined);
+      }
+    });
+
     it('retrieves user data', async () => {
       fetch
         .mockReturnValueOnce(authSuccess)

@@ -94,9 +94,13 @@ export class CentralServerConnection extends TamanuApi {
 
   async connect(backoff = getSyncSettings().backoff, timeout = this.timeout) {
     try {
-      await this.refreshToken({
+      const { settings } = await this.refreshToken({
         retryAuth: false,
       });
+      if (settings) {
+        this.#loginData = { ...this.#loginData, settings };
+        setSyncTuningFromCentral(settings.facilitySync);
+      }
       return;
     } catch (_) {
       // ignore error
