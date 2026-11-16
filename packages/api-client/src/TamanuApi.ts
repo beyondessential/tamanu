@@ -227,6 +227,22 @@ export class TamanuApi {
     this.telemetrySink = sink;
   }
 
+  /**
+   * Points the client at a different server. Credentials are for the old server, so they are
+   * dropped and the next call has to log in again. A no-op when the endpoint is unchanged.
+   */
+  setEndpoint(endpoint: string): void {
+    if (endpoint === this.#prefix) return;
+    const endpointUrl = new URL(endpoint);
+    this.#prefix = endpoint;
+    this.#host = endpointUrl.origin;
+    this.#authToken = undefined;
+    this.#refreshToken = undefined;
+    this.#ongoingAuth = null;
+    this.user = null;
+    this.lastRefreshed = null;
+  }
+
   // Telemetry is best-effort: a throwing sink must never affect the request.
   #emitTelemetry(event: TelemetryEvent): void {
     if (!this.telemetrySink) return;

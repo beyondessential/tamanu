@@ -17,6 +17,7 @@ import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/cry
 
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
+import { validateCentralEndpointsSave } from './validateCentralEndpoints';
 
 import { assetRoutes } from './asset';
 import { designationRouter, designationsRouter } from './designations';
@@ -253,6 +254,8 @@ adminRoutes.put(
         'security.requireHttps can only be enabled over an HTTPS connection. Reconnect over HTTPS and try again.',
       );
     }
+
+    await validateCentralEndpointsSave({ Setting, settings, scope });
 
     await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);
     await Setting.set('', settings, scope, facilityId);

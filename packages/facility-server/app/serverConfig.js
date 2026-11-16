@@ -1,6 +1,7 @@
 import config from 'config';
 
 import {
+  FACT_CENTRAL_ENDPOINTS,
   FACT_CENTRAL_HOST,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_SYNC_EMAIL,
@@ -27,19 +28,33 @@ export async function initServerConfig({ context }) {
   const facts = await readFacts(models);
 
   const host = env.host ?? facts.host ?? configHost();
+  const hosts = resolveHosts({ env, facts, host });
   const email = env.email ?? facts.email ?? configValue('email');
   const configPassword = facts.passwordUnreadable ? null : configValue('password');
   const password = env.password ?? facts.password ?? configPassword;
   const facilityIds = env.facilityIds ?? facts.facilityIds ?? configFacilityIds();
 
-  resolved = { sync: { host, email, password }, facilityIds };
+  resolved = {
+    sync: { host: hosts[0] ?? null, email, password },
+    hosts,
+    // spec: CEND
+    // An external system (SYNC_URL) decides where the facility connects, so central-supplied
+    // endpoint lists do not apply.
+    canUseCentralEndpoints: env.host == null,
+    facilityIds,
+  };
 
   // TAM-6962: the config leg goes away next release. Name the keys still coming from
   // it so we can find these servers first. This is a normal resting state, not an
   // error — provisionSyncUser is failure-tolerant and leaves a server on config when
   // central was unreachable during an upgrade.
   const fromConfig = ['host', 'email', 'password'].filter(
-    key => env[key] == null && facts[key] == null && resolved.sync[key] != null,
+    key =>
+      env[key] == null &&
+      facts[key] == null &&
+      resolved.sync[key] != null &&
+      // a host recorded from central's endpoint list is not a legacy config host
+      !(key === 'host' && facts.endpoints != null),
   );
   if (env.facilityIds == null && facts.facilityIds == null && facilityIds != null) {
     fromConfig.push('facilityIds');
@@ -59,11 +74,13 @@ export async function initServerConfig({ context }) {
 // non-secret facts.
 async function readFacts({ LocalSystemFact, LocalSystemSecret }) {
   let host = null;
+  let endpoints = null;
   let email = null;
   let facilityIds = null;
   try {
     const facilityIdsValue = await LocalSystemFact.get(FACT_FACILITY_IDS);
     host = await LocalSystemFact.get(FACT_CENTRAL_HOST);
+    endpoints = parseEndpointsFact(await LocalSystemFact.get(FACT_CENTRAL_ENDPOINTS));
     email = await LocalSystemFact.get(FACT_SYNC_EMAIL);
     facilityIds = facilityIdsValue ? JSON.parse(facilityIdsValue) : null;
   } catch (error) {
@@ -86,11 +103,41 @@ async function readFacts({ LocalSystemFact, LocalSystemSecret }) {
     else log.warn(message);
   }
 
-  return { host, email, password, passwordUnreadable, facilityIds };
+  return { host, endpoints, email, password, passwordUnreadable, facilityIds };
+}
+
+// The ordered hosts the facility tries. Once central has supplied a list it is the recorded list
+// (FACT_CENTRAL_ENDPOINTS); before that it is the single seeded host.
+function resolveHosts({ env, facts, host }) {
+  if (env.host != null) return [env.host];
+  if (facts.endpoints?.length) return facts.endpoints;
+  return host ? [host] : [];
+}
+
+function parseEndpointsFact(value) {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed) && parsed.every(entry => typeof entry === 'string')) return parsed;
+  } catch {
+    // fall through to the warning
+  }
+  log.warn('initServerConfig: ignoring malformed central endpoints fact');
+  return null;
 }
 
 export function getSyncConfig() {
   return current().sync;
+}
+
+// The ordered central hosts the facility tries; the first is also `getSyncConfig().host`.
+export function getCentralHosts() {
+  return current().hosts;
+}
+
+// False when SYNC_URL fixes the host, in which case central-supplied lists are ignored.
+export function canUseCentralEndpoints() {
+  return current().canUseCentralEndpoints;
 }
 
 export function getServerFacilityIds() {
@@ -139,12 +186,15 @@ export function getDeclaredHost() {
 function current() {
   if (resolved) return resolved;
   const env = parseEnv();
+  const host = getDeclaredHost();
   return {
     sync: {
-      host: getDeclaredHost(),
+      host,
       email: env.email ?? configValue('email'),
       password: env.password ?? configValue('password'),
     },
+    hosts: host ? [host] : [],
+    canUseCentralEndpoints: env.host == null,
     facilityIds: getDeclaredFacilityIds(),
   };
 }

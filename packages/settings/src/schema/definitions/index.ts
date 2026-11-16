@@ -42,3 +42,4 @@ export {
 } from './fhir';
 export { urlSchema } from './url';
 export { msDurationSchema } from './msDuration';
+export { centralEndpointsSetting } from './centralEndpoints';

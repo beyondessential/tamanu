@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  FACT_CENTRAL_ENDPOINTS,
   FACT_CENTRAL_HOST,
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
@@ -7,6 +8,8 @@ import {
 } from '@tamanu/constants';
 
 import {
+  canUseCentralEndpoints,
+  getCentralHosts,
   initServerConfig,
   getSyncConfig,
   getServerFacilityIds,
@@ -151,5 +154,72 @@ describe('serverConfig', () => {
     expect(sync.password).toBeTruthy();
     expect(getServerFacilityIds()?.length).toBeGreaterThan(0);
     expect(isServerConfigured()).toBe(true);
+  });
+
+  // spec: CEND
+  describe('central hosts', () => {
+    const baseFacts = {
+      [FACT_CENTRAL_HOST]: 'https://seed.example.com',
+      [FACT_SYNC_EMAIL]: 'e@x.io',
+      [FACT_FACILITY_IDS]: JSON.stringify(['fac-a']),
+    };
+
+    it('is the single seeded host when central has supplied no list', async () => {
+      await initWith(makeModels({ facts: baseFacts, secrets: { [FACT_SYNC_PASSWORD]: 'pw' } }));
+
+      expect(getCentralHosts()).toEqual(['https://seed.example.com']);
+      expect(getSyncConfig().host).toBe('https://seed.example.com');
+      expect(canUseCentralEndpoints()).toBe(true);
+    });
+
+    it('is the recorded list once central has supplied one, with the first as the sync host', async () => {
+      await initWith(
+        makeModels({
+          facts: {
+            ...baseFacts,
+            [FACT_CENTRAL_ENDPOINTS]: JSON.stringify([
+              'https://new.example.com',
+              'http://central.local',
+            ]),
+          },
+          secrets: { [FACT_SYNC_PASSWORD]: 'pw' },
+        }),
+      );
+
+      expect(getCentralHosts()).toEqual(['https://new.example.com', 'http://central.local']);
+      expect(getSyncConfig().host).toBe('https://new.example.com');
+      expect(canUseCentralEndpoints()).toBe(true);
+    });
+
+    it('is only the SYNC_URL host when SYNC_URL is set, ignoring the recorded list', async () => {
+      process.env.SYNC_URL = 'https://env-user%40x.io:env-pw@env.example.com';
+      await initWith(
+        makeModels({
+          facts: {
+            ...baseFacts,
+            [FACT_CENTRAL_ENDPOINTS]: JSON.stringify(['https://new.example.com']),
+          },
+        }),
+      );
+
+      expect(getCentralHosts()).toEqual(['https://env.example.com']);
+      expect(canUseCentralEndpoints()).toBe(false);
+    });
+
+    it('ignores a malformed recorded list', async () => {
+      await initWith(
+        makeModels({
+          facts: { ...baseFacts, [FACT_CENTRAL_ENDPOINTS]: '{not json' },
+          secrets: { [FACT_SYNC_PASSWORD]: 'pw' },
+        }),
+      );
+
+      expect(getCentralHosts()).toEqual(['https://seed.example.com']);
+    });
+
+    it('falls back to the legacy config host when nothing else is set', async () => {
+      await initWith(makeModels());
+      expect(getCentralHosts()).toEqual([getSyncConfig().host]);
+    });
   });
 });

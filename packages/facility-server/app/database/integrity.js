@@ -1,4 +1,8 @@
-import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants/facts';
+import {
+  FACT_CENTRAL_ENDPOINTS,
+  FACT_CENTRAL_HOST,
+  FACT_FACILITY_IDS,
+} from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { CentralServerConnection } from '../sync';
@@ -16,6 +20,15 @@ export async function performDatabaseIntegrityChecks(context) {
   });
 }
 
+function parseEndpoints(value) {
+  try {
+    const parsed = JSON.parse(value ?? '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 /*
  * ensureHostMatches
  */
@@ -25,6 +38,14 @@ async function ensureHostMatches(context) {
   // wizard-configured server has no declaration, so there's nothing to check.
   const configuredHost = getDeclaredHost();
   if (!configuredHost) return;
+
+  // spec: CEND
+  // Once central has supplied a list of endpoints, the declared host may be any of them, such as
+  // after a rotation to a new name. One in neither the list nor the recorded host still fails,
+  // which is what stops a restored copy from syncing to the server it came from.
+  const recordedEndpoints = parseEndpoints(await LocalSystemFact.get(FACT_CENTRAL_ENDPOINTS));
+  if (recordedEndpoints.includes(configuredHost)) return;
+
   const lastHost = await LocalSystemFact.get(FACT_CENTRAL_HOST);
 
   if (!lastHost) {

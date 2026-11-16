@@ -6,6 +6,7 @@ import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
+import { setupCentralEndpointSelector } from '../sync/setupCentralEndpointSelector';
 
 async function sync({ delay: delaySecondsStr }) {
   const delaySeconds = parseInt(delaySecondsStr, 10);
@@ -16,6 +17,7 @@ async function sync({ delay: delaySecondsStr }) {
 
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
 
+  await setupCentralEndpointSelector(context, { role: 'standalone' });
   context.centralServer = new CentralServerConnection(context);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);

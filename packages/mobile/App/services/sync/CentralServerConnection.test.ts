@@ -82,7 +82,11 @@ describe('CentralServerConnection', () => {
         urgent: false,
         lastSyncedTick: -1,
       });
-      expect(postSpy).toHaveBeenCalled();
+      expect(postSpy).toHaveBeenCalledWith(
+        'sync',
+        {},
+        expect.objectContaining({ isMobile: true, endpoint: mockHost }),
+      );
       expect(pollUntilTrueSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId));
       expect(getSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), {});
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
