@@ -48,4 +48,13 @@ export abstract class BaseNoteModal {
     await this.confirmButton.waitFor({ state: 'detached' });
   }
 
+  async typeContent(parts: { text: string; styleButton?: Locator }[]) {
+    await this.noteContentInput.click();
+    for (const { text, styleButton } of parts) {
+      await styleButton?.click();
+      await this.page.keyboard.type(text);
+      await styleButton?.click();
+    }
+  }
+
 }

@@ -136,23 +136,17 @@ test.describe('Notes Tests', () => {
       const newNoteModal = notesPane.getNewNoteModal();
       const editNoteModal = notesPane.getEditNoteModal();
       const changeLogModal = notesPane.getChangeLogModal();
-      const { keyboard } = newNoteModal.page;
 
       await notesPane.newNoteButton.click();
       await newNoteModal.waitForModalToLoad();
       await newNoteModal.selectType(NOTE_TYPES.OTHER);
-      await newNoteModal.noteContentInput.click();
-      const styledParts = [
-        [newNoteModal.boldButton, 'Bold text'],
-        [newNoteModal.italicButton, 'Italic text'],
-        [newNoteModal.underlineButton, 'Underlined text'],
-      ] as const;
-      for (const [index, [button, text]] of styledParts.entries()) {
-        if (index > 0) await keyboard.type(' ');
-        await button.click();
-        await keyboard.type(text);
-        await button.click();
-      }
+      await newNoteModal.typeContent([
+        { text: 'Bold text', styleButton: newNoteModal.boldButton },
+        { text: ' ' },
+        { text: 'Italic text', styleButton: newNoteModal.italicButton },
+        { text: ' ' },
+        { text: 'Underlined text', styleButton: newNoteModal.underlineButton },
+      ]);
       await newNoteModal.confirmButton.click();
       await newNoteModal.waitForModalToClose();
       await notesPane.waitForNotesPaneToLoad();
@@ -174,6 +168,10 @@ test.describe('Notes Tests', () => {
       await expectStyled(notesPane.noteContents.first());
 
       await notesPane.editIcons.nth(0).click();
+      await editNoteModal.waitForModalToLoad();
+      await expect(editNoteModal.noteContentInput.locator('b')).toHaveText('Bold text');
+      await expect(editNoteModal.noteContentInput.locator('i')).toHaveText('Italic text');
+      await expect(editNoteModal.noteContentInput.locator('u')).toHaveText('Underlined text');
       await editNoteModal.editNote('Plain text');
       await notesPane.waitForNotesPaneToLoad();
       await notesPane.editedButtons.first().click();
