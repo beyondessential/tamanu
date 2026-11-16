@@ -7,15 +7,22 @@ branching the shared component. The mechanism is the `Customisations` wrapper in
 
 ## When to suggest it
 
-Suggest a customisation, before writing code, when a request would otherwise:
+Prefer a customisation over a new feature flag wherever one can do the job.
+Suggest it, before writing code, when a request would otherwise:
 
-- add a deployment check or a one-off flag inside a shared component
+- add a feature flag, a boolean setting or a deployment check to switch a web
+  component's behaviour
 - thread a new prop through several layers so one screen can behave differently
 - fork a form, field or layout that most deployments should keep as it is
 
-Use a plain setting instead when the difference is a value or an on/off toggle
-(see `llm/project-rules/settings.md`). Change the shared component when every
-deployment should get the new behaviour.
+A flag adds a branch to the shared component that every deployment carries. A
+customisation leaves the shared component alone and keeps the variant in its own
+file.
+
+Reach for a setting (see `llm/project-rules/settings.md`) only when a
+customisation can't do it: the difference is a value rather than behaviour, it
+must vary per facility, or it reaches the server or mobile. Change the shared
+component when every deployment should get the new behaviour.
 
 Say which option you picked and why, so the reviewer can disagree.
 
