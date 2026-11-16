@@ -6,11 +6,9 @@ import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoiceMutation';
-import { usePatientInsurancePlansQuery } from '../../api/queries';
+import { usePatientAvailableInsurancePlansQuery } from '../../api/queries';
 import { SuggesterSelectField } from '../../components/Field';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { PATIENT_TABS } from '../../constants/patientPaths';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root,
@@ -28,14 +26,31 @@ const ModalBody = styled.div`
   }
 `;
 
-export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
+/**
+ * The invoice's insurance plan picker. `onSaved` is given the plans that were applied, so a caller
+ * that opened the picker part-way through another action — recording a payment — can decide whether
+ * to carry on. `onAddToPatient`, where offered, opens the patient's details to record a plan first.
+ */
+export const InvoiceInsuranceModal = ({
+  open,
+  onClose,
+  invoice,
+  onSaved = () => {},
+  onAddToPatient,
+}) => {
   const patientId = invoice?.encounter?.patientId;
   const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId, patientId);
-  const { data: insurancePlans = [], isLoading: isLoadingInsurancePlans } =
-    usePatientInsurancePlansQuery({ patientId });
-  const { navigateToPatient } = usePatientNavigation();
+  // The patient's plans that this facility can actually bill against: a patient whose only plans
+  // are restricted elsewhere has nothing to pick, so the picker shows its empty state.
+  const {
+    data: availablePlans = [],
+    isLoading: isLoadingInsurancePlans,
+    isError: hasPlansError,
+    refetch: refetchAvailablePlans,
+  } = usePatientAvailableInsurancePlansQuery({ patientId });
+
   const onChange = ({ target }) => {
     const value = typeof target.value === 'string' ? JSON.parse(target.value) : target.value;
     setSelectedPlans(value);
@@ -46,13 +61,9 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
     mutate(data, {
       onSuccess: () => {
         onClose();
+        onSaved(selectedPlans);
       },
     });
-  };
-
-  const handleGoToPatientDetails = () => {
-    onClose();
-    navigateToPatient(patientId, { tab: PATIENT_TABS.DETAILS });
   };
 
   if (isLoadingInsurancePlans) {
@@ -75,7 +86,42 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
     );
   }
 
-  if (insurancePlans.length === 0 && defaultValues.length === 0) {
+  // A query that failed answers nothing, so say so and offer another go. Left to fall through, it
+  // reads as a patient with no plans, sending the user off to record one they may already have.
+  if (hasPlansError) {
+    return (
+      <StyledModal
+        width="sm"
+        title={
+          <TranslatedText
+            stringId="invoice.modal.insurancePlans.title"
+            fallback="Insurance plans"
+          />
+        }
+        open={open}
+        onClose={onClose}
+      >
+        <ModalBody>
+          <Typography>
+            <TranslatedText
+              stringId="invoice.modal.insurancePlans.error.unavailable"
+              fallback="Could not load this patient's insurance plans."
+            />
+          </Typography>
+        </ModalBody>
+        <ModalActionRow
+          confirmText={<TranslatedText stringId="general.action.retry" fallback="Retry" />}
+          cancelText={
+            <TranslatedText stringId="invoice.modal.insurancePlans.close" fallback="Close" />
+          }
+          onConfirm={() => refetchAvailablePlans()}
+          onCancel={onClose}
+        />
+      </StyledModal>
+    );
+  }
+
+  if (availablePlans.length === 0 && defaultValues.length === 0) {
     return (
       <StyledModal
         width="sm"
@@ -96,19 +142,28 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
             />
           </Typography>
         </ModalBody>
-        <ModalActionRow
-          confirmText={
-            <TranslatedText
-              stringId="invoice.modal.insurancePlans.goToPatientDetails"
-              fallback="Go to patient details"
-            />
-          }
-          cancelText={
-            <TranslatedText stringId="invoice.modal.insurancePlans.close" fallback="Close" />
-          }
-          onConfirm={handleGoToPatientDetails}
-          onCancel={onClose}
-        />
+        {onAddToPatient ? (
+          <ModalActionRow
+            confirmText={
+              <TranslatedText
+                stringId="invoice.modal.insurancePlans.goToPatientDetails"
+                fallback="Go to patient details"
+              />
+            }
+            cancelText={
+              <TranslatedText stringId="invoice.modal.insurancePlans.close" fallback="Close" />
+            }
+            onConfirm={onAddToPatient}
+            onCancel={onClose}
+          />
+        ) : (
+          <ModalActionRow
+            confirmText={
+              <TranslatedText stringId="invoice.modal.insurancePlans.close" fallback="Close" />
+            }
+            onConfirm={onClose}
+          />
+        )}
       </StyledModal>
     );
   }

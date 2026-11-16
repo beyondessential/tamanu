@@ -6,6 +6,20 @@ import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker'
 import { PatientDetailsHeading, SecondaryDetailsFormGrid } from './PatientDetailsCommonElements';
 
 /**
+ * The class a configured patient field's wrapper carries, so a caller that needs to find one in the
+ * DOM — the invoicing patient details modal, landing on the insurance plan field — can. A field's
+ * test id is no use for this: a suggester-backed field renders its own, overwriting the one passed
+ * down, while `OuterLabelFieldWrapper` takes a class as a declared prop that nothing can overwrite.
+ */
+export const getPatientFieldClassName = name => `patient-field-${name}`;
+
+/**
+ * The class a headed group's grid of fields carries. A caller scrolling to a field reaches its
+ * heading through this, the heading being the grid's own preceding sibling.
+ */
+export const PATIENT_FIELD_SECTION_CLASS = 'patient-field-section';
+
+/**
  * Pass `heading` to render the group as a headed section of the details form. The heading and its
  * grid go with the fields, so a group a deployment has hidden entirely leaves no empty section
  * behind.
@@ -35,6 +49,7 @@ export const ConfiguredMandatoryPatientFields = ({
             key={field.name}
             enablePasting
             {...field}
+            className={getPatientFieldClassName(field.name)}
             data-testid={`localisedfield-0jtf-${field.name}`}
           />
         </NoteModalActionBlocker>
@@ -47,7 +62,9 @@ export const ConfiguredMandatoryPatientFields = ({
   return (
     <>
       <PatientDetailsHeading data-testid={headingTestId}>{heading}</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid data-testid={gridTestId}>{fields}</SecondaryDetailsFormGrid>
+      <SecondaryDetailsFormGrid className={PATIENT_FIELD_SECTION_CLASS} data-testid={gridTestId}>
+        {fields}
+      </SecondaryDetailsFormGrid>
     </>
   );
 };

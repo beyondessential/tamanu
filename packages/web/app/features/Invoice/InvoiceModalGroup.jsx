@@ -3,23 +3,37 @@ import { INVOICE_MODAL_TYPES } from '../../constants';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
-import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
 import { InvoiceItemsModal } from './InvoiceItemsModal';
+import { InvoicePatientDetailsModal } from './InvoicePatientDetailsModal';
 import { InvoiceRecordModal } from '../../components/PatientPrinting/modals/InvoiceRecordModal';
 import { TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_FORM_TYPE } from './constants.js';
+import { INSURANCE_PLAN_ENTRY, InsurancePlanFlow } from './InsurancePlanFlow';
+import { useInvoicePatientDetailsAccess } from './useInvoicePatientDetailsAccess';
 
 export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceModal }) => {
+  const { isPatientDetailsEditable } = useInvoicePatientDetailsAccess(invoice);
+
   const handleCloseInvoiceModal = () => setOpenInvoiceModal(null);
 
   return (
     <>
-      {invoiceModalType === INVOICE_MODAL_TYPES.INSURANCE && (
-        <InvoiceInsuranceModal
+      {invoiceModalType === INVOICE_MODAL_TYPES.PATIENT_DETAILS && (
+        <InvoicePatientDetailsModal
           open
+          patientId={invoice?.encounter?.patientId}
+          editable={isPatientDetailsEditable}
+          onClose={handleCloseInvoiceModal}
+          onSaved={handleCloseInvoiceModal}
+        />
+      )}
+      {invoiceModalType === INVOICE_MODAL_TYPES.INSURANCE && (
+        <InsurancePlanFlow
           invoice={invoice}
-          onClose={() => handleCloseInvoiceModal()}
-          data-testid="upsertinvoicemodal-wt5z"
+          open
+          entry={INSURANCE_PLAN_ENTRY.PICKER}
+          onClose={handleCloseInvoiceModal}
+          onApplied={handleCloseInvoiceModal}
         />
       )}
       {invoiceModalType === INVOICE_MODAL_TYPES.CANCEL_INVOICE && (

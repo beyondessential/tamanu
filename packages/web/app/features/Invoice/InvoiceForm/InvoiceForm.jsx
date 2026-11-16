@@ -224,6 +224,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                         if (isZeroedBedFeeItem(item)) return null;
                         return (
                           <InvoiceItemRow
+                            canWriteInvoice={canWriteInvoice}
                             cellWidths={cellWidths}
                             encounterId={invoice.encounterId}
                             formArrayMethods={formArrayMethods}
