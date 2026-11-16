@@ -264,4 +264,60 @@ describe('CentralServerConnection', () => {
       await expect(connectPromise).rejects.toThrow('fake timeout');
     });
   });
+
+  // spec: SYNCHK#while-central-wakes
+  describe('waking central', () => {
+    let fetch;
+    let centralServer;
+    beforeEach(() => {
+      fetch = vi.spyOn(global, 'fetch');
+      centralServer = new CentralServerConnection({ deviceId: 'test' });
+      centralServer.fetchImplementation = fetch;
+    });
+    afterEach(() => {
+      fetch.mockReset();
+      fetch.mockRestore();
+    });
+
+    const waking = retryAfter =>
+      fakeFailure(503, {}, retryAfter === undefined ? {} : { 'retry-after': retryAfter });
+    const startSession = () => centralServer.startSyncSession({ urgent: false, lastSyncedTick: 5 });
+
+    it('waits in line when central is waking as the session starts', async () => {
+      fetch
+        .mockReturnValueOnce(authSuccess)
+        .mockReturnValueOnce(meSuccess)
+        .mockReturnValueOnce(waking('7'));
+
+      await expect(startSession()).resolves.toEqual({ status: 'centralWaking' });
+      expect(fetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('waits in line when central is waking as the facility logs in to start a session', async () => {
+      fetch.mockReturnValue(waking('7'));
+
+      await expect(startSession()).resolves.toEqual({ status: 'centralWaking' });
+    });
+
+    it.each([
+      ['has no Retry-After', undefined],
+      ['has an empty Retry-After', '  '],
+    ])('fails when a 503 %s', async (_, retryAfter) => {
+      fetch
+        .mockReturnValueOnce(authSuccess)
+        .mockReturnValueOnce(meSuccess)
+        .mockReturnValueOnce(waking(retryAfter));
+
+      await expect(startSession()).rejects.toMatchObject({ status: 503 });
+    });
+
+    it('does not treat other failures as waking', async () => {
+      fetch
+        .mockReturnValueOnce(authSuccess)
+        .mockReturnValueOnce(meSuccess)
+        .mockReturnValueOnce(fakeFailure(500));
+
+      await expect(startSession()).rejects.toBeProblemOfType(ERROR_TYPE.REMOTE);
+    });
+  });
 });
