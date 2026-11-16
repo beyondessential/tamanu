@@ -88,7 +88,7 @@ test.describe('Notes Tests', () => {
 
       // Set up the form
       await newNoteModal?.selectType(NOTE_TYPES.OTHER);
-      await newNoteModal?.noteContentTextarea.fill(noteContent);
+      await newNoteModal?.noteContentInput.fill(noteContent);
 
       // Validate form field values
       await expect(newNoteModal?.getWrittenByValue()).resolves.toBe(user.displayName);
@@ -135,7 +135,7 @@ test.describe('Notes Tests', () => {
       await patientDetailsPage.notesPane?.newNoteButton.click();
       await newNoteModal?.waitForModalToLoad();
       await newNoteModal?.selectType(NOTE_TYPES.OTHER);
-      await newNoteModal?.noteContentTextarea.fill('this is test note');
+      await newNoteModal?.noteContentInput.fill('this is test note');
       await newNoteModal?.cancelButton.click();
       await newNoteModal?.discardNoteModal.waitForModalToLoad();
       await newNoteModal?.discardNoteModal.confirmButton.click();
@@ -312,7 +312,7 @@ test.describe('Notes Tests', () => {
       // Start editing but cancel
       await patientDetailsPage.notesPane?.editIcons.nth(0).click();
       await editNoteModal?.waitForModalToLoad();
-      await editNoteModal?.noteContentTextarea.fill(updatedContent);
+      await editNoteModal?.noteContentInput.fill(updatedContent);
       await editNoteModal?.cancelButton.click();
       await discardNoteModal?.waitForModalToLoad();
       await discardNoteModal?.confirmButton.click();

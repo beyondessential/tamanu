@@ -6,7 +6,7 @@ export abstract class BaseNoteModal {
   // Common form fields
   readonly writtenByInput!: Locator;
   readonly dateTimeInput!: Locator;
-  readonly noteContentTextarea!: Locator;
+  readonly noteContentInput!: Locator;
   
   // Common action buttons
   readonly confirmButton!: Locator;
@@ -28,7 +28,7 @@ export abstract class BaseNoteModal {
     // Special cases that need additional processing
     this.writtenByInput = page.getByTestId('field-ar9q-input').locator('input');
     this.dateTimeInput = page.getByTestId('field-nwwl').locator('input');
-    this.noteContentTextarea = page.getByTestId('field-wxzr').locator('textarea').nth(0);
+    this.noteContentInput = page.getByTestId('field-wxzr-input');
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
   }
 
