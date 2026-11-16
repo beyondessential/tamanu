@@ -189,9 +189,8 @@ outstanding shots across all Tamanu documentation are found by one search.
   shot of a dialog or form window is that window alone; a settings shot is the settings editor
   without the sidebar
 - **Capture at twice screen resolution**, so text stays sharp when shown smaller
-- **Outline in red the action buttons the reader should find**, drawn into the image with clear
-  space between the outline and the image's edge. Which buttons are outlined is the author's call,
-  so ask
+- **Outline in red the action buttons the reader should find**, with clear space between the
+  outline and the image's edge. Which buttons are outlined is the author's call, so ask
 - **Every image has alt text** describing what the shot shows, including any red outline
 - **Every image has a caption**: one short sentence describing what the
   image shows or the action it illustrates, with Tamanu front-end text word for word in bold
