@@ -255,7 +255,7 @@ export const TriageForm = ({
     // The encounter exists from here on, so refresh the patient's data before anything that can
     // fail: a caller reading the current encounter (the appointment check-in button) would
     // otherwise go on offering to admit a patient who has just been admitted.
-    invalidatePatientDataQueries(queryClient, patient.id);
+    await invalidatePatientDataQueries(queryClient, patient.id);
 
     if (typeof onSubmitEncounter === 'function') {
       const encounter = await api.get(
