@@ -38,6 +38,11 @@ insurancePlansRoute.put(
     }
 
     const { invoiceInsurancePlanIds } = data;
+    // A repeated id reaches the unique index, which reports a bare duplicate-resource error
+    // naming nothing; refusing it here says which request was wrong.
+    if (new Set(invoiceInsurancePlanIds).size !== invoiceInsurancePlanIds.length) {
+      throw new ValidationError('An insurance plan can only be named once');
+    }
     // A section header's own Insurance plan action names its section; an invoice showing no
     // headers names none, and its attachments cover the whole invoice.
     const invoiceSectionId = data.invoiceSectionId ?? null;
@@ -54,6 +59,10 @@ insurancePlansRoute.put(
     // Managed transaction: CLS binds it to every Sequelize call inside the callback, so the
     // reconcile below rolls back as a whole.
     await req.db.transaction(async () => {
+      // The whole-invoice-or-section rule below is a read and a check, which two reconciles
+      // running at once would both pass; locking the invoice makes them take turns.
+      await req.models.Invoice.findByPk(invoiceId, { attributes: ['id'], lock: true });
+
       // Scoped to the named section, so attaching a plan to one section leaves the plans on the
       // other sections where they are.
       const scope = { invoiceId, invoiceSectionId };

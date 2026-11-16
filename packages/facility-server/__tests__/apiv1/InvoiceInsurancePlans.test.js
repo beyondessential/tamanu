@@ -278,6 +278,68 @@ describe('Invoice Insurance Plans API', () => {
         ]);
       });
 
+      it('refuses the same plan named twice in one request', async () => {
+        const invoice = await createInvoice();
+        const plan = await createPlan();
+
+        const result = await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
+          invoiceInsurancePlanIds: [plan.id, plan.id],
+          invoiceSectionId: emergencySection.id,
+        });
+
+        expect(result).toHaveRequestError();
+        expect(await attachmentsFor(invoice.id)).toHaveLength(0);
+      });
+
+      it('refuses an empty section id rather than writing it to the foreign key', async () => {
+        const invoice = await createInvoice();
+        const plan = await createPlan();
+
+        const result = await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
+          invoiceInsurancePlanIds: [plan.id],
+          invoiceSectionId: '',
+        });
+
+        expect(result).toHaveRequestError();
+        expect(await attachmentsFor(invoice.id)).toHaveLength(0);
+      });
+
+      it("returns every attachment on the invoice, not only the named section's", async () => {
+        const invoice = await createInvoice();
+        const [emergencyPlan, inpatientPlan] = await Promise.all([createPlan(), createPlan()]);
+
+        await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
+          invoiceInsurancePlanIds: [inpatientPlan.id],
+          invoiceSectionId: inpatientSection.id,
+        });
+        const result = await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
+          invoiceInsurancePlanIds: [emergencyPlan.id],
+          invoiceSectionId: emergencySection.id,
+        });
+
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toBe(2);
+        expect(result.body.data.map(row => row.invoiceInsurancePlanId).sort()).toEqual(
+          [emergencyPlan.id, inpatientPlan.id].sort(),
+        );
+      });
+
+      // The route's own check is one of two that stop this, so the case pins the contract
+      // rather than the line enforcing it.
+      it('refuses a user without write access to invoices', async () => {
+        const invoice = await createInvoice();
+        const plan = await createPlan();
+        const readOnlyApp = await baseApp.asRole('base');
+
+        const result = await readOnlyApp.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
+          invoiceInsurancePlanIds: [plan.id],
+          invoiceSectionId: emergencySection.id,
+        });
+
+        expect(result).toBeForbidden();
+        expect(await attachmentsFor(invoice.id)).toHaveLength(0);
+      });
+
       it('refuses covering the whole invoice with a plan already on a section', async () => {
         const invoice = await createInvoice();
         const plan = await createPlan();
