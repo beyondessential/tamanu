@@ -25,7 +25,7 @@ import { ConfirmModal } from '../../components/ConfirmModal';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { NoteModalActionBlocker } from '../../components';
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm/PatientDetailsForm';
-import { getPatientFieldTestId } from '../../forms/PatientDetailsForm/ConfiguredMandatoryPatientFields';
+import { getPatientFieldClassName } from '../../forms/PatientDetailsForm/ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../components/Translation';
 import { invalidatePatientDataQueries, notifyError, notifySuccess } from '../../utils';
 
@@ -80,9 +80,7 @@ const useFocusField = (fieldName, isReady, containerRef) => {
     let timer;
 
     const attempt = () => {
-      const field = containerRef.current?.querySelector(
-        `[data-testid^="${getPatientFieldTestId(fieldName)}"]`,
-      );
+      const field = containerRef.current?.querySelector(`.${getPatientFieldClassName(fieldName)}`);
       if (field) {
         field.scrollIntoView({ block: 'center', behavior: 'smooth' });
         field.querySelector('input, [tabindex]')?.focus();

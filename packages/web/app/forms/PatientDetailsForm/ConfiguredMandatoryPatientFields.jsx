@@ -6,11 +6,12 @@ import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker'
 import { PatientDetailsHeading, SecondaryDetailsFormGrid } from './PatientDetailsCommonElements';
 
 /**
- * The test id a configured patient field renders with. Exported so a caller that needs to find one
- * in the DOM — the invoicing patient details modal, landing on the insurance plan field — asks for
- * it here rather than rebuilding the literal and silently missing when it changes.
+ * The class a configured patient field's wrapper carries, so a caller that needs to find one in the
+ * DOM — the invoicing patient details modal, landing on the insurance plan field — can. A field's
+ * test id is no use for this: a suggester-backed field renders its own, overwriting the one passed
+ * down, while `OuterLabelFieldWrapper` takes a class as a declared prop that nothing can overwrite.
  */
-export const getPatientFieldTestId = name => `localisedfield-0jtf-${name}`;
+export const getPatientFieldClassName = name => `patient-field-${name}`;
 
 /**
  * Pass `heading` to render the group as a headed section of the details form. The heading and its
@@ -42,7 +43,8 @@ export const ConfiguredMandatoryPatientFields = ({
             key={field.name}
             enablePasting
             {...field}
-            data-testid={getPatientFieldTestId(field.name)}
+            className={getPatientFieldClassName(field.name)}
+            data-testid={`localisedfield-0jtf-${field.name}`}
           />
         </NoteModalActionBlocker>
       ))}
