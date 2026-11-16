@@ -1,6 +1,5 @@
 import express from 'express';
 
-import { FACT_SYNC_EMAIL } from '@tamanu/constants';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
@@ -60,7 +59,7 @@ import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { setupSyncHandler } from './setup';
-import { isServerConfigured, isSettingUp } from '../../serverConfig';
+import { isServerConfigured, isSetUpInDatabase, isSettingUp } from '../../serverConfig';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -117,10 +116,7 @@ export function createApiv1({ authLimiter } = {}) {
       // web app already makes rather than a separate endpoint/request.
       return res.send({
         ok: 'ok',
-        // isServerConfigured() is per process, so also ask the database: another API process
-        // may have just served the wizard.
-        setupRequired:
-          !isServerConfigured() && !(await req.models.LocalSystemFact.get(FACT_SYNC_EMAIL)),
+        setupRequired: !isServerConfigured() && !(await isSetUpInDatabase(req.models)),
         isSettingUp: await isSettingUp(req.models),
       });
     }),

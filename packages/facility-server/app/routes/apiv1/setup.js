@@ -19,6 +19,7 @@ import {
   getDeclaredFacilityIds,
   getDeclaredHost,
   isServerConfigured,
+  isSetUpInDatabase,
   initServerConfig,
 } from '../../serverConfig';
 import { version } from '../../serverInfo';
@@ -87,9 +88,9 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   }
 
   // Reconfiguring a live server goes through env / direct DB, not this endpoint.
-  // isServerConfigured() reads a per-process holder, so it misses a setup another API process
-  // completed. Central rotates the sync password on every provision, so stop here first.
-  if (isServerConfigured() || (await req.models.LocalSystemFact.get(FACT_SYNC_EMAIL))) {
+  // Central rotates the sync password on every provision, so a setup another API process has
+  // completed must stop here.
+  if (isServerConfigured() || (await isSetUpInDatabase(req.models))) {
     return res.status(409).send({ error: { message: 'Server is already configured' } });
   }
 
