@@ -1,5 +1,5 @@
 import { initReporting } from '@tamanu/database/services/reporting';
-import { getBugsnagOptions, initBugsnag, log } from '@tamanu/shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import {
   getFhirWorkerSettings,
@@ -10,7 +10,6 @@ import { setFhirRefreshTriggers } from '@tamanu/database';
 import { closeDatabase, initDatabase } from './database';
 import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { initSyncSettings } from './sync/syncSettings';
-import { VERSION } from './middleware/versionCompatibility.js';
 
 /**
  * @typedef {import('@tamanu/settings/types').FacilitySettingPath} FacilitySettingPath
@@ -39,15 +38,6 @@ export class ApplicationContext {
   closePromise = null;
 
   async init({ appType, databaseOverrides, dbKey } = {}) {
-    const bugsnagOptions = getBugsnagOptions();
-    if (bugsnagOptions) {
-      await initBugsnag({
-        ...bugsnagOptions,
-        appVersion: [VERSION, process.env.REVISION].filter(Boolean).join('-'),
-        appType,
-      });
-    }
-
     const key = dbKey ?? appType ?? 'main';
     this.store = await initDatabase(databaseOverrides ?? {}, key);
     this.sequelize = this.store.sequelize;

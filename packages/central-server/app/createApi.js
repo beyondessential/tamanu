@@ -4,7 +4,7 @@ import defineExpress from 'express';
 import asyncHandler from 'express-async-handler';
 import helmet from 'helmet';
 
-import { getBugsnagOptions, getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
+import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { getTrustedProxy, requireHttps } from '@tamanu/shared/utils';
@@ -67,14 +67,6 @@ export async function createApi(ctx) {
   // keys like includedDataTypes[0]=x become flat keys, breaking many callers and
   // tests that rely on Express 4's extended (qs) parsing.
   express.set('query parser', 'extended');
-
-  let errorMiddleware = null;
-  if (getBugsnagOptions()) {
-    const { default: Bugsnag } = await import('@bugsnag/js');
-    const middleware = Bugsnag.getPlugin('express');
-    express.use(middleware.requestHandler);
-    errorMiddleware = middleware.errorHandler;
-  }
 
   express.use(
     helmet({
@@ -149,10 +141,6 @@ export async function createApi(ctx) {
   express.use((req, res) => {
     res.status(404).end();
   });
-
-  if (errorMiddleware) {
-    express.use(errorMiddleware);
-  }
 
   express.use(defaultErrorHandler);
 

@@ -29,7 +29,6 @@
 	respond /env.js <<JS
 		window.env = {
 			NODE_ENV: `{$NODE_ENV}` || 'production',
-			BUGSNAG_API_KEY: `{$BUGSNAG_API_KEY}` || null,
 			REVISION: `{$REVISION}` || null,
 		}
 		JS 200

@@ -2,11 +2,11 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { getBugsnagOptions, getLoggingMiddleware } from '@tamanu/shared/services/logging';
+import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { getTrustedProxy } from '@tamanu/shared/utils';
 import { version } from './serverInfo';
 
-export const addFacilityMiddleware = async express => {
+export const addFacilityMiddleware = express => {
   express.use(compression());
   express.use(bodyParser.json({ limit: '50mb' }));
   express.use(bodyParser.urlencoded({ extended: true }));
@@ -21,14 +21,4 @@ export const addFacilityMiddleware = async express => {
   // (comma-separated list; defaults to `loopback` for a local reverse proxy)
   express.set('trust proxy', getTrustedProxy());
   express.use(getLoggingMiddleware());
-
-  let errorMiddleware = null;
-  if (getBugsnagOptions()) {
-    const { default: Bugsnag } = await import('@bugsnag/js');
-    const middleware = Bugsnag.getPlugin('express');
-    express.use(middleware.requestHandler);
-    errorMiddleware = middleware.errorHandler;
-  }
-
-  return { errorMiddleware };
 };

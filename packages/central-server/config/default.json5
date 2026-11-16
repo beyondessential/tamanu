@@ -31,13 +31,6 @@
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
-  errors: {
-    // Leave enabled unset: BUGSNAG_API_KEY turns reporting on, an explicit false turns it off.
-    // right now the only supported service is bugsnag
-    type: 'bugsnag',
-    // paste your bugsnag API key here
-    apiKey: '',
-  },
   patientMerge:{
     updateDependentRecordsForResyncEnabled: true
   },

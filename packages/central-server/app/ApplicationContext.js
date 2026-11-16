@@ -3,7 +3,7 @@ import { Timesimp } from 'timesimp';
 import { ReadSettings } from '@tamanu/settings';
 import { settingsCache } from '@tamanu/settings/cache';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
-import { getBugsnagOptions, initBugsnag, log } from '@tamanu/shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
 import {
   getFhirWorkerSettings,
@@ -17,7 +17,6 @@ import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 import { AIService } from './services/AIService';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
-import { VERSION } from './middleware/versionCompatibility';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
@@ -68,15 +67,6 @@ export class ApplicationContext {
 
   async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
     this.appType = appType;
-    const bugsnagOptions = getBugsnagOptions();
-    if (bugsnagOptions) {
-      await initBugsnag({
-        ...bugsnagOptions,
-        appVersion: [VERSION, process.env.REVISION].filter(Boolean).join('-'),
-        appType,
-      });
-    }
-
     this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 
     this.closePromise = new Promise(resolve => {

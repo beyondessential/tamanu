@@ -1,11 +1,4 @@
 {
-  errors: {
-    // Leave enabled unset: BUGSNAG_API_KEY turns reporting on, an explicit false turns it off.
-    // right now the only supported service is bugsnag
-    type: 'bugsnag',
-    // paste your bugsnag API key here
-    apiKey: '',
-  },
   "sync": {
     "schedule": "*/1 * * * *",
     // Sync host + credentials are now resolved from local system facts, set via
