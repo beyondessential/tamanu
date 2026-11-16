@@ -1,5 +1,6 @@
-import { Divider as BaseDivider, IconButton as BaseIconButton, Box } from '@material-ui/core';
+import { Divider as BaseDivider, Box } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
+import BaseIconButton from '@mui/material/IconButton';
 import { useFormikContext } from 'formik';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -28,6 +29,8 @@ export const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
+// Positioned where BaseModal's own close button sits, so this one lines up with every other
+// modal's. That holds only while it is the same button: a larger one would sit off-centre.
 const IconButton = styled(BaseIconButton)`
   position: absolute;
   top: 14px;
