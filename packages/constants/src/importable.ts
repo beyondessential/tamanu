@@ -57,6 +57,7 @@ export const REFERENCE_TYPES = {
   MEDICATION_SET: 'medicationSet',
   NOTE_TYPE: 'noteType',
   ENCOUNTER_FEE: 'encounterFee',
+  INVOICE_SECTION: 'invoiceSection',
   PHARMACY_ENCOUNTER_FEE: 'pharmacyEncounterFee',
   ...IMAGING_AREA_TYPES,
 };

@@ -10,6 +10,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_STATUSES,
+  PATIENT_STATUSES,
   REFERENCE_TYPES,
   SETTINGS_SCOPES,
   VISIBILITY_STATUSES,
@@ -151,6 +152,41 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
   });
 
   afterAll(() => ctx.close());
+
+  it("sections the ED fee against the encounter's emergency category", async () => {
+    // The fee is added when the encounter is created, so it belongs to the category the patient
+    // was in then — a patient admitted later keeps this line in Emergency.
+    const emergencySection = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.INVOICE_SECTION,
+        code: PATIENT_STATUSES.EMERGENCY,
+      }),
+    );
+
+    try {
+      const items = await addFeeFor({ encounterType: ENCOUNTER_TYPES.TRIAGE });
+
+      expect(items).toHaveLength(1);
+      expect(items[0].invoiceSectionId).toBe(emergencySection.id);
+    } finally {
+      // Released here rather than left for the next test, which would otherwise be asserting
+      // against whatever this one happened to leave behind. Soft, because the item created above
+      // still references this row and a hard delete would violate the foreign key.
+      await emergencySection.destroy();
+    }
+  });
+
+  it('leaves the encounter fee unsectioned where no invoice section is configured', async () => {
+    // Arranged rather than inherited: this case means nothing unless no section is configured.
+    expect(
+      await models.ReferenceData.count({ where: { type: REFERENCE_TYPES.INVOICE_SECTION } }),
+    ).toBe(0);
+
+    const items = await addFeeFor({ encounterType: ENCOUNTER_TYPES.TRIAGE });
+
+    expect(items).toHaveLength(1);
+    expect(items[0].invoiceSectionId).toBe(null);
+  });
 
   it('adds the standard-hours fee to a weekday clinic encounter', async () => {
     const items = await addFeeFor({ encounterType: ENCOUNTER_TYPES.CLINIC });

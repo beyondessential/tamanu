@@ -24,6 +24,7 @@ export class InvoiceItem extends Model {
   declare productCodeFinal?: string;
   declare invoiceId?: string;
   declare orderedByUserId?: string;
+  declare invoiceSectionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -113,6 +114,11 @@ export class InvoiceItem extends Model {
       foreignKey: 'sourceRecordId',
       as: 'sourcePrescription',
       constraints: false,
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'invoiceSectionId',
+      as: 'invoiceSection',
     });
   }
 

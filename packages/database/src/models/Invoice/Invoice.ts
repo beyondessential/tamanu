@@ -1,4 +1,4 @@
-import { DataTypes, Transaction } from 'sequelize';
+import { DataTypes, literal, Transaction } from 'sequelize';
 import {
   INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_ITEMS_CATEGORIES,
@@ -11,6 +11,7 @@ import {
   SYSTEM_USER_UUID,
   AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
   ENCOUNTER_TYPES,
+  ENCOUNTER_TYPE_PATIENT_STATUSES,
   VISIBILITY_STATUSES,
   type EncounterType,
 } from '@tamanu/constants';
@@ -242,6 +243,66 @@ export class Invoice extends Model {
     return Math.max(0, Math.floor(n));
   }
 
+  /** The invoice sections a deployment has configured. Hiding a row is how one is turned off. */
+  static async listConfiguredInvoiceSections() {
+    return this.sequelize.models.ReferenceData.findAll({
+      where: {
+        type: REFERENCE_TYPES.INVOICE_SECTION,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+      attributes: ['id', 'code', 'name'],
+      raw: true,
+    });
+  }
+
+  /**
+   * What a manually added item needs to be placed: the sections it may name, and the one it goes
+   * to when it names none. Read together because a save that adds an item needs both, and one
+   * that only edits existing lines needs neither.
+   */
+  static async resolveManualItemPlacement(encounterId: string) {
+    const configuredSections = await this.listConfiguredInvoiceSections();
+    return {
+      configuredSectionIds: new Set(configuredSections.map(section => section.id)),
+      currentSectionId: await this.resolveInvoiceSectionIdForEncounter(encounterId),
+    };
+  }
+
+  /**
+   * The section an item charged against this encounter belongs to. Where a caller adds several
+   * items at once it resolves this itself and passes it in; a caller adding one item leaves it to
+   * the create path below, which costs the same either way.
+   */
+  static async resolveInvoiceSectionIdForEncounter(encounterId: string) {
+    const encounter = await this.sequelize.models.Encounter.findByPk(encounterId, {
+      attributes: ['encounterType'],
+    });
+    return this.resolveInvoiceSectionId(encounter?.encounterType);
+  }
+
+  /**
+   * The invoice section an item added now belongs to, from the encounter's category. Null for an
+   * encounter type that is never sectioned, and for a deployment that has not configured the
+   * matching section, so an invoice there stays flat rather than failing to add the item.
+   */
+  static async resolveInvoiceSectionId(encounterType?: EncounterType | null) {
+    const patientStatus = encounterType
+      ? ENCOUNTER_TYPE_PATIENT_STATUSES[encounterType]
+      : undefined;
+    if (!patientStatus) {
+      return null;
+    }
+
+    const section = await this.sequelize.models.ReferenceData.findOne({
+      where: {
+        type: REFERENCE_TYPES.INVOICE_SECTION,
+        code: patientStatus,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+    });
+    return section?.id ?? null;
+  }
+
   static async addItemToInvoice(
     newItem: InvoiceItemSourceRecord,
     encounterId: string,
@@ -250,6 +311,8 @@ export class Invoice extends Model {
     options?: {
       quantity?: number;
       note?: string;
+      /** Resolved by the caller where several items are added together. */
+      invoiceSectionId?: string | null;
     },
   ) {
     const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
@@ -310,13 +373,21 @@ export class Invoice extends Model {
         if (existingItem.deletedAt) {
           await existingItem.restore(); // Ensure we restore the item if it already exists
         }
+        // The section records where the charge was made, so it stays as it was written even if
+        // the encounter has since moved to another category.
         await existingItem.update(values);
       } else {
+        // Resolved here rather than above, so an update to an existing line pays nothing for a
+        // section it will not write.
         await this.sequelize.models.InvoiceItem.create({
           invoiceId: invoice.id,
           sourceRecordType: newItem.getModelName(),
           sourceRecordId: newItem.id,
           ...values,
+          invoiceSectionId:
+            options?.invoiceSectionId !== undefined
+              ? options.invoiceSectionId
+              : await this.resolveInvoiceSectionIdForEncounter(encounterId),
         });
       }
     };
@@ -478,6 +549,7 @@ export class Invoice extends Model {
       orderedByUserId: SYSTEM_USER_UUID,
       orderDate: new Date(),
       quantity: 1,
+      invoiceSectionId: await this.resolveInvoiceSectionId(encounter.encounterType),
     });
   }
 
@@ -597,7 +669,11 @@ export class Invoice extends Model {
       locationHistory,
       encounter.locationId ?? null,
     );
-    await this.reconcileBedFeeLines(invoice, nightsByLocation);
+    await this.reconcileBedFeeLines(
+      invoice,
+      nightsByLocation,
+      await this.resolveInvoiceSectionId(encounter.encounterType),
+    );
   }
 
   /**
@@ -639,12 +715,50 @@ export class Invoice extends Model {
   }
 
   /**
+   * The encounter's type timeline from the audit changelog, oldest first, each revision carrying
+   * the encounter type and the start date recorded with it. Both are needed together, which is
+   * why this reads the changelog rather than encounter_history: a boundary falls at the
+   * clinician-entered admission date, not at the time the move was recorded.
+   *
+   * Filtered on recordId alone, which `changes_record_id` serves — a hash index on
+   * `logs.changes.record_id`. Being a hash index it answers equality only: an IN list, a cast or
+   * a record_data filter would each turn this into a sequential scan of the largest table in the
+   * deployment.
+   */
+  static async loadEncounterTypeRevisions(encounterId: string) {
+    const { ChangeLog } = this.sequelize.models;
+    // record_data is a whole encounter snapshot per row and only two scalars are wanted, so they
+    // are extracted in the query rather than hauling every revision's JSONB back. This is a
+    // projection, not a filter, so the recordId-only predicate still serves the index.
+    const rows = (await ChangeLog.findAll({
+      where: {
+        tableSchema: 'public',
+        tableName: 'encounters',
+        recordId: encounterId,
+        migrationContext: null, // backfilled rows may carry neither field
+      },
+      order: [['recordUpdatedAt', 'ASC']],
+      attributes: [
+        [literal(`record_data->>'encounter_type'`), 'encounterType'],
+        [literal(`record_data->>'start_date'`), 'startDate'],
+      ],
+      raw: true,
+    })) as unknown as { encounterType: string | null; startDate: string | null }[];
+
+    return rows.map(row => ({
+      encounterType: row.encounterType ?? null,
+      startDate: row.startDate ?? null,
+    }));
+  }
+
+  /**
    * Reconcile per-location lines to the night counts: departed locations are zeroed (kept
    * revivable, not soft-deleted — that's a cashier action); locations with no product are skipped.
    */
   private static async reconcileBedFeeLines(
     invoice: Invoice,
     nightsByLocation: Map<string, number>,
+    invoiceSectionId: string | null,
   ) {
     const { InvoiceItem, InvoiceProduct } = this.sequelize.models;
     const locationSourceType = this.sequelize.models.Location.name;
@@ -692,6 +806,7 @@ export class Invoice extends Model {
           orderedByUserId: SYSTEM_USER_UUID,
           orderDate: getCurrentDateTimeString(),
           quantity: nights,
+          invoiceSectionId,
         });
       }
     }

@@ -12,6 +12,7 @@ Applies to patient billing: invoices and their items, products, price lists, pay
 - Details (the product) is required on every item; saving is blocked with an inline required message when it is empty.
 - Ordered by is required on every item; saving is blocked with an inline required message when it is empty.
 - Ordered by is prefilled with the encounter's supervising clinician and stays editable.
+- An item's date falls between the encounter's start and its end, or today while the encounter is open. A date outside that range shows an inline error and the item cannot be saved.
 
 ## Insurance plans
 
