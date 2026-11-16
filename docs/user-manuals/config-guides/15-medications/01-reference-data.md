@@ -20,7 +20,7 @@ The `Drug` reference data type configures the medication list available when pre
   <img
     src="images/reference-data-new-prescription-medication-field.png"
     alt="The Medication field in the new prescription form, listing drugs from reference data"
-    width="415"
+    width="413"
   />
   <figcaption>The <b>Medication</b> field lists the drugs imported as reference data.</figcaption>
 </figure>
@@ -276,7 +276,7 @@ in common use.
   <img
     src="images/reference-data-frequency-synonym-search.png"
     alt="Frequency search for BID returning Two times daily (BD)"
-    width="415"
+    width="413"
   />
   <figcaption>Searching <b>Frequency</b> for BID returns <b>Two times daily (BD)</b>.</figcaption>
 </figure>

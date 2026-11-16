@@ -5,7 +5,7 @@ the patient's encounter.
   <img
     src="images/record-vitals-vitals-tab.png"
     alt="The encounter's Vitals tab, with the Record vitals button outlined in red"
-    width="479"
+    width="477"
   />
   <figcaption>Select <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</figcaption>
 </figure>
@@ -25,7 +25,7 @@ the patient's encounter.
      <img
        src="images/record-vitals-empty-form.png"
        alt="The empty Record vitals window, with the date and time filled in"
-       width="372"
+       width="370"
      />
      <figcaption>The <b>Record vitals</b> window opens with the date and time filled in.</figcaption>
    </figure>
@@ -53,7 +53,7 @@ the patient's encounter.
      <img
        src="images/record-vitals-new-reading.png"
        alt="The vitals table with the new reading as its first column"
-       width="478"
+       width="476"
      />
      <figcaption>Your new reading appears as the first column of the table.</figcaption>
    </figure>
