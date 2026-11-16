@@ -126,13 +126,13 @@ it has to be frozen, so nothing new is stored per item.
 - [x] Narrow `getInsurancePlanPaymentBalance` to a section. It could not be left alone after all: it looked coverage up by plan id, which no longer keys the map, so every insurance payment would have read as owing nothing. It now takes an optional section, and without one spans every section the plan is attached to, which is what an unsectioned invoice has always meant
 - [x] Take the section on the insurance plans endpoint and reconcile within it alone, so a section's own Insurance plan action leaves the other sections' attachments where they are. A section that is not currently configured is refused, as the item path already does, and a plan already covering the whole invoice is refused a section as well, since its coverage would then be counted twice. The handler was passing its transaction to `destroy` as a second argument, where Sequelize takes one options object, so that delete ran outside the transaction; it is a managed transaction now, as the item path is
 - [ ] Put the Insurance plan action on the section header and send its section. Waits on the mockup below, since per-section insurance has no design yet
-- [ ] Record a payment against a plan row (plan plus section) rather than a plan, so the section travels with it
-- [ ] Show each plan's coverage line within the section it covers; keep the invoice summary and patient payments invoice-wide
+- [ ] Record a payment against a plan row (plan plus section) rather than a plan. The column and the balance that reads it are done; the only writer is the central server's payment importer, which identifies a payment by invoice number and plan alone. Giving it a section changes an admin import file format and needs a product decision, so it is filed as needing a card rather than done here
+- [x] Show each plan's coverage line within the section it covers; keep the invoice summary and patient payments invoice-wide. No web change was needed: the coverage lines are built server-side by `invoiceForPricing`, which every path the web reads goes through, so they scope themselves once the plan rows carry a section
 
 ### Mockup
 
-- [ ] The mockup was dropped in `85151927fd` and is a captured DOM snapshot rather than hand-written HTML, so it is re-captured from the running implementation rather than edited. The sectioned invoice now exists and is deployed, so the capture is of real UI
-- [ ] Per-section insurance does not exist yet, so its treatment is designed on top of the capture. `7a25e76c04` has the earlier per-section Insurance plan buttons to work from
+- [x] Re-captured from the running implementation, as the dropped mockup was a captured DOM snapshot rather than hand-written HTML. The sectioned invoice is deployed, so the capture is of real UI
+- [x] Per-section insurance designed on top of that capture, following the earlier per-section Insurance plan buttons in `7a25e76c04`: each section header carries its own outlined action and the invoice-level one goes, matching the per-section Add item the shipped UI already has. The invoice summary stays invoice-wide
 
 ### Insurance tests
 
