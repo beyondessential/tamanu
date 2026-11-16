@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { isEmpty } from 'es-toolkit/compat';
 import { useQuery } from '@tanstack/react-query';
+import { useFormikContext } from 'formik';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 import { Form, ButtonRow, FormSubmitButton } from '@tamanu/ui-components';
@@ -70,12 +71,43 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
+/**
+ * Reports the form's actions and state out to a caller that owns the buttons itself. Rendered
+ * inside the form so it can read formik, and renders nothing of its own.
+ */
+const FormActionsBridge = ({ actionsRef, onStateChange }) => {
+  const { dirty, isSubmitting, resetForm, submitForm, values } = useFormikContext();
+
+  // Written after the render commits, not during it: a render React discards or replays would
+  // otherwise leave the ref holding a closure from a render that never happened.
+  useEffect(() => {
+    if (actionsRef) actionsRef.current = { submitForm, resetForm: () => resetForm({ values }) };
+  });
+
+  useEffect(() => {
+    onStateChange?.({ dirty, isSubmitting });
+  }, [dirty, isSubmitting, onStateChange]);
+
+  return null;
+};
+
+/**
+ * `hideSubmitButton`, `formActionsRef` and `onFormStateChange` are for a caller that owns the
+ * form's actions itself — the invoicing patient details modal, whose Cancel and Save sit in the
+ * modal's fixed bottom row, outside this form element. `formActionsRef` is filled with the
+ * form's `submitForm` and `resetForm`, and `onFormStateChange` is called with its `dirty` and
+ * `isSubmitting` as they change, so the caller can drive its own buttons and unsaved-changes
+ * prompt without formik leaking out of here.
+ */
 export const PatientDetailsForm = ({
   patient,
   additionalData,
   birthData,
   insurancePlans,
   onSubmit,
+  hideSubmitButton = false,
+  formActionsRef,
+  onFormStateChange,
 }) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
@@ -164,16 +196,19 @@ export const PatientDetailsForm = ({
             fieldValues={fieldValuesResponse?.data}
             data-testid="patientfields-csd1"
           />
-          <ButtonRow data-testid="buttonrow-92zi">
-            <NoteModalActionBlocker>
-              <FormSubmitButton
-                variant="contained"
-                color="primary"
-                text="Save"
-                data-testid="formsubmitbutton-dzgy"
-              />
-            </NoteModalActionBlocker>
-          </ButtonRow>
+          {!hideSubmitButton && (
+            <ButtonRow data-testid="buttonrow-92zi">
+              <NoteModalActionBlocker>
+                <FormSubmitButton
+                  variant="contained"
+                  color="primary"
+                  text="Save"
+                  data-testid="formsubmitbutton-dzgy"
+                />
+              </NoteModalActionBlocker>
+            </ButtonRow>
+          )}
+          <FormActionsBridge actionsRef={formActionsRef} onStateChange={onFormStateChange} />
         </>
       )}
       initialValues={{

@@ -302,6 +302,7 @@ export const InvoiceForm = ({
                     // and the save payload are unchanged.
                     isZeroedBedFeeItem(item) ? null : (
                       <InvoiceItemRow
+                        canWriteInvoice={canWriteInvoice}
                         cellWidths={cellWidths}
                         encounterId={invoice.encounterId}
                         formArrayMethods={formArrayMethods}

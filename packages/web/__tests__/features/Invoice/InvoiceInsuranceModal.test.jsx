@@ -10,7 +10,12 @@ vi.mock('../../../app/api/mutations/useInvoiceMutation', () => ({
 }));
 
 vi.mock('../../../app/api/queries', () => ({
-  usePatientInsurancePlansQuery: () => ({ data: [{ id: 'plan-1' }], isLoading: false }),
+  usePatientAvailableInsurancePlansQuery: () => ({
+    data: [{ id: 'plan-1' }],
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+  }),
 }));
 
 // The suggester field reaches the API, and this is about which plans the window starts on and
@@ -19,10 +24,6 @@ vi.mock('../../../app/components/Field', () => ({
   SuggesterSelectField: ({ field }) => (
     <span data-testid="selected-plans">{(field.value ?? []).join(',')}</span>
   ),
-}));
-
-vi.mock('../../../app/utils/usePatientNavigation', () => ({
-  usePatientNavigation: () => ({ navigateToPatient: vi.fn() }),
 }));
 
 const { InvoiceInsuranceModal } =

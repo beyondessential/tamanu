@@ -28,6 +28,7 @@ import {
   useBulkUpdateInvoiceItemApproval,
 } from '../../../api/mutations/useInvoiceMutation';
 import { INVOICE_FORM_TYPE } from '../../../features/Invoice/constants.js';
+import { useInvoicePatientDetailsAccess } from '../../../features/Invoice/useInvoicePatientDetailsAccess';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -99,8 +100,9 @@ const PaymentsSection = styled.div`
 
 const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const { ability } = useAuth();
+  const { canViewPatientDetails, canWriteInvoice, isInsurancePlanFieldShown } =
+    useInvoicePatientDetailsAccess(invoice);
   const canCreateInvoice = ability.can('create', 'Invoice');
-  const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
 
   const hasPayments = invoice.payments?.length > 0;
@@ -110,6 +112,8 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const deletable =
     invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice && !hasPayments;
   const { mutate: bulkUpdateApproval } = useBulkUpdateInvoiceItemApproval(invoice);
+  // Finalise asks for `create` on Invoice alone, as it always has. A deployment may hold a role
+  // with create and not write, and adding write here would take the action away from it.
   const finalisable =
     invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
   const allItemsAreApproved = invoice.items.every(item => item.approved);
@@ -130,7 +134,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => handleAllApprovals(true),
-      hidden: allItemsAreApproved || isCancelled,
+      hidden: allItemsAreApproved || isCancelled || !canWriteInvoice,
     },
     {
       label: (
@@ -141,7 +145,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => handleAllApprovals(false),
-      hidden: !someItemsAreApproved || isCancelled || zeroItems,
+      hidden: !someItemsAreApproved || isCancelled || zeroItems || !canWriteInvoice,
     },
     {
       label: (
@@ -188,9 +192,17 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.EDIT_ITEMS),
-      hidden: !isInvoiceEditable(invoice),
+      hidden: !isInvoiceEditable(invoice) || !canWriteInvoice,
     });
   }
+
+  ACTIONS.unshift({
+    label: (
+      <TranslatedText stringId="invoice.action.viewPatientDetails" fallback="View patient details" />
+    ),
+    onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.PATIENT_DETAILS),
+    hidden: !canViewPatientDetails,
+  });
 
   const hasVisibleActions = ACTIONS.some(action => !action.hidden);
   // A split invoice attaches its plans from each section's own header instead. The rule lives
@@ -212,7 +224,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
           <TranslatedText stringId="general.action.print" fallback="Print" />
         </PrintButton>
       )}
-      {isInProgress && offersInvoiceInsurance && (
+      {isInProgress && canWriteInvoice && isInsurancePlanFieldShown && offersInvoiceInsurance && (
         <NoteModalActionBlocker>
           <Button
             onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}

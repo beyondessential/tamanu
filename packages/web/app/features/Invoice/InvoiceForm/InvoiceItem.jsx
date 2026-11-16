@@ -122,6 +122,7 @@ export const InvoiceItemRow = ({
   onUpdateApproval,
   isFinalised,
   isCancelled,
+  canWriteInvoice,
   cellWidths,
   sectionPeriod,
 }) => {
@@ -238,7 +239,7 @@ export const InvoiceItemRow = ({
             <InvoiceItemActionsMenu
               index={index}
               item={item}
-              showActionMenu
+              showActionMenu={canWriteInvoice}
               hidePriceInput={hidePriceInput}
               onUpdateInvoice={onUpdateInvoice}
               onUpdateApproval={onUpdateApproval}
