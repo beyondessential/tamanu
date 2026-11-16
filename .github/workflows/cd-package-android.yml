@@ -61,23 +61,33 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
 
-      - parallel:
-          - name: Install Java
-            uses: actions/setup-java@v5
-            with:
-              java-version: '17'
-              distribution: 'temurin'
-          - name: Set up Node.js
-            uses: actions/setup-node@v6
-            with:
-              node-version-file: '.node-version'
-              cache: npm
+      # Three independent lanes run concurrently up to the wait-all below: Java then
+      # Gradle, ccache, and (in the foreground) Node.js then npm install. Nothing
+      # before the build needs what the background lanes set up, and their
+      # environment changes only become visible after the wait.
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
+        background: true
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+      # The New Architecture compiles each native module's C++ via CMake, which
+      # dominates build time. ccache persists the compiled objects across runs so
+      # only changed sources recompile. CMake reads the *_COMPILER_LAUNCHER vars
+      # from the environment at configure time.
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2.23
+        background: true
+        with:
+          key: android-${{ inputs.branding }}
+          max-size: 2G
 
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --include-workspace-root --workspace=@tamanu/mobile
 
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
@@ -112,18 +122,8 @@ jobs:
         run: |
           echo "BRANDING=${{ inputs.branding }}" > .env
 
-      - name: Install dependencies
-        run: npm install --include-workspace-root --workspace=@tamanu/mobile
-
-      # The New Architecture compiles each native module's C++ via CMake, which
-      # dominates build time. ccache persists the compiled objects across runs so
-      # only changed sources recompile. CMake reads the *_COMPILER_LAUNCHER vars
-      # from the environment at configure time.
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1.2.23
-        with:
-          key: android-${{ inputs.branding }}
-          max-size: 2G
+      - name: Wait for Java, Gradle and ccache
+        wait-all:
 
       - name: Build release
         working-directory: packages/mobile/android
