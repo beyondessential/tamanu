@@ -10,6 +10,7 @@ import {
   encryptSecret,
   getConfigKeyFilePath,
   isEncryptedSecret,
+  PROVIDE_KEY_ADVICE,
   PUBLISHED_DEVELOPMENT_KEY,
   readConfigKeyFile,
 } from '@tamanu/shared/utils/crypto';
@@ -68,7 +69,8 @@ async function readKey(keyFilePath: string, secrets: StoredSecret[]): Promise<Bu
       throw new Error(
         [
           `There is no key file at ${keyFilePath} (config crypto.keyFile), and this server's secrets are encrypted with the development key published in the Tamanu repository.`,
-          'Generate a key for this server (`configSecret init` writes one to the path CRYPTO_KEY_FILE names), mount it, and set CRYPTO_KEY_FILE to its path. The upgrade then re-encrypts the secrets under it.',
+          PROVIDE_KEY_ADVICE,
+          'The upgrade then re-encrypts the secrets under it.',
         ].join('\n'),
       );
     }

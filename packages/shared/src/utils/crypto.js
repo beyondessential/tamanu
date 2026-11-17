@@ -328,6 +328,10 @@ const DEVELOPMENT_KEY_FILE = 'config/dev-secret.key';
 const DEVELOPMENT_ENVIRONMENTS = ['development', 'test', 'e2e'];
 const isDevelopmentEnvironment = () => DEVELOPMENT_ENVIRONMENTS.includes(process.env.NODE_ENV);
 
+/** How an operator gives a deployment a key of its own, for errors about a missing or refused key. */
+export const PROVIDE_KEY_ADVICE =
+  'Set CRYPTO_KEY_FILE to the path of a key file for this server, mounted where it runs; `configSecret init` generates one at that path.';
+
 // Written aside and linked into place, so concurrent readers (parallel test workers) never see a
 // partly written key, and the first writer wins.
 async function createDevelopmentKeyFile(keyFilePath) {
@@ -364,7 +368,7 @@ export async function readConfigKeyFile() {
       new Error(
         [
           `There is no key file at ${keyFilePath} (config crypto.keyFile).`,
-          'Generate a key for this server with `configSecret init`, mount it, and set CRYPTO_KEY_FILE to its path.',
+          PROVIDE_KEY_ADVICE,
         ].join('\n'),
         { cause: err },
       ),
@@ -375,7 +379,8 @@ export async function readConfigKeyFile() {
     throw new Error(
       [
         `The key file at ${keyFilePath} (config crypto.keyFile) is the development key published in the Tamanu repository, which only development environments use (NODE_ENV is ${process.env.NODE_ENV ?? 'unset'}).`,
-        "Generate a key for this server, mount it, and set CRYPTO_KEY_FILE to its path. The next upgrade re-encrypts this server's stored secrets under it.",
+        PROVIDE_KEY_ADVICE,
+        "The next upgrade re-encrypts this server's stored secrets under it.",
       ].join('\n'),
     );
   }

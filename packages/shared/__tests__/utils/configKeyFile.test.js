@@ -83,7 +83,9 @@ describe('readConfigKeyFile', () => {
       vi.stubEnv('NODE_ENV', nodeEnv);
       keyFile.path = mountedPath;
 
-      await expect(readConfigKeyFile()).rejects.toThrow(/development key published/);
+      const error = await readConfigKeyFile().catch(err => err);
+      expect(error.message).toContain('development key published');
+      expect(error.message).toContain('configSecret init');
     },
   );
 
