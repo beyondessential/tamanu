@@ -21,6 +21,7 @@ export const NON_SYNCING_TABLES = [
   'public.one_time_logins',
   'public.patient_vrs_data',
   'public.refresh_tokens',
+  'public.scheduled_task_states',
   'public.signers_historical',
   'public.sync_device_ticks',
   'public.sync_lookup',
@@ -78,6 +79,9 @@ export const NON_LOGGED_TABLES = [
 
   // facility sync attempt history — operational, written on every sync
   'public.sync_facility_runs',
+
+  // scheduled task run state — operational, written on every task run
+  'public.scheduled_task_states',
 ];
 
 // Tables with a `table_changed` listener on central: the settings cache and admin SettingsRefresher.
