@@ -1,7 +1,5 @@
 // Package gate is the handler at the head of every route that reaches one of
-// the server's parts. It decides, from the server's run-time state, whether
-// the request goes on to its part or the supervisor answers it, and it counts
-// the requests that are activity.
+// the server's parts.
 package gate
 
 import (
@@ -26,14 +24,8 @@ func init() {
 type Class string
 
 const (
-	// Activity requests hold the server awake while they run, and wake it
-	// when it is asleep.
-	Activity Class = "activity"
-	// Exempt requests, such as health probes and time synchronisation,
-	// neither count as activity nor wake the server.
-	Exempt Class = "exempt"
-	// Websocket upgrade requests neither count as activity nor wake the
-	// server, and are refused while it is not awake.
+	Activity  Class = "activity"
+	Exempt    Class = "exempt"
 	Websocket Class = "websocket"
 )
 

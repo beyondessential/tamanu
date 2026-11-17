@@ -1,6 +1,5 @@
-// Package app is the supervisor's Caddy app, "tamanu". It owns the server's
-// run-time state, which the gate in every route reads, and is where the sleep
-// and wake machinery runs.
+// Package app is the supervisor's Caddy app, "tamanu", which owns the
+// server's run-time state and runs the sleep and wake machine.
 package app
 
 import (
@@ -36,8 +35,7 @@ type App struct {
 	Parts []state.Part `json:"parts,omitempty"`
 	// IdleTime is how long the server goes without activity before sleeping.
 	IdleTime caddy.Duration `json:"idle_time,omitempty"`
-	// ActuatorURL is the actuator's base URL. Without one the server never
-	// sleeps.
+	// ActuatorURL is the actuator's base URL, if there is one.
 	ActuatorURL string `json:"actuator_url,omitempty"`
 	// APIToken is the credential for the api's supervisor routes. Placeholders
 	// are replaced, so it can name an environment variable as
@@ -139,8 +137,7 @@ func (a *App) Validate() error {
 // stop, then continues from what it left on disk.
 var runMu sync.Mutex
 
-// Start starts the sleep and wake machine. Without an actuator there is
-// nothing to run: the server stays awake with every part ready.
+// Start starts the sleep and wake machine, if there is an actuator.
 //
 // spec: SUPV#platforms
 func (a *App) Start() error {
@@ -160,8 +157,7 @@ func (a *App) Start() error {
 	return nil
 }
 
-// Stop stops the machine and waits for it. A sleep or wake in progress is left
-// where it reached, which the next start continues from.
+// Stop stops the machine and waits for it.
 func (a *App) Stop() error {
 	if a.cancel == nil {
 		return nil
@@ -180,8 +176,7 @@ func (a *App) Cleanup() error {
 // State is the server's run-time state.
 func (a *App) State() *state.Server { return a.state }
 
-// CanSleep reports whether this supervisor puts its server to sleep: it has
-// an actuator, and the actuator controls the server's parts.
+// CanSleep reports whether there is an actuator and it controls the parts.
 func (a *App) CanSleep() bool { return a.machine != nil && a.machine.ControlsParts() }
 
 // PartStatus is one part's entry in the status.

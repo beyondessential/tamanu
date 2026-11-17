@@ -138,8 +138,7 @@ RUN version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' /tamanu/package.json)
     -ldflags "-X github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo.Version=${version}" \
     -o /supervisor ./cmd/supervisor
 
-## Minimal image running the supervisor, configured by TAMANU_SUPERVISOR_* variables.
-## Point TAMANU_SUPERVISOR_DATA_DIR at the volume when it has an actuator.
+## Minimal image running the supervisor. The volume is for TAMANU_SUPERVISOR_DATA_DIR.
 FROM alpine AS supervisor
 RUN adduser -D -H -u 10001 supervisor \
   && mkdir -p /var/lib/tamanu-supervisor \

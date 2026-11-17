@@ -1,6 +1,5 @@
-// Package command registers the "caddy tamanu-supervisor" command, which reads
-// the supervisor's configuration from the environment, builds Caddy's
-// configuration from it in memory, and runs it. There is no config file.
+// Package command registers the "caddy tamanu-supervisor" command, which
+// builds Caddy's configuration from the environment in memory and runs it.
 //
 // spec: SUPV#configuration
 package command
@@ -66,7 +65,7 @@ func run(fl caddycmd.Flags) (int, error) {
 		return caddy.ExitCodeSuccess, nil
 	}
 
-	// Keep memory under the container's limit, as "caddy run" does.
+	// "caddy run" sets the memory limit, and this command bypasses it.
 	//
 	// spec: SUPV#resilience
 	_, _ = memlimit.Set(memlimit.WithProvider(

@@ -1,4 +1,5 @@
-// Package buildinfo holds the Tamanu release the supervisor was built for.
+// Package buildinfo holds the Tamanu release the supervisor was built for. It
+// is not named "release", which the repository's ignore file excludes.
 package buildinfo
 
 import "strings"

@@ -1,5 +1,5 @@
 // Package apiclient is the supervisor's client for its server's supervisor
-// routes, under /api/supervisor, which only the supervisor can call.
+// routes, under /api/supervisor.
 //
 // spec: SUPV#talking-to-the-server
 package apiclient
@@ -41,8 +41,7 @@ func New(upstreams []string, token string) *Client {
 
 // HoldResult is the api's answer to a hold.
 type HoldResult struct {
-	// Busy is true when a scheduled task is running or a FHIR job is queued
-	// or in progress, in which case no hold was set.
+	// Busy is true when the server is busy, in which case no hold was set.
 	Busy         bool     `json:"busy"`
 	RunningTasks []string `json:"runningTasks,omitempty"`
 	FHIRJobs     int      `json:"fhirJobs,omitempty"`
