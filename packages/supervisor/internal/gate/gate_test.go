@@ -21,7 +21,8 @@ type condition struct {
 var (
 	awake         = condition{"awake", func(*state.Server) {}}
 	asleep        = condition{"asleep", func(s *state.Server) { s.SetPhase(state.Asleep) }}
-	waking        = condition{"waking", func(s *state.Server) { s.SetPhase(state.Waking) }}
+	waking        = condition{"waking", func(s *state.Server) { s.SetPhase(state.Waking); s.SetAllReady(false) }}
+	wakingAPI     = condition{"waking with the api ready", func(s *state.Server) { s.SetPhase(state.Waking); s.SetReady(state.Web, false) }}
 	goingToSleep  = condition{"going to sleep", func(s *state.Server) { s.SetPhase(state.GoingToSleep) }}
 	apiNotReady   = condition{"api not ready", func(s *state.Server) { s.SetReady(state.API, false) }}
 	upgrading     = condition{"upgrading", func(s *state.Server) { s.SetUpgrading(true) }}
@@ -55,6 +56,7 @@ func TestGate(t *testing.T) {
 		{Activity, awake, result{forwarded, false, true}},
 		{Activity, asleep, result{wakingResp, true, true}},
 		{Activity, waking, result{wakingResp, true, true}},
+		{Activity, wakingAPI, result{forwarded, false, true}},
 		{Activity, goingToSleep, result{wakingResp, true, true}},
 		{Activity, apiNotReady, result{wakingResp, true, true}},
 		{Activity, upgrading, result{upgradeResp, false, true}},
@@ -63,6 +65,7 @@ func TestGate(t *testing.T) {
 		{Exempt, awake, result{forwarded, false, false}},
 		{Exempt, asleep, result{wakingResp, false, false}},
 		{Exempt, waking, result{wakingResp, false, false}},
+		{Exempt, wakingAPI, result{forwarded, false, false}},
 		{Exempt, goingToSleep, result{wakingResp, false, false}},
 		{Exempt, apiNotReady, result{wakingResp, false, false}},
 		{Exempt, upgrading, result{upgradeResp, false, false}},
@@ -70,6 +73,7 @@ func TestGate(t *testing.T) {
 		{Websocket, awake, result{forwarded, false, false}},
 		{Websocket, asleep, result{refused, false, false}},
 		{Websocket, waking, result{refused, false, false}},
+		{Websocket, wakingAPI, result{forwarded, false, false}},
 		{Websocket, goingToSleep, result{refused, false, false}},
 		{Websocket, apiNotReady, result{refused, false, false}},
 		{Websocket, upgrading, result{upgradeResp, false, false}},

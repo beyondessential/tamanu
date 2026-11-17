@@ -42,7 +42,9 @@ func TestAdmit(t *testing.T) {
 	}{
 		{"awake", func(*Server) {}, API, Forward, false},
 		{"asleep", func(s *Server) { s.SetPhase(Asleep) }, API, Hold, true},
-		{"waking", func(s *Server) { s.SetPhase(Waking) }, Web, Hold, true},
+		{"waking", func(s *Server) { s.SetPhase(Waking); s.SetReady(Web, false) }, Web, Hold, true},
+		{"waking with the part ready", func(s *Server) { s.SetPhase(Waking); s.SetReady(Web, false) }, API, Forward, false},
+		{"asleep with the part ready", func(s *Server) { s.SetPhase(Asleep) }, API, Hold, true},
 		{"going to sleep", func(s *Server) { s.SetPhase(GoingToSleep) }, API, Hold, true},
 		{"part not ready", func(s *Server) { s.SetReady(Web, false) }, Web, Hold, true},
 		{"other part not ready", func(s *Server) { s.SetReady(Web, false) }, API, Forward, false},
@@ -144,6 +146,16 @@ func TestConcurrentActivity(t *testing.T) {
 	wg.Wait()
 	if n := s.Snapshot().InFlight; n != 0 {
 		t.Errorf("in flight = %d", n)
+	}
+}
+
+func TestSetAllReady(t *testing.T) {
+	s := New(PartsFor(true))
+	s.SetAllReady(false)
+	for p, ready := range s.Snapshot().Ready {
+		if ready {
+			t.Errorf("%s still ready", p)
+		}
 	}
 }
 
