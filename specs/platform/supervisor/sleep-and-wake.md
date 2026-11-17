@@ -25,7 +25,7 @@ Applies to a server whose platform provides an actuator sleeping when its own us
 
 - A server's parts are its database, api, sync, tasks and fhir. Asleep means every one of them is stopped. The web app and the patient portal are the [supervisor's own](overview.md#front-door), and stay up.
 - When the idle time is reached, the supervisor holding the lease announces that the server is going to sleep. Every supervisor then stops forwarding requests that count as activity, and handles them itself, so nothing new reaches the server.
-- Nothing is stopped until every running supervisor has followed the announcement and has no request that counts as activity in flight. A supervisor that stops reporting is no longer waited for once its last report expires.
+- Nothing is stopped until every running supervisor has followed the announcement and has no request that counts as activity in flight. A supervisor that stops reporting is no longer waited for once its last report expires. A sleep that waits too long for supervisors that keep reporting without following fails, like any other step.
 - It then asks the api whether the server is busy: a scheduled task is running, or a FHIR job is queued or in progress. A busy server goes back to forwarding requests and stays awake, and the supervisor asks again every minute while there is still no activity.
 - From the moment the api answers that the server is not busy, no scheduled task starts a run until the server is awake again or the sleep is cancelled.
 - It then asks the actuator to stop tasks and fhir, and waits until they have stopped. Stopping them waits for no work to finish, as when a server is stopped for any other reason.
