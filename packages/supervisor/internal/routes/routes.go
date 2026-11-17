@@ -41,8 +41,7 @@ var (
 	apiPaths = []string{"/api/*", "/v1/*"}
 	// websocketPath is where the api accepts websocket connections.
 	websocketPath = "/api/socket.io/*"
-	// exemptPaths are health probes and time synchronisation, which are not
-	// activity.
+	// exemptPaths are health probes and time synchronisation.
 	//
 	// spec: SLPWK#activity
 	exemptPaths = []string{"/api/public/ping", "/api/timesync"}
@@ -70,9 +69,8 @@ const (
 	keepAliveIdlePerHost = 32
 )
 
-// gracePeriod bounds how long the supervisor waits for open connections when
-// it stops, so a restart or upgrade is never held up by a long request or an
-// open websocket.
+// gracePeriod bounds the wait for open connections on stopping, so a long
+// request or an open websocket cannot hold up a restart.
 const gracePeriod = 10 * time.Second
 
 // Build generates the Caddy configuration for c, as JSON.
@@ -110,8 +108,7 @@ func Build(c config.Config) ([]byte, error) {
 
 	persist := false
 	cfg := caddy.Config{
-		// The admin API would be a second control surface. The status server
-		// is read-only.
+		// Caddy's admin API would be a second way to change the supervisor.
 		//
 		// spec: SUPV#status
 		Admin: &caddy.AdminConfig{
@@ -123,9 +120,7 @@ func Build(c config.Config) ([]byte, error) {
 				Servers:     servers,
 				GracePeriod: caddy.Duration(gracePeriod),
 			}, nil),
-			// The supervisor has no certificates, so Caddy's certificate
-			// storage is never checked or cleaned, and it writes nothing to
-			// disk.
+			// No certificates, so keep Caddy from writing to its storage.
 			"tls": caddyconfig.JSON(caddytls.TLS{
 				DisableStorageCheck: true,
 				DisableStorageClean: true,
@@ -136,8 +131,7 @@ func Build(c config.Config) ([]byte, error) {
 	return json.Marshal(cfg)
 }
 
-// frontServer is a server that takes the server's traffic or the patient
-// portal's: the api's routes, and everything else to front.
+// frontServer is the server for the server's or the patient portal's address.
 //
 // spec: SUPV#front-door
 func frontServer(c config.Config, listen string, front state.Part, frontUpstreams []string) *caddyhttp.Server {
@@ -158,8 +152,7 @@ func frontServer(c config.Config, listen string, front state.Part, frontUpstream
 }
 
 // frontRoutes lists the routes in the order they are tried. The websocket and
-// exempt routes come before the api's general route, which would otherwise
-// take their requests.
+// exempt routes come before the api's general route, which would take theirs.
 func frontRoutes(c config.Config, front state.Part, frontUpstreams []string) caddyhttp.RouteList {
 	api := proxy(c.APIUpstreams)
 	return caddyhttp.RouteList{

@@ -134,8 +134,7 @@ func New(cfg Config, st *state.Server, act Actuator, api API, store *persist.Sto
 // server's parts, and so whether the server can sleep.
 func (m *Machine) ControlsParts() bool { return m.controls.Load() }
 
-// Run runs the machine until ctx is done. A sleep or wake in progress is left
-// where it is, with how far it got on disk, and the next Run continues it.
+// Run runs the machine until ctx is done.
 func (m *Machine) Run(ctx context.Context) {
 	s, ok := m.readActuator(ctx)
 	if !ok {
@@ -170,8 +169,6 @@ func (m *Machine) readActuator(ctx context.Context) (actuator.State, bool) {
 	}
 }
 
-// pollActuator follows the actuator's state the whole time the machine runs.
-//
 // spec: SUPV#upgrades
 func (m *Machine) pollActuator(ctx context.Context) {
 	ticker := time.NewTicker(m.cfg.Timing.ActuatorPoll)
@@ -204,8 +201,6 @@ func (m *Machine) observe(s actuator.State) {
 	}
 }
 
-// resume continues from the state on disk and what the actuator reports.
-//
 // spec: SUPV#resilience
 func (m *Machine) resume(ctx context.Context, s actuator.State) {
 	if !m.controls.Load() {
@@ -277,8 +272,8 @@ func (m *Machine) next(ctx context.Context) {
 	}
 }
 
-// awaitIdle goes to sleep once the server has been idle for the idle time,
-// and otherwise waits for something to change.
+// awaitIdle goes to sleep once the server is idle, or returns when something
+// changes.
 //
 // spec: SLPWK#activity
 func (m *Machine) awaitIdle(ctx context.Context, snap state.Snapshot) {
@@ -329,9 +324,8 @@ func (m *Machine) sleepSteps() []sleepStep {
 	)
 }
 
-// resumeIndex is the index of the step to continue an interrupted sleep from.
-// Until tasks have stopped, the sleep starts again, so the hold is set afresh:
-// it expires on its own, and may have while the supervisor was down.
+// resumeIndex is the step to continue an interrupted sleep from. Before tasks
+// have stopped it starts again, since the hold may have expired meanwhile.
 func resumeIndex(steps []sleepStep, from string) int {
 	reached := slices.IndexFunc(steps, func(s sleepStep) bool { return s.name == from })
 	tasksStopped := slices.IndexFunc(steps, func(s sleepStep) bool { return s.name == stepTasksStopped })
@@ -341,9 +335,7 @@ func resumeIndex(steps []sleepStep, from string) int {
 	return reached + 1
 }
 
-// goToSleep puts the server to sleep, starting after the step named from.
-// Activity or a failed step cancels it, and the server wakes from wherever
-// the sleep reached.
+// goToSleep puts the server to sleep, continuing after the step named from.
 //
 // spec: SLPWK#going-to-sleep
 func (m *Machine) goToSleep(ctx context.Context, from string) {
@@ -384,7 +376,6 @@ func (m *Machine) goToSleep(ctx context.Context, from string) {
 	}
 	switch cause := context.Cause(sleepCtx); {
 	case errors.Is(cause, errActivity):
-		// spec: SLPWK#going-to-sleep
 		m.log.Info("activity cancelled the sleep; waking the server", zap.String("step", failedStep))
 		m.wake(ctx)
 	case cause != nil:
@@ -432,9 +423,6 @@ func (m *Machine) watchSleep(ctx context.Context, stop <-chan struct{}, cancel c
 	}
 }
 
-// checkRelease checks the server's database is migrated to the supervisor's
-// own release, which a development build cannot know.
-//
 // spec: SLPWK#going-to-sleep
 func (m *Machine) checkRelease(ctx context.Context) error {
 	if m.cfg.Release == buildinfo.Dev {
@@ -465,8 +453,6 @@ func (m *Machine) hold(ctx context.Context) error {
 	return nil
 }
 
-// finalSync syncs a facility with central once more.
-//
 // spec: SLPWK#going-to-sleep
 func (m *Machine) finalSync(ctx context.Context) error {
 	res, err := m.api.FinalSync(ctx)
@@ -480,11 +466,8 @@ func (m *Machine) finalSync(ctx context.Context) error {
 }
 
 // stop stops those of the parts the server has, and waits until they have.
-//
-// The request to stop them is not cut short when the sleep is cancelled: one
-// abandoned by the supervisor could still reach the actuator after the wake's
-// request to start them, and stop them again. It finishes, bounded by the
-// client's own request timeout, and only the wait is cancelled.
+// Cancelling the sleep cancels the wait but not the request, which could
+// otherwise reach the actuator after the wake's and stop the parts again.
 func (m *Machine) stop(ctx context.Context, parts ...state.Part) error {
 	parts = slices.DeleteFunc(parts, func(p state.Part) bool { return !slices.Contains(m.cfg.Parts, p) })
 	desired := make(map[state.Part]actuator.Desired, len(parts))
@@ -498,10 +481,6 @@ func (m *Machine) stop(ctx context.Context, parts ...state.Part) error {
 	return m.act.Await(ctx, parts, actuator.Stopped, m.cfg.Timing.PartTimeout, nil)
 }
 
-// wake wakes the server: the database first, then the other parts, each
-// forwarded requests once it is ready. A wake that fails is retried, with
-// requests answered with the waking response meanwhile.
-//
 // spec: SLPWK#waking
 func (m *Machine) wake(ctx context.Context) {
 	m.st.SetPhase(state.Waking)
@@ -532,8 +511,7 @@ func (m *Machine) wake(ctx context.Context) {
 		backoff = min(2*backoff, m.cfg.Timing.WakeBackoffMax)
 	}
 
-	// The hold expires by itself, so a failure to release it does not hold
-	// up the wake.
+	// The hold expires by itself, so failing to release it does not stop the wake.
 	if err := m.api.Release(ctx); err != nil {
 		m.log.Warn("releasing the task hold", zap.Error(err))
 	}
@@ -595,8 +573,8 @@ func (m *Machine) fail(message string) {
 	m.st.SetFailure(message)
 }
 
-// persist records phase and step. Callers persist a phase before showing it
-// in the shared state, so what the status reports is always on disk.
+// persist records phase and step. Callers persist a phase before setting it
+// in the shared state, so the status never reports what is not on disk.
 func (m *Machine) persist(phase state.Phase, step string) error {
 	return m.store.Save(persist.Record{
 		Release:     m.cfg.Release,

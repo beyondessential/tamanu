@@ -13,9 +13,8 @@ func init() {
 	caddy.RegisterModule(StatusHandler{})
 }
 
-// StatusHandler serves the supervisor's read-only status: GET /status for the
-// server and GET /health for the supervisor itself. Neither wakes the server
-// nor counts as activity, and nothing changes through them.
+// StatusHandler is the http.handlers.tamanu_status handler, serving GET
+// /status and GET /health.
 //
 // spec: SUPV#status
 type StatusHandler struct {

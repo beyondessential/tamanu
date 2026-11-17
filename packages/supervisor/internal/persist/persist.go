@@ -1,5 +1,4 @@
-// Package persist keeps how far the supervisor's last sleep or wake got on
-// durable storage, so a supervisor that restarts continues from there.
+// Package persist reads and writes the supervisor's state file.
 //
 // spec: SUPV#resilience
 package persist

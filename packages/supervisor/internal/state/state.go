@@ -1,9 +1,6 @@
-// Package state holds the supervisor's view of its server at run time: whether
-// the server is awake, which of its parts are ready, whether an upgrade is in
-// progress, and the activity passing through.
-//
-// The gate reads it for every request; the sleep and wake machinery writes it.
-// It knows nothing about Caddy.
+// Package state holds the supervisor's run-time view of its server. The gate
+// reads it for every request and the sleep and wake machine writes it; it
+// knows nothing about Caddy.
 package state
 
 import (
@@ -66,8 +63,7 @@ type Failure struct {
 }
 
 // Server is the run-time state of one server. Its methods are safe for
-// concurrent use. A new Server is awake with every part ready, which is where
-// a supervisor with no actuator stays.
+// concurrent use. A new Server is awake with every part ready.
 type Server struct {
 	mu           sync.Mutex
 	phase        Phase
@@ -106,9 +102,7 @@ func (s *Server) SetClock(now func() time.Time) {
 	s.now = now
 }
 
-// admit decides under the lock. A part the server does not have is never
-// ready. While the server wakes, each part is forwarded requests once it is
-// ready; while it goes to sleep, none is.
+// admit decides with s.mu held. A part the server lacks is never ready.
 //
 // spec: SLPWK#waking
 func (s *Server) admit(part Part) Admission {
@@ -129,11 +123,9 @@ func (s *Server) Admit(part Part) Admission {
 	return s.admit(part)
 }
 
-// AdmitActivity decides what to do with a request to part that counts as
-// activity, and records the activity. When the request is to be forwarded it
-// is counted as in flight until done is called, which the caller must do
-// once the request has finished. When it is held, the server is asked to wake.
-// done is never nil and is safe to call more than once.
+// AdmitActivity is Admit for a request that counts as activity. A forwarded
+// request is in flight until the caller calls done, which is never nil and
+// may be called more than once.
 //
 // spec: SLPWK#activity
 func (s *Server) AdmitActivity(part Part) (admission Admission, done func()) {
@@ -168,8 +160,7 @@ func (s *Server) endActivity() {
 func (s *Server) RequestWake() { notify(s.wake) }
 
 // WakeRequests delivers a value whenever a wake has been asked for since the
-// last one was received. A request that counts as activity while the server
-// is not forwarding it asks for a wake, as does a call to RequestWake.
+// last one was received.
 func (s *Server) WakeRequests() <-chan struct{} { return s.wake }
 
 // Activity delivers a value whenever activity has started or finished since

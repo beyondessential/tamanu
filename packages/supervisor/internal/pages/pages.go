@@ -1,7 +1,5 @@
 // Package pages holds the responses the supervisor gives itself rather than
-// forwarding: waking, upgrading and unavailable. Each takes the form its
-// client expects: a page for a browser, JSON for an API request, and plain
-// text otherwise.
+// forwarding: waking, upgrading and unavailable.
 package pages
 
 import (
@@ -37,9 +35,6 @@ type Response struct {
 
 // The supervisor's own responses.
 var (
-	// Waking answers a request the server cannot take while it is asleep or
-	// waking.
-	//
 	// spec: SLPWK#waking
 	Waking = Response{
 		Name:       "ServerWaking",
@@ -48,8 +43,6 @@ var (
 		page:       mustRead("waking.html"),
 	}
 
-	// Upgrading answers every request while an upgrade is in progress.
-	//
 	// spec: SUPV#upgrades
 	Upgrading = Response{
 		Name:       "ServerUpgrading",
@@ -58,9 +51,8 @@ var (
 		page:       mustRead("upgrading.html"),
 	}
 
-	// Unavailable answers a request whose part could not be reached. It
-	// carries no Retry-After, which marks it as a failure rather than a
-	// server that is waking.
+	// Unavailable answers a request whose part could not be reached. It has
+	// no Retry-After, so a client reads it as a failure, not a waking server.
 	Unavailable = Response{
 		Name:    "ServerUnavailable",
 		Message: "The server cannot be reached right now.",
@@ -68,7 +60,8 @@ var (
 	}
 )
 
-// Write sends the response with status, in the form r's client expects.
+// Write sends the response with status: a page for a browser, JSON for an
+// API request, and plain text otherwise.
 func (resp Response) Write(w http.ResponseWriter, r *http.Request, status int) {
 	h := w.Header()
 	h.Set("Cache-Control", "no-store")

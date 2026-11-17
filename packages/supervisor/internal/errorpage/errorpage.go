@@ -17,10 +17,8 @@ func init() {
 }
 
 // Handler is the http.handlers.tamanu_error_page handler, for a server's
-// error routes. It answers 502, 503 and 504 errors, which the reverse proxy
-// raises when no instance of a part answers, with the unavailable response,
-// and passes any other error on. It sends no Retry-After, so a client can tell
-// a part that is down from a server that is waking.
+// error routes. It answers the reverse proxy's 502, 503 and 504 with the
+// unavailable response, and passes any other error on.
 //
 // spec: SUPV#front-door
 type Handler struct{}

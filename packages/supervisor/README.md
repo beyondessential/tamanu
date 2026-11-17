@@ -1,10 +1,9 @@
 # Tamanu supervisor
 
 The supervisor is the front door of a Tamanu server: a build of [Caddy](https://caddyserver.com)
-carrying Tamanu's own modules, through which all of the server's HTTP traffic passes. It routes each
-request to the part that serves it (api, web or patient portal), and answers requests itself while
-the server is asleep, waking or being upgraded. Its behaviour is specified in
-[`specs/platform/supervisor/`](../../specs/platform/supervisor/).
+carrying Tamanu's own modules. Its behaviour is specified in
+[Supervisor](../../specs/platform/supervisor/overview.md) and
+[Sleep and wake](../../specs/platform/supervisor/sleep-and-wake.md).
 
 This is a Go module, not an npm workspace.
 
@@ -15,9 +14,8 @@ go build -ldflags "-X github.com/beyondessential/tamanu/packages/supervisor/inte
 go test ./...
 ```
 
-The `-X` flag sets the release the supervisor belongs to. A build without it is a development build:
-it reports its release as `dev`, and puts a server to sleep without checking the server's database
-is migrated to the same release.
+The `-X` flag sets the release the supervisor belongs to. A build without it reports its release as
+`dev`, and skips the check that the server runs the same release before sleeping.
 
 The image is the root Dockerfile's `supervisor` target, stamped with the release in the root
 `package.json`. It runs as a non-root user, with `/var/lib/tamanu-supervisor` as a volume for
@@ -32,13 +30,11 @@ Tamanu's modules, then runs Caddy's own command line.
 
 ## Running
 
-Run with no arguments, the binary runs `caddy tamanu-supervisor`, which reads its configuration from
-the environment, builds Caddy's configuration in memory and runs it. There is no config file, and
-Caddy's admin API is disabled. Caddy's other commands (`version`, `list-modules` and so on) stay
-available.
+Run with no arguments, the binary runs `caddy tamanu-supervisor`, which builds Caddy's configuration
+from the environment in memory and runs it, with Caddy's admin API disabled. Caddy's other commands
+(`version`, `list-modules` and so on) stay available.
 
-A missing or malformed variable stops the supervisor from starting, with an error naming the
-variable. A blank value counts as unset, and an unknown `TAMANU_SUPERVISOR_` variable is an error.
+A blank value counts as unset, and an unknown `TAMANU_SUPERVISOR_` variable is an error.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
@@ -55,9 +51,6 @@ variable. A blank value counts as unset, and an unknown `TAMANU_SUPERVISOR_` var
 | `TAMANU_SUPERVISOR_DATA_DIR` | none | Where the supervisor keeps its state. Required with an actuator |
 | `TAMANU_SUPERVISOR_TRUSTED_PROXIES` | none | Comma-separated CIDR ranges of the platform's proxies, whose `X-Forwarded-For` is believed for rate limiting and passed on to the parts |
 
-The supervisor serves plain HTTP/1.1 and cleartext HTTP/2 only. TLS and hostnames belong to the
-platform in front of it.
-
 To see the Caddy configuration the environment produces, without running it:
 
 ```sh
@@ -68,41 +61,18 @@ The api token never appears in it: the configuration names the variable instead.
 
 ## Status
 
-The status server answers `GET /status` with the server's state (awake, going to sleep, asleep or
-waking), each part's readiness, whether an upgrade is in progress, the last sleep or wake failure,
-requests in flight, when the server last had activity, and the supervisor's release. `GET /health`
-answers with the supervisor's own health. Neither wakes the server or counts as activity.
+The status server answers `GET /status` and `GET /health`, as JSON.
 
 ## Sleep and wake
 
-With an actuator that controls the server's parts, the supervisor puts the server to sleep once it
-has had no activity for the idle time, and wakes it when a request that counts as activity arrives.
-Without an actuator, or with one that does not control the parts, it only routes traffic.
-
-Going to sleep, in order: check the server runs the supervisor's release (`GET
-/api/supervisor/status`), hold scheduled tasks unless the server is busy (`POST
-/api/supervisor/hold`), stop `tasks` and `fhir`, on a facility sync with central once more (`POST
-/api/supervisor/final-sync`), stop `sync`, `api`, `web` and `portal`, then stop the `database`. A
-busy server stays awake and is asked again a minute later. Activity cancels a sleep, and a failed
-step cancels it and is reported; either way the server wakes from wherever the sleep reached.
-
-Waking starts the `database`, then the other parts, forwarding requests to each part once the
-actuator reports it ready, then releases the hold (`DELETE /api/supervisor/hold`). A wake that
-stalls is retried.
-
-How far a sleep or wake got is kept in `supervisor-state.json` in the data directory, so a
-supervisor that restarts continues from there. One that starts on an asleep server from another
-release wakes it.
-
-While the actuator reports an upgrade in progress, every request gets the upgrading response and
-the supervisor neither sleeps nor wakes the server. It wakes the server once the upgrade ends.
+The steps of a sleep call the api's supervisor routes in this order: `GET /api/supervisor/status`
+(the release check, run first), `POST /api/supervisor/hold`, and on a facility `POST
+/api/supervisor/final-sync`. A wake ends with `DELETE /api/supervisor/hold`. How far a sleep or wake
+got is kept in `supervisor-state.json` in the data directory.
 
 ## Actuator contract
 
-The platform implements the actuator contract,
-[`actuator/v1.openapi.yaml`](actuator/v1.openapi.yaml): `GET /v1/state` reports whether the actuator
-controls the parts, whether an upgrade is in progress, and each part's desired and observed state,
-and `PUT /v1/state` sets the desired state (`up` or `down`) of the parts it names, returning at once.
+The platform implements the actuator contract, [`actuator/v1.openapi.yaml`](actuator/v1.openapi.yaml).
 
 For running the supervisor locally, `cmd/fake-actuator` keeps the parts in memory:
 
