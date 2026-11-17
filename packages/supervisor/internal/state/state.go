@@ -107,12 +107,15 @@ func (s *Server) SetClock(now func() time.Time) {
 }
 
 // admit decides under the lock. A part the server does not have is never
-// ready.
+// ready. While the server wakes, each part is forwarded requests once it is
+// ready; while it goes to sleep, none is.
+//
+// spec: SLPWK#waking
 func (s *Server) admit(part Part) Admission {
 	switch {
 	case s.upgrading:
 		return Upgrading
-	case s.phase == Awake && s.ready[part]:
+	case (s.phase == Awake || s.phase == Waking) && s.ready[part]:
 		return Forward
 	default:
 		return Hold
@@ -186,6 +189,15 @@ func (s *Server) SetReady(part Part, ready bool) {
 	defer s.mu.Unlock()
 	if _, known := s.ready[part]; known {
 		s.ready[part] = ready
+	}
+}
+
+// SetAllReady records whether every part is ready.
+func (s *Server) SetAllReady(ready bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for p := range s.ready {
+		s.ready[p] = ready
 	}
 }
 
