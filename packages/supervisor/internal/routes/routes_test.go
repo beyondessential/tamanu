@@ -24,6 +24,7 @@ type generated struct {
 		HTTP struct {
 			Servers map[string]server `json:"servers"`
 		} `json:"http"`
+		TLS    map[string]any `json:"tls"`
 		Tamanu map[string]any `json:"tamanu"`
 	} `json:"apps"`
 }
@@ -225,6 +226,13 @@ func TestAdminDisabled(t *testing.T) {
 	g := build(t, facility())
 	if !g.Admin.Disabled || g.Admin.Config.Persist == nil || *g.Admin.Config.Persist {
 		t.Errorf("admin = %+v", g.Admin)
+	}
+}
+
+func TestNoCertificateStorage(t *testing.T) {
+	tls := build(t, facility()).Apps.TLS
+	if tls["disable_storage_check"] != true || tls["disable_storage_clean"] != true {
+		t.Errorf("tls app = %v", tls)
 	}
 }
 
