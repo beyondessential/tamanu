@@ -197,6 +197,18 @@ describe('reportRoutes', () => {
     });
   });
 
+  it('POST /reports should refuse a report with an unknown reporting schema', async () => {
+    const name = 'Report with an unknown schema';
+    // eslint-disable-next-line no-unused-vars
+    const { versionNumber, ...definition } = getMockReportVersion(1, 'select 1');
+    const res = await adminApp
+      .post('/api/admin/reports')
+      .send({ ...definition, name, dbSchema: 'not-a-schema' });
+    expect(res).toHaveRequestError();
+    expect(res.body.error.message).toMatch(/unknown reporting schema/);
+    expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
+  });
+
   describe('POST /reports/:id/versions', () => {
     it('should create a new version', async () => {
       const { ReportDefinitionVersion } = models;
@@ -253,6 +265,15 @@ describe('reportRoutes', () => {
           'queryOptions',
         ]),
       );
+    });
+
+    it("should check a version against its report's schema, not the one in the request", async () => {
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...newVersion } = getMockReportVersion(1, 'select 1');
+      const res = await adminApp
+        .post(`/api/admin/reports/${testReport.id}/versions`)
+        .send({ ...newVersion, dbSchema: 'not-a-schema' });
+      expect(res).toHaveSucceeded();
     });
 
     it('should refuse a version for a report that does not exist', async () => {
