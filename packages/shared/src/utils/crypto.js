@@ -148,9 +148,7 @@ export async function getConfigSecret(name) {
     throw new SecretNotConfiguredError(`Config value at ${name} is not an encrypted secret`);
   }
 
-  const keyFilePath = getConfigKeyFilePath();
-  const keyBuffer = await readKeyFile(keyFilePath);
-  return decryptSecret(keyBuffer, encryptedValue);
+  return decryptSecret(await readConfigKeyFile(), encryptedValue);
 }
 
 // Resolves the deployment-wide settings PSK as a hex string. Registered once
@@ -314,6 +312,60 @@ export function getConfigKeyFilePath() {
   return keyFilePath;
 }
 
+// The development key that was once committed to the repository. It is public, so production
+// refuses it, and the upgrade re-encrypts whatever is still stored under it.
+export const PUBLISHED_DEVELOPMENT_KEY = Buffer.from(
+  '925a3b8ca2c44b9aa07e4ff3fc8d82be2f13b71a316aacb7d50d4bf98a52ea78',
+  'hex',
+);
+
+// The default crypto.keyFile, relative to the server's working directory. Outside production a
+// missing key file here is generated, so every checkout has a development key of its own.
+const DEVELOPMENT_KEY_FILE = 'config/dev-secret.key';
+
+const isProduction = () => process.env.NODE_ENV === 'production';
+
+// Written aside and linked into place, so concurrent readers (parallel test workers) never see a
+// partly written key, and the first writer wins.
+async function createDevelopmentKeyFile(keyFilePath) {
+  try {
+    await fs.access(keyFilePath);
+    return;
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+
+  const pendingPath = `${keyFilePath}.${crypto.randomUUID()}`;
+  await writeKeyFile(pendingPath, await generateSecretKey());
+  try {
+    await fs.link(pendingPath, keyFilePath);
+    log.info(`Generated a development key file at ${keyFilePath}`);
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err;
+  } finally {
+    await fs.unlink(pendingPath);
+  }
+}
+
+/** Reads the configured key file, refusing the published development key in production. */
+export async function readConfigKeyFile() {
+  const keyFilePath = getConfigKeyFilePath();
+  if (!isProduction() && keyFilePath === DEVELOPMENT_KEY_FILE) {
+    await createDevelopmentKeyFile(keyFilePath);
+  }
+
+  const keyBuffer = await readKeyFile(keyFilePath);
+  if (isProduction() && keyBuffer.equals(PUBLISHED_DEVELOPMENT_KEY)) {
+    throw new Error(
+      [
+        `The key file at ${keyFilePath} (config crypto.keyFile) is the development key published in the Tamanu repository, which production does not use.`,
+        "Generate a key for this server, mount it, and set CRYPTO_KEY_FILE to its path. The next upgrade re-encrypts this server's stored secrets under it.",
+      ].join('\n'),
+    );
+  }
+  return keyBuffer;
+}
+
 /** CLI helper: create a new key file. Throws if one already exists. */
 export async function initConfigSecretKeyFile() {
   const keyFilePath = getConfigKeyFilePath();
@@ -337,9 +389,7 @@ export async function initConfigSecretKeyFile() {
 
 /** CLI helper: encrypt a value with the configured key file. */
 export async function encryptConfigValue(plaintext) {
-  const keyFilePath = getConfigKeyFilePath();
-  const keyBuffer = await readKeyFile(keyFilePath);
-  return encryptSecret(keyBuffer, plaintext);
+  return encryptSecret(await readConfigKeyFile(), plaintext);
 }
 
 /** CLI action: create a key file and optionally encrypt a settings PSK. */
