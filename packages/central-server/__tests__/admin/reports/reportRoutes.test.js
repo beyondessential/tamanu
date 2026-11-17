@@ -261,7 +261,7 @@ describe('reportRoutes', () => {
       const res = await adminApp
         .post('/api/admin/reports/00000000-0000-0000-0000-000000000000/versions')
         .send(newVersion);
-      expect(res).toHaveStatus(404);
+      expect(res.status).toBe(404);
     });
   });
 
