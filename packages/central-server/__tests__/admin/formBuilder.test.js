@@ -199,6 +199,35 @@ describe('Form Builder Admin', () => {
     expect(response.body).toMatchObject({ sessionId: 'new-session-id' });
   });
 
+  it('reads an uploaded file in an async chat and deletes it afterwards', async () => {
+    const startResponse = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Use this form', async: true }))
+      .attach('file', Buffer.from('Patient name\nDate of referral'), 'form.txt');
+
+    expect(startResponse.status).toBe(202);
+    const pollResponse = await pollUntilSettled(startResponse.body.jobId);
+
+    expect(pollResponse.body).toMatchObject({ status: 'complete' });
+    expect(aiService.sendFormBuilderMessage).toHaveBeenCalledWith(
+      'new-session-id',
+      '[TEXT DOCUMENT LOADED]\nPatient name\nDate of referral\n\nUse this form',
+    );
+    expect(await fs.readdir(uploadDirPath())).toEqual([]);
+  });
+
+  it('deletes the upload when the chat itself fails', async () => {
+    aiService.sendFormBuilderMessage.mockRejectedValueOnce(new Error('AI service unavailable'));
+
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Use this form' }))
+      .attach('file', Buffer.from('Patient name'), 'form.txt');
+
+    expect(response).not.toHaveSucceeded();
+    expect(await fs.readdir(uploadDirPath())).toEqual([]);
+  });
+
   it('deletes the upload when the chat job cannot be started', async () => {
     // nothing else would: the job that deletes it never came to exist
     aiService.hasSession.mockReturnValue(false);
