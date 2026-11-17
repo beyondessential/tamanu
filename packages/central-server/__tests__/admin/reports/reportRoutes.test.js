@@ -557,6 +557,11 @@ describe('reportRoutes', () => {
         ).resolves.not.toThrow();
       });
 
+      it('rejects a second statement even when it is harmless', async () => {
+        // Pins the single-statement rule on its own: the read-only transaction would let this through.
+        await expect(verify('select 1; select 2')).rejects.toThrow(/multiple commands/);
+      });
+
       it('rejects an invalid query', async () => {
         await expect(verify('some random non sql query')).rejects.toThrow(/Invalid query/);
       });
