@@ -63,10 +63,13 @@ describe('readConfigKeyFile', () => {
   it.each([
     ['production', 'production'],
     ['an unset NODE_ENV', undefined],
-  ])('generates nothing in %s', async (_label, nodeEnv) => {
+  ])('generates nothing in %s, and says how to provide a key', async (_label, nodeEnv) => {
     vi.stubEnv('NODE_ENV', nodeEnv);
     keyFile.path = DEVELOPMENT_KEY_FILE;
-    await expect(readConfigKeyFile()).rejects.toMatchObject({ code: 'ENOENT' });
+    const error = await readConfigKeyFile().catch(err => err);
+    expect(error).toMatchObject({ code: 'ENOENT' });
+    expect(error.message).toContain('configSecret init');
+    expect(error.message).toContain('CRYPTO_KEY_FILE');
   });
 
   it.each([

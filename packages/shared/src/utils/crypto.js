@@ -357,7 +357,20 @@ export async function readConfigKeyFile() {
     await createDevelopmentKeyFile(keyFilePath);
   }
 
-  const keyBuffer = await readKeyFile(keyFilePath);
+  const keyBuffer = await readKeyFile(keyFilePath).catch(err => {
+    if (err.code !== 'ENOENT' || isDevelopmentEnvironment()) throw err;
+    // Keeps the code, so callers with more context (the upgrade) can still tell it apart.
+    throw Object.assign(
+      new Error(
+        [
+          `There is no key file at ${keyFilePath} (config crypto.keyFile).`,
+          'Generate a key for this server with `configSecret init`, mount it, and set CRYPTO_KEY_FILE to its path.',
+        ].join('\n'),
+        { cause: err },
+      ),
+      { code: err.code },
+    );
+  });
   if (!isDevelopmentEnvironment() && keyBuffer.equals(PUBLISHED_DEVELOPMENT_KEY)) {
     throw new Error(
       [
