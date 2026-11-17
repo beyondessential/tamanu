@@ -27,6 +27,21 @@ const assertUserCanSyncFacilities = async (req, facilityIds) => {
   }
 };
 
+// A session is served only to the user and device that started it: knowing its id is not enough.
+// An unknown session is left to the handler, which reports it as it would anyway.
+const loadOwnSyncSession = async (req, sessionId) => {
+  const session = await req.models.SyncSession.findByPk(sessionId);
+  if (!session) {
+    return;
+  }
+
+  const { userId, deviceId } = session.parameters;
+  if (userId !== req.user.id || deviceId !== req.device.id) {
+    throw new ForbiddenError('Sync session was started by another user or device');
+  }
+  req.syncSession = session;
+};
+
 /**
  * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
  */
@@ -49,6 +64,10 @@ export const buildSyncRoutes = ctx => {
     }
 
     next();
+  });
+
+  syncRoutes.param('sessionId', (req, _res, next, sessionId) => {
+    loadOwnSyncSession(req, sessionId).then(() => next(), next);
   });
 
   // create new sync session or join/update the queue for one
@@ -220,12 +239,32 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/pull/initiate',
     asyncHandler(async (req, res) => {
-      const { params, body, device } = req;
-      const { since: sinceString, facilityIds, tablesToInclude, tablesForFullResync } = body;
+      const { params, body, device, syncSession } = req;
+      const {
+        since: sinceString,
+        facilityIds: requestedFacilityIds,
+        tablesToInclude,
+        tablesForFullResync,
+      } = body;
       const since = parseInt(sinceString, 10);
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
       }
+      if (!syncSession) {
+        throw new Error(`Sync session '${params.sessionId}' not found`);
+      }
+
+      // the pull covers only facilities the session was authorised for when it started
+      const sessionFacilityIds = syncSession.parameters.facilityIds ?? [];
+      const facilityIds = requestedFacilityIds ?? sessionFacilityIds;
+      if (
+        !Array.isArray(facilityIds) ||
+        facilityIds.length === 0 ||
+        facilityIds.some(facilityId => !sessionFacilityIds.includes(facilityId))
+      ) {
+        throw new ForbiddenError('Pull names facilities outside the sync session');
+      }
+
       await syncManager.initiatePull(params.sessionId, {
         since,
         facilityIds,
