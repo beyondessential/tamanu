@@ -419,10 +419,19 @@ describe('ScheduledTask', () => {
       parentTask.subtasks = [new TestSubtask()];
       parentTask.recordRunsIn(runState);
 
+      const infoSpy = vi.spyOn(log, 'info');
+
       await parentTask.runImmediately();
 
       expect(runState.startRun).toHaveBeenCalledWith('TestSubtask');
       expect(hasParentRun).toBe(false);
+      expect(infoSpy).toHaveBeenCalledWith(
+        'ScheduledTask: TestScheduledTask: Not running (scheduled tasks are held)',
+      );
+      expect(infoSpy).not.toHaveBeenCalledWith(
+        'ScheduledTask: TestScheduledTask: Not running (subtask failed)',
+      );
+      infoSpy.mockRestore();
     });
 
     it('Clears the running state of the tasks it starts recording, subtasks included', async () => {

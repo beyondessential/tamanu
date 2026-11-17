@@ -28,6 +28,7 @@ export class ScheduledTask {
     this.jitterTime = jitterTime;
     this.isEnabled = isEnabled;
     this.runState = null;
+    this.wasHeld = false;
   }
 
   /**
@@ -85,9 +86,15 @@ export class ScheduledTask {
   }
 
   async runImmediatelyImplementation(name, span) {
+    this.wasHeld = false;
     for (const subtask of this.subtasks) {
       const outcome = await subtask.runImmediately();
       if (!outcome) {
+        if (subtask.wasHeld) {
+          this.log.info(`ScheduledTask: ${name}: Not running (scheduled tasks are held)`);
+          span.addEvent('Skip: scheduled tasks are held');
+          return false;
+        }
         // We expect the subtask will have caught & logged all its own errors
         this.log.info(`ScheduledTask: ${name}: Not running (subtask failed)`);
         span.addEvent('Skip: subtask failed');
@@ -140,6 +147,7 @@ export class ScheduledTask {
     }
 
     const { isHeld, isRecorded } = await this.#startRecordedRun(name, span);
+    this.wasHeld = isHeld;
     if (isHeld) {
       this.log.info(`ScheduledTask: ${name}: Not running (scheduled tasks are held)`);
       span.addEvent('Skip: scheduled tasks are held');
