@@ -1,9 +1,10 @@
 import Sequelize from 'sequelize';
+import { REPORT_DB_CONNECTIONS } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { verifyQuery } from './utils';
 
 export async function createReportDefinitionVersion(
-  { store, reportSchemaStores },
+  { store, reportSchemaStores, canEditSchema },
   reportId,
   definition,
   userId,
@@ -23,13 +24,14 @@ export async function createReportDefinitionVersion(
   if (reportId && !existingReport) {
     throw new NotFoundError(`No report found with id ${reportId}`);
   }
+  const dbSchema = existingReport?.dbSchema ?? definition.dbSchema;
+  if (!canEditSchema && dbSchema === REPORT_DB_CONNECTIONS.RAW) {
+    throw new InvalidOperationError(
+      'You do not have permission to create reports using the raw schema',
+    );
+  }
   const { parameters } = definition.queryOptions;
-  await verifyQuery(
-    definition.query,
-    { parameters },
-    { reportSchemaStores },
-    existingReport?.dbSchema ?? definition.dbSchema,
-  );
+  await verifyQuery(definition.query, { parameters }, { reportSchemaStores }, dbSchema);
   return sequelize.transaction(
     {
       // Prevents race condition when determining the next version number

@@ -265,6 +265,55 @@ describe('reportRoutes', () => {
     });
   });
 
+  describe('raw schema permission', () => {
+    let reportAuthorApp;
+    beforeAll(async () => {
+      reportAuthorApp = await baseApp.asNewRole([
+        ['create', 'ReportDefinition'],
+        ['create', 'ReportDefinitionVersion'],
+      ]);
+    });
+
+    const getNewReport = name => {
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, reportDefinitionId, userId, ...definition } = getMockReportVersion(
+        1,
+        'select 1',
+      );
+      return { name, ...definition };
+    };
+
+    it('should refuse a raw report without permission to write the schema', async () => {
+      const name = 'Raw report without schema permission';
+      const res = await reportAuthorApp
+        .post('/api/admin/reports')
+        .send({ ...getNewReport(name), dbSchema: REPORT_DB_CONNECTIONS.RAW });
+      expect(res).toHaveRequestError();
+      expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
+    });
+
+    it('should create a reporting report without permission to write the schema', async () => {
+      const res = await reportAuthorApp
+        .post('/api/admin/reports')
+        .send(getNewReport('Reporting report without schema permission'));
+      expect(res).toHaveSucceeded();
+    });
+
+    it('should refuse a version of a raw report without permission to write the schema', async () => {
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...newVersion } = getMockReportVersion(1, 'select 1');
+      const res = await reportAuthorApp
+        .post(`/api/admin/reports/${testReport.id}/versions`)
+        .send({ ...newVersion, dbSchema: REPORT_DB_CONNECTIONS.REPORTING });
+      expect(res).toHaveRequestError();
+      expect(
+        await models.ReportDefinitionVersion.count({
+          where: { reportDefinitionId: testReport.id },
+        }),
+      ).toBe(0);
+    });
+  });
+
   describe('GET /reports/:id/versions/:versionId/export/:format', () => {
     it('should export a report as json', async () => {
       const { ReportDefinitionVersion } = models;

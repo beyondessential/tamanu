@@ -122,7 +122,7 @@ reportsRouter.post(
       : body;
 
     const version = await createReportDefinitionVersion(
-      { store, reportSchemaStores },
+      { store, reportSchemaStores, canEditSchema: req.ability.can('write', 'ReportDbSchema') },
       null,
       transformedBody,
       user.id,
@@ -142,7 +142,7 @@ reportsRouter.post(
 
     const { reportId } = params;
     const version = await createReportDefinitionVersion(
-      { store, reportSchemaStores },
+      { store, reportSchemaStores, canEditSchema: req.ability.can('write', 'ReportDbSchema') },
       reportId,
       body,
       user.id,
