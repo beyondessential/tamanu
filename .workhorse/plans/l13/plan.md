@@ -104,7 +104,9 @@ The supervisor came out far larger than a small component should be. The decisio
 - The image's entrypoint is a POSIX `sh` script. With no `supervisor` command it runs Caddy with its arguments, so the default old-layout mode is unchanged. With `supervisor` it checks each required variable is set and non-empty, checks the obvious formats (role, `host:port` addresses, an `http(s)://` actuator address, a duration-looking idle time), rejects unknown `TAMANU_SUPERVISOR_*` names, picks the role's Caddyfile and the portal's block when its address is set, and runs `caddy run`. It catches the obvious mistakes only; the operator follows the documented contract.
 - This removes the `config` and `routes` packages and the `tamanu-supervisor` command. The smoke tests stay, run against the shipped Caddyfile.
 
-Still to settle: resuming after a restart, several supervisors per server, and the size of the tests.
+- No saved state. A new lease holder reads the phase from the actuator's part states: every part desired and observed down is asleep, and stays so; anything else is woken, so a sleep cut short by a restart becomes a wake. This drops the saved-state record and its contract endpoint, step tracking and resuming a sleep, and the saved release check (upgrades already wake through the actuator). The last failure is kept in memory only, so a new holder shows none until it meets one itself.
+- Several supervisors per server stay: the lease, reports and sleep barrier remain, and the lease only decides who acts.
+- Tests are reviewed for what earns its place, then rewritten table-driven alongside the code changes.
 
 ### Later
 
