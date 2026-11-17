@@ -16,7 +16,11 @@ async function importReport(options) {
   const store = await initDatabase({ testMode: false });
   // Report queries are only ever checked on the reporting roles' connections.
   const reportSchemaStores = await initReporting(store);
-  const definition = await importUtils.findOrCreateDefinition(overriddenName, store);
+  const definition = await importUtils.findOrCreateDefinition(
+    overriddenName,
+    versionData.dbSchema,
+    store,
+  );
   const versions = await definition.getVersions();
   await importActions.createVersion(
     versionData,
