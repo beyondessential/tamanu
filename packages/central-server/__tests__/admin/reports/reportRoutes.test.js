@@ -610,6 +610,20 @@ describe('reportRoutes', () => {
           'an unreachable server',
           Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' }),
         ],
+        [
+          'a reporting role with the wrong password',
+          Object.assign(new Error('password authentication failed'), {
+            severity: 'FATAL',
+            code: '28P01',
+          }),
+        ],
+        [
+          'a reporting connection naming a database that does not exist',
+          Object.assign(new Error('database "nope" does not exist'), {
+            severity: 'FATAL',
+            code: '3D000',
+          }),
+        ],
       ])('passes through %s rather than blaming the query', async (_, connectionError) => {
         const unreachableStores = {
           [REPORT_DB_CONNECTIONS.RAW]: {

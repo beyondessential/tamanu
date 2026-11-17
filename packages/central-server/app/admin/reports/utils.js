@@ -39,8 +39,12 @@ export const readJSON = async path => {
 class VerificationRollback extends Error {}
 
 // SQLSTATE classes meaning the check could not run, rather than that the query is at fault:
-// connection exception, insufficient resources, operator intervention, system error, internal error.
-const CHECK_UNAVAILABLE_SQLSTATE_CLASSES = ['08', '53', '57', '58', 'XX'];
+// connection exception, invalid authorization, invalid catalog name, insufficient resources,
+// operator intervention, system error, internal error. A reporting connection that is misconfigured
+// reaches us as one of these, and is no more the report author's to fix than an unreachable server.
+// Class 3F (invalid schema name) is deliberately absent: a query naming a schema that does not
+// exist raises it, so it is usually the query's own fault.
+const CHECK_UNAVAILABLE_SQLSTATE_CLASSES = ['08', '28', '3D', '53', '57', '58', 'XX'];
 
 const isQueryFault = err =>
   Boolean(err?.severity) &&
