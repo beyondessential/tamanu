@@ -79,7 +79,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
         duration: session.completedAt - session.createdAt,
         deviceId: session.parameters.deviceId ?? 'unknown',
         deviceType: session.parameters.isMobile ? 'mobile' : 'facility',
-        recordsPulled: session.debugInfo.totalToPull ?? 0,
+        recordsPulled: session.parameters.totalToPull ?? session.debugInfo.totalToPull ?? 0,
         tick: session.pullSince ?? 0,
       }))
       .sort((oa, ob) => {
