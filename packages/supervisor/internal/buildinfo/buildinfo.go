@@ -14,11 +14,19 @@ var Version = Dev
 // Dev is the version of a build that was not given one.
 const Dev = "dev"
 
-// IsDev reports whether the build was not given a release.
-func IsDev() bool { return Version == Dev }
-
-// Same reports whether two release versions name the same release, ignoring
-// a leading "v".
-func Same(a, b string) bool {
-	return strings.TrimPrefix(strings.TrimSpace(a), "v") == strings.TrimPrefix(strings.TrimSpace(b), "v")
+// Line is the release line of version: its major and minor version, as
+// "2.70" for "v2.70.3". A version without two dot-separated parts is its own
+// line.
+//
+// spec: SUPV#compatibility
+func Line(version string) string {
+	version = strings.TrimPrefix(strings.TrimSpace(version), "v")
+	parts := strings.SplitN(version, ".", 3)
+	if len(parts) < 2 {
+		return version
+	}
+	return parts[0] + "." + parts[1]
 }
+
+// SameLine reports whether two versions are of the same release line.
+func SameLine(a, b string) bool { return Line(a) == Line(b) }

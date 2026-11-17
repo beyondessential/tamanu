@@ -1,6 +1,8 @@
-// Package persist reads and writes the supervisor's state file.
+// Package persist encodes the supervisor's saved state, and reads and writes
+// it.
 //
 // spec: SUPV#resilience
+// spec: SUPV#compatibility
 package persist
 
 import (
@@ -19,8 +21,15 @@ import (
 // FileName is the name of the state file in the data directory.
 const FileName = "supervisor-state.json"
 
+// Format is the version of the saved state's document. A change a supervisor
+// of the release line before could not read takes a new format, and Decode
+// keeps reading the old one.
+const Format = 1
+
 // Record is what the supervisor keeps.
 type Record struct {
+	// Format is the document's format version.
+	Format int `json:"format"`
 	// Release is the release of the supervisor that wrote the record.
 	Release string `json:"release"`
 	// Phase is the phase the server was in.
@@ -31,6 +40,30 @@ type Record struct {
 	LastFailure *state.Failure `json:"lastFailure,omitempty"`
 	// UpdatedAt is when the record was written.
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// Encode writes rec as a document of the current format.
+func Encode(rec Record) ([]byte, error) {
+	rec.Format = Format
+	return json.MarshalIndent(rec, "", "  ")
+}
+
+// Decode reads a document, ignoring fields it does not know and defaulting
+// those it lacks. usable is false for a document it cannot act on, of a later
+// format or naming an unknown phase, which is as good as no saved state.
+func Decode(b []byte) (rec Record, usable bool, err error) {
+	if err := json.Unmarshal(b, &rec); err != nil {
+		return Record{}, false, err
+	}
+	switch rec.Phase {
+	case state.Awake, state.GoingToSleep, state.Asleep, state.Waking:
+	default:
+		return Record{}, false, nil
+	}
+	if rec.Format > Format {
+		return Record{}, false, nil
+	}
+	return rec, true, nil
 }
 
 // Store reads and writes the record in a directory.
@@ -58,16 +91,17 @@ func (s *Store) Load() (rec Record, found bool, err error) {
 	if err != nil {
 		return Record{}, false, err
 	}
-	if err := json.Unmarshal(b, &rec); err != nil {
+	rec, usable, err := Decode(b)
+	if err != nil {
 		return Record{}, false, fmt.Errorf("reading %s: %w", s.Path(), err)
 	}
-	return rec, true, nil
+	return rec, usable, nil
 }
 
 // Save writes the record atomically: a reader, or a supervisor starting after
 // a crash, finds either the old record or the new one, never a mix.
 func (s *Store) Save(rec Record) error {
-	b, err := json.MarshalIndent(rec, "", "  ")
+	b, err := Encode(rec)
 	if err != nil {
 		return err
 	}

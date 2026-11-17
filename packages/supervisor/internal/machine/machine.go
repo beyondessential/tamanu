@@ -7,6 +7,7 @@
 package machine
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -215,16 +216,16 @@ func (m *Machine) resume(ctx context.Context, s actuator.State) {
 	if found {
 		m.st.RestoreFailure(rec.LastFailure)
 	}
-	sameRelease := found && buildinfo.Same(rec.Release, m.cfg.Release)
+	sameLine := found && buildinfo.SameLine(rec.Release, m.cfg.Release)
 	log := m.log.With(zap.String("persisted_phase", string(rec.Phase)), zap.String("persisted_step", rec.Step),
 		zap.String("persisted_release", rec.Release))
 
 	switch {
-	case found && rec.Phase == state.Asleep && sameRelease && s.AllDesired(m.cfg.Parts, actuator.Down):
+	case found && rec.Phase == state.Asleep && sameLine && s.AllDesired(m.cfg.Parts, actuator.Down):
 		log.Info("starting on an asleep server; keeping it asleep")
 		m.st.SetAllReady(false)
 		m.st.SetPhase(state.Asleep)
-	case found && rec.Phase == state.GoingToSleep && sameRelease:
+	case found && rec.Phase == state.GoingToSleep && sameLine:
 		log.Info("continuing an interrupted sleep")
 		m.goToSleep(ctx, rec.Step)
 	case found && rec.Phase != state.Awake:
@@ -378,8 +379,8 @@ func (m *Machine) goToSleep(ctx context.Context, from string) {
 	case errors.Is(cause, errActivity):
 		m.log.Info("activity cancelled the sleep; waking the server", zap.String("step", failedStep))
 		m.wake(ctx)
-	case cause != nil:
-		m.log.Info("sleep cancelled", zap.Error(cause), zap.String("step", failedStep))
+	case cause != nil || errors.Is(err, errUpgrade):
+		m.log.Info("sleep cancelled", zap.Error(cmp.Or(cause, err)), zap.String("step", failedStep))
 	case errors.Is(err, errBusy):
 		m.log.Info("not sleeping", zap.Error(err))
 		m.nextAttempt = time.Now().Add(m.cfg.Timing.BusyRecheck)
@@ -425,6 +426,9 @@ func (m *Machine) watchSleep(ctx context.Context, stop <-chan struct{}, cancel c
 
 // spec: SLPWK#going-to-sleep
 func (m *Machine) checkRelease(ctx context.Context) error {
+	if err := m.notUpgrading(); err != nil {
+		return err
+	}
 	if m.cfg.Release == buildinfo.Dev {
 		if !m.devLogged {
 			m.log.Warn("a development build does not know its release; not checking the server's")
@@ -436,13 +440,16 @@ func (m *Machine) checkRelease(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	if !buildinfo.Same(version, m.cfg.Release) {
-		return fmt.Errorf("the server runs release %s, and the supervisor %s", version, m.cfg.Release)
+	if !buildinfo.SameLine(version, m.cfg.Release) {
+		return fmt.Errorf("the server runs release %s, and the supervisor %s, of another line", version, m.cfg.Release)
 	}
 	return nil
 }
 
 func (m *Machine) hold(ctx context.Context) error {
+	if err := m.notUpgrading(); err != nil {
+		return err
+	}
 	res, err := m.api.HoldTasks(ctx)
 	if err != nil {
 		return err
@@ -455,6 +462,9 @@ func (m *Machine) hold(ctx context.Context) error {
 
 // spec: SLPWK#going-to-sleep
 func (m *Machine) finalSync(ctx context.Context) error {
+	if err := m.notUpgrading(); err != nil {
+		return err
+	}
 	res, err := m.api.FinalSync(ctx)
 	if err != nil {
 		return err
@@ -511,9 +521,12 @@ func (m *Machine) wake(ctx context.Context) {
 		backoff = min(2*backoff, m.cfg.Timing.WakeBackoffMax)
 	}
 
-	// The hold expires by itself, so failing to release it does not stop the wake.
-	if err := m.api.ReleaseTasks(ctx); err != nil {
-		m.log.Warn("releasing the task hold", zap.Error(err))
+	// The hold expires by itself, so failing to release it does not stop the
+	// wake. During an upgrade it is left for the wake that follows the upgrade.
+	if err := m.notUpgrading(); err == nil {
+		if err := m.api.ReleaseTasks(ctx); err != nil {
+			m.log.Warn("releasing the task hold", zap.Error(err))
+		}
 	}
 	if m.wakeFailed {
 		m.st.SetFailure("")
@@ -561,6 +574,16 @@ func (m *Machine) waitUpgrade(ctx context.Context) bool {
 		}
 	}
 	return ctx.Err() == nil
+}
+
+// notUpgrading refuses a call to the api while an upgrade is in progress.
+//
+// spec: SUPV#upgrades
+func (m *Machine) notUpgrading() error {
+	if m.upgrading.Load() {
+		return errUpgrade
+	}
+	return nil
 }
 
 func (m *Machine) setAwake() {
