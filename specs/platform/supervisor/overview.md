@@ -32,7 +32,12 @@ Applies to the supervisor, the small always-on process that sits in front of eve
 - The actuator is the platform's component that starts and stops the server's parts and reports on them. The supervisor finds it through configuration and talks to it only through the [actuator contract](sleep-and-wake.md#actuator-contract). It is the supervisor's only connection outwards.
 - A supervisor with no actuator configured, or whose actuator does not control the server's parts, never puts its server to sleep and only routes traffic. This is how a platform keeps a server always on.
 - The same supervisor, from the same release, runs unchanged on Kubernetes, Linux and Windows.
-- The supervisor's container image carries the web app and the patient portal of its release, so there is no separate image for them.
+- A platform puts either the supervisor or its own routing in front of a server, never both.
+- The supervisor's container image is the release's frontend image, carrying the web app and the patient portal. It runs the supervisor only when started with the supervisor's command and configuration.
+- Started without the supervisor's command, the frontend image serves the web app alone, for a platform that routes requests to the server's parts itself. The release's patient portal image does the same for the patient portal.
+
+> [!NOTE]
+> A platform moves its deployments onto the supervisor one at a time, so a release's images have to run in the layout without a supervisor as well as the layout with one.
 
 ## Talking to the server
 
