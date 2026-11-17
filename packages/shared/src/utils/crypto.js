@@ -336,7 +336,7 @@ const isDevelopmentEnvironment = () => DEVELOPMENT_ENVIRONMENTS.includes(process
 
 /** How an operator gives a deployment a key of its own, for errors about a missing or refused key. */
 export const PROVIDE_KEY_ADVICE =
-  'Set CRYPTO_KEY_FILE to the path of a key file for this server, mounted where it runs; `configSecret init` generates one at that path.';
+  'Set CRYPTO_KEY_FILE to the path of a key file for this server, mounted where it runs. To generate one, run `configSecret init` with CRYPTO_KEY_FILE already set: it writes to that path.';
 
 // Written aside and linked into place, so concurrent readers (parallel test workers) never see a
 // partly written key, and the first writer wins.

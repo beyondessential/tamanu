@@ -115,13 +115,15 @@ async function readKey(keyFilePath: string, encryptedValues: string[]): Promise<
           PROVIDE_KEY_ADVICE,
           'The upgrade then re-encrypts the stored secrets under it, and names any config values to re-encrypt.',
         ].join('\n'),
+        { cause: err },
       );
     }
     throw new Error(
       [
-        `The config key file at ${keyFilePath} (config crypto.keyFile) is not present, and this server holds values encrypted with it.`,
+        `The config key file at ${keyFilePath} (config crypto.keyFile) is not present, and this server's database or config holds values encrypted with it.`,
         'Where the server runs in a container, that path is a mounted secret: check it is mounted into the process running the upgrade.',
       ].join('\n'),
+      { cause: err },
     );
   }
 }
