@@ -6,19 +6,12 @@ import type { InitOptions } from '../types/model';
 
 // spec: SLPWK#going-to-sleep
 //
-// One row per scheduled task, keyed by the task's name: when its current run started, if one is
-// running, and when it last started and finished a run. The api reads it to tell the supervisor
-// whether a task is running.
+// A task starting a run takes a shared lock on the hold's row (FACT_SCHEDULED_TASK_HOLD_UNTIL),
+// and setting the hold takes an exclusive one, so either the task's start commits first and the
+// hold sees it running, or the task waits and sees the hold. Both run at READ COMMITTED, so each
+// sees what the other committed while it waited.
 //
-// The supervisor's hold on scheduled tasks lives in local_system_facts
-// (FACT_SCHEDULED_TASK_HOLD_UNTIL). A task starting a run takes a shared lock on the hold's row
-// and the supervisor setting the hold takes an exclusive one, so the two serialise: either the
-// task commits its run as started before the hold is set, and the hold sees it running, or the
-// task waits for the hold to commit and sees it. Both run at READ COMMITTED, so each statement
-// after the lock sees what the other committed while it waited.
-//
-// Operational state local to each server — DO_NOT_SYNC, and excluded from change logging (see
-// services/migrations/constants.ts).
+// Not synced, and excluded from change logging (services/migrations/constants.ts).
 export class ScheduledTaskState extends Model {
   declare id: string;
   declare name: string;
@@ -69,16 +62,12 @@ export class ScheduledTaskState extends Model {
   }
 
   /**
-   * Hold scheduled tasks for `durationMs`, unless the server is busy: a scheduled task is running,
-   * or a FHIR job is queued or in progress. A busy server is left without a hold.
+   * Hold scheduled tasks for `durationMs`, unless a task is running or a FHIR job is queued or in
+   * progress, in which case no hold is left.
    *
-   * Not busy means nothing was running when the hold was committed, and no task starts a run while
-   * the hold lasts.
-   *
-   * The FHIR workers do not check the hold. They need not: the supervisor asks for the hold only
-   * once no request is in flight, and stops forwarding requests first, so with tasks held nothing
-   * is left to queue a FHIR job before it stops the workers. A job queued later, such as by a
-   * facility's final sync, stays queued until the server wakes.
+   * The FHIR workers do not check the hold: the supervisor asks only once no request is in flight
+   * and it has stopped forwarding them, so with tasks held nothing else queues a FHIR job before
+   * it stops the workers. A job queued later, such as by a final sync, waits for the wake.
    */
   static async holdUnlessBusy(
     durationMs: number,

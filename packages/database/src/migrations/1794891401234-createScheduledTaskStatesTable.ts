@@ -2,10 +2,6 @@ import { DataTypes, QueryInterface } from 'sequelize';
 
 const TABLE = { tableName: 'scheduled_task_states', schema: 'public' };
 
-// spec: SLPWK#going-to-sleep
-// One row per scheduled task, recording when its current run started (if one is running) and when
-// it last started and finished, so the api can tell the supervisor whether a task is running.
-// DO_NOT_SYNC operational state local to each server, and not change-logged.
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE, {
     id: {
@@ -32,7 +28,6 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    // Set while a run is in progress, cleared when it ends and when the tasks process starts.
     running_since: {
       type: DataTypes.DATE,
       allowNull: true,

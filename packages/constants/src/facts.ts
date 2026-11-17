@@ -68,7 +68,6 @@ export const FACT_REPORTING_SECRET_ROTATED_AT = 'reportingSecretRotatedAt';
 export const FACT_MV_UPCOMING_VACCINATIONS = `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`;
 
 // spec: SLPWK#going-to-sleep
-// When the supervisor's hold on scheduled tasks expires: no scheduled task starts a run while
-// this is in the future. Null (or past) means no hold. The row is kept once created, so a task
-// starting a run and the supervisor setting the hold can lock it against each other.
+// Expiry of the supervisor's hold on scheduled tasks; null or past means no hold. The row is kept
+// once created, so tasks and the supervisor can lock it against each other.
 export const FACT_SCHEDULED_TASK_HOLD_UNTIL = 'scheduledTaskHoldUntil';

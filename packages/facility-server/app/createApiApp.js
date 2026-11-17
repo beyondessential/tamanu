@@ -105,9 +105,7 @@ export async function createApiApp({
   const limiters = buildRateLimiters(await settings.global.get('rateLimit'));
 
   // spec: SUPV#talking-to-the-server
-  // Authenticated by the supervisor credential rather than a user, so outside the user auth, and
-  // before the HTTPS check: the supervisor calls the api directly, never over TLS. Failures count
-  // against the auth limiter, as other credential checks do.
+  // Before user auth and the HTTPS check: it has its own credential and calls over plain HTTP.
   express.use('/api/supervisor', limiters.authLimiter, facilitySupervisorRoutes());
 
   // Reject non-HTTPS requests when the security.requireHttps setting is enabled

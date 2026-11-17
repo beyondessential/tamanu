@@ -32,8 +32,8 @@ export class ScheduledTask {
   }
 
   /**
-   * Record this task's runs, and its subtasks', in the scheduled task run state, which also holds
-   * its runs while the supervisor holds scheduled tasks. A task not given one runs unrecorded.
+   * Record this task's runs, and its subtasks', in the run state, which also holds them while the
+   * supervisor holds scheduled tasks.
    *
    * @param {typeof import('@tamanu/database').ScheduledTaskState} runState
    */
@@ -50,8 +50,7 @@ export class ScheduledTask {
   }
 
   // spec: SLPWK#going-to-sleep
-  // Records the run as started, unless scheduled tasks are held. Recording never stops a run: a
-  // failure to record is logged, and the run goes ahead unrecorded, as it would with no run state.
+  // A failure to record never stops a run: it goes ahead unrecorded.
   async #startRecordedRun(name, span) {
     if (!this.runState) {
       return { isHeld: false, isRecorded: false };

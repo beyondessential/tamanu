@@ -18,10 +18,7 @@ export function facilitySupervisorRoutes() {
   const routes = supervisorRoutes({ version });
 
   // spec: SLPWK#going-to-sleep
-  // Syncs with central once more before the facility sleeps, through the sync process as
-  // `POST /sync/run` does, and waits for it with that request's own timeouts. Completed only if a
-  // sync session ran and succeeded: a sync central queued (busy, or waking) or one that failed
-  // answers not completed, which cancels the sleep.
+  // Through the sync process as `POST /sync/run` does, bounded by that request's timeouts.
   routes.post(
     '/final-sync',
     asyncHandler(async (req, res) => {
