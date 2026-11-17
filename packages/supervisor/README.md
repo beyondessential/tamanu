@@ -19,6 +19,14 @@ The `-X` flag sets the release the supervisor belongs to. A build without it is 
 it reports its release as `dev`, and puts a server to sleep without checking the server's database
 is migrated to the same release.
 
+The image is the root Dockerfile's `supervisor` target, stamped with the release in the root
+`package.json`. It runs as a non-root user, with `/var/lib/tamanu-supervisor` as a volume for
+`TAMANU_SUPERVISOR_DATA_DIR`. From the repository root:
+
+```sh
+docker build --target supervisor -t tamanu-supervisor .
+```
+
 No `xcaddy` is needed: `cmd/supervisor` imports Caddy's standard modules, `caddy-ratelimit` and
 Tamanu's modules, then runs Caddy's own command line.
 
