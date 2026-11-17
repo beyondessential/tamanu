@@ -79,10 +79,10 @@ Supervisor (Go, `packages/supervisor`):
 - [x] Admin API routes, read-only: server state, each part's state, last sleep or wake failure, upgrade in progress, supervisor health
 - [x] Go tests: routes per role, activity classification, the sleep and wake sequences against the fake actuator, cancellation and restart at each step
 - [x] CI job building and testing the Go module; a `supervisor` Dockerfile stage
-- [ ] Every supervisor passes traffic, holder or not: the holder announces the phase (numbered) in its report, every other supervisor follows the newest announcement and says so in its own report, and forwards to parts the actuator reports ready
-- [ ] The holder's idle check goes by every live report (latest activity, in-flight count); a wake request at any supervisor is reported at once and the holder starts the wake
-- [ ] Sleep barrier: after announcing going-to-sleep, nothing stops until every live report follows that announcement with nothing in flight; an expired report is no longer waited for
-- [ ] On `SIGTERM` the holder releases the lease and keeps passing traffic while Caddy drains; readiness is having read the actuator's state, whether or not holding the lease
+- [x] Every supervisor passes traffic, holder or not: the holder announces the phase (numbered) in its report, every other supervisor follows the newest announcement and says so in its own report, and forwards to parts the actuator reports ready
+- [x] The holder's idle check goes by every live report (latest activity, in-flight count); a wake request at any supervisor is reported at once and the holder starts the wake
+- [x] Sleep barrier: after announcing going-to-sleep, nothing stops until every live report follows that announcement with nothing in flight; an expired report is no longer waited for
+- [x] On `SIGTERM` the holder releases the lease and keeps passing traffic while Caddy drains; readiness is having read the actuator's state, whether or not holding the lease
 - [ ] Tell infra (Y3) and V14 the contract file exists
 
 Built as PR 4a (#11700, server side) and PR 4b (branch `feat/L13/supervisor`, stacked on it; opens once #11700 is approved). Notes from the build:
@@ -93,6 +93,7 @@ Built as PR 4a (#11700, server side) and PR 4b (branch `feat/L13/supervisor`, st
 - An upgrade starting mid-sleep is seen at the next actuator poll; the server wakes once the upgrade ends.
 - `TAMANU_SUPERVISOR_TRUSTED_PROXIES` names the proxies whose forwarded client address the rate limits use.
 - A facility with sync disabled can never complete its final sync, so it never sleeps.
+- Announcements are a lease token and sequence pair, so a new holder's first announcement beats every earlier one with nothing carried over; every supervisor polls the actuator every second; the sleep barrier gives up after a minute and counts as a failed sleep.
 
 ### Later
 
