@@ -633,6 +633,14 @@ export class CentralSyncManager {
       // after snapshotting inserts are done and the transaction is closed, run VACUUM (ANALYZE)
       // to mark pages all-visible and refresh stats so pulls use index-only scans
       await vacuumAnalyzeSnapshotTable(this.store.sequelize, sessionId);
+      // counted while the client is still polling pull/ready; counting in pull/metadata could
+      // outlast the client's request timeout on a large snapshot
+      const totalToPull = await countSyncSnapshotRecords(
+        sequelize,
+        sessionId,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      await models.SyncSession.setParameters(sessionId, { totalToPull });
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
       // outside the transaction, and the session is being updated to show the last connection
@@ -699,14 +707,15 @@ export class CentralSyncManager {
   }
 
   async fetchPullMetadata(sessionId) {
-    const session = await this.connectToSession(sessionId);
-    const totalToPull = await countSyncSnapshotRecords(
-      this.store.sequelize,
-      sessionId,
-      SYNC_SESSION_DIRECTION.OUTGOING,
-    );
-    await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
-    const { pullUntil } = session;
+    const { parameters, pullUntil } = await this.connectToSession(sessionId);
+    // sessions snapshotted before the total was stored still need counting
+    const totalToPull =
+      parameters.totalToPull ??
+      (await countSyncSnapshotRecords(
+        this.store.sequelize,
+        sessionId,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      ));
     return { totalToPull, pullUntil };
   }
 
