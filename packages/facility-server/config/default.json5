@@ -158,8 +158,8 @@
   },
   "crypto": {
     // Encryption key for local_system_secrets (encryption is mandatory).
-    // Outside production a key is generated here on first use, for local dev/test
-    // only; deploys set the CRYPTO_KEY_FILE env var to a mounted secret.
+    // With NODE_ENV development, test or e2e, a key is generated here on first
+    // use; deploys set the CRYPTO_KEY_FILE env var to a mounted secret.
     "keyFile": "config/dev-secret.key"
   },
   "language": "en",
