@@ -83,6 +83,11 @@ describe('Supervisor routes', () => {
       expect(response.status).toBe(401);
     });
 
+    it.each(routes)('%s %s rejects a credential that is not a bearer token', async (method, path) => {
+      const response = await baseApp[method](path).set('Authorization', SUPERVISOR_TOKEN);
+      expect(response.status).toBe(401);
+    });
+
     it.each(routes)('%s %s rejects a user access token', async (method, path) => {
       const agent = await baseApp.asRole('admin');
       const response = await agent[method](path);
@@ -98,6 +103,7 @@ describe('Supervisor routes', () => {
       vi.stubEnv('SUPERVISOR_TOKEN', unsetToken);
       for (const [method, path] of routes) {
         expect((await baseApp[method](path)).status).toBe(401);
+        expect((await baseApp[method](path).set('Authorization', 'Bearer ')).status).toBe(401);
         expect((await withToken(baseApp[method](path), '')).status).toBe(401);
       }
       expect(ctx.syncConnection.runSync).not.toHaveBeenCalled();
