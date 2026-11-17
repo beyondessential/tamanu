@@ -14,7 +14,8 @@ func init() {
 }
 
 // StatusHandler is the http.handlers.tamanu_status handler, serving GET
-// /status and GET /health.
+// /status, GET /health for the supervisor's own health, and GET /ready for
+// whether it knows what to do with requests.
 //
 // spec: SUPV#status
 type StatusHandler struct {
@@ -41,11 +42,17 @@ func (h *StatusHandler) Provision(ctx caddy.Context) error {
 
 func (h *StatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, _ caddyhttp.Handler) error {
 	var body any
+	status := http.StatusOK
 	switch r.URL.Path {
 	case "/status":
 		body = h.app.Status()
 	case "/health":
 		body = map[string]string{"status": "ok"}
+	case "/ready":
+		body = map[string]bool{"ready": h.app.Ready()}
+		if !h.app.Ready() {
+			status = http.StatusServiceUnavailable
+		}
 	default:
 		return caddyhttp.Error(http.StatusNotFound, nil)
 	}
@@ -55,7 +62,7 @@ func (h *StatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, _ cadd
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(status)
 	if r.Method == http.MethodHead {
 		return nil
 	}

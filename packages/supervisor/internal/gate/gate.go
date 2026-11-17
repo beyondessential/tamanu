@@ -82,13 +82,13 @@ func (g *Gate) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.
 	}
 
 	var admission state.Admission
-	var done func()
 	switch class {
 	case Static:
 		// spec: SLPWK#waking
-		admission, done = g.state.AdmitStatic()
-		defer done()
+		defer g.state.AdmitStatic()()
+		return next.ServeHTTP(w, r)
 	case Activity:
+		var done func()
 		admission, done = g.state.AdmitActivity(state.API)
 		defer done()
 	default:
@@ -101,9 +101,6 @@ func (g *Gate) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.
 	case state.Upgrading:
 		// spec: SUPV#upgrades
 		pages.Upgrading.Write(w, r, http.StatusServiceUnavailable)
-	case state.Standby:
-		// spec: SUPV#resilience
-		pages.Waking.Write(w, r, http.StatusServiceUnavailable)
 	default:
 		if class == Websocket {
 			// spec: SLPWK#waking

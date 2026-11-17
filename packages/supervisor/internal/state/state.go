@@ -48,9 +48,6 @@ const (
 	Hold
 	// Upgrading answers the request with the upgrading response.
 	Upgrading
-	// Standby answers the request with the waking response, without a wake,
-	// while the supervisor does not hold the lease.
-	Standby
 )
 
 // Failure is a failed sleep or wake step.
@@ -63,7 +60,6 @@ type Failure struct {
 // concurrent use. A new Server is awake with every part ready.
 type Server struct {
 	mu           sync.Mutex
-	serving      bool
 	phase        Phase
 	ready        map[Part]bool
 	parts        []Part
@@ -75,18 +71,19 @@ type Server struct {
 	now          func() time.Time
 	wake         chan struct{}
 	activity     chan struct{}
+	reportDue    chan struct{}
 }
 
 // New returns the state of a server with the given parts, awake and ready.
 func New(parts []Part) *Server {
 	s := &Server{
-		serving:  true,
-		phase:    Awake,
-		ready:    make(map[Part]bool, len(parts)),
-		parts:    append([]Part(nil), parts...),
-		now:      time.Now,
-		wake:     make(chan struct{}, 1),
-		activity: make(chan struct{}, 1),
+		phase:     Awake,
+		ready:     make(map[Part]bool, len(parts)),
+		parts:     append([]Part(nil), parts...),
+		now:       time.Now,
+		wake:      make(chan struct{}, 1),
+		activity:  make(chan struct{}, 1),
+		reportDue: make(chan struct{}, 1),
 	}
 	for _, p := range parts {
 		s.ready[p] = true
@@ -107,8 +104,6 @@ func (s *Server) SetClock(now func() time.Time) {
 // spec: SLPWK#waking
 func (s *Server) admit(part Part) Admission {
 	switch {
-	case !s.serving:
-		return Standby
 	case s.upgrading:
 		return Upgrading
 	case (s.phase == Awake || s.phase == Waking) && s.ready[part]:
@@ -126,17 +121,13 @@ func (s *Server) Admit(part Part) Admission {
 }
 
 // AdmitStatic records a request for one of the supervisor's own files, which
-// is served in every state and counts as activity, and is Forward unless the
-// supervisor is on standby. done is never nil and must be called once the
-// request has finished.
+// is served in every state and counts as activity. done must be called once
+// the request has finished.
 //
 // spec: SLPWK#waking
-func (s *Server) AdmitStatic() (admission Admission, done func()) {
+func (s *Server) AdmitStatic() (done func()) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if !s.serving {
-		return Standby, func() {}
-	}
 	s.lastActivity = s.now()
 	notify(s.activity)
 	if s.phase != Awake && !s.upgrading {
@@ -144,7 +135,7 @@ func (s *Server) AdmitStatic() (admission Admission, done func()) {
 	}
 	s.inFlight++
 	var once sync.Once
-	return Forward, func() { once.Do(s.endActivity) }
+	return func() { once.Do(s.endActivity) }
 }
 
 // AdmitActivity is Admit for a request that counts as activity. A forwarded
@@ -156,9 +147,6 @@ func (s *Server) AdmitActivity(part Part) (admission Admission, done func()) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	admission = s.admit(part)
-	if admission == Standby {
-		return admission, func() {}
-	}
 	s.lastActivity = s.now()
 	notify(s.activity)
 
@@ -178,6 +166,7 @@ func (s *Server) AdmitActivity(part Part) (admission Admission, done func()) {
 func (s *Server) requestWake() {
 	s.lastWake = s.now()
 	notify(s.wake)
+	notify(s.reportDue)
 }
 
 func (s *Server) endActivity() {
@@ -186,6 +175,9 @@ func (s *Server) endActivity() {
 	s.inFlight--
 	s.lastActivity = s.now()
 	notify(s.activity)
+	if s.inFlight == 0 {
+		notify(s.reportDue)
+	}
 }
 
 // RequestWake asks for the server to be woken. Requests made while one is
@@ -204,15 +196,9 @@ func (s *Server) WakeRequests() <-chan struct{} { return s.wake }
 // the last one was received, so an idle timer can rearm itself.
 func (s *Server) Activity() <-chan struct{} { return s.activity }
 
-// SetServing records whether the supervisor serves requests, which it does
-// only while it holds the actuator's lease, if it has an actuator.
-//
-// spec: SUPV#resilience
-func (s *Server) SetServing(serving bool) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.serving = serving
-}
+// ReportDue delivers a value whenever a wake has been asked for, or the last
+// request in flight has finished, since the last one was received.
+func (s *Server) ReportDue() <-chan struct{} { return s.reportDue }
 
 // SetPhase moves the server to phase.
 func (s *Server) SetPhase(phase Phase) {
@@ -272,7 +258,6 @@ func (s *Server) RestoreFailure(f *Failure) {
 
 // Snapshot is a consistent copy of the state at one moment.
 type Snapshot struct {
-	Serving      bool
 	Phase        Phase
 	Ready        map[Part]bool
 	Parts        []Part
@@ -307,7 +292,6 @@ func (s *Server) Snapshot() Snapshot {
 		failure = &f
 	}
 	return Snapshot{
-		Serving:         s.serving,
 		LastWakeRequest: s.lastWake,
 		Phase:           s.phase,
 		Ready:           ready,
