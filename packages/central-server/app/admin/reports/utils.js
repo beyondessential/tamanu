@@ -82,7 +82,8 @@ export async function verifyQuery(
     ? reportSchemaStores?.[dbSchema]
     : undefined;
   if (!reportStore) {
-    throw new InvalidOperationError(`Invalid query: unknown reporting schema "${dbSchema}"`);
+    // Not prefixed "Invalid query": the report's connection is the deployment's to fix, not the SQL.
+    throw new InvalidOperationError(`Unknown reporting schema "${dbSchema}"`);
   }
 
   const { sequelize } = reportStore;

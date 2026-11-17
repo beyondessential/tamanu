@@ -205,7 +205,7 @@ describe('reportRoutes', () => {
       .post('/api/admin/reports')
       .send({ ...definition, name, dbSchema: 'not-a-schema' });
     expect(res).toHaveRequestError();
-    expect(res.body.error.message).toMatch(/unknown reporting schema/);
+    expect(res.body.error.message).toMatch(/Unknown reporting schema/);
     expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
   });
 
@@ -597,7 +597,7 @@ describe('reportRoutes', () => {
               { store: ctx.store, reportSchemaStores },
               dbSchema,
             ),
-          ).rejects.toThrow(/unknown reporting schema/);
+          ).rejects.toThrow(/Unknown reporting schema/);
         },
       );
 
@@ -652,7 +652,7 @@ describe('reportRoutes', () => {
             { store: ctx.store },
             REPORT_DB_CONNECTIONS.REPORTING,
           ),
-        ).rejects.toThrow(/unknown reporting schema/);
+        ).rejects.toThrow(/Unknown reporting schema/);
       });
 
       describe('never executes the query', () => {
