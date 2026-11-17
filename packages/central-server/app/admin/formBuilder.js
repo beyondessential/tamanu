@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import {
   programDefinitionSchema,
   sanitizeProgramDefinitionPreview,
@@ -571,6 +571,7 @@ formBuilderRouter.post(
     }
 
     const { async: runAsync, ...payload } = await getUploadedData(req);
+    if (payload.file) assertUploadedFilePath(payload.file);
 
     if (runAsync) {
       // Resolve the session up front (rather than lazily inside the job) and

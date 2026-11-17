@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
@@ -18,7 +19,7 @@ const FILEDATA =
 vi.mock('@tamanu/shared/utils/getUploadedData');
 getUploadedData.mockImplementation(async req => {
   // Create a file that can be used with the FS module, return path
-  const fileName = path.resolve(__dirname, 'test-file.jpeg');
+  const fileName = path.join(os.tmpdir(), `upload-attachment-test-${process.pid}.jpeg`);
   await fs.writeFile(fileName, FILEDATA, { encoding: 'base64' });
   return {
     file: fileName,

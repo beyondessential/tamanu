@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { rm } from 'node:fs/promises';
+import { access, copyFile, mkdtemp, rm } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { Op } from 'sequelize';
 import { write, utils } from 'xlsx';
@@ -94,6 +95,23 @@ describe('Data definition import', () => {
         'message',
         'ForbiddenError: No permission to perform action “create” on “ReferenceData”',
       );
+    });
+
+    it('refuses a file path sent in a JSON body and leaves the file in place', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'EncounterDiagnosis' },
+      ]);
+      const dir = await mkdtemp(path.join(os.tmpdir(), 'refdata-import-'));
+      const file = path.join(dir, 'refdata.xlsx');
+      await copyFile('./__tests__/importers/refdata-valid.xlsx', file);
+
+      const result = await app
+        .post('/v1/admin/import/referenceData')
+        .send({ file, deleteFileAfterImport: true, includedDataTypes: ['allergy'] });
+
+      expect(result).toHaveRequestError();
+      await expect(access(file)).resolves.toBeUndefined();
+      await rm(dir, { recursive: true });
     });
 
     it('allows import if having sufficient permission for reference data', async () => {

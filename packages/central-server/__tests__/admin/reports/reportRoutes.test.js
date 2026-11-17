@@ -5,6 +5,8 @@ import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 import { User } from '@tamanu/database';
 import path from 'path';
+import os from 'os';
+import { promises as fs } from 'fs';
 
 describe('reportRoutes', () => {
   let ctx;
@@ -289,12 +291,36 @@ describe('reportRoutes', () => {
   });
 
   describe('POST /reports/import', () => {
-    it('should not create a version if dry run', async () => {
+    const importReport = (file, jsonData) =>
+      adminApp
+        .post(`/api/admin/reports/import`)
+        .attach('file', file)
+        .field('jsonData', JSON.stringify(jsonData));
+
+    it('should refuse a file path sent in a JSON body and leave the file in place', async () => {
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'report-import-'));
+      const file = path.join(dir, 'report.json');
+      await fs.copyFile(path.join(__dirname, '/data/without-version-number.json'), file);
+
       const res = await adminApp.post(`/api/admin/reports/import`).send({
-        file: path.join(__dirname, '/data/without-version-number.json'),
+        file,
+        name: 'Report Import From Path',
+        deleteFileAfterImport: true,
+        dbSchema,
+      });
+      expect(res).toHaveRequestError();
+      await expect(fs.access(file)).resolves.toBeUndefined();
+      const report = await models.ReportDefinition.findOne({
+        where: { name: 'Report Import From Path' },
+      });
+      expect(report).toBeFalsy();
+      await fs.rm(dir, { recursive: true });
+    });
+
+    it('should not create a version if dry run', async () => {
+      const res = await importReport(path.join(__dirname, '/data/without-version-number.json'), {
         name: 'Report Import Test Dry Run',
         dryRun: true,
-        deleteFileAfterImport: false,
         dbSchema,
       });
       expect(res).toHaveSucceeded();
@@ -312,10 +338,8 @@ describe('reportRoutes', () => {
       expect(report).toBeFalsy();
     });
     it('should import a version for new definition', async () => {
-      const res = await adminApp.post(`/api/admin/reports/import`).send({
-        file: path.join(__dirname, '/data/without-version-number.json'),
+      const res = await importReport(path.join(__dirname, '/data/without-version-number.json'), {
         name: 'Report Import Test',
-        deleteFileAfterImport: false,
         dbSchema,
       });
       expect(res).toHaveSucceeded();
@@ -338,10 +362,8 @@ describe('reportRoutes', () => {
     it('should create a new latest version if existing definition and no version number', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.post(`/api/admin/reports/import`).send({
-        file: path.join(__dirname, '/data/without-version-number.json'),
+      const res = await importReport(path.join(__dirname, '/data/without-version-number.json'), {
         name: testReport.name,
-        deleteFileAfterImport: false,
         dbSchema,
       });
       expect(res).toHaveSucceeded();
@@ -363,10 +385,8 @@ describe('reportRoutes', () => {
     it('should fail with InvalidOperationError if version number is specified', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.post(`/api/admin/reports/import`).send({
-        file: path.join(__dirname, '/data/with-version-number.json'),
+      const res = await importReport(path.join(__dirname, '/data/with-version-number.json'), {
         name: testReport.name,
-        deleteFileAfterImport: false,
       });
       expect(res).toHaveRequestError('InvalidOperationError');
       expect(res.body.error.message).toBe('Cannot import a report with a version number');

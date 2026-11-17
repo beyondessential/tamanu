@@ -2,7 +2,7 @@ import express from 'express';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { capitalize } from 'es-toolkit/compat';
 import {
@@ -216,7 +216,8 @@ reportsRouter.post(
 
     const canEditSchema = req.ability.can('write', 'ReportDbSchema');
 
-    const { name, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
+    const { name, file, dryRun, deleteFileAfterImport } = await getUploadedData(req);
+    assertUploadedFilePath(file);
 
     const versionData = await readJSON(file);
 

@@ -7,7 +7,7 @@ import { Sequelize } from 'sequelize';
 
 import { OTHER_REFERENCE_TYPES, PROGRAM_REFERENCE_TYPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
 
 import { DataImportError, DryRun } from '../errors';
@@ -155,26 +155,30 @@ export function createDataImporterEndpoint(importer) {
     // read uploaded data
     const {
       file,
-      deleteFileAfterImport = true,
+      deleteFileAfterImport,
       dryRun = false,
       includedDataTypes,
       ...extraOptions
     } = await getUploadedData(req);
+    assertUploadedFilePath(file);
 
-    const result = await importerTransaction({
-      importer,
-      file,
-      models: store.models,
-      dryRun,
-      includedDataTypes,
-      checkPermission,
-      ...extraOptions,
-    });
-
-    // we don't need the file any more
-    if (deleteFileAfterImport) {
-      // eslint-disable-next-line no-unused-vars
-      await fs.unlink(file).catch(ignore => {});
+    let result;
+    try {
+      result = await importerTransaction({
+        importer,
+        file,
+        models: store.models,
+        dryRun,
+        includedDataTypes,
+        checkPermission,
+        ...extraOptions,
+      });
+    } finally {
+      // we don't need the file any more
+      if (deleteFileAfterImport) {
+        // eslint-disable-next-line no-unused-vars
+        await fs.unlink(file).catch(ignore => {});
+      }
     }
 
     result.errors =

@@ -1,6 +1,6 @@
 import fs, { promises as asyncFs } from 'fs';
 import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging';
 import { CentralServerConnection } from '../sync';
 
@@ -14,6 +14,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
   // Read request and extract file, stats and metadata
   const { deviceId } = req;
   const { file, deleteFileAfterImport, type, ...metadata } = await getUploadedData(req);
+  assertUploadedFilePath(file);
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 
