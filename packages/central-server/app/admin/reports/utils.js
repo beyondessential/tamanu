@@ -1,13 +1,15 @@
 // The replacement step sequelize.query() itself runs (sequelize/src/utils/sql.ts), needed here
-// because the query is sent on the raw pg client. Its package exports expose lib/*; the report
-// route tests exercise it with named parameters, so an upgrade that moves it fails in CI.
-import { injectReplacements } from 'sequelize/lib/utils/sql';
+// because the query is sent on the raw pg client. The package exports this path, but the built file
+// is CommonJS whose named exports Node cannot see from ESM, so read it off the default export.
+import sequelizeSqlUtils from 'sequelize/lib/utils/sql';
 import { REPORT_DB_CONNECTION_VALUES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
 import fs from 'fs';
 
 import { toSafeFileName } from '../../utils/files';
+
+const { injectReplacements } = sequelizeSqlUtils;
 
 export const sanitizeFilename = (reportName, versionNumber, format) => {
   const sanitizedName = toSafeFileName(reportName)
