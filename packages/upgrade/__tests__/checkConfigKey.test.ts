@@ -264,6 +264,35 @@ describe('checkConfigKey', () => {
     expect(message).not.toContain('ab'.repeat(32));
   });
 
+  it('says how to move off the development key when only config values are under it', async () => {
+    keyFile.settingsPsk = await encryptSecret(PUBLISHED_DEVELOPMENT_KEY, 'ab'.repeat(32));
+
+    const error = await checkConfigKey(fakeSequelize({})).catch((err: Error) => err);
+    keyFile.settingsPsk = undefined;
+    const { message } = error as Error;
+    expect(message).toContain(missing);
+    expect(message).toContain('development key published');
+  });
+
+  it('warns about a config settings PSK the local store has replaced, without checking it', async () => {
+    keyFile.path = join(dir, 'present.key');
+    keyFile.settingsPsk = await encryptSecret(Buffer.alloc(32, 2), 'ab'.repeat(32));
+    const sequelize = fakeSequelize({
+      local_system_secrets: [{ id: 'a', key: 'settingsPsk', value: readable }],
+    });
+
+    const warn = vi.spyOn(log, 'warn').mockImplementation(() => log);
+    await checkConfigKey(sequelize);
+    const warnings = warn.mock.calls.map(([message, meta]) => [message, meta]);
+    warn.mockRestore();
+    keyFile.path = missing;
+    keyFile.settingsPsk = undefined;
+    expect(warnings).toContainEqual([
+      expect.stringContaining('unused'),
+      { paths: 'crypto.settingsPsk' },
+    ]);
+  });
+
   it('names config values encrypted with an unknown key', async () => {
     keyFile.path = join(dir, 'present.key');
     keyFile.settingsPsk = await encryptSecret(Buffer.alloc(32, 2), 'ab'.repeat(32));

@@ -15,6 +15,7 @@ Applies to the key file each server encrypts its local secrets with, and to the 
 - In a development environment, a server whose configuration names the default key path and finds no file there generates a key at that path, so each development checkout has a key of its own.
 - A deployment never generates its key. When the key file is missing, the server does not start.
 - An upgrade stops when a configuration file holds an encrypted value the configured key does not decrypt, and names each such value so it can be re-encrypted with that key, noting when any are under the [published development key](#the-published-development-key).
+- An encrypted configuration value that the server no longer reads, because the local secret store or a secret setting now holds what it held, does not stop an upgrade. The upgrade names it as unused so it can be removed.
 
 > [!NOTE]
 > A shell opened on a deployment usually carries no `NODE_ENV`, so a command run from one is held to the deployment's rules rather than generating a key that the next release would not have.

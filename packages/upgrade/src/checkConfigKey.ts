@@ -1,7 +1,7 @@
 import config from 'config';
 import { get as lodashGet } from 'es-toolkit/compat';
 import { QueryTypes, type Transaction } from 'sequelize';
-import { SERVER_IDENTITY_FACTS } from '@tamanu/constants';
+import { FACT_SETTINGS_PSK, SERVER_IDENTITY_FACTS } from '@tamanu/constants';
 import type { Sequelize } from '@tamanu/database';
 import { CONFIG_TO_SECRET_SETTINGS } from '@tamanu/settings';
 import { log } from '@tamanu/shared/services/logging';
@@ -17,12 +17,18 @@ import {
 
 const SECRET_TABLES = ['local_system_secrets', 'local_system_facts'];
 
+const SETTINGS_PSK_CONFIG_PATH = 'crypto.settingsPsk';
+
+const ENCRYPTED_CONFIG_SECRET_SETTINGS = CONFIG_TO_SECRET_SETTINGS.filter(
+  entry => entry.encryptedInConfig,
+);
+
 const ENCRYPTED_CONFIG_PATHS = [
-  'crypto.settingsPsk',
-  ...CONFIG_TO_SECRET_SETTINGS.filter(entry => entry.encryptedInConfig).map(entry => entry.config),
+  SETTINGS_PSK_CONFIG_PATH,
+  ...ENCRYPTED_CONFIG_SECRET_SETTINGS.map(entry => entry.config),
 ];
 
-type StoredSecret = { table: string; id: string; value: string };
+type StoredSecret = { table: string; id: string; key: string; value: string };
 
 async function findEncryptedSecrets(sequelize: Sequelize): Promise<StoredSecret[]> {
   const secrets: StoredSecret[] = [];
@@ -33,12 +39,12 @@ async function findEncryptedSecrets(sequelize: Sequelize): Promise<StoredSecret[
     );
     if (!exists?.name) continue;
 
-    const rows = await sequelize.query<{ id: string; value: string | null }>(
-      `SELECT id, value FROM public.${table} WHERE deleted_at IS NULL`,
+    const rows = await sequelize.query<{ id: string; key: string; value: string | null }>(
+      `SELECT id, key, value FROM public.${table} WHERE deleted_at IS NULL`,
       { type: QueryTypes.SELECT },
     );
-    for (const { id, value } of rows) {
-      if (isEncryptedSecret(value)) secrets.push({ table, id, value: value! });
+    for (const { id, key, value } of rows) {
+      if (isEncryptedSecret(value)) secrets.push({ table, id, key, value: value! });
     }
   }
   return secrets;
@@ -53,24 +59,61 @@ async function decrypts(keyBuffer: Buffer, encrypted: string): Promise<boolean> 
   }
 }
 
-async function anyDecrypts(keyBuffer: Buffer, secrets: StoredSecret[]): Promise<boolean> {
-  for (const { value } of secrets) {
+async function anyDecrypts(keyBuffer: Buffer, encryptedValues: string[]): Promise<boolean> {
+  for (const value of encryptedValues) {
     if (await decrypts(keyBuffer, value)) return true;
   }
   return false;
 }
 
-async function readKey(keyFilePath: string, secrets: StoredSecret[]): Promise<Buffer> {
+// Encrypted config values the server still reads. The settings PSK is read from config only until
+// the local store holds it, and a secret setting only until it is set, so a value either of those
+// has replaced is reported as unused rather than checked.
+async function findConfigSecrets(
+  sequelize: Sequelize,
+  secrets: StoredSecret[],
+): Promise<{ inUse: { path: string; value: string }[]; unused: string[] }> {
+  const superseded = new Set<string>();
+  if (
+    secrets.some(({ table, key }) => table === 'local_system_secrets' && key === FACT_SETTINGS_PSK)
+  ) {
+    superseded.add(SETTINGS_PSK_CONFIG_PATH);
+  }
+  for (const entry of ENCRYPTED_CONFIG_SECRET_SETTINGS) {
+    const rows = await sequelize.query(
+      `SELECT 1 FROM public.settings
+        WHERE deleted_at IS NULL AND key = $key AND scope = $scope
+        LIMIT 1`,
+      { type: QueryTypes.SELECT, bind: { key: entry.setting, scope: entry.scope } },
+    );
+    if (rows.length > 0) superseded.add(entry.config);
+  }
+
+  const inUse = [];
+  const unused = [];
+  for (const path of ENCRYPTED_CONFIG_PATHS) {
+    const value = lodashGet(config, path);
+    if (!isEncryptedSecret(value)) continue;
+    if (superseded.has(path)) {
+      unused.push(path);
+    } else {
+      inUse.push({ path, value });
+    }
+  }
+  return { inUse, unused };
+}
+
+async function readKey(keyFilePath: string, encryptedValues: string[]): Promise<Buffer> {
   try {
     return await readConfigKeyFile();
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
-    if (await anyDecrypts(PUBLISHED_DEVELOPMENT_KEY, secrets)) {
+    if (await anyDecrypts(PUBLISHED_DEVELOPMENT_KEY, encryptedValues)) {
       throw new Error(
         [
           `There is no key file at ${keyFilePath} (config crypto.keyFile), and this server's secrets are encrypted with the development key published in the Tamanu repository.`,
           PROVIDE_KEY_ADVICE,
-          'The upgrade then re-encrypts the secrets under it.',
+          'The upgrade then re-encrypts the stored secrets under it, and names any config values to re-encrypt.',
         ].join('\n'),
       );
     }
@@ -85,12 +128,14 @@ async function readKey(keyFilePath: string, secrets: StoredSecret[]): Promise<Bu
 
 // Config files can't be rewritten from here, so values in them the configured key does not read
 // are named for the operator to re-encrypt.
-async function checkConfigSecrets(keyBuffer: Buffer, keyFilePath: string): Promise<void> {
+async function checkConfigSecrets(
+  configSecrets: { path: string; value: string }[],
+  keyBuffer: Buffer,
+  keyFilePath: string,
+): Promise<void> {
   const unreadable = [];
   let anyUnderDevelopmentKey = false;
-  for (const path of ENCRYPTED_CONFIG_PATHS) {
-    const value = lodashGet(config, path);
-    if (!isEncryptedSecret(value)) continue;
+  for (const { path, value } of configSecrets) {
     if (await decrypts(keyBuffer, value)) continue;
     unreadable.push(path);
     anyUnderDevelopmentKey ||= await decrypts(PUBLISHED_DEVELOPMENT_KEY, value);
@@ -183,14 +228,23 @@ export async function checkConfigKey(
   parentTransaction: Transaction | null = null,
 ): Promise<void> {
   const secrets = await findEncryptedSecrets(sequelize);
-  const hasConfigSecrets = ENCRYPTED_CONFIG_PATHS.some(path =>
-    isEncryptedSecret(lodashGet(config, path)),
-  );
-  if (secrets.length === 0 && !hasConfigSecrets) return;
+  const configSecrets = await findConfigSecrets(sequelize, secrets);
+  if (configSecrets.unused.length > 0) {
+    log.warn(
+      'Encrypted config values are unused, since what they held is now stored elsewhere; remove them from the config file',
+      {
+        paths: configSecrets.unused.join(', '),
+      },
+    );
+  }
+  if (secrets.length === 0 && configSecrets.inUse.length === 0) return;
 
   const keyFilePath = getConfigKeyFilePath();
-  const keyBuffer = await readKey(keyFilePath, secrets);
-  await checkConfigSecrets(keyBuffer, keyFilePath);
+  const keyBuffer = await readKey(keyFilePath, [
+    ...secrets.map(({ value }) => value),
+    ...configSecrets.inUse.map(({ value }) => value),
+  ]);
+  await checkConfigSecrets(configSecrets.inUse, keyBuffer, keyFilePath);
 
   const { underDevelopmentKey, underUnknownKey } = await findUnreadableSecrets(secrets, keyBuffer);
   if (underUnknownKey.length > 0) {
