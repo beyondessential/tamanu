@@ -55,8 +55,10 @@ Applies to the supervisor, the small always-on process that sits in front of eve
 - The supervisor keeps how far its last sleep or wake got with the actuator, so it needs no storage of its own, and a supervisor that replaces it on any host continues from there.
 - When the supervisor starts, it asks the actuator for the state of each part and its saved state, and continues from what it finds.
 - A supervisor that starts on an asleep server keeps it asleep when the saved state was made by a supervisor of the same release line, and wakes it otherwise.
-- With an actuator, only one supervisor of a server acts at a time: the one holding the actuator's lease. A supervisor serves requests only while it holds the lease, and one that starts while another holds it waits until the lease is released or expires.
-- A supervisor that is stopped releases the lease straight away, so the one replacing it can take over without waiting for the lease to expire.
+- Several supervisors of one server can run at once, and every one of them passes traffic, so a supervisor is replaced, or run as more than one instance, with no gap in traffic.
+- With an actuator, only one supervisor of a server acts at a time: the one holding the actuator's lease. It alone decides when the server sleeps and wakes, asks the actuator to start and stop parts, and calls the api's supervisor routes.
+- A supervisor that starts while another holds the lease passes traffic straight away, and takes the lease when it is released or expires.
+- A supervisor that is stopped releases the lease straight away, so another can take over acting without waiting for the lease to expire.
 - Repeating any step of a sleep or a wake, after a retry or a restart, leaves the server in the same state as doing it once.
 
 ## Compatibility
