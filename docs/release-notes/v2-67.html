@@ -257,7 +257,6 @@
         <li><strong>Patient data view</strong> - Patients and administered vaccines are imported and exported through a new 'Patient data' view in the admin panel, separate from reference data. The spreadsheet format and the test import are as before. Before an import runs, a confirmation explains that it creates new records and overwrites matching patient data, and cannot be undone.</li>
         <li><strong>Patient type on emergency encounters</strong> - The 'New emergency triage' form has a 'Patient type' field, filled in from the patient's details where one is recorded, and price lists set up for a patient type apply to the emergency encounter. Changing it on the form does not change the patient's details. The encounter's details show its patient type, which can be changed through 'Edit encounter details' and carries through when the patient is admitted to hospital.</li>
         <li><strong>Stock when sending to pharmacy</strong> - The 'Send to pharmacy' modal has a 'Stock' column showing whether each medication is in stock at the facility, matching the 'Dispense medication' modal. Hovering over an in-stock medication shows the quantity on hand. Stock is for information only and does not stop a medication being sent.</li>
-        <li><strong>AI settings</strong> - The AI model settings suggest the models available to the deployment's Anthropic account, and changes to AI settings take effect without restarting the central server.</li>
         <li><strong>Longer form logic</strong> - Program form questions accept longer visibility criteria and calculations, so complex conditions no longer hit a length limit.</li>
         <li><strong>Database interruptions</strong> - Servers stay up through a brief loss of their database connection, such as a database failover, and carry on once it returns rather than shutting down and restarting. A server only stops if the outage lasts several minutes.</li>
         <li><strong>Sync history</strong> - Facility servers keep a record of every sync attempt and its outcome, so monitoring can pick up a sync that hangs as well as one that fails.</li>
@@ -319,17 +318,6 @@
         <p class="name">Patient data</p>
         <ul>
           <li>Patients and administered vaccines are imported and exported only through the new 'Patient data' view, not the reference data view. Let anyone who imports or exports patient records know where to find them.</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="group">
-      <span class="optional-tag">Optional</span>
-
-      <div class="upgrade-item">
-        <p class="name">AI settings</p>
-        <ul>
-          <li>Where AI features are in use, review the selected models against the suggestions now offered in the AI settings.</li>
         </ul>
       </div>
     </div>
