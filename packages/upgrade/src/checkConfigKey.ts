@@ -81,21 +81,26 @@ async function readKey(keyFilePath: string, secrets: StoredSecret[]): Promise<Bu
   }
 }
 
-// Config files can't be rewritten from here, so values in them still under the development key
+// Config files can't be rewritten from here, so values in them the configured key does not read
 // are named for the operator to re-encrypt.
 async function checkConfigSecrets(keyBuffer: Buffer, keyFilePath: string): Promise<void> {
-  const underDevelopmentKey = [];
+  const unreadable = [];
+  let anyUnderDevelopmentKey = false;
   for (const path of ENCRYPTED_CONFIG_PATHS) {
     const value = lodashGet(config, path);
     if (!isEncryptedSecret(value)) continue;
     if (await decrypts(keyBuffer, value)) continue;
-    if (await decrypts(PUBLISHED_DEVELOPMENT_KEY, value)) underDevelopmentKey.push(path);
+    unreadable.push(path);
+    anyUnderDevelopmentKey ||= await decrypts(PUBLISHED_DEVELOPMENT_KEY, value);
   }
-  if (underDevelopmentKey.length === 0) return;
+  if (unreadable.length === 0) return;
 
   throw new Error(
     [
-      `These config values are encrypted with the development key published in the Tamanu repository, not the key file at ${keyFilePath}: ${underDevelopmentKey.join(', ')}.`,
+      `The key file at ${keyFilePath} (config crypto.keyFile) does not decrypt these config values: ${unreadable.join(', ')}.`,
+      ...(anyUnderDevelopmentKey
+        ? ['Some are encrypted with the development key published in the Tamanu repository.']
+        : []),
       'Re-encrypt each with `configSecret encrypt` and replace it in the config file.',
     ].join('\n'),
   );

@@ -254,8 +254,22 @@ describe('checkConfigKey', () => {
     keyFile.settingsPsk = undefined;
     const { message } = error as Error;
     expect(message).toContain('crypto.settingsPsk');
+    expect(message).toContain('development key published');
     expect(message).toContain('configSecret encrypt');
     expect(message).not.toContain('ab'.repeat(32));
+  });
+
+  it('names config values encrypted with an unknown key', async () => {
+    keyFile.path = join(dir, 'present.key');
+    keyFile.settingsPsk = await encryptSecret(Buffer.alloc(32, 2), 'ab'.repeat(32));
+
+    const error = await checkConfigKey(fakeSequelize({})).catch((err: Error) => err);
+    keyFile.path = missing;
+    keyFile.settingsPsk = undefined;
+    const { message } = error as Error;
+    expect(message).toContain('crypto.settingsPsk');
+    expect(message).not.toContain('development key published');
+    expect(message).toContain('configSecret encrypt');
   });
 
   it('fires for encrypted rows still held in local_system_facts', async () => {
