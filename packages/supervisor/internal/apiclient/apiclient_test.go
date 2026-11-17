@@ -40,18 +40,18 @@ func TestCalls(t *testing.T) {
 	if v, err := c.Version(ctx); err != nil || v != "2.70.0" {
 		t.Errorf("version = %q, %v", v, err)
 	}
-	if res, err := c.Hold(ctx); err != nil || res.Busy || !api.Held() {
+	if res, err := c.HoldTasks(ctx); err != nil || res.Busy || !api.Held() {
 		t.Errorf("hold = %+v, %v, held %v", res, err, api.Held())
 	}
-	if err := c.Release(ctx); err != nil || api.Held() {
+	if err := c.ReleaseTasks(ctx); err != nil || api.Held() {
 		t.Errorf("release: %v, held %v", err, api.Held())
 	}
 	if res, err := c.FinalSync(ctx); err != nil || !res.Completed {
 		t.Errorf("final sync = %+v, %v", res, err)
 	}
 
-	api.SetHold(apiclient.HoldResult{Busy: true, RunningTasks: []string{"PatientEmailCommunicationProcessor"}, FHIRJobs: 3})
-	res, err := c.Hold(ctx)
+	api.SetHold(apiclient.TaskHoldResult{Busy: true, RunningTasks: []string{"PatientEmailCommunicationProcessor"}, FHIRJobs: 3})
+	res, err := c.HoldTasks(ctx)
 	if err != nil || !res.Busy || res.FHIRJobs != 3 || !slices.Equal(res.RunningTasks, []string{"PatientEmailCommunicationProcessor"}) || api.Held() {
 		t.Errorf("busy hold = %+v, %v", res, err)
 	}
@@ -61,7 +61,7 @@ func TestCalls(t *testing.T) {
 		t.Errorf("incomplete final sync = %+v, %v", res, err)
 	}
 
-	want := []string{"GET /status", "POST /hold", "DELETE /hold", "POST /final-sync", "POST /hold", "POST /final-sync"}
+	want := []string{"GET /status", "POST /tasks/hold", "DELETE /tasks/hold", "POST /final-sync", "POST /tasks/hold", "POST /final-sync"}
 	if got := api.Calls(); !slices.Equal(got, want) {
 		t.Errorf("calls = %q", got)
 	}
@@ -69,8 +69,8 @@ func TestCalls(t *testing.T) {
 
 func TestErrorStatusFails(t *testing.T) {
 	api, c := setup(t, fakeapi.Token)
-	api.Fail("POST /hold", http.StatusInternalServerError)
-	_, err := c.Hold(context.Background())
+	api.Fail("POST /tasks/hold", http.StatusInternalServerError)
+	_, err := c.HoldTasks(context.Background())
 	if err == nil || !strings.Contains(err.Error(), "500") {
 		t.Errorf("err = %v", err)
 	}

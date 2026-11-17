@@ -29,7 +29,7 @@ func TestSleepAndWake(t *testing.T) {
 			if got, want := h.puts(), sleepPuts(central); !slices.Equal(got, want) {
 				t.Errorf("sleep puts = %q, want %q", got, want)
 			}
-			wantCalls := []string{"GET /status", "POST /hold"}
+			wantCalls := []string{"GET /status", "POST /tasks/hold"}
 			if !central {
 				wantCalls = append(wantCalls, "POST /final-sync")
 			}
@@ -59,7 +59,7 @@ func TestSleepAndWake(t *testing.T) {
 				t.Errorf("wake puts = %q, want %q", got, want)
 			}
 			calls := h.api.Calls()
-			if calls[len(calls)-1] != "DELETE /hold" || h.api.Held() {
+			if calls[len(calls)-1] != "DELETE /tasks/hold" || h.api.Held() {
 				t.Errorf("hold not released: %q", calls)
 			}
 			if !h.allUp() {
@@ -93,10 +93,10 @@ func TestActivityKeepsTheServerAwake(t *testing.T) {
 func TestBusyServerStaysAwakeAndIsAskedAgain(t *testing.T) {
 	h := newHarness(t, false)
 	h.timing.BusyRecheck = 150 * time.Millisecond
-	h.api.SetHold(apiclient.HoldResult{Busy: true, RunningTasks: []string{"ReportRequestProcessor"}})
+	h.api.SetHold(apiclient.TaskHoldResult{Busy: true, RunningTasks: []string{"ReportRequestProcessor"}})
 	h.start(testRelease)
 
-	h.eventually("a hold", func() bool { return countCalls(h.api.Calls(), "POST /hold") == 1 })
+	h.eventually("a hold", func() bool { return countCalls(h.api.Calls(), "POST /tasks/hold") == 1 })
 	h.eventually("awake after the busy answer", func() bool { return h.snapshot().Phase == state.Awake })
 	if f := h.snapshot().LastFailure; f != nil {
 		t.Errorf("busy recorded as a failure: %+v", f)
@@ -104,23 +104,23 @@ func TestBusyServerStaysAwakeAndIsAskedAgain(t *testing.T) {
 	if h.state().Admit(state.API) != state.Forward {
 		t.Error("a busy server is not forwarded requests")
 	}
-	h.eventually("a second hold", func() bool { return countCalls(h.api.Calls(), "POST /hold") >= 2 })
+	h.eventually("a second hold", func() bool { return countCalls(h.api.Calls(), "POST /tasks/hold") >= 2 })
 	if len(h.act.Puts()) != 0 {
 		t.Errorf("a busy server had parts stopped: %q", h.puts())
 	}
 
-	h.api.SetHold(apiclient.HoldResult{})
+	h.api.SetHold(apiclient.TaskHoldResult{})
 	h.waitPhase(state.Asleep)
 }
 
 func TestBusyRecheckWaitsAMinute(t *testing.T) {
 	h := newHarness(t, true)
 	h.timing.BusyRecheck = time.Hour
-	h.api.SetHold(apiclient.HoldResult{Busy: true})
+	h.api.SetHold(apiclient.TaskHoldResult{Busy: true})
 	h.start(testRelease)
-	h.eventually("a hold", func() bool { return countCalls(h.api.Calls(), "POST /hold") == 1 })
+	h.eventually("a hold", func() bool { return countCalls(h.api.Calls(), "POST /tasks/hold") == 1 })
 	time.Sleep(5 * h.timing.IdleTime)
-	if n := countCalls(h.api.Calls(), "POST /hold"); n != 1 {
+	if n := countCalls(h.api.Calls(), "POST /tasks/hold"); n != 1 {
 		t.Errorf("asked %d times within the recheck interval", n)
 	}
 }
@@ -160,7 +160,7 @@ func TestReleaseMismatchKeepsTheServerAwake(t *testing.T) {
 	if snap.LastFailure == nil || !strings.Contains(snap.LastFailure.Message, "runs release 2.69.0") {
 		t.Errorf("failure = %+v", snap.LastFailure)
 	}
-	if slices.Contains(h.api.Calls(), "POST /hold") {
+	if slices.Contains(h.api.Calls(), "POST /tasks/hold") {
 		t.Error("held tasks on a server of another release")
 	}
 	for _, put := range h.puts() {
@@ -188,7 +188,7 @@ var sleepStepHooks = []struct {
 	parts state.Part
 }{
 	{name: "release check", call: "GET /status"},
-	{name: "hold", call: "POST /hold"},
+	{name: "hold", call: "POST /tasks/hold"},
 	{name: "stopping tasks", parts: state.Tasks},
 	{name: "final sync", call: "POST /final-sync"},
 	{name: "stopping the api", parts: state.API},
@@ -239,7 +239,7 @@ func TestFailedStepCancelsTheSleep(t *testing.T) {
 		setup func(*harness)
 		want  string
 	}{
-		{"hold", func(h *harness) { h.api.Fail("POST /hold", http.StatusInternalServerError) }, "at held"},
+		{"hold", func(h *harness) { h.api.Fail("POST /tasks/hold", http.StatusInternalServerError) }, "at held"},
 		{"stopping tasks", func(h *harness) { failFirstDown(h, state.Tasks) }, "at tasks-stopped"},
 		{"stopping the api", func(h *harness) { failFirstDown(h, state.API) }, "at parts-stopped"},
 		{"stopping the database", func(h *harness) { failFirstDown(h, state.Database) }, "at database-stopped"},

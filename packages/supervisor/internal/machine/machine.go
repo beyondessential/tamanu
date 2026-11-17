@@ -33,8 +33,8 @@ type Actuator interface {
 
 // API is the part of the api client the machine uses.
 type API interface {
-	Hold(ctx context.Context) (apiclient.HoldResult, error)
-	Release(ctx context.Context) error
+	HoldTasks(ctx context.Context) (apiclient.TaskHoldResult, error)
+	ReleaseTasks(ctx context.Context) error
 	Version(ctx context.Context) (string, error)
 	FinalSync(ctx context.Context) (apiclient.FinalSyncResult, error)
 }
@@ -443,7 +443,7 @@ func (m *Machine) checkRelease(ctx context.Context) error {
 }
 
 func (m *Machine) hold(ctx context.Context) error {
-	res, err := m.api.Hold(ctx)
+	res, err := m.api.HoldTasks(ctx)
 	if err != nil {
 		return err
 	}
@@ -512,7 +512,7 @@ func (m *Machine) wake(ctx context.Context) {
 	}
 
 	// The hold expires by itself, so failing to release it does not stop the wake.
-	if err := m.api.Release(ctx); err != nil {
+	if err := m.api.ReleaseTasks(ctx); err != nil {
 		m.log.Warn("releasing the task hold", zap.Error(err))
 	}
 	if m.wakeFailed {
