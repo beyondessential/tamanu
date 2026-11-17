@@ -23,7 +23,7 @@ Applies to the key file each server encrypts its local secrets with, and to the 
 ## The published development key
 
 - The published development key is a development key in the repository's history. A deployment refuses it as its key wherever it is mounted, and does not start.
-- An upgrade finds the local secrets that only the published development key decrypts and re-encrypts them under the configured key, in one transaction.
+- An upgrade finds the local secrets that only the published development key decrypts, deleted ones included, and re-encrypts them under the configured key, in one transaction.
 - When the configured key file is missing and the stored secrets are under the published development key, the upgrade stops and says how to provide a key for the server.
 
 > [!NOTE]

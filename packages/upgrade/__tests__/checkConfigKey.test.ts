@@ -22,7 +22,7 @@ import {
   PUBLISHED_DEVELOPMENT_KEY,
 } from '@tamanu/shared/utils/crypto';
 
-type Row = { id?: string; key: string; value: string | null };
+type Row = { id?: string; key: string; value: string | null; deleted?: boolean };
 
 const fakeSequelize = (tables: Record<string, Row[]>, { hasForgetFunction = false } = {}) =>
   ({
@@ -177,6 +177,37 @@ describe('checkConfigKey', () => {
           id: 'b',
           key: 'syncPassword',
           value: await encryptSecret(PUBLISHED_DEVELOPMENT_KEY, 'two'),
+        },
+      ],
+    });
+
+    await checkConfigKey(sequelize);
+    keyFile.path = missing;
+
+    const updates = sequelize.query.mock.calls.filter(([sql]: [string]) =>
+      sql.startsWith('UPDATE'),
+    );
+    expect(updates.map(([, { bind }]: [string, { bind: { id: string } }]) => bind.id)).toEqual([
+      'b',
+    ]);
+  });
+
+  it('re-encrypts a deleted secret under the published development key, and ignores one under another key', async () => {
+    keyFile.path = join(dir, 'present.key');
+    const sequelize = fakeSequelize({
+      local_system_secrets: [
+        { id: 'a', key: 'deviceKey', value: readable },
+        {
+          id: 'b',
+          key: 'syncPassword',
+          value: await encryptSecret(PUBLISHED_DEVELOPMENT_KEY, 'two'),
+          deleted: true,
+        },
+        {
+          id: 'c',
+          key: 'settingsPsk',
+          value: await encryptSecret(Buffer.alloc(32, 2), 'three'),
+          deleted: true,
         },
       ],
     });

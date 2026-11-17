@@ -28,8 +28,10 @@ const ENCRYPTED_CONFIG_PATHS = [
   ...ENCRYPTED_CONFIG_SECRET_SETTINGS.map(entry => entry.config),
 ];
 
-type StoredSecret = { table: string; id: string; key: string; value: string };
+type StoredSecret = { table: string; id: string; key: string; value: string; deleted: boolean };
 
+// Deleted rows are included: one still under the published development key is readable by anyone
+// holding the database, so it is re-encrypted with the rest.
 async function findEncryptedSecrets(sequelize: Sequelize): Promise<StoredSecret[]> {
   const secrets: StoredSecret[] = [];
   for (const table of SECRET_TABLES) {
@@ -39,12 +41,16 @@ async function findEncryptedSecrets(sequelize: Sequelize): Promise<StoredSecret[
     );
     if (!exists?.name) continue;
 
-    const rows = await sequelize.query<{ id: string; key: string; value: string | null }>(
-      `SELECT id, key, value FROM public.${table} WHERE deleted_at IS NULL`,
-      { type: QueryTypes.SELECT },
-    );
-    for (const { id, key, value } of rows) {
-      if (isEncryptedSecret(value)) secrets.push({ table, id, key, value: value! });
+    const rows = await sequelize.query<{
+      id: string;
+      key: string;
+      value: string | null;
+      deleted: boolean;
+    }>(`SELECT id, key, value, deleted_at IS NOT NULL AS deleted FROM public.${table}`, {
+      type: QueryTypes.SELECT,
+    });
+    for (const { id, key, value, deleted } of rows) {
+      if (isEncryptedSecret(value)) secrets.push({ table, id, key, value: value!, deleted });
     }
   }
   return secrets;
@@ -156,6 +162,7 @@ async function checkConfigSecrets(
 }
 
 // Sorts the secrets the configured key does not read by whether the published development key does.
+// A deleted row under some other key is nothing the server reads, so it is left alone.
 async function findUnreadableSecrets(secrets: StoredSecret[], keyBuffer: Buffer) {
   const underDevelopmentKey: StoredSecret[] = [];
   const underUnknownKey: StoredSecret[] = [];
@@ -163,7 +170,7 @@ async function findUnreadableSecrets(secrets: StoredSecret[], keyBuffer: Buffer)
     if (await decrypts(keyBuffer, secret.value)) continue;
     if (await decrypts(PUBLISHED_DEVELOPMENT_KEY, secret.value)) {
       underDevelopmentKey.push(secret);
-    } else {
+    } else if (!secret.deleted) {
       underUnknownKey.push(secret);
     }
   }
@@ -230,7 +237,8 @@ export async function checkConfigKey(
   parentTransaction: Transaction | null = null,
 ): Promise<void> {
   const secrets = await findEncryptedSecrets(sequelize);
-  const configSecrets = await findConfigSecrets(sequelize, secrets);
+  const liveSecrets = secrets.filter(({ deleted }) => !deleted);
+  const configSecrets = await findConfigSecrets(sequelize, liveSecrets);
   if (configSecrets.unused.length > 0) {
     log.warn(
       'Encrypted config values are unused, since what they held is now stored elsewhere; remove them from the config file',
@@ -243,7 +251,7 @@ export async function checkConfigKey(
 
   const keyFilePath = getConfigKeyFilePath();
   const keyBuffer = await readKey(keyFilePath, [
-    ...secrets.map(({ value }) => value),
+    ...liveSecrets.map(({ value }) => value),
     ...configSecrets.inUse.map(({ value }) => value),
   ]);
   await checkConfigSecrets(configSecrets.inUse, keyBuffer, keyFilePath);
