@@ -94,7 +94,7 @@ func TestAwaitTimesOut(t *testing.T) {
 	}
 	f.Stall(state.Database, false)
 	if err := c.Await(ctx, []state.Part{state.Database}, actuator.Stopped, time.Second, nil); err != nil {
-		t.Errorf("after unstalling: %v", err)
+		t.Errorf("after letting the stall go: %v", err)
 	}
 }
 

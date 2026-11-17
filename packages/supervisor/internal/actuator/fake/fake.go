@@ -93,7 +93,7 @@ func (a *Actuator) SetAll(desired actuator.Desired, observed actuator.Observed) 
 	}
 }
 
-// Stall makes p stay starting or stopping until unstalled.
+// Stall makes p stay starting or stopping until it is let go.
 func (a *Actuator) Stall(p state.Part, stall bool) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
