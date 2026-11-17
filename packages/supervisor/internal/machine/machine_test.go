@@ -195,7 +195,7 @@ var sleepStepHooks = []struct {
 	{name: "stopping the database", parts: state.Database},
 }
 
-// once returns hooks that call fn the first time the step is reached.
+// onceAt calls fn the first time the step is reached.
 func onceAt(h *harness, call string, part state.Part, fn func()) {
 	var once sync.Once
 	if call != "" {

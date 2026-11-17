@@ -1,5 +1,4 @@
-// Package config reads and checks the supervisor's configuration, which comes
-// entirely from environment variables prefixed with TAMANU_SUPERVISOR_.
+// Package config reads and checks the supervisor's environment.
 //
 // spec: SUPV#configuration
 package config
@@ -78,21 +77,17 @@ type Config struct {
 	WebUpstreams    []string
 	PortalUpstreams []string
 
-	// ActuatorURL is the base URL of the platform's actuator, or nil when the
-	// platform provides none, in which case the server never sleeps.
+	// ActuatorURL is the base URL of the platform's actuator, or nil.
 	ActuatorURL *url.URL
 	// IdleTime is how long the server goes without activity before sleeping.
 	IdleTime time.Duration
-	// APIToken is the credential the supervisor presents to the api's
-	// supervisor routes. Required with an actuator.
+	// APIToken is the credential for the api's supervisor routes.
 	APIToken string
-	// DataDir is where the supervisor keeps its state. Required with an
-	// actuator.
+	// DataDir is where the supervisor keeps its state.
 	DataDir string
 
-	// TrustedProxies are the CIDR ranges of the platform's proxies, whose
-	// forwarded client addresses are believed for rate limiting and passed on
-	// to the parts.
+	// TrustedProxies are the CIDR ranges of the proxies trusted to report the
+	// client's address.
 	TrustedProxies []string
 }
 
@@ -118,9 +113,8 @@ func FromProcess() (Config, error) {
 	return FromEnv(Environ(os.Environ()))
 }
 
-// FromEnv reads the configuration from env. A variable set to an empty or
-// blank value counts as unset. Every problem found is reported, each naming
-// its variable.
+// FromEnv reads the configuration from env. A blank value counts as unset,
+// and every problem found is reported, not just the first.
 func FromEnv(env map[string]string) (Config, error) {
 	r := reader{env: env}
 	var c Config

@@ -1,7 +1,6 @@
-// Command supervisor is Tamanu's supervisor: a build of Caddy carrying
-// Tamanu's own modules, which stands in front of every Tamanu server as its
-// front door. Run with no arguments, it runs "caddy tamanu-supervisor", which
-// is configured from the environment; Caddy's other commands stay available.
+// Command supervisor is Tamanu's supervisor, a build of Caddy. With no
+// arguments it runs "caddy tamanu-supervisor"; Caddy's other commands stay
+// available.
 //
 // spec: SUPV#front-door
 package main
