@@ -109,6 +109,12 @@
       "tokenExpiry": 20
     }
   },
+  "supervisor": {
+    // Bearer token the server's own supervisor presents to the /api/supervisor routes (the hold
+    // on scheduled tasks and the server's status). Unset or empty rejects every request to those
+    // routes. Prefer the SUPERVISOR_TOKEN environment variable.
+    "token": null
+  },
   "export": {
     "maxFileSizeInMB": 50
   },

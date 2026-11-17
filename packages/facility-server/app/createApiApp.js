@@ -13,6 +13,7 @@ import { fhirRoutes } from '@tamanu/shared/routes/fhir';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createRoutes } from './routes';
+import { facilitySupervisorRoutes } from './routes/supervisor';
 import { FHIR_MOUNT_PATH } from './routes/apiv1';
 import { getServerFacilityIds } from './serverConfig';
 import errorHandler from './middleware/errorHandler';
@@ -101,10 +102,17 @@ export async function createApiApp({
     });
   });
 
+  const limiters = buildRateLimiters(await settings.global.get('rateLimit'));
+
+  // spec: SUPV#talking-to-the-server
+  // Authenticated by the supervisor credential rather than a user, so outside the user auth, and
+  // before the HTTPS check: the supervisor calls the api directly, never over TLS. Failures count
+  // against the auth limiter, as other credential checks do.
+  express.use('/api/supervisor', limiters.authLimiter, facilitySupervisorRoutes());
+
   // Reject non-HTTPS requests when the security.requireHttps setting is enabled
   express.use(requireHttps);
 
-  const limiters = buildRateLimiters(await settings.global.get('rateLimit'));
   // Apply a permissive global rate limit to every API request as a
   // denial-of-service backstop. Stricter per-endpoint limits for unauthenticated
   // endpoints are applied inside routes/apiv1 (via createRoutes) so they cover
