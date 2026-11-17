@@ -122,8 +122,8 @@ export const NoteContentEditor = ({
   }, [value]);
 
   const refreshActiveStyles = useCallback(() => {
-    if (!editorRef.current?.contains(document.getSelection()?.anchorNode)) return;
-    setActiveStyles(getActiveStyles());
+    const isInEditor = editorRef.current?.contains(document.getSelection()?.anchorNode);
+    setActiveStyles(isInEditor ? getActiveStyles() : {});
   }, []);
 
   useEffect(() => {

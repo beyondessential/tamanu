@@ -67,6 +67,25 @@ describe('NoteContentEditor', () => {
     expect((await screen.findByRole('tooltip')).textContent).toBe(label);
   });
 
+  it('marks the active style only while the selection is in the editor', () => {
+    document.queryCommandState = command => command === 'bold';
+    const { editor } = renderEditor({ value: '<b>bold</b>' });
+    const outside = document.createElement('p');
+    outside.textContent = 'elsewhere';
+    document.body.append(outside);
+    const boldButton = screen.getByRole('button', { name: 'Bold' });
+    const selectIn = node => {
+      document.getSelection().collapse(node, 0);
+      fireEvent(document, new Event('selectionchange'));
+    };
+
+    selectIn(editor.querySelector('b').firstChild);
+    expect(boldButton.getAttribute('aria-pressed')).toBe('true');
+    selectIn(outside.firstChild);
+    expect(boldButton.getAttribute('aria-pressed')).toBe('false');
+    outside.remove();
+  });
+
   it.each([
     ['b', { ctrlKey: true }, 'bold'],
     ['i', { ctrlKey: true }, 'italic'],
