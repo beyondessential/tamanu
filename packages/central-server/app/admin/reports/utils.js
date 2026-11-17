@@ -40,6 +40,8 @@ class VerificationRollback extends Error {}
  * inside a read-only transaction that is always rolled back. It is sent over the extended query
  * protocol, which accepts exactly one statement, and under a parenthesised EXPLAIN option list, so
  * the query cannot smuggle in ANALYZE (which would execute it) or a trailing statement.
+ *
+ * Resolves to the query plan, one line per entry.
  */
 export async function verifyQuery(
   query,
@@ -55,6 +57,7 @@ export async function verifyQuery(
   }
 
   const { sequelize } = reportStore;
+  let planLines;
   try {
     const replacements = await getReportQueryReplacements(parameters);
     const explainSql = injectReplacements(
@@ -66,11 +69,12 @@ export async function verifyQuery(
       // The raw pg client: sequelize offers no way to force the extended protocol.
       const { connection } = transaction;
       await connection.query('SET TRANSACTION READ ONLY');
-      await connection.query({ text: explainSql, queryMode: 'extended' });
+      const { rows } = await connection.query({ text: explainSql, queryMode: 'extended' });
+      planLines = rows.map(row => row['QUERY PLAN']);
       throw new VerificationRollback();
     });
   } catch (err) {
-    if (err instanceof VerificationRollback) return;
+    if (err instanceof VerificationRollback) return planLines;
     throw new InvalidOperationError(`Invalid query: ${err.message}`);
   }
 }

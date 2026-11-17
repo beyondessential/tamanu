@@ -543,8 +543,10 @@ describe('reportRoutes', () => {
       const verify = (query, { parameters = [], dbSchema = REPORT_DB_CONNECTIONS.RAW } = {}) =>
         verifyQuery(query, { parameters }, { reportSchemaStores }, dbSchema);
 
-      it('verifies a valid read query', async () => {
-        await expect(verify('select * from patients limit 1')).resolves.not.toThrow();
+      it('verifies a valid read query and returns its plan', async () => {
+        await expect(verify('select * from patients limit 1')).resolves.toEqual(
+          expect.arrayContaining([expect.stringContaining('patients')]),
+        );
       });
 
       it('verifies a valid query with parameters', async () => {

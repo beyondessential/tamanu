@@ -3,6 +3,7 @@ import Table from 'cli-table3';
 import { log } from '@tamanu/shared/services/logging';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { initDatabase } from '../../../app/database';
+import { verifyQuery } from '../../../app/admin/reports/utils';
 import {
   ACTIVE_TEXT,
   createVersion,
@@ -45,7 +46,16 @@ vi.mock('cli-table3', () => ({
   }),
 }));
 
-const mockDefinition = { id: 'test-definition-id', name: 'test-definition-name' };
+const mockDefinition = {
+  id: 'test-definition-id',
+  name: 'test-definition-name',
+  dbSchema: 'reporting',
+};
+const mockReportSchemaStores = { reporting: {} };
+
+vi.mock('../../../app/admin/reports/utils', () => ({
+  verifyQuery: vi.fn().mockResolvedValue(['Result  (cost=0.00..0.01 rows=1 width=4)']),
+}));
 
 const mockUpdatedAt = new Date();
 const mockFormattedUpdatedAt = formatUpdatedAt(mockUpdatedAt);
@@ -99,13 +109,21 @@ describe('importReport actions', () => {
 
   describe('createVersion', () => {
     let mockStore;
+    let stores;
 
     beforeEach(async () => {
       mockStore = await initDatabase();
+      stores = { store: mockStore, reportSchemaStores: mockReportSchemaStores };
     });
 
     it('calls the correct functions and creates version', async () => {
-      await createVersion(baseVersionData, mockDefinition, mockVersions, mockStore, true);
+      await createVersion(baseVersionData, mockDefinition, mockVersions, stores, true);
+      expect(verifyQuery).toHaveBeenCalledWith(
+        'test-query',
+        { parameters: [{ parameterField: 'TestField', name: 'test' }] },
+        { reportSchemaStores: mockReportSchemaStores },
+        'reporting',
+      );
       expect(mockStore.models.User.findOne).toHaveBeenCalledWith({
         where: {
           email: DEFAULT_USER_EMAIL,
@@ -129,7 +147,7 @@ describe('importReport actions', () => {
         ...baseVersionData,
         versionNumber: 1,
       };
-      await createVersion(data, mockDefinition, [{ versionNumber: 1 }], mockStore);
+      await createVersion(data, mockDefinition, [{ versionNumber: 1 }], stores);
       expect(log.warn).nthCalledWith(1, `Version 1 already exists, ${OVERWRITING_TEXT}`);
       expect(mockStore.models.ReportDefinitionVersion.upsert).toBeCalledWith({
         reportDefinitionId: 'test-definition-id',
@@ -149,7 +167,7 @@ describe('importReport actions', () => {
         versionNumber: 3,
       };
       await expect(
-        createVersion(data, mockDefinition, [{ versionNumber: 1 }], mockStore),
+        createVersion(data, mockDefinition, [{ versionNumber: 1 }], stores),
       ).rejects.toThrow(getVersionError({ versionNumber: 3 }));
     });
   });

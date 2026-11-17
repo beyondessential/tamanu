@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { promises as fs } from 'fs';
+import { initReporting } from '@tamanu/database/services/reporting';
 import { initDatabase } from '../../database';
 import * as importUtils from './utils';
 import * as importActions from './actions';
@@ -13,9 +14,17 @@ async function importReport(options) {
   }
 
   const store = await initDatabase({ testMode: false });
+  // Report queries are only ever checked on the reporting roles' connections.
+  const reportSchemaStores = await initReporting(store);
   const definition = await importUtils.findOrCreateDefinition(overriddenName, store);
   const versions = await definition.getVersions();
-  await importActions.createVersion(versionData, definition, versions, store, options.verbose);
+  await importActions.createVersion(
+    versionData,
+    definition,
+    versions,
+    { store, reportSchemaStores },
+    options.verbose,
+  );
   process.exit(0);
 }
 
