@@ -526,6 +526,27 @@ const processChatRequest = async ({
   }
 };
 
+// Until the job exists, nothing else will delete the upload: processChatRequest,
+// whose finally does it, only runs once the job has been recorded. So a failure
+// before that point is ours to clean up after.
+const beginAsyncChat = async ({ aiService, models, userId, payload }) => {
+  try {
+    const sessionId = await resolveFormBuilderSession(aiService, payload.sessionId);
+    const jobId = await startChatJob({
+      aiService,
+      models,
+      userId,
+      payload: { ...payload, sessionId },
+    });
+    return { sessionId, jobId };
+  } catch (error) {
+    if (payload.file) {
+      await fs.unlink(payload.file).catch(() => {});
+    }
+    throw error;
+  }
+};
+
 const startChatJob = async ({ aiService, models, userId, payload }) => {
   const { FormBuilderChatJob } = models;
   const jobId = nanoid();
@@ -578,12 +599,11 @@ formBuilderRouter.post(
       // if it stops before the job result arrives. Otherwise a stopped first
       // turn loses the sessionId and the next message starts a fresh session,
       // dropping any uploaded image's interpretation.
-      const sessionId = await resolveFormBuilderSession(req.aiService, payload.sessionId);
-      const jobId = await startChatJob({
+      const { sessionId, jobId } = await beginAsyncChat({
         aiService: req.aiService,
         models: req.models,
         userId: req.user.id,
-        payload: { ...payload, sessionId },
+        payload,
       });
       res.status(202).send({ jobId, sessionId, status: CHAT_JOB_STATUSES.PENDING });
       return;

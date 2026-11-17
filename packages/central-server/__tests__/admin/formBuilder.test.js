@@ -199,6 +199,20 @@ describe('Form Builder Admin', () => {
     expect(response.body).toMatchObject({ sessionId: 'new-session-id' });
   });
 
+  it('deletes the upload when the chat job cannot be started', async () => {
+    // nothing else would: the job that deletes it never came to exist
+    aiService.hasSession.mockReturnValue(false);
+    aiService.createSession.mockRejectedValueOnce(new Error('AI service unavailable'));
+
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Use this form', async: true }))
+      .attach('file', Buffer.from('Patient name'), 'form.txt');
+
+    expect(response).not.toHaveSucceeded();
+    expect(await fs.readdir(uploadDirPath())).toEqual([]);
+  });
+
   it('ignores a file path sent in a JSON body', async () => {
     // A caller naming a file on the server must not get it read into the prompt,
     // nor deleted once the chat is done with it: only a real upload is a file.
