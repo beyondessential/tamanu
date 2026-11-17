@@ -6,6 +6,7 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoD
 import { createTestContext } from '../utilities';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
+import { uploadDirPath } from '@tamanu/shared/utils/tmpdir';
 
 const { uploadAttachment: realUploadAttachment } = await vi.importActual(
   '../../app/utils/uploadAttachment',
@@ -43,6 +44,40 @@ describe('Document upload file handling', () => {
     uploadAttachment.mockReset();
     await ctx.close();
   });
+
+  it.each([
+    ['patient', () => `/api/patient/${patient.id}/documentMetadata`, () => ({ patientId: patient.id })],
+    [
+      'encounter',
+      () => `/api/encounter/${encounter.id}/documentMetadata`,
+      () => ({ encounterId: encounter.id }),
+    ],
+  ])(
+    'records a document uploaded to the %s endpoint and deletes the file',
+    async (_, endpoint, owner) => {
+      CentralServerConnection.mockImplementationOnce(function mockConnection() {
+        return { fetch: vi.fn(async () => ({ attachmentId: 'fake-attachment-id' })) };
+      });
+
+      const result = await app
+        .post(endpoint())
+        .field('jsonData', JSON.stringify({ name: 'Referral letter', type: 'text/plain' }))
+        .attach('file', Buffer.from('a referral'), 'referral.txt');
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        name: 'Referral letter',
+        attachmentId: 'fake-attachment-id',
+      });
+      const stored = await models.DocumentMetadata.findOne({
+        where: { ...owner(), name: 'Referral letter' },
+      });
+      expect(stored).toBeTruthy();
+      // the upload has been sent on to central, so nothing of it should be left
+      // in the upload directory
+      expect(await fs.readdir(uploadDirPath())).toEqual([]);
+    },
+  );
 
   it.each([
     ['patient', () => `/api/patient/${patient.id}/documentMetadata`],
