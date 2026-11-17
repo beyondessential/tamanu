@@ -27,6 +27,7 @@ const assertUserCanSyncFacilities = async (req, facilityIds) => {
   }
 };
 
+// spec: SYNC#session-ownership
 // A session is served only to the user and device that started it: knowing its id is not enough.
 // An unknown session is left to the handler, which reports it as it would anyway.
 const loadOwnSyncSession = async (req, sessionId) => {
@@ -70,6 +71,7 @@ export const buildSyncRoutes = ctx => {
     loadOwnSyncSession(req, sessionId).then(() => next(), next);
   });
 
+  // spec: SYNC#starting-a-session
   // create new sync session or join/update the queue for one
   syncRoutes.post(
     '/',
@@ -254,6 +256,7 @@ export const buildSyncRoutes = ctx => {
         throw new Error(`Sync session '${params.sessionId}' not found`);
       }
 
+      // spec: SYNC#pulling
       // the pull covers only facilities the session was authorised for when it started
       const sessionFacilityIds = syncSession.parameters.facilityIds ?? [];
       const facilityIds = requestedFacilityIds ?? sessionFacilityIds;
