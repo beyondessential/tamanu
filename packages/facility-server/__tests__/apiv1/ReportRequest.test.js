@@ -64,5 +64,28 @@ describe('ReportRequest', () => {
       );
       expect(result.body).toHaveProperty('requestedByUserId', app.user.dataValues.id);
     });
+
+    // This context has no reporting connections, which is what a server whose reporting roles
+    // failed to initialise looks like. A report is not run on the application's own connection.
+    it('should fail with 400 when the reporting connections are unavailable', async () => {
+      const adminApp = await baseApp.asRole('admin');
+      const { ReportDefinition, ReportDefinitionVersion } = ctx.store.models;
+      const definition = await ReportDefinition.create({
+        name: 'Report run without reporting connections',
+      });
+      const version = await ReportDefinitionVersion.create({
+        versionNumber: 1,
+        status: 'published',
+        userId: adminApp.user.dataValues.id,
+        queryOptions: JSON.stringify({ defaultDateRange: 'allTime', parameters: [] }),
+        query: 'select 1',
+        reportDefinitionId: definition.id,
+      });
+      const res = await adminApp.post(`/api/reports/${version.id}`).send({});
+      expect(res).toHaveStatus(400);
+      expect(res.body).toMatchObject({
+        error: { message: expect.stringContaining('No reporting instance found') },
+      });
+    });
   });
 });
