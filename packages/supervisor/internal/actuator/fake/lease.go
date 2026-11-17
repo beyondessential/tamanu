@@ -70,6 +70,14 @@ func (a *Actuator) Reports() map[string]actuator.Report {
 	return a.State().Reports
 }
 
+// PutReport keeps r for instance for ttl, as a supervisor reporting would.
+func (a *Actuator) PutReport(instance string, r actuator.Report, ttl time.Duration) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	r.ExpiresAt = time.Now().Add(ttl)
+	a.reports[instance] = r
+}
+
 func (a *Actuator) refuse(w http.ResponseWriter) {
 	a.mu.Lock()
 	info := actuator.LeaseInfo{}

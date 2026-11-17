@@ -177,6 +177,8 @@ paths:
         Every running supervisor reports, whether or not it holds the lease.
         The actuator keeps the latest report from each instance until its
         time to live passes, and reports it in `GET /v1/state` until then.
+        The actuator stores reports as given, and need understand none of
+        their fields but `ttlSeconds`.
       parameters:
         - name: instance
           in: path
@@ -299,6 +301,22 @@ components:
       type: object
       required: [lastActivity, inFlight, wakeRequested, ttlSeconds]
       properties:
+        phase:
+          type: string
+          enum: [awake, going-to-sleep, asleep, waking]
+          description: The phase the holder announces. Only the holder's report carries it.
+        announcement:
+          type: integer
+          format: int64
+          description: |
+            The number of the holder's announcement, newer announcements
+            having larger numbers, including across holders: it is the lease
+            token times 1000000, plus how many announcements the holder has
+            made under that token. Only the holder's report carries it.
+        follows:
+          type: integer
+          format: int64
+          description: The number of the announcement the supervisor follows, its own for the holder.
         lastActivity:
           type: string
           format: date-time
@@ -309,7 +327,7 @@ components:
           description: How many requests that count as activity it has in flight.
         wakeRequested:
           type: boolean
-          description: Whether a request has asked for a wake since its last report.
+          description: Whether a request has asked for a wake since the supervisor began following the announcement it follows.
         ttlSeconds:
           type: number
           exclusiveMinimum: 0
@@ -317,6 +335,14 @@ components:
     Report:
       type: object
       properties:
+        phase:
+          type: string
+        announcement:
+          type: integer
+          format: int64
+        follows:
+          type: integer
+          format: int64
         lastActivity:
           type: string
           format: date-time
