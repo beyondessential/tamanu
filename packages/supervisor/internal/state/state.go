@@ -220,6 +220,18 @@ func (s *Server) SetFailure(message string) {
 	s.lastFailure = &Failure{At: s.now(), Message: message}
 }
 
+// RestoreFailure puts back a failure recorded before a restart.
+func (s *Server) RestoreFailure(f *Failure) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if f == nil {
+		s.lastFailure = nil
+		return
+	}
+	restored := *f
+	s.lastFailure = &restored
+}
+
 // Snapshot is a consistent copy of the state at one moment.
 type Snapshot struct {
 	Phase        Phase
