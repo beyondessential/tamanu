@@ -33,6 +33,13 @@ export async function uploadDir() {
     .then(dir => {
       uploadDirectory = dir;
       return dir;
+    })
+    .catch(error => {
+      // Forget the failure, so the next upload tries again. Held onto, a temp
+      // directory that was briefly full or unwritable would stop every upload
+      // this process handles from then on.
+      creatingUploadDirectory = null;
+      throw error;
     });
 
   return creatingUploadDirectory;
