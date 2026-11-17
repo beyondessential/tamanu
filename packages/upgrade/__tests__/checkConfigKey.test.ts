@@ -15,6 +15,7 @@ vi.mock('config', () => ({
 }));
 
 import { checkConfigKey } from '../src/checkConfigKey.js';
+import { log } from '@tamanu/shared/services/logging';
 import {
   decryptSecret,
   encryptSecret,
@@ -142,7 +143,10 @@ describe('checkConfigKey', () => {
       ],
     });
 
+    const warn = vi.spyOn(log, 'warn').mockImplementation(() => log);
     await checkConfigKey(sequelize);
+    const warnings = warn.mock.calls.map(([message]) => message);
+    warn.mockRestore();
     keyFile.path = missing;
 
     const updates = sequelize.query.mock.calls.filter(([sql]: [string]) =>
@@ -161,6 +165,7 @@ describe('checkConfigKey', () => {
       ['secrets', 'b', 'two'],
       ['facts', 'c', 'three'],
     ]);
+    expect(warnings).toContainEqual(expect.stringContaining('restored from another server'));
   });
 
   it('re-encrypts a secret under the published development key behind one the configured key reads', async () => {

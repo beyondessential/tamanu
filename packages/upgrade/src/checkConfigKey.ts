@@ -146,24 +146,32 @@ async function reencryptFromDevelopmentKey(
     count: underDevelopmentKey.length,
     keyFile: keyFilePath,
   });
+  // A copy restored from a server on the development key reads as that server moving off it, so
+  // the copy is only caught by whoever restored it.
+  log.warn(
+    `If this database was restored from another server, it now holds that server's identity and credentials: before starting it, ${await forgetIdentitySteps(sequelize)}.`,
+  );
 }
 
 // The function ships in a migration, and this check runs before migrations, so a copy taken
 // from an older version does not have it yet.
-async function asCopyAdvice(sequelize: Sequelize): Promise<string> {
+async function forgetIdentitySteps(sequelize: Sequelize): Promise<string> {
   const [row] = await sequelize.query<{ name: string | null }>(
     `SELECT to_regprocedure('public.forget_server_identity()')::text AS name`,
     { type: QueryTypes.SELECT },
   );
-  const steps = row?.name
-    ? "run `BEGIN; SELECT set_config('tamanu.this_is_a_copy', 'true', true); SELECT forget_server_identity(); COMMIT;` against it first."
+  return row?.name
+    ? "run `BEGIN; SELECT set_config('tamanu.this_is_a_copy', 'true', true); SELECT forget_server_identity(); COMMIT;` against it"
     : [
-        'first delete every row of local_system_secrets,',
+        'delete every row of local_system_secrets,',
         `every local_system_facts row holding an encrypted value (S1:<iv>:<ciphertext>), and the ${SERVER_IDENTITY_FACTS.join(', ')} facts,`,
-        'then soft-delete every settings row holding an encrypted value.',
+        'then soft-delete every settings row holding an encrypted value',
       ].join(' ');
+}
+
+async function asCopyAdvice(sequelize: Sequelize): Promise<string> {
   return [
-    `If this is a copy, to run it under this key instead, ${steps}`,
+    `If this is a copy, to run it under this key instead, first ${await forgetIdentitySteps(sequelize)}.`,
     'Never do this on the server it was copied from: there, the key file above is the wrong one.',
   ].join('\n');
 }
