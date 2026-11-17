@@ -125,6 +125,32 @@ FROM frontend-base AS frontend
 FROM frontend-base AS patient-portal
 
 
+## Build the supervisor, stamped with the Tamanu release from the root package.json
+FROM golang:1.27-alpine AS build-supervisor
+WORKDIR /src
+COPY packages/supervisor/go.mod packages/supervisor/go.sum ./
+RUN go mod download
+COPY packages/supervisor/ ./
+COPY package.json /tamanu/package.json
+RUN version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' /tamanu/package.json)" \
+  && test -n "$version" \
+  && CGO_ENABLED=0 go build -trimpath \
+    -ldflags "-X github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo.Version=${version}" \
+    -o /supervisor ./cmd/supervisor
+
+## Minimal image running the supervisor, configured by TAMANU_SUPERVISOR_* variables.
+## Point TAMANU_SUPERVISOR_DATA_DIR at the volume when it has an actuator.
+FROM alpine AS supervisor
+RUN adduser -D -H -u 10001 supervisor \
+  && mkdir -p /var/lib/tamanu-supervisor \
+  && chown supervisor:supervisor /var/lib/tamanu-supervisor
+COPY --from=build-supervisor /supervisor /usr/bin/supervisor
+USER supervisor
+VOLUME /var/lib/tamanu-supervisor
+EXPOSE 8080
+ENTRYPOINT ["/usr/bin/supervisor", "tamanu-supervisor"]
+
+
 ## Toolbox image
 FROM rust AS build-bestool
 RUN cargo install bestool --no-default-features \
