@@ -70,6 +70,11 @@ const (
 	keepAliveIdlePerHost = 32
 )
 
+// gracePeriod bounds how long the supervisor waits for open connections when
+// it stops, so a restart or upgrade is never held up by a long request or an
+// open websocket.
+const gracePeriod = 10 * time.Second
+
 // Build generates the Caddy configuration for c, as JSON.
 func Build(c config.Config) ([]byte, error) {
 	servers := map[string]*caddyhttp.Server{
@@ -113,7 +118,10 @@ func Build(c config.Config) ([]byte, error) {
 			Config:   &caddy.ConfigSettings{Persist: &persist},
 		},
 		AppsRaw: caddy.ModuleMap{
-			"http": caddyconfig.JSON(caddyhttp.App{Servers: servers}, nil),
+			"http": caddyconfig.JSON(caddyhttp.App{
+				Servers:     servers,
+				GracePeriod: caddy.Duration(gracePeriod),
+			}, nil),
 			// The supervisor has no certificates, so Caddy's certificate
 			// storage is never checked or cleaned, and it writes nothing to
 			// disk.
