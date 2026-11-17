@@ -79,7 +79,7 @@ async function runUpgrade({
   const upgradeRunId = crypto.randomUUID();
   log.info('Upgrade run id', { upgradeRunId });
 
-  await checkConfigKey(sequelize);
+  await checkConfigKey(sequelize, parentTransaction);
 
   // Databases migrated before the build-less switch hold `.js` migration-storage records; rewrite
   // them to `.ts` before any migration state is read (createMigrationInterface asserts this done).
