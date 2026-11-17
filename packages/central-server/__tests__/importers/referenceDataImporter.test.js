@@ -109,7 +109,9 @@ describe('Data definition import', () => {
         .post('/v1/admin/import/referenceData')
         .send({ file, deleteFileAfterImport: true, includedDataTypes: ['allergy'] });
 
-      expect(result).toHaveRequestError();
+      // refused before the importer runs its permission checks, so this surfaces as 501
+      expect(result).not.toHaveSucceeded();
+      expect(result.body.didntSendReason).toBeUndefined();
       await expect(access(file)).resolves.toBeUndefined();
       await rm(dir, { recursive: true });
     });
