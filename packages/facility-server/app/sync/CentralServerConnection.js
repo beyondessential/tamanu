@@ -1,6 +1,7 @@
 import { TamanuApi } from '@tamanu/api-client';
 import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/constants';
 
+import { setSyncTuningFromCentral } from '@tamanu/database/sync';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -93,9 +94,13 @@ export class CentralServerConnection extends TamanuApi {
 
   async connect(backoff = getSyncSettings().backoff, timeout = this.timeout) {
     try {
-      await this.refreshToken({
+      const { settings } = await this.refreshToken({
         retryAuth: false,
       });
+      if (settings) {
+        this.#loginData = { ...this.#loginData, settings };
+        setSyncTuningFromCentral(settings.facilitySync);
+      }
       return;
     } catch (_) {
       // ignore error
@@ -109,6 +114,7 @@ export class CentralServerConnection extends TamanuApi {
       timeout,
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     }).then(loginData => {
+      setSyncTuningFromCentral(loginData.settings?.facilitySync);
       return (this.#loginData = loginData);
     });
   }

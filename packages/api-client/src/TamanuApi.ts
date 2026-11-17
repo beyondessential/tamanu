@@ -50,6 +50,7 @@ interface LoginData {
   refreshToken: string;
   permissions?: string[];
   availableFacilities?: AvailableFacility[];
+  settings?: Record<string, any>;
 }
 
 interface LoginResponse extends LoginData {
@@ -322,7 +323,9 @@ export class TamanuApi {
     return this.post('changePassword', args);
   }
 
-  async refreshToken(config: FetchOptions = {}): Promise<void> {
+  async refreshToken(
+    config: FetchOptions = {},
+  ): Promise<{ token: string; refreshToken: string; settings?: Record<string, any> }> {
     if (!this.#refreshToken) {
       throw new Error('No refresh token available');
     }
@@ -334,10 +337,11 @@ export class TamanuApi {
         refreshToken: this.#refreshToken,
       },
       { ...config, useAuthToken: false, waitForAuth: false },
-    )) as { token: string; refreshToken: string };
+    )) as { token: string; refreshToken: string; settings?: Record<string, any> };
 
     const { token, refreshToken } = response;
     this.setToken(token, refreshToken);
+    return response;
   }
 
   setToken(token: string, refreshToken: string | null = null): void {
