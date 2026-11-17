@@ -4,12 +4,20 @@
 package app
 
 import (
+	"context"
 	"fmt"
+	"net/url"
 	"slices"
+	"sync"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
 
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator"
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo"
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/machine"
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/persist"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -37,9 +45,14 @@ type App struct {
 	APIToken string `json:"api_token,omitempty"`
 	// DataDir is where the supervisor keeps its state.
 	DataDir string `json:"data_dir,omitempty"`
+	// APIUpstreams are the api instances (host:port) the supervisor calls.
+	APIUpstreams []string `json:"api_upstreams,omitempty"`
 
 	state    *state.Server
 	apiToken string
+	machine  *machine.Machine
+	cancel   context.CancelFunc
+	done     chan struct{}
 }
 
 // CaddyModule returns the Caddy module information.
@@ -75,6 +88,30 @@ func (a *App) Provision(ctx caddy.Context) error {
 		return err
 	}
 	a.state = val.(pooledState).Server
+
+	if a.ActuatorURL == "" {
+		return nil
+	}
+	actuatorURL, err := url.Parse(a.ActuatorURL)
+	if err != nil {
+		return fmt.Errorf("actuator url: %w", err)
+	}
+	store, err := persist.Open(a.DataDir)
+	if err != nil {
+		return err
+	}
+	a.machine = machine.New(machine.Config{
+		Central: a.Role == "central",
+		Parts:   a.Parts,
+		Release: buildinfo.Version,
+		Timing:  machine.DefaultTiming(time.Duration(a.IdleTime)),
+	},
+		a.state,
+		actuator.NewClient(actuatorURL),
+		apiclient.New(a.APIUpstreams, a.apiToken),
+		store,
+		ctx.Logger(a),
+	)
 	return nil
 }
 
@@ -88,20 +125,51 @@ func (a *App) Validate() error {
 			return fmt.Errorf("unknown part %q", p)
 		}
 	}
-	if a.ActuatorURL != "" && (a.apiToken == "" || a.DataDir == "") {
-		return fmt.Errorf("an actuator needs an api token and a data directory")
+	if a.ActuatorURL != "" && (a.apiToken == "" || a.DataDir == "" || len(a.APIUpstreams) == 0) {
+		return fmt.Errorf("an actuator needs an api token, a data directory and the api's addresses")
+	}
+	if a.ActuatorURL != "" && time.Duration(a.IdleTime) <= 0 {
+		return fmt.Errorf("an actuator needs an idle time")
 	}
 	return nil
 }
 
-// Start starts the app. Without an actuator there is nothing to run: the
-// server stays awake with every part ready.
+// runMu lets one machine run at a time. Caddy starts a new config's apps
+// before it stops the old config's, so a new machine waits for the old one to
+// stop, then continues from what it left on disk.
+var runMu sync.Mutex
+
+// Start starts the sleep and wake machine. Without an actuator there is
+// nothing to run: the server stays awake with every part ready.
 //
 // spec: SUPV#platforms
-func (a *App) Start() error { return nil }
+func (a *App) Start() error {
+	if a.machine == nil {
+		return nil
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	a.cancel, a.done = cancel, make(chan struct{})
+	go func() {
+		defer close(a.done)
+		runMu.Lock()
+		defer runMu.Unlock()
+		if ctx.Err() == nil {
+			a.machine.Run(ctx)
+		}
+	}()
+	return nil
+}
 
-// Stop stops the app.
-func (a *App) Stop() error { return nil }
+// Stop stops the machine and waits for it. A sleep or wake in progress is left
+// where it reached, which the next start continues from.
+func (a *App) Stop() error {
+	if a.cancel == nil {
+		return nil
+	}
+	a.cancel()
+	<-a.done
+	return nil
+}
 
 // Cleanup releases the app's hold on the shared state.
 func (a *App) Cleanup() error {
@@ -112,8 +180,9 @@ func (a *App) Cleanup() error {
 // State is the server's run-time state.
 func (a *App) State() *state.Server { return a.state }
 
-// CanSleep reports whether this supervisor ever puts its server to sleep.
-func (a *App) CanSleep() bool { return a.ActuatorURL != "" }
+// CanSleep reports whether this supervisor puts its server to sleep: it has
+// an actuator, and the actuator controls the server's parts.
+func (a *App) CanSleep() bool { return a.machine != nil && a.machine.ControlsParts() }
 
 // PartStatus is one part's entry in the status.
 type PartStatus struct {
@@ -130,8 +199,12 @@ type Status struct {
 	LastFailure  *state.Failure            `json:"lastFailure"`
 	InFlight     int                       `json:"inFlight"`
 	LastActivity time.Time                 `json:"lastActivity"`
-	IdleTime     string                    `json:"idleTime"`
-	CanSleep     bool                      `json:"canSleep"`
+	// IdleSince is when the server last had activity, or null while a
+	// request that counts as activity is in flight.
+	IdleSince *time.Time `json:"idleSince"`
+	IdleTime  string     `json:"idleTime"`
+	CanSleep  bool       `json:"canSleep"`
+	Release   string     `json:"release"`
 }
 
 // Status reports the server's state.
@@ -141,6 +214,11 @@ func (a *App) Status() Status {
 	for _, p := range snap.Parts {
 		parts[p] = PartStatus{Ready: snap.Ready[p]}
 	}
+	var idleSince *time.Time
+	if snap.InFlight == 0 {
+		at := snap.LastActivity.UTC()
+		idleSince = &at
+	}
 	return Status{
 		State:        snap.Phase,
 		Parts:        parts,
@@ -148,8 +226,10 @@ func (a *App) Status() Status {
 		LastFailure:  snap.LastFailure,
 		InFlight:     snap.InFlight,
 		LastActivity: snap.LastActivity.UTC(),
+		IdleSince:    idleSince,
 		IdleTime:     time.Duration(a.IdleTime).String(),
 		CanSleep:     a.CanSleep(),
+		Release:      buildinfo.Version,
 	}
 }
 

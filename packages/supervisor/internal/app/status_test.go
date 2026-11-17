@@ -65,6 +65,31 @@ func TestStatus(t *testing.T) {
 	}
 }
 
+func TestIdleSince(t *testing.T) {
+	a := newTestApp()
+	h := &StatusHandler{app: a}
+	read := func() map[string]any {
+		w, err := serve(t, h, "GET", "/status")
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got map[string]any
+		if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
+			t.Fatal(err)
+		}
+		return got
+	}
+
+	if got := read(); got["idleSince"] == nil || got["release"] != "dev" {
+		t.Errorf("idle status = %v", got)
+	}
+	_, done := a.state.AdmitActivity(state.API)
+	if got := read(); got["idleSince"] != nil || got["inFlight"] != float64(1) {
+		t.Errorf("status with a request in flight = %v", got)
+	}
+	done()
+}
+
 func TestHealth(t *testing.T) {
 	a := newTestApp()
 	a.state.SetPhase(state.Asleep)
