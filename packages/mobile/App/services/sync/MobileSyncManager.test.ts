@@ -238,7 +238,19 @@ describe('MobileSyncManager', () => {
 
         expect(activateKeepAwake).not.toBeCalled();
         expect(deactivateKeepAwake).not.toBeCalled();
+        expect(mobileSyncManager.progressMessage).toBe('Sync in queue');
       });
+    });
+
+    // spec: SYNCHK#while-central-wakes
+    it('should say it is waiting for central to wake up', async () => {
+      jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockImplementationOnce(jest.fn(async () => ({ status: 'centralWaking' })));
+
+      await mobileSyncManager.runSync({ urgent: true });
+
+      expect(mobileSyncManager.progressMessage).toBe('Waiting for central server to wake up');
     });
   });
 

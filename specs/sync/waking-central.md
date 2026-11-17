@@ -11,6 +11,7 @@ Applies to a facility server or a mobile device whose sync reaches central while
 - A waking central answers `503 Service Unavailable` with a non-empty `Retry-After` header.
 - A sync that gets that answer before its session opens, whether to the session start or to the login or token refresh before it, waits in line as a sync that central has queued for a later turn does. It ends without a session, and the next scheduled sync tries again.
 - Waiting for a waking central is not a failed sync. A facility server records the attempt in its [run history](run-history.md#outcomes) as queued.
+- A mobile device waiting for a waking central tells the user that it is waiting for central to wake up.
 - A `503 Service Unavailable` without a `Retry-After` header, or with an empty one, is a failed sync.
 
 > [!NOTE]
