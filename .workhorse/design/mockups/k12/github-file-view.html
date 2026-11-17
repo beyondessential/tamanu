@@ -1,0 +1,1382 @@
+<!-- source: docs/release-notes/v2-67.md, rendered by the GitHub markdown API -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>v2.67 release notes in GitHub's file view</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #1f2328;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 14px;
+  line-height: 1.5;
+}
+a { color: #0969da; text-decoration: none; }
+.octicon { display: inline-block; vertical-align: text-bottom; fill: currentColor; }
+
+/* Global header */
+.app-header { background: #f6f8fa; border-bottom: 1px solid #d1d9e0; }
+.app-header-top { display: flex; align-items: center; gap: 12px; padding: 16px 16px 8px; }
+.repo-title { font-size: 14px; display: flex; gap: 4px; align-items: center; }
+.repo-title a { color: #1f2328; }
+.repo-title .owner { font-weight: 400; }
+.repo-title .name { font-weight: 600; }
+.repo-title .sep { color: #59636e; }
+.header-search { margin-left: auto; width: 280px; height: 32px; border: 1px solid #d1d9e0; border-radius: 6px; background: #ffffff; color: #59636e; display: flex; align-items: center; padding: 0 8px; font-size: 14px; }
+.repo-nav { display: flex; gap: 8px; padding: 0 16px; }
+.repo-nav a { color: #1f2328; padding: 8px 8px 10px; display: flex; gap: 8px; align-items: center; border-bottom: 2px solid transparent; }
+.repo-nav a .octicon { color: #59636e; }
+.repo-nav a.selected { font-weight: 600; border-bottom-color: #fd8c73; }
+.counter { background: rgba(129, 139, 152, 0.12); border-radius: 2em; padding: 0 6px; font-size: 12px; font-weight: 500; line-height: 18px; }
+
+/* File view */
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 32px 48px; }
+.file-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; font-size: 14px; font-weight: 500; color: #25292e; background: #f6f8fa; border: 1px solid #d1d9e0; border-radius: 6px; }
+.btn-sm { height: 28px; padding: 0 8px; font-size: 12px; }
+.btn .octicon { color: #59636e; }
+.breadcrumb { font-size: 16px; display: flex; gap: 2px; align-items: center; }
+.breadcrumb a { font-weight: 600; }
+.breadcrumb .sep { color: #59636e; padding: 0 2px; }
+.breadcrumb .final { font-weight: 600; color: #1f2328; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; color: #59636e; border-radius: 6px; }
+
+.commit-bar { display: flex; align-items: center; gap: 8px; border: 1px solid #d1d9e0; border-radius: 6px; padding: 12px 16px; background: #f6f8fa; margin-bottom: 16px; font-size: 14px; }
+.avatar { width: 20px; height: 20px; border-radius: 50%; background: #d1d9e0; flex-shrink: 0; }
+.commit-bar .author { font-weight: 600; color: #1f2328; }
+.commit-bar .message { color: #59636e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.commit-bar .meta { margin-left: auto; display: flex; gap: 16px; align-items: center; color: #59636e; font-size: 12px; white-space: nowrap; }
+.commit-bar .meta strong { color: #1f2328; font-weight: 600; font-size: 14px; }
+
+.file-box { border: 1px solid #d1d9e0; border-radius: 6px; }
+.file-header { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 8px; background: #f6f8fa; border-bottom: 1px solid #d1d9e0; border-radius: 6px 6px 0 0; }
+.segmented { display: inline-flex; background: #eff2f5; border: 1px solid #d1d9e0; border-radius: 6px; padding: 0; }
+.segmented span { padding: 0 12px; height: 26px; display: inline-flex; align-items: center; font-size: 12px; font-weight: 500; color: #1f2328; border-radius: 6px; }
+.segmented span.selected { background: #ffffff; outline: 1px solid #d1d9e0; font-weight: 600; }
+.file-stats { color: #59636e; font-size: 12px; }
+.file-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.btn-group { display: inline-flex; }
+.btn-group .btn { border-radius: 0; margin-left: -1px; }
+.btn-group .btn:first-child { border-radius: 6px 0 0 6px; margin-left: 0; }
+.btn-group .btn:last-child { border-radius: 0 6px 6px 0; }
+.file-body { padding: 32px; }
+
+/* github-markdown-css (light), as GitHub renders a .md file */
+/*light */
+.markdown-body {
+  color-scheme: light;
+  /** CSS default easing. Use for hover state changes and micro-interactions. */
+  /** Accelerating motion. Use for elements exiting the viewport (moving off-screen). */
+  /** Smooth acceleration and deceleration. Use for elements moving or morphing within the viewport. */
+  /** Decelerating motion. Use for elements entering the viewport or appearing on screen. */
+  /** Constant motion with no acceleration. Use for continuous animations like progress bars or loaders. */
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  margin: 0;
+  font-weight: 400;
+  color: #1f2328;
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+}
+
+.markdown-body .octicon {
+  display: inline-block;
+  fill: currentColor;
+  vertical-align: text-bottom;
+}
+
+.markdown-body h1:hover .anchor .octicon-link:before,
+.markdown-body h2:hover .anchor .octicon-link:before,
+.markdown-body h3:hover .anchor .octicon-link:before,
+.markdown-body h4:hover .anchor .octicon-link:before,
+.markdown-body h5:hover .anchor .octicon-link:before,
+.markdown-body h6:hover .anchor .octicon-link:before {
+  width: 16px;
+  height: 16px;
+  content: ' ';
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
+  mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
+}
+
+.markdown-body details,
+.markdown-body figcaption,
+.markdown-body figure {
+  display: block;
+}
+
+.markdown-body summary {
+  display: list-item;
+}
+
+.markdown-body [hidden] {
+  display: none !important;
+}
+
+.markdown-body a {
+  background-color: rgba(0,0,0,0);
+  color: #0969da;
+  text-decoration: none;
+}
+
+.markdown-body abbr[title] {
+  border-bottom: none;
+  -webkit-text-decoration: underline dotted;
+  text-decoration: underline dotted;
+}
+
+.markdown-body b,
+.markdown-body strong {
+  font-weight: 600;
+}
+
+.markdown-body dfn {
+  font-style: italic;
+}
+
+.markdown-body h1 {
+  margin: .67em 0;
+  font-weight: 600;
+  padding-bottom: .3em;
+  font-size: 2em;
+  border-bottom: 1px solid #d1d9e0b3;
+}
+
+.markdown-body mark {
+  background-color: #fff8c5;
+  color: #1f2328;
+}
+
+.markdown-body small {
+  font-size: 90%;
+}
+
+.markdown-body sub,
+.markdown-body sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.markdown-body sub {
+  bottom: -0.25em;
+}
+
+.markdown-body sup {
+  top: -0.5em;
+}
+
+.markdown-body img {
+  border-style: none;
+  max-width: 100%;
+  box-sizing: content-box;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre,
+.markdown-body samp {
+  font-family: monospace;
+  font-size: 1em;
+}
+
+.markdown-body figure {
+  margin: 1em 2.5rem;
+}
+
+.markdown-body hr {
+  box-sizing: content-box;
+  overflow: hidden;
+  background: rgba(0,0,0,0);
+  border-bottom: 1px solid #d1d9e0b3;
+  height: .25em;
+  padding: 0;
+  margin: 1.5rem 0;
+  background-color: #d1d9e0;
+  border: 0;
+}
+
+.markdown-body input {
+  font: inherit;
+  margin: 0;
+  overflow: visible;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.markdown-body [type=button],
+.markdown-body [type=reset],
+.markdown-body [type=submit] {
+  -webkit-appearance: button;
+  appearance: button;
+}
+
+.markdown-body [type=checkbox],
+.markdown-body [type=radio] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body [type=number]::-webkit-inner-spin-button,
+.markdown-body [type=number]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+.markdown-body [type=search]::-webkit-search-cancel-button,
+.markdown-body [type=search]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.markdown-body ::-webkit-input-placeholder {
+  color: inherit;
+  opacity: .54;
+}
+
+.markdown-body ::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  appearance: button;
+  font: inherit;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body ::placeholder {
+  color: #59636e;
+  opacity: 1;
+}
+
+.markdown-body hr::before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  font-variant: tabular-nums;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body details summary {
+  cursor: pointer;
+}
+
+.markdown-body a:focus,
+.markdown-body [role=button]:focus,
+.markdown-body input[type=radio]:focus,
+.markdown-body input[type=checkbox]:focus {
+  outline: 2px solid var(--borderColor-accent-emphasis);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+.markdown-body a:focus:not(:focus-visible),
+.markdown-body [role=button]:focus:not(:focus-visible),
+.markdown-body input[type=radio]:focus:not(:focus-visible),
+.markdown-body input[type=checkbox]:focus:not(:focus-visible) {
+  outline: solid 1px rgba(0,0,0,0);
+}
+
+.markdown-body a:focus-visible,
+.markdown-body [role=button]:focus-visible,
+.markdown-body input[type=radio]:focus-visible,
+.markdown-body input[type=checkbox]:focus-visible {
+  outline: 2px solid var(--borderColor-accent-emphasis);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+.markdown-body a:not([class]):focus,
+.markdown-body a:not([class]):focus-visible,
+.markdown-body input[type=radio]:focus,
+.markdown-body input[type=radio]:focus-visible,
+.markdown-body input[type=checkbox]:focus,
+.markdown-body input[type=checkbox]:focus-visible {
+  outline-offset: 0;
+}
+
+.markdown-body kbd {
+  display: inline-block;
+  padding: 0.25rem;
+  font: 11px ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  line-height: 10px;
+  color: #1f2328;
+  vertical-align: middle;
+  background-color: #f6f8fa;
+  border: solid 1px var(--borderColor-muted);
+  border-bottom-color: var(--borderColor-muted);
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 var(--borderColor-muted);
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.markdown-body h2 {
+  font-weight: 600;
+  padding-bottom: .3em;
+  font-size: 1.5em;
+  border-bottom: 1px solid #d1d9e0b3;
+}
+
+.markdown-body h3 {
+  font-weight: 600;
+  font-size: 1.25em;
+}
+
+.markdown-body h4 {
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.markdown-body h5 {
+  font-weight: 600;
+  font-size: .875em;
+}
+
+.markdown-body h6 {
+  font-weight: 600;
+  font-size: .85em;
+  color: #59636e;
+}
+
+.markdown-body p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+  padding: 0 1em;
+  color: #59636e;
+  border-left: .25em solid #d1d9e0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 2em;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body tt,
+.markdown-body code,
+.markdown-body samp {
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  font-size: 12px;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  font-size: 12px;
+  word-wrap: normal;
+}
+
+.markdown-body .octicon {
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-body input::-webkit-outer-spin-button,
+.markdown-body input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.markdown-body .mr-2 {
+  margin-right: 0.5rem !important;
+}
+
+.markdown-body::before {
+  display: table;
+  content: "";
+}
+
+.markdown-body::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.markdown-body .absent {
+  color: #d1242f;
+}
+
+.markdown-body .anchor {
+  float: left;
+  padding-right: 0.25rem;
+  margin-left: -20px;
+  line-height: 1;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre,
+.markdown-body details {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  color: #1f2328;
+  vertical-align: middle;
+  visibility: hidden;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  visibility: visible;
+}
+
+.markdown-body h1 tt,
+.markdown-body h1 code,
+.markdown-body h2 tt,
+.markdown-body h2 code,
+.markdown-body h3 tt,
+.markdown-body h3 code,
+.markdown-body h4 tt,
+.markdown-body h4 code,
+.markdown-body h5 tt,
+.markdown-body h5 code,
+.markdown-body h6 tt,
+.markdown-body h6 code {
+  padding: 0 .2em;
+  font-size: inherit;
+}
+
+.markdown-body summary h1,
+.markdown-body summary h2,
+.markdown-body summary h3,
+.markdown-body summary h4,
+.markdown-body summary h5,
+.markdown-body summary h6 {
+  display: inline-block;
+}
+
+.markdown-body summary h1 .anchor,
+.markdown-body summary h2 .anchor,
+.markdown-body summary h3 .anchor,
+.markdown-body summary h4 .anchor,
+.markdown-body summary h5 .anchor,
+.markdown-body summary h6 .anchor {
+  margin-left: -40px;
+}
+
+.markdown-body summary h1,
+.markdown-body summary h2 {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.markdown-body ul.no-list,
+.markdown-body ol.no-list {
+  padding: 0;
+  list-style-type: none;
+}
+
+.markdown-body ol[type="a s"] {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body ol[type="A s"] {
+  list-style-type: upper-alpha;
+}
+
+.markdown-body ol[type="i s"] {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ol[type="I s"] {
+  list-style-type: upper-roman;
+}
+
+.markdown-body ol[type="1"] {
+  list-style-type: decimal;
+}
+
+.markdown-body div>ol:not([type]) {
+  list-style-type: decimal;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 1rem;
+}
+
+.markdown-body li+li {
+  margin-top: .25em;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 1rem;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.markdown-body dl dd {
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-body table th {
+  font-weight: 600;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #d1d9e0;
+}
+
+.markdown-body table td>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table tr {
+  background-color: #ffffff;
+  border-top: 1px solid #d1d9e0b3;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+.markdown-body table img {
+  background-color: rgba(0,0,0,0);
+}
+
+.markdown-body img[align=right] {
+  padding-left: 20px;
+}
+
+.markdown-body img[align=left] {
+  padding-right: 20px;
+}
+
+.markdown-body .emoji {
+  max-width: none;
+  vertical-align: text-top;
+  background-color: rgba(0,0,0,0);
+}
+
+.markdown-body span.frame {
+  display: block;
+  overflow: hidden;
+}
+
+.markdown-body span.frame>span {
+  display: block;
+  float: left;
+  width: auto;
+  padding: 7px;
+  margin: 13px 0 0;
+  overflow: hidden;
+  border: 1px solid #d1d9e0;
+}
+
+.markdown-body span.frame span img {
+  display: block;
+  float: left;
+}
+
+.markdown-body span.frame span span {
+  display: block;
+  padding: 5px 0 0;
+  clear: both;
+  color: #1f2328;
+}
+
+.markdown-body span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+.markdown-body span.align-center>span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.markdown-body span.align-center span img {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.markdown-body span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+.markdown-body span.align-right>span {
+  display: block;
+  margin: 13px 0 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.markdown-body span.align-right span img {
+  margin: 0;
+  text-align: right;
+}
+
+.markdown-body span.float-left {
+  display: block;
+  float: left;
+  margin-right: 13px;
+  overflow: hidden;
+}
+
+.markdown-body span.float-left span {
+  margin: 13px 0 0;
+}
+
+.markdown-body span.float-right {
+  display: block;
+  float: right;
+  margin-left: 13px;
+  overflow: hidden;
+}
+
+.markdown-body span.float-right>span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.markdown-body code,
+.markdown-body tt {
+  padding: .2em .4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: #818b981f;
+  border-radius: 6px;
+}
+
+.markdown-body code br,
+.markdown-body tt br {
+  display: none;
+}
+
+.markdown-body del code {
+  text-decoration: inherit;
+}
+
+.markdown-body samp {
+  font-size: 85%;
+}
+
+.markdown-body pre code {
+  font-size: 100%;
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  word-break: normal;
+  white-space: pre;
+  background: rgba(0,0,0,0);
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 1rem;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 1rem;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  color: #1f2328;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+}
+
+.markdown-body pre code,
+.markdown-body pre tt {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: rgba(0,0,0,0);
+  border: 0;
+}
+
+.markdown-body .csv-data td,
+.markdown-body .csv-data th {
+  padding: 5px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.markdown-body .csv-data .blob-num {
+  padding: 10px 0.5rem 9px;
+  text-align: right;
+  background: #ffffff;
+  border: 0;
+}
+
+.markdown-body .csv-data tr {
+  border-top: 0;
+}
+
+.markdown-body .csv-data th {
+  font-weight: 600;
+  background: #f6f8fa;
+  border-top: 0;
+}
+
+.markdown-body [data-footnote-ref]::before {
+  content: "[";
+}
+
+.markdown-body [data-footnote-ref]::after {
+  content: "]";
+}
+
+.markdown-body .footnotes {
+  font-size: 12px;
+  color: #59636e;
+  border-top: 1px solid #d1d9e0;
+}
+
+.markdown-body .footnotes ol {
+  padding-left: 1rem;
+}
+
+.markdown-body .footnotes ol ul {
+  display: inline-block;
+  padding-left: 1rem;
+  margin-top: 1rem;
+}
+
+.markdown-body .footnotes li {
+  position: relative;
+}
+
+.markdown-body .footnotes li:target::before {
+  position: absolute;
+  top: calc(0.5rem*-1);
+  right: calc(0.5rem*-1);
+  bottom: calc(0.5rem*-1);
+  left: calc(1.5rem*-1);
+  pointer-events: none;
+  content: "";
+  border: 2px solid #0969da;
+  border-radius: 6px;
+}
+
+.markdown-body .footnotes li:target {
+  color: #1f2328;
+}
+
+.markdown-body .footnotes .data-footnote-backref g-emoji {
+  font-family: monospace;
+}
+
+.markdown-body .pl-c {
+  color: #59636e;
+}
+
+.markdown-body .pl-c1,
+.markdown-body .pl-s .pl-v {
+  color: #0550ae;
+}
+
+.markdown-body .pl-e,
+.markdown-body .pl-en {
+  color: #6639ba;
+}
+
+.markdown-body .pl-smi,
+.markdown-body .pl-s .pl-s1 {
+  color: #1f2328;
+}
+
+.markdown-body .pl-ent {
+  color: #0550ae;
+}
+
+.markdown-body .pl-k {
+  color: #cf222e;
+}
+
+.markdown-body .pl-s,
+.markdown-body .pl-pds,
+.markdown-body .pl-s .pl-pse .pl-s1,
+.markdown-body .pl-sr,
+.markdown-body .pl-sr .pl-cce,
+.markdown-body .pl-sr .pl-sre,
+.markdown-body .pl-sr .pl-sra {
+  color: #0a3069;
+}
+
+.markdown-body .pl-v,
+.markdown-body .pl-smw {
+  color: #953800;
+}
+
+.markdown-body .pl-bu {
+  color: #82071e;
+}
+
+.markdown-body .pl-ii {
+  color: var(--fgColor-danger);
+  background-color: var(--bgColor-danger-muted);
+}
+
+.markdown-body .pl-c2 {
+  color: #f6f8fa;
+  background-color: #cf222e;
+}
+
+.markdown-body .pl-sr .pl-cce {
+  font-weight: bold;
+  color: #116329;
+}
+
+.markdown-body .pl-ml {
+  color: #3b2300;
+}
+
+.markdown-body .pl-mh,
+.markdown-body .pl-mh .pl-en,
+.markdown-body .pl-ms {
+  font-weight: bold;
+  color: #0550ae;
+}
+
+.markdown-body .pl-mi {
+  font-style: italic;
+  color: #1f2328;
+}
+
+.markdown-body .pl-mb {
+  font-weight: bold;
+  color: #1f2328;
+}
+
+.markdown-body .pl-md {
+  color: #82071e;
+  background-color: #ffebe9;
+}
+
+.markdown-body .pl-mi1 {
+  color: #116329;
+  background-color: #dafbe1;
+}
+
+.markdown-body .pl-mc {
+  color: #953800;
+  background-color: #ffd8b5;
+}
+
+.markdown-body .pl-mi2 {
+  color: #d1d9e0;
+  background-color: #0550ae;
+}
+
+.markdown-body .pl-mdr {
+  font-weight: bold;
+  color: #8250df;
+}
+
+.markdown-body .pl-ba {
+  color: #59636e;
+}
+
+.markdown-body .pl-sg {
+  color: #818b98;
+}
+
+.markdown-body .pl-corl {
+  text-decoration: underline;
+  color: #0a3069;
+}
+
+.markdown-body [role=button]:focus:not(:focus-visible),
+.markdown-body [role=tabpanel][tabindex="0"]:focus:not(:focus-visible),
+.markdown-body button:focus:not(:focus-visible),
+.markdown-body summary:focus:not(:focus-visible),
+.markdown-body a:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.markdown-body [tabindex="0"]:focus:not(:focus-visible),
+.markdown-body details-dialog:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.markdown-body g-emoji {
+  display: inline-block;
+  min-width: 1ch;
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-size: 1em;
+  font-style: normal !important;
+  font-weight: 400;
+  line-height: 1;
+  vertical-align: -0.075em;
+}
+
+.markdown-body g-emoji img {
+  width: 1em;
+  height: 1em;
+}
+
+.markdown-body a:has(>p,>div,>pre,>blockquote) {
+  display: block;
+}
+
+.markdown-body a:has(>p,>div,>pre,>blockquote):not(:has(.snippet-clipboard-content,>pre)) {
+  width: fit-content;
+}
+
+.markdown-body a:has(>p,>div,>pre,>blockquote):has(.snippet-clipboard-content,>pre):focus-visible {
+  outline: 2px solid var(--borderColor-accent-emphasis);
+  outline-offset: 2px;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item label {
+  font-weight: 400;
+}
+
+.markdown-body .task-list-item.enabled label {
+  cursor: pointer;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 0.25rem;
+}
+
+.markdown-body .task-list-item .handle {
+  display: none;
+}
+
+.markdown-body .task-list-item-checkbox {
+  margin: 0 .2em .25em -1.4em;
+  vertical-align: middle;
+}
+
+.markdown-body ul:dir(rtl) .task-list-item-checkbox {
+  margin: 0 -1.6em .25em .2em;
+}
+
+.markdown-body ol:dir(rtl) .task-list-item-checkbox {
+  margin: 0 -1.6em .25em .2em;
+}
+
+.markdown-body .contains-task-list:hover .task-list-item-convert-container,
+.markdown-body .contains-task-list:focus-within .task-list-item-convert-container {
+  display: block;
+  width: auto;
+  height: 24px;
+  overflow: visible;
+  clip-path: none;
+}
+
+.markdown-body ::-webkit-calendar-picker-indicator {
+  filter: invert(50%);
+}
+
+.markdown-body .markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  color: inherit;
+  border-left: .25em solid #d1d9e0;
+}
+
+.markdown-body .markdown-alert>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body .markdown-alert>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body .markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1;
+}
+
+.markdown-body .markdown-alert.markdown-alert-note {
+  border-left-color: #0969da;
+}
+
+.markdown-body .markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: #0969da;
+}
+
+.markdown-body .markdown-alert.markdown-alert-important {
+  border-left-color: #8250df;
+}
+
+.markdown-body .markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: #8250df;
+}
+
+.markdown-body .markdown-alert.markdown-alert-warning {
+  border-left-color: #9a6700;
+}
+
+.markdown-body .markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: #9a6700;
+}
+
+.markdown-body .markdown-alert.markdown-alert-tip {
+  border-left-color: #1a7f37;
+}
+
+.markdown-body .markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: #1a7f37;
+}
+
+.markdown-body .markdown-alert.markdown-alert-caution {
+  border-left-color: #cf222e;
+}
+
+.markdown-body .markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: #d1242f;
+}
+
+.markdown-body>*:first-child>.heading-element:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body .highlight pre:has(+.zeroclipboard-container) {
+  min-height: 52px;
+}
+
+
+
+.markdown-body { font-size: 16px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <svg height="32" viewBox="0 0 24 24" width="32" aria-hidden="true"><path fill="#1f2328" d="M12 1C5.923 1 1 5.923 1 12c0 4.867 3.149 8.979 7.521 10.436.55.096.756-.233.756-.522 0-.262-.013-1.128-.013-2.049-2.764.509-3.479-.674-3.699-1.292-.124-.317-.66-1.293-1.127-1.554-.385-.207-.936-.715-.014-.729.866-.014 1.485.797 1.691 1.128.99 1.663 2.571 1.196 3.204.907.096-.715.385-1.196.701-1.471-2.448-.275-5.005-1.224-5.005-5.432 0-1.196.426-2.186 1.128-2.956-.111-.275-.496-1.402.11-2.915 0 0 .921-.288 3.024 1.128a10.193 10.193 0 0 1 2.75-.371c.936 0 1.871.123 2.75.371 2.104-1.43 3.025-1.128 3.025-1.128.605 1.513.221 2.64.111 2.915.701.77 1.127 1.747 1.127 2.956 0 4.222-2.571 5.157-5.019 5.432.399.344.743 1.004.743 2.035 0 1.471-.014 2.654-.014 3.117 0 .289.206.632.756.522C19.851 20.979 23 16.854 23 12c0-6.077-4.922-11-11-11Z"></path></svg>
+    <div class="repo-title">
+      <a class="owner" href="#">beyondessential</a>
+      <span class="sep">/</span>
+      <a class="name" href="#">tamanu</a>
+    </div>
+    <div class="header-search">Type <span style="border:1px solid #d1d9e0;border-radius:4px;padding:0 4px;margin:0 4px;font-size:12px;">/</span> to search</div>
+  </div>
+  <nav class="repo-nav">
+    <a class="selected" href="#"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="m11.28 3.22 4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L13.94 8l-3.72-3.72a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215Zm-6.56 0a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L2.06 8l3.72 3.72a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L.47 8.53a.75.75 0 0 1 0-1.06Z"></path></svg>Code</a>
+    <a href="#"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"></path></svg>Issues</a>
+    <a href="#"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"></path></svg>Pull requests</a>
+    <a href="#"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm4.879-2.773 4.264 2.559a.25.25 0 0 1 0 .428l-4.264 2.559A.25.25 0 0 1 6 10.559V5.442a.25.25 0 0 1 .379-.215Z"></path></svg>Actions</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="file-nav">
+    <span class="btn"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.493 2.493 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Zm-6 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm8.25-.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z"></path></svg>workhorse/k12 <svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4.427 7.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 7H4.604a.25.25 0 00-.177.427z"></path></svg></span>
+    <div class="breadcrumb">
+      <a href="#">tamanu</a><span class="sep">/</span>
+      <a href="#">docs</a><span class="sep">/</span>
+      <a href="#">release-notes</a><span class="sep">/</span>
+      <span class="final">v2-67.md</span>
+    </div>
+    <span class="icon-btn"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg></span>
+  </div>
+
+  <div class="commit-bar">
+    <span class="avatar"></span>
+    <span class="author">MeganLane29</span>
+    <span class="message">chore: K12: bring v2.67 release notes in line with the updated skill and mock up their GitHub view</span>
+    <span class="meta"><span>now</span><span><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="m.427 1.927 1.215 1.215a8.002 8.002 0 1 1-1.6 5.685.75.75 0 1 1 1.493-.154 6.5 6.5 0 1 0 1.18-4.458l1.358 1.358A.25.25 0 0 1 3.896 6H.25A.25.25 0 0 1 0 5.75V2.104a.25.25 0 0 1 .427-.177ZM7.75 4a.75.75 0 0 1 .75.75v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5A.75.75 0 0 1 7.75 4Z"></path></svg> <strong>History</strong></span></span>
+  </div>
+
+  <div class="file-box">
+    <div class="file-header">
+      <div class="segmented"><span class="selected">Preview</span><span>Code</span><span>Blame</span></div>
+      <span class="file-stats">110 lines (66 loc) · 8.69 KB</span>
+      <div class="file-actions">
+        <span class="btn btn-sm">Raw</span>
+        <div class="btn-group">
+          <span class="btn btn-sm"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg></span>
+          <span class="btn btn-sm"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"></path></svg></span>
+        </div>
+        <div class="btn-group">
+          <span class="btn btn-sm"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm.176 4.823L9.75 4.81l-6.286 6.287a.253.253 0 0 0-.064.108l-.558 1.953 1.953-.558a.253.253 0 0 0 .108-.064Zm1.238-3.763a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z"></path></svg></span>
+          <span class="btn btn-sm"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4.427 7.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 7H4.604a.25.25 0 00-.177.427z"></path></svg></span>
+        </div>
+        <span class="btn btn-sm"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M5.75 2.5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5ZM2 14a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-6a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM2 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg></span>
+      </div>
+    </div>
+    <div class="file-body">
+      <article class="markdown-body">
+<p>Tamanu v2.67 is a smaller release. Its main change lets staff log in to a new facility server as soon as setup finishes, without waiting for its first sync. It also moves patient record import and export into a 'Patient data' view in the admin panel, adds 'Patient type' to emergency encounters, and shows stock in the 'Send to pharmacy' modal.</p>
+<hr>
+<div class="markdown-heading"><h1 class="heading-element">🌟 Major features and changes</h1><a id="user-content--major-features-and-changes" class="anchor" aria-label="Permalink: 🌟 Major features and changes" href="#-major-features-and-changes"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h2 class="heading-element">System administration</h2><a id="user-content-system-administration" class="anchor" aria-label="Permalink: System administration" href="#system-administration"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element">Facility server setup</h3><a id="user-content-facility-server-setup" class="anchor" aria-label="Permalink: Facility server setup" href="#facility-server-setup"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Staff can now log in to a new facility server as soon as setup finishes. Until this release, every login was refused until the server's first sync had downloaded all of the facility's data. That can take hours, and the refusal read as though the user had no access. Now staff are told the facility is being set up, and are taken on to Tamanu once the data has arrived.</p>
+<p><strong>Key features</strong></p>
+<ul>
+<li>
+<strong>Ready to log in after setup</strong> - The setup wizard downloads the facility's users, roles, permissions and settings from the central server as part of setup, then logs the installer in. No patient data is downloaded at this stage.</li>
+<li>
+<strong>'Setting up this facility' screen</strong> - Anyone who logs in before the first sync finishes, whatever their role, sees a screen saying the facility's data is loading for the first time. Once the first sync completes they carry on to facility selection automatically. The screen has a 'Log out' button.</li>
+<li>
+<strong>Servers set up without the wizard</strong> - Facility servers configured another way download the same starter data before their first sync, so they get the same behaviour.</li>
+<li>
+<strong>First sync unchanged</strong> - The first sync still downloads all of the facility's data, taking about as long as before.</li>
+</ul>
+<p><strong>Supporting documentation</strong></p>
+<ul>
+<li>Facility server setup guide - [SLAB_LINK_PLACEHOLDER]</li>
+</ul>
+<hr>
+<div class="markdown-heading"><h1 class="heading-element">🔧 System enhancements</h1><a id="user-content--system-enhancements" class="anchor" aria-label="Permalink: 🔧 System enhancements" href="#-system-enhancements"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<ul>
+<li>
+<strong>Patient data view</strong> - Patients and administered vaccines are imported and exported through a new 'Patient data' view in the admin panel, separate from reference data. The spreadsheet format and the test import are as before. Before an import runs, a confirmation explains that it creates new records and overwrites matching patient data, and cannot be undone.</li>
+<li>
+<strong>Patient type on emergency encounters</strong> - The 'New emergency triage' form has a 'Patient type' field, filled in from the patient's details where one is recorded, and price lists set up for a patient type apply to the emergency encounter. Changing it on the form does not change the patient's details. The encounter's details show its patient type, which can be changed through 'Edit encounter details' and carries through when the patient is admitted to hospital.</li>
+<li>
+<strong>Stock when sending to pharmacy</strong> - The 'Send to pharmacy' modal has a 'Stock' column showing whether each medication is in stock at the facility, matching the 'Dispense medication' modal. Hovering over an in-stock medication shows the quantity on hand. Stock is for information only and does not stop a medication being sent.</li>
+<li>
+<strong>AI settings</strong> - The AI model settings suggest the models available to the deployment's Anthropic account, and changes to AI settings take effect without restarting the central server.</li>
+<li>
+<strong>Longer form logic</strong> - Program form questions accept longer visibility criteria and calculations, so complex conditions no longer hit a length limit.</li>
+<li>
+<strong>Database interruptions</strong> - Servers stay up through a brief loss of their database connection, such as a database failover, and carry on once it returns rather than shutting down and restarting. A server only stops if the outage lasts several minutes.</li>
+<li>
+<strong>Sync history</strong> - Facility servers keep a record of every sync attempt and its outcome, so monitoring can pick up a sync that hangs as well as one that fails.</li>
+</ul>
+<hr>
+<div class="markdown-heading"><h1 class="heading-element">🐛 Tweaks and bug fixes</h1><a id="user-content--tweaks-and-bug-fixes" class="anchor" aria-label="Permalink: 🐛 Tweaks and bug fixes" href="#-tweaks-and-bug-fixes"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h2 class="heading-element">Desktop</h2><a id="user-content-desktop" class="anchor" aria-label="Permalink: Desktop" href="#desktop"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<ul>
+<li>
+<strong>Encounters</strong> - Where 'Patient type' is set as required, every encounter form enforces it, including when editing an encounter and admitting to hospital. 'Patient type' is filled in when admitting from triage or from a referral. Editing an emergency encounter refuses an arrival or triage time in the future.</li>
+<li>
+<strong>Patients</strong> - The duplicate NHN check when editing a patient ignores capitalisation. Recording a death with an empty contributing condition row saves without it. A patient removed from a program registry can be registered again.</li>
+<li>
+<strong>Medications</strong> - A medication marked unavailable at the facility shows 'Unavailable' stock rather than 'Unknown'. Users without permission to see the medication administration record or not dispensed details see a message rather than a blank page. Pharmacy note and not dispensed notifications open straight away.</li>
+<li>
+<strong>Labs and imaging</strong> - The active lab requests status filter no longer offers 'Rejected'. Clearing 'Date &amp; time collected' clears the sample details recorded with it. Changing the imaging type clears 'Areas to be imaged'.</li>
+<li>
+<strong>Invoicing</strong> - Saving a procedure no longer overwrites changes the cashier has made to the invoice. An insurance plan, lab test or lab panel with every facility removed from it is offered at all facilities, where before it was offered at none. Clearing an invoice item's quantity no longer causes an error.</li>
+<li>
+<strong>Vitals and charts</strong> - Editing a recorded value no longer fails where the chart includes a question showing the patient's previous answer.</li>
+<li>
+<strong>Tables</strong> - Newly added rows stay selected in selection tables, and removing the last rows on a page no longer leaves an empty page.</li>
+<li>
+<strong>Admin panel</strong> - The reference data 'Manage' tab checks permissions for each data type, applies the same code and id rules as the import, enforces required fields when editing, and saves an optional number field once it is cleared. Drug routes are checked on import. Vaccine consent import and export are tightened, and re-importing an exported administered vaccines sheet keeps the vaccines' encounters and circumstances. Imported dates of birth and vaccine dates are no longer shifted by the server's timezone. Export is unavailable until a data type is selected. The hidden sync button is removed from the central server's admin panel.</li>
+</ul>
+<div class="markdown-heading"><h2 class="heading-element">Mobile</h2><a id="user-content-mobile" class="anchor" aria-label="Permalink: Mobile" href="#mobile"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<ul>
+<li>
+<strong>Sync</strong> - Saving pulled data during sync is faster.</li>
+<li>
+<strong>Forms</strong> - The village is kept after submitting a program form, and the hardware back button leaves the 'Programs' screen.</li>
+<li>
+<strong>Patients</strong> - A patient with no recorded allergies shows 'None recorded'.</li>
+</ul>
+<div class="markdown-heading"><h2 class="heading-element">System</h2><a id="user-content-system" class="anchor" aria-label="Permalink: System" href="#system"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<ul>
+<li>
+<strong>Sync</strong> - Sync no longer fails when a record deleted on the central server has also been updated at a facility. Prescriptions pulled to a facility are no longer pushed straight back, which could keep them syncing between facilities indefinitely. Resolving duplicate patient display IDs ignores capitalisation. Settings that only apply to the central server are kept off facility servers and mobile devices, and removed from them at upgrade.</li>
+<li>
+<strong>Sensitive networks</strong> - AI patient summaries leave out everything recorded in encounters at facilities in a sensitive network, wherever the summary is generated.</li>
+<li>
+<strong>Integrations</strong> - FHIR medication requests carry the dispense quantity in the standard format.</li>
+</ul>
+<hr>
+<div class="markdown-heading"><h1 class="heading-element"><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji> Critical upgrade notes</h1><a id="user-content-️-critical-upgrade-notes" class="anchor" aria-label="Permalink: ⚠️ Critical upgrade notes" href="#️-critical-upgrade-notes"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element">Required</h3><a id="user-content-required" class="anchor" aria-label="Permalink: Required" href="#required"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p><strong><em>Patient type</em></strong></p>
+<ul>
+<li>Where your deployment sets 'Patient type' as required, staff must now choose one on every encounter form, including emergency triage, admitting to hospital and editing an encounter. Until now some of these forms saved without one.</li>
+<li>Check that the patient type list is complete, and let triage and admissions staff know.</li>
+</ul>
+<p><strong><em>Patient data</em></strong></p>
+<ul>
+<li>Patients and administered vaccines are imported and exported only through the new 'Patient data' view, not the reference data view. Let anyone who imports or exports patient records know where to find them.</li>
+</ul>
+<div class="markdown-heading"><h3 class="heading-element">Optional</h3><a id="user-content-optional" class="anchor" aria-label="Permalink: Optional" href="#optional"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p><strong><em>Facility server setup</em></strong></p>
+<ul>
+<li>When setting up a new facility, let its staff know they will see a setting-up screen until the first sync finishes, and that they can log in during that time.</li>
+</ul>
+<p><strong><em>AI settings</em></strong></p>
+<ul>
+<li>Where AI features are in use, review the selected models against the suggestions now offered in the AI settings.</li>
+</ul>
+<hr>
+<div class="markdown-heading"><h2 class="heading-element">Upgrade steps and recommended testing</h2><a id="user-content-upgrade-steps-and-recommended-testing" class="anchor" aria-label="Permalink: Upgrade steps and recommended testing" href="#upgrade-steps-and-recommended-testing"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element">Required</h3><a id="user-content-required-1" class="anchor" aria-label="Permalink: Required" href="#required-1"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p><strong><em>Patient type</em></strong></p>
+<ul>
+<li>On a deployment where 'Patient type' is required, create an emergency encounter for a patient with a patient type recorded. Confirm the field is filled in and cannot be left empty, then admit the patient to hospital and confirm the patient type carries over.</li>
+</ul>
+<p><strong><em>Patient data</em></strong></p>
+<ul>
+<li>Run a test import of a patient spreadsheet in the 'Patient data' view, and export patients and administered vaccines from it.</li>
+</ul>
+<div class="markdown-heading"><h3 class="heading-element">Optional</h3><a id="user-content-optional-1" class="anchor" aria-label="Permalink: Optional" href="#optional-1"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p><strong><em>Facility server setup</em></strong></p>
+<ul>
+<li>When next setting up a facility server, confirm you can log in straight after the setup wizard, see the setting-up screen, and reach facility selection once the first sync completes.</li>
+</ul>
+<p><strong><em>General</em></strong></p>
+<ul>
+<li>Upgrade an existing Tamanu Mobile device, record some data and sync. Confirm the sync completes and the new records appear on Tamanu Desktop.</li>
+</ul>
+
+      </article>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
