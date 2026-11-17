@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
@@ -38,6 +38,10 @@ describe('Document upload file handling', () => {
     dir = await fs.mkdtemp(path.join(os.tmpdir(), 'document-upload-'));
     file = path.join(dir, 'secret.txt');
     await fs.writeFile(file, 'not for upload');
+  });
+
+  afterEach(async () => {
+    await fs.rm(dir, { recursive: true, force: true });
   });
 
   afterAll(async () => {
@@ -96,7 +100,6 @@ describe('Document upload file handling', () => {
       expect(CentralServerConnection).not.toHaveBeenCalled();
       await expect(fs.readFile(file, 'utf8')).resolves.toBe('not for upload');
       expect(await models.DocumentMetadata.count({ where: { name: 'injected' } })).toBe(0);
-      await fs.rm(dir, { recursive: true });
     },
   );
 });
