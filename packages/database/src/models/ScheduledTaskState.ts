@@ -74,6 +74,11 @@ export class ScheduledTaskState extends Model {
    *
    * Not busy means nothing was running when the hold was committed, and no task starts a run while
    * the hold lasts.
+   *
+   * The FHIR workers do not check the hold. They need not: the supervisor asks for the hold only
+   * once no request is in flight, and stops forwarding requests first, so with tasks held nothing
+   * is left to queue a FHIR job before it stops the workers. A job queued later, such as by a
+   * facility's final sync, stays queued until the server wakes.
    */
   static async holdUnlessBusy(
     durationMs: number,
