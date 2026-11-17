@@ -8,9 +8,9 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 ## Version parameter
 
-- A definition's version parameter names the Tamanu release its server runs.
+- A definition's version parameter names the Tamanu build its server runs, by the tag of that build's images.
 - A [published definition](publishing.md#published-version) defaults its version to the build it was published with. A definition run from the repository has no default, and its version must be set.
-- A published definition accepts any release in the same minor version as the build it was published with, older or newer, and that build itself.
+- A published definition accepts any release in the same minor version as the build it was published with, older or newer, and that build itself. A build that is not a release is in the minor of the Tamanu version it carries.
 - A published definition refuses a version in any other minor, with a reason saying that the definition for that minor is needed.
 - A definition run from the repository accepts any image tag as its version, such as the build of a branch.
 
@@ -21,6 +21,7 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 - An upgrade across minor versions updates the definition and the version together, in one change.
 - The upgrade then runs under the new definition, which knows what the new release needs.
+- Updating the definition to another minor's while the version is set to a release of the current minor is refused, with the same reason, unless the version changes with it.
 
 ## The upgrade
 
@@ -35,6 +36,11 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 - Moving to an older release in the same minor runs the same way as an upgrade.
 - Migrations the older release does not know are left in place.
+
+### Retrying an upgrade
+
+- A definition offers a **Retry upgrade** action, which runs the upgrade to the version already set.
+- Retrying an upgrade that failed starts again from pulling the images, and steps already done are done again without harm.
 
 ## When migrations fail
 
