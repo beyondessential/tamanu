@@ -168,6 +168,7 @@ describe('checkConfigKey', () => {
       ['facts', 'c', 'three'],
     ]);
     expect(warnings).toContainEqual(expect.stringContaining('restored from another server'));
+    expect(warnings).toContainEqual(expect.stringContaining('treat them as disclosed'));
   });
 
   it('re-encrypts a secret under the published development key behind one the configured key reads', async () => {

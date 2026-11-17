@@ -209,6 +209,12 @@ async function reencryptFromDevelopmentKey(
     count: underDevelopmentKey.length,
     keyFile: keyFilePath,
   });
+  // Re-encrypting protects what is written from now on; an earlier backup or dump still holds these
+  // under a key anyone can read.
+  log.warn(
+    'Secrets that were under the published development key are readable from any earlier backup or dump of this database: treat them as disclosed and rotate them. Where the settings PSK is among them, so are the secret settings it protects.',
+    { keys: [...new Set(underDevelopmentKey.map(({ key }) => key))].join(', ') },
+  );
   // A copy restored from a server on the development key reads as that server moving off it, so
   // the copy is only caught by whoever restored it.
   log.warn(
