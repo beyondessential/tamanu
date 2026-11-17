@@ -34,6 +34,7 @@ jobs:
       run-mobile: ${{ steps.plan.outputs.run-mobile }}
       run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
       run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
+      run-supervisor: ${{ steps.plan.outputs.run-supervisor }}
       allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
     steps:
       - uses: actions/checkout@v6
@@ -379,6 +380,34 @@ jobs:
       - run: npm install --include-workspace-root --workspace=scripts
       - run: npm run dbt-check-todos
 
+  test-supervisor:
+    needs: plan
+    if: needs.plan.outputs.run-supervisor == 'true'
+    name: Test supervisor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/supervisor
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: packages/supervisor/go.mod
+          cache-dependency-path: packages/supervisor/go.sum
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "These files need gofmt:"
+            echo "$unformatted"
+            exit 1
+          fi
+      - run: go vet ./...
+      - run: go test -race ./...
+      - run: go build ./cmd/supervisor
+
   typos:
     name: Spellcheck
     runs-on: ubuntu-latest
@@ -405,6 +434,7 @@ jobs:
       - test-package-lock
       - dbt-model
       - dbt-todos
+      - test-supervisor
       - typos
     runs-on: ubuntu-latest
     steps:

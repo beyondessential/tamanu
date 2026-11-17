@@ -8,9 +8,9 @@
 //     touched
 //   * database tests (the `@tamanu/database` test entries and the migrations
 //     matrix) are restricted to the latest postgres version
-//   * the auxiliary jobs (test-mobile, test-facility-offline, dbt-model) are
-//     gated to only run when their relevant inputs have changed; flags below
-//     tell ci.yml whether each should run
+//   * the auxiliary jobs (test-mobile, test-facility-offline, dbt-model,
+//     test-supervisor) are gated to only run when their relevant inputs have
+//     changed; flags below tell ci.yml whether each should run
 //
 // We don't try to resolve transitive dependencies — the full suite runs on
 // `merge_group` (and on push), which catches everything else.
@@ -94,6 +94,7 @@ let migrationsMatrix = MIGRATIONS_FULL;
 let runMobile = true;
 let runFacilityOffline = true;
 let runDbtModel = true;
+let runSupervisor = true;
 
 if (event === 'pull_request' && baseSha) {
   const head = headSha || 'HEAD';
@@ -140,6 +141,9 @@ if (event === 'pull_request' && baseSha) {
   runMobile = touched.has('mobile');
   runFacilityOffline = touched.has('facility-server') || touched.has('central-server');
   runDbtModel = migrationsTouched;
+  // The supervisor is a Go module, not an npm workspace, so it has no
+  // package.json and is not in the test matrix above.
+  runSupervisor = touched.has('supervisor');
 }
 
 const runTest = testMatrix.length > 0;
@@ -154,6 +158,7 @@ const allowedSkips = [
   !runMobile && 'test-mobile',
   !runFacilityOffline && 'test-facility-offline',
   !runDbtModel && 'dbt-model',
+  !runSupervisor && 'test-supervisor',
 ].filter(Boolean);
 
 console.error(`Run test:                  ${runTest} (${testMatrix.length} entries)`);
@@ -161,6 +166,7 @@ console.error(`Run migrations:            ${runMigrations} (${migrationsMatrix.l
 console.error(`Run test-mobile:           ${runMobile}`);
 console.error(`Run test-facility-offline: ${runFacilityOffline}`);
 console.error(`Run dbt-model:             ${runDbtModel}`);
+console.error(`Run test-supervisor:       ${runSupervisor}`);
 console.error(`Allowed skips:             ${allowedSkips.join(', ') || '(none)'}`);
 
 const out = process.env.GITHUB_OUTPUT;
@@ -172,4 +178,5 @@ appendFileSync(out, `run-migrations=${runMigrations}\n`);
 appendFileSync(out, `run-mobile=${runMobile}\n`);
 appendFileSync(out, `run-facility-offline=${runFacilityOffline}\n`);
 appendFileSync(out, `run-dbt-model=${runDbtModel}\n`);
+appendFileSync(out, `run-supervisor=${runSupervisor}\n`);
 appendFileSync(out, `allowed-skips=${allowedSkips.join(',')}\n`);
