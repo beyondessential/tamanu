@@ -154,7 +154,7 @@ func wantFrontRoutes() []wantRoute {
 		{[]string{"/env.js"}, "static", []string{"tamanu_gate", "headers", "static_response"}, nil, 0},
 		{[]string{"/manifest.json"}, "static", []string{"tamanu_gate", "headers", "encode", "file_server"}, nil, 1},
 		{nil, "static", []string{"tamanu_gate", "encode", "file_server"}, nil, 2},
-		{[]string{"/"}, "page", []string{"tamanu_gate", "headers", "encode", "file_server"}, nil, 1},
+		{[]string{"/"}, "index", []string{"tamanu_gate", "headers", "encode", "file_server"}, nil, 1},
 		{nil, "page", []string{"tamanu_gate", "rewrite", "encode", "file_server"}, nil, 2},
 		{nil, "static", []string{"tamanu_gate", "file_server"}, nil, 1},
 	}

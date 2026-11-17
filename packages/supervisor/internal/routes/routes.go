@@ -242,7 +242,7 @@ func frontRoutes(c config.Config, root string) caddyhttp.RouteList {
 		},
 		{
 			MatcherSetsRaw: match(caddyhttp.MatchPath{"/"}, nil),
-			HandlersRaw:    []json.RawMessage{gateHandler(gate.Page), cacheControl("no-cache"), compress(), files},
+			HandlersRaw:    []json.RawMessage{gateHandler(gate.Index), cacheControl("no-cache"), compress(), files},
 			Terminal:       true,
 		},
 		{

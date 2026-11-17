@@ -292,11 +292,52 @@ func TestPanickingRequestStillEnds(t *testing.T) {
 	}
 }
 
+// spec: SLPWK#activity
+func TestIndex(t *testing.T) {
+	tests := []struct {
+		name   string
+		accept string
+		cond   condition
+		want   result
+	}{
+		{"browser, awake", "text/html", awake, result{forwarded, false, true}},
+		{"browser, asleep", "text/html", asleep, result{wakingResp, true, true}},
+		{"probe, awake", "*/*", awake, result{forwarded, false, false}},
+		{"probe, asleep", "*/*", asleep, result{forwarded, false, false}},
+		{"probe, upgrading", "", upgrading, result{forwarded, false, false}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := state.New(state.Parts())
+			tt.cond.setup(s)
+			r := httptest.NewRequest("GET", "/", nil)
+			if tt.accept != "" {
+				r.Header.Set("Accept", tt.accept)
+			}
+			w := httptest.NewRecorder()
+			next := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+				w.WriteHeader(http.StatusTeapot)
+				return nil
+			})
+			if err := (&Gate{Class: Index, state: s}).ServeHTTP(w, r, next); err != nil {
+				t.Fatal(err)
+			}
+			got := result{classifyPage(w), drained(s.WakeRequests()), drained(s.Activity())}
+			if got != tt.want {
+				t.Errorf("got %+v, want %+v", got, tt.want)
+			}
+			if n := s.Snapshot().InFlight; n != 0 {
+				t.Errorf("in flight after the request = %d", n)
+			}
+		})
+	}
+}
+
 func TestValidate(t *testing.T) {
 	if err := (&Gate{Class: "chatty"}).Validate(); err == nil {
 		t.Error("an unknown class validated")
 	}
-	for _, class := range []Class{Activity, Exempt, Websocket, Static, Page} {
+	for _, class := range []Class{Activity, Exempt, Websocket, Static, Page, Index} {
 		if err := (&Gate{Class: class}).Validate(); err != nil {
 			t.Error(err)
 		}

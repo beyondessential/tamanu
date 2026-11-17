@@ -33,6 +33,10 @@ const (
 	// Page requests are those the web app's index page answers: a browser
 	// opening one is treated as Activity, anything else as Static.
 	Page Class = "page"
+	// Index requests are for the root of the web app or patient portal: a
+	// browser opening it is treated as Activity, and anything else is a
+	// health probe, served without counting as activity.
+	Index Class = "index"
 )
 
 // Gate is the http.handlers.tamanu_gate handler.
@@ -66,7 +70,7 @@ func (g *Gate) Provision(ctx caddy.Context) error {
 // Validate checks the gate's configuration.
 func (g *Gate) Validate() error {
 	switch g.Class {
-	case Activity, Exempt, Websocket, Static, Page:
+	case Activity, Exempt, Websocket, Static, Page, Index:
 		return nil
 	}
 	return fmt.Errorf("unknown class %q", g.Class)
@@ -74,6 +78,13 @@ func (g *Gate) Validate() error {
 
 func (g *Gate) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	class := g.Class
+	if class == Index {
+		if !pages.IsBrowser(r) {
+			// spec: SLPWK#activity
+			return next.ServeHTTP(w, r)
+		}
+		class = Activity
+	}
 	if class == Page {
 		class = Static
 		if pages.IsBrowser(r) {
