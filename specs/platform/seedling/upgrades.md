@@ -46,4 +46,7 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 - When the new release's migrations fail, the server's parts stay stopped and the operation fails, with a fault that carries the migration's error.
 - The supervisor goes on answering with its upgrading response.
-- The previous release is not started again, since its parts may not run against a partly migrated database. An operator restores the database or fixes forward.
+- The previous release is not started again automatically. An operator restores the database, fixes forward by setting a release whose migrations succeed, or moves back to the previous release, which runs as [moving to an older release](#moving-to-an-older-release) does.
+
+> [!NOTE]
+> A previous release runs against a partly migrated database when the migrations that ran are backward compatible with it. Whether they are depends on the migrations, which the definition cannot tell, so the choice is the operator's.
