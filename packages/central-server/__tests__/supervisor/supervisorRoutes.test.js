@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { JOB_QUEUE_STATUSES, JOB_TOPICS } from '@tamanu/constants';
+import { JOB_QUEUE_STATUSES, JOB_TOPICS, SETTINGS_SCOPES } from '@tamanu/constants';
+import { settingsCache } from '@tamanu/settings';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
@@ -110,6 +111,24 @@ describe('Supervisor routes', () => {
       },
     );
 
+  });
+
+  describe('without HTTPS', () => {
+    // The supervisor calls the api directly, never over TLS, so its routes answer over plain HTTP
+    // even where the server requires HTTPS of everyone else.
+    const setRequireHttps = async value => {
+      await models.Setting.set('security.requireHttps', value, SETTINGS_SCOPES.GLOBAL);
+      settingsCache.reset();
+    };
+
+    afterEach(() => setRequireHttps(false));
+
+    it('answers the supervisor while the server requires HTTPS', async () => {
+      await setRequireHttps(true);
+      const agent = await baseApp.asRole('admin');
+      expect(await agent.get('/api/user/me')).toBeForbidden();
+      expect(await withToken(baseApp.get('/api/supervisor/status'))).toHaveSucceeded();
+    });
   });
 
   describe('GET /api/supervisor/status', () => {
