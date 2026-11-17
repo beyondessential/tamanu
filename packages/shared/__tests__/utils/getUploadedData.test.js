@@ -2,11 +2,11 @@ import { Readable } from 'node:stream';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { InvalidParameterError } from '@tamanu/errors';
 
 import { assertUploadedFilePath, getUploadedData } from '../../src/utils/getUploadedData';
-import { tmpdirPath } from '../../src/utils/tmpdir';
+import { uploadDir, uploadDirPath } from '../../src/utils/tmpdir';
 
 // multiparty names what it writes with a random id and the original extension,
 // so an extension unique to this run finds its uploads and nothing else's,
@@ -15,7 +15,7 @@ import { tmpdirPath } from '../../src/utils/tmpdir';
 const RUN_ID = Math.random().toString(36).slice(2, 8);
 const extensionFor = name => `.${name}${RUN_ID}`;
 const uploadsWithExtension = async extension => {
-  const entries = await fs.readdir(tmpdirPath());
+  const entries = await fs.readdir(await uploadDir());
   return entries.filter(entry => entry.endsWith(extension));
 };
 
@@ -121,19 +121,47 @@ describe('getUploadedData', () => {
   });
 });
 
-describe('assertUploadedFilePath', () => {
-  it.each([
-    ['an absolute path outside the temp directory', '/etc/passwd'],
-    ['a path traversing out of the temp directory', path.join(os.tmpdir(), '..', 'etc', 'passwd')],
-    ['a file in a subdirectory of the temp directory', path.join(os.tmpdir(), 'sub', 'file.txt')],
-    ['a relative path', 'file.txt'],
-    ['no path', undefined],
-    ['a non-string value', ['/etc/passwd']],
-  ])('rejects %s', (_, file) => {
-    expect(() => assertUploadedFilePath(file)).toThrow(InvalidParameterError);
+describe('uploadDir', () => {
+  it('is a directory of our own, not the system temp directory everyone shares', async () => {
+    const directory = await uploadDir();
+    expect(path.dirname(directory)).toBe(path.resolve(os.tmpdir()));
+    expect(directory).not.toBe(path.resolve(os.tmpdir()));
   });
 
-  it('accepts a file directly in the temp directory', () => {
-    expect(() => assertUploadedFilePath(path.join(os.tmpdir(), 'upload.txt'))).not.toThrow();
+  // windows does not carry these permission bits
+  it.skipIf(process.platform === 'win32')('is readable only by this user', async () => {
+    const { mode } = await fs.stat(await uploadDir());
+    expect(mode & 0o777).toBe(0o700);
+  });
+});
+
+describe('assertUploadedFilePath', () => {
+  // the upload directory is only made once something has been uploaded, and
+  // until then no path at all is one of ours
+  beforeAll(() => uploadDir());
+
+  it.each([
+    ['an absolute path outside the upload directory', () => '/etc/passwd'],
+    [
+      'a file in the system temp directory the upload directory sits in',
+      () => path.join(os.tmpdir(), 'upload.txt'),
+    ],
+    [
+      'a path traversing out of the upload directory',
+      () => path.join(uploadDirPath(), '..', 'etc', 'passwd'),
+    ],
+    [
+      'a file in a subdirectory of the upload directory',
+      () => path.join(uploadDirPath(), 'sub', 'file.txt'),
+    ],
+    ['a relative path', () => 'file.txt'],
+    ['no path', () => undefined],
+    ['a non-string value', () => ['/etc/passwd']],
+  ])('rejects %s', (_, file) => {
+    expect(() => assertUploadedFilePath(file())).toThrow(InvalidParameterError);
+  });
+
+  it('accepts a file directly in the upload directory', () => {
+    expect(() => assertUploadedFilePath(path.join(uploadDirPath(), 'upload.txt'))).not.toThrow();
   });
 });

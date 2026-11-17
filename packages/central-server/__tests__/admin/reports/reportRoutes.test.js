@@ -5,6 +5,7 @@ import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 import { User } from '@tamanu/database';
 import path from 'path';
+import { uploadDirPath } from '@tamanu/shared/utils/tmpdir';
 import os from 'os';
 import { promises as fs } from 'fs';
 
@@ -401,7 +402,9 @@ describe('reportRoutes', () => {
         .field('jsonData', JSON.stringify({ name: testReport.name, dbSchema }));
 
       expect(res).toHaveRequestError('InvalidOperationError');
-      const leaked = (await fs.readdir(os.tmpdir())).filter(entry => entry.endsWith('.w15leak'));
+      const leaked = (await fs.readdir(uploadDirPath())).filter(entry =>
+        entry.endsWith('.w15leak'),
+      );
       expect(leaked).toEqual([]);
     });
   });

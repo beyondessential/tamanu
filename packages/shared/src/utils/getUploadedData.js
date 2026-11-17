@@ -3,7 +3,7 @@ import path from 'node:path';
 import multiparty from 'multiparty';
 import { InvalidParameterError } from '@tamanu/errors';
 
-import { tmpdir, tmpdirPath } from './tmpdir';
+import { uploadDir, uploadDirPath } from './tmpdir';
 
 // These keys describe a file the server itself received and stored, so they are
 // only ever set from a multipart file part, never from what the caller sends.
@@ -22,10 +22,12 @@ function withoutUploadedFileKeys(data) {
 
 /**
  * Throws unless `file` is a file the upload handler stored, i.e. directly inside
- * the upload directory. Call before reading or deleting an uploaded file.
+ * this process's upload directory. Call before reading or deleting an uploaded
+ * file.
  */
 export function assertUploadedFilePath(file) {
-  if (typeof file !== 'string' || path.dirname(path.resolve(file)) !== tmpdirPath()) {
+  const directory = uploadDirPath();
+  if (typeof file !== 'string' || !directory || path.dirname(path.resolve(file)) !== directory) {
     throw new InvalidParameterError('A file must be uploaded');
   }
 }
@@ -47,7 +49,7 @@ async function deleteUploadsExcept(files, keep) {
 }
 
 async function getMultipartData(req) {
-  const form = new multiparty.Form({ autoFiles: true, uploadDir: await tmpdir() });
+  const form = new multiparty.Form({ autoFiles: true, uploadDir: await uploadDir() });
 
   return new Promise((resolve, reject) => {
     form.parse(req, async (err, fields, files) => {
