@@ -17,7 +17,6 @@ export function facilitySupervisorRoutes() {
   const routes = supervisorRoutes({ version });
 
   // spec: SLPWK#going-to-sleep
-  // Through the sync process as `POST /sync/run` does, bounded by that request's timeouts.
   routes.post(
     '/final-sync',
     asyncHandler(async (req, res) => {
