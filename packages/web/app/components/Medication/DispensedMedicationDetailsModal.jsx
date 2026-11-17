@@ -74,10 +74,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
   };
   const prescriptionTypeDetail = {
     label: (
-      <TranslatedText
-        stringId="medication.dispenseDetails.prescriptionType"
-        fallback="Prescription type"
-      />
+      <TranslatedText stringId="medication.prescriptionType.label" fallback="Prescription type" />
     ),
     value: <PharmacyPrescriptionTypeLabel isDischargePrescription={isDischargePrescription} />,
   };

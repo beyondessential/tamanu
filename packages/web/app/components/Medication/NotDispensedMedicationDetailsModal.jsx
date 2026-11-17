@@ -60,10 +60,7 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
     },
     {
       label: (
-        <TranslatedText
-          stringId="medication.notDispensedDetails.prescriptionType"
-          fallback="Prescription type"
-        />
+        <TranslatedText stringId="medication.prescriptionType.label" fallback="Prescription type" />
       ),
       value: (
         <PharmacyPrescriptionTypeLabel
