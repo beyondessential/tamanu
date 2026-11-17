@@ -1,4 +1,4 @@
-export { ScheduledTask } from './ScheduledTask';
+export { ScheduledTask, recordScheduledTaskRuns } from './ScheduledTask';
 export { FhirQueueManager } from './fhir/FhirQueueManager';
 export { startFhirWorkerTasks, runStartFhirWorker } from './fhir';
 export { createFhirCommand } from './fhir/fhirCommand';
