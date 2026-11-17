@@ -3,6 +3,7 @@ package persist
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -60,5 +61,47 @@ func TestCorruptFile(t *testing.T) {
 	}
 	if _, found, err := s.Load(); err == nil || found {
 		t.Errorf("corrupt file: found=%v err=%v", found, err)
+	}
+}
+
+func TestEncodeSetsTheFormat(t *testing.T) {
+	b, err := Encode(Record{Release: "2.70.0", Phase: state.Asleep})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(b), `"format": 1`) {
+		t.Errorf("document %s has no format", b)
+	}
+}
+
+// spec: SUPV#compatibility
+func TestDecodeIsTolerant(t *testing.T) {
+	tests := []struct {
+		name       string
+		doc        string
+		wantUsable bool
+		wantPhase  state.Phase
+	}{
+		{"current", `{"format":1,"release":"2.70.0","phase":"asleep"}`, true, state.Asleep},
+		{"no format", `{"release":"2.69.0","phase":"going-to-sleep","step":"held"}`, true, state.GoingToSleep},
+		{"unknown fields", `{"format":1,"phase":"awake","lease":{"holder":"x"},"extra":[1,2]}`, true, state.Awake},
+		{"missing fields", `{"phase":"waking"}`, true, state.Waking},
+		{"later format", `{"format":2,"phase":"asleep"}`, false, ""},
+		{"unknown phase", `{"format":1,"phase":"hibernating"}`, false, ""},
+		{"no phase", `{"format":1}`, false, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rec, usable, err := Decode([]byte(tt.doc))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if usable != tt.wantUsable || rec.Phase != tt.wantPhase {
+				t.Errorf("usable %v, phase %q", usable, rec.Phase)
+			}
+		})
+	}
+	if _, _, err := Decode([]byte("{not json")); err == nil {
+		t.Error("no error for a document that is not JSON")
 	}
 }

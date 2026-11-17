@@ -149,6 +149,14 @@ func TestIncompleteFinalSyncKeepsTheFacilityAwake(t *testing.T) {
 	}
 }
 
+// spec: SUPV#compatibility
+func TestAnotherPatchOfTheLineSleeps(t *testing.T) {
+	h := newHarness(t, true)
+	h.api.SetVersion("2.70.4")
+	h.start(testRelease)
+	h.waitPhase(state.Asleep)
+}
+
 func TestReleaseMismatchKeepsTheServerAwake(t *testing.T) {
 	h := newHarness(t, true)
 	h.api.SetVersion("2.69.0")
@@ -373,7 +381,21 @@ func TestStartingOnAnAsleepServer(t *testing.T) {
 		}
 	})
 
-	t.Run("another release wakes it", func(t *testing.T) {
+	t.Run("another patch of the line stays asleep", func(t *testing.T) {
+		h := newHarness(t, false)
+		h.act.SetAll(actuator.Down, actuator.Stopped)
+		if err := h.store.Save(persist.Record{Release: "2.70.3", Phase: state.Asleep}); err != nil {
+			t.Fatal(err)
+		}
+		h.start(testRelease)
+		h.waitPhase(state.Asleep)
+		time.Sleep(5 * h.timing.IdleTime)
+		if h.snapshot().Phase != state.Asleep || len(h.act.Puts()) != 0 || len(h.api.Calls()) != 0 {
+			t.Errorf("phase %s, puts %q, calls %q", h.snapshot().Phase, h.puts(), h.api.Calls())
+		}
+	})
+
+	t.Run("another line wakes it", func(t *testing.T) {
 		h := newHarness(t, false)
 		h.act.SetAll(actuator.Down, actuator.Stopped)
 		if err := h.store.Save(persist.Record{Release: "2.69.0", Phase: state.Asleep}); err != nil {
@@ -432,6 +454,38 @@ func TestUpgradeBlocksSleepAndWake(t *testing.T) {
 	h.keepAwakeAfterWake()
 	h.act.SetUpgrading(false)
 	h.waitAwakeAfterWake()
+}
+
+// spec: SUPV#upgrades
+func TestNoAPICallsDuringAnUpgrade(t *testing.T) {
+	h := newHarness(t, false)
+	h.start(testRelease)
+	h.waitPhase(state.Asleep)
+
+	// The upgrade starts once the wake has asked for the database, so the
+	// wake finishes during it.
+	var once sync.Once
+	h.onPut(func(parts map[state.Part]actuator.Desired) {
+		if parts[state.Database] == actuator.Up {
+			once.Do(func() { h.act.SetUpgrading(true) })
+		}
+	})
+	calls := len(h.api.Calls())
+	h.activity()
+	h.eventually("parts up during the upgrade", func() bool {
+		return h.snapshot().Upgrading && h.allUp()
+	})
+	time.Sleep(5 * h.timing.ActuatorPoll)
+	if got := h.api.Calls()[calls:]; len(got) != 0 {
+		t.Errorf("called the api during an upgrade: %q", got)
+	}
+
+	h.keepAwakeAfterWake()
+	h.act.SetUpgrading(false)
+	h.waitAwakeAfterWake()
+	if h.api.Held() {
+		t.Error("the task hold was not released after the upgrade")
+	}
 }
 
 func TestUpgradeCancelsASleep(t *testing.T) {
