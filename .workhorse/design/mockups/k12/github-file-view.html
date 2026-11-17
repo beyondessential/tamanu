@@ -1230,14 +1230,14 @@ a { color: #0969da; text-decoration: none; }
   <div class="commit-bar">
     <span class="avatar"></span>
     <span class="author">MeganLane29</span>
-    <span class="message">chore: K12: bring v2.67 release notes in line with the updated skill and mock up their GitHub view</span>
+    <span class="message">chore: K12: remove facility server setup from v2.67 release notes</span>
     <span class="meta"><span>now</span><span><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="m.427 1.927 1.215 1.215a8.002 8.002 0 1 1-1.6 5.685.75.75 0 1 1 1.493-.154 6.5 6.5 0 1 0 1.18-4.458l1.358 1.358A.25.25 0 0 1 3.896 6H.25A.25.25 0 0 1 0 5.75V2.104a.25.25 0 0 1 .427-.177ZM7.75 4a.75.75 0 0 1 .75.75v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5A.75.75 0 0 1 7.75 4Z"></path></svg> <strong>History</strong></span></span>
   </div>
 
   <div class="file-box">
     <div class="file-header">
       <div class="segmented"><span class="selected">Preview</span><span>Code</span><span>Blame</span></div>
-      <span class="file-stats">110 lines (66 loc) · 8.69 KB</span>
+      <span class="file-stats">81 lines (50 loc) · 6.80 KB</span>
       <div class="file-actions">
         <span class="btn btn-sm">Raw</span>
         <div class="btn-group">
@@ -1253,27 +1253,7 @@ a { color: #0969da; text-decoration: none; }
     </div>
     <div class="file-body">
       <article class="markdown-body">
-<p>Tamanu v2.67 is a smaller release. Its main change lets staff log in to a new facility server as soon as setup finishes, without waiting for its first sync. It also moves patient record import and export into a 'Patient data' view in the admin panel, adds 'Patient type' to emergency encounters, and shows stock in the 'Send to pharmacy' modal.</p>
-<hr>
-<div class="markdown-heading"><h1 class="heading-element">🌟 Major features and changes</h1><a id="user-content--major-features-and-changes" class="anchor" aria-label="Permalink: 🌟 Major features and changes" href="#-major-features-and-changes"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
-<div class="markdown-heading"><h2 class="heading-element">System administration</h2><a id="user-content-system-administration" class="anchor" aria-label="Permalink: System administration" href="#system-administration"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
-<div class="markdown-heading"><h3 class="heading-element">Facility server setup</h3><a id="user-content-facility-server-setup" class="anchor" aria-label="Permalink: Facility server setup" href="#facility-server-setup"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
-<p>Staff can now log in to a new facility server as soon as setup finishes. Until this release, every login was refused until the server's first sync had downloaded all of the facility's data. That can take hours, and the refusal read as though the user had no access. Now staff are told the facility is being set up, and are taken on to Tamanu once the data has arrived.</p>
-<p><strong>Key features</strong></p>
-<ul>
-<li>
-<strong>Ready to log in after setup</strong> - The setup wizard downloads the facility's users, roles, permissions and settings from the central server as part of setup, then logs the installer in. No patient data is downloaded at this stage.</li>
-<li>
-<strong>'Setting up this facility' screen</strong> - Anyone who logs in before the first sync finishes, whatever their role, sees a screen saying the facility's data is loading for the first time. Once the first sync completes they carry on to facility selection automatically. The screen has a 'Log out' button.</li>
-<li>
-<strong>Servers set up without the wizard</strong> - Facility servers configured another way download the same starter data before their first sync, so they get the same behaviour.</li>
-<li>
-<strong>First sync unchanged</strong> - The first sync still downloads all of the facility's data, taking about as long as before.</li>
-</ul>
-<p><strong>Supporting documentation</strong></p>
-<ul>
-<li>Facility server setup guide - [SLAB_LINK_PLACEHOLDER]</li>
-</ul>
+<p>Tamanu v2.67 is a smaller release. It moves patient record import and export into a 'Patient data' view in the admin panel, adds 'Patient type' to emergency encounters, and shows stock in the 'Send to pharmacy' modal.</p>
 <hr>
 <div class="markdown-heading"><h1 class="heading-element">🔧 System enhancements</h1><a id="user-content--system-enhancements" class="anchor" aria-label="Permalink: 🔧 System enhancements" href="#-system-enhancements"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
 <ul>
@@ -1344,10 +1324,6 @@ a { color: #0969da; text-decoration: none; }
 <li>Patients and administered vaccines are imported and exported only through the new 'Patient data' view, not the reference data view. Let anyone who imports or exports patient records know where to find them.</li>
 </ul>
 <div class="markdown-heading"><h3 class="heading-element">Optional</h3><a id="user-content-optional" class="anchor" aria-label="Permalink: Optional" href="#optional"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
-<p><strong><em>Facility server setup</em></strong></p>
-<ul>
-<li>When setting up a new facility, let its staff know they will see a setting-up screen until the first sync finishes, and that they can log in during that time.</li>
-</ul>
 <p><strong><em>AI settings</em></strong></p>
 <ul>
 <li>Where AI features are in use, review the selected models against the suggestions now offered in the AI settings.</li>
@@ -1364,10 +1340,6 @@ a { color: #0969da; text-decoration: none; }
 <li>Run a test import of a patient spreadsheet in the 'Patient data' view, and export patients and administered vaccines from it.</li>
 </ul>
 <div class="markdown-heading"><h3 class="heading-element">Optional</h3><a id="user-content-optional-1" class="anchor" aria-label="Permalink: Optional" href="#optional-1"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
-<p><strong><em>Facility server setup</em></strong></p>
-<ul>
-<li>When next setting up a facility server, confirm you can log in straight after the setup wizard, see the setting-up screen, and reach facility selection once the first sync completes.</li>
-</ul>
 <p><strong><em>General</em></strong></p>
 <ul>
 <li>Upgrade an existing Tamanu Mobile device, record some data and sync. Confirm the sync completes and the new records appear on Tamanu Desktop.</li>

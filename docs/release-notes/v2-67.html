@@ -243,44 +243,11 @@
   <div class="masthead">
     <h1>Tamanu v2.67 release notes</h1>
     <p class="lede">
-      Tamanu&nbsp;v2.67 is a smaller release. Its main change lets staff log in to a new facility
-      server as soon as setup finishes, without waiting for its first sync. It also moves
-      patient record import and export into a 'Patient data' view in the admin panel, adds
-      'Patient type' to emergency encounters, and shows stock in the 'Send to pharmacy' modal.
+      Tamanu&nbsp;v2.67 is a smaller release. It moves patient record import and export into a
+      'Patient data' view in the admin panel, adds 'Patient type' to emergency encounters, and
+      shows stock in the 'Send to pharmacy' modal.
     </p>
   </div>
-
-  <section>
-    <h2><span class="marker">🌟</span>Major features and changes</h2>
-
-    <h3>System administration</h3>
-
-    <div class="feature">
-      <p class="feature-title">Facility server setup</p>
-      <p>
-        Staff can now log in to a new facility server as soon as setup finishes. Until this
-        release, every login was refused until the server's first sync had downloaded all of
-        the facility's data. That can take hours, and the refusal read as though the user had
-        no access. Now staff are told the facility is being set up, and are taken on to Tamanu
-        once the data has arrived.
-      </p>
-
-      <p class="label">Key features</p>
-      <ul>
-        <li><strong>Ready to log in after setup</strong> - The setup wizard downloads the facility's users, roles, permissions and settings from the central server as part of setup, then logs the installer in. No patient data is downloaded at this stage.</li>
-        <li><strong>'Setting up this facility' screen</strong> - Anyone who logs in before the first sync finishes, whatever their role, sees a screen saying the facility's data is loading for the first time. Once the first sync completes they carry on to facility selection automatically. The screen has a 'Log out' button.</li>
-        <li><strong>Servers set up without the wizard</strong> - Facility servers configured another way download the same starter data before their first sync, so they get the same behaviour.</li>
-        <li><strong>First sync unchanged</strong> - The first sync still downloads all of the facility's data, taking about as long as before.</li>
-      </ul>
-
-      <div class="docs">
-        <p class="label">Supporting documentation</p>
-        <ul>
-          <li>Facility server setup guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
 
   <section>
     <h2><span class="marker">🔧</span>System enhancements</h2>
@@ -360,13 +327,6 @@
       <span class="optional-tag">Optional</span>
 
       <div class="upgrade-item">
-        <p class="name">Facility server setup</p>
-        <ul>
-          <li>When setting up a new facility, let its staff know they will see a setting-up screen until the first sync finishes, and that they can log in during that time.</li>
-        </ul>
-      </div>
-
-      <div class="upgrade-item">
         <p class="name">AI settings</p>
         <ul>
           <li>Where AI features are in use, review the selected models against the suggestions now offered in the AI settings.</li>
@@ -400,13 +360,6 @@
       <span class="optional-tag">Optional</span>
 
       <div class="upgrade-item">
-        <p class="name">Facility server setup</p>
-        <ul>
-          <li>When next setting up a facility server, confirm you can log in straight after the setup wizard, see the setting-up screen, and reach facility selection once the first sync completes.</li>
-        </ul>
-      </div>
-
-      <div class="upgrade-item">
         <p class="name">General</p>
         <ul>
           <li>Upgrade an existing Tamanu Mobile device, record some data and sync. Confirm the sync completes and the new records appear on Tamanu Desktop.</li>
@@ -414,10 +367,6 @@
       </div>
     </div>
   </section>
-
-  <footer>
-    Supporting documentation links are placeholders awaiting real Slab URLs.
-  </footer>
 
 </div>
 </body>
