@@ -1,3 +1,6 @@
+// The replacement step sequelize.query() itself runs (sequelize/src/utils/sql.ts), needed here
+// because the query is sent on the raw pg client. Its package exports expose lib/*; the report
+// route tests exercise it with named parameters, so an upgrade that moves it fails in CI.
 import { injectReplacements } from 'sequelize/lib/utils/sql';
 import { REPORT_DB_CONNECTION_VALUES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
