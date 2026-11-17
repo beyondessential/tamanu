@@ -29,7 +29,7 @@ Dropped with the earlier design: the changes-pending check and its tick, central
 - Upgrades (V14) reach the supervisor through the actuator contract: the actuator's status says when an upgrade is in progress. Controlling parts is optional in the contract, and an actuator that does not control parts never has its server put to sleep, which is how a platform that only reports upgrades runs it.
 - The supervisor serves the web app and patient portal itself, from its own image, which replaces the separate frontend images once infra has moved over. Tamanu's error pages then come from the one process that is always up, and the front end stays up while the server sleeps. `web` and `portal` are no longer parts. A browser opening a page while the server is not awake still gets the waking page until the web app can show waking itself.
 - Compatibility: every supervisor and server of one release line (minor version) work together in any mix of patches; their contract changes incompatibly only between lines, and always so that upgrades never need the other side stopped or downgraded first. A supervisor restarted alone within a line (for a front-end hotfix) leaves the server asleep or awake as it was. Across lines, the platform replaces the supervisor before it reports the upgrade finished, and the supervisor makes no api calls during an upgrade.
-- The actuator holds a lease (with a token it checks on every state change), the supervisor's saved state, and a report from each running supervisor. Only the lease holder acts. Keeping state with the actuator rather than on a volume or in the database lets a supervisor be replaced while the server sleeps without waking it.
+- The actuator holds a lease (with a token it checks on every state change), the supervisor's saved state, and a report from each running supervisor. Every supervisor passes traffic; only the lease holder acts (decides sleep and wake, sets desired state, calls the api), so supervisors can be replaced or run several at once with no gap in traffic. Keeping state with the actuator rather than on a volume or in the database lets a supervisor be replaced while the server sleeps without waking it.
 - Busy means work actually running: a scheduled task recorded as running, or a FHIR job queued or started. Queue counts play no part, since `countQueue()` means outbound work for some tasks, housekeeping for cleaners and time-driven work for the discharger. The busy call sets a hold in the same transaction, so no task starts between the check and the stop; tasks check the hold before each run. A busy server is checked again every minute. Nothing waits on `SIGTERM`, so an upgrade or restart stops as fast as it does today.
 
 ## Explicitly rejected
@@ -79,6 +79,10 @@ Supervisor (Go, `packages/supervisor`):
 - [x] Admin API routes, read-only: server state, each part's state, last sleep or wake failure, upgrade in progress, supervisor health
 - [x] Go tests: routes per role, activity classification, the sleep and wake sequences against the fake actuator, cancellation and restart at each step
 - [x] CI job building and testing the Go module; a `supervisor` Dockerfile stage
+- [ ] Every supervisor passes traffic, holder or not: the holder announces the phase (numbered) in its report, every other supervisor follows the newest announcement and says so in its own report, and forwards to parts the actuator reports ready
+- [ ] The holder's idle check goes by every live report (latest activity, in-flight count); a wake request at any supervisor is reported at once and the holder starts the wake
+- [ ] Sleep barrier: after announcing going-to-sleep, nothing stops until every live report follows that announcement with nothing in flight; an expired report is no longer waited for
+- [ ] On `SIGTERM` the holder releases the lease and keeps passing traffic while Caddy drains; readiness is having read the actuator's state, whether or not holding the lease
 - [ ] Tell infra (Y3) and V14 the contract file exists
 
 Built as PR 4a (#11700, server side) and PR 4b (branch `feat/L13/supervisor`, stacked on it; opens once #11700 is approved). Notes from the build:
@@ -90,9 +94,8 @@ Built as PR 4a (#11700, server side) and PR 4b (branch `feat/L13/supervisor`, st
 - `TAMANU_SUPERVISOR_TRUSTED_PROXIES` names the proxies whose forwarded client address the rate limits use.
 - A facility with sync disabled can never complete its final sync, so it never sleeps.
 
-### Later: supervisor standbys
+### Later
 
-- [ ] A supervisor without the lease serves traffic as a standby; the holder folds every instance's report into its idle check and wakes on any instance's wake request; on `SIGTERM` the holder releases the lease and drains as a standby. Gives rolling restarts of the supervisor (front-end hotfixes) with no gap in traffic. Needs no contract change
 - [ ] The web app shows waking itself (reads `Retry-After` on a `503`), so a page can load straight into a sleeping server instead of the waking page
 
 ### Scheduled tasks (SLPWK#scheduled-tasks)
