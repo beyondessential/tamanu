@@ -10,7 +10,13 @@ import {
   REPORT_STATUSES,
   REPORT_VERSION_EXPORT_FORMATS,
 } from '@tamanu/constants';
-import { readJSON, sanitizeFilename, verifyQuery } from './utils';
+import {
+  assertSchemaPermitted,
+  canEditReportSchema,
+  readJSON,
+  sanitizeFilename,
+  verifyQuery,
+} from './utils';
 import { createReportDefinitionVersion } from './createReportDefinitionVersion';
 import { DryRun } from '../errors';
 
@@ -33,7 +39,7 @@ reportsRouter.get(
     req.checkPermission('read', 'ReportDefinition');
     req.checkPermission('read', 'ReportDefinitionVersion');
 
-    const canEditSchema = req.ability.can('write', 'ReportDbSchema');
+    const canEditSchema = canEditReportSchema(req);
 
     const result = await store.sequelize.query(
       `SELECT rd.id,
@@ -122,7 +128,7 @@ reportsRouter.post(
       : body;
 
     const version = await createReportDefinitionVersion(
-      { store, reportSchemaStores, canEditSchema: req.ability.can('write', 'ReportDbSchema') },
+      { store, reportSchemaStores, canEditSchema: canEditReportSchema(req) },
       null,
       transformedBody,
       user.id,
@@ -142,7 +148,7 @@ reportsRouter.post(
 
     const { reportId } = params;
     const version = await createReportDefinitionVersion(
-      { store, reportSchemaStores, canEditSchema: req.ability.can('write', 'ReportDbSchema') },
+      { store, reportSchemaStores, canEditSchema: canEditReportSchema(req) },
       reportId,
       body,
       user.id,
@@ -214,7 +220,7 @@ reportsRouter.post(
 
     assertReportingSchemasAvailable(reportSchemaStores);
 
-    const canEditSchema = req.ability.can('write', 'ReportDbSchema');
+    const canEditSchema = canEditReportSchema(req);
 
     const { name, file, dryRun } = await getUploadedData(req);
     assertUploadedFilePath(file);
@@ -226,11 +232,7 @@ reportsRouter.post(
       if (versionData.versionNumber)
         throw new InvalidOperationError('Cannot import a report with a version number');
 
-      if (!canEditSchema && versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
-        throw new InvalidOperationError(
-          'You do not have permission to import reports using the raw schema',
-        );
-      }
+      assertSchemaPermitted(versionData.dbSchema, canEditSchema);
 
       // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
       const existingDefinition = await ReportDefinition.findOne({

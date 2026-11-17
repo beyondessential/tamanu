@@ -2,7 +2,7 @@
 // because the query is sent on the raw pg client. The package exports this path, but the built file
 // is CommonJS whose named exports Node cannot see from ESM, so read it off the default export.
 import sequelizeSqlUtils from 'sequelize/lib/utils/sql';
-import { REPORT_DB_CONNECTION_VALUES } from '@tamanu/constants';
+import { REPORT_DB_CONNECTION_VALUES, REPORT_DB_CONNECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
 import fs from 'fs';
@@ -34,6 +34,16 @@ export const readJSON = async path => {
       }
     });
   });
+};
+
+// The raw connection reads the application's own tables, so authoring against it is its own
+// permission. Every route that settles a report's connection asks this, so they cannot diverge.
+export const canEditReportSchema = req => req.ability.can('write', 'ReportDbSchema');
+
+export const assertSchemaPermitted = (dbSchema, canEditSchema) => {
+  if (!canEditSchema && dbSchema === REPORT_DB_CONNECTIONS.RAW) {
+    throw new InvalidOperationError('You do not have permission to use the raw reporting schema');
+  }
 };
 
 class VerificationRollback extends Error {}

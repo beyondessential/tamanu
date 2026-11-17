@@ -1,7 +1,6 @@
 import Sequelize from 'sequelize';
-import { REPORT_DB_CONNECTIONS } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { verifyQuery } from './utils';
+import { assertSchemaPermitted, verifyQuery } from './utils';
 
 export async function createReportDefinitionVersion(
   { store, reportSchemaStores, canEditSchema },
@@ -25,11 +24,7 @@ export async function createReportDefinitionVersion(
     throw new NotFoundError(`No report found with id ${reportId}`);
   }
   const dbSchema = existingReport?.dbSchema ?? definition.dbSchema;
-  if (!canEditSchema && dbSchema === REPORT_DB_CONNECTIONS.RAW) {
-    throw new InvalidOperationError(
-      'You do not have permission to create reports using the raw schema',
-    );
-  }
+  assertSchemaPermitted(dbSchema, canEditSchema);
   await verifyQuery({
     query: definition.query,
     parameters: definition.queryOptions.parameters,
