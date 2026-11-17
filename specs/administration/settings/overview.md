@@ -35,7 +35,7 @@ Applies to settings: the named runtime-configuration values stored in the databa
 
 - A server takes all of its configuration from settings and environment variables, and runs without a configuration file.
 - An operator tunes runtime behaviour through settings; everything else is an environment variable.
-- The values held as environment variables are those needed before settings can be read (the database connection, cryptographic key material, console logging, and whether migrations run at startup), those that are a property of the environment the process runs in (the primary timezone `TZ`, the trusted-proxy list `PROXY_TRUSTED` defaulting to loopback, the free-disk-space path `DISK_PATH` defaulting to `/tmp`, network ports, the facility identity for a deployment that declares it rather than using the [setup wizard](../../platform/facility-setup.md#setup-wizard), and the canonical host name), and those that are a secret held outside the database (the authentication secrets).
+- The values held as environment variables are those needed before settings can be read (the database connection, cryptographic key material, console logging, and whether migrations run at startup), those that are a property of the environment the process runs in (the primary timezone `TZ`, the trusted-proxy list `PROXY_TRUSTED` defaulting to loopback, the free-disk-space path `DISK_PATH` defaulting to `/tmp`, network ports, the facility identity unless otherwise set, and the canonical host name), and those that are a secret held outside the database (the authentication secrets).
 
 > [!NOTE]
 > None of the values held as environment variables can be a runtime, database-backed setting, which is what divides the two sources.
