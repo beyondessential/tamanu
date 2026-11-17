@@ -61,11 +61,12 @@ The api token never appears in it: the configuration names the variable instead.
 
 ## Status
 
-The status server answers `GET /status` and `GET /health`, as JSON. `/health` answers whenever the
-process is up, so it suits a readiness probe: with an actuator, a supervisor waiting for the lease
-answers every request on its other addresses with `503 Service Unavailable` and a `Retry-After`
-header until it takes the lease, so a rolling replacement can start the new one while the old one
-holds it. `/status` says whether this supervisor holds the lease or is waiting for it.
+The status server answers `GET /status`, `GET /health` and `GET /ready`, as JSON. `/health` is the
+supervisor's own health, for a liveness probe. `/ready` answers `200` once the supervisor knows
+what to do with requests, for a readiness probe: at once without an actuator, and with one once it
+has read the actuator's state, whether or not it holds the lease. Until then it answers `503`.
+`/status` says whether this supervisor holds the lease or follows the holder, and which
+announcement it made or follows.
 
 ## Sleep and wake
 
@@ -79,8 +80,12 @@ got is saved with the actuator.
 The platform implements the actuator contract, [`actuator/v1.openapi.yaml`](actuator/v1.openapi.yaml),
 specified in [Sleep and wake](../../specs/platform/supervisor/sleep-and-wake.md#actuator-contract).
 The supervisor takes the lease for 30 seconds, renews it every 10, and stops acting if it cannot
-renew it within 20 of the last renewal. It reports its activity every 10 seconds, each report
-lasting 30. On `SIGTERM` or `SIGINT` it releases the lease at once, then drains.
+renew it within 20 of the last renewal. Every supervisor reads the actuator's state every second,
+and reports every 10 seconds, each report lasting 30. It also reports at once on a new
+announcement and, while the server is not awake, on a wake request or when its last request in
+flight finishes. On `SIGTERM` or `SIGINT` it releases the lease at once and goes on passing traffic
+while it drains. A supervisor that cannot reach the actuator keeps to the last phase and part
+readiness it read.
 
 For running the supervisor locally, `cmd/fake-actuator` keeps the parts in memory:
 
