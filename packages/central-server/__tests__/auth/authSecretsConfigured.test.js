@@ -69,13 +69,12 @@ describe('assertAuthSecretsConfigured', () => {
   });
 
   it('refuses to build a token without a signing secret', async () => {
-    config.auth.secret = null;
     await expect(
       buildToken({ userId: 'user' }, null, {
         expiresIn: '1h',
         audience: 'access',
         issuer: 'issuer',
       }),
-    ).rejects.toThrow(/set AUTH_SECRET$/);
+    ).rejects.toThrow('Token signing secret is not configured');
   });
 });

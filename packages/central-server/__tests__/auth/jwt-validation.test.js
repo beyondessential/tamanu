@@ -33,7 +33,7 @@ describe('JWT Token Validation', () => {
       });
 
       // Create a token
-      const token = await buildToken({ userId: user.id }, null, {
+      const token = await buildToken({ userId: user.id }, config.auth.secret, {
         expiresIn: '1d',
         audience: JWT_TOKEN_TYPES.ACCESS,
         issuer: config.canonicalHostName,
@@ -87,7 +87,7 @@ describe('JWT Token Validation', () => {
           deviceId: device.id,
           facilityId: facility.id,
         },
-        null,
+        config.auth.secret,
         {
           expiresIn: '1d',
           audience: JWT_TOKEN_TYPES.ACCESS,
@@ -118,7 +118,7 @@ describe('JWT Token Validation', () => {
         password: 'password123',
       });
 
-      const token = await buildToken({ userId: user.id }, null, {
+      const token = await buildToken({ userId: user.id }, config.auth.secret, {
         expiresIn: '1d',
         audience: JWT_TOKEN_TYPES.ACCESS,
         issuer: config.canonicalHostName,
@@ -160,7 +160,7 @@ describe('JWT Token Validation', () => {
         registeredById: user.id,
       });
 
-      const token = await buildToken({ userId: user.id, deviceId: device.id }, null, {
+      const token = await buildToken({ userId: user.id, deviceId: device.id }, config.auth.secret, {
         expiresIn: '1d',
         audience: JWT_TOKEN_TYPES.ACCESS,
         issuer: config.canonicalHostName,
@@ -200,7 +200,7 @@ describe('JWT Token Validation', () => {
       const { User } = models;
 
       const fakeUserId = '99999999-9999-9999-9999-999999999999';
-      const token = await buildToken({ userId: fakeUserId }, null, {
+      const token = await buildToken({ userId: fakeUserId }, config.auth.secret, {
         expiresIn: '1d',
         audience: JWT_TOKEN_TYPES.ACCESS,
         issuer: config.canonicalHostName,

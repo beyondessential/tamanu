@@ -3,7 +3,7 @@ import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { assertAuthSecretsConfigured, buildToken } from '../../auth/utils';
 import { closeDatabase, initDatabase } from '../../database';
-import { getCanonicalHostName } from '@tamanu/shared/utils';
+import { getAuthSecret, getCanonicalHostName } from '@tamanu/shared/utils';
 
 export const genToken = async (email, { expiresIn }) => {
   assertAuthSecretsConfigured();
@@ -22,7 +22,7 @@ export const genToken = async (email, { expiresIn }) => {
     {
       userId: user.id,
     },
-    null,
+    getAuthSecret(),
     { expiresIn, audience: JWT_TOKEN_TYPES.ACCESS, issuer: getCanonicalHostName() },
   );
 
