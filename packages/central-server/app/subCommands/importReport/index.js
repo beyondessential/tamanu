@@ -14,8 +14,17 @@ async function importReport(options) {
   }
 
   const store = await initDatabase({ testMode: false });
-  // Report queries are only ever checked on the reporting roles' connections.
-  const reportSchemaStores = await initReporting(store);
+  // Report queries are only ever checked on the reporting roles' connections, so an import cannot
+  // go ahead without them. Setting them up needs the app's db role to manage roles, which an
+  // under-provisioned database refuses, so say that rather than leaving a role DDL stack trace.
+  let reportSchemaStores;
+  try {
+    reportSchemaStores = await initReporting(store);
+  } catch (error) {
+    throw new Error(
+      `Reporting schemas could not be initialised, so the report's query cannot be checked; check the database grants: ${error.message}`,
+    );
+  }
   const definition = await importUtils.findOrCreateDefinition(
     overriddenName,
     versionData.dbSchema,
