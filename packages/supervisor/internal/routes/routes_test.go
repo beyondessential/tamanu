@@ -62,12 +62,29 @@ func (r route) handlers() []string {
 	return names
 }
 
-func (r route) gate() (class, part string) {
+func (r route) gate() string {
 	h := r.Handle[0]
 	if h["handler"] != "tamanu_gate" {
-		return "", ""
+		return ""
 	}
-	return h["class"].(string), h["part"].(string)
+	return h["class"].(string)
+}
+
+// roots lists the roots the route's file matchers and file servers read.
+func (r route) roots() []string {
+	var roots []string
+	for _, set := range r.Match {
+		var file struct{ Root string }
+		if json.Unmarshal(set["file"], &file) == nil && file.Root != "" {
+			roots = append(roots, file.Root)
+		}
+	}
+	for _, h := range r.Handle {
+		if h["handler"] == "file_server" {
+			roots = append(roots, h["root"].(string))
+		}
+	}
+	return roots
 }
 
 func (r route) upstreams() []string {
@@ -102,7 +119,7 @@ func facility() config.Config {
 		Listen:       ":8080",
 		StatusListen: "127.0.0.1:8081",
 		APIUpstreams: []string{"api-1:4000", "api-2:4000"},
-		WebUpstreams: []string{"web:80"},
+		WebRoot:      "/srv/web",
 		IdleTime:     30 * time.Minute,
 	}
 }
@@ -113,7 +130,7 @@ func central(withPortal bool) config.Config {
 	c.IdleTime = 15 * time.Minute
 	if withPortal {
 		c.PortalListen = ":8082"
-		c.PortalUpstreams = []string{"portal:80"}
+		c.PortalRoot = "/srv/patient-portal"
 	}
 	return c
 }
@@ -122,24 +139,28 @@ func central(withPortal bool) config.Config {
 type wantRoute struct {
 	paths     []string
 	class     string
-	part      string
 	handlers  []string
 	upstreams []string
+	roots     int
 }
 
-func wantFrontRoutes(front string, frontUpstreams []string) []wantRoute {
+func wantFrontRoutes() []wantRoute {
 	api := []string{"api-1:4000", "api-2:4000"}
 	return []wantRoute{
-		{[]string{"/v1/login"}, "", "", []string{"static_response"}, nil},
-		{[]string{"/api/socket.io/*"}, "websocket", "api", []string{"tamanu_gate", "rate_limit", "reverse_proxy"}, api},
-		{[]string{"/api/public/ping", "/api/timesync"}, "exempt", "api", []string{"tamanu_gate", "rate_limit", "headers", "reverse_proxy"}, api},
-		{[]string{"/api/*", "/v1/*"}, "activity", "api", []string{"tamanu_gate", "rate_limit", "headers", "encode", "reverse_proxy"}, api},
-		{[]string{"/", "/manifest.json", "/env.js"}, "activity", front, []string{"tamanu_gate", "headers", "encode", "reverse_proxy"}, frontUpstreams},
-		{nil, "activity", front, []string{"tamanu_gate", "encode", "reverse_proxy"}, frontUpstreams},
+		{[]string{"/v1/login"}, "", []string{"static_response"}, nil, 0},
+		{[]string{"/api/socket.io/*"}, "websocket", []string{"tamanu_gate", "rate_limit", "reverse_proxy"}, api, 0},
+		{[]string{"/api/public/ping", "/api/timesync"}, "exempt", []string{"tamanu_gate", "rate_limit", "headers", "reverse_proxy"}, api, 0},
+		{[]string{"/api/*", "/v1/*"}, "activity", []string{"tamanu_gate", "rate_limit", "headers", "encode", "reverse_proxy"}, api, 0},
+		{[]string{"/env.js"}, "static", []string{"tamanu_gate", "headers", "static_response"}, nil, 0},
+		{[]string{"/manifest.json"}, "static", []string{"tamanu_gate", "headers", "encode", "file_server"}, nil, 1},
+		{nil, "static", []string{"tamanu_gate", "encode", "file_server"}, nil, 2},
+		{[]string{"/"}, "page", []string{"tamanu_gate", "headers", "encode", "file_server"}, nil, 1},
+		{nil, "page", []string{"tamanu_gate", "rewrite", "encode", "file_server"}, nil, 2},
+		{nil, "static", []string{"tamanu_gate", "file_server"}, nil, 1},
 	}
 }
 
-func checkFrontServer(t *testing.T, name string, srv server, listen string, want []wantRoute) {
+func checkFrontServer(t *testing.T, name string, srv server, listen, root string, want []wantRoute) {
 	t.Helper()
 	if !slices.Equal(srv.Listen, []string{listen}) {
 		t.Errorf("%s listens on %q", name, srv.Listen)
@@ -164,8 +185,11 @@ func checkFrontServer(t *testing.T, name string, srv server, listen string, want
 		if got := r.paths(); !slices.Equal(got, w.paths) {
 			t.Errorf("%s route %d paths = %q, want %q", name, i, got, w.paths)
 		}
-		if class, part := r.gate(); class != w.class || part != w.part {
-			t.Errorf("%s route %d gate = %s %s, want %s %s", name, i, class, part, w.class, w.part)
+		if class := r.gate(); class != w.class {
+			t.Errorf("%s route %d gate = %s, want %s", name, i, class, w.class)
+		}
+		if roots := r.roots(); len(roots) != w.roots || slices.ContainsFunc(roots, func(r string) bool { return r != root }) {
+			t.Errorf("%s route %d roots = %q, want %d of %q", name, i, roots, w.roots, root)
 		}
 		if got := r.handlers(); !slices.Equal(got, w.handlers) {
 			t.Errorf("%s route %d handlers = %q, want %q", name, i, got, w.handlers)
@@ -182,12 +206,9 @@ func TestFacility(t *testing.T) {
 	if len(servers) != 2 || servers[ServerPortal].Listen != nil {
 		t.Errorf("servers = %v", slices.Collect(maps.Keys(servers)))
 	}
-	checkFrontServer(t, ServerMain, servers[ServerMain], ":8080", wantFrontRoutes("web", []string{"web:80"}))
+	checkFrontServer(t, ServerMain, servers[ServerMain], ":8080", "/srv/web", wantFrontRoutes())
 	if g.Apps.Tamanu["role"] != "facility" || g.Apps.Tamanu["idle_time"] != float64(30*time.Minute) {
 		t.Errorf("tamanu app = %v", g.Apps.Tamanu)
-	}
-	if parts := g.Apps.Tamanu["parts"].([]any); slices.Contains(parts, any("portal")) {
-		t.Errorf("facility parts include the portal: %v", parts)
 	}
 }
 
@@ -197,10 +218,7 @@ func TestCentralWithoutPortal(t *testing.T) {
 	if _, ok := servers[ServerPortal]; ok || len(servers) != 2 {
 		t.Errorf("servers = %v", slices.Collect(maps.Keys(servers)))
 	}
-	checkFrontServer(t, ServerMain, servers[ServerMain], ":8080", wantFrontRoutes("web", []string{"web:80"}))
-	if parts := g.Apps.Tamanu["parts"].([]any); !slices.Contains(parts, any("portal")) {
-		t.Errorf("central parts lack the portal: %v", parts)
-	}
+	checkFrontServer(t, ServerMain, servers[ServerMain], ":8080", "/srv/web", wantFrontRoutes())
 }
 
 func TestCentralWithPortal(t *testing.T) {
@@ -209,8 +227,44 @@ func TestCentralWithPortal(t *testing.T) {
 	if len(servers) != 3 {
 		t.Errorf("servers = %v", slices.Collect(maps.Keys(servers)))
 	}
-	checkFrontServer(t, ServerMain, servers[ServerMain], ":8080", wantFrontRoutes("web", []string{"web:80"}))
-	checkFrontServer(t, ServerPortal, servers[ServerPortal], ":8082", wantFrontRoutes("portal", []string{"portal:80"}))
+	checkFrontServer(t, ServerMain, servers[ServerMain], ":8080", "/srv/web", wantFrontRoutes())
+	checkFrontServer(t, ServerPortal, servers[ServerPortal], ":8082", "/srv/patient-portal", wantFrontRoutes())
+}
+
+// spec: SUPV#front-door
+func TestErrorPagesFromTheWebRoot(t *testing.T) {
+	servers := build(t, central(true)).Apps.HTTP.Servers
+	for _, name := range []string{ServerMain, ServerPortal} {
+		h := servers[name].Errors.Routes[0].Handle[0]
+		if h["root"] != "/srv/web" {
+			t.Errorf("%s error pages from %v", name, h["root"])
+		}
+	}
+}
+
+func TestEnvScript(t *testing.T) {
+	route := build(t, facility()).Apps.HTTP.Servers[ServerMain].Routes[4]
+	body := route.Handle[2]["body"].(string)
+	for _, want := range []string{
+		"NODE_ENV: `{env.NODE_ENV}` || 'production'",
+		"BUGSNAG_API_KEY: `{env.BUGSNAG_API_KEY}` || null",
+		"REVISION: `{env.REVISION}` || null",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("env.js %q lacks %q", body, want)
+		}
+	}
+}
+
+func TestFileServer(t *testing.T) {
+	route := build(t, facility()).Apps.HTTP.Servers[ServerMain].Routes[6]
+	fs := route.Handle[2]
+	if order, _ := json.Marshal(fs["precompressed_order"]); string(order) != `["zstd","br","gzip"]` {
+		t.Errorf("precompressed order = %s", order)
+	}
+	if m, _ := json.Marshal(route.Match); !strings.Contains(string(m), `"not":[{"path":["/"]}]`) {
+		t.Errorf("static files match %s", m)
+	}
 }
 
 func TestStatusServer(t *testing.T) {
@@ -261,7 +315,7 @@ func TestRateLimits(t *testing.T) {
 
 func TestCacheControl(t *testing.T) {
 	routes := build(t, facility()).Apps.HTTP.Servers[ServerMain].Routes
-	for i, want := range map[int]string{2: "no-store", 3: "no-store", 4: "no-cache"} {
+	for i, want := range map[int]string{2: "no-store", 3: "no-store", 4: "no-cache", 5: "no-cache", 7: "no-cache"} {
 		var h map[string]any
 		for _, candidate := range routes[i].Handle {
 			if candidate["handler"] == "headers" {
@@ -305,7 +359,6 @@ func TestActuatorAndToken(t *testing.T) {
 	c := facility()
 	c.ActuatorURL, _ = url.Parse("http://actuator:7000")
 	c.APIToken = "super-secret"
-	c.DataDir = "/var/lib/supervisor"
 	raw, err := Build(c)
 	if err != nil {
 		t.Fatal(err)
@@ -316,7 +369,7 @@ func TestActuatorAndToken(t *testing.T) {
 	var g generated
 	_ = json.Unmarshal(raw, &g)
 	app := g.Apps.Tamanu
-	if app["actuator_url"] != "http://actuator:7000" || app["api_token"] != "{env.TAMANU_SUPERVISOR_API_TOKEN}" || app["data_dir"] != "/var/lib/supervisor" {
+	if app["actuator_url"] != "http://actuator:7000" || app["api_token"] != "{env.TAMANU_SUPERVISOR_API_TOKEN}" {
 		t.Errorf("tamanu app = %v", app)
 	}
 	if upstreams, _ := json.Marshal(app["api_upstreams"]); string(upstreams) != `["api-1:4000","api-2:4000"]` {

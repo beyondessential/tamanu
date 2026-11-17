@@ -14,10 +14,13 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp/encode"
+	caddybrotli "github.com/caddyserver/caddy/v2/modules/caddyhttp/encode/brotli"
 	caddygzip "github.com/caddyserver/caddy/v2/modules/caddyhttp/encode/gzip"
 	caddyzstd "github.com/caddyserver/caddy/v2/modules/caddyhttp/encode/zstd"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp/fileserver"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp/headers"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp/reverseproxy"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp/rewrite"
 	"github.com/caddyserver/caddy/v2/modules/caddytls"
 	ratelimit "github.com/mholt/caddy-ratelimit"
 
@@ -25,7 +28,6 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/config"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/errorpage"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/gate"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
 // The names of the servers in the generated configuration.
@@ -49,10 +51,23 @@ var (
 	loginPath = "/api/login"
 	// legacyLoginPath is redirected to loginPath.
 	legacyLoginPath = "/v1/login"
-	// documentPaths are the frontend's entry points, which browsers must
-	// revalidate so a new release reaches them.
-	documentPaths = []string{"/", "/manifest.json", "/env.js"}
+	// envPath and manifestPath, with the index, are revalidated by browsers
+	// so a new release reaches them.
+	envPath      = "/env.js"
+	manifestPath = "/manifest.json"
 )
+
+// requestPath is the placeholder for the request's path.
+const requestPath = "{http.request.uri.path}"
+
+// envScript is the web app's /env.js, filled from the environment as each
+// request is answered. Keep it in step with app/utils/env.js in the web app.
+const envScript = `window.env = {
+	NODE_ENV: ` + "`{env.NODE_ENV}`" + ` || 'production',
+	BUGSNAG_API_KEY: ` + "`{env.BUGSNAG_API_KEY}`" + ` || null,
+	REVISION: ` + "`{env.REVISION}`" + ` || null,
+}
+`
 
 // Rate limits, per client address, shared by every route and server.
 const (
@@ -76,7 +91,7 @@ const gracePeriod = 10 * time.Second
 // Build generates the Caddy configuration for c, as JSON.
 func Build(c config.Config) ([]byte, error) {
 	servers := map[string]*caddyhttp.Server{
-		ServerMain: frontServer(c, c.Listen, state.Web, c.WebUpstreams),
+		ServerMain: frontServer(c, c.Listen, c.WebRoot),
 		ServerStatus: {
 			Listen:    []string{c.StatusListen},
 			Protocols: []string{"h1", "h2c"},
@@ -87,12 +102,11 @@ func Build(c config.Config) ([]byte, error) {
 		},
 	}
 	if c.HasPortal() {
-		servers[ServerPortal] = frontServer(c, c.PortalListen, state.Portal, c.PortalUpstreams)
+		servers[ServerPortal] = frontServer(c, c.PortalListen, c.PortalRoot)
 	}
 
 	tamanu := app.App{
 		Role:         string(c.Role),
-		Parts:        state.PartsFor(c.Role == config.Central),
 		IdleTime:     caddy.Duration(c.IdleTime),
 		DataDir:      c.DataDir,
 		APIUpstreams: c.APIUpstreams,
@@ -131,17 +145,18 @@ func Build(c config.Config) ([]byte, error) {
 	return json.Marshal(cfg)
 }
 
-// frontServer is the server for the server's or the patient portal's address.
+// frontServer is the server for the server's or the patient portal's address,
+// serving the files in root.
 //
 // spec: SUPV#front-door
-func frontServer(c config.Config, listen string, front state.Part, frontUpstreams []string) *caddyhttp.Server {
+func frontServer(c config.Config, listen, root string) *caddyhttp.Server {
 	srv := &caddyhttp.Server{
 		Listen:    []string{listen},
 		Protocols: []string{"h1", "h2c"},
 		AutoHTTPS: &caddyhttp.AutoHTTPSConfig{Disabled: true},
-		Routes:    frontRoutes(c, front, frontUpstreams),
+		Routes:    frontRoutes(c, root),
 		Errors: &caddyhttp.HTTPErrorConfig{Routes: caddyhttp.RouteList{{
-			HandlersRaw: []json.RawMessage{handler("tamanu_error_page", errorpage.Handler{})},
+			HandlersRaw: []json.RawMessage{handler("tamanu_error_page", errorpage.Handler{Root: c.WebRoot})},
 		}}},
 	}
 	if len(c.TrustedProxies) > 0 {
@@ -152,9 +167,11 @@ func frontServer(c config.Config, listen string, front state.Part, frontUpstream
 }
 
 // frontRoutes lists the routes in the order they are tried. The websocket and
-// exempt routes come before the api's general route, which would take theirs.
-func frontRoutes(c config.Config, front state.Part, frontUpstreams []string) caddyhttp.RouteList {
+// exempt routes come before the api's general route, which would take theirs,
+// and files come before pages, which the index answers.
+func frontRoutes(c config.Config, root string) caddyhttp.RouteList {
 	api := proxy(c.APIUpstreams)
+	files := fileServer(root)
 	return caddyhttp.RouteList{
 		{
 			MatcherSetsRaw: match(caddyhttp.MatchPath{legacyLoginPath}, nil),
@@ -171,7 +188,7 @@ func frontRoutes(c config.Config, front state.Part, frontUpstreams []string) cad
 				"Upgrade":    {Pattern: `(?i)^websocket$`},
 			}),
 			HandlersRaw: []json.RawMessage{
-				gateHandler(gate.Websocket, state.API),
+				gateHandler(gate.Websocket),
 				rateLimit(),
 				api,
 			},
@@ -180,7 +197,7 @@ func frontRoutes(c config.Config, front state.Part, frontUpstreams []string) cad
 		{
 			MatcherSetsRaw: match(caddyhttp.MatchPath(exemptPaths), nil),
 			HandlersRaw: []json.RawMessage{
-				gateHandler(gate.Exempt, state.API),
+				gateHandler(gate.Exempt),
 				rateLimit(),
 				cacheControl("no-store"),
 				api,
@@ -190,7 +207,7 @@ func frontRoutes(c config.Config, front state.Part, frontUpstreams []string) cad
 		{
 			MatcherSetsRaw: match(caddyhttp.MatchPath(apiPaths), nil),
 			HandlersRaw: []json.RawMessage{
-				gateHandler(gate.Activity, state.API),
+				gateHandler(gate.Activity),
 				rateLimit(),
 				cacheControl("no-store"),
 				compress(),
@@ -199,22 +216,55 @@ func frontRoutes(c config.Config, front state.Part, frontUpstreams []string) cad
 			Terminal: true,
 		},
 		{
-			MatcherSetsRaw: match(caddyhttp.MatchPath(documentPaths), nil),
+			MatcherSetsRaw: match(caddyhttp.MatchPath{envPath}, nil),
 			HandlersRaw: []json.RawMessage{
-				gateHandler(gate.Activity, front),
+				gateHandler(gate.Static),
 				cacheControl("no-cache"),
-				compress(),
-				proxy(frontUpstreams),
+				handler("static_response", caddyhttp.StaticResponse{
+					Headers: http.Header{"Content-Type": {"text/javascript; charset=utf-8"}},
+					Body:    envScript,
+				}),
 			},
 			Terminal: true,
 		},
 		{
+			MatcherSetsRaw: match(caddyhttp.MatchPath{manifestPath}, nil),
+			HandlersRaw:    []json.RawMessage{gateHandler(gate.Static), cacheControl("no-cache"), compress(), files},
+			Terminal:       true,
+		},
+		{
+			// spec: SLPWK#waking
+			MatcherSetsRaw: caddyhttp.RawMatcherSets{{
+				"file": caddyconfig.JSON(fileserver.MatchFile{Root: root, TryFiles: []string{requestPath}}, nil),
+				"not":  caddyconfig.JSON(caddyhttp.MatchNot{MatcherSetsRaw: match(caddyhttp.MatchPath{"/"}, nil)}, nil),
+			}},
+			HandlersRaw: []json.RawMessage{gateHandler(gate.Static), compress(), files},
+			Terminal:    true,
+		},
+		{
+			MatcherSetsRaw: match(caddyhttp.MatchPath{"/"}, nil),
+			HandlersRaw:    []json.RawMessage{gateHandler(gate.Page), cacheControl("no-cache"), compress(), files},
+			Terminal:       true,
+		},
+		{
+			// The web app's own routes, which its index answers.
+			MatcherSetsRaw: caddyhttp.RawMatcherSets{{
+				"file": caddyconfig.JSON(fileserver.MatchFile{
+					Root:     root,
+					TryFiles: []string{requestPath, requestPath + "/", "/index.html"},
+				}, nil),
+			}},
 			HandlersRaw: []json.RawMessage{
-				gateHandler(gate.Activity, front),
+				gateHandler(gate.Page),
+				handler("rewrite", rewrite.Rewrite{URI: "{http.matchers.file.relative}"}),
 				compress(),
-				proxy(frontUpstreams),
+				files,
 			},
 			Terminal: true,
+		},
+		{
+			HandlersRaw: []json.RawMessage{gateHandler(gate.Static), files},
+			Terminal:    true,
 		},
 	}
 }
@@ -231,8 +281,8 @@ func handler(name string, h any) json.RawMessage {
 	return caddyconfig.JSONModuleObject(h, "handler", name, nil)
 }
 
-func gateHandler(class gate.Class, part state.Part) json.RawMessage {
-	return handler("tamanu_gate", gate.Gate{Class: class, Part: part})
+func gateHandler(class gate.Class) json.RawMessage {
+	return handler("tamanu_gate", gate.Gate{Class: class})
 }
 
 // spec: SUPV#front-door
@@ -273,6 +323,18 @@ func compress() json.RawMessage {
 			"gzip": caddyconfig.JSON(caddygzip.Gzip{}, nil),
 		},
 		Prefer: []string{"zstd", "gzip"},
+	})
+}
+
+func fileServer(root string) json.RawMessage {
+	return handler("file_server", fileserver.FileServer{
+		Root: root,
+		PrecompressedRaw: caddy.ModuleMap{
+			"zstd": caddyconfig.JSON(caddyzstd.ZstdPrecompressed{}, nil),
+			"br":   caddyconfig.JSON(caddybrotli.BrotliPrecompressed{}, nil),
+			"gzip": caddyconfig.JSON(caddygzip.GzipPrecompressed{}, nil),
+		},
+		PrecompressedOrder: []string{"zstd", "br", "gzip"},
 	})
 }
 

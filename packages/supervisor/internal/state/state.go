@@ -24,24 +24,18 @@ const (
 // spec: SLPWK#going-to-sleep
 type Part string
 
-// The parts a server can have.
+// The parts a server has.
 const (
 	Database Part = "database"
 	API      Part = "api"
-	Web      Part = "web"
-	Portal   Part = "portal"
 	Sync     Part = "sync"
 	Tasks    Part = "tasks"
 	FHIR     Part = "fhir"
 )
 
-// PartsFor lists the parts of a server, central or not.
-func PartsFor(central bool) []Part {
-	parts := []Part{Database, API, Web, Sync, Tasks, FHIR}
-	if central {
-		parts = append(parts, Portal)
-	}
-	return parts
+// Parts lists the server's parts.
+func Parts() []Part {
+	return []Part{Database, API, Sync, Tasks, FHIR}
 }
 
 // Admission is what the gate does with a request.
@@ -121,6 +115,24 @@ func (s *Server) Admit(part Part) Admission {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.admit(part)
+}
+
+// AdmitStatic records a request for one of the supervisor's own files, which
+// is served in every state and counts as activity. done must be called once
+// it has finished.
+//
+// spec: SLPWK#waking
+func (s *Server) AdmitStatic() (done func()) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.lastActivity = s.now()
+	notify(s.activity)
+	if s.phase != Awake && !s.upgrading {
+		notify(s.wake)
+	}
+	s.inFlight++
+	var once sync.Once
+	return func() { once.Do(s.endActivity) }
 }
 
 // AdmitActivity is Admit for a request that counts as activity. A forwarded

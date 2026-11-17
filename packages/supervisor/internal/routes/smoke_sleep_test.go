@@ -36,7 +36,6 @@ func TestSmokeSleepAndWake(t *testing.T) {
 		_, _ = io.WriteString(w, "api "+r.URL.Path)
 	}))
 	t.Cleanup(api.Close)
-	web := upstream(t, "web")
 
 	actuatorURL, _ := url.Parse(actSrv.URL)
 	c := config.Config{
@@ -44,7 +43,7 @@ func TestSmokeSleepAndWake(t *testing.T) {
 		Listen:       freeAddr(t),
 		StatusListen: freeAddr(t),
 		APIUpstreams: []string{hostPort(api)},
-		WebUpstreams: []string{hostPort(web)},
+		WebRoot:      frontRoot(t, "web", false),
 		ActuatorURL:  actuatorURL,
 		IdleTime:     200 * time.Millisecond,
 		APIToken:     "set below",
@@ -94,7 +93,7 @@ func TestSmokeSleepAndWake(t *testing.T) {
 		phase, canSleep := status()
 		return phase == "asleep" && canSleep
 	})
-	parts := state.PartsFor(true)
+	parts := state.Parts()
 	if s := act.State(); !s.AllObserved(parts, actuator.Stopped) {
 		t.Errorf("parts not stopped while asleep: %+v", s.Parts)
 	}

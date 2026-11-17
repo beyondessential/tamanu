@@ -1,10 +1,12 @@
-// Package errorpage answers requests whose part could not be reached with the
-// supervisor's unavailable response.
+// Package errorpage answers requests whose part could not be reached.
 package errorpage
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
@@ -16,12 +18,22 @@ func init() {
 	caddy.RegisterModule(Handler{})
 }
 
+// statuses are the errors the reverse proxy raises when no instance of a part
+// answers.
+var statuses = []int{http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout}
+
 // Handler is the http.handlers.tamanu_error_page handler, for a server's
-// error routes. It answers the reverse proxy's 502, 503 and 504 with the
-// unavailable response, and passes any other error on.
+// error routes. It answers the reverse proxy's errors with Tamanu's page for
+// the status from Root, or the supervisor's own when Root has none, and
+// passes any other error on.
 //
 // spec: SUPV#front-door
-type Handler struct{}
+type Handler struct {
+	// Root is the web app's directory, holding resources/errors/{status}.html.
+	Root string `json:"root,omitempty"`
+
+	responses map[int]pages.Response
+}
 
 // CaddyModule returns the Caddy module information.
 func (Handler) CaddyModule() caddy.ModuleInfo {
@@ -31,19 +43,38 @@ func (Handler) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
-func (Handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+// Provision reads the pages Root has.
+func (h *Handler) Provision(caddy.Context) error {
+	h.responses = make(map[int]pages.Response, len(statuses))
+	for _, status := range statuses {
+		h.responses[status] = pages.Unavailable
+		if h.Root == "" {
+			continue
+		}
+		page, err := os.ReadFile(filepath.Join(h.Root, "resources", "errors", fmt.Sprintf("%d.html", status)))
+		if err == nil {
+			h.responses[status] = pages.Unavailable.WithPage(page)
+		}
+	}
+	return nil
+}
+
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	err, _ := r.Context().Value(caddyhttp.ErrorCtxKey).(error)
 	var handlerErr caddyhttp.HandlerError
 	if !errors.As(err, &handlerErr) {
 		return next.ServeHTTP(w, r)
 	}
-	switch handlerErr.StatusCode {
-	case http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
-		pages.Unavailable.Write(w, r, handlerErr.StatusCode)
-		return nil
+	resp, ok := h.responses[handlerErr.StatusCode]
+	if !ok {
+		return next.ServeHTTP(w, r)
 	}
-	return next.ServeHTTP(w, r)
+	resp.Write(w, r, handlerErr.StatusCode)
+	return nil
 }
 
-// Interface guard.
-var _ caddyhttp.MiddlewareHandler = Handler{}
+// Interface guards.
+var (
+	_ caddy.Provisioner           = (*Handler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*Handler)(nil)
+)

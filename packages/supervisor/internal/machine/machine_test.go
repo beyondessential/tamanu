@@ -26,7 +26,7 @@ func TestSleepAndWake(t *testing.T) {
 			h.start(testRelease)
 			h.waitPhase(state.Asleep)
 
-			if got, want := h.puts(), sleepPuts(central); !slices.Equal(got, want) {
+			if got, want := h.puts(), sleepPuts(); !slices.Equal(got, want) {
 				t.Errorf("sleep puts = %q, want %q", got, want)
 			}
 			wantCalls := []string{"GET /status", "POST /tasks/hold"}
@@ -55,7 +55,7 @@ func TestSleepAndWake(t *testing.T) {
 			h.activity()
 			h.waitAwakeAfterWake()
 
-			if got, want := h.puts()[3:], wakePuts(central); !slices.Equal(got, want) {
+			if got, want := h.puts()[3:], wakePuts(); !slices.Equal(got, want) {
 				t.Errorf("wake puts = %q, want %q", got, want)
 			}
 			calls := h.api.Calls()
@@ -68,7 +68,7 @@ func TestSleepAndWake(t *testing.T) {
 			if rec := h.persisted(); rec.Phase != state.Awake {
 				t.Errorf("persisted %+v", rec)
 			}
-			if h.state().Admit(state.Web) != state.Forward {
+			if h.state().Admit(state.Sync) != state.Forward {
 				t.Error("the gate does not forward once awake")
 			}
 		})
@@ -137,7 +137,7 @@ func TestIncompleteFinalSyncKeepsTheFacilityAwake(t *testing.T) {
 	if snap.LastFailure == nil || !strings.Contains(snap.LastFailure.Message, "final sync did not complete: Sync was queued") {
 		t.Errorf("failure = %+v", snap.LastFailure)
 	}
-	want := append([]string{"fhir=down tasks=down"}, wakePuts(false)...)
+	want := append([]string{"fhir=down tasks=down"}, wakePuts()...)
 	if got := h.puts(); !slices.Equal(got, want) {
 		t.Errorf("puts = %q, want %q", got, want)
 	}
@@ -368,7 +368,7 @@ func TestStartingOnAnAsleepServer(t *testing.T) {
 		if h.snapshot().Phase != state.Asleep || len(h.puts()) != puts {
 			t.Errorf("phase %s, puts %q", h.snapshot().Phase, h.puts()[puts:])
 		}
-		if h.state().Admit(state.Web) != state.Hold {
+		if h.state().Admit(state.Sync) != state.Hold {
 			t.Error("the gate forwards on a server kept asleep")
 		}
 	})
@@ -382,7 +382,7 @@ func TestStartingOnAnAsleepServer(t *testing.T) {
 		h.keepAwakeAfterWake()
 		h.start(testRelease)
 		h.waitAwakeAfterWake()
-		if got, want := h.puts(), wakePuts(false); !slices.Equal(got, want) {
+		if got, want := h.puts(), wakePuts(); !slices.Equal(got, want) {
 			t.Errorf("puts = %q, want %q", got, want)
 		}
 	})
@@ -405,7 +405,7 @@ func TestUpgradeBlocksSleepAndWake(t *testing.T) {
 	h.act.SetUpgrading(true)
 	h.start(testRelease)
 	h.eventually("upgrading", func() bool { return h.snapshot().Upgrading })
-	if h.state().Admit(state.Web) != state.Upgrading {
+	if h.state().Admit(state.Sync) != state.Upgrading {
 		t.Error("the gate does not answer upgrading")
 	}
 	time.Sleep(5 * h.timing.IdleTime)
@@ -502,16 +502,16 @@ func TestPartsForwardedAsTheyBecomeReady(t *testing.T) {
 	h.start(testRelease)
 	h.waitPhase(state.Asleep)
 
-	h.act.Stall(state.Web, true)
+	h.act.Stall(state.Sync, true)
 	h.activity()
-	h.eventually("api forwarded while web starts", func() bool {
+	h.eventually("api forwarded while sync starts", func() bool {
 		return h.snapshot().Phase == state.Waking && h.state().Admit(state.API) == state.Forward
 	})
-	if h.state().Admit(state.Web) != state.Hold {
-		t.Error("web forwarded before it was ready")
+	if h.state().Admit(state.Sync) != state.Hold {
+		t.Error("sync forwarded before it was ready")
 	}
 	h.keepAwakeAfterWake()
-	h.act.Stall(state.Web, false)
+	h.act.Stall(state.Sync, false)
 	h.waitAwakeAfterWake()
 }
 

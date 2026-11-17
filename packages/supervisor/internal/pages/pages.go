@@ -60,8 +60,14 @@ var (
 	}
 )
 
-// Write sends the response with status: a page for a browser, JSON for an
-// API request, and plain text otherwise.
+// WithPage returns the response with page as its browser form.
+func (resp Response) WithPage(page []byte) Response {
+	resp.page = page
+	return resp
+}
+
+// Write sends the response with status: a page for a browser opening one,
+// JSON for any other API request, and plain text otherwise.
 func (resp Response) Write(w http.ResponseWriter, r *http.Request, status int) {
 	h := w.Header()
 	h.Set("Cache-Control", "no-store")
@@ -71,14 +77,14 @@ func (resp Response) Write(w http.ResponseWriter, r *http.Request, status int) {
 
 	var body []byte
 	switch {
+	case IsBrowser(r):
+		h.Set("Content-Type", "text/html; charset=utf-8")
+		body = resp.page
 	case IsAPIPath(r.URL.Path):
 		h.Set("Content-Type", "application/json")
 		body, _ = json.Marshal(map[string]any{
 			"error": map[string]any{"name": resp.Name, "message": resp.Message, "status": status},
 		})
-	case IsBrowser(r):
-		h.Set("Content-Type", "text/html; charset=utf-8")
-		body = resp.page
 	default:
 		h.Set("Content-Type", "text/plain; charset=utf-8")
 		body = []byte(resp.Message + "\n")

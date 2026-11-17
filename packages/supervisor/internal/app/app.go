@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"slices"
 	"sync"
 	"time"
 
@@ -31,8 +30,6 @@ const ID = "tamanu"
 type App struct {
 	// Role is "central" or "facility".
 	Role string `json:"role"`
-	// Parts lists the server's parts. Defaults to the parts of the role.
-	Parts []state.Part `json:"parts,omitempty"`
 	// IdleTime is how long the server goes without activity before sleeping.
 	IdleTime caddy.Duration `json:"idle_time,omitempty"`
 	// ActuatorURL is the actuator's base URL, if there is one.
@@ -73,14 +70,10 @@ func (pooledState) Destruct() error { return nil }
 
 // Provision sets up the app and takes the shared state.
 func (a *App) Provision(ctx caddy.Context) error {
-	if len(a.Parts) == 0 {
-		a.Parts = state.PartsFor(a.Role == "central")
-	}
 	a.apiToken = caddy.NewReplacer().ReplaceAll(a.APIToken, "")
 
-	parts := a.Parts
 	val, _, err := pool.LoadOrNew(poolKey, func() (caddy.Destructor, error) {
-		return pooledState{state.New(parts)}, nil
+		return pooledState{state.New(state.Parts())}, nil
 	})
 	if err != nil {
 		return err
@@ -100,7 +93,7 @@ func (a *App) Provision(ctx caddy.Context) error {
 	}
 	a.machine = machine.New(machine.Config{
 		Central: a.Role == "central",
-		Parts:   a.Parts,
+		Parts:   state.Parts(),
 		Release: buildinfo.Version,
 		Timing:  machine.DefaultTiming(time.Duration(a.IdleTime)),
 	},
@@ -117,11 +110,6 @@ func (a *App) Provision(ctx caddy.Context) error {
 func (a *App) Validate() error {
 	if a.Role != "central" && a.Role != "facility" {
 		return fmt.Errorf("role must be central or facility, not %q", a.Role)
-	}
-	for _, p := range a.Parts {
-		if !slices.Contains(state.PartsFor(true), p) {
-			return fmt.Errorf("unknown part %q", p)
-		}
 	}
 	if a.ActuatorURL != "" && (a.apiToken == "" || a.DataDir == "" || len(a.APIUpstreams) == 0) {
 		return fmt.Errorf("an actuator needs an api token, a data directory and the api's addresses")
