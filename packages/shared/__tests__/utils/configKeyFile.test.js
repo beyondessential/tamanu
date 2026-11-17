@@ -1,13 +1,16 @@
 import { promises as fs } from 'fs';
 import { tmpdir } from 'os';
-import { join } from 'path';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { delimiter, join } from 'path';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const keyFile = vi.hoisted(() => ({ path: '' }));
+const keyFile = vi.hoisted(() => ({ path: '', configDirectory: '' }));
 
 vi.mock('config', () => ({
   default: {
     get: name => (name === 'crypto.keyFile' ? keyFile.path : undefined),
+    util: {
+      getEnv: name => (name === 'NODE_CONFIG_DIR' ? keyFile.configDirectory : undefined),
+    },
   },
 }));
 
@@ -15,14 +18,18 @@ import { PUBLISHED_DEVELOPMENT_KEY, readConfigKeyFile } from '../../src/utils/cr
 
 const DEVELOPMENT_KEY_FILE = 'config/dev-secret.key';
 
+// The working directory is left alone: the default key file resolves against the config
+// directory, not the working directory.
 describe('readConfigKeyFile', () => {
-  const originalDirectory = process.cwd();
   let directory;
 
   beforeAll(async () => {
     directory = await fs.mkdtemp(join(tmpdir(), 'tamanu-key-file-'));
     await fs.mkdir(join(directory, 'config'));
-    process.chdir(directory);
+  });
+
+  beforeEach(() => {
+    keyFile.configDirectory = join(directory, 'config');
   });
 
   afterEach(async () => {
@@ -31,7 +38,6 @@ describe('readConfigKeyFile', () => {
   });
 
   afterAll(async () => {
-    process.chdir(originalDirectory);
     await fs.rm(directory, { recursive: true, force: true });
   });
 
@@ -44,6 +50,17 @@ describe('readConfigKeyFile', () => {
     expect(first).toHaveLength(32);
     expect(first.equals(PUBLISHED_DEVELOPMENT_KEY)).toBe(false);
     expect(second.equals(first)).toBe(true);
+  });
+
+  it('generates the default key beside the last config directory', async () => {
+    keyFile.path = DEVELOPMENT_KEY_FILE;
+    keyFile.configDirectory = [join(directory, 'missing'), join(directory, 'config')].join(
+      delimiter,
+    );
+
+    const generated = await readConfigKeyFile();
+
+    expect(await fs.readFile(join(directory, DEVELOPMENT_KEY_FILE))).toEqual(generated);
   });
 
   it('gives concurrent first reads the same generated key', async () => {

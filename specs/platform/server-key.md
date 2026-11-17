@@ -11,6 +11,7 @@ Applies to the key file each server encrypts its local secrets with, and to the 
 - Each server reads its key from the file its configuration names, which a deployment sets through the `CRYPTO_KEY_FILE` environment variable.
 - A running server encrypts its local secrets, such as its device key, its sync password and its copy of the [settings PSK](../administration/settings/secret-encryption.md), with that key and no other.
 - A development environment is one whose `NODE_ENV` names it as development, test or end-to-end testing. Any other server, including one with no `NODE_ENV` set, is treated as a deployment.
+- The default key path sits beside the server's own configuration, so every command run against that configuration reads the same key, whichever directory it is run from.
 - In a development environment, a server whose configuration names the default key path and finds no file there generates a key at that path, so each development checkout has a key of its own.
 - A deployment never generates its key. When the key file is missing, the server does not start.
 - An upgrade stops when a configuration file holds an encrypted value the configured key does not decrypt, and names each such value so it can be re-encrypted with that key, noting when any are under the [published development key](#the-published-development-key).

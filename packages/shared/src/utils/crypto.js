@@ -2,6 +2,7 @@ import config from 'config';
 import { get as lodashGet } from 'es-toolkit/compat';
 import { CONFIG_TO_SECRET_SETTINGS } from '@tamanu/settings';
 import { promises as fs } from 'fs';
+import path from 'path';
 import { promisify } from 'util';
 import readSync from 'read';
 
@@ -301,6 +302,13 @@ export function isEncryptedSecret(value) {
   return parts.length === 3 && parts[0] === SECRET_VERSION;
 }
 
+// The default crypto.keyFile. It sits beside the server's own config (the last NODE_CONFIG_DIR,
+// which defaults to config/ in the working directory) rather than resolving against the working
+// directory, so a script run from elsewhere with NODE_CONFIG_DIR reads the server's key.
+const DEFAULT_KEY_FILE = 'config/dev-secret.key';
+
+const isDefaultKeyFile = () => config.get('crypto.keyFile') === DEFAULT_KEY_FILE;
+
 /** Single source of truth for resolving the configured key file path. */
 export function getConfigKeyFilePath() {
   const keyFilePath = config.get('crypto.keyFile');
@@ -308,8 +316,10 @@ export function getConfigKeyFilePath() {
   if (!keyFilePath) {
     throw new Error('crypto.keyFile is not configured');
   }
+  if (!isDefaultKeyFile()) return keyFilePath;
 
-  return keyFilePath;
+  const configDirectories = config.util.getEnv('NODE_CONFIG_DIR').split(path.delimiter);
+  return path.resolve(configDirectories.at(-1), path.basename(DEFAULT_KEY_FILE));
 }
 
 // The development key that was once committed to the repository. It is public, so only development
@@ -318,10 +328,6 @@ export const PUBLISHED_DEVELOPMENT_KEY = Buffer.from(
   '925a3b8ca2c44b9aa07e4ff3fc8d82be2f13b71a316aacb7d50d4bf98a52ea78',
   'hex',
 );
-
-// The default crypto.keyFile, relative to the server's working directory. In a development
-// environment a missing key file here is generated, so every checkout has a key of its own.
-const DEVELOPMENT_KEY_FILE = 'config/dev-secret.key';
 
 // Development environments name themselves. Anything else, an unset NODE_ENV included, is treated
 // as a deployment, since a shell on one carries no NODE_ENV.
@@ -357,7 +363,9 @@ async function createDevelopmentKeyFile(keyFilePath) {
 /** Reads the configured key file, refusing the published development key outside development. */
 export async function readConfigKeyFile() {
   const keyFilePath = getConfigKeyFilePath();
-  if (isDevelopmentEnvironment() && keyFilePath === DEVELOPMENT_KEY_FILE) {
+  // In a development environment a missing default key file is generated, so every checkout has
+  // a key of its own.
+  if (isDevelopmentEnvironment() && isDefaultKeyFile()) {
     await createDevelopmentKeyFile(keyFilePath);
   }
 
