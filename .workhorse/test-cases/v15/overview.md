@@ -15,6 +15,9 @@
 - [x] A version whose query does not plan is refused over HTTP, and nothing is saved (verifies spec: REPORTS)
 - [x] An import whose report names an unknown connection is refused, and nothing is saved (verifies spec: REPORTS)
 - [x] A failure in reaching the reporting connection is not reported as an invalid query (verifies spec: REPORTS)
+- [x] Creating a report whose query does not plan is refused over HTTP, and nothing is saved (verifies spec: REPORTS)
+- [x] An import whose file names no connection is accepted as a reporting report (verifies spec: REPORTS)
+- [x] Without permission to write the report schema, importing a raw report is refused, and nothing is saved (verifies spec: REPORTS)
 - [ ] In the admin panel, saving a version with an invalid query shows the reason and saves nothing (verifies spec: REPORTS)
 
 ## Importing a report from the command line
@@ -22,11 +25,13 @@
 - [x] An imported report that does not exist yet is created on the connection its file declares (verifies spec: REPORTS)
 - [x] An import naming a different connection from the existing report is refused (verifies spec: REPORTS)
 - [x] The imported query is checked on that report's connection before the version is saved (verifies spec: REPORTS)
+- [x] An import says the reporting connections could not be set up, rather than failing on role setup
 - [ ] `importReport` imports a report file end to end against a running database
 
 ## Running a report
 
 - [x] A database-defined report runs on its reporting connection on a facility (verifies spec: REPORTS)
 - [x] A report refuses to run when the reporting connections are unavailable (verifies spec: REPORTS)
+- [x] Running a report over HTTP with the reporting connections unavailable reports an error (verifies spec: REPORTS)
 - [x] Central's report runner and DHIS2 export still run reports on their reporting connections
 - [ ] The facility `report` command runs a report from the command line

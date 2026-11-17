@@ -20,7 +20,7 @@ Applies to report definitions, generation, and exports.
 ## Saving a report version
 
 - A new version of an existing report runs against that report's connection, whatever connection the request names.
-- A report created by an import takes the connection that import declares, and an import naming a different connection from the report it is adding to is refused.
+- A report created by an import takes the connection that import declares, and an import naming a different connection from the report it is adding to is refused. An import that names no connection is a reporting one.
 - Creating, importing or adding a version to a report on the raw connection needs permission to write the report schema.
 - Creating or importing a version checks its query by planning it on the report's connection, without running it.
 - A query is refused when it does not plan, when it holds more than one statement, or when its report has no configured reporting connection. The refusal gives the reason.
