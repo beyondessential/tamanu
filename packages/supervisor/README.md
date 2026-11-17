@@ -40,11 +40,11 @@ A blank value counts as unset, and an unknown `TAMANU_SUPERVISOR_` variable is a
 | --- | --- | --- |
 | `TAMANU_SUPERVISOR_ROLE` | required | `central` or `facility` |
 | `TAMANU_SUPERVISOR_LISTEN` | `:8080` | Address for the server's traffic |
-| `TAMANU_SUPERVISOR_PORTAL_LISTEN` | none | Central only: address for the patient portal's traffic. Needs `PORTAL_UPSTREAMS` |
+| `TAMANU_SUPERVISOR_PORTAL_LISTEN` | none | Central only: address for the patient portal's traffic. Needs `PORTAL_ROOT` |
 | `TAMANU_SUPERVISOR_STATUS_LISTEN` | `127.0.0.1:8081` | Address for the read-only status server |
 | `TAMANU_SUPERVISOR_API_UPSTREAMS` | required | Comma-separated `host:port` list of api instances |
-| `TAMANU_SUPERVISOR_WEB_UPSTREAMS` | required | Comma-separated `host:port` list of web frontend instances |
-| `TAMANU_SUPERVISOR_PORTAL_UPSTREAMS` | none | Central only: comma-separated `host:port` list of patient portal instances. Needs `PORTAL_LISTEN` |
+| `TAMANU_SUPERVISOR_WEB_ROOT` | required | Directory of the built web app. Tamanu's error pages are read from its `resources/errors` |
+| `TAMANU_SUPERVISOR_PORTAL_ROOT` | none | Directory of the built patient portal. Required with `PORTAL_LISTEN`, and ignored without it |
 | `TAMANU_SUPERVISOR_ACTUATOR_URL` | none | The platform's actuator. Without one the server never sleeps |
 | `TAMANU_SUPERVISOR_IDLE_TIME` | `30m` facility, `15m` central | Time without activity before the server sleeps, as a Go duration |
 | `TAMANU_SUPERVISOR_API_TOKEN` | none | Credential for the api's supervisor routes. Required with an actuator |

@@ -22,23 +22,23 @@ const Prefix = "TAMANU_SUPERVISOR_"
 
 // The variables the supervisor reads, by full name.
 const (
-	VarRole            = Prefix + "ROLE"
-	VarListen          = Prefix + "LISTEN"
-	VarPortalListen    = Prefix + "PORTAL_LISTEN"
-	VarStatusListen    = Prefix + "STATUS_LISTEN"
-	VarAPIUpstreams    = Prefix + "API_UPSTREAMS"
-	VarWebUpstreams    = Prefix + "WEB_UPSTREAMS"
-	VarPortalUpstreams = Prefix + "PORTAL_UPSTREAMS"
-	VarActuatorURL     = Prefix + "ACTUATOR_URL"
-	VarIdleTime        = Prefix + "IDLE_TIME"
-	VarAPIToken        = Prefix + "API_TOKEN"
-	VarDataDir         = Prefix + "DATA_DIR"
-	VarTrustedProxies  = Prefix + "TRUSTED_PROXIES"
+	VarRole           = Prefix + "ROLE"
+	VarListen         = Prefix + "LISTEN"
+	VarPortalListen   = Prefix + "PORTAL_LISTEN"
+	VarStatusListen   = Prefix + "STATUS_LISTEN"
+	VarAPIUpstreams   = Prefix + "API_UPSTREAMS"
+	VarWebRoot        = Prefix + "WEB_ROOT"
+	VarPortalRoot     = Prefix + "PORTAL_ROOT"
+	VarActuatorURL    = Prefix + "ACTUATOR_URL"
+	VarIdleTime       = Prefix + "IDLE_TIME"
+	VarAPIToken       = Prefix + "API_TOKEN"
+	VarDataDir        = Prefix + "DATA_DIR"
+	VarTrustedProxies = Prefix + "TRUSTED_PROXIES"
 )
 
 var knownVars = []string{
 	VarRole, VarListen, VarPortalListen, VarStatusListen,
-	VarAPIUpstreams, VarWebUpstreams, VarPortalUpstreams,
+	VarAPIUpstreams, VarWebRoot, VarPortalRoot,
 	VarActuatorURL, VarIdleTime, VarAPIToken, VarDataDir, VarTrustedProxies,
 }
 
@@ -71,11 +71,12 @@ type Config struct {
 	// StatusListen is the address of the read-only status server.
 	StatusListen string
 
-	// APIUpstreams, WebUpstreams and PortalUpstreams are the host:port
-	// addresses of each instance of the server's parts.
-	APIUpstreams    []string
-	WebUpstreams    []string
-	PortalUpstreams []string
+	// APIUpstreams are the host:port addresses of the api's instances.
+	APIUpstreams []string
+	// WebRoot and PortalRoot are the directories holding the built web app
+	// and patient portal. PortalRoot is empty without a patient portal.
+	WebRoot    string
+	PortalRoot string
 
 	// ActuatorURL is the base URL of the platform's actuator, or nil.
 	ActuatorURL *url.URL
@@ -139,23 +140,18 @@ func FromEnv(env map[string]string) (Config, error) {
 	c.StatusListen = r.listen(VarStatusListen, DefaultStatusListen)
 
 	c.APIUpstreams = r.upstreams(VarAPIUpstreams, true)
-	c.WebUpstreams = r.upstreams(VarWebUpstreams, true)
-	c.PortalUpstreams = r.upstreams(VarPortalUpstreams, false)
+	c.WebRoot = r.directory(VarWebRoot, true)
 
-	if c.Role == Facility {
-		if r.isSet(VarPortalListen) {
-			r.fail(VarPortalListen, "is only for a central server")
-		}
-		if r.isSet(VarPortalUpstreams) {
-			r.fail(VarPortalUpstreams, "is only for a central server")
-		}
+	if c.Role == Facility && r.isSet(VarPortalListen) {
+		r.fail(VarPortalListen, "is only for a central server")
 	}
-	if c.Role == Central {
-		if r.isSet(VarPortalListen) && !r.isSet(VarPortalUpstreams) {
-			r.fail(VarPortalUpstreams, "is required when %s is set", VarPortalListen)
-		}
-		if r.isSet(VarPortalUpstreams) && !r.isSet(VarPortalListen) {
-			r.fail(VarPortalListen, "is required when %s is set", VarPortalUpstreams)
+	// The portal's root is read only with its address, so an image can set it
+	// for every role.
+	if c.Role == Central && r.isSet(VarPortalListen) {
+		if r.isSet(VarPortalRoot) {
+			c.PortalRoot = r.directory(VarPortalRoot, false)
+		} else {
+			r.fail(VarPortalRoot, "is required when %s is set", VarPortalListen)
 		}
 	}
 
@@ -268,6 +264,22 @@ func (r *reader) upstreams(name string, required bool) []string {
 		addrs = append(addrs, net.JoinHostPort(host, port))
 	}
 	return addrs
+}
+
+func (r *reader) directory(name string, required bool) string {
+	path := r.get(name)
+	if path == "" {
+		if required {
+			r.fail(name, "is required")
+		}
+		return ""
+	}
+	info, err := os.Stat(path)
+	if err != nil || !info.IsDir() {
+		r.fail(name, "must name a directory, and %q is not one", path)
+		return ""
+	}
+	return path
 }
 
 func (r *reader) cidrs(name string) []string {

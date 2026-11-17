@@ -8,13 +8,14 @@ import (
 	"time"
 )
 
-// env builds an environment for role with the required upstreams, then
-// applies extra as name, value pairs.
+// env builds an environment for role with the required variables, then
+// applies extra as name, value pairs. The package's own directory stands in
+// for the file roots.
 func env(role string, extra ...string) map[string]string {
 	e := map[string]string{
 		VarRole:         role,
 		VarAPIUpstreams: "api:4000",
-		VarWebUpstreams: "web:80",
+		VarWebRoot:      ".",
 	}
 	for i := 0; i+1 < len(extra); i += 2 {
 		e[extra[i]] = extra[i+1]
@@ -59,7 +60,7 @@ func TestFullCentral(t *testing.T) {
 		VarPortalListen, ":9001",
 		VarStatusListen, "127.0.0.1:9002",
 		VarAPIUpstreams, " api-1:4000 , api-2:4000,10.0.0.3:4000 ",
-		VarPortalUpstreams, "portal:80",
+		VarPortalRoot, "..",
 		VarActuatorURL, "http://actuator:7000/base",
 		VarIdleTime, "45m",
 		VarAPIToken, "secret",
@@ -73,8 +74,8 @@ func TestFullCentral(t *testing.T) {
 	if !slices.Equal(c.APIUpstreams, want) {
 		t.Errorf("api upstreams = %q, want %q", c.APIUpstreams, want)
 	}
-	if !c.HasPortal() || !slices.Equal(c.PortalUpstreams, []string{"portal:80"}) {
-		t.Errorf("portal = %q %q", c.PortalListen, c.PortalUpstreams)
+	if !c.HasPortal() || c.PortalRoot != ".." || c.WebRoot != "." {
+		t.Errorf("portal = %q %q, web root %q", c.PortalListen, c.PortalRoot, c.WebRoot)
 	}
 	if c.ActuatorURL.String() != "http://actuator:7000/base" {
 		t.Errorf("actuator = %v", c.ActuatorURL)
@@ -97,6 +98,18 @@ func TestBlankCountsAsUnset(t *testing.T) {
 	}
 }
 
+func TestPortalRootIgnoredWithoutPortal(t *testing.T) {
+	for _, e := range []map[string]string{
+		facilityEnv(VarPortalRoot, "/no/such/directory"),
+		centralEnv(VarPortalRoot, "/no/such/directory"),
+	} {
+		c, err := FromEnv(e)
+		if err != nil || c.PortalRoot != "" {
+			t.Errorf("portal root %q, err %v", c.PortalRoot, err)
+		}
+	}
+}
+
 func TestErrors(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -104,20 +117,21 @@ func TestErrors(t *testing.T) {
 		wantVar string
 		wantMsg string
 	}{
-		{"missing role", map[string]string{VarAPIUpstreams: "a:1", VarWebUpstreams: "w:1"}, VarRole, "is required"},
+		{"missing role", map[string]string{VarAPIUpstreams: "a:1", VarWebRoot: "."}, VarRole, "is required"},
 		{"unknown role", facilityEnv(VarRole, "satellite"), VarRole, `not "satellite"`},
-		{"missing api upstreams", map[string]string{VarRole: "central", VarWebUpstreams: "w:1"}, VarAPIUpstreams, "is required"},
-		{"missing web upstreams", map[string]string{VarRole: "central", VarAPIUpstreams: "a:1"}, VarWebUpstreams, "is required"},
+		{"missing api upstreams", map[string]string{VarRole: "central", VarWebRoot: "."}, VarAPIUpstreams, "is required"},
+		{"missing web root", map[string]string{VarRole: "central", VarAPIUpstreams: "a:1"}, VarWebRoot, "is required"},
+		{"web root missing", facilityEnv(VarWebRoot, "/no/such/directory"), VarWebRoot, "must name a directory"},
+		{"web root a file", facilityEnv(VarWebRoot, "config.go"), VarWebRoot, "must name a directory"},
 		{"upstream without port", facilityEnv(VarAPIUpstreams, "api"), VarAPIUpstreams, `"api" is not one`},
 		{"upstream without host", facilityEnv(VarAPIUpstreams, ":4000"), VarAPIUpstreams, `":4000" is not one`},
-		{"empty upstream in list", facilityEnv(VarWebUpstreams, "web:80,,web2:80"), VarWebUpstreams, `"" is not one`},
-		{"upstream with bad port", facilityEnv(VarWebUpstreams, "web:http"), VarWebUpstreams, "is not one"},
+		{"empty upstream in list", facilityEnv(VarAPIUpstreams, "api:80,,api2:80"), VarAPIUpstreams, `"" is not one`},
+		{"upstream with bad port", facilityEnv(VarAPIUpstreams, "api:http"), VarAPIUpstreams, "is not one"},
 		{"listen not an address", facilityEnv(VarListen, "8080"), VarListen, "must be an address"},
 		{"listen port out of range", facilityEnv(VarListen, ":70000"), VarListen, "invalid port"},
-		{"portal on facility", facilityEnv(VarPortalListen, ":8082", VarPortalUpstreams, "p:80"), VarPortalListen, "only for a central"},
-		{"portal upstreams on facility", facilityEnv(VarPortalUpstreams, "p:80"), VarPortalUpstreams, "only for a central"},
-		{"portal listen without upstreams", centralEnv(VarPortalListen, ":8082"), VarPortalUpstreams, "is required when " + VarPortalListen},
-		{"portal upstreams without listen", centralEnv(VarPortalUpstreams, "p:80"), VarPortalListen, "is required when " + VarPortalUpstreams},
+		{"portal on facility", facilityEnv(VarPortalListen, ":8082", VarPortalRoot, "."), VarPortalListen, "only for a central"},
+		{"portal listen without root", centralEnv(VarPortalListen, ":8082"), VarPortalRoot, "is required when " + VarPortalListen},
+		{"portal root missing", centralEnv(VarPortalListen, ":8082", VarPortalRoot, "/no/such/directory"), VarPortalRoot, "must name a directory"},
 		{"colliding listen", facilityEnv(VarStatusListen, "127.0.0.1:8080"), VarStatusListen, "collides with " + VarListen},
 		{"actuator not a url", facilityEnv(VarActuatorURL, "actuator:7000", VarAPIToken, "t", VarDataDir, "/d"), VarActuatorURL, "http or https"},
 		{"actuator without host", facilityEnv(VarActuatorURL, "http://", VarAPIToken, "t", VarDataDir, "/d"), VarActuatorURL, "must include a host"},
@@ -161,7 +175,7 @@ func TestReportsEveryProblem(t *testing.T) {
 			names = append(names, ve.Name)
 		}
 	}
-	for _, want := range []string{VarRole, VarAPIUpstreams, VarWebUpstreams, VarIdleTime} {
+	for _, want := range []string{VarRole, VarAPIUpstreams, VarWebRoot, VarIdleTime} {
 		if !slices.Contains(names, want) {
 			t.Errorf("errors %q do not include %s", names, want)
 		}

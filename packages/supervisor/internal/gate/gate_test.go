@@ -22,7 +22,7 @@ var (
 	awake         = condition{"awake", func(*state.Server) {}}
 	asleep        = condition{"asleep", func(s *state.Server) { s.SetPhase(state.Asleep) }}
 	waking        = condition{"waking", func(s *state.Server) { s.SetPhase(state.Waking); s.SetAllReady(false) }}
-	wakingAPI     = condition{"waking with the api ready", func(s *state.Server) { s.SetPhase(state.Waking); s.SetReady(state.Web, false) }}
+	wakingAPI     = condition{"waking with the api ready", func(s *state.Server) { s.SetPhase(state.Waking); s.SetReady(state.Sync, false) }}
 	goingToSleep  = condition{"going to sleep", func(s *state.Server) { s.SetPhase(state.GoingToSleep) }}
 	apiNotReady   = condition{"api not ready", func(s *state.Server) { s.SetReady(state.API, false) }}
 	upgrading     = condition{"upgrading", func(s *state.Server) { s.SetUpgrading(true) }}
@@ -53,6 +53,14 @@ func TestGate(t *testing.T) {
 		cond  condition
 		want  result
 	}{
+		// spec: SLPWK#waking
+		{Static, awake, result{forwarded, false, true}},
+		{Static, asleep, result{forwarded, true, true}},
+		{Static, waking, result{forwarded, true, true}},
+		{Static, goingToSleep, result{forwarded, true, true}},
+		{Static, upgrading, result{forwarded, false, true}},
+		{Static, upgradeAsleep, result{forwarded, false, true}},
+
 		{Activity, awake, result{forwarded, false, true}},
 		{Activity, asleep, result{wakingResp, true, true}},
 		{Activity, waking, result{wakingResp, true, true}},
@@ -80,9 +88,9 @@ func TestGate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(string(tt.class)+"/"+tt.cond.name, func(t *testing.T) {
-			s := state.New(state.PartsFor(false))
+			s := state.New(state.Parts())
 			tt.cond.setup(s)
-			g := &Gate{Class: tt.class, Part: state.API, state: s}
+			g := &Gate{Class: tt.class, state: s}
 
 			inFlightDuring := -1
 			next := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
@@ -106,7 +114,7 @@ func TestGate(t *testing.T) {
 			}
 			if got.outcome == forwarded {
 				wantInFlight := 0
-				if tt.class == Activity {
+				if tt.class == Activity || tt.class == Static {
 					wantInFlight = 1
 				}
 				if inFlightDuring != wantInFlight {
@@ -137,10 +145,60 @@ func classify(w *httptest.ResponseRecorder) outcome {
 	return outcome("unrecognised 503: " + w.Body.String())
 }
 
+// spec: SLPWK#waking
+func TestPage(t *testing.T) {
+	tests := []struct {
+		name   string
+		accept string
+		cond   condition
+		want   result
+	}{
+		{"browser, awake", "text/html", awake, result{forwarded, false, true}},
+		{"browser, asleep", "text/html", asleep, result{wakingResp, true, true}},
+		{"browser, waking", "text/html", waking, result{wakingResp, true, true}},
+		{"browser, upgrading", "text/html", upgrading, result{upgradeResp, false, true}},
+		{"other, asleep", "*/*", asleep, result{forwarded, true, true}},
+		{"other, upgrading", "*/*", upgrading, result{forwarded, false, true}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := state.New(state.Parts())
+			tt.cond.setup(s)
+			r := httptest.NewRequest("GET", "/patients/all", nil)
+			r.Header.Set("Accept", tt.accept)
+			w := httptest.NewRecorder()
+			next := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+				w.WriteHeader(http.StatusTeapot)
+				return nil
+			})
+			if err := (&Gate{Class: Page, state: s}).ServeHTTP(w, r, next); err != nil {
+				t.Fatal(err)
+			}
+			got := result{classifyPage(w), drained(s.WakeRequests()), drained(s.Activity())}
+			if got != tt.want {
+				t.Errorf("got %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+}
+
+// classifyPage reads which response the gate gave to a page request.
+func classifyPage(w *httptest.ResponseRecorder) outcome {
+	switch {
+	case w.Code == http.StatusTeapot:
+		return forwarded
+	case strings.Contains(w.Body.String(), "Starting up"):
+		return wakingResp
+	case strings.Contains(w.Body.String(), "Upgrade in progress"):
+		return upgradeResp
+	}
+	return outcome(w.Body.String())
+}
+
 func TestBrowserGetsWakingPage(t *testing.T) {
-	s := state.New(state.PartsFor(false))
+	s := state.New(state.Parts())
 	s.SetPhase(state.Asleep)
-	g := &Gate{Class: Activity, Part: state.Web, state: s}
+	g := &Gate{Class: Activity, state: s}
 	r := httptest.NewRequest("GET", "/", nil)
 	r.Header.Set("Accept", "text/html,application/xhtml+xml")
 	w := httptest.NewRecorder()
@@ -155,32 +213,11 @@ func TestBrowserGetsWakingPage(t *testing.T) {
 	}
 }
 
-func TestPartNotReadyHoldsOnlyThatPart(t *testing.T) {
-	s := state.New(state.PartsFor(false))
-	s.SetReady(state.Web, false)
-	ok := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-		w.WriteHeader(http.StatusTeapot)
-		return nil
-	})
-
-	w := httptest.NewRecorder()
-	_ = (&Gate{Class: Activity, Part: state.API, state: s}).ServeHTTP(w, httptest.NewRequest("GET", "/api/x", nil), ok)
-	if w.Code != http.StatusTeapot {
-		t.Errorf("api request with web not ready = %d", w.Code)
-	}
-
-	w = httptest.NewRecorder()
-	_ = (&Gate{Class: Activity, Part: state.Web, state: s}).ServeHTTP(w, httptest.NewRequest("GET", "/", nil), ok)
-	if w.Code != http.StatusServiceUnavailable {
-		t.Errorf("web request with web not ready = %d", w.Code)
-	}
-}
-
 // spec: SLPWK#activity
 func TestSlowRequestCountsForItsWholeDuration(t *testing.T) {
 	clock := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	tick := make(chan time.Time, 1)
-	s := state.New(state.PartsFor(false))
+	s := state.New(state.Parts())
 	s.SetClock(func() time.Time {
 		select {
 		case clock = <-tick:
@@ -188,7 +225,7 @@ func TestSlowRequestCountsForItsWholeDuration(t *testing.T) {
 		}
 		return clock
 	})
-	g := &Gate{Class: Activity, Part: state.API, state: s}
+	g := &Gate{Class: Activity, state: s}
 
 	started := make(chan struct{})
 	release := make(chan struct{})
@@ -228,8 +265,8 @@ func TestSlowRequestCountsForItsWholeDuration(t *testing.T) {
 }
 
 func TestFailingRequestStillEnds(t *testing.T) {
-	s := state.New(state.PartsFor(false))
-	g := &Gate{Class: Activity, Part: state.API, state: s}
+	s := state.New(state.Parts())
+	g := &Gate{Class: Activity, state: s}
 	err := g.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "/api/x", nil),
 		caddyhttp.HandlerFunc(func(http.ResponseWriter, *http.Request) error {
 			return caddyhttp.Error(http.StatusBadGateway, nil)
@@ -243,8 +280,8 @@ func TestFailingRequestStillEnds(t *testing.T) {
 }
 
 func TestPanickingRequestStillEnds(t *testing.T) {
-	s := state.New(state.PartsFor(false))
-	g := &Gate{Class: Activity, Part: state.API, state: s}
+	s := state.New(state.Parts())
+	g := &Gate{Class: Activity, state: s}
 	func() {
 		defer func() { _ = recover() }()
 		_ = g.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "/api/x", nil),
@@ -256,17 +293,13 @@ func TestPanickingRequestStillEnds(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	for _, g := range []Gate{
-		{Class: "chatty", Part: state.API},
-		{Class: Activity, Part: state.Database},
-		{Class: Activity},
-	} {
-		if err := g.Validate(); err == nil {
-			t.Errorf("%+v validated", g)
-		}
+	if err := (&Gate{Class: "chatty"}).Validate(); err == nil {
+		t.Error("an unknown class validated")
 	}
-	if err := (&Gate{Class: Websocket, Part: state.Portal}).Validate(); err != nil {
-		t.Error(err)
+	for _, class := range []Class{Activity, Exempt, Websocket, Static, Page} {
+		if err := (&Gate{Class: class}).Validate(); err != nil {
+			t.Error(err)
+		}
 	}
 }
 

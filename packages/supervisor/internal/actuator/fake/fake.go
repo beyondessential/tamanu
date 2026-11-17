@@ -17,7 +17,7 @@ import (
 
 // AllParts are the parts the contract names.
 var AllParts = []state.Part{
-	state.Database, state.API, state.Web, state.Portal, state.Sync, state.Tasks, state.FHIR,
+	state.Database, state.API, state.Sync, state.Tasks, state.FHIR,
 }
 
 type part struct {

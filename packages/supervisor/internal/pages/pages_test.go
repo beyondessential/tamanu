@@ -21,7 +21,8 @@ func TestForms(t *testing.T) {
 		wantNoBody bool
 	}{
 		{"api waking", "POST", "/api/sync", "", Waking, "application/json", `"ServerWaking"`, "10", false},
-		{"legacy api waking", "GET", "/v1/patient", "text/html", Waking, "application/json", `"status":503`, "10", false},
+		{"legacy api waking", "GET", "/v1/patient", "application/json", Waking, "application/json", `"status":503`, "10", false},
+		{"browser opening an api path", "GET", "/api/patient", "text/html", Waking, "text/html", `http-equiv="refresh"`, "10", false},
 		{"browser waking", "GET", "/patients", "text/html,application/xhtml+xml", Waking, "text/html", `http-equiv="refresh"`, "10", false},
 		{"other waking", "GET", "/assets/app.js", "*/*", Waking, "text/plain", "starting up", "10", false},
 		{"post is not a browser page", "POST", "/form", "text/html", Waking, "text/plain", "starting up", "10", false},
