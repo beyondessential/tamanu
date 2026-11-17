@@ -7,12 +7,14 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { syncDatabaseServerVersion } from '@tamanu/database';
 import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
 
+import { assertAuthSecretsConfigured } from '../auth/utils';
 import { createApp } from '../createApp';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { version } from '../serverInfo';
 
 export const startApi = async ({ skipMigrationCheck }) => {
   log.info(`Starting central server version ${version}`);
+  assertAuthSecretsConfigured();
 
   log.info(`Process info`, {
     execArgs: process.execArgs || '<empty>',

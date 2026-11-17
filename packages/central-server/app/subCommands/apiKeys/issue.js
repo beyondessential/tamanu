@@ -1,11 +1,13 @@
 import { Command } from 'commander';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { buildToken } from '../../auth/utils';
+import { assertAuthSecretsConfigured, buildToken } from '../../auth/utils';
 import { closeDatabase, initDatabase } from '../../database';
 import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 export const genToken = async (email, { expiresIn }) => {
+  assertAuthSecretsConfigured();
+
   // find user
   const store = await initDatabase({ testMode: false });
   const user = await store.sequelize.models.User.findOne({

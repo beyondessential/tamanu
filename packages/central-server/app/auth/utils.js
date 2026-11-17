@@ -1,7 +1,7 @@
 import { createSecretKey, randomBytes, randomInt } from 'node:crypto';
 import * as jose from 'jose';
 
-import { getAuthSecret } from '@tamanu/shared/utils';
+import { getAuthSecret, getRefreshTokenSecret } from '@tamanu/shared/utils';
 
 import { JWT_KEY_ALG, JWT_KEY_ID, SERVER_TYPES } from '@tamanu/constants';
 
@@ -13,9 +13,28 @@ export const stripUser = user => {
   return userData;
 };
 
+// spec: SETTINGS
+/**
+ * Throws unless both token signing secrets are set to non-empty values.
+ */
+export const assertAuthSecretsConfigured = () => {
+  const missingSecrets = Object.entries({
+    AUTH_SECRET: getAuthSecret(),
+    AUTH_REFRESH_TOKEN_SECRET: getRefreshTokenSecret(),
+  })
+    .filter(([, secret]) => typeof secret !== 'string' || secret.trim() === '')
+    .map(([name]) => name);
+
+  if (missingSecrets.length > 0) {
+    throw new Error(
+      `Token signing secrets are not configured: set ${missingSecrets.join(' and ')}`,
+    );
+  }
+};
+
 export const buildToken = async (data, secret, options) => {
   if (!secret) {
-    secret = getAuthSecret() ?? crypto.randomUUID();
+    secret = getAuthSecret();
   }
 
   if (typeof secret === 'string') {
