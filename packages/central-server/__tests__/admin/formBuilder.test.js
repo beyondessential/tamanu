@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { uploadDirPath } from '@tamanu/shared/utils/tmpdir';
 import * as XLSX from 'xlsx';
 
 import { createTestContext } from '../utilities';
@@ -232,6 +233,9 @@ describe('Form Builder Admin', () => {
       'new-session-id',
       '[TEXT DOCUMENT LOADED]\nPatient name\nDate of referral\n\nUse this form',
     );
+    // the chat is done with the upload by the time it answers, so nothing of it
+    // should be left in the upload directory
+    expect(await fs.readdir(uploadDirPath())).toEqual([]);
   });
 
   it('strips protocol markers from uploaded file text', async () => {
