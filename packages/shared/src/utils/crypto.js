@@ -312,18 +312,21 @@ export function getConfigKeyFilePath() {
   return keyFilePath;
 }
 
-// The development key that was once committed to the repository. It is public, so production
-// refuses it, and the upgrade re-encrypts whatever is still stored under it.
+// The development key that was once committed to the repository. It is public, so only development
+// environments accept it, and the upgrade re-encrypts whatever is still stored under it.
 export const PUBLISHED_DEVELOPMENT_KEY = Buffer.from(
   '925a3b8ca2c44b9aa07e4ff3fc8d82be2f13b71a316aacb7d50d4bf98a52ea78',
   'hex',
 );
 
-// The default crypto.keyFile, relative to the server's working directory. Outside production a
-// missing key file here is generated, so every checkout has a development key of its own.
+// The default crypto.keyFile, relative to the server's working directory. In a development
+// environment a missing key file here is generated, so every checkout has a key of its own.
 const DEVELOPMENT_KEY_FILE = 'config/dev-secret.key';
 
-const isProduction = () => process.env.NODE_ENV === 'production';
+// Development environments name themselves. Anything else, an unset NODE_ENV included, is treated
+// as a deployment, since a shell on one carries no NODE_ENV.
+const DEVELOPMENT_ENVIRONMENTS = ['development', 'test', 'e2e'];
+const isDevelopmentEnvironment = () => DEVELOPMENT_ENVIRONMENTS.includes(process.env.NODE_ENV);
 
 // Written aside and linked into place, so concurrent readers (parallel test workers) never see a
 // partly written key, and the first writer wins.
@@ -347,18 +350,18 @@ async function createDevelopmentKeyFile(keyFilePath) {
   }
 }
 
-/** Reads the configured key file, refusing the published development key in production. */
+/** Reads the configured key file, refusing the published development key outside development. */
 export async function readConfigKeyFile() {
   const keyFilePath = getConfigKeyFilePath();
-  if (!isProduction() && keyFilePath === DEVELOPMENT_KEY_FILE) {
+  if (isDevelopmentEnvironment() && keyFilePath === DEVELOPMENT_KEY_FILE) {
     await createDevelopmentKeyFile(keyFilePath);
   }
 
   const keyBuffer = await readKeyFile(keyFilePath);
-  if (isProduction() && keyBuffer.equals(PUBLISHED_DEVELOPMENT_KEY)) {
+  if (!isDevelopmentEnvironment() && keyBuffer.equals(PUBLISHED_DEVELOPMENT_KEY)) {
     throw new Error(
       [
-        `The key file at ${keyFilePath} (config crypto.keyFile) is the development key published in the Tamanu repository, which production does not use.`,
+        `The key file at ${keyFilePath} (config crypto.keyFile) is the development key published in the Tamanu repository, which only development environments use (NODE_ENV is ${process.env.NODE_ENV ?? 'unset'}).`,
         "Generate a key for this server, mount it, and set CRYPTO_KEY_FILE to its path. The next upgrade re-encrypts this server's stored secrets under it.",
       ].join('\n'),
     );

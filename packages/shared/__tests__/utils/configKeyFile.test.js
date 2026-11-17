@@ -60,18 +60,36 @@ describe('readConfigKeyFile', () => {
     await expect(readConfigKeyFile()).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
-  it('generates nothing in production', async () => {
-    vi.stubEnv('NODE_ENV', 'production');
+  it.each([
+    ['production', 'production'],
+    ['an unset NODE_ENV', undefined],
+  ])('generates nothing in %s', async (_label, nodeEnv) => {
+    vi.stubEnv('NODE_ENV', nodeEnv);
     keyFile.path = DEVELOPMENT_KEY_FILE;
     await expect(readConfigKeyFile()).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
-  it('refuses the published development key in production, wherever it is mounted', async () => {
-    vi.stubEnv('NODE_ENV', 'production');
+  it.each([
+    ['production', 'production'],
+    ['an unset NODE_ENV', undefined],
+  ])(
+    'refuses the published development key in %s, wherever it is mounted',
+    async (_label, nodeEnv) => {
+      const mountedPath = join(directory, 'mounted.key');
+      await fs.writeFile(mountedPath, PUBLISHED_DEVELOPMENT_KEY);
+      vi.stubEnv('NODE_ENV', nodeEnv);
+      keyFile.path = mountedPath;
+
+      await expect(readConfigKeyFile()).rejects.toThrow(/development key published/);
+    },
+  );
+
+  it('reads the published development key in a development environment', async () => {
+    vi.stubEnv('NODE_ENV', 'development');
     keyFile.path = join(directory, 'mounted.key');
     await fs.writeFile(keyFile.path, PUBLISHED_DEVELOPMENT_KEY);
 
-    await expect(readConfigKeyFile()).rejects.toThrow(/development key published/);
+    expect(await readConfigKeyFile()).toEqual(PUBLISHED_DEVELOPMENT_KEY);
   });
 
   it('reads any other key in production', async () => {
