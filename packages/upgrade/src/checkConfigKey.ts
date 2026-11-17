@@ -139,7 +139,10 @@ async function reencryptFromDevelopmentKey(
       });
     }
   });
-  log.warn('Re-encrypted stored secrets from the published development key', {
+  const message = parentTransaction
+    ? 'Dry run: would re-encrypt stored secrets from the published development key'
+    : 'Re-encrypted stored secrets from the published development key';
+  log.warn(message, {
     count: underDevelopmentKey.length,
     keyFile: keyFilePath,
   });
