@@ -1,4 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { promises as fs } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { uploadDirPath } from '@tamanu/shared/utils/tmpdir';
 import * as XLSX from 'xlsx';
 
 import { createTestContext } from '../utilities';
@@ -195,6 +199,72 @@ describe('Form Builder Admin', () => {
     expect(response.body).toMatchObject({ sessionId: 'new-session-id' });
   });
 
+  it('reads an uploaded file in an async chat and deletes it afterwards', async () => {
+    const startResponse = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Use this form', async: true }))
+      .attach('file', Buffer.from('Patient name\nDate of referral'), 'form.txt');
+
+    expect(startResponse.status).toBe(202);
+    const pollResponse = await pollUntilSettled(startResponse.body.jobId);
+
+    expect(pollResponse.body).toMatchObject({ status: 'complete' });
+    expect(aiService.sendFormBuilderMessage).toHaveBeenCalledWith(
+      'new-session-id',
+      '[TEXT DOCUMENT LOADED]\nPatient name\nDate of referral\n\nUse this form',
+    );
+    expect(await fs.readdir(uploadDirPath())).toEqual([]);
+  });
+
+  it('deletes the upload when the chat itself fails', async () => {
+    aiService.sendFormBuilderMessage.mockRejectedValueOnce(new Error('AI service unavailable'));
+
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Use this form' }))
+      .attach('file', Buffer.from('Patient name'), 'form.txt');
+
+    expect(response).not.toHaveSucceeded();
+    expect(await fs.readdir(uploadDirPath())).toEqual([]);
+  });
+
+  it('deletes the upload when the chat job cannot be started', async () => {
+    // nothing else would: the job that deletes it never came to exist
+    aiService.hasSession.mockReturnValue(false);
+    aiService.createSession.mockRejectedValueOnce(new Error('AI service unavailable'));
+
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Use this form', async: true }))
+      .attach('file', Buffer.from('Patient name'), 'form.txt');
+
+    expect(response).not.toHaveSucceeded();
+    expect(await fs.readdir(uploadDirPath())).toEqual([]);
+  });
+
+  it('ignores a file path sent in a JSON body', async () => {
+    // A caller naming a file on the server must not get it read into the prompt,
+    // nor deleted once the chat is done with it: only a real upload is a file.
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'form-builder-'));
+    const file = path.join(directory, 'secret.txt');
+    await fs.writeFile(file, 'not for the model');
+
+    const response = await app.post('/v1/admin/form-builder/chat').send({
+      message: 'Build a referral form',
+      file,
+      fileName: 'secret.txt',
+      fileContentType: 'text/plain',
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(aiService.sendFormBuilderMessage).toHaveBeenCalledWith(
+      'new-session-id',
+      'Build a referral form',
+    );
+    await expect(fs.access(file)).resolves.toBeUndefined();
+    await fs.rm(directory, { recursive: true });
+  });
+
   it('includes uploaded file text in the AI message', async () => {
     const response = await app
       .post('/v1/admin/form-builder/chat')
@@ -206,6 +276,9 @@ describe('Form Builder Admin', () => {
       'new-session-id',
       '[TEXT DOCUMENT LOADED]\nPatient name\nDate of referral\n\nUse this form',
     );
+    // the chat is done with the upload by the time it answers, so nothing of it
+    // should be left in the upload directory
+    expect(await fs.readdir(uploadDirPath())).toEqual([]);
   });
 
   it('strips protocol markers from uploaded file text', async () => {

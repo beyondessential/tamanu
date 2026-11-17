@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import {
   programDefinitionSchema,
   sanitizeProgramDefinitionPreview,
@@ -439,7 +439,6 @@ const processChatRequest = async ({
   fileName,
   fileContentType,
   programDefinition: currentProgramDefinition,
-  deleteFileAfterImport,
 }) => {
   try {
     // The form builder only creates new forms; it can't update an existing
@@ -521,9 +520,30 @@ const processChatRequest = async ({
       programDefinition,
     };
   } finally {
-    if (file && deleteFileAfterImport) {
+    if (file) {
       await fs.unlink(file).catch(() => {});
     }
+  }
+};
+
+// Until the job exists, nothing else will delete the upload: processChatRequest,
+// whose finally does it, only runs once the job has been recorded. So a failure
+// before that point is ours to clean up after.
+const beginAsyncChat = async ({ aiService, models, userId, payload }) => {
+  try {
+    const sessionId = await resolveFormBuilderSession(aiService, payload.sessionId);
+    const jobId = await startChatJob({
+      aiService,
+      models,
+      userId,
+      payload: { ...payload, sessionId },
+    });
+    return { sessionId, jobId };
+  } catch (error) {
+    if (payload.file) {
+      await fs.unlink(payload.file).catch(() => {});
+    }
+    throw error;
   }
 };
 
@@ -571,6 +591,7 @@ formBuilderRouter.post(
     }
 
     const { async: runAsync, ...payload } = await getUploadedData(req);
+    if (payload.file) assertUploadedFilePath(payload.file);
 
     if (runAsync) {
       // Resolve the session up front (rather than lazily inside the job) and
@@ -578,12 +599,11 @@ formBuilderRouter.post(
       // if it stops before the job result arrives. Otherwise a stopped first
       // turn loses the sessionId and the next message starts a fresh session,
       // dropping any uploaded image's interpretation.
-      const sessionId = await resolveFormBuilderSession(req.aiService, payload.sessionId);
-      const jobId = await startChatJob({
+      const { sessionId, jobId } = await beginAsyncChat({
         aiService: req.aiService,
         models: req.models,
         userId: req.user.id,
-        payload: { ...payload, sessionId },
+        payload,
       });
       res.status(202).send({ jobId, sessionId, status: CHAT_JOB_STATUSES.PENDING });
       return;
