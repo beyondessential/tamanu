@@ -154,6 +154,19 @@ describe('reportRoutes', () => {
       expect(versions).toHaveLength(1);
     });
 
+    it('should refuse a report whose query does not plan, and save nothing', async () => {
+      const name = 'Report with an unplannable query';
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...definition } = getMockReportVersion(
+        1,
+        'some random non sql query',
+      );
+      const res = await adminApp.post('/api/admin/reports').send({ name, dbSchema, ...definition });
+      expect(res).toHaveRequestError();
+      expect(res.body.error.message).toMatch(/Invalid query/);
+      expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
+    });
+
     it('should not return unnecessary metadata', async () => {
       // eslint-disable-next-line no-unused-vars
       const { versionNumber, ...definition } = getMockReportVersion(
@@ -333,6 +346,17 @@ describe('reportRoutes', () => {
         .post('/api/admin/reports')
         .send(getNewReport('Reporting report without schema permission'));
       expect(res).toHaveSucceeded();
+    });
+
+    it('should refuse importing a raw report without permission to write the schema', async () => {
+      const name = 'Raw report imported without schema permission';
+      const res = await reportAuthorApp.post(`/api/admin/reports/import`).send({
+        file: path.join(__dirname, '/data/without-version-number.json'),
+        name,
+        deleteFileAfterImport: false,
+      });
+      expect(res).toHaveRequestError();
+      expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
     });
 
     it('should refuse a version of a raw report without permission to write the schema', async () => {
