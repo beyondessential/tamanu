@@ -34,8 +34,8 @@ describe('Supervisor routes', () => {
 
   const withToken = (request, token = SUPERVISOR_TOKEN) =>
     request.set('Authorization', `Bearer ${token}`);
-  const hold = () => withToken(baseApp.post('/api/supervisor/hold'));
-  const releaseHold = () => withToken(baseApp.delete('/api/supervisor/hold'));
+  const hold = () => withToken(baseApp.post('/api/supervisor/tasks/hold'));
+  const releaseHold = () => withToken(baseApp.delete('/api/supervisor/tasks/hold'));
 
   const recordedTask = (name, runner) => {
     const task = new TestTask(name, runner);
@@ -67,8 +67,8 @@ describe('Supervisor routes', () => {
 
   describe('credential', () => {
     const routes = [
-      ['post', '/api/supervisor/hold'],
-      ['delete', '/api/supervisor/hold'],
+      ['post', '/api/supervisor/tasks/hold'],
+      ['delete', '/api/supervisor/tasks/hold'],
       ['get', '/api/supervisor/status'],
     ];
 
@@ -139,7 +139,7 @@ describe('Supervisor routes', () => {
     });
   });
 
-  describe('POST /api/supervisor/hold', () => {
+  describe('POST /api/supervisor/tasks/hold', () => {
     it('holds scheduled tasks when nothing is running', async () => {
       const response = await hold();
       expect(response).toHaveSucceeded();
@@ -206,7 +206,7 @@ describe('Supervisor routes', () => {
     });
   });
 
-  describe('DELETE /api/supervisor/hold', () => {
+  describe('DELETE /api/supervisor/tasks/hold', () => {
     it('releases the hold', async () => {
       await hold();
       const response = await releaseHold();

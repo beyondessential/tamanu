@@ -47,7 +47,7 @@ export function supervisorRoutes({ version }) {
 
   // spec: SLPWK#going-to-sleep
   routes.post(
-    '/hold',
+    '/tasks/hold',
     asyncHandler(async (req, res) => {
       res.json(await req.models.ScheduledTaskState.holdUnlessBusy(TASK_HOLD_DURATION_MS));
     }),
@@ -55,7 +55,7 @@ export function supervisorRoutes({ version }) {
 
   // spec: SLPWK#going-to-sleep
   routes.delete(
-    '/hold',
+    '/tasks/hold',
     asyncHandler(async (req, res) => {
       await req.models.ScheduledTaskState.releaseHold();
       res.status(204).end();
