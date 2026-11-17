@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp } from 'node:fs/promises';
+import { mkdir, mkdtemp, stat } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -22,11 +22,36 @@ export async function tmpdir() {
 let uploadDirectory = null;
 let creatingUploadDirectory = null;
 
+// A temp directory cleaner removes what has sat around long enough, which on a
+// server left running is ours between one upload and the next. Forget it so the
+// next upload makes another, rather than writing into one no longer there. It is
+// only forgotten if it is still the directory we hold, since by now another
+// caller may have replaced it with one of their own.
+function forget(stale) {
+  if (uploadDirectory !== stale) return;
+
+  uploadDirectory = null;
+  creatingUploadDirectory = null;
+}
+
+async function exists(directory) {
+  try {
+    await stat(directory);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * The directory uploads are written to, creating it on first use.
  */
 export async function uploadDir() {
-  if (uploadDirectory) return uploadDirectory;
+  const current = uploadDirectory;
+  if (current) {
+    if (await exists(current)) return current;
+    forget(current);
+  }
 
   creatingUploadDirectory ??= tmpdir()
     .then(base => mkdtemp(path.join(base, 'tamanu-uploads-')))

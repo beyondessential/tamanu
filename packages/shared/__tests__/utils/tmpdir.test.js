@@ -28,6 +28,19 @@ describe('uploadDir', () => {
     await fs.rm(first, { recursive: true });
   });
 
+  it('makes another when the one it had has been removed', async () => {
+    const { uploadDir, uploadDirPath } = await loadTmpdir();
+    const first = await uploadDir();
+    await fs.rm(first, { recursive: true });
+
+    const second = await uploadDir();
+
+    expect(second).not.toBe(first);
+    expect(uploadDirPath()).toBe(second);
+    await expect(fs.stat(second)).resolves.toBeTruthy();
+    await fs.rm(second, { recursive: true });
+  });
+
   it('tries again after a failure instead of holding on to it', async () => {
     const { mkdtemp: realMkdtemp } = await vi.importActual('node:fs/promises');
     const mkdtemp = vi
