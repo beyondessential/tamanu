@@ -134,8 +134,6 @@ describe('DispensedMedicationDetailsModal', () => {
   it.each([
     [false, 'Inpatient'],
     [true, 'Outpatient/Discharge'],
-    // TODO(TAM-7087): pending product owner confirmation of the no-recorded-type reading.
-    [null, 'Inpatient'],
   ])('shows prescription type for isDischargePrescription=%s as %s', (isDischarge, expected) => {
     renderModal(buildDispensedItem({ isDischargePrescription: isDischarge }));
 
@@ -176,8 +174,6 @@ describe('NotDispensedMedicationDetailsModal', () => {
   it.each([
     [false, 'Inpatient'],
     [true, 'Outpatient/Discharge'],
-    // TODO(TAM-7087): pending product owner confirmation of the no-recorded-type reading.
-    [null, 'Inpatient'],
   ])('shows prescription type for isDischargePrescription=%s as %s', (isDischarge, expected) => {
     renderModal(buildNotDispensedRecord(isDischarge));
 

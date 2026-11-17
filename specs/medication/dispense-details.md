@@ -10,7 +10,6 @@ Applies to the details window opened from a dispensed medication, in the pharmac
 
 - Both windows show the prescription type of the pharmacy order the medication was requested on: Inpatient or Outpatient/Discharge.
 - The prescription type is the one the order was [sent to pharmacy](send-to-pharmacy.md#prescription-type) with.
-- An order with no recorded prescription type shows as Inpatient, as it does in the medication requests list.
 - The type is shown by its full label.
 
 ## Dispensed medication

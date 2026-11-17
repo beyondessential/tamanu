@@ -8,13 +8,12 @@ Automated cases are covered by `packages/web/__tests__/components/Medication/Dis
 - [ ] Right column reads Patient name, Prescription date, Request no., Dispensed by, Remaining repeats, Label text (verifies spec: DSPDET)
 - [ ] An Inpatient order shows Prescription type "Inpatient" (verifies spec: DSPDET)
 - [ ] An Outpatient/Discharge order shows "Outpatient/Discharge" in full (verifies spec: DSPDET)
-- [ ] An order with no recorded type shows "Inpatient" (verifies spec: DSPDET). TODO: pending product owner confirmation of this reading
 - [ ] Preset labels is not shown, even for a dispense that used a preset (verifies spec: DSPDET)
 
 ## Not dispensed medication modal
 
 - [ ] Left column reads Patient ID, Medication, Prescription type, Request no., Reason not dispensed (verifies spec: DSPDET)
-- [ ] Inpatient, Outpatient/Discharge and no recorded type show as Inpatient, Outpatient/Discharge and Inpatient (verifies spec: DSPDET). TODO: no-recorded-type reading pending product owner confirmation
+- [ ] Inpatient and Outpatient/Discharge orders show as Inpatient and Outpatient/Discharge (verifies spec: DSPDET)
 
 ## Manual checks
 
