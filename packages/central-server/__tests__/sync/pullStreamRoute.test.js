@@ -8,6 +8,7 @@ import {
 } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { settingsCache } from '@tamanu/settings';
+import { encodeSnapshotCursor } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -98,6 +99,19 @@ describe('GET /sync/:sessionId/pull/stream', () => {
   const asDevice = request =>
     request.set('Authorization', `Bearer ${token}`).set('X-Tamanu-Client', SERVER_TYPES.FACILITY);
 
+  const streamChanges = async (sessionId, query = {}) => {
+    // superagent would JSON-parse application/json+frame
+    const streamed = await asDevice(baseApp.get(`/api/sync/${sessionId}/pull/stream`))
+      .query(query)
+      .responseType('blob');
+    expect(streamed.status).toBe(200);
+    const frames = parseStreamFrames(streamed.body);
+    expect(frames.at(-1).kind).toBe(SYNC_STREAM_MESSAGE_KIND.END);
+    return frames
+      .filter(({ kind }) => kind === SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE)
+      .map(({ message }) => message);
+  };
+
   const startReadyPull = async () => {
     const session = await asDevice(baseApp.post('/api/sync')).send({
       facilityIds: [facility.id],
@@ -131,20 +145,21 @@ describe('GET /sync/:sessionId/pull/stream', () => {
     );
     expect(totalToPull).toBeGreaterThan(PAGE_SIZE);
 
-    // superagent would JSON-parse application/json+frame
-    const streamed = await asDevice(baseApp.get(`/api/sync/${sessionId}/pull/stream`)).responseType(
-      'blob',
-    );
-    expect(streamed.status).toBe(200);
-
-    const frames = parseStreamFrames(streamed.body);
-    const changes = frames
-      .filter(({ kind }) => kind === SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE)
-      .map(({ message }) => message);
+    const changes = await streamChanges(sessionId);
 
     expect(changes).toHaveLength(totalToPull);
     expect(new Set(changes.map(({ recordId }) => recordId)).size).toBe(totalToPull);
-    expect(frames.at(-1).kind).toBe(SYNC_STREAM_MESSAGE_KIND.END);
+  });
+
+  it('resumes after the record in the cursor', async () => {
+    const sessionId = await startReadyPull();
+    const allChanges = await streamChanges(sessionId);
+
+    const resumed = await streamChanges(sessionId, { fromId: encodeSnapshotCursor(allChanges[0]) });
+
+    expect(resumed.map(({ recordId }) => recordId)).toEqual(
+      allChanges.slice(1).map(({ recordId }) => recordId),
+    );
   });
 
   it('rejects a malformed cursor before the stream starts', async () => {

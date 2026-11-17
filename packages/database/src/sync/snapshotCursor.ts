@@ -23,7 +23,8 @@ export const decodeSnapshotCursor = (cursor?: string | null): Partial<SnapshotCu
   }
 
   const { sortOrder, id } = decoded ?? {};
-  if (!Number.isInteger(sortOrder) || !['string', 'number'].includes(typeof id)) {
+  const isSnapshotId = Number.isInteger(id) || (typeof id === 'string' && /^\d+$/.test(id));
+  if (!Number.isInteger(sortOrder) || !isSnapshotId) {
     throw new InvalidParameterError(
       'fromId is not a valid pull cursor: expected a sort order and a record id',
     );

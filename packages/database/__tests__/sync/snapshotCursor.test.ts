@@ -27,6 +27,7 @@ describe('snapshot cursor', () => {
     ['a sort order that is not a number', { sortOrder: 'x', id: '1234' }],
     ['a fractional sort order', { sortOrder: 1.5, id: '1234' }],
     ['an id that is neither string nor number', { sortOrder: 1, id: {} }],
+    ['an id that is not numeric', { sortOrder: 1, id: 'abc' }],
     ['no id at all', { sortOrder: 1 }],
     ['no sort order at all', { id: '1234' }],
     ['not an object', 1234],

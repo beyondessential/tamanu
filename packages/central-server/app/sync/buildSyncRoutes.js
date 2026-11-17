@@ -17,6 +17,17 @@ import { CentralSyncManager } from './CentralSyncManager';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
+const waitForDrainOrClose = res =>
+  new Promise(resolve => {
+    const done = () => {
+      res.off('drain', done);
+      res.off('close', done);
+      resolve();
+    };
+    res.on('drain', done);
+    res.on('close', done);
+  });
+
 // Whether the requesting user may sync each of these facilities, for anything that serves a
 // facility's share of central.
 const assertUserCanSyncFacilities = async (req, facilityIds) => {
@@ -325,8 +336,7 @@ export const buildSyncRoutes = ctx => {
 
       let cursor = fromId;
       const limit = await ctx.settings.get('sync.streaming.databasePollBatchSize');
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
+      while (!res.destroyed) {
         const changes = await syncManager.getOutgoingChanges(sessionId, {
           fromId: cursor,
           limit,
@@ -340,8 +350,12 @@ export const buildSyncRoutes = ctx => {
         for (const change of changes) {
           res.write(StreamMessage.pullChange(change));
         }
+        if (res.writableNeedDrain) {
+          await waitForDrainOrClose(res);
+        }
       }
 
+      if (res.destroyed) return;
       res.write(StreamMessage.end());
       res.end();
     }),
