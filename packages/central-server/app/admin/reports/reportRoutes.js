@@ -247,7 +247,7 @@ reportsRouter.post(
       await verifyQuery(
         versionData.query,
         versionData.queryOptions,
-        { store, reportSchemaStores },
+        { reportSchemaStores },
         versionData.dbSchema,
       );
 

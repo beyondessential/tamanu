@@ -254,6 +254,15 @@ describe('reportRoutes', () => {
         ]),
       );
     });
+
+    it('should refuse a version for a report that does not exist', async () => {
+      const newVersion = getMockReportVersion(1, 'select 1');
+      delete newVersion.versionNumber;
+      const res = await adminApp
+        .post('/api/admin/reports/00000000-0000-0000-0000-000000000000/versions')
+        .send(newVersion);
+      expect(res).toHaveStatus(404);
+    });
   });
 
   describe('GET /reports/:id/versions/:versionId/export/:format', () => {
@@ -477,61 +486,83 @@ describe('reportRoutes', () => {
       });
     });
     describe('verifyQuery', () => {
-      it('should return true if query is valid', async () => {
-        const query = 'select * from patients limit 1';
+      let reportSchemaStores;
+      beforeAll(async () => {
+        reportSchemaStores = await initReporting(ctx.store);
+      });
+
+      const verify = (query, { parameters = [], dbSchema = REPORT_DB_CONNECTIONS.RAW } = {}) =>
+        verifyQuery(query, { parameters }, { reportSchemaStores }, dbSchema);
+
+      it('verifies a valid read query', async () => {
+        await expect(verify('select * from patients limit 1')).resolves.not.toThrow();
+      });
+
+      it('verifies a valid query with parameters', async () => {
         await expect(
-          verifyQuery(query, { parameters: [] }, { store: ctx.store }),
+          verify('select * from patients where id = :test limit 1', {
+            parameters: [{ name: 'test' }],
+          }),
         ).resolves.not.toThrow();
       });
-      it('should return true if query is valid with paramDefinition', async () => {
-        const query = 'select * from patients where id = :test limit 1';
+
+      it('rejects an invalid query', async () => {
+        await expect(verify('some random non sql query')).rejects.toThrow(/Invalid query/);
+      });
+
+      it.each([undefined, null, 'public', 'not-a-schema'])(
+        'rejects a query with no configured reporting schema (%s)',
+        async dbSchema => {
+          await expect(
+            verifyQuery(
+              'select 1',
+              { parameters: [] },
+              { store: ctx.store, reportSchemaStores },
+              dbSchema,
+            ),
+          ).rejects.toThrow(/unknown reporting schema/);
+        },
+      );
+
+      it('rejects a query when the reporting schemas are unavailable', async () => {
         await expect(
           verifyQuery(
-            query,
-            {
-              parameters: [
-                {
-                  name: 'test',
-                },
-              ],
-            },
+            'select 1',
+            { parameters: [] },
             { store: ctx.store },
+            REPORT_DB_CONNECTIONS.REPORTING,
           ),
-        ).resolves.not.toThrow();
-      });
-      it('should return false if query is invalid', async () => {
-        const query = 'some random non sql query';
-        await expect(verifyQuery(query, [], ctx.store)).rejects.toThrow();
+        ).rejects.toThrow(/unknown reporting schema/);
       });
 
-      describe('on a reporting connection', () => {
-        let reportSchemaStores;
+      describe('never executes the query', () => {
+        const runOnMainStore = async sql => ctx.store.sequelize.query(sql);
         beforeAll(async () => {
-          reportSchemaStores = await initReporting(ctx.store);
+          await runOnMainStore('CREATE TABLE IF NOT EXISTS verify_query_canary (id int)');
+          await runOnMainStore('GRANT SELECT, INSERT ON verify_query_canary TO PUBLIC');
+        });
+        afterAll(async () => {
+          await runOnMainStore('DROP TABLE IF EXISTS verify_query_canary');
+        });
+        const canaryRowCount = async () => {
+          const [[{ count }]] = await ctx.store.sequelize.query(
+            'SELECT count(*)::int AS count FROM verify_query_canary',
+          );
+          return count;
+        };
+
+        it('rejects a trailing statement', async () => {
+          await expect(
+            verify('select 1; insert into verify_query_canary values (1)'),
+          ).rejects.toThrow(/Invalid query/);
+          expect(await canaryRowCount()).toBe(0);
         });
 
-        it('verifies a valid read query', async () => {
+        it('rejects ANALYZE smuggled into the EXPLAIN', async () => {
           await expect(
-            verifyQuery(
-              'select * from patients limit 1',
-              { parameters: [] },
-              { store: ctx.store, reportSchemaStores },
-              REPORT_DB_CONNECTIONS.RAW,
-            ),
-          ).resolves.not.toThrow();
-        });
-
-        it('rejects a write even via a trailing statement (unprivileged role)', async () => {
-          // EXPLAIN plans only the first statement; the trailing write runs as the
-          // unprivileged raw role and is rejected.
-          await expect(
-            verifyQuery(
-              'select 1; delete from patients',
-              { parameters: [] },
-              { store: ctx.store, reportSchemaStores },
-              REPORT_DB_CONNECTIONS.RAW,
-            ),
-          ).rejects.toThrow(/permission denied/);
+            verify('analyze insert into verify_query_canary values (1)'),
+          ).rejects.toThrow(/Invalid query/);
+          expect(await canaryRowCount()).toBe(0);
         });
       });
     });

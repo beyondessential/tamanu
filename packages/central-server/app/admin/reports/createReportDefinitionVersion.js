@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import { InvalidOperationError } from '@tamanu/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { verifyQuery } from './utils';
 
 export async function createReportDefinitionVersion(
@@ -16,12 +16,19 @@ export async function createReportDefinitionVersion(
   if (definition.versionNumber) {
     throw new InvalidOperationError('Cannot create a report with a version number');
   }
+  // A new version runs against its report's schema, whatever the request says.
+  const existingReport = reportId
+    ? await ReportDefinition.findByPk(reportId, { attributes: ['dbSchema'] })
+    : null;
+  if (reportId && !existingReport) {
+    throw new NotFoundError(`No report found with id ${reportId}`);
+  }
   const { parameters } = definition.queryOptions;
   await verifyQuery(
     definition.query,
     { parameters },
-    { reportSchemaStores, store },
-    definition.dbSchema,
+    { reportSchemaStores },
+    existingReport?.dbSchema ?? definition.dbSchema,
   );
   return sequelize.transaction(
     {

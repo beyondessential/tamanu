@@ -1,4 +1,6 @@
-import { QueryTypes } from 'sequelize';
+import { injectReplacements } from 'sequelize/lib/utils/sql';
+import { REPORT_DB_CONNECTION_VALUES } from '@tamanu/constants';
+import { InvalidOperationError } from '@tamanu/errors';
 import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
 import fs from 'fs';
 
@@ -29,23 +31,46 @@ export const readJSON = async path => {
   });
 };
 
+class VerificationRollback extends Error {}
+
+/**
+ * Checks that a report query plans successfully, without running it.
+ *
+ * The query is only ever planned on the unprivileged reporting connection for the report's schema,
+ * inside a read-only transaction that is always rolled back. It is sent over the extended query
+ * protocol, which accepts exactly one statement, and under a parenthesised EXPLAIN option list, so
+ * the query cannot smuggle in ANALYZE (which would execute it) or a trailing statement.
+ */
 export async function verifyQuery(
   query,
-  { parameters = [] },
-  { store, reportSchemaStores },
+  { parameters = [] } = {},
+  { reportSchemaStores },
   dbSchema,
 ) {
+  const reportStore = REPORT_DB_CONNECTION_VALUES.includes(dbSchema)
+    ? reportSchemaStores?.[dbSchema]
+    : undefined;
+  if (!reportStore) {
+    throw new InvalidOperationError(`Invalid query: unknown reporting schema "${dbSchema}"`);
+  }
+
+  const { sequelize } = reportStore;
   try {
     const replacements = await getReportQueryReplacements(parameters);
-    const instance = reportSchemaStores?.[dbSchema]
-      ? reportSchemaStores[dbSchema]?.sequelize
-      : store.sequelize;
-    // use EXPLAIN instead of PREPARE because we don't want to stuff around deallocating the statement
-    await instance.query(`EXPLAIN ${query}`, {
-      type: QueryTypes.SELECT,
+    const explainSql = injectReplacements(
+      `EXPLAIN (FORMAT TEXT) ${query}`,
+      sequelize.dialect,
       replacements,
+    );
+    await sequelize.transaction(async transaction => {
+      // The raw pg client: sequelize offers no way to force the extended protocol.
+      const { connection } = transaction;
+      await connection.query('SET TRANSACTION READ ONLY');
+      await connection.query({ text: explainSql, queryMode: 'extended' });
+      throw new VerificationRollback();
     });
   } catch (err) {
-    throw new Error(`Invalid query: ${err.message}`);
+    if (err instanceof VerificationRollback) return;
+    throw new InvalidOperationError(`Invalid query: ${err.message}`);
   }
 }
