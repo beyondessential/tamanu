@@ -118,12 +118,12 @@ describe('importReport actions', () => {
 
     it('calls the correct functions and creates version', async () => {
       await createVersion(baseVersionData, mockDefinition, mockVersions, stores, true);
-      expect(verifyQuery).toHaveBeenCalledWith(
-        'test-query',
-        { parameters: [{ parameterField: 'TestField', name: 'test' }] },
-        { reportSchemaStores: mockReportSchemaStores },
-        'reporting',
-      );
+      expect(verifyQuery).toHaveBeenCalledWith({
+        query: 'test-query',
+        parameters: [{ parameterField: 'TestField', name: 'test' }],
+        dbSchema: 'reporting',
+        reportSchemaStores: mockReportSchemaStores,
+      });
       expect(mockStore.models.User.findOne).toHaveBeenCalledWith({
         where: {
           email: DEFAULT_USER_EMAIL,

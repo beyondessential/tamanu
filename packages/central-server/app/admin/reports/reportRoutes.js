@@ -244,12 +244,12 @@ reportsRouter.post(
         throw new InvalidOperationError('Cannot change a reporting schema for existing report');
       }
 
-      await verifyQuery(
-        versionData.query,
-        versionData.queryOptions,
-        { reportSchemaStores },
-        versionData.dbSchema,
-      );
+      await verifyQuery({
+        query: versionData.query,
+        parameters: versionData.queryOptions?.parameters,
+        dbSchema: versionData.dbSchema,
+        reportSchemaStores,
+      });
 
       try {
         await sequelize.transaction(

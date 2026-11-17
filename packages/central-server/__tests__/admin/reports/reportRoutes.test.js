@@ -562,7 +562,7 @@ describe('reportRoutes', () => {
       });
 
       const verify = (query, { parameters = [], dbSchema = REPORT_DB_CONNECTIONS.RAW } = {}) =>
-        verifyQuery(query, { parameters }, { reportSchemaStores }, dbSchema);
+        verifyQuery({ query, parameters, dbSchema, reportSchemaStores });
 
       it('verifies a valid read query and returns its plan', async () => {
         await expect(verify('select * from patients limit 1')).resolves.toEqual(
@@ -591,12 +591,7 @@ describe('reportRoutes', () => {
         'rejects a query with no configured reporting schema (%s)',
         async dbSchema => {
           await expect(
-            verifyQuery(
-              'select 1',
-              { parameters: [] },
-              { store: ctx.store, reportSchemaStores },
-              dbSchema,
-            ),
+            verifyQuery({ query: 'select 1', dbSchema, reportSchemaStores }),
           ).rejects.toThrow(/Unknown reporting schema/);
         },
       );
@@ -635,23 +630,17 @@ describe('reportRoutes', () => {
             },
           },
         };
-        const error = await verifyQuery(
-          'select 1',
-          { parameters: [] },
-          { reportSchemaStores: unreachableStores },
-          REPORT_DB_CONNECTIONS.RAW,
-        ).catch(err => err);
+        const error = await verifyQuery({
+          query: 'select 1',
+          dbSchema: REPORT_DB_CONNECTIONS.RAW,
+          reportSchemaStores: unreachableStores,
+        }).catch(err => err);
         expect(error).toBe(connectionError);
       });
 
       it('rejects a query when the reporting schemas are unavailable', async () => {
         await expect(
-          verifyQuery(
-            'select 1',
-            { parameters: [] },
-            { store: ctx.store },
-            REPORT_DB_CONNECTIONS.REPORTING,
-          ),
+          verifyQuery({ query: 'select 1', dbSchema: REPORT_DB_CONNECTIONS.REPORTING }),
         ).rejects.toThrow(/Unknown reporting schema/);
       });
 

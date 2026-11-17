@@ -27,12 +27,12 @@ export async function createVersion(
   const { ReportDefinitionVersion } = store.models;
 
   log.info('Analyzing query');
-  const planLines = await verifyQuery(
-    versionData.query,
-    { parameters: versionData.queryOptions?.parameters },
-    { reportSchemaStores },
-    definition.dbSchema,
-  );
+  const planLines = await verifyQuery({
+    query: versionData.query,
+    parameters: versionData.queryOptions?.parameters,
+    dbSchema: definition.dbSchema,
+    reportSchemaStores,
+  });
   if (verbose) {
     log.info(`Explain output:\n${planLines.join('\n')}`);
   }

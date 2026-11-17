@@ -30,8 +30,12 @@ export async function createReportDefinitionVersion(
       'You do not have permission to create reports using the raw schema',
     );
   }
-  const { parameters } = definition.queryOptions;
-  await verifyQuery(definition.query, { parameters }, { reportSchemaStores }, dbSchema);
+  await verifyQuery({
+    query: definition.query,
+    parameters: definition.queryOptions.parameters,
+    dbSchema,
+    reportSchemaStores,
+  });
   return sequelize.transaction(
     {
       // Prevents race condition when determining the next version number

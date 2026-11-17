@@ -72,12 +72,7 @@ const buildExplainSql = async (query, parameters, dialect) => {
  *
  * Resolves to the query plan, one line per entry.
  */
-export async function verifyQuery(
-  query,
-  { parameters = [] } = {},
-  { reportSchemaStores },
-  dbSchema,
-) {
+export async function verifyQuery({ query, parameters = [], dbSchema, reportSchemaStores }) {
   const reportStore = REPORT_DB_CONNECTION_VALUES.includes(dbSchema)
     ? reportSchemaStores?.[dbSchema]
     : undefined;
