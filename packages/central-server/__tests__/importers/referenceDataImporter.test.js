@@ -134,11 +134,8 @@ describe('Data definition import', () => {
         .post('/v1/admin/import/referenceData')
         .send({ file, deleteFileAfterImport: true, includedDataTypes: ['allergy'] });
 
-      // The refusal is a validation error, which carries 422, but this endpoint
-      // leaves its permission checks to the importer, so none has been flagged by
-      // the time the refusal is sent. The permission middleware answers anything
-      // sent before its check with a 501, and that is what reaches the client.
-      expect(result.statusCode).toBe(501);
+      // a validation error, so the client is told its request was invalid
+      expect(result.statusCode).toBe(422);
       expect(result.body.didntSendReason).toBeUndefined();
       await expect(access(file)).resolves.toBeUndefined();
       await rm(dir, { recursive: true });

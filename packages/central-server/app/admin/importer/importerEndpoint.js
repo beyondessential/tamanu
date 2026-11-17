@@ -159,7 +159,15 @@ export function createDataImporterEndpoint(importer) {
       includedDataTypes,
       ...extraOptions
     } = await getUploadedData(req);
-    assertUploadedFilePath(file);
+    try {
+      assertUploadedFilePath(file);
+    } catch (error) {
+      // This endpoint leaves its permission checks to the importer, so none has
+      // run yet. Say so, or the guard for an endpoint that forgot to check would
+      // answer a malformed request with "unimplemented" instead of its own error.
+      req.flagPermissionChecked();
+      throw error;
+    }
 
     let result;
     try {
