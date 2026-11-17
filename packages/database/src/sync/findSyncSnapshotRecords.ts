@@ -78,7 +78,7 @@ export const findSyncSnapshotRecordsOrderByDependency = async (
       SELECT * FROM ${tableName}
       JOIN priority ON ${tableName}.record_type = priority.record_type
       WHERE true
-      ${lastRecordTypeOrder && lastId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
+      ${fromId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
       AND direction = :direction
       ${additionalWhere ? `AND ${additionalWhere}` : ''}
       ORDER BY priority.sort_order, id

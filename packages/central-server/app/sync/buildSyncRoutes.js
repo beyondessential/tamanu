@@ -5,7 +5,11 @@ import * as z from 'zod';
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
 import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
-import { completeSyncSession, encodeSnapshotCursor } from '@tamanu/database/sync';
+import {
+  completeSyncSession,
+  decodeSnapshotCursor,
+  encodeSnapshotCursor,
+} from '@tamanu/database/sync';
 import { DEVICE_SCOPES } from '@tamanu/constants';
 
 import { buildFacilityBootstrap } from './buildFacilityBootstrap';
@@ -313,6 +317,9 @@ export const buildSyncRoutes = ctx => {
       if (!(await syncManager.checkPullReady(sessionId))) {
         throw new Error('Session not ready');
       }
+
+      // once the stream starts, a bad cursor can only surface as a broken 200
+      decodeSnapshotCursor(fromId);
 
       startStream(res);
 

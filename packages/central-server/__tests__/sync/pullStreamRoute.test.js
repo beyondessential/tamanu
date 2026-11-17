@@ -98,7 +98,7 @@ describe('GET /sync/:sessionId/pull/stream', () => {
   const asDevice = request =>
     request.set('Authorization', `Bearer ${token}`).set('X-Tamanu-Client', SERVER_TYPES.FACILITY);
 
-  it('streams every record in the snapshot, paging itself through it', async () => {
+  const startReadyPull = async () => {
     const session = await asDevice(baseApp.post('/api/sync')).send({
       facilityIds: [facility.id],
       lastSyncedTick: 1,
@@ -120,6 +120,12 @@ describe('GET /sync/:sessionId/pull/stream', () => {
     }
     expect(ready).toBe(true);
 
+    return sessionId;
+  };
+
+  it('streams every record in the snapshot, paging itself through it', async () => {
+    const sessionId = await startReadyPull();
+
     const totalToPull = Number(
       (await asDevice(baseApp.get(`/api/sync/${sessionId}/pull/metadata`))).body.totalToPull,
     );
@@ -139,5 +145,15 @@ describe('GET /sync/:sessionId/pull/stream', () => {
     expect(changes).toHaveLength(totalToPull);
     expect(new Set(changes.map(({ recordId }) => recordId)).size).toBe(totalToPull);
     expect(frames.at(-1).kind).toBe(SYNC_STREAM_MESSAGE_KIND.END);
+  });
+
+  it('rejects a malformed cursor before the stream starts', async () => {
+    const sessionId = await startReadyPull();
+
+    const response = await asDevice(
+      baseApp.get(`/api/sync/${sessionId}/pull/stream`).query({ fromId: 'not-a-cursor' }),
+    );
+
+    expect(response).toHaveRequestError();
   });
 });
