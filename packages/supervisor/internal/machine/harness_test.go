@@ -37,6 +37,7 @@ func testTiming() Timing {
 		LeaseRetry:     5 * time.Millisecond,
 		ReportEvery:    10 * time.Millisecond,
 		ReportTTL:      40 * time.Millisecond,
+		SettleTimeout:  2 * time.Second,
 	}
 }
 
@@ -148,16 +149,16 @@ func (h *harness) waitStopped() {
 	}
 }
 
-// stop stops the machine as a supervisor that is stopped does, releasing the
-// lease, and waits for it.
+// stop stops the machine as a supervisor that is stopped does, giving up the
+// lease first, and waits for it.
 func (h *harness) stop() {
-	h.crash()
 	h.mu.Lock()
 	m := h.m
 	h.mu.Unlock()
 	if m != nil {
-		m.ReleaseLease()
+		m.StepDown()
 	}
+	h.crash()
 	h.waitStopped()
 }
 
@@ -247,9 +248,13 @@ func (h *harness) eventually(what string, cond func() bool) {
 	}
 }
 
-func (h *harness) waitServing() {
+// waitHolding waits for the harness's machine to hold the lease and have
+// announced the server awake.
+func (h *harness) waitHolding() {
 	h.t.Helper()
-	h.eventually("serving", func() bool { return h.snapshot().Serving })
+	h.eventually("holding the lease, awake", func() bool {
+		return h.machine().HoldsLease() && h.snapshot().Phase == state.Awake && h.machine().Announcement() > 0
+	})
 }
 
 func (h *harness) waitPhase(phase state.Phase) {
