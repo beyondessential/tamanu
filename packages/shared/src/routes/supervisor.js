@@ -1,5 +1,4 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import ms from 'ms';
@@ -14,20 +13,18 @@ export const TASK_HOLD_DURATION_MS = ms('10 minutes');
 const sha256 = value => createHash('sha256').update(value).digest();
 
 // Compared as digests so the two sides are always the same length, which lets timingSafeEqual
-// run without leaking the length of the configured token.
+// run without leaking the length of the expected token.
 const isSameToken = (given, expected) => timingSafeEqual(sha256(given), sha256(expected));
 
 // spec: SUPV#talking-to-the-server
-// The supervisor credential is a bearer token from config (`supervisor.token`, or the
-// SUPERVISOR_TOKEN environment variable). Unset or empty means no caller is the supervisor, so
-// every request is rejected. Read per request so a changed config applies without rebuilding the
-// router. A failure never says whether the token was unset or merely wrong.
+// The supervisor credential is a bearer token from the SUPERVISOR_TOKEN environment variable.
+// Unset or empty means no caller is the supervisor, so every request is rejected. A failure never says whether the token was unset or merely wrong.
 const requireSupervisorToken = (req, _res, next) => {
   // The supervisor credential is the whole of the authorisation: there is no user, and so no
   // user permission to check.
   req.flagPermissionChecked?.();
 
-  const expected = config.supervisor?.token;
+  const expected = process.env.SUPERVISOR_TOKEN;
   const [scheme, given] = (req.get('authorization') ?? '').split(' ');
   const isSupervisor =
     typeof expected === 'string' &&

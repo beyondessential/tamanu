@@ -91,12 +91,6 @@
     // expire when the server restarts.
     // "secret": "some long secret value",
   },
-  "supervisor": {
-    // Bearer token the server's own supervisor presents to the /api/supervisor routes (the hold
-    // on scheduled tasks, the server's status and the final sync). Unset or empty rejects every
-    // request to those routes. Prefer the SUPERVISOR_TOKEN environment variable.
-    "token": null
-  },
   "serverFacilityId": null,
   "serverFacilityIds": null,
   "schedules": {

@@ -1,4 +1,3 @@
-import config from 'config';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { JOB_QUEUE_STATUSES, JOB_TOPICS } from '@tamanu/constants';
@@ -30,7 +29,6 @@ describe('Supervisor routes', () => {
   let ctx;
   let models;
   let baseApp;
-  let originalSupervisorConfig;
 
   const withToken = (request, token = SUPERVISOR_TOKEN) =>
     request.set('Authorization', `Bearer ${token}`);
@@ -47,18 +45,17 @@ describe('Supervisor routes', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
-    originalSupervisorConfig = config.supervisor;
   });
 
   beforeEach(async () => {
-    config.supervisor = { token: SUPERVISOR_TOKEN };
+    vi.stubEnv('SUPERVISOR_TOKEN', SUPERVISOR_TOKEN);
     await models.ScheduledTaskState.releaseHold();
     await models.ScheduledTaskState.destroy({ where: {}, force: true });
     await models.FhirJob.destroy({ where: {}, force: true });
   });
 
   afterEach(() => {
-    config.supervisor = originalSupervisorConfig;
+    vi.unstubAllEnvs();
     vi.restoreAllMocks();
   });
 
@@ -97,8 +94,8 @@ describe('Supervisor routes', () => {
       expect(response).toHaveSucceeded();
     });
 
-    it.each([null, ''])('rejects everything when the token is %j', async unsetToken => {
-      config.supervisor = { token: unsetToken };
+    it.each([undefined, ''])('rejects everything when the token is %j', async unsetToken => {
+      vi.stubEnv('SUPERVISOR_TOKEN', unsetToken);
       for (const [method, path] of routes) {
         expect((await baseApp[method](path)).status).toBe(401);
         expect((await withToken(baseApp[method](path), '')).status).toBe(401);

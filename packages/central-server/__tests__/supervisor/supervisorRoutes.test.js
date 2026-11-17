@@ -1,5 +1,4 @@
-import config from 'config';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { JOB_QUEUE_STATUSES, JOB_TOPICS } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -31,7 +30,6 @@ describe('Supervisor routes', () => {
   let ctx;
   let models;
   let baseApp;
-  let originalSupervisorConfig;
 
   const withToken = (request, token = SUPERVISOR_TOKEN) =>
     request.set('Authorization', `Bearer ${token}`);
@@ -51,18 +49,17 @@ describe('Supervisor routes', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
-    originalSupervisorConfig = config.supervisor;
   });
 
   beforeEach(async () => {
-    config.supervisor = { token: SUPERVISOR_TOKEN };
+    vi.stubEnv('SUPERVISOR_TOKEN', SUPERVISOR_TOKEN);
     await models.ScheduledTaskState.releaseHold();
     await models.ScheduledTaskState.destroy({ where: {}, force: true });
     await models.FhirJob.destroy({ where: {}, force: true });
   });
 
   afterEach(() => {
-    config.supervisor = originalSupervisorConfig;
+    vi.unstubAllEnvs();
   });
 
   afterAll(() => ctx.close());
@@ -100,10 +97,10 @@ describe('Supervisor routes', () => {
       expect(response).toHaveSucceeded();
     });
 
-    it.each([null, '', undefined])(
+    it.each([undefined, ''])(
       'rejects everything, even an empty credential, when the token is %j',
       async unsetToken => {
-        config.supervisor = { token: unsetToken };
+        vi.stubEnv('SUPERVISOR_TOKEN', unsetToken);
         for (const [method, path] of routes) {
           expect((await baseApp[method](path)).status).toBe(401);
           expect((await baseApp[method](path).set('Authorization', 'Bearer ')).status).toBe(401);
@@ -113,10 +110,6 @@ describe('Supervisor routes', () => {
       },
     );
 
-    it('rejects everything when the supervisor config is missing', async () => {
-      config.supervisor = undefined;
-      expect((await hold()).status).toBe(401);
-    });
   });
 
   describe('GET /api/supervisor/status', () => {
