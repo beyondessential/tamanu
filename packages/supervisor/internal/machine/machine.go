@@ -318,7 +318,7 @@ func (m *Machine) sleepSteps() []sleepStep {
 	}
 	return append(steps,
 		sleepStep{stepPartsStopped, func(ctx context.Context) error {
-			return m.stop(ctx, state.Sync, state.API, state.Web, state.Portal)
+			return m.stop(ctx, state.Sync, state.API)
 		}},
 		sleepStep{stepDatabaseStopped, func(ctx context.Context) error { return m.stop(ctx, state.Database) }},
 	)

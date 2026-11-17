@@ -8,27 +8,25 @@ import (
 )
 
 func TestNewIsAwakeAndReady(t *testing.T) {
-	s := New(PartsFor(true))
+	s := New(Parts())
 	snap := s.Snapshot()
 	if snap.Phase != Awake || snap.Upgrading || snap.InFlight != 0 || snap.LastFailure != nil {
 		t.Errorf("unexpected initial state %+v", snap)
 	}
-	for _, p := range PartsFor(true) {
+	for _, p := range Parts() {
 		if !snap.Ready[p] {
 			t.Errorf("part %s not ready", p)
 		}
 	}
-	if s.Admit(Portal) != Forward || s.Admit(API) != Forward {
+	if s.Admit(Sync) != Forward || s.Admit(API) != Forward {
 		t.Error("a new server does not forward")
 	}
 }
 
-func TestPartsFor(t *testing.T) {
-	if slices.Contains(PartsFor(false), Portal) {
-		t.Error("a facility has a portal")
-	}
-	if !slices.Contains(PartsFor(true), Portal) {
-		t.Error("central has no portal")
+func TestParts(t *testing.T) {
+	want := []Part{Database, API, Sync, Tasks, FHIR}
+	if !slices.Equal(Parts(), want) {
+		t.Errorf("parts = %v", Parts())
 	}
 }
 
@@ -42,19 +40,19 @@ func TestAdmit(t *testing.T) {
 	}{
 		{"awake", func(*Server) {}, API, Forward, false},
 		{"asleep", func(s *Server) { s.SetPhase(Asleep) }, API, Hold, true},
-		{"waking", func(s *Server) { s.SetPhase(Waking); s.SetReady(Web, false) }, Web, Hold, true},
-		{"waking with the part ready", func(s *Server) { s.SetPhase(Waking); s.SetReady(Web, false) }, API, Forward, false},
+		{"waking", func(s *Server) { s.SetPhase(Waking); s.SetReady(API, false) }, API, Hold, true},
+		{"waking with the part ready", func(s *Server) { s.SetPhase(Waking); s.SetReady(Sync, false) }, API, Forward, false},
 		{"asleep with the part ready", func(s *Server) { s.SetPhase(Asleep) }, API, Hold, true},
 		{"going to sleep", func(s *Server) { s.SetPhase(GoingToSleep) }, API, Hold, true},
-		{"part not ready", func(s *Server) { s.SetReady(Web, false) }, Web, Hold, true},
-		{"other part not ready", func(s *Server) { s.SetReady(Web, false) }, API, Forward, false},
-		{"part the server lacks", func(*Server) {}, Portal, Hold, true},
+		{"part not ready", func(s *Server) { s.SetReady(API, false) }, API, Hold, true},
+		{"other part not ready", func(s *Server) { s.SetReady(Sync, false) }, API, Forward, false},
+		{"part the server lacks", func(*Server) {}, Part("web"), Hold, true},
 		{"upgrading", func(s *Server) { s.SetUpgrading(true) }, API, Upgrading, false},
 		{"upgrading while asleep", func(s *Server) { s.SetPhase(Asleep); s.SetUpgrading(true) }, API, Upgrading, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := New(PartsFor(false))
+			s := New(Parts())
 			tt.setup(s)
 			if got := s.Admit(tt.part); got != tt.want {
 				t.Errorf("Admit = %v, want %v", got, tt.want)
@@ -76,7 +74,7 @@ func TestAdmit(t *testing.T) {
 
 func TestActivityCountsUntilDone(t *testing.T) {
 	clock := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	s := New(PartsFor(false))
+	s := New(Parts())
 	s.SetClock(func() time.Time { return clock })
 
 	_, done := s.AdmitActivity(API)
@@ -102,7 +100,7 @@ func TestActivityCountsUntilDone(t *testing.T) {
 }
 
 func TestHeldActivityIsNotInFlight(t *testing.T) {
-	s := New(PartsFor(false))
+	s := New(Parts())
 	s.SetPhase(Asleep)
 	_, done := s.AdmitActivity(API)
 	if n := s.Snapshot().InFlight; n != 0 {
@@ -115,7 +113,7 @@ func TestHeldActivityIsNotInFlight(t *testing.T) {
 }
 
 func TestActivityNotifies(t *testing.T) {
-	s := New(PartsFor(false))
+	s := New(Parts())
 	_, done := s.AdmitActivity(API)
 	<-s.Activity()
 	done()
@@ -123,7 +121,7 @@ func TestActivityNotifies(t *testing.T) {
 }
 
 func TestWakeRequestsMerge(t *testing.T) {
-	s := New(PartsFor(false))
+	s := New(Parts())
 	s.RequestWake()
 	s.RequestWake()
 	if !wakes(s) {
@@ -135,7 +133,7 @@ func TestWakeRequestsMerge(t *testing.T) {
 }
 
 func TestConcurrentActivity(t *testing.T) {
-	s := New(PartsFor(false))
+	s := New(Parts())
 	var wg sync.WaitGroup
 	for range 100 {
 		wg.Go(func() {
@@ -150,7 +148,7 @@ func TestConcurrentActivity(t *testing.T) {
 }
 
 func TestSetAllReady(t *testing.T) {
-	s := New(PartsFor(true))
+	s := New(Parts())
 	s.SetAllReady(false)
 	for p, ready := range s.Snapshot().Ready {
 		if ready {
@@ -159,8 +157,45 @@ func TestSetAllReady(t *testing.T) {
 	}
 }
 
+func TestAdmitStatic(t *testing.T) {
+	tests := []struct {
+		name      string
+		setup     func(*Server)
+		wantsWake bool
+	}{
+		{"awake", func(*Server) {}, false},
+		{"asleep", func(s *Server) { s.SetPhase(Asleep) }, true},
+		{"going to sleep", func(s *Server) { s.SetPhase(GoingToSleep) }, true},
+		{"waking", func(s *Server) { s.SetPhase(Waking) }, true},
+		{"upgrading while asleep", func(s *Server) { s.SetPhase(Asleep); s.SetUpgrading(true) }, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := New(Parts())
+			tt.setup(s)
+			done := s.AdmitStatic()
+			if n := s.Snapshot().InFlight; n != 1 {
+				t.Errorf("in flight = %d", n)
+			}
+			done()
+			done()
+			if n := s.Snapshot().InFlight; n != 0 {
+				t.Errorf("in flight after done = %d", n)
+			}
+			if got := wakes(s); got != tt.wantsWake {
+				t.Errorf("wake requested = %v, want %v", got, tt.wantsWake)
+			}
+			select {
+			case <-s.Activity():
+			default:
+				t.Error("not recorded as activity")
+			}
+		})
+	}
+}
+
 func TestFailure(t *testing.T) {
-	s := New(PartsFor(false))
+	s := New(Parts())
 	s.SetFailure("database did not start")
 	snap := s.Snapshot()
 	if snap.LastFailure == nil || snap.LastFailure.Message != "database did not start" {

@@ -101,7 +101,7 @@ func newHarness(t *testing.T, central bool) *harness {
 // start runs a new machine, as a newly started supervisor of release would.
 func (h *harness) start(release string) {
 	h.t.Helper()
-	parts := state.PartsFor(h.central)
+	parts := state.Parts()
 	st := state.New(parts)
 	act := actuator.NewClient(h.actURL)
 	act.PollInterval = time.Millisecond
@@ -263,31 +263,23 @@ func describePut(put map[state.Part]actuator.Desired) string {
 }
 
 // sleepPuts are the actuator requests of a full sleep.
-func sleepPuts(central bool) []string {
-	parts := "api=down sync=down web=down"
-	if central {
-		parts = "api=down portal=down sync=down web=down"
-	}
-	return []string{"fhir=down tasks=down", parts, "database=down"}
+func sleepPuts() []string {
+	return []string{"fhir=down tasks=down", "api=down sync=down", "database=down"}
 }
 
 // wakePuts are the actuator requests of a full wake.
-func wakePuts(central bool) []string {
-	rest := "api=up fhir=up sync=up tasks=up web=up"
-	if central {
-		rest = "api=up fhir=up portal=up sync=up tasks=up web=up"
-	}
-	return []string{"database=up", rest}
+func wakePuts() []string {
+	return []string{"database=up", "api=up fhir=up sync=up tasks=up"}
 }
 
 func (h *harness) allUp() bool {
-	parts := state.PartsFor(h.central)
+	parts := state.Parts()
 	s := h.act.State()
 	return s.AllDesired(parts, actuator.Up) && s.AllObserved(parts, actuator.Ready)
 }
 
 func (h *harness) allDown() bool {
-	parts := state.PartsFor(h.central)
+	parts := state.Parts()
 	s := h.act.State()
 	return s.AllDesired(parts, actuator.Down) && s.AllObserved(parts, actuator.Stopped)
 }

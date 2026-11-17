@@ -32,7 +32,7 @@ func TestStateAndSet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !s.ControlsParts || s.Upgrading || len(s.Parts) != 7 || s.Parts[state.API].Observed != actuator.Ready {
+	if !s.ControlsParts || s.Upgrading || len(s.Parts) != 5 || s.Parts[state.API].Observed != actuator.Ready {
 		t.Errorf("initial state = %+v", s)
 	}
 
@@ -101,11 +101,11 @@ func TestAwaitFails(t *testing.T) {
 
 func TestAwaitCancelled(t *testing.T) {
 	f, c := setup(t)
-	f.Stall(state.Web, true)
+	f.Stall(state.Sync, true)
 	ctx, cancel := context.WithCancel(context.Background())
-	_, _ = c.Set(ctx, map[state.Part]actuator.Desired{state.Web: actuator.Down})
+	_, _ = c.Set(ctx, map[state.Part]actuator.Desired{state.Sync: actuator.Down})
 	go func() { time.Sleep(10 * time.Millisecond); cancel() }()
-	if err := c.Await(ctx, []state.Part{state.Web}, actuator.Stopped, time.Minute, nil); err == nil {
+	if err := c.Await(ctx, []state.Part{state.Sync}, actuator.Stopped, time.Minute, nil); err == nil {
 		t.Error("await outlived its context")
 	}
 }

@@ -18,7 +18,7 @@ func newTestApp() *App {
 	return &App{
 		Role:     "central",
 		IdleTime: caddy.Duration(15 * time.Minute),
-		state:    state.New(state.PartsFor(true)),
+		state:    state.New(state.Parts()),
 	}
 }
 
@@ -57,7 +57,7 @@ func TestStatus(t *testing.T) {
 	if got.State != "asleep" || got.Upgrading || got.CanSleep || got.IdleTime != "15m0s" {
 		t.Errorf("status = %s", w.Body)
 	}
-	if len(got.Parts) != 7 || got.Parts["api"].Ready || !got.Parts["portal"].Ready {
+	if len(got.Parts) != 5 || got.Parts["api"].Ready || !got.Parts["sync"].Ready {
 		t.Errorf("parts = %+v", got.Parts)
 	}
 	if got.LastFailure == nil || got.LastFailure.Message != "fhir did not stop" {

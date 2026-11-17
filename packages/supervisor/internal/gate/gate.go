@@ -1,5 +1,5 @@
-// Package gate is the handler at the head of every route that reaches one of
-// the server's parts.
+// Package gate is the handler at the head of every route of the server's and
+// the patient portal's addresses.
 package gate
 
 import (
@@ -24,9 +24,15 @@ func init() {
 type Class string
 
 const (
+	// Activity, Exempt and Websocket requests go to the api.
 	Activity  Class = "activity"
 	Exempt    Class = "exempt"
 	Websocket Class = "websocket"
+	// Static requests are for the supervisor's own files.
+	Static Class = "static"
+	// Page requests are those the web app's index page answers: a browser
+	// opening one is treated as Activity, anything else as Static.
+	Page Class = "page"
 )
 
 // Gate is the http.handlers.tamanu_gate handler.
@@ -35,8 +41,6 @@ const (
 type Gate struct {
 	// Class is the class of the route's requests.
 	Class Class `json:"class"`
-	// Part is the part the route's requests go to.
-	Part state.Part `json:"part"`
 
 	state *state.Server
 }
@@ -62,26 +66,33 @@ func (g *Gate) Provision(ctx caddy.Context) error {
 // Validate checks the gate's configuration.
 func (g *Gate) Validate() error {
 	switch g.Class {
-	case Activity, Exempt, Websocket:
-	default:
-		return fmt.Errorf("unknown class %q", g.Class)
+	case Activity, Exempt, Websocket, Static, Page:
+		return nil
 	}
-	switch g.Part {
-	case state.API, state.Web, state.Portal:
-	default:
-		return fmt.Errorf("part %q is not one requests are routed to", g.Part)
-	}
-	return nil
+	return fmt.Errorf("unknown class %q", g.Class)
 }
 
 func (g *Gate) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	class := g.Class
+	if class == Page {
+		class = Static
+		if pages.IsBrowser(r) {
+			class = Activity
+		}
+	}
+
 	var admission state.Admission
-	if g.Class == Activity {
+	switch class {
+	case Static:
+		// spec: SLPWK#waking
+		defer g.state.AdmitStatic()()
+		return next.ServeHTTP(w, r)
+	case Activity:
 		var done func()
-		admission, done = g.state.AdmitActivity(g.Part)
+		admission, done = g.state.AdmitActivity(state.API)
 		defer done()
-	} else {
-		admission = g.state.Admit(g.Part)
+	default:
+		admission = g.state.Admit(state.API)
 	}
 
 	switch admission {
@@ -91,7 +102,7 @@ func (g *Gate) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.
 		// spec: SUPV#upgrades
 		pages.Upgrading.Write(w, r, http.StatusServiceUnavailable)
 	default:
-		if g.Class == Websocket {
+		if class == Websocket {
 			// spec: SLPWK#waking
 			pages.Unavailable.Write(w, r, http.StatusServiceUnavailable)
 		} else {

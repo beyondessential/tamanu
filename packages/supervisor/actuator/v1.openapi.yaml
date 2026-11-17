@@ -64,7 +64,7 @@ components:
   schemas:
     Part:
       type: string
-      enum: [database, api, web, portal, sync, tasks, fhir]
+      enum: [database, api, sync, tasks, fhir]
     Desired:
       type: string
       enum: [up, down]
