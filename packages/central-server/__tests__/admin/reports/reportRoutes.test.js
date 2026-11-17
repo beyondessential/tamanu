@@ -575,6 +575,35 @@ describe('reportRoutes', () => {
         },
       );
 
+      it.each([
+        [
+          'a server shutdown',
+          Object.assign(new Error('terminating connection'), { severity: 'FATAL', code: '57P01' }),
+        ],
+        [
+          'an unreachable server',
+          Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' }),
+        ],
+      ])('passes through %s rather than blaming the query', async (_, connectionError) => {
+        const unreachableStores = {
+          [REPORT_DB_CONNECTIONS.RAW]: {
+            sequelize: {
+              dialect: ctx.store.sequelize.dialect,
+              transaction: async () => {
+                throw connectionError;
+              },
+            },
+          },
+        };
+        const error = await verifyQuery(
+          'select 1',
+          { parameters: [] },
+          { reportSchemaStores: unreachableStores },
+          REPORT_DB_CONNECTIONS.RAW,
+        ).catch(err => err);
+        expect(error).toBe(connectionError);
+      });
+
       it('rejects a query when the reporting schemas are unavailable', async () => {
         await expect(
           verifyQuery(

@@ -33,6 +33,26 @@ export const readJSON = async path => {
 
 class VerificationRollback extends Error {}
 
+// SQLSTATE classes meaning the check could not run, rather than that the query is at fault:
+// connection exception, insufficient resources, operator intervention, system error, internal error.
+const CHECK_UNAVAILABLE_SQLSTATE_CLASSES = ['08', '53', '57', '58', 'XX'];
+
+const isQueryFault = err =>
+  Boolean(err?.severity) &&
+  typeof err.code === 'string' &&
+  !CHECK_UNAVAILABLE_SQLSTATE_CLASSES.includes(err.code.slice(0, 2));
+
+const invalidQuery = err => new InvalidOperationError(`Invalid query: ${err.message}`);
+
+const buildExplainSql = async (query, parameters, dialect) => {
+  try {
+    const replacements = await getReportQueryReplacements(parameters);
+    return injectReplacements(`EXPLAIN (FORMAT TEXT) ${query}`, dialect, replacements);
+  } catch (err) {
+    throw invalidQuery(err);
+  }
+};
+
 /**
  * Checks that a report query plans successfully, without running it.
  *
@@ -57,14 +77,10 @@ export async function verifyQuery(
   }
 
   const { sequelize } = reportStore;
+  const explainSql = await buildExplainSql(query, parameters, sequelize.dialect);
+
   let planLines;
   try {
-    const replacements = await getReportQueryReplacements(parameters);
-    const explainSql = injectReplacements(
-      `EXPLAIN (FORMAT TEXT) ${query}`,
-      sequelize.dialect,
-      replacements,
-    );
     await sequelize.transaction(async transaction => {
       // The raw pg client: sequelize offers no way to force the extended protocol.
       const { connection } = transaction;
@@ -75,6 +91,7 @@ export async function verifyQuery(
     });
   } catch (err) {
     if (err instanceof VerificationRollback) return planLines;
-    throw new InvalidOperationError(`Invalid query: ${err.message}`);
+    // Anything else, such as the reporting database being unreachable, is not the author's to fix.
+    throw isQueryFault(err) ? invalidQuery(err) : err;
   }
 }
