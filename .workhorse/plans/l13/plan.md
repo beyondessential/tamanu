@@ -96,6 +96,16 @@ Built as PR 4a (#11700, server side, merged) and PR 4b (this card's branch, the 
 - A facility with sync disabled can never complete its final sync, so it never sleeps.
 - Announcements are a lease token and sequence pair, so a new holder's first announcement beats every earlier one with nothing carried over; every supervisor polls the actuator every second; the sleep barrier gives up after a minute and counts as a failed sleep.
 
+### Making the supervisor smaller
+
+The supervisor came out far larger than a small component should be. The decision stays with the supervisor: moving it to the actuator only moves the cost to infra. Settled so far:
+
+- Routing is a Caddyfile shipped with the release, not generated in Go. Lists are space-separated, so Caddy splits them itself. The `tamanu` app's settings (actuator address, idle time, api token) are a block in that Caddyfile, parsed by our module with Caddy's own types.
+- The image's entrypoint is a POSIX `sh` script. With no `supervisor` command it runs Caddy with its arguments, so the default old-layout mode is unchanged. With `supervisor` it checks each required variable is set and non-empty, checks the obvious formats (role, `host:port` addresses, an `http(s)://` actuator address, a duration-looking idle time), rejects unknown `TAMANU_SUPERVISOR_*` names, picks the role's Caddyfile and the portal's block when its address is set, and runs `caddy run`. It catches the obvious mistakes only; the operator follows the documented contract.
+- This removes the `config` and `routes` packages and the `tamanu-supervisor` command. The smoke tests stay, run against the shipped Caddyfile.
+
+Still to settle: resuming after a restart, several supervisors per server, and the size of the tests.
+
 ### Later
 
 - [ ] The web app shows waking itself (reads `Retry-After` on a `503`), so a page can load straight into a sleeping server instead of the waking page
