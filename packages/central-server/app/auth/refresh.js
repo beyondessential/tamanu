@@ -75,6 +75,8 @@ export const refresh = asyncHandler(async (req, res) => {
     throw new InvalidTokenError('id');
   }
 
+  const frontEndSettings = await settings.getFrontEndSettings();
+
   // issue new access token
   const accessTokenJwtId = getRandomU32();
   const token = await buildToken(
@@ -131,6 +133,6 @@ export const refresh = asyncHandler(async (req, res) => {
   res.send({
     token,
     refreshToken: newRefreshToken,
-    settings: await settings.getFrontEndSettings(),
+    settings: frontEndSettings,
   });
 });

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import config from 'config';
+import { centralSettings } from '@tamanu/settings';
 
 import { getSyncTuning, setSyncTuningFromCentral } from '../../src/sync/syncTuning';
 
@@ -31,6 +32,13 @@ describe('getSyncTuning', () => {
   it("prefers central's value over config", () => {
     setSyncTuningFromCentral({ persistUpdateWorkerPoolSize: 2 });
     expect(getSyncTuning().persistUpdateWorkerPoolSize).toBe(2);
+  });
+
+  it('reads every key of the central facilitySync setting', () => {
+    const keys = Object.keys(centralSettings.properties.facilitySync.properties);
+    const fromCentral = Object.fromEntries(keys.map((key, index) => [key, 100 + index]));
+    setSyncTuningFromCentral(fromCentral);
+    expect(getSyncTuning()).toMatchObject(fromCentral);
   });
 
   it("prefers the env var over central's value", () => {

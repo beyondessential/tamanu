@@ -261,7 +261,7 @@ export const centralSettings = {
     },
     facilitySync: {
       description:
-        'Sync tuning that facility servers fetch each time they log in to central. A SYNC_* env var on a facility server overrides it there',
+        "Sync tuning that facility servers fetch from central on login and token refresh. It overrides the sync values in a facility server's config file, and only a SYNC_* env var on the facility server overrides it",
       exposedToWeb: true,
       highRisk: true,
       properties: {

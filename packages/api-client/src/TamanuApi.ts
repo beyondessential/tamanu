@@ -50,6 +50,7 @@ interface LoginData {
   refreshToken: string;
   permissions?: string[];
   availableFacilities?: AvailableFacility[];
+  settings?: Record<string, any>;
 }
 
 interface LoginResponse extends LoginData {
