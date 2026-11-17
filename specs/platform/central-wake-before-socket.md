@@ -19,3 +19,5 @@ Applies to the socket messages that the facility server and the mobile app send 
 ## Bot information
 
 - The facility server's bot information route answers with an error when central does not answer the bot information request in time.
+- The mobile app's reminder contact QR code screen tells the user that the QR code could not be loaded when central does not answer the bot information request in time.
+- Both wait for central's answer from when the bot information request is sent, after the HTTP request before it.
