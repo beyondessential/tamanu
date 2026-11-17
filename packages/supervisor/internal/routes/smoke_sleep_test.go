@@ -47,7 +47,6 @@ func TestSmokeSleepAndWake(t *testing.T) {
 		ActuatorURL:  actuatorURL,
 		IdleTime:     200 * time.Millisecond,
 		APIToken:     "set below",
-		DataDir:      t.TempDir(),
 	}
 	raw, err := routes.Build(c)
 	if err != nil {
@@ -65,7 +64,7 @@ func TestSmokeSleepAndWake(t *testing.T) {
 	t.Cleanup(func() { _ = caddy.Stop() })
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	status := func() (phase string, canSleep bool) {
+	status := func() (phase string, canSleep bool, lease string) {
 		res, err := client.Get("http://" + c.StatusListen + "/status")
 		if err != nil {
 			t.Fatal(err)
@@ -74,9 +73,10 @@ func TestSmokeSleepAndWake(t *testing.T) {
 		var s struct {
 			State    state.Phase `json:"state"`
 			CanSleep bool        `json:"canSleep"`
+			Lease    string      `json:"lease"`
 		}
 		_ = json.NewDecoder(res.Body).Decode(&s)
-		return string(s.State), s.CanSleep
+		return string(s.State), s.CanSleep, s.Lease
 	}
 	eventually := func(what string, cond func() bool) {
 		t.Helper()
@@ -90,9 +90,12 @@ func TestSmokeSleepAndWake(t *testing.T) {
 	}
 
 	eventually("asleep", func() bool {
-		phase, canSleep := status()
-		return phase == "asleep" && canSleep
+		phase, canSleep, lease := status()
+		return phase == "asleep" && canSleep && lease == "holder"
 	})
+	if act.LeaseHolder() == "" {
+		t.Error("asleep without holding the lease")
+	}
 	parts := state.Parts()
 	if s := act.State(); !s.AllObserved(parts, actuator.Stopped) {
 		t.Errorf("parts not stopped while asleep: %+v", s.Parts)

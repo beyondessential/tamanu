@@ -1,5 +1,5 @@
-// Package persist encodes the supervisor's saved state, and reads and writes
-// it.
+// Package persist encodes the supervisor's saved state, which the actuator
+// keeps.
 //
 // spec: SUPV#resilience
 // spec: SUPV#compatibility
@@ -7,19 +7,10 @@ package persist
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
-	"io/fs"
-	"os"
-	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
-
-// FileName is the name of the state file in the data directory.
-const FileName = "supervisor-state.json"
 
 // Format is the version of the saved state's document. A change a supervisor
 // of the release line before could not read takes a new format, and Decode
@@ -64,80 +55,4 @@ func Decode(b []byte) (rec Record, usable bool, err error) {
 		return Record{}, false, nil
 	}
 	return rec, true, nil
-}
-
-// Store reads and writes the record in a directory.
-type Store struct {
-	dir string
-}
-
-// Open returns the store in dir, creating the directory if needed.
-func Open(dir string) (*Store, error) {
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return nil, fmt.Errorf("creating the data directory: %w", err)
-	}
-	return &Store{dir: dir}, nil
-}
-
-// Path is the state file's path.
-func (s *Store) Path() string { return filepath.Join(s.dir, FileName) }
-
-// Load reads the record. found is false when none has been written.
-func (s *Store) Load() (rec Record, found bool, err error) {
-	b, err := os.ReadFile(s.Path())
-	if errors.Is(err, fs.ErrNotExist) {
-		return Record{}, false, nil
-	}
-	if err != nil {
-		return Record{}, false, err
-	}
-	rec, usable, err := Decode(b)
-	if err != nil {
-		return Record{}, false, fmt.Errorf("reading %s: %w", s.Path(), err)
-	}
-	return rec, usable, nil
-}
-
-// Save writes the record atomically: a reader, or a supervisor starting after
-// a crash, finds either the old record or the new one, never a mix.
-func (s *Store) Save(rec Record) error {
-	b, err := Encode(rec)
-	if err != nil {
-		return err
-	}
-	tmp, err := os.CreateTemp(s.dir, FileName+".*.tmp")
-	if err != nil {
-		return err
-	}
-	defer os.Remove(tmp.Name())
-
-	if _, err := tmp.Write(append(b, '\n')); err != nil {
-		tmp.Close()
-		return err
-	}
-	if err := tmp.Sync(); err != nil {
-		tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tmp.Name(), s.Path()); err != nil {
-		return err
-	}
-	return s.syncDir()
-}
-
-// syncDir makes the rename durable. Windows cannot open a directory to sync
-// it, and makes renames durable itself.
-func (s *Store) syncDir() error {
-	if runtime.GOOS == "windows" {
-		return nil
-	}
-	dir, err := os.Open(s.dir)
-	if err != nil {
-		return err
-	}
-	defer dir.Close()
-	return dir.Sync()
 }

@@ -32,14 +32,13 @@ const (
 	VarActuatorURL    = Prefix + "ACTUATOR_URL"
 	VarIdleTime       = Prefix + "IDLE_TIME"
 	VarAPIToken       = Prefix + "API_TOKEN"
-	VarDataDir        = Prefix + "DATA_DIR"
 	VarTrustedProxies = Prefix + "TRUSTED_PROXIES"
 )
 
 var knownVars = []string{
 	VarRole, VarListen, VarPortalListen, VarStatusListen,
 	VarAPIUpstreams, VarWebRoot, VarPortalRoot,
-	VarActuatorURL, VarIdleTime, VarAPIToken, VarDataDir, VarTrustedProxies,
+	VarActuatorURL, VarIdleTime, VarAPIToken, VarTrustedProxies,
 }
 
 // Role is the kind of Tamanu server the supervisor stands in front of.
@@ -84,8 +83,6 @@ type Config struct {
 	IdleTime time.Duration
 	// APIToken is the credential for the api's supervisor routes.
 	APIToken string
-	// DataDir is where the supervisor keeps its state.
-	DataDir string
 
 	// TrustedProxies are the CIDR ranges of the proxies trusted to report the
 	// client's address.
@@ -176,12 +173,8 @@ func FromEnv(env map[string]string) (Config, error) {
 		if !r.isSet(VarAPIToken) {
 			r.fail(VarAPIToken, "is required when %s is set", VarActuatorURL)
 		}
-		if !r.isSet(VarDataDir) {
-			r.fail(VarDataDir, "is required when %s is set", VarActuatorURL)
-		}
 	}
 	c.APIToken = r.get(VarAPIToken)
-	c.DataDir = r.get(VarDataDir)
 
 	c.IdleTime = DefaultFacilityIdleTime
 	if c.Role == Central {

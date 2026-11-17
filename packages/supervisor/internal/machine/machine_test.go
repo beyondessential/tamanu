@@ -80,6 +80,7 @@ func TestActivityKeepsTheServerAwake(t *testing.T) {
 	h := newHarness(t, false)
 	h.timing.IdleTime = 200 * time.Millisecond
 	h.start(testRelease)
+	h.waitServing()
 	h.holdOpen()
 	time.Sleep(3 * h.timing.IdleTime)
 	if len(h.api.Calls()) != 0 || h.snapshot().Phase != state.Awake {
@@ -304,7 +305,7 @@ func TestRestartDuringSleepContinuesIt(t *testing.T) {
 			})
 			h.start(testRelease)
 			<-crashed
-			h.stop()
+			h.waitStopped()
 			if rec := h.persisted(); rec.Phase != state.GoingToSleep {
 				t.Fatalf("persisted after the crash: %+v", rec)
 			}
@@ -346,7 +347,7 @@ func TestRestartDuringWakeFinishesIt(t *testing.T) {
 	})
 	h.activity()
 	<-crashed
-	h.stop()
+	h.waitStopped()
 	if rec := h.persisted(); rec.Phase != state.Waking {
 		t.Fatalf("persisted after the crash: %+v", rec)
 	}
@@ -384,9 +385,7 @@ func TestStartingOnAnAsleepServer(t *testing.T) {
 	t.Run("another patch of the line stays asleep", func(t *testing.T) {
 		h := newHarness(t, false)
 		h.act.SetAll(actuator.Down, actuator.Stopped)
-		if err := h.store.Save(persist.Record{Release: "2.70.3", Phase: state.Asleep}); err != nil {
-			t.Fatal(err)
-		}
+		h.save(persist.Record{Release: "2.70.3", Phase: state.Asleep})
 		h.start(testRelease)
 		h.waitPhase(state.Asleep)
 		time.Sleep(5 * h.timing.IdleTime)
@@ -398,9 +397,7 @@ func TestStartingOnAnAsleepServer(t *testing.T) {
 	t.Run("another line wakes it", func(t *testing.T) {
 		h := newHarness(t, false)
 		h.act.SetAll(actuator.Down, actuator.Stopped)
-		if err := h.store.Save(persist.Record{Release: "2.69.0", Phase: state.Asleep}); err != nil {
-			t.Fatal(err)
-		}
+		h.save(persist.Record{Release: "2.69.0", Phase: state.Asleep})
 		h.keepAwakeAfterWake()
 		h.start(testRelease)
 		h.waitAwakeAfterWake()
