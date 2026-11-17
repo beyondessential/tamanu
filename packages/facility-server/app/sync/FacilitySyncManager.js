@@ -24,6 +24,7 @@ import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledR
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { applyBootstrap } from './facilityBootstrap';
+import { prefetchAssets } from './prefetchAssets';
 import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
@@ -70,10 +71,20 @@ export class FacilitySyncManager {
 
   hasBootstrapped = false;
 
-  constructor({ models, sequelize, centralServer }) {
+  constructor({
+    models,
+    sequelize,
+    centralServer,
+    blobOutboxPusher,
+    blobTransferChannel,
+    blobCache,
+  }) {
     this.models = models;
     this.sequelize = sequelize;
     this.centralServer = centralServer;
+    this.blobOutboxPusher = blobOutboxPusher ?? null;
+    this.blobTransferChannel = blobTransferChannel ?? null;
+    this.blobCache = blobCache ?? null;
   }
 
   isSyncRunning() {
@@ -254,6 +265,26 @@ export class FacilitySyncManager {
       await pullSettingsPsk({ models: this.models, centralServer: this.centralServer });
     } catch (error) {
       log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
+    }
+
+    // spec: CAP
+    // Never fails the sync it rode in on.
+    try {
+      await this.blobOutboxPusher?.recordSyncCycle();
+    } catch (error) {
+      log.warn('FacilitySyncManager.recordBlobOutboxSyncCycleFailed', { error: error.message });
+    }
+
+    // spec: ASSET
+    // Never fails the sync.
+    try {
+      await prefetchAssets({
+        models: this.models,
+        transferChannel: this.blobTransferChannel,
+        blobCache: this.blobCache,
+      });
+    } catch (error) {
+      log.warn('FacilitySyncManager.prefetchAssetsFailed', { error: error.message });
     }
 
     const durationMs = Date.now() - startTime;

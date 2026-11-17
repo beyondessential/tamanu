@@ -44,6 +44,8 @@ import { LabTestType } from './LabTestType';
 import { LabTestPanelRequest } from './LabTestPanelRequest';
 import { LabTestPanel } from './LabTestPanel';
 import { LocalSystemFact } from './LocalSystemFact';
+import { Blob } from './Blob';
+import { BlobQuarantine } from './BlobQuarantine';
 import { PatientFacility } from './PatientFacility';
 import { Setting } from './Setting';
 import { Note } from './Note';
@@ -109,6 +111,8 @@ export const MODELS_MAP = {
   LabTestPanel,
   LabTestPanelRequest,
   LocalSystemFact,
+  Blob,
+  BlobQuarantine,
   PatientFacility,
   Setting,
   Note,

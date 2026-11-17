@@ -8,7 +8,8 @@ export class Asset extends Model {
   declare id: string;
   declare name?: string;
   declare type?: string;
-  declare data?: Buffer;
+  declare data?: Buffer | null;
+  declare hash?: string | null;
   declare facilityId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -17,7 +18,11 @@ export class Asset extends Model {
         id: primaryKey,
         name: DataTypes.STRING,
         type: DataTypes.STRING,
+        // spec: BKFL
         data: DataTypes.BLOB,
+        // spec: ASSET
+        // Null on legacy rows still holding bytes in `data`.
+        hash: DataTypes.TEXT,
       },
       {
         ...options,
@@ -38,6 +43,11 @@ export class Asset extends Model {
    * Asset is PULL_FROM_CENTRAL, i.e. we don't sync asset up from devices to sync servers.
    */
   static sanitizeForCentralServer({ data, ...restOfValues }: ModelSanitizeArgs) {
+    // spec: ASSET, BKFL
+    if (data === null || data === undefined) {
+      return { ...restOfValues, data: null };
+    }
+
     // Postgres-format hex string of binary data
     if (typeof data === 'string' && data.substring(0, 2) === '\\x') {
       return { ...restOfValues, data: Buffer.from(data.substring(2), 'hex') };
@@ -52,6 +62,11 @@ export class Asset extends Model {
   }
 
   static sanitizeForFacilityServer({ data, ...restOfValues }: { data: any; [key: string]: any }) {
+    // spec: ASSET, BKFL
+    if (data === null || data === undefined) {
+      return { ...restOfValues, data: null };
+    }
+
     // Postgres-format hex string of binary data
     if (typeof data === 'string' && data.substring(0, 2) === '\\x') {
       return { ...restOfValues, data: Buffer.from(data.substring(2), 'hex') };

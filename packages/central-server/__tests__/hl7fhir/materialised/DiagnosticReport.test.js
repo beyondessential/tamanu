@@ -411,6 +411,18 @@ describe('Create DiagnosticReport', () => {
         title: testAttachment.title,
       });
       expect(response).toHaveSucceeded();
+
+      // spec: ATCH
+      const attachment = await ctx.store.models.Attachment.findByPk(
+        requestAttachment.attachmentId,
+      );
+      expect(attachment.hash).toBeTruthy();
+      expect(attachment.data).toBeFalsy();
+      expect(attachment.encounterId).toBe(labRequest.encounterId);
+      // spec: ATCH
+      const reportEncounter = await ctx.store.models.Encounter.findByPk(labRequest.encounterId);
+      expect(attachment.patientId).toBe(reportEncounter.patientId);
+      expect(await ctx.blobStore.has(attachment.hash)).toBe(true);
     });
 
     it('replaces the PDF when a DiagnosticReport is republished for a published Lab Request', async () => {

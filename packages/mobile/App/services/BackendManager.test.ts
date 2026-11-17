@@ -10,7 +10,7 @@ jest.mock('../infra/db', () => ({
 
 jest.mock('./sync', () => ({
   CentralServerConnection: jest.fn(),
-  MobileSyncManager: jest.fn(() => ({ isSyncing: false })),
+  MobileSyncManager: jest.fn(() => ({ isSyncing: false, emitter: { on: jest.fn() } })),
 }));
 
 jest.mock('./auth', () => ({ AuthService: jest.fn() }));

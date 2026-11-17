@@ -1,3 +1,4 @@
+export { BlobHashMismatchError } from './BlobHashMismatchError';
 export { ClientIncompatibleError } from './ClientIncompatibleError';
 export { DatabaseError } from './DatabaseError';
 export { EditConflictError } from './EditConflictError';

@@ -1,3 +1,5 @@
+import { Readable } from 'node:stream';
+
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op } from 'sequelize';
@@ -328,14 +330,32 @@ surveyResponseAnswer.put(
       subject('Charting', { id: answerObject.surveyResponse.surveyId }),
     );
 
+    // spec: ATCH, CAS
+    // Empty content has a defined hash, so a blanked photo stays hash-backed and syncs.
+    const { hash, size } = await req.blobCache.putOutbox(Readable.from([Buffer.from([])]));
+
+    // spec: ATCH, BLAC
+    // The upsert may create the row; an unscoped row would leave its blob unpushable in the outbox.
+    const { encounterId } = answerObject.surveyResponse;
+    const encounter = await models.Encounter.findByPk(encounterId, {
+      attributes: ['patientId'],
+    });
+    if (!encounter) {
+      throw new InvalidOperationError(
+        `Survey response ${answerObject.surveyResponse.id} has no encounter to scope its attachment to`,
+      );
+    }
+
     await db.transaction(async () => {
-      // Blank out the attachment. We need to upsert because the record
-      // might not exist on facility server.
+      // We need to upsert because the record might not exist on facility server.
       await Attachment.upsert({
         id: answerObject.body,
-        data: Buffer.from([]),
+        hash,
+        data: null,
         type: 'image/jpeg',
-        size: 0,
+        size,
+        patientId: encounter.patientId,
+        encounterId,
       });
 
       // Update answer to empty string (needed for logs and table display)

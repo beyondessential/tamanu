@@ -1,4 +1,5 @@
 export { ScheduledTask } from './ScheduledTask';
+export { BlobBackfillTask } from './BlobBackfillTask';
 export { FhirQueueManager } from './fhir/FhirQueueManager';
 export { startFhirWorkerTasks, runStartFhirWorker } from './fhir';
 export { createFhirCommand } from './fhir/fhirCommand';

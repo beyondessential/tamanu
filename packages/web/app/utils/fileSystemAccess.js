@@ -73,7 +73,10 @@ export const saveFile = async ({
     /** @type {FileSystemWritableFileStream} */
     let writable;
     try {
-      const [writable, data] = await Promise.all([fileHandle.createWritable(), getData()]);
+      // Data first: a writable created alongside it would be unreachable, and so unabortable, once
+      // the pair rejected.
+      const data = await getData();
+      writable = await fileHandle.createWritable();
       await writable.write(data);
       await writable.close();
     } catch (error) {

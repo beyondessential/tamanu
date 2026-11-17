@@ -1,4 +1,10 @@
 export { generateId, generateIdFromPattern } from './generateId';
+export {
+  blobPathSegments,
+  formatBlobHash,
+  parseBlobHash,
+  type ParsedBlobHash,
+} from './blobs';
 export { parseScannedDisplayId } from './scannedDisplayId';
 export * from './invoice';
 export {
