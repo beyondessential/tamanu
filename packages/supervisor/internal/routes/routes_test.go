@@ -22,7 +22,8 @@ type generated struct {
 	} `json:"admin"`
 	Apps struct {
 		HTTP struct {
-			Servers map[string]server `json:"servers"`
+			Servers     map[string]server `json:"servers"`
+			GracePeriod time.Duration     `json:"grace_period"`
 		} `json:"http"`
 		TLS    map[string]any `json:"tls"`
 		Tamanu map[string]any `json:"tamanu"`
@@ -226,6 +227,12 @@ func TestAdminDisabled(t *testing.T) {
 	g := build(t, facility())
 	if !g.Admin.Disabled || g.Admin.Config.Persist == nil || *g.Admin.Config.Persist {
 		t.Errorf("admin = %+v", g.Admin)
+	}
+}
+
+func TestGracePeriod(t *testing.T) {
+	if got := build(t, facility()).Apps.HTTP.GracePeriod; got != 10*time.Second {
+		t.Errorf("grace period = %v", got)
 	}
 }
 
