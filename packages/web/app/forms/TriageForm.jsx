@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { Box } from '@material-ui/core';
 import { getAnswersFromData, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
@@ -23,6 +24,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
+import { invalidatePatientDataQueries } from '../utils';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -66,6 +68,7 @@ export const TriageForm = ({
   withExistingEncounterCheck,
 }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const { facilityId, currentUser } = useAuth();
   const navigate = useNavigate();
   const { getSetting } = useSettings();
@@ -246,11 +249,22 @@ export const TriageForm = ({
       facilityId,
     };
 
-    if (typeof onSubmitEncounter === 'function') {
-      await onSubmitEncounter(newTriage);
-    }
+    const triage = await api.post('triage', newTriage);
 
-    await api.post('triage', newTriage);
+    // The encounter exists from here on, so refresh the patient's data before anything that can
+    // fail: a caller reading the current encounter (the appointment check-in button) would
+    // otherwise go on offering to admit a patient who has just been admitted.
+    const patientDataRefreshed = invalidatePatientDataQueries(queryClient, patient.id);
+
+    if (typeof onSubmitEncounter === 'function') {
+      // Only a caller reads the refreshed data, so this is the one path that waits for it; the
+      // redirect below leaves the patient's screen anyway.
+      await patientDataRefreshed;
+      // The triage carries the encounter it opened, so hand that straight over: fetching the
+      // encounter to pass the same id would only add a request that can fail once the triage is
+      // already saved, leaving the caller to retry into a duplicate.
+      await onSubmitEncounter({ id: triage.encounterId });
+    }
 
     if (!noRedirectOnSubmit) {
       navigate('/patients/emergency');
