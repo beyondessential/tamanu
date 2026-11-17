@@ -117,8 +117,8 @@ describe('Reports', () => {
       // Assert
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(permittedReports.length);
-      expect(res.body.map(r => r.id).sort()).toEqual(
-        permittedReports.map(r => `${r.id}_version-1`).sort(),
+      expect(res.body.map((r) => r.id).sort()).toEqual(
+        permittedReports.map((r) => `${r.id}_version-1`).sort(),
       );
     });
   });
