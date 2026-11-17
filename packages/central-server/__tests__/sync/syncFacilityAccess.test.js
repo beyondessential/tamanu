@@ -157,6 +157,16 @@ describe('sync facility access', () => {
       await waitForPullReady(sessionId);
     });
 
+    it("pulls for the session's facilities when the request names an empty list", async () => {
+      const sessionId = await startSession();
+      const response = await post(`/api/sync/${sessionId}/pull/initiate`, {
+        since: 0,
+        facilityIds: [],
+      });
+      expect(response).toHaveSucceeded();
+      await waitForPullReady(sessionId);
+    });
+
     it('refuses a pull naming a facility the session was not started for', async () => {
       const sessionId = await startSession();
       expect(
