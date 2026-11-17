@@ -14,6 +14,12 @@ export class SyncTask extends ScheduledTask {
     const { schedule, jitterTime, enabled } = config.sync;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
+  }
+
+  beginPolling() {
+    super.beginPolling();
+    // Sync straight away rather than at the first scheduled time. Here rather than in the
+    // constructor, so the run is recorded and held like any other (see recordScheduledTaskRuns).
     this.runImmediately();
   }
 

@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { addMilliseconds, addHours, addDays, addMonths, isWithinInterval } from 'date-fns';
 
-import { ScheduledTask } from '../../src/tasks/ScheduledTask';
+import { ScheduledTask, recordScheduledTaskRuns } from '../../src/tasks/ScheduledTask';
 import { log } from '../../src/services/logging/log';
 
 class TestScheduledTask extends ScheduledTask {
@@ -281,6 +281,147 @@ describe('ScheduledTask', () => {
       await task.runImmediately();
 
       expect(hasRun).toBe(true);
+    });
+  });
+
+  describe('run state', () => {
+    const makeRunState = ({ isHeld = false } = {}) => {
+      const calls = [];
+      return {
+        calls,
+        startRun: vi.fn(async name => {
+          calls.push(['start', name]);
+          return !isHeld;
+        }),
+        finishRun: vi.fn(async name => {
+          calls.push(['finish', name]);
+        }),
+        clearRunning: vi.fn(async () => {}),
+      };
+    };
+
+    it('Records the start and finish of a run around it', async () => {
+      const runState = makeRunState();
+      const task = new TestScheduledTask(() => {
+        runState.calls.push(['run']);
+      });
+      task.recordRunsIn(runState);
+
+      expect(await task.runImmediately()).toBe(true);
+
+      expect(runState.calls).toEqual([
+        ['start', 'TestScheduledTask'],
+        ['run'],
+        ['finish', 'TestScheduledTask'],
+      ]);
+    });
+
+    it('Records the finish of a run that fails', async () => {
+      const runState = makeRunState();
+      const task = new TestScheduledTask(() => {
+        throw new Error('task failed');
+      });
+      task.recordRunsIn(runState);
+
+      expect(await task.runImmediately()).toBe(false);
+
+      expect(runState.finishRun).toHaveBeenCalledWith('TestScheduledTask');
+    });
+
+    it('Skips a run while scheduled tasks are held', async () => {
+      const runState = makeRunState({ isHeld: true });
+      let hasRun = false;
+      const task = new TestScheduledTask(() => {
+        hasRun = true;
+      });
+      task.recordRunsIn(runState);
+
+      expect(await task.runImmediately()).toBe(false);
+
+      expect(hasRun).toBe(false);
+      expect(runState.finishRun).not.toHaveBeenCalled();
+    });
+
+    it('Does not record a run when the queue is empty', async () => {
+      const runState = makeRunState();
+      const task = new TestQueuedScheduledTask();
+      task.recordRunsIn(runState);
+
+      await task.runImmediately();
+
+      expect(runState.startRun).not.toHaveBeenCalled();
+    });
+
+    it('Runs the task when recording its start fails', async () => {
+      const runState = makeRunState();
+      runState.startRun.mockRejectedValue(new Error('database unavailable'));
+      let hasRun = false;
+      const task = new TestScheduledTask(() => {
+        hasRun = true;
+      });
+      task.recordRunsIn(runState);
+
+      expect(await task.runImmediately()).toBe(true);
+
+      expect(hasRun).toBe(true);
+      // nothing was recorded as started, so there is nothing to finish
+      expect(runState.finishRun).not.toHaveBeenCalled();
+    });
+
+    it('Succeeds when recording the finish fails', async () => {
+      const runState = makeRunState();
+      runState.finishRun.mockRejectedValue(new Error('database unavailable'));
+      const task = new TestScheduledTask(() => {});
+      task.recordRunsIn(runState);
+
+      expect(await task.runImmediately()).toBe(true);
+    });
+
+    it('Records the runs of subtasks, and a held subtask stops its parent', async () => {
+      const runState = makeRunState({ isHeld: true });
+      let hasParentRun = false;
+      const parentTask = new TestScheduledTask(() => {
+        hasParentRun = true;
+      });
+      class TestSubtask extends TestScheduledTask {
+        getName() {
+          return 'TestSubtask';
+        }
+      }
+      parentTask.subtasks = [new TestSubtask()];
+      parentTask.recordRunsIn(runState);
+
+      await parentTask.runImmediately();
+
+      expect(runState.startRun).toHaveBeenCalledWith('TestSubtask');
+      expect(hasParentRun).toBe(false);
+    });
+
+    it('Clears the running state of the tasks it starts recording, subtasks included', async () => {
+      const runState = makeRunState();
+      class TestSubtask extends TestScheduledTask {
+        getName() {
+          return 'TestSubtask';
+        }
+      }
+      const parentTask = new TestScheduledTask();
+      parentTask.subtasks = [new TestSubtask()];
+
+      await recordScheduledTaskRuns([parentTask], { ScheduledTaskState: runState });
+
+      expect(runState.clearRunning).toHaveBeenCalledWith(['TestScheduledTask', 'TestSubtask']);
+      expect(parentTask.runState).toBe(runState);
+      expect(parentTask.subtasks[0].runState).toBe(runState);
+    });
+
+    it('Records runs even when clearing the running state fails', async () => {
+      const runState = makeRunState();
+      runState.clearRunning.mockRejectedValue(new Error('database unavailable'));
+      const task = new TestScheduledTask();
+
+      await recordScheduledTaskRuns([task], { ScheduledTaskState: runState });
+
+      expect(task.runState).toBe(runState);
     });
   });
 });
