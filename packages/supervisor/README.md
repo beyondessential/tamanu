@@ -17,23 +17,31 @@ go test ./...
 The `-X` flag sets the release the supervisor belongs to. A build without it reports its release as
 `dev`, and skips the check that the server runs the same release line before sleeping.
 
-The image is the root Dockerfile's `supervisor` target, stamped with the release in the root
-`package.json`. It carries the built web app at `/srv/web`, with Tamanu's error pages, and the
-patient portal at `/srv/patient-portal`, and sets `TAMANU_SUPERVISOR_WEB_ROOT` and
-`TAMANU_SUPERVISOR_PORTAL_ROOT` to them. It runs as a non-root user. From the repository root:
+The supervisor's image is the release's frontend image, the root Dockerfile's `frontend` target,
+stamped with the release in the root `package.json`. It carries the built web app at `/srv/web`, with
+Tamanu's error pages, and the patient portal at `/srv/patient-portal`, and sets
+`TAMANU_SUPERVISOR_WEB_ROOT` and `TAMANU_SUPERVISOR_PORTAL_ROOT` to them. It runs as a non-root
+user. From the repository root:
 
 ```sh
-docker build --target supervisor -t tamanu-supervisor .
+docker build --target frontend -t tamanu-frontend .
 ```
+
+The binary is installed as `/usr/bin/caddy`, the image's entrypoint. By default the image runs
+`caddy run` with the web app's `Caddyfile.docker`, serving the web app alone at `/app` on port 3000,
+for deployments that route to the server's parts themselves. The `patient-portal` target does the
+same for the patient portal. To run the supervisor instead, give the image the command
+`tamanu-supervisor` and its environment. A deployment runs one or the other in front of a server,
+never both.
 
 No `xcaddy` is needed: `cmd/supervisor` imports Caddy's standard modules, `caddy-ratelimit` and
 Tamanu's modules, then runs Caddy's own command line.
 
 ## Running
 
-Run with no arguments, the binary runs `caddy tamanu-supervisor`, which builds Caddy's configuration
-from the environment in memory and runs it, with Caddy's admin API disabled. Caddy's other commands
-(`version`, `list-modules` and so on) stay available.
+`supervisor tamanu-supervisor` builds Caddy's configuration from the environment in memory and runs
+it, with Caddy's admin API disabled. Caddy's other commands (`run`, `version`, `list-modules` and so
+on) stay available, and the binary runs any Caddyfile that Caddy's standard modules can.
 
 A blank value counts as unset, and an unknown `TAMANU_SUPERVISOR_` variable is an error.
 

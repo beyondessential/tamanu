@@ -103,28 +103,6 @@ node --import tsx ../scripts/src/scrubSeedSecrets.mts\
 "]
 
 
-## Build the frontend packages (web or patient-portal)
-FROM build-base AS build-frontend-base
-ARG PACKAGE_PATH
-COPY packages/ packages/
-RUN DOCKER_BUILD=1 scripts/docker-build.sh ${PACKAGE_PATH}
-
-## Minimal image to serve frontend packages
-FROM alpine AS frontend-base
-ARG PACKAGE_PATH
-WORKDIR /app
-ENTRYPOINT ["/usr/bin/caddy"]
-CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
-COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
-COPY packages/${PACKAGE_PATH}/Caddyfile.docker /etc/caddy/Caddyfile
-COPY --from=build-frontend-base /app/packages/${PACKAGE_PATH}/dist/ .
-
-## Specific targets for each frontend
-FROM frontend-base AS frontend
-
-FROM frontend-base AS patient-portal
-
-
 ## Build the supervisor, stamped with the Tamanu release from the root package.json
 FROM golang:1.27-alpine AS build-supervisor
 WORKDIR /src
@@ -138,25 +116,45 @@ RUN version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' /tamanu/package.json)
     -ldflags "-X github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo.Version=${version}" \
     -o /supervisor ./cmd/supervisor
 
-## Build the web app and patient portal the supervisor serves
-FROM build-base AS build-supervisor-frontends
+## Build the web app
+FROM build-base AS build-web
 COPY packages/ packages/
-RUN DOCKER_BUILD=1 scripts/docker-build.sh web \
-  && DOCKER_BUILD=1 scripts/docker-build.sh patient-portal
+RUN DOCKER_BUILD=1 scripts/docker-build.sh web
 
-## Minimal image running the supervisor, with the web app and patient portal it serves.
+## Build the patient portal
+FROM build-base AS build-patient-portal
+COPY packages/ packages/
+RUN DOCKER_BUILD=1 scripts/docker-build.sh patient-portal
+
+## Minimal image to serve frontend packages, with the supervisor as its Caddy.
+## By default it serves the frontend at /app with its Caddyfile, for deployments that
+## route to the server's parts themselves; started with `tamanu-supervisor` it runs the supervisor.
+FROM alpine AS frontend-base
+RUN adduser -D -u 10001 supervisor
+COPY --from=build-supervisor /supervisor /usr/bin/caddy
+ENTRYPOINT ["/usr/bin/caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+
+## The web app's image, which is also the supervisor's: it carries the patient portal too.
 ## The web app's dist lacks Tamanu's error pages, so they are copied in beside it.
-FROM alpine AS supervisor
-RUN adduser -D -H -u 10001 supervisor
-COPY --from=build-supervisor /supervisor /usr/bin/supervisor
-COPY --from=build-supervisor-frontends /app/packages/web/dist/ /srv/web/
+FROM frontend-base AS frontend
+COPY --from=build-web /app/packages/web/dist/ /srv/web/
 COPY packages/web/resources/errors/ /srv/web/resources/errors/
-COPY --from=build-supervisor-frontends /app/packages/patient-portal/dist/ /srv/patient-portal/
+COPY --from=build-patient-portal /app/packages/patient-portal/dist/ /srv/patient-portal/
+COPY packages/web/Caddyfile.docker /etc/caddy/Caddyfile
+RUN ln -s /srv/web /app
 ENV TAMANU_SUPERVISOR_WEB_ROOT=/srv/web \
   TAMANU_SUPERVISOR_PORTAL_ROOT=/srv/patient-portal
 USER supervisor
-EXPOSE 8080
-ENTRYPOINT ["/usr/bin/supervisor", "tamanu-supervisor"]
+EXPOSE 3000 8080
+
+## The patient portal's image, for deployments that route to the server's parts themselves
+FROM frontend-base AS patient-portal
+COPY --from=build-patient-portal /app/packages/patient-portal/dist/ /srv/patient-portal/
+COPY packages/patient-portal/Caddyfile.docker /etc/caddy/Caddyfile
+RUN ln -s /srv/patient-portal /app
+USER supervisor
+EXPOSE 3000
 
 
 ## Toolbox image
