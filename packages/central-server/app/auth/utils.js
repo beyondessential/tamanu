@@ -36,6 +36,9 @@ export const buildToken = async (data, secret, options) => {
   if (!secret) {
     secret = getAuthSecret();
   }
+  if (!secret) {
+    throw new Error('Token signing secret is not configured: set AUTH_SECRET');
+  }
 
   if (typeof secret === 'string') {
     secret = createSecretKey(new TextEncoder().encode(secret));

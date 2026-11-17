@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import config from 'config';
 
-import { assertAuthSecretsConfigured } from '../../app/auth/utils';
+import { assertAuthSecretsConfigured, buildToken } from '../../app/auth/utils';
 
 // spec: SETTINGS
 describe('assertAuthSecretsConfigured', () => {
@@ -66,5 +66,16 @@ describe('assertAuthSecretsConfigured', () => {
   it('throws when a secret is only whitespace', () => {
     process.env.AUTH_REFRESH_TOKEN_SECRET = '   ';
     expect(() => assertAuthSecretsConfigured()).toThrow(/set AUTH_REFRESH_TOKEN_SECRET$/);
+  });
+
+  it('refuses to build a token without a signing secret', async () => {
+    config.auth.secret = null;
+    await expect(
+      buildToken({ userId: 'user' }, null, {
+        expiresIn: '1h',
+        audience: 'access',
+        issuer: 'issuer',
+      }),
+    ).rejects.toThrow(/set AUTH_SECRET$/);
   });
 });
