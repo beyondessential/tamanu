@@ -284,7 +284,8 @@ func TestSmoke(t *testing.T) {
 
 // spec: SUPV#front-door
 func TestSmokeErrorPages(t *testing.T) {
-	down := freeAddr(t)
+	// Nothing listens on port 1, unlike a freed port another test may take.
+	down := "127.0.0.1:1"
 	c := config.Config{
 		Role:         config.Facility,
 		Listen:       freeAddr(t),
