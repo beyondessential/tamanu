@@ -1,0 +1,130 @@
+openapi: 3.1.0
+info:
+  title: Tamanu supervisor actuator
+  version: 1.0.0
+  description: |
+    The contract between a Tamanu server's supervisor and its platform's
+    actuator: the platform's component that starts and stops the server's
+    parts and reports on them. The platform implements it; the supervisor is
+    its only client, and finds it through `TAMANU_SUPERVISOR_ACTUATOR_URL`.
+    Paths are relative to that URL.
+
+    The supervisor sets the desired state of each part (up or down) rather
+    than sending commands, so a repeated request cannot leave the server half
+    started. Setting a desired state returns at once: the actuator applies it
+    in the background, and the supervisor polls `GET /v1/state` until each
+    part it changed is ready or stopped. No request blocks on a part starting
+    or stopping.
+
+    The parts are `database`, `api`, `web`, `portal`, `sync`, `tasks` and
+    `fhir`. Every part is always reported. A part the platform does not run,
+    such as the patient portal on a facility server, reports `ready` while its
+    desired state is up and `stopped` while it is down, and changes between
+    them at once.
+
+    An actuator that does not control the server's parts reports
+    `controlsParts: false`. It still reports on the parts and on upgrades, and
+    the supervisor never puts its server to sleep, nor sets any part's desired
+    state.
+
+    `upgrading` is true while an upgrade of the server is in progress. The
+    supervisor neither puts the server to sleep nor wakes it while it is, and
+    answers every request with an upgrading response.
+
+    Requests always reach the server through its supervisor, whatever state
+    the actuator puts the parts in. Each version of this contract stays
+    supported by the actuator for as long as a deployed Tamanu release uses
+    it; a change that is not backwards compatible is a new version under a new
+    path prefix.
+servers:
+  - url: http://actuator.example
+paths:
+  /v1/state:
+    get:
+      operationId: getState
+      summary: The state of the server's parts, and whether an upgrade is in progress
+      responses:
+        "200":
+          description: The current state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/State"
+    put:
+      operationId: setDesiredState
+      summary: Set the desired state of some of the server's parts
+      description: |
+        Only the parts named change their desired state; the others keep
+        theirs. Setting a part to the state it already desires does nothing,
+        so the request can be repeated safely. The actuator answers once it
+        has recorded the desired state, without waiting for any part to start
+        or stop.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DesiredState"
+      responses:
+        "202":
+          description: Accepted. The body is the state as it stands after recording the change.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/State"
+        "400":
+          description: The body names an unknown part or state.
+        "409":
+          description: The actuator does not control the server's parts.
+components:
+  schemas:
+    Part:
+      type: string
+      enum: [database, api, web, portal, sync, tasks, fhir]
+    Desired:
+      type: string
+      enum: [up, down]
+      description: Whether the part should be running.
+    Observed:
+      type: string
+      enum: [starting, ready, stopping, stopped, failed]
+      description: |
+        What the part is doing. `ready` means it serves requests; `stopped`
+        means it is not running. `failed` means it cannot reach its desired
+        state without help, such as a part that keeps crashing.
+    PartState:
+      type: object
+      required: [desired, observed]
+      properties:
+        desired:
+          $ref: "#/components/schemas/Desired"
+        observed:
+          $ref: "#/components/schemas/Observed"
+    State:
+      type: object
+      required: [controlsParts, upgrading, parts]
+      properties:
+        controlsParts:
+          type: boolean
+          description: Whether the actuator starts and stops the server's parts.
+        upgrading:
+          type: boolean
+          description: Whether an upgrade of the server is in progress.
+        parts:
+          type: object
+          description: Every part, by name.
+          propertyNames:
+            $ref: "#/components/schemas/Part"
+          additionalProperties:
+            $ref: "#/components/schemas/PartState"
+    DesiredState:
+      type: object
+      required: [parts]
+      properties:
+        parts:
+          type: object
+          description: The parts to change, by name.
+          propertyNames:
+            $ref: "#/components/schemas/Part"
+          additionalProperties:
+            $ref: "#/components/schemas/Desired"
