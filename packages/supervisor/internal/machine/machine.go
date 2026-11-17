@@ -30,6 +30,12 @@ type Actuator interface {
 	State(ctx context.Context) (actuator.State, error)
 	Set(ctx context.Context, parts map[state.Part]actuator.Desired) (actuator.State, error)
 	Await(ctx context.Context, parts []state.Part, want actuator.Observed, timeout time.Duration, seen func(actuator.State)) error
+	TakeLease(ctx context.Context, holder string, ttl time.Duration) (actuator.LeaseInfo, error)
+	RenewLease(ctx context.Context, holder string, ttl time.Duration) (actuator.LeaseInfo, error)
+	ReleaseLease(ctx context.Context) error
+	SavedState(ctx context.Context) ([]byte, bool, error)
+	SaveState(ctx context.Context, doc []byte) error
+	Report(ctx context.Context, instance string, r actuator.Report, ttl time.Duration) error
 }
 
 // API is the part of the api client the machine uses.
@@ -55,6 +61,17 @@ type Timing struct {
 	// WakeBackoffMax.
 	WakeBackoff    time.Duration
 	WakeBackoffMax time.Duration
+	// LeaseTTL is how long the lease lasts unless renewed, every LeaseRenew.
+	// A supervisor that cannot renew it within LeaseTTL-LeaseRenew of the last
+	// renewal stops acting, before the lease can expire under it.
+	LeaseTTL   time.Duration
+	LeaseRenew time.Duration
+	// LeaseRetry is how often a supervisor waiting for the lease asks for it.
+	LeaseRetry time.Duration
+	// ReportEvery is how often the supervisor reports its activity, each
+	// report lasting ReportTTL.
+	ReportEvery time.Duration
+	ReportTTL   time.Duration
 }
 
 // DefaultTiming is the timing in production, with the given idle time.
@@ -66,6 +83,11 @@ func DefaultTiming(idle time.Duration) Timing {
 		PartTimeout:    10 * time.Minute,
 		WakeBackoff:    5 * time.Second,
 		WakeBackoffMax: 2 * time.Minute,
+		LeaseTTL:       30 * time.Second,
+		LeaseRenew:     10 * time.Second,
+		LeaseRetry:     2 * time.Second,
+		ReportEvery:    10 * time.Second,
+		ReportTTL:      30 * time.Second,
 	}
 }
 
@@ -77,7 +99,10 @@ type Config struct {
 	Parts []state.Part
 	// Release is the supervisor's own release.
 	Release string
-	Timing  Timing
+	// Instance identifies this supervisor to the actuator, as the lease's
+	// holder and in its reports.
+	Instance string
+	Timing   Timing
 }
 
 // The steps of going to sleep, by the name persisted once each completes.
@@ -99,12 +124,14 @@ var (
 
 // Machine is the sleep and wake state machine.
 type Machine struct {
-	cfg   Config
-	st    *state.Server
-	act   Actuator
-	api   API
-	store *persist.Store
-	log   *zap.Logger
+	cfg Config
+	st  *state.Server
+	act Actuator
+	api API
+	log *zap.Logger
+
+	// holding is whether this supervisor holds the lease.
+	holding atomic.Bool
 
 	// changed is notified when the actuator's upgrading or controlsParts
 	// changes.
@@ -118,25 +145,153 @@ type Machine struct {
 	devLogged   bool
 }
 
-// New returns a machine over the shared state st.
-func New(cfg Config, st *state.Server, act Actuator, api API, store *persist.Store, log *zap.Logger) *Machine {
+// New returns a machine over the shared state st. Until it holds the lease,
+// st serves no requests.
+func New(cfg Config, st *state.Server, act Actuator, api API, log *zap.Logger) *Machine {
+	st.SetServing(false)
 	return &Machine{
 		cfg:     cfg,
 		st:      st,
 		act:     act,
 		api:     api,
-		store:   store,
-		log:     log,
+		log:     log.With(zap.String("instance", cfg.Instance)),
 		changed: make(chan struct{}, 1),
 	}
 }
+
+// HoldsLease reports whether this supervisor holds the actuator's lease.
+func (m *Machine) HoldsLease() bool { return m.holding.Load() }
 
 // ControlsParts reports whether the actuator last said it controls the
 // server's parts, and so whether the server can sleep.
 func (m *Machine) ControlsParts() bool { return m.controls.Load() }
 
-// Run runs the machine until ctx is done.
+// Run runs the machine until ctx is done: it waits for the lease, acts while
+// it holds it, and waits again if it loses it. It does not release the lease;
+// ReleaseLease does.
+//
+// spec: SUPV#resilience
 func (m *Machine) Run(ctx context.Context) {
+	var reporter sync.WaitGroup
+	reporter.Go(func() { m.report(ctx) })
+	defer reporter.Wait()
+
+	for ctx.Err() == nil {
+		if !m.acquire(ctx) {
+			return
+		}
+		tenure, lose := context.WithCancel(ctx)
+		var keeper sync.WaitGroup
+		keeper.Go(func() { m.keepLease(tenure, lose) })
+		m.actAsHolder(tenure)
+		lose()
+		keeper.Wait()
+		m.st.SetServing(false)
+		m.holding.Store(false)
+	}
+}
+
+// ReleaseLease stops serving and gives up the lease at once, so a supervisor
+// replacing this one need not wait for it to expire. Cancel Run's context
+// first, or Run may take the lease again.
+func (m *Machine) ReleaseLease() {
+	m.st.SetServing(false)
+	if !m.holding.Swap(false) {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := m.act.ReleaseLease(ctx); err != nil {
+		m.log.Warn("releasing the actuator's lease", zap.Error(err))
+		return
+	}
+	m.log.Info("released the actuator's lease")
+}
+
+// acquire waits until this supervisor takes the lease. It reports false if
+// ctx ended first.
+func (m *Machine) acquire(ctx context.Context) bool {
+	waiting := false
+	for {
+		_, err := m.act.TakeLease(ctx, m.cfg.Instance, m.cfg.Timing.LeaseTTL)
+		if err == nil {
+			m.holding.Store(true)
+			m.log.Info("took the actuator's lease")
+			return true
+		}
+		if ctx.Err() != nil {
+			return false
+		}
+		if !waiting {
+			m.log.Info("waiting for the actuator's lease", zap.Error(err))
+			waiting = true
+		}
+		if !sleepCtx(ctx, m.cfg.Timing.LeaseRetry) {
+			return false
+		}
+	}
+}
+
+// keepLease renews the lease until ctx ends, and calls lose, having stopped
+// serving, as soon as the lease is lost or may have expired.
+func (m *Machine) keepLease(ctx context.Context, lose context.CancelFunc) {
+	t := m.cfg.Timing
+	ticker := time.NewTicker(t.LeaseRenew)
+	defer ticker.Stop()
+	renewed := time.Now()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+		_, err := m.act.RenewLease(ctx, m.cfg.Instance, t.LeaseTTL)
+		switch {
+		case err == nil:
+			renewed = time.Now()
+		case ctx.Err() != nil:
+			return
+		case actuator.IsConflict(err) || time.Since(renewed) >= t.LeaseTTL-t.LeaseRenew:
+			m.log.Warn("lost the actuator's lease", zap.Error(err))
+			m.st.SetServing(false)
+			lose()
+			return
+		default:
+			m.log.Warn("renewing the actuator's lease", zap.Error(err))
+		}
+	}
+}
+
+// report sends this supervisor's report to the actuator until ctx ends.
+//
+// spec: SLPWK#actuator-contract
+func (m *Machine) report(ctx context.Context) {
+	ticker := time.NewTicker(m.cfg.Timing.ReportEvery)
+	defer ticker.Stop()
+	var sent time.Time
+	for {
+		snap := m.st.Snapshot()
+		now := time.Now()
+		r := actuator.Report{
+			LastActivity:  snap.LastActivity.UTC(),
+			InFlight:      snap.InFlight,
+			WakeRequested: snap.LastWakeRequest.After(sent),
+		}
+		if err := m.act.Report(ctx, m.cfg.Instance, r, m.cfg.Timing.ReportTTL); err == nil {
+			sent = now
+		} else if ctx.Err() == nil {
+			m.log.Warn("reporting to the actuator", zap.Error(err))
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+	}
+}
+
+// actAsHolder runs the machine while this supervisor holds the lease.
+func (m *Machine) actAsHolder(ctx context.Context) {
 	s, ok := m.readActuator(ctx)
 	if !ok {
 		return
@@ -145,9 +300,15 @@ func (m *Machine) Run(ctx context.Context) {
 	pollers.Go(func() { m.pollActuator(ctx) })
 	defer pollers.Wait()
 
-	// spec: SUPV#upgrades
-	if !m.waitUpgrade(ctx) {
-		return
+	if s.Upgrading {
+		// spec: SUPV#upgrades
+		m.serveAs(state.Waking, s)
+		if !m.waitUpgrade(ctx) {
+			return
+		}
+		if s, ok = m.readActuator(ctx); !ok {
+			return
+		}
 	}
 	m.resume(ctx, s)
 	for ctx.Err() == nil {
@@ -202,43 +363,73 @@ func (m *Machine) observe(s actuator.State) {
 	}
 }
 
+// resume sets the server's state from the saved state and what the actuator
+// reports, starts serving, and finishes an interrupted sleep or wake.
+//
 // spec: SUPV#resilience
 func (m *Machine) resume(ctx context.Context, s actuator.State) {
 	if !m.controls.Load() {
 		m.setAwake()
+		m.st.SetServing(true)
 		return
 	}
-	rec, found, err := m.store.Load()
-	if err != nil {
-		m.log.Warn("reading the persisted state; continuing as though there were none", zap.Error(err))
-		found = false
-	}
+	rec, found := m.load(ctx)
 	if found {
 		m.st.RestoreFailure(rec.LastFailure)
 	}
 	sameLine := found && buildinfo.SameLine(rec.Release, m.cfg.Release)
-	log := m.log.With(zap.String("persisted_phase", string(rec.Phase)), zap.String("persisted_step", rec.Step),
-		zap.String("persisted_release", rec.Release))
+	log := m.log.With(zap.String("saved_phase", string(rec.Phase)), zap.String("saved_step", rec.Step),
+		zap.String("saved_release", rec.Release))
 
 	switch {
 	case found && rec.Phase == state.Asleep && sameLine && s.AllDesired(m.cfg.Parts, actuator.Down):
 		log.Info("starting on an asleep server; keeping it asleep")
-		m.st.SetAllReady(false)
-		m.st.SetPhase(state.Asleep)
+		m.serveAs(state.Asleep, s)
 	case found && rec.Phase == state.GoingToSleep && sameLine:
 		log.Info("continuing an interrupted sleep")
+		m.serveAs(state.GoingToSleep, s)
 		m.goToSleep(ctx, rec.Step)
 	case found && rec.Phase != state.Awake:
 		// spec: SLPWK#rollouts
 		log.Info("waking the server on start")
+		m.serveAs(state.Waking, s)
 		m.wake(ctx)
 	case s.AllObserved(m.cfg.Parts, actuator.Ready):
-		m.persistOrLog(state.Awake, "")
-		m.setAwake()
+		m.persistOrLog(ctx, state.Awake, "")
+		m.serveAs(state.Awake, s)
 	default:
 		log.Info("starting with parts not ready; waking the server")
+		m.serveAs(state.Waking, s)
 		m.wake(ctx)
 	}
+}
+
+// serveAs sets the phase, and each part ready as the actuator observes it,
+// then starts serving.
+func (m *Machine) serveAs(phase state.Phase, s actuator.State) {
+	for _, p := range m.cfg.Parts {
+		m.st.SetReady(p, s.Parts[p].Observed == actuator.Ready)
+	}
+	m.st.SetPhase(phase)
+	m.st.SetServing(true)
+}
+
+// load reads the saved state. found is false when there is none this
+// supervisor can use.
+func (m *Machine) load(ctx context.Context) (rec persist.Record, found bool) {
+	doc, saved, err := m.act.SavedState(ctx)
+	if err != nil {
+		m.log.Warn("reading the saved state; continuing as though there were none", zap.Error(err))
+		return persist.Record{}, false
+	}
+	if !saved {
+		return persist.Record{}, false
+	}
+	rec, found, err = persist.Decode(doc)
+	if err != nil || !found {
+		m.log.Warn("the saved state cannot be used; continuing as though there were none", zap.Error(err))
+	}
+	return rec, found
 }
 
 // next waits for and makes the next transition.
@@ -356,13 +547,13 @@ func (m *Machine) goToSleep(ctx context.Context, from string) {
 
 	var failedStep string
 	var err error
-	if err = m.persist(state.GoingToSleep, from); err != nil {
+	if err = m.persist(ctx, state.GoingToSleep, from); err != nil {
 		failedStep = "persisting"
 	} else {
 		steps := m.sleepSteps()
 		for _, s := range steps[resumeIndex(steps, from):] {
 			if err = s.run(sleepCtx); err == nil {
-				err = m.persist(state.GoingToSleep, s.name)
+				err = m.persist(ctx, state.GoingToSleep, s.name)
 			}
 			if err != nil || sleepCtx.Err() != nil {
 				failedStep = s.name
@@ -384,7 +575,7 @@ func (m *Machine) goToSleep(ctx context.Context, from string) {
 	case errors.Is(err, errBusy):
 		m.log.Info("not sleeping", zap.Error(err))
 		m.nextAttempt = time.Now().Add(m.cfg.Timing.BusyRecheck)
-		m.persistOrLog(state.Awake, "")
+		m.persistOrLog(ctx, state.Awake, "")
 		m.st.SetPhase(state.Awake)
 	case err != nil:
 		m.fail(fmt.Sprintf("going to sleep, at %s: %v", failedStep, err))
@@ -393,7 +584,7 @@ func (m *Machine) goToSleep(ctx context.Context, from string) {
 	default:
 		m.st.SetFailure("")
 		m.wakeFailed = false
-		m.persistOrLog(state.Asleep, "")
+		m.persistOrLog(ctx, state.Asleep, "")
 		m.st.SetPhase(state.Asleep)
 		m.log.Info("asleep")
 	}
@@ -485,16 +676,26 @@ func (m *Machine) stop(ctx context.Context, parts ...state.Part) error {
 		m.st.SetReady(p, false)
 		desired[p] = actuator.Down
 	}
-	if _, err := m.act.Set(context.WithoutCancel(ctx), desired); err != nil {
+	if err := m.set(context.WithoutCancel(ctx), desired); err != nil {
 		return err
 	}
-	return m.act.Await(ctx, parts, actuator.Stopped, m.cfg.Timing.PartTimeout, nil)
+	return m.act.Await(ctx, parts, actuator.Stopped, m.cfg.Timing.PartTimeout, m.observe)
+}
+
+// set sets parts' desired states, and observes the state the actuator
+// answers with, so an upgrade it reports is seen before the next poll.
+func (m *Machine) set(ctx context.Context, desired map[state.Part]actuator.Desired) error {
+	s, err := m.act.Set(ctx, desired)
+	if err == nil {
+		m.observe(s)
+	}
+	return err
 }
 
 // spec: SLPWK#waking
 func (m *Machine) wake(ctx context.Context) {
 	m.st.SetPhase(state.Waking)
-	m.persistOrLog(state.Waking, "")
+	m.persistOrLog(ctx, state.Waking, "")
 	backoff := m.cfg.Timing.WakeBackoff
 	for {
 		// spec: SUPV#upgrades
@@ -514,7 +715,7 @@ func (m *Machine) wake(ctx context.Context) {
 		}
 		m.fail(fmt.Sprintf("waking: %v", err))
 		m.wakeFailed = true
-		m.persistOrLog(state.Waking, "")
+		m.persistOrLog(ctx, state.Waking, "")
 		if !sleepCtx(ctx, backoff) {
 			return
 		}
@@ -532,7 +733,7 @@ func (m *Machine) wake(ctx context.Context) {
 		m.st.SetFailure("")
 		m.wakeFailed = false
 	}
-	m.persistOrLog(state.Awake, "")
+	m.persistOrLog(ctx, state.Awake, "")
 	m.setAwake()
 	drain(m.st.WakeRequests())
 	m.log.Info("awake")
@@ -540,13 +741,14 @@ func (m *Machine) wake(ctx context.Context) {
 
 func (m *Machine) wakeOnce(ctx context.Context) error {
 	markReady := func(s actuator.State) {
+		m.observe(s)
 		for _, p := range m.cfg.Parts {
 			if s.Parts[p].Observed == actuator.Ready {
 				m.st.SetReady(p, true)
 			}
 		}
 	}
-	if _, err := m.act.Set(ctx, map[state.Part]actuator.Desired{state.Database: actuator.Up}); err != nil {
+	if err := m.set(ctx, map[state.Part]actuator.Desired{state.Database: actuator.Up}); err != nil {
 		return err
 	}
 	if err := m.act.Await(ctx, []state.Part{state.Database}, actuator.Ready, m.cfg.Timing.PartTimeout, markReady); err != nil {
@@ -557,7 +759,7 @@ func (m *Machine) wakeOnce(ctx context.Context) error {
 	for _, p := range rest {
 		desired[p] = actuator.Up
 	}
-	if _, err := m.act.Set(ctx, desired); err != nil {
+	if err := m.set(ctx, desired); err != nil {
 		return err
 	}
 	return m.act.Await(ctx, rest, actuator.Ready, m.cfg.Timing.PartTimeout, markReady)
@@ -596,20 +798,25 @@ func (m *Machine) fail(message string) {
 	m.st.SetFailure(message)
 }
 
-// persist records phase and step. Callers persist a phase before setting it
-// in the shared state, so the status never reports what is not on disk.
-func (m *Machine) persist(phase state.Phase, step string) error {
-	return m.store.Save(persist.Record{
+// persist saves phase and step with the actuator. Callers persist a phase
+// before setting it in the shared state, so the status never reports what is
+// not saved.
+func (m *Machine) persist(ctx context.Context, phase state.Phase, step string) error {
+	doc, err := persist.Encode(persist.Record{
 		Release:     m.cfg.Release,
 		Phase:       phase,
 		Step:        step,
 		LastFailure: m.st.Snapshot().LastFailure,
 		UpdatedAt:   time.Now().UTC(),
 	})
+	if err != nil {
+		return err
+	}
+	return m.act.SaveState(ctx, doc)
 }
 
-func (m *Machine) persistOrLog(phase state.Phase, step string) {
-	if err := m.persist(phase, step); err != nil {
+func (m *Machine) persistOrLog(ctx context.Context, phase state.Phase, step string) {
+	if err := m.persist(ctx, phase, step); err != nil {
 		m.log.Error("persisting the supervisor's state", zap.Error(err))
 	}
 }

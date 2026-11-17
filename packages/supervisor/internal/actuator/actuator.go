@@ -13,7 +13,9 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
@@ -51,6 +53,11 @@ type State struct {
 	ControlsParts bool                     `json:"controlsParts"`
 	Upgrading     bool                     `json:"upgrading"`
 	Parts         map[state.Part]PartState `json:"parts"`
+	// Lease is the lease's holder, or nil when nobody holds it.
+	Lease *LeaseInfo `json:"lease,omitempty"`
+	// Reports are the supervisors' reports that have not expired, by
+	// instance.
+	Reports map[string]Report `json:"reports,omitempty"`
 }
 
 // DesiredState is the body that sets parts' desired states.
@@ -67,6 +74,8 @@ type Client struct {
 	RequestTimeout time.Duration
 	// PollInterval is how often Await asks for the state.
 	PollInterval time.Duration
+
+	token atomic.Int64
 }
 
 // NewClient returns a client for the actuator at base.
@@ -82,14 +91,15 @@ func NewClient(base *url.URL) *Client {
 // State gets the actuator's state.
 func (c *Client) State(ctx context.Context) (State, error) {
 	var s State
-	err := c.do(ctx, http.MethodGet, nil, http.StatusOK, &s)
+	err := c.do(ctx, http.MethodGet, "state", nil, &s, http.StatusOK)
 	return s, err
 }
 
-// Set sets the desired state of the parts named, leaving the others.
+// Set sets the desired state of the parts named, leaving the others. It needs
+// the lease.
 func (c *Client) Set(ctx context.Context, parts map[state.Part]Desired) (State, error) {
 	var s State
-	err := c.do(ctx, http.MethodPut, DesiredState{Parts: parts}, http.StatusAccepted, &s)
+	err := c.do(ctx, http.MethodPut, "state", DesiredState{Parts: parts}, &s, http.StatusAccepted, http.StatusOK)
 	return s, err
 }
 
@@ -162,40 +172,69 @@ func partList(parts []state.Part) string {
 	return strings.Join(names, ", ")
 }
 
-func (c *Client) do(ctx context.Context, method string, body any, wantStatus int, out any) error {
+// do makes a request to path under /v1, encoding body as JSON unless it is
+// a []byte, and decoding the answer into out unless out is nil. An answer of
+// 409 Conflict is an *ErrConflict; any other status not in ok is an error.
+func (c *Client) do(ctx context.Context, method, path string, body, out any, ok ...int) error {
+	status, b, err := c.request(ctx, method, path, body)
+	if err != nil {
+		return err
+	}
+	if status == http.StatusConflict {
+		conflict := &ErrConflict{Method: method, Path: path}
+		_ = json.Unmarshal(b, &conflict.Lease)
+		return conflict
+	}
+	if !slices.Contains(ok, status) {
+		return fmt.Errorf("actuator: %s /v1/%s answered %d: %s", method, path, status, strings.TrimSpace(string(b)))
+	}
+	if out == nil {
+		return nil
+	}
+	if raw, isRaw := out.(*[]byte); isRaw {
+		*raw = b
+		return nil
+	}
+	if err := json.Unmarshal(b, out); err != nil {
+		return fmt.Errorf("actuator: reading %s /v1/%s: %w", method, path, err)
+	}
+	return nil
+}
+
+func (c *Client) request(ctx context.Context, method, path string, body any) (int, []byte, error) {
 	ctx, cancel := context.WithTimeout(ctx, c.RequestTimeout)
 	defer cancel()
 
 	var reader io.Reader
-	if body != nil {
-		b, err := json.Marshal(body)
-		if err != nil {
-			return err
-		}
+	switch b := body.(type) {
+	case nil:
+	case []byte:
 		reader = bytes.NewReader(b)
+	default:
+		encoded, err := json.Marshal(body)
+		if err != nil {
+			return 0, nil, err
+		}
+		reader = bytes.NewReader(encoded)
 	}
-	u := c.base.JoinPath("v1", "state")
-	req, err := http.NewRequestWithContext(ctx, method, u.String(), reader)
+	req, err := http.NewRequestWithContext(ctx, method, c.base.JoinPath("v1", path).String(), reader)
 	if err != nil {
-		return err
+		return 0, nil, err
 	}
 	req.Header.Set("Accept", "application/json")
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+	if token := c.token.Load(); token > 0 {
+		req.Header.Set(TokenHeader, strconv.FormatInt(token, 10))
+	}
 	res, err := c.HTTP.Do(req)
 	if err != nil {
-		return fmt.Errorf("actuator: %w", err)
+		return 0, nil, fmt.Errorf("actuator: %w", err)
 	}
 	defer res.Body.Close()
 	b, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
-	if res.StatusCode != wantStatus && !(wantStatus == http.StatusAccepted && res.StatusCode == http.StatusOK) {
-		return fmt.Errorf("actuator: %s %s answered %s: %s", method, u.Path, res.Status, strings.TrimSpace(string(b)))
-	}
-	if err := json.Unmarshal(b, out); err != nil {
-		return fmt.Errorf("actuator: reading %s %s: %w", method, u.Path, err)
-	}
-	return nil
+	return res.StatusCode, b, nil
 }
 
 // AllObserved reports whether every part named is observed as want.

@@ -18,6 +18,12 @@ info:
     An actuator that does not control the server's parts reports
     `controlsParts: false`, and still reports on the parts and on upgrades.
 
+    Requests that act on the server, or read or write the saved state, carry
+    the lease token in the `Tamanu-Lease-Token` header. The actuator answers
+    `409 Conflict` to any carrying a token that is not the current one, or
+    none. A token stays current until the lease is released or another
+    supervisor takes it, including after the lease expires.
+
     A change that is not backwards compatible is a new version under a new
     path prefix.
 servers:
@@ -26,7 +32,7 @@ paths:
   /v1/state:
     get:
       operationId: getState
-      summary: The state of the server's parts, and whether an upgrade is in progress
+      summary: The state of the server's parts, the lease, upgrades, and the supervisors' reports
       responses:
         "200":
           description: The current state.
@@ -43,6 +49,8 @@ paths:
         so the request can be repeated safely. The actuator answers once it
         has recorded the desired state, without waiting for any part to start
         or stop.
+      parameters:
+        - $ref: "#/components/parameters/LeaseToken"
       requestBody:
         required: true
         content:
@@ -58,9 +66,150 @@ paths:
                 $ref: "#/components/schemas/State"
         "400":
           description: The body names an unknown part or state.
-        "409":
+        "403":
           description: The actuator does not control the server's parts.
+        "409":
+          $ref: "#/components/responses/NotHolder"
+  /v1/lease:
+    post:
+      operationId: takeLease
+      summary: Take the lease
+      description: |
+        Succeeds when nobody holds the lease, when it has expired, or when the
+        holder named already holds it. Taking a lease that is free or expired
+        gives a new token, larger than any before it; taking one the holder
+        already holds keeps its token and extends it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaseRequest"
+      responses:
+        "200":
+          description: The lease, now held by the holder named.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lease"
+        "409":
+          description: Another supervisor holds the lease. The body says who, and until when.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lease"
+    put:
+      operationId: renewLease
+      summary: Renew the lease
+      description: Extends the lease by the time asked for, from now.
+      parameters:
+        - $ref: "#/components/parameters/LeaseToken"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaseRequest"
+      responses:
+        "200":
+          description: The lease, extended.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lease"
+        "409":
+          $ref: "#/components/responses/NotHolder"
+    delete:
+      operationId: releaseLease
+      summary: Release the lease
+      description: Frees the lease at once, so another supervisor can take it without waiting for it to expire.
+      parameters:
+        - $ref: "#/components/parameters/LeaseToken"
+      responses:
+        "204":
+          description: Released.
+        "409":
+          $ref: "#/components/responses/NotHolder"
+  /v1/saved-state:
+    get:
+      operationId: getSavedState
+      summary: The supervisor's saved state
+      parameters:
+        - $ref: "#/components/parameters/LeaseToken"
+      responses:
+        "200":
+          description: The document last saved, exactly as it was saved.
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: Nothing has been saved.
+        "409":
+          $ref: "#/components/responses/NotHolder"
+    put:
+      operationId: putSavedState
+      summary: Replace the supervisor's saved state
+      description: |
+        The document is the supervisor's, and opaque to the actuator, which
+        stores it as given. It is a JSON object of at most 64 KiB, and the
+        actuator keeps it durably, across its own restarts.
+      parameters:
+        - $ref: "#/components/parameters/LeaseToken"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "204":
+          description: Saved.
+        "400":
+          description: The body is not a JSON object, or is too large.
+        "409":
+          $ref: "#/components/responses/NotHolder"
+  /v1/reports/{instance}:
+    put:
+      operationId: putReport
+      summary: Report a supervisor's activity
+      description: |
+        Every running supervisor reports, whether or not it holds the lease.
+        The actuator keeps the latest report from each instance until its
+        time to live passes, and reports it in `GET /v1/state` until then.
+      parameters:
+        - name: instance
+          in: path
+          required: true
+          description: The supervisor's instance, as it names itself when taking the lease.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportRequest"
+      responses:
+        "204":
+          description: Kept.
 components:
+  parameters:
+    LeaseToken:
+      name: Tamanu-Lease-Token
+      in: header
+      required: true
+      description: The token the lease was taken with.
+      schema:
+        type: integer
+        format: int64
+  responses:
+    NotHolder:
+      description: The token is not the current one. The body says who holds the lease, if anyone.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Lease"
   schemas:
     Part:
       type: string
@@ -101,6 +250,14 @@ components:
             $ref: "#/components/schemas/Part"
           additionalProperties:
             $ref: "#/components/schemas/PartState"
+        lease:
+          description: Who holds the lease, absent while nobody does. The token is not shown.
+          $ref: "#/components/schemas/Lease"
+        reports:
+          type: object
+          description: The reports that have not expired, by instance.
+          additionalProperties:
+            $ref: "#/components/schemas/Report"
     DesiredState:
       type: object
       required: [parts]
@@ -112,3 +269,61 @@ components:
             $ref: "#/components/schemas/Part"
           additionalProperties:
             $ref: "#/components/schemas/Desired"
+    LeaseRequest:
+      type: object
+      required: [holder, ttlSeconds]
+      properties:
+        holder:
+          type: string
+          description: The supervisor's instance, unique to its process.
+        ttlSeconds:
+          type: number
+          exclusiveMinimum: 0
+          description: |
+            How long the lease lasts unless renewed. The supervisor asks for
+            30 seconds and renews every 10. An actuator may shorten or lengthen
+            it, and says so in the expiry it answers with.
+    Lease:
+      type: object
+      properties:
+        holder:
+          type: string
+        token:
+          type: integer
+          format: int64
+          description: The token, given only to the holder in answer to taking or renewing the lease.
+        expiresAt:
+          type: string
+          format: date-time
+    ReportRequest:
+      type: object
+      required: [lastActivity, inFlight, wakeRequested, ttlSeconds]
+      properties:
+        lastActivity:
+          type: string
+          format: date-time
+          description: When the supervisor last saw a request that counts as activity start or finish.
+        inFlight:
+          type: integer
+          minimum: 0
+          description: How many requests that count as activity it has in flight.
+        wakeRequested:
+          type: boolean
+          description: Whether a request has asked for a wake since its last report.
+        ttlSeconds:
+          type: number
+          exclusiveMinimum: 0
+          description: How long the report counts unless replaced. The supervisor reports every 10 seconds, each for 30.
+    Report:
+      type: object
+      properties:
+        lastActivity:
+          type: string
+          format: date-time
+        inFlight:
+          type: integer
+        wakeRequested:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time

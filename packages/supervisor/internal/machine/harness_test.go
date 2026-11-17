@@ -2,6 +2,7 @@ package machine
 
 import (
 	"context"
+	"fmt"
 	"maps"
 	"net/http/httptest"
 	"net/url"
@@ -31,11 +32,17 @@ func testTiming() Timing {
 		PartTimeout:    300 * time.Millisecond,
 		WakeBackoff:    10 * time.Millisecond,
 		WakeBackoffMax: 40 * time.Millisecond,
+		LeaseTTL:       150 * time.Millisecond,
+		LeaseRenew:     30 * time.Millisecond,
+		LeaseRetry:     5 * time.Millisecond,
+		ReportEvery:    10 * time.Millisecond,
+		ReportTTL:      40 * time.Millisecond,
 	}
 }
 
-// harness runs machines against a fake actuator and a fake api, over HTTP,
-// with a data directory that outlives each machine, as a restart would.
+// harness runs machines against a fake actuator and a fake api, over HTTP.
+// The actuator, which keeps the lease and the saved state, outlives each
+// machine, as it does a restart.
 type harness struct {
 	t       *testing.T
 	central bool
@@ -43,8 +50,8 @@ type harness struct {
 	api     *fakeapi.API
 	actURL  *url.URL
 	apiAddr string
-	store   *persist.Store
 	timing  Timing
+	started int
 
 	mu       sync.Mutex
 	st       *state.Server
@@ -69,10 +76,6 @@ func newHarness(t *testing.T, central bool) *harness {
 	apiSrv := httptest.NewServer(h.api)
 	h.actURL, _ = url.Parse(actSrv.URL)
 	h.apiAddr = strings.TrimPrefix(apiSrv.URL, "http://")
-	var err error
-	if h.store, err = persist.Open(t.TempDir()); err != nil {
-		t.Fatal(err)
-	}
 	h.api.OnCall(func(call string) {
 		h.mu.Lock()
 		hooks := slices.Clone(h.apiHooks)
@@ -106,8 +109,12 @@ func (h *harness) start(release string) {
 	act := actuator.NewClient(h.actURL)
 	act.PollInterval = time.Millisecond
 	api := apiclient.New([]string{h.apiAddr}, fakeapi.Token)
-	m := New(Config{Central: h.central, Parts: parts, Release: release, Timing: h.timing},
-		st, act, api, h.store, zaptest.NewLogger(h.t))
+	h.mu.Lock()
+	h.started++
+	instance := fmt.Sprintf("supervisor-%d", h.started)
+	h.mu.Unlock()
+	m := New(Config{Central: h.central, Parts: parts, Release: release, Instance: instance, Timing: h.timing},
+		st, act, api, zaptest.NewLogger(h.t))
 
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan struct{})
@@ -120,8 +127,8 @@ func (h *harness) start(release string) {
 	}()
 }
 
-// crash stops the machine without waiting, as a killed supervisor would.
-// Safe to call from a hook.
+// crash stops the machine without releasing the lease, as a killed
+// supervisor would, without waiting. Safe to call from a hook.
 func (h *harness) crash() {
 	h.mu.Lock()
 	cancel := h.cancel
@@ -131,15 +138,34 @@ func (h *harness) crash() {
 	}
 }
 
-// stop stops the machine and waits for it.
-func (h *harness) stop() {
-	h.crash()
+// waitStopped waits for a crashed machine to stop.
+func (h *harness) waitStopped() {
 	h.mu.Lock()
 	done := h.done
 	h.mu.Unlock()
 	if done != nil {
 		<-done
 	}
+}
+
+// stop stops the machine as a supervisor that is stopped does, releasing the
+// lease, and waits for it.
+func (h *harness) stop() {
+	h.crash()
+	h.mu.Lock()
+	m := h.m
+	h.mu.Unlock()
+	if m != nil {
+		m.ReleaseLease()
+	}
+	h.waitStopped()
+}
+
+// machine is the latest machine started.
+func (h *harness) machine() *Machine {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	return h.m
 }
 
 func (h *harness) state() *state.Server {
@@ -221,6 +247,11 @@ func (h *harness) eventually(what string, cond func() bool) {
 	}
 }
 
+func (h *harness) waitServing() {
+	h.t.Helper()
+	h.eventually("serving", func() bool { return h.snapshot().Serving })
+}
+
 func (h *harness) waitPhase(phase state.Phase) {
 	h.t.Helper()
 	h.eventually("phase "+string(phase), func() bool { return h.snapshot().Phase == phase })
@@ -235,13 +266,28 @@ func (h *harness) waitAwakeAfterWake() {
 	})
 }
 
+// persisted is the state saved with the actuator.
 func (h *harness) persisted() persist.Record {
 	h.t.Helper()
-	rec, _, err := h.store.Load()
+	doc := h.act.SavedState()
+	if doc == nil {
+		return persist.Record{}
+	}
+	rec, _, err := persist.Decode(doc)
 	if err != nil {
 		h.t.Fatal(err)
 	}
 	return rec
+}
+
+// save saves rec with the actuator, as a supervisor before would have.
+func (h *harness) save(rec persist.Record) {
+	h.t.Helper()
+	doc, err := persist.Encode(rec)
+	if err != nil {
+		h.t.Fatal(err)
+	}
+	h.act.SetSavedState(doc)
 }
 
 // puts returns the actuator requests so far, each as its sorted "part=state"

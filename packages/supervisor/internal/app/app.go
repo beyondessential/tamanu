@@ -4,9 +4,14 @@ package app
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net/url"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -15,7 +20,6 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/machine"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/persist"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -38,16 +42,16 @@ type App struct {
 	// are replaced, so it can name an environment variable as
 	// {env.TAMANU_SUPERVISOR_API_TOKEN} and stay out of the printed config.
 	APIToken string `json:"api_token,omitempty"`
-	// DataDir is where the supervisor keeps its state.
-	DataDir string `json:"data_dir,omitempty"`
 	// APIUpstreams are the api instances (host:port) the supervisor calls.
 	APIUpstreams []string `json:"api_upstreams,omitempty"`
 
 	state    *state.Server
 	apiToken string
+	instance string
 	machine  *machine.Machine
 	cancel   context.CancelFunc
 	done     chan struct{}
+	signals  chan os.Signal
 }
 
 // CaddyModule returns the Caddy module information.
@@ -87,23 +91,31 @@ func (a *App) Provision(ctx caddy.Context) error {
 	if err != nil {
 		return fmt.Errorf("actuator url: %w", err)
 	}
-	store, err := persist.Open(a.DataDir)
-	if err != nil {
-		return err
-	}
+	a.instance = newInstanceID()
 	a.machine = machine.New(machine.Config{
-		Central: a.Role == "central",
-		Parts:   state.Parts(),
-		Release: buildinfo.Version,
-		Timing:  machine.DefaultTiming(time.Duration(a.IdleTime)),
+		Central:  a.Role == "central",
+		Parts:    state.Parts(),
+		Release:  buildinfo.Version,
+		Instance: a.instance,
+		Timing:   machine.DefaultTiming(time.Duration(a.IdleTime)),
 	},
 		a.state,
 		actuator.NewClient(actuatorURL),
 		apiclient.New(a.APIUpstreams, a.apiToken),
-		store,
 		ctx.Logger(a),
 	)
 	return nil
+}
+
+// newInstanceID names this process to the actuator.
+func newInstanceID() string {
+	b := make([]byte, 8)
+	_, _ = rand.Read(b)
+	host, _ := os.Hostname()
+	if host == "" {
+		return hex.EncodeToString(b)
+	}
+	return host + "-" + hex.EncodeToString(b)
 }
 
 // Validate checks the app's configuration.
@@ -111,8 +123,8 @@ func (a *App) Validate() error {
 	if a.Role != "central" && a.Role != "facility" {
 		return fmt.Errorf("role must be central or facility, not %q", a.Role)
 	}
-	if a.ActuatorURL != "" && (a.apiToken == "" || a.DataDir == "" || len(a.APIUpstreams) == 0) {
-		return fmt.Errorf("an actuator needs an api token, a data directory and the api's addresses")
+	if a.ActuatorURL != "" && (a.apiToken == "" || len(a.APIUpstreams) == 0) {
+		return fmt.Errorf("an actuator needs an api token and the api's addresses")
 	}
 	if a.ActuatorURL != "" && time.Duration(a.IdleTime) <= 0 {
 		return fmt.Errorf("an actuator needs an idle time")
@@ -122,7 +134,7 @@ func (a *App) Validate() error {
 
 // runMu lets one machine run at a time. Caddy starts a new config's apps
 // before it stops the old config's, so a new machine waits for the old one to
-// stop, then continues from what it left on disk.
+// stop.
 var runMu sync.Mutex
 
 // Start starts the sleep and wake machine, if there is an actuator.
@@ -142,17 +154,36 @@ func (a *App) Start() error {
 			a.machine.Run(ctx)
 		}
 	}()
+
+	// Caddy drains connections before it stops the apps, so the lease is
+	// released here, as the signal arrives, rather than in Stop.
+	//
+	// spec: SUPV#resilience
+	a.signals = make(chan os.Signal, 1)
+	signal.Notify(a.signals, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		if _, ok := <-a.signals; ok {
+			a.release()
+		}
+	}()
 	return nil
 }
 
-// Stop stops the machine and waits for it.
+// Stop stops the machine, releases the lease and waits for the machine.
 func (a *App) Stop() error {
 	if a.cancel == nil {
 		return nil
 	}
-	a.cancel()
+	signal.Stop(a.signals)
+	close(a.signals)
+	a.release()
 	<-a.done
 	return nil
+}
+
+func (a *App) release() {
+	a.cancel()
+	a.machine.ReleaseLease()
 }
 
 // Cleanup releases the app's hold on the shared state.
@@ -188,6 +219,9 @@ type Status struct {
 	IdleTime  string     `json:"idleTime"`
 	CanSleep  bool       `json:"canSleep"`
 	Release   string     `json:"release"`
+	// Lease is "holder" or "waiting" with an actuator, and empty without.
+	Lease    string `json:"lease,omitempty"`
+	Instance string `json:"instance,omitempty"`
 }
 
 // Status reports the server's state.
@@ -213,6 +247,19 @@ func (a *App) Status() Status {
 		IdleTime:     time.Duration(a.IdleTime).String(),
 		CanSleep:     a.CanSleep(),
 		Release:      buildinfo.Version,
+		Lease:        a.leaseState(),
+		Instance:     a.instance,
+	}
+}
+
+func (a *App) leaseState() string {
+	switch {
+	case a.machine == nil:
+		return ""
+	case a.machine.HoldsLease():
+		return "holder"
+	default:
+		return "waiting"
 	}
 }
 

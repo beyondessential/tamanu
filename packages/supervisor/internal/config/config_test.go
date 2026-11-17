@@ -64,7 +64,6 @@ func TestFullCentral(t *testing.T) {
 		VarActuatorURL, "http://actuator:7000/base",
 		VarIdleTime, "45m",
 		VarAPIToken, "secret",
-		VarDataDir, "/var/lib/supervisor",
 		VarTrustedProxies, "10.0.0.0/8, fd00::/8",
 	))
 	if err != nil {
@@ -80,7 +79,7 @@ func TestFullCentral(t *testing.T) {
 	if c.ActuatorURL.String() != "http://actuator:7000/base" {
 		t.Errorf("actuator = %v", c.ActuatorURL)
 	}
-	if c.IdleTime != 45*time.Minute || c.APIToken != "secret" || c.DataDir != "/var/lib/supervisor" {
+	if c.IdleTime != 45*time.Minute || c.APIToken != "secret" {
 		t.Errorf("unexpected %+v", c)
 	}
 	if !slices.Equal(c.TrustedProxies, []string{"10.0.0.0/8", "fd00::/8"}) {
@@ -133,10 +132,10 @@ func TestErrors(t *testing.T) {
 		{"portal listen without root", centralEnv(VarPortalListen, ":8082"), VarPortalRoot, "is required when " + VarPortalListen},
 		{"portal root missing", centralEnv(VarPortalListen, ":8082", VarPortalRoot, "/no/such/directory"), VarPortalRoot, "must name a directory"},
 		{"colliding listen", facilityEnv(VarStatusListen, "127.0.0.1:8080"), VarStatusListen, "collides with " + VarListen},
-		{"actuator not a url", facilityEnv(VarActuatorURL, "actuator:7000", VarAPIToken, "t", VarDataDir, "/d"), VarActuatorURL, "http or https"},
-		{"actuator without host", facilityEnv(VarActuatorURL, "http://", VarAPIToken, "t", VarDataDir, "/d"), VarActuatorURL, "must include a host"},
-		{"actuator without token", facilityEnv(VarActuatorURL, "http://a:7000", VarDataDir, "/d"), VarAPIToken, "is required when " + VarActuatorURL},
-		{"actuator without data dir", facilityEnv(VarActuatorURL, "http://a:7000", VarAPIToken, "t"), VarDataDir, "is required when " + VarActuatorURL},
+		{"actuator not a url", facilityEnv(VarActuatorURL, "actuator:7000", VarAPIToken, "t"), VarActuatorURL, "http or https"},
+		{"actuator without host", facilityEnv(VarActuatorURL, "http://", VarAPIToken, "t"), VarActuatorURL, "must include a host"},
+		{"actuator without token", facilityEnv(VarActuatorURL, "http://a:7000"), VarAPIToken, "is required when " + VarActuatorURL},
+		{"data directory no longer read", facilityEnv(Prefix+"DATA_DIR", "/d"), Prefix + "DATA_DIR", "not a variable the supervisor reads"},
 		{"idle time not a duration", facilityEnv(VarIdleTime, "30"), VarIdleTime, "must be a duration"},
 		{"idle time zero", facilityEnv(VarIdleTime, "0s"), VarIdleTime, "longer than zero"},
 		{"trusted proxy not a cidr", facilityEnv(VarTrustedProxies, "10.0.0.1"), VarTrustedProxies, `"10.0.0.1" is not one`},

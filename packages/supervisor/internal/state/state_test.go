@@ -173,7 +173,10 @@ func TestAdmitStatic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := New(Parts())
 			tt.setup(s)
-			done := s.AdmitStatic()
+			admission, done := s.AdmitStatic()
+			if admission != Forward {
+				t.Errorf("admission = %v", admission)
+			}
 			if n := s.Snapshot().InFlight; n != 1 {
 				t.Errorf("in flight = %d", n)
 			}
@@ -191,6 +194,50 @@ func TestAdmitStatic(t *testing.T) {
 				t.Error("not recorded as activity")
 			}
 		})
+	}
+}
+
+// spec: SUPV#resilience
+func TestStandby(t *testing.T) {
+	s := New(Parts())
+	s.SetServing(false)
+	s.SetPhase(Asleep)
+	if got := s.Admit(API); got != Standby {
+		t.Errorf("Admit = %v", got)
+	}
+	if got, done := s.AdmitActivity(API); got != Standby {
+		t.Errorf("AdmitActivity = %v", got)
+	} else {
+		done()
+	}
+	if got, done := s.AdmitStatic(); got != Standby {
+		t.Errorf("AdmitStatic = %v", got)
+	} else {
+		done()
+	}
+	if wakes(s) {
+		t.Error("a request on standby asked for a wake")
+	}
+	select {
+	case <-s.Activity():
+		t.Error("a request on standby counted as activity")
+	default:
+	}
+	s.SetServing(true)
+	if got := s.Admit(API); got != Hold {
+		t.Errorf("Admit once serving = %v", got)
+	}
+}
+
+func TestLastWakeRequest(t *testing.T) {
+	at := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	s := New(Parts())
+	s.SetClock(func() time.Time { return at })
+	s.SetPhase(Asleep)
+	_, done := s.AdmitActivity(API)
+	done()
+	if got := s.Snapshot().LastWakeRequest; !got.Equal(at) {
+		t.Errorf("last wake request = %v", got)
 	}
 }
 

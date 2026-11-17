@@ -108,7 +108,6 @@ func Build(c config.Config) ([]byte, error) {
 	tamanu := app.App{
 		Role:         string(c.Role),
 		IdleTime:     caddy.Duration(c.IdleTime),
-		DataDir:      c.DataDir,
 		APIUpstreams: c.APIUpstreams,
 	}
 	if c.HasActuator() {
