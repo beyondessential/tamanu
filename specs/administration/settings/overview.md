@@ -37,9 +37,9 @@ Applies to settings: the named runtime-configuration values stored in the databa
 - An operator tunes runtime behaviour through settings; everything else is an environment variable.
 - The values held as environment variables are those needed before settings can be read (the database connection, cryptographic key material, console logging, and whether migrations run at startup), those that are a property of the environment the process runs in (the primary timezone `TZ`, the trusted-proxy list `PROXY_TRUSTED` defaulting to loopback, the free-disk-space path `DISK_PATH` defaulting to `/tmp`, network ports, the facility identity, and the canonical host name), and those that are a secret held outside the database (the authentication secrets).
 
-- The central server refuses to start unless both of its authentication secrets, the one for access tokens and the one for refresh tokens, are set to non-empty values.
+- The central server refuses to start unless both of its authentication secrets, the one for access tokens and the one for refresh tokens, are set, each at least 16 characters long and not made up of a few repeated characters.
 
 > [!NOTE]
 > None of the values held as environment variables can be a runtime, database-backed setting, which is what divides the two sources.
 >
-> Every central server process signs and verifies tokens with the same authentication secrets, and no default value can be both shared between processes and unknown outside the deployment, so a missing secret is treated as a deployment error rather than filled in.
+> Every central server process signs and verifies tokens with the same authentication secrets, and no default value can be both shared between processes and unknown outside the deployment, so a missing secret is treated as a deployment error rather than filled in. The repetition check is a guard against placeholder values, not a measure of strength: it cannot tell a guessable phrase from a random one.

@@ -35,8 +35,8 @@ describe('assertAuthSecretsConfigured', () => {
   it('passes when both secrets come from the environment', () => {
     config.auth.secret = null;
     config.auth.refreshToken.secret = null;
-    process.env.AUTH_SECRET = 'env-secret';
-    process.env.AUTH_REFRESH_TOKEN_SECRET = 'env-refresh-secret';
+    process.env.AUTH_SECRET = 'env-access-token-secret';
+    process.env.AUTH_REFRESH_TOKEN_SECRET = 'env-refresh-token-secret';
     expect(() => assertAuthSecretsConfigured()).not.toThrow();
   });
 
@@ -66,6 +66,33 @@ describe('assertAuthSecretsConfigured', () => {
   it('throws when a secret is only whitespace', () => {
     process.env.AUTH_REFRESH_TOKEN_SECRET = '   ';
     expect(() => assertAuthSecretsConfigured()).toThrow(/set AUTH_REFRESH_TOKEN_SECRET$/);
+  });
+
+  it('throws when a secret is shorter than 16 characters', () => {
+    process.env.AUTH_SECRET = 'short-secret';
+    expect(() => assertAuthSecretsConfigured()).toThrow(
+      /make AUTH_SECRET at least 16 characters of random text$/,
+    );
+  });
+
+  it('throws when a secret is long enough but made of repeated characters', () => {
+    process.env.AUTH_REFRESH_TOKEN_SECRET = '0000000000000004';
+    expect(() => assertAuthSecretsConfigured()).toThrow(
+      /make AUTH_REFRESH_TOKEN_SECRET at least 16 characters of random text$/,
+    );
+  });
+
+  it('accepts a 16 character random secret', () => {
+    process.env.AUTH_SECRET = 'q7Rk2mXv9LpT4wZc';
+    expect(() => assertAuthSecretsConfigured()).not.toThrow();
+  });
+
+  it('names a missing secret and a weak one together', () => {
+    config.auth.secret = null;
+    process.env.AUTH_REFRESH_TOKEN_SECRET = 'abababababababab';
+    expect(() => assertAuthSecretsConfigured()).toThrow(
+      /set AUTH_SECRET; make AUTH_REFRESH_TOKEN_SECRET at least 16 characters of random text$/,
+    );
   });
 
   it('refuses to build a token without a signing secret', async () => {

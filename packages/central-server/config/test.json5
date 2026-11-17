@@ -10,9 +10,9 @@
     "from": "Tamanu test"
   },
   "auth": {
-    "secret": "secret",
+    "secret": "test-access-token-secret",
     "refreshToken": {
-      "secret": "refreshSecret"
+      "secret": "test-refresh-token-secret"
     },
     "useHardcodedPermissions": false
   },
