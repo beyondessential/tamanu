@@ -217,7 +217,7 @@ func (s *Server) SetFailure(message string) {
 		s.lastFailure = nil
 		return
 	}
-	s.lastFailure = &Failure{At: s.now(), Message: message}
+	s.lastFailure = &Failure{At: s.now().UTC(), Message: message}
 }
 
 // RestoreFailure puts back a failure recorded before a restart.
