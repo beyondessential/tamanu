@@ -104,6 +104,19 @@ export class ScheduledTask {
       return false;
     }
 
+    // Claimed before the first await, so an overlapping call skips from here on rather than
+    // starting a second run whose recorded start the first run's finish would then clear.
+    this.isRunning = true;
+    this.start = Date.now();
+    try {
+      return await this.#runClaimed(name, span);
+    } finally {
+      this.start = null;
+      this.isRunning = false;
+    }
+  }
+
+  async #runClaimed(name, span) {
     try {
       span.addEvent('checkQueue');
       // eslint-disable-next-line no-shadow
@@ -144,7 +157,6 @@ export class ScheduledTask {
     try {
       // eslint-disable-next-line no-shadow
       await spanWrapFn('run', async span => {
-        this.isRunning = true;
         await this.run(span);
       });
 
@@ -165,12 +177,10 @@ export class ScheduledTask {
 
       return false;
     } finally {
-      // before isRunning clears, so a next run cannot record its start before this one's finish
+      // before the claim is released, so a next run cannot record its start before this one's finish
       if (isRecorded) {
         await this.#finishRecordedRun(name, span);
       }
-      this.start = null;
-      this.isRunning = false;
       span.addEvent('end');
     }
   }

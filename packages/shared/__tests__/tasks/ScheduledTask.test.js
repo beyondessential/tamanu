@@ -316,6 +316,34 @@ describe('ScheduledTask', () => {
       ]);
     });
 
+    it('Skips an overlapping call while a run is still recording its start', async () => {
+      const runState = makeRunState();
+      let finishRecordingStart;
+      runState.startRun.mockImplementationOnce(async name => {
+        runState.calls.push(['start', name]);
+        await new Promise(resolve => {
+          finishRecordingStart = resolve;
+        });
+        return true;
+      });
+      const task = new TestScheduledTask(() => {
+        runState.calls.push(['run']);
+      });
+      task.recordRunsIn(runState);
+
+      const firstRun = task.runImmediately();
+      await vi.waitFor(() => expect(finishRecordingStart).toBeDefined());
+      expect(await task.runImmediately()).toBe(false);
+      finishRecordingStart();
+      expect(await firstRun).toBe(true);
+
+      expect(runState.calls).toEqual([
+        ['start', 'TestScheduledTask'],
+        ['run'],
+        ['finish', 'TestScheduledTask'],
+      ]);
+    });
+
     it('Records the finish of a run that fails', async () => {
       const runState = makeRunState();
       const task = new TestScheduledTask(() => {
