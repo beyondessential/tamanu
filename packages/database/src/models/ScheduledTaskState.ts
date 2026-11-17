@@ -5,13 +5,14 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
 // spec: SLPWK#going-to-sleep
-//
-// A task starting a run takes a shared lock on the hold's row (FACT_SCHEDULED_TASK_HOLD_UNTIL),
-// and setting the hold takes an exclusive one, so either the task's start commits first and the
-// hold sees it running, or the task waits and sees the hold. Both run at READ COMMITTED, so each
-// sees what the other committed while it waited.
-//
-// Not synced, and excluded from change logging (services/migrations/constants.ts).
+/**
+ * A task starting a run takes a shared lock on the hold's row (FACT_SCHEDULED_TASK_HOLD_UNTIL),
+ * and setting the hold takes an exclusive one, so either the task's start commits first and the
+ * hold sees it running, or the task waits and sees the hold. Both run at READ COMMITTED, so each
+ * sees what the other committed while it waited.
+ *
+ * Not synced, and excluded from change logging (services/migrations/constants.ts).
+ */
 export class ScheduledTaskState extends Model {
   declare id: string;
   declare name: string;

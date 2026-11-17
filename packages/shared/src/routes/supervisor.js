@@ -5,14 +5,18 @@ import ms from 'ms';
 
 import { InvalidCredentialError } from '@tamanu/errors';
 
-// Long enough to stop the tasks process; short enough that a supervisor which never releases the
-// hold does not stop tasks for long.
+/**
+ * Long enough to stop the tasks process; short enough that a supervisor which never releases the
+ * hold does not stop tasks for long.
+ */
 export const TASK_HOLD_DURATION_MS = ms('10 minutes');
 
 const sha256 = value => createHash('sha256').update(value).digest();
 
-// Compared as digests so the two sides are always the same length, which lets timingSafeEqual
-// run without leaking the length of the expected token.
+/**
+ * Compared as digests so the two sides are always the same length, which lets timingSafeEqual run
+ * without leaking the length of the expected token.
+ */
 const isSameToken = (given, expected) => timingSafeEqual(sha256(given), sha256(expected));
 
 // spec: SUPV#talking-to-the-server

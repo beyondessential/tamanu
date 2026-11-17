@@ -5,7 +5,7 @@ import { supervisorRoutes } from '@tamanu/shared/routes/supervisor';
 
 import { version } from '../serverInfo';
 
-// Why a final sync did not complete, from what the sync process answered.
+/** Why a final sync did not complete, from what the sync process answered. */
 function incompleteReason({ enabled, queued, ran }) {
   if (!enabled) return 'Sync is disabled';
   if (queued) return 'Sync was queued by the central server';

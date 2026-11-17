@@ -50,7 +50,7 @@ export class ScheduledTask {
   }
 
   // spec: SLPWK#going-to-sleep
-  // A failure to record never stops a run: it goes ahead unrecorded.
+  /** A failure to record never stops a run: it goes ahead unrecorded. */
   async #startRecordedRun(name, span) {
     if (!this.runState) {
       return { isHeld: false, isRecorded: false };
