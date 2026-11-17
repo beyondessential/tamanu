@@ -55,8 +55,8 @@ Server side (JS):
 - [x] Scheduled task run state: a table that does not sync and is not change-logged (as `sync_facility_runs`), one row per task with running since, last started and last finished; `ScheduledTask` records each run there; the tasks process clears running state when it starts
 - [x] Task hold: a single row holding an expiry; `ScheduledTask` skips a run while a hold is current, and checks it in the same transaction that records the run as started
 - [x] Supervisor api routes on central and facility, under `/api/supervisor`, behind a bearer token from the `SUPERVISOR_TOKEN` environment variable, compared in constant time, rejected when unset:
-  - `POST /hold`: in one transaction, set the hold with an expiry, then check for running tasks and FHIR jobs queued or started; busy releases the hold and answers busy
-  - `DELETE /hold`: release the hold
+  - `POST /tasks/hold`: in one transaction, set the hold with an expiry, then check for running tasks and FHIR jobs queued or started; busy releases the hold and answers busy
+  - `DELETE /tasks/hold`: release the hold
   - `GET /status`: the release version, for the migration check
   - facility only, `POST /final-sync`: run a sync as `POST /sync/run` does, answering whether it completed
 - [x] Tests for each route and for task runs under a hold
@@ -69,7 +69,7 @@ Supervisor (Go, `packages/supervisor`):
 - [x] Gate handler at the head of each route, carrying the route's class (activity, exempt, websocket) and part: counts activity from start to end, forwards when the part is ready, otherwise answers the waking response (`503` with `Retry-After` for API paths, the waking page for browsers) and starts a wake, or the upgrading response while an upgrade is in progress; websocket upgrades get `503` and do not wake
 - [x] Exempt from activity: health probes (`/`, `/api/public/ping`), time sync (`/api/timesync`), supervisor probes
 - [x] App module: idle timer from the gate, the sleep and wake state machine, state persisted as JSON in the data directory, resume after a restart, wake when the persisted state came from another release
-- [x] Sleep: stop forwarding activity, `POST /hold` (busy: release, keep forwarding, check again in a minute), stop tasks and fhir, facility final sync (not completed: release and stay awake), stop sync, api and web, stop the database. Activity or a failed step wakes from wherever the sleep reached
+- [x] Sleep: stop forwarding activity, `POST /tasks/hold` (busy: release, keep forwarding, check again in a minute), stop tasks and fhir, facility final sync (not completed: release and stay awake), stop sync, api and web, stop the database. Activity or a failed step wakes from wherever the sleep reached
 - [x] Wake: database, then the other parts; forward to each part once ready; release the hold; retry a stalled wake
 - [x] Without an actuator, or with one that does not control parts: route only, never sleep
 - [x] Actuator contract `packages/supervisor/actuator/v1.openapi.yaml`: `GET /v1/state` (whether it controls parts, each part's desired and observed state, whether an upgrade is in progress) and `PUT /v1/state` (desired state per part); a client polling until each part is ready or stopped; a fake actuator for tests and local runs
