@@ -257,14 +257,14 @@ export const buildSyncRoutes = ctx => {
       }
 
       // spec: SYNC#pulling
-      // the pull covers only facilities the session was authorised for when it started
+      // the pull covers only facilities the session was authorised for when it started. A pull
+      // naming none of them, by omitting the field or sending an empty list, covers them all
       const sessionFacilityIds = syncSession.parameters.facilityIds ?? [];
-      const facilityIds = requestedFacilityIds ?? sessionFacilityIds;
-      if (
-        !Array.isArray(facilityIds) ||
-        facilityIds.length === 0 ||
-        facilityIds.some(facilityId => !sessionFacilityIds.includes(facilityId))
-      ) {
+      const facilityIds = requestedFacilityIds?.length ? requestedFacilityIds : sessionFacilityIds;
+      if (!Array.isArray(facilityIds) || facilityIds.length === 0) {
+        throw new InvalidParameterError('Pull must name at least one facility');
+      }
+      if (facilityIds.some(facilityId => !sessionFacilityIds.includes(facilityId))) {
         throw new ForbiddenError('Pull names facilities outside the sync session');
       }
 
