@@ -350,12 +350,12 @@ describe('reportRoutes', () => {
 
     it('should refuse importing a raw report without permission to write the schema', async () => {
       const name = 'Raw report imported without schema permission';
-      const res = await reportAuthorApp.post(`/api/admin/reports/import`).send({
-        file: path.join(__dirname, '/data/without-version-number.json'),
-        name,
-        deleteFileAfterImport: false,
-      });
+      const res = await reportAuthorApp
+        .post(`/api/admin/reports/import`)
+        .attach('file', path.join(__dirname, '/data/without-version-number.json'))
+        .field('jsonData', JSON.stringify({ name }));
       expect(res).toHaveRequestError();
+      expect(res.body.error.message).toMatch(/permission to use the raw reporting schema/);
       expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
     });
 
