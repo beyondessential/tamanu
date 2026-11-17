@@ -14,16 +14,11 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
-// announcementsPerLease spaces announcement numbers by lease token, so a new
-// holder's announcements are newer than any of the holder before it, with
-// nothing to carry over between them.
-const announcementsPerLease = 1_000_000
-
 // announcement is a phase the holder announced, or the one a supervisor
 // follows.
 type announcement struct {
-	phase  state.Phase
-	number int64
+	phase state.Phase
+	id    actuator.Announcement
 	// at is when this supervisor announced or started following it.
 	at time.Time
 }
@@ -35,18 +30,23 @@ func (m *Machine) current() announcement {
 }
 
 // announce moves the server to phase and, if the phase changed or this holder
-// has not announced yet, numbers a new announcement and reports it at once.
+// has not announced under its token yet, makes a new announcement and reports
+// it at once.
 //
 // spec: SLPWK#actuator-contract
 func (m *Machine) announce(phase state.Phase) {
 	m.st.SetPhase(phase)
-	first := m.token * announcementsPerLease
 	m.annMu.Lock()
-	if m.ann.phase == phase && m.ann.number > first {
+	ours := m.ann.id.Token == m.token
+	if ours && m.ann.phase == phase {
 		m.annMu.Unlock()
 		return
 	}
-	m.ann = announcement{phase: phase, number: max(m.ann.number+1, first+1), at: time.Now()}
+	id := actuator.Announcement{Token: m.token, Sequence: 1}
+	if ours {
+		id.Sequence = m.ann.id.Sequence + 1
+	}
+	m.ann = announcement{phase: phase, id: id, at: time.Now()}
 	m.annMu.Unlock()
 	notify(m.reportNow)
 }
@@ -105,11 +105,11 @@ func (m *Machine) follow(s actuator.State) {
 	}
 
 	if s.Lease != nil && s.Lease.Holder != m.cfg.Instance {
-		if r, ok := s.Reports[s.Lease.Holder]; ok && r.Announcement > 0 {
+		if r, ok := s.Reports[s.Lease.Holder]; ok && !r.Announcement.IsZero() {
 			m.annMu.Lock()
-			newer := r.Announcement > m.ann.number
+			newer := r.Announcement.After(m.ann.id)
 			if newer {
-				m.ann = announcement{phase: r.Phase, number: r.Announcement, at: time.Now()}
+				m.ann = announcement{phase: r.Phase, id: r.Announcement, at: time.Now()}
 			}
 			m.annMu.Unlock()
 			if newer {
@@ -119,7 +119,7 @@ func (m *Machine) follow(s actuator.State) {
 			return
 		}
 	}
-	if m.current().number == 0 {
+	if m.current().id.IsZero() {
 		switch {
 		case s.AllObserved(m.cfg.Parts, actuator.Ready):
 			m.st.SetPhase(state.Awake)
@@ -141,7 +141,7 @@ func (m *Machine) takeWakeRequests(s actuator.State) {
 		return
 	}
 	for instance, r := range s.Reports {
-		if instance != m.cfg.Instance && r.WakeRequested && r.Follows == ann.number {
+		if instance != m.cfg.Instance && r.WakeRequested && r.Follows == ann.id {
 			m.st.RequestWake()
 			return
 		}
@@ -174,11 +174,11 @@ func (m *Machine) others() (lastActivity time.Time, inFlight int) {
 //
 // spec: SLPWK#going-to-sleep
 func (m *Machine) settle(ctx context.Context) error {
-	number := m.current().number
+	id := m.current().id
 	timeout := time.NewTimer(m.cfg.Timing.SettleTimeout)
 	defer timeout.Stop()
 	for {
-		waiting := m.unsettled(number)
+		waiting := m.unsettled(id)
 		if len(waiting) == 0 {
 			return nil
 		}
@@ -193,7 +193,7 @@ func (m *Machine) settle(ctx context.Context) error {
 	}
 }
 
-func (m *Machine) unsettled(number int64) []string {
+func (m *Machine) unsettled(id actuator.Announcement) []string {
 	var waiting []string
 	if n := m.st.Snapshot().InFlight; n > 0 {
 		waiting = append(waiting, fmt.Sprintf("%s (%d in flight)", m.cfg.Instance, n))
@@ -206,8 +206,8 @@ func (m *Machine) unsettled(number int64) []string {
 		r := s.Reports[instance]
 		switch {
 		case instance == m.cfg.Instance:
-		case r.Follows != number:
-			waiting = append(waiting, fmt.Sprintf("%s (following %d)", instance, r.Follows))
+		case r.Follows != id:
+			waiting = append(waiting, fmt.Sprintf("%s (following %s)", instance, r.Follows))
 		case r.InFlight > 0:
 			waiting = append(waiting, fmt.Sprintf("%s (%d in flight)", instance, r.InFlight))
 		}
@@ -265,11 +265,11 @@ func (m *Machine) ownReport() actuator.Report {
 		LastActivity:  snap.LastActivity.UTC(),
 		InFlight:      snap.InFlight,
 		WakeRequested: snap.LastWakeRequest.After(ann.at),
-		Follows:       ann.number,
+		Follows:       ann.id,
 	}
 	if m.holding.Load() {
 		r.Phase = ann.phase
-		r.Announcement = ann.number
+		r.Announcement = ann.id
 	}
 	return r
 }

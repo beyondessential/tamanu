@@ -253,7 +253,7 @@ func (h *harness) eventually(what string, cond func() bool) {
 func (h *harness) waitHolding() {
 	h.t.Helper()
 	h.eventually("holding the lease, awake", func() bool {
-		return h.machine().HoldsLease() && h.snapshot().Phase == state.Awake && h.machine().Announcement() > 0
+		return h.machine().HoldsLease() && h.snapshot().Phase == state.Awake && !h.machine().Announcement().IsZero()
 	})
 }
 

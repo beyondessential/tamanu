@@ -306,17 +306,11 @@ components:
           enum: [awake, going-to-sleep, asleep, waking]
           description: The phase the holder announces. Only the holder's report carries it.
         announcement:
-          type: integer
-          format: int64
-          description: |
-            The number of the holder's announcement, newer announcements
-            having larger numbers, including across holders: it is the lease
-            token times 1000000, plus how many announcements the holder has
-            made under that token. Only the holder's report carries it.
+          description: The holder's announcement. Only the holder's report carries it.
+          $ref: "#/components/schemas/Announcement"
         follows:
-          type: integer
-          format: int64
-          description: The number of the announcement the supervisor follows, its own for the holder.
+          description: The announcement the supervisor follows, its own for the holder.
+          $ref: "#/components/schemas/Announcement"
         lastActivity:
           type: string
           format: date-time
@@ -332,17 +326,29 @@ components:
           type: number
           exclusiveMinimum: 0
           description: How long the report counts unless replaced. The supervisor reports every 10 seconds, each for 30.
+    Announcement:
+      type: object
+      required: [token, sequence]
+      description: |
+        One of the holder's phase announcements: the lease token it holds,
+        and its own count of announcements under that token, from 1. A later
+        token is newer, and under the same token a later sequence is.
+      properties:
+        token:
+          type: integer
+          format: int64
+        sequence:
+          type: integer
+          format: int64
     Report:
       type: object
       properties:
         phase:
           type: string
         announcement:
-          type: integer
-          format: int64
+          $ref: "#/components/schemas/Announcement"
         follows:
-          type: integer
-          format: int64
+          $ref: "#/components/schemas/Announcement"
         lastActivity:
           type: string
           format: date-time

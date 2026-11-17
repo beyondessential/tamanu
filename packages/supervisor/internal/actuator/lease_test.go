@@ -3,6 +3,7 @@ package actuator_test
 import (
 	"context"
 	"errors"
+	"math"
 	"testing"
 	"time"
 
@@ -109,17 +110,36 @@ func TestSavedState(t *testing.T) {
 	}
 }
 
+func TestAnnouncementOrder(t *testing.T) {
+	for _, tt := range []struct {
+		a, b actuator.Announcement
+		want bool
+	}{
+		{actuator.Announcement{Token: 2, Sequence: 1}, actuator.Announcement{Token: 1, Sequence: 9}, true},
+		{actuator.Announcement{Token: 1, Sequence: 9}, actuator.Announcement{Token: 2, Sequence: 1}, false},
+		{actuator.Announcement{Token: 1, Sequence: 3}, actuator.Announcement{Token: 1, Sequence: 2}, true},
+		{actuator.Announcement{Token: 1, Sequence: 2}, actuator.Announcement{Token: 1, Sequence: 2}, false},
+		{actuator.Announcement{Token: 1, Sequence: 1}, actuator.Announcement{}, true},
+	} {
+		if got := tt.a.After(tt.b); got != tt.want {
+			t.Errorf("%s after %s = %v", tt.a, tt.b, got)
+		}
+	}
+}
+
 func TestReports(t *testing.T) {
 	f, c := setupWithoutLease(t)
 	ctx := context.Background()
 	at := time.Now().UTC().Truncate(time.Second)
 
-	report := actuator.Report{LastActivity: at, InFlight: 2, WakeRequested: true}
+	large := actuator.Announcement{Token: math.MaxInt64 - 1, Sequence: 7}
+	report := actuator.Report{LastActivity: at, InFlight: 2, WakeRequested: true, Phase: state.Asleep, Announcement: large, Follows: large}
 	if err := c.Report(ctx, "instance-a", report, 30*time.Millisecond); err != nil {
 		t.Fatal(err)
 	}
 	got, ok := f.Reports()["instance-a"]
-	if !ok || got.InFlight != 2 || !got.WakeRequested || !got.LastActivity.Equal(at) {
+	if !ok || got.InFlight != 2 || !got.WakeRequested || !got.LastActivity.Equal(at) ||
+		got.Phase != state.Asleep || got.Announcement != large || got.Follows != large {
 		t.Errorf("reports = %+v", f.Reports())
 	}
 	if s, _ := c.State(ctx); len(s.Reports) != 1 {
