@@ -219,86 +219,88 @@ reportsRouter.post(
     const { name, file, dryRun, deleteFileAfterImport } = await getUploadedData(req);
     assertUploadedFilePath(file);
 
-    const versionData = await readJSON(file);
-
-    if (versionData.versionNumber)
-      throw new InvalidOperationError('Cannot import a report with a version number');
-
-    if (!canEditSchema && versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
-      throw new InvalidOperationError(
-        'You do not have permission to import reports using the raw schema',
-      );
-    }
-
-    // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
-    const existingDefinition = await ReportDefinition.findOne({
-      where: { name },
-      paranoid: false,
-    });
-    if (existingDefinition?.deletedAt) {
-      throw new InvalidOperationError('A deleted report is still using this name');
-    }
-    if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
-      throw new InvalidOperationError('Cannot change a reporting schema for existing report');
-    }
-
-    await verifyQuery(
-      versionData.query,
-      versionData.queryOptions,
-      { store, reportSchemaStores },
-      versionData.dbSchema,
-    );
-
     const feedback = {};
     try {
-      await sequelize.transaction(
-        {
-          // Prevents race condition when determining the next version number
-          isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-        },
-        async () => {
-          const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
-            where: { name, dbSchema: versionData.dbSchema },
-            include: [
-              {
-                model: ReportDefinitionVersion,
-                as: 'versions',
-                attributes: ['versionNumber'],
-                order: [['versionNumber', 'DESC']],
-                limit: 1,
-              },
-            ],
-          });
+      const versionData = await readJSON(file);
 
-          const versionNumber = createdDefinition
-            ? 1
-            : (definition.versions?.[0]?.versionNumber || 0) + 1;
+      if (versionData.versionNumber)
+        throw new InvalidOperationError('Cannot import a report with a version number');
 
-          await ReportDefinitionVersion.create({
-            ...versionData,
-            userId: user.id,
-            versionNumber,
-            reportDefinitionId: definition.id,
-          });
-
-          feedback.createdDefinition = createdDefinition;
-          feedback.versionNumber = versionNumber;
-
-          if (dryRun) {
-            throw new DryRun();
-          }
-
-          feedback.reportDefinitionId = definition.id;
-        },
-      );
-    } catch (err) {
-      if (!(err instanceof DryRun)) {
-        throw err;
+      if (!canEditSchema && versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
+        throw new InvalidOperationError(
+          'You do not have permission to import reports using the raw schema',
+        );
       }
-    }
-    if (deleteFileAfterImport) {
-      // eslint-disable-next-line no-unused-vars
-      await fs.unlink(file).catch(ignore => {});
+
+      // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
+      const existingDefinition = await ReportDefinition.findOne({
+        where: { name },
+        paranoid: false,
+      });
+      if (existingDefinition?.deletedAt) {
+        throw new InvalidOperationError('A deleted report is still using this name');
+      }
+      if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
+        throw new InvalidOperationError('Cannot change a reporting schema for existing report');
+      }
+
+      await verifyQuery(
+        versionData.query,
+        versionData.queryOptions,
+        { store, reportSchemaStores },
+        versionData.dbSchema,
+      );
+
+      try {
+        await sequelize.transaction(
+          {
+            // Prevents race condition when determining the next version number
+            isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+          },
+          async () => {
+            const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
+              where: { name, dbSchema: versionData.dbSchema },
+              include: [
+                {
+                  model: ReportDefinitionVersion,
+                  as: 'versions',
+                  attributes: ['versionNumber'],
+                  order: [['versionNumber', 'DESC']],
+                  limit: 1,
+                },
+              ],
+            });
+
+            const versionNumber = createdDefinition
+              ? 1
+              : (definition.versions?.[0]?.versionNumber || 0) + 1;
+
+            await ReportDefinitionVersion.create({
+              ...versionData,
+              userId: user.id,
+              versionNumber,
+              reportDefinitionId: definition.id,
+            });
+
+            feedback.createdDefinition = createdDefinition;
+            feedback.versionNumber = versionNumber;
+
+            if (dryRun) {
+              throw new DryRun();
+            }
+
+            feedback.reportDefinitionId = definition.id;
+          },
+        );
+      } catch (err) {
+        if (!(err instanceof DryRun)) {
+          throw err;
+        }
+      }
+    } finally {
+      if (deleteFileAfterImport) {
+        await fs.unlink(file).catch(() => {});
+      }
     }
     res.send(feedback);
   }),

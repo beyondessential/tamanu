@@ -391,6 +391,19 @@ describe('reportRoutes', () => {
       expect(res).toHaveRequestError('InvalidOperationError');
       expect(res.body.error.message).toBe('Cannot import a report with a version number');
     });
+
+    it('should delete the uploaded file when the import fails', async () => {
+      // the parser names what it writes with a random id and the original
+      // extension, so a unique extension finds this upload and nothing else
+      const res = await adminApp
+        .post(`/api/admin/reports/import`)
+        .attach('file', path.join(__dirname, '/data/with-version-number.json'), 'report.w15leak')
+        .field('jsonData', JSON.stringify({ name: testReport.name, dbSchema }));
+
+      expect(res).toHaveRequestError('InvalidOperationError');
+      const leaked = (await fs.readdir(os.tmpdir())).filter(entry => entry.endsWith('.w15leak'));
+      expect(leaked).toEqual([]);
+    });
   });
 
   describe('utils', () => {
