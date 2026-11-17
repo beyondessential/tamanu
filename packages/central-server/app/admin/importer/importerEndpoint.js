@@ -155,7 +155,6 @@ export function createDataImporterEndpoint(importer) {
     // read uploaded data
     const {
       file,
-      deleteFileAfterImport,
       dryRun = false,
       includedDataTypes,
       ...extraOptions
@@ -175,10 +174,7 @@ export function createDataImporterEndpoint(importer) {
       });
     } finally {
       // we don't need the file any more
-      if (deleteFileAfterImport) {
-        // eslint-disable-next-line no-unused-vars
-        await fs.unlink(file).catch(ignore => {});
-      }
+      await fs.unlink(file).catch(() => {});
     }
 
     result.errors =

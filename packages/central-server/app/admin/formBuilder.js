@@ -439,7 +439,6 @@ const processChatRequest = async ({
   fileName,
   fileContentType,
   programDefinition: currentProgramDefinition,
-  deleteFileAfterImport,
 }) => {
   try {
     // The form builder only creates new forms; it can't update an existing
@@ -521,7 +520,7 @@ const processChatRequest = async ({
       programDefinition,
     };
   } finally {
-    if (file && deleteFileAfterImport) {
+    if (file) {
       await fs.unlink(file).catch(() => {});
     }
   }

@@ -9,7 +9,11 @@ import { assertUploadedFilePath, getUploadedData } from '../../src/utils/getUplo
 import { tmpdirPath } from '../../src/utils/tmpdir';
 
 // multiparty names what it writes with a random id and the original extension,
-// so a unique extension finds this test's uploads and nothing else's.
+// so an extension unique to this run finds its uploads and nothing else's,
+// including anything an earlier run left behind. It keeps only the first 16
+// characters of an extension, so the whole thing has to stay shorter than that.
+const RUN_ID = Math.random().toString(36).slice(2, 8);
+const extensionFor = name => `.${name}${RUN_ID}`;
 const uploadsWithExtension = async extension => {
   const entries = await fs.readdir(tmpdirPath());
   return entries.filter(entry => entry.endsWith(extension));
@@ -77,7 +81,6 @@ describe('getUploadedData', () => {
         name: 'kept',
         fileName: 'upload.txt',
         fileContentType: 'text/plain',
-        deleteFileAfterImport: true,
       });
       expect(data.file).not.toBe(injected.file);
       expect(() => assertUploadedFilePath(data.file)).not.toThrow();
@@ -90,24 +93,28 @@ describe('getUploadedData', () => {
   it('deletes what it wrote when jsonData cannot be parsed', async () => {
     const request = multipartRequest([
       { name: 'jsonData', content: '{ not json' },
-      { name: 'file', filename: 'upload.w15malformed', content: 'hello' },
+      { name: 'file', filename: `upload${extensionFor('malformed')}`, content: 'hello' },
     ]);
 
     await expect(getUploadedData(request)).rejects.toThrow();
-    expect(await uploadsWithExtension('.w15malformed')).toEqual([]);
+    expect(await uploadsWithExtension(extensionFor('malformed'))).toEqual([]);
   });
 
   it('deletes file parts it does not hand back', async () => {
     const data = await getUploadedData(
       multipartRequest([
-        { name: 'file', filename: 'upload.w15kept', content: 'hello' },
-        { name: 'spare', filename: 'upload.w15spare', content: 'nobody asked for this' },
+        { name: 'file', filename: `upload${extensionFor('kept')}`, content: 'hello' },
+        {
+          name: 'spare',
+          filename: `upload${extensionFor('spare')}`,
+          content: 'nobody asked for this',
+        },
       ]),
     );
 
     try {
-      expect(await uploadsWithExtension('.w15spare')).toEqual([]);
-      expect(await uploadsWithExtension('.w15kept')).toEqual([path.basename(data.file)]);
+      expect(await uploadsWithExtension(extensionFor('spare'))).toEqual([]);
+      expect(await uploadsWithExtension(extensionFor('kept'))).toEqual([path.basename(data.file)]);
     } finally {
       await fs.unlink(data.file);
     }

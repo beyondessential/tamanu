@@ -13,18 +13,16 @@ export const uploadAttachment = async (req, maxFileSize) => {
 
   // Read request and extract file, stats and metadata
   const { deviceId } = req;
-  const { file, deleteFileAfterImport, type, ...metadata } = await getUploadedData(req);
+  const { file, type, ...metadata } = await getUploadedData(req);
   assertUploadedFilePath(file);
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 
   // Parsed file needs to be deleted from memory. Awaited so the delete can't land
   // after this request has returned; a failed delete shouldn't fail the upload.
-  if (deleteFileAfterImport) {
-    await asyncFs.unlink(file).catch(error => {
-      log.warn('uploadAttachment: failed to delete uploaded file', { error: error.message });
-    });
-  }
+  await asyncFs.unlink(file).catch(error => {
+    log.warn('uploadAttachment: failed to delete uploaded file', { error: error.message });
+  });
 
   // Check file size constraint
   if (maxFileSize && size > maxFileSize) {

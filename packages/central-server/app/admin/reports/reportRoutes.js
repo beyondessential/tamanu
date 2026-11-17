@@ -216,7 +216,7 @@ reportsRouter.post(
 
     const canEditSchema = req.ability.can('write', 'ReportDbSchema');
 
-    const { name, file, dryRun, deleteFileAfterImport } = await getUploadedData(req);
+    const { name, file, dryRun } = await getUploadedData(req);
     assertUploadedFilePath(file);
 
     const feedback = {};
@@ -298,9 +298,7 @@ reportsRouter.post(
         }
       }
     } finally {
-      if (deleteFileAfterImport) {
-        await fs.unlink(file).catch(() => {});
-      }
+      await fs.unlink(file).catch(() => {});
     }
     res.send(feedback);
   }),

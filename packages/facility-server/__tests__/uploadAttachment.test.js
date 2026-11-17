@@ -23,7 +23,6 @@ getUploadedData.mockImplementation(async req => {
   await fs.writeFile(fileName, FILEDATA, { encoding: 'base64' });
   return {
     file: fileName,
-    deleteFileAfterImport: true,
     ...req,
   };
 });

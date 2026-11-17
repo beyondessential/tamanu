@@ -7,6 +7,9 @@ import { tmpdir, tmpdirPath } from './tmpdir';
 
 // These keys describe a file the server itself received and stored, so they are
 // only ever set from a multipart file part, never from what the caller sends.
+// `deleteFileAfterImport` is no longer one of them: an upload is always deleted
+// once its handler is done with it. It stays on this list so that a caller still
+// cannot supply it, should anything come to read it again.
 const UPLOADED_FILE_KEYS = ['file', 'fileName', 'fileContentType', 'deleteFileAfterImport'];
 
 function withoutUploadedFileKeys(data) {
@@ -71,7 +74,6 @@ async function getMultipartData(req) {
               file: files.file[0].path,
               fileName: files.file[0].originalFilename,
               fileContentType: files.file[0].headers?.['content-type'],
-              deleteFileAfterImport: true,
             }
           : {};
 
