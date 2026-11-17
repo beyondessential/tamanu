@@ -34,13 +34,34 @@ type Report struct {
 	WakeRequested bool      `json:"wakeRequested"`
 	// Phase and Announcement are the holder's announcement, in its report
 	// alone.
-	Phase        state.Phase `json:"phase,omitempty"`
-	Announcement int64       `json:"announcement,omitempty"`
+	Phase        state.Phase  `json:"phase,omitempty"`
+	Announcement Announcement `json:"announcement,omitzero"`
 	// Follows is the announcement the supervisor follows.
-	Follows    int64     `json:"follows,omitempty"`
-	TTLSeconds float64   `json:"ttlSeconds,omitempty"`
-	ExpiresAt  time.Time `json:"expiresAt,omitzero"`
+	Follows    Announcement `json:"follows,omitzero"`
+	TTLSeconds float64      `json:"ttlSeconds,omitempty"`
+	ExpiresAt  time.Time    `json:"expiresAt,omitzero"`
 }
+
+// Announcement identifies one of the holder's phase announcements by the
+// lease token it holds and its own count of announcements under that token.
+// A later token is newer, as is a later sequence under the same token.
+type Announcement struct {
+	Token    int64 `json:"token"`
+	Sequence int64 `json:"sequence"`
+}
+
+// After reports whether a is newer than b.
+func (a Announcement) After(b Announcement) bool {
+	if a.Token != b.Token {
+		return a.Token > b.Token
+	}
+	return a.Sequence > b.Sequence
+}
+
+// IsZero reports whether a is no announcement.
+func (a Announcement) IsZero() bool { return a == Announcement{} }
+
+func (a Announcement) String() string { return fmt.Sprintf("%d/%d", a.Token, a.Sequence) }
 
 // ErrConflict is the actuator's answer to a request it refused for the
 // lease: one to take it while another holds it, or one carrying a token that

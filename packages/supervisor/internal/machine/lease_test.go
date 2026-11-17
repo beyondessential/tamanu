@@ -320,7 +320,30 @@ func TestAnnouncementsOutnumberTheHolderBefore(t *testing.T) {
 	first := h.machine().Announcement()
 
 	h.stop()
-	h.eventually("the second announcing", func() bool { return o.m.HoldsLease() && o.m.Announcement() > first })
+	h.eventually("the second announcing", func() bool { return o.m.HoldsLease() && o.m.Announcement().After(first) })
+	if second := o.m.Announcement(); second.Token <= first.Token || second.Sequence != 1 {
+		t.Errorf("announcements %s, then %s", first, second)
+	}
+}
+
+// spec: SLPWK#actuator-contract
+func TestAnnouncementsWithLargeTokens(t *testing.T) {
+	h := newHarness(t, false)
+	h.timing.IdleTime = time.Hour
+	h.act.SetLastToken(1 << 62)
+	h.start(testRelease)
+	h.waitHolding()
+	o := h.startOther("second", nil)
+	h.following(o)
+	if got := o.m.Announcement(); got.Token != 1<<62+1 || got.Sequence != 1 {
+		t.Errorf("following %s", got)
+	}
+
+	h.stop()
+	h.eventually("the second announcing", func() bool {
+		got := o.m.Announcement()
+		return o.m.HoldsLease() && got.Token == 1<<62+2 && got.Sequence == 1
+	})
 }
 
 // spec: SLPWK#actuator-contract
