@@ -138,14 +138,23 @@ RUN version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' /tamanu/package.json)
     -ldflags "-X github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo.Version=${version}" \
     -o /supervisor ./cmd/supervisor
 
-## Minimal image running the supervisor. The volume is for TAMANU_SUPERVISOR_DATA_DIR.
+## Build the web app and patient portal the supervisor serves
+FROM build-base AS build-supervisor-frontends
+COPY packages/ packages/
+RUN DOCKER_BUILD=1 scripts/docker-build.sh web \
+  && DOCKER_BUILD=1 scripts/docker-build.sh patient-portal
+
+## Minimal image running the supervisor, with the web app and patient portal it serves.
+## The web app's dist lacks Tamanu's error pages, so they are copied in beside it.
 FROM alpine AS supervisor
-RUN adduser -D -H -u 10001 supervisor \
-  && mkdir -p /var/lib/tamanu-supervisor \
-  && chown supervisor:supervisor /var/lib/tamanu-supervisor
+RUN adduser -D -H -u 10001 supervisor
 COPY --from=build-supervisor /supervisor /usr/bin/supervisor
+COPY --from=build-supervisor-frontends /app/packages/web/dist/ /srv/web/
+COPY packages/web/resources/errors/ /srv/web/resources/errors/
+COPY --from=build-supervisor-frontends /app/packages/patient-portal/dist/ /srv/patient-portal/
+ENV TAMANU_SUPERVISOR_WEB_ROOT=/srv/web \
+  TAMANU_SUPERVISOR_PORTAL_ROOT=/srv/patient-portal
 USER supervisor
-VOLUME /var/lib/tamanu-supervisor
 EXPOSE 8080
 ENTRYPOINT ["/usr/bin/supervisor", "tamanu-supervisor"]
 
