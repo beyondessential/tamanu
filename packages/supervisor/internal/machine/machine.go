@@ -187,9 +187,8 @@ func (m *Machine) HoldsLease() bool { return m.holding.Load() }
 // knows what to do with requests.
 func (m *Machine) Ready() bool { return m.seen.Load() }
 
-// Announcement is the number of the announcement this supervisor made or
-// follows.
-func (m *Machine) Announcement() int64 { return m.current().number }
+// Announcement is the announcement this supervisor made or follows.
+func (m *Machine) Announcement() actuator.Announcement { return m.current().id }
 
 // ControlsParts reports whether the actuator last said it controls the
 // server's parts, and so whether the server can sleep.

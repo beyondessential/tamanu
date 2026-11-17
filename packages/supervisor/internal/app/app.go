@@ -223,11 +223,10 @@ type Status struct {
 	Release   string     `json:"release"`
 	// Lease is "holder" or "follower" with an actuator, and empty without.
 	Lease string `json:"lease,omitempty"`
-	// Announcement is the number of the phase announcement this supervisor
-	// made or follows.
-	Announcement int64  `json:"announcement,omitempty"`
-	Instance     string `json:"instance,omitempty"`
-	Ready        bool   `json:"ready"`
+	// Announcement is the phase announcement this supervisor made or follows.
+	Announcement *actuator.Announcement `json:"announcement,omitempty"`
+	Instance     string                 `json:"instance,omitempty"`
+	Ready        bool                   `json:"ready"`
 }
 
 // Status reports the server's state.
@@ -260,11 +259,12 @@ func (a *App) Status() Status {
 	}
 }
 
-func (a *App) announcement() int64 {
+func (a *App) announcement() *actuator.Announcement {
 	if a.machine == nil {
-		return 0
+		return nil
 	}
-	return a.machine.Announcement()
+	id := a.machine.Announcement()
+	return &id
 }
 
 func (a *App) leaseState() string {

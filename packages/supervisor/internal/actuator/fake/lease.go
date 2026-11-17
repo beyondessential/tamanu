@@ -44,6 +44,14 @@ func (a *Actuator) TakeLeaseAs(holder string, ttl time.Duration) {
 	a.lease = lease{holder: holder, token: a.lease.token + 1, expires: time.Now().Add(ttl)}
 }
 
+// SetLastToken makes the next lease taken have token last+1, as an actuator
+// whose tokens are, say, timestamps would.
+func (a *Actuator) SetLastToken(last int64) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.lease.token = last
+}
+
 // ExpireLease makes the lease expire now, keeping its token.
 func (a *Actuator) ExpireLease() {
 	a.mu.Lock()
