@@ -106,7 +106,23 @@ The supervisor came out far larger than a small component should be. The decisio
 
 - No saved state. A new lease holder reads the phase from the actuator's part states: every part desired and observed down is asleep, and stays so; anything else is woken, so a sleep cut short by a restart becomes a wake. This drops the saved-state record and its contract endpoint, step tracking and resuming a sleep, and the saved release check (upgrades already wake through the actuator). The last failure is kept in memory only, so a new holder shows none until it meets one itself.
 - Several supervisors per server stay: the lease, reports and sleep barrier remain, and the lease only decides who acts.
-- Tests are reviewed for what earns its place, then rewritten table-driven alongside the code changes.
+- Tests are reviewed for what earns its place, then rewritten table-driven alongside the code changes. The review (about 3,800 test lines to about 1,900, fakes and helpers about 1,000 to 850):
+  - Gone with their code: config, routes and persist tests. The smoke tests stay, run against the shipped Caddyfile.
+  - State package tests cut but the concurrent activity test; they repeat what the gate tests check through the gate.
+  - Folded into tables: the gate's page, index and browser tests into `TestGate`; upgrades by when they start; release checks; hand-over cases; the sleep barrier; api instance failover; status endpoints.
+  - Cut as plumbing the machine tests already exercise: actuator and api client round trips, the large-token announcement test, the page copy lint, `SameLine`.
+  - `cmd/fake-actuator` and the fake's `/fake/*` endpoints go; the in-process smoke test covers the same flow.
+  - New: a table of how a new holder reads the phase from part states.
+  - Gaps filled: a sleep barrier that times out, losing the lease mid-sleep or mid-wake, the entrypoint script (missing and malformed variables, the default Caddyfile mode), and a path-to-behaviour table in the smoke test (websockets, time sync, an ordinary api path).
+
+Build order, on this card's branch (#11712):
+
+- [ ] Specs: SUPV and SLPWK without the saved state (resilience, compatibility, the actuator contract), and configuration as the entrypoint's contract
+- [ ] Drop the saved state: `internal/persist`, the contract's saved-state endpoint and the fake's, step tracking and resuming; a new holder reads the phase from part states. New-holder table test
+- [ ] Caddyfile routing: the shipped Caddyfiles, the `tamanu` app's Caddyfile block, the `sh` entrypoint with its test table, the Dockerfile; remove `internal/config`, `internal/routes` (but the smoke tests) and `internal/command`. Smoke tests against the Caddyfile, with the path table
+- [ ] Test review cuts and merges, package by package, and the remaining gap tests
+- [ ] Remove `cmd/fake-actuator`; README and PR description
+- [ ] Then triage the open review issues against what is left, since many touch removed code
 
 ### Later
 
