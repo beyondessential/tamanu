@@ -133,8 +133,9 @@ async function readKey(keyFilePath: string, encryptedValues: string[]): Promise<
     }
     throw new Error(
       [
-        `The config key file at ${keyFilePath} (config crypto.keyFile) is not present, and this server's database or config holds values encrypted with it.`,
+        `The config key file at ${keyFilePath} (config crypto.keyFile) is not present, and this server's database or config holds encrypted values.`,
         'Where the server runs in a container, that path is a mounted secret: check it is mounted into the process running the upgrade.',
+        "If this database is a copy of another server's, its values are under that server's key instead: give this server a key of its own, and the upgrade then says how to clear the copied secrets.",
       ].join('\n'),
       { cause: err },
     );
