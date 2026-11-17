@@ -32,14 +32,19 @@ type StoredSecret = { table: string; id: string; key: string; value: string; del
 
 // Deleted rows are included: one still under the published development key is readable by anyone
 // holding the database, so it is re-encrypted with the rest.
+// This check runs before migrations, so on a fresh database none of the tables it reads exist yet.
+async function tableExists(sequelize: Sequelize, table: string): Promise<boolean> {
+  const [row] = await sequelize.query<{ name: string | null }>(
+    `SELECT to_regclass($table) AS name`,
+    { type: QueryTypes.SELECT, bind: { table: `public.${table}` } },
+  );
+  return Boolean(row?.name);
+}
+
 async function findEncryptedSecrets(sequelize: Sequelize): Promise<StoredSecret[]> {
   const secrets: StoredSecret[] = [];
   for (const table of SECRET_TABLES) {
-    const [exists] = await sequelize.query<{ name: string | null }>(
-      `SELECT to_regclass($table) AS name`,
-      { type: QueryTypes.SELECT, bind: { table: `public.${table}` } },
-    );
-    if (!exists?.name) continue;
+    if (!(await tableExists(sequelize, table))) continue;
 
     const rows = await sequelize.query<{
       id: string;
@@ -85,14 +90,16 @@ async function findConfigSecrets(
   ) {
     superseded.add(SETTINGS_PSK_CONFIG_PATH);
   }
-  for (const entry of ENCRYPTED_CONFIG_SECRET_SETTINGS) {
-    const rows = await sequelize.query(
-      `SELECT 1 FROM public.settings
-        WHERE deleted_at IS NULL AND key = $key AND scope = $scope
-        LIMIT 1`,
-      { type: QueryTypes.SELECT, bind: { key: entry.setting, scope: entry.scope } },
-    );
-    if (rows.length > 0) superseded.add(entry.config);
+  if (await tableExists(sequelize, 'settings')) {
+    for (const entry of ENCRYPTED_CONFIG_SECRET_SETTINGS) {
+      const rows = await sequelize.query(
+        `SELECT 1 FROM public.settings
+          WHERE deleted_at IS NULL AND key = $key AND scope = $scope
+          LIMIT 1`,
+        { type: QueryTypes.SELECT, bind: { key: entry.setting, scope: entry.scope } },
+      );
+      if (rows.length > 0) superseded.add(entry.config);
+    }
   }
 
   const inUse = [];

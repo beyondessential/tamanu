@@ -37,7 +37,9 @@ const fakeSequelize = (tables: Record<string, Row[]>, { hasForgetFunction = fals
         return [{ name: tables[table] ? table : null }];
       }
       const table = Object.keys(tables).find(name => sql.includes(`public.${name}`));
-      return table ? tables[table] : [];
+      // As Postgres does: the check runs before migrations, so a table may not exist yet.
+      if (!table) throw new Error(`relation in "${sql}" does not exist`);
+      return tables[table];
     }),
   }) as any;
 
