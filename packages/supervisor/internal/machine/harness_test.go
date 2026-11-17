@@ -180,7 +180,7 @@ func (h *harness) release() {
 // test looks at it.
 func (h *harness) keepAwakeAfterWake() {
 	h.onAPI(func(call string) {
-		if call == "DELETE /hold" {
+		if call == "DELETE /tasks/hold" {
 			h.holdOpen()
 		}
 	})

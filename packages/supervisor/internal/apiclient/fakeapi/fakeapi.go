@@ -18,7 +18,7 @@ const Token = "test-supervisor-token"
 type API struct {
 	mu        sync.Mutex
 	version   string
-	hold      apiclient.HoldResult
+	hold      apiclient.TaskHoldResult
 	finalSync apiclient.FinalSyncResult
 	failing   map[string]int
 	held      bool
@@ -44,7 +44,7 @@ func (a *API) SetVersion(v string) {
 }
 
 // SetHold sets the answer to a hold.
-func (a *API) SetHold(res apiclient.HoldResult) {
+func (a *API) SetHold(res apiclient.TaskHoldResult) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.hold = res
@@ -58,7 +58,7 @@ func (a *API) SetFinalSync(res apiclient.FinalSyncResult) {
 }
 
 // Fail makes a call answer with status, until set to zero. A call is the
-// method and route, as "POST /hold".
+// method and route, as "POST /tasks/hold".
 func (a *API) Fail(call string, status int) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -72,7 +72,7 @@ func (a *API) OnCall(fn func(call string)) {
 	a.onCall = fn
 }
 
-// Calls lists the calls made so far, as "POST /hold".
+// Calls lists the calls made so far, as "POST /tasks/hold".
 func (a *API) Calls() []string {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -114,10 +114,10 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch call {
-	case "POST /hold":
+	case "POST /tasks/hold":
 		a.held = !a.hold.Busy
 		writeJSON(w, a.hold)
-	case "DELETE /hold":
+	case "DELETE /tasks/hold":
 		a.held = false
 		w.WriteHeader(http.StatusNoContent)
 	case "GET /status":
