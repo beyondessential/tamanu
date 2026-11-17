@@ -39,8 +39,8 @@ func New(upstreams []string, token string) *Client {
 	}
 }
 
-// HoldResult is the api's answer to a hold.
-type HoldResult struct {
+// TaskHoldResult is the api's answer to a hold on scheduled tasks.
+type TaskHoldResult struct {
 	// Busy is true when the server is busy, in which case no hold was set.
 	Busy         bool     `json:"busy"`
 	RunningTasks []string `json:"runningTasks,omitempty"`
@@ -53,18 +53,18 @@ type FinalSyncResult struct {
 	Reason    string `json:"reason,omitempty"`
 }
 
-// Hold holds scheduled tasks, unless the server is busy.
+// HoldTasks holds scheduled tasks, unless the server is busy.
 //
 // spec: SLPWK#going-to-sleep
-func (c *Client) Hold(ctx context.Context) (HoldResult, error) {
-	var res HoldResult
-	err := c.call(ctx, http.MethodPost, "hold", c.CallTimeout, &res)
+func (c *Client) HoldTasks(ctx context.Context) (TaskHoldResult, error) {
+	var res TaskHoldResult
+	err := c.call(ctx, http.MethodPost, "tasks/hold", c.CallTimeout, &res)
 	return res, err
 }
 
-// Release releases the hold. Releasing when there is none does nothing.
-func (c *Client) Release(ctx context.Context) error {
-	return c.call(ctx, http.MethodDelete, "hold", c.CallTimeout, nil)
+// ReleaseTasks releases the hold on scheduled tasks. Releasing when there is none does nothing.
+func (c *Client) ReleaseTasks(ctx context.Context) error {
+	return c.call(ctx, http.MethodDelete, "tasks/hold", c.CallTimeout, nil)
 }
 
 // Version is the release the server runs.

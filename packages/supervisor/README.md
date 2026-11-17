@@ -66,8 +66,8 @@ The status server answers `GET /status` and `GET /health`, as JSON.
 ## Sleep and wake
 
 The steps of a sleep call the api's supervisor routes in this order: `GET /api/supervisor/status`
-(the release check, run first), `POST /api/supervisor/hold`, and on a facility `POST
-/api/supervisor/final-sync`. A wake ends with `DELETE /api/supervisor/hold`. How far a sleep or wake
+(the release check, run first), `POST /api/supervisor/tasks/hold`, and on a facility `POST
+/api/supervisor/final-sync`. A wake ends with `DELETE /api/supervisor/tasks/hold`. How far a sleep or wake
 got is kept in `supervisor-state.json` in the data directory.
 
 ## Actuator contract
