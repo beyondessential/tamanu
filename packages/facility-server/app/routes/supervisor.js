@@ -13,7 +13,6 @@ function incompleteReason({ enabled, queued, ran }) {
   return null;
 }
 
-/** The supervisor's routes on a facility server: the shared ones, and the final sync. */
 export function facilitySupervisorRoutes() {
   const routes = supervisorRoutes({ version });
 
