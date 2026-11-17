@@ -276,6 +276,21 @@ describe('reportRoutes', () => {
       expect(res).toHaveSucceeded();
     });
 
+    it('should refuse a version whose query does not plan, and save nothing', async () => {
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...newVersion } = getMockReportVersion(1, 'some random non sql query');
+      const res = await adminApp
+        .post(`/api/admin/reports/${testReport.id}/versions`)
+        .send(newVersion);
+      expect(res).toHaveRequestError();
+      expect(res.body.error.message).toMatch(/Invalid query/);
+      expect(
+        await models.ReportDefinitionVersion.count({
+          where: { reportDefinitionId: testReport.id },
+        }),
+      ).toBe(0);
+    });
+
     it('should refuse a version for a report that does not exist', async () => {
       const newVersion = getMockReportVersion(1, 'select 1');
       delete newVersion.versionNumber;
@@ -376,6 +391,14 @@ describe('reportRoutes', () => {
         .post(`/api/admin/reports/import`)
         .attach('file', file)
         .field('jsonData', JSON.stringify(jsonData));
+
+    it('should refuse a report on an unknown reporting schema', async () => {
+      const name = 'Report Import Unknown Schema';
+      const res = await importReport(path.join(__dirname, '/data/unknown-schema.json'), { name });
+      expect(res).toHaveRequestError();
+      expect(res.body.error.message).toMatch(/Unknown reporting schema/);
+      expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
+    });
 
     it('should refuse a file path sent in a JSON body and leave the file in place', async () => {
       const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'report-import-'));
