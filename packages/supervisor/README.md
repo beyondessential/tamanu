@@ -11,9 +11,13 @@ This is a Go module, not an npm workspace.
 ## Building
 
 ```sh
-go build ./cmd/supervisor
+go build -ldflags "-X github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo.Version=2.70.0" ./cmd/supervisor
 go test ./...
 ```
+
+The `-X` flag sets the release the supervisor belongs to. A build without it is a development build:
+it reports its release as `dev`, and puts a server to sleep without checking the server's database
+is migrated to the same release.
 
 No `xcaddy` is needed: `cmd/supervisor` imports Caddy's standard modules, `caddy-ratelimit` and
 Tamanu's modules, then runs Caddy's own command line.
@@ -57,9 +61,51 @@ The api token never appears in it: the configuration names the variable instead.
 ## Status
 
 The status server answers `GET /status` with the server's state (awake, going to sleep, asleep or
-waking), each part's readiness, whether an upgrade is in progress, and the last sleep or wake
-failure, and `GET /health` with the supervisor's own health. Neither wakes the server or counts as
-activity.
+waking), each part's readiness, whether an upgrade is in progress, the last sleep or wake failure,
+requests in flight, when the server last had activity, and the supervisor's release. `GET /health`
+answers with the supervisor's own health. Neither wakes the server or counts as activity.
+
+## Sleep and wake
+
+With an actuator that controls the server's parts, the supervisor puts the server to sleep once it
+has had no activity for the idle time, and wakes it when a request that counts as activity arrives.
+Without an actuator, or with one that does not control the parts, it only routes traffic.
+
+Going to sleep, in order: check the server runs the supervisor's release (`GET
+/api/supervisor/status`), hold scheduled tasks unless the server is busy (`POST
+/api/supervisor/hold`), stop `tasks` and `fhir`, on a facility sync with central once more (`POST
+/api/supervisor/final-sync`), stop `sync`, `api`, `web` and `portal`, then stop the `database`. A
+busy server stays awake and is asked again a minute later. Activity cancels a sleep, and a failed
+step cancels it and is reported; either way the server wakes from wherever the sleep reached.
+
+Waking starts the `database`, then the other parts, forwarding requests to each part once the
+actuator reports it ready, then releases the hold (`DELETE /api/supervisor/hold`). A wake that
+stalls is retried.
+
+How far a sleep or wake got is kept in `supervisor-state.json` in the data directory, so a
+supervisor that restarts continues from there. One that starts on an asleep server from another
+release wakes it.
+
+While the actuator reports an upgrade in progress, every request gets the upgrading response and
+the supervisor neither sleeps nor wakes the server. It wakes the server once the upgrade ends.
+
+## Actuator contract
+
+The platform implements the actuator contract,
+[`actuator/v1.openapi.yaml`](actuator/v1.openapi.yaml): `GET /v1/state` reports whether the actuator
+controls the parts, whether an upgrade is in progress, and each part's desired and observed state,
+and `PUT /v1/state` sets the desired state (`up` or `down`) of the parts it names, returning at once.
+
+For running the supervisor locally, `cmd/fake-actuator` keeps the parts in memory:
+
+```sh
+go run ./cmd/fake-actuator -listen 127.0.0.1:7000 -delay 2s
+TAMANU_SUPERVISOR_ACTUATOR_URL=http://127.0.0.1:7000 ...
+curl -X PUT -d true http://127.0.0.1:7000/fake/upgrading
+```
+
+The server's side of the api token is its own `SUPERVISOR_TOKEN` variable, which must match
+`TAMANU_SUPERVISOR_API_TOKEN`.
 
 ## Layout
 
@@ -74,3 +120,9 @@ activity.
 | `internal/state` | The run-time state the gate reads and the sleep and wake machinery writes |
 | `internal/pages` | The waking, upgrading and unavailable responses |
 | `internal/errorpage` | The `tamanu_error_page` handler for parts that cannot be reached |
+| `internal/machine` | The sleep and wake state machine |
+| `internal/actuator` | The actuator contract's client, and a fake actuator |
+| `internal/apiclient` | The client for the api's supervisor routes, and a fake api for tests |
+| `internal/persist` | The state file in the data directory |
+| `internal/buildinfo` | The release the supervisor was built for |
+| `cmd/fake-actuator` | The fake actuator, for running locally |
