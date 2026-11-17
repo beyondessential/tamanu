@@ -15,7 +15,6 @@ Applies to the setup wizard a facility server serves in place of the login scree
 - Once setup has completed the wizard stops showing, whichever of the server's processes answers.
 - A wizard submitted again after setup has completed is refused before central is asked for sync credentials, so the credentials the server stored stay valid.
 - The credentials entered must belong to a central administrator with full access. Central uses them to mint a dedicated sync user for this server, and the server does not store them.
-- The wizard refuses to set up a server whose primary timezone differs from central's, naming both timezones, before central is asked for sync credentials, as [sync](../sync/overview.md#primary-timezone) requires.
 - The wizard then logs in to central as the minted sync user and fetches the [facility bootstrap](../sync/bootstrap.md). If this fails, the wizard reports that the server could not be set up, and the server stays unconfigured.
 - The server's configuration (central address, sync credentials, and facilities) and the bootstrap are saved in one transaction, so a server is never configured without its bootstrap.
 - Once setup succeeds, the wizard logs the administrator in with the credentials they entered, which takes them to the setting-up screen.
