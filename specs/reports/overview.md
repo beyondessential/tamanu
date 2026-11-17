@@ -20,6 +20,7 @@ Applies to report definitions, generation, and exports.
 ## Saving a report version
 
 - A new version of an existing report runs against that report's connection, whatever connection the request names.
+- Creating, importing or adding a version to a report on the raw connection needs permission to write the report schema.
 - Creating or importing a version checks its query by planning it on the report's connection, without running it.
 - A query is refused when it does not plan, when it holds more than one statement, or when its report has no configured reporting connection. The refusal gives the reason.
 - Nothing is saved when the check refuses the query.

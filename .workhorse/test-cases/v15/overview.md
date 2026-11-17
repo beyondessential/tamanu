@@ -11,6 +11,7 @@
 - [x] A new version sent without a connection is checked against its report's connection (verifies spec: REPORTS)
 - [ ] A new version naming a different connection is still checked against its report's connection (verifies spec: REPORTS)
 - [x] A version for a report that does not exist is refused as not found
+- [x] Without permission to write the report schema, creating a raw report or adding a version to one is refused, and a reporting report can still be created (verifies spec: REPORTS)
 - [ ] In the admin panel, saving a version with an invalid query shows the reason and saves nothing (verifies spec: REPORTS)
 
 ## Running a report
