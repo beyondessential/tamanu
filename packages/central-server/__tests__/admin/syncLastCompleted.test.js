@@ -19,15 +19,21 @@ describe('GET /admin/sync/lastCompleted', () => {
   afterAll(() => ctx.close());
   afterEach(() => models.SyncSession.truncate({ force: true, cascade: true }));
 
-  const createCompletedSession = async ({ facilityIds, completedAt, deletedAt = null }) => {
+  const createCompletedSession = async ({
+    facilityIds,
+    completedAt,
+    deletedAt = null,
+    parameters = {},
+    debugInfo = {},
+  }) => {
     const id = fakeUUID();
     await models.SyncSession.create({
       id,
       startTime: completedAt,
       lastConnectionTime: completedAt,
       completedAt,
-      debugInfo: { totalToPull: 0 },
-      parameters: { facilityIds },
+      debugInfo,
+      parameters: { facilityIds, ...parameters },
     });
     if (deletedAt) {
       // paranoid destroy sets deleted_at rather than removing the row
@@ -53,6 +59,21 @@ describe('GET /admin/sync/lastCompleted', () => {
     const row = result.body.data.find(r => r.facilityIds?.[0] === facilityIds[0]);
     expect(row).toBeTruthy();
     expect(new Date(row.completedAt)).toEqual(new Date('2024-06-01'));
+  });
+
+  it.each([
+    ['the session parameters', { parameters: { totalToPull: 42 } }],
+    ['debug info, for sessions from before it moved', { debugInfo: { totalToPull: 42 } }],
+  ])('reports records pulled from %s', async (_source, totals) => {
+    const facilityIds = [`facility-${fakeUUID()}`];
+    await createCompletedSession({ facilityIds, completedAt: new Date('2024-01-01'), ...totals });
+
+    const app = await baseApp.asRole('admin');
+    const result = await app.get(ENDPOINT);
+
+    expect(result).toHaveSucceeded();
+    const row = result.body.data.find(r => r.facilityIds?.[0] === facilityIds[0]);
+    expect(row.recordsPulled).toEqual(42);
   });
 
   it('excludes a facility whose only completed session has been soft-deleted', async () => {
