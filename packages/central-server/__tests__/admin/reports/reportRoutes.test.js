@@ -186,7 +186,12 @@ describe('reportRoutes', () => {
       const { versionNumber, ...definition } = getMockReportVersion(1, 'select 1');
       const res = await adminApp
         .post('/api/admin/reports')
-        .send({ name, dbSchema, ...definition, advancedConfig: { dhis2DataSet: 'test-dataset-id' } });
+        .send({
+          name,
+          dbSchema,
+          ...definition,
+          advancedConfig: { dhis2DataSet: 'test-dataset-id' },
+        });
       expect(res).toHaveSucceeded();
       const [report] = await ReportDefinition.findAll({ where: { name } });
       const versions = await ReportDefinitionVersion.findAll({
