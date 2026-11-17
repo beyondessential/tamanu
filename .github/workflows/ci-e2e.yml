@@ -126,11 +126,15 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: e2e-built-artifacts
+          # The dev-secret.key files are generated on first use, and the snapshot's secrets are
+          # encrypted with them.
           path: |
             packages/*/dist
             packages/central-server/config/local.json5
             packages/central-server/provisioning.json5
             packages/facility-server/config/local.json5
+            packages/central-server/config/dev-secret.key
+            packages/facility-server/config/dev-secret.key
           retention-days: 1
       - name: Upload prepared database snapshot
         uses: actions/upload-artifact@v7
