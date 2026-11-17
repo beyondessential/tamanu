@@ -14,8 +14,14 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 - A published definition refuses a version in any other minor, with a reason saying that the definition for that minor is needed.
 - A definition run from the repository accepts any image tag as its version, such as the build of a branch.
 
+### Compatibility within a minor
+
+- Every release in a minor runs under the definition of any other release in that minor.
+- A release changes its definition, and the parts of Tamanu a definition drives (its routes, commands and the supervisor's interface among them), only in ways that keep this true.
+- The one exception is a release that restores compatibility an earlier release in the minor broke by mistake. It may break compatibility with that earlier release's definition in doing so.
+
 > [!NOTE]
-> What a definition must say can change between minor versions, as it did when configuration files went. Holding a definition to its own minor means a server never runs a release under a definition that does not know that release's needs.
+> What a definition must say can change between minor versions, as it did when configuration files went. Holding a definition to its own minor, and every release in a minor to every definition in it, means a server never runs a release under a definition that does not know that release's needs.
 
 ## Crossing a minor version
 
