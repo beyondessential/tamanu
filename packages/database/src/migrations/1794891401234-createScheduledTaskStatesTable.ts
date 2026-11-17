@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 const TABLE = { tableName: 'scheduled_task_states', schema: 'public' };
 
@@ -13,12 +13,12 @@ export async function up(query: QueryInterface): Promise<void> {
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: query.sequelize.literal('CURRENT_TIMESTAMP(3)'),
+      defaultValue: Sequelize.fn('now'),
     },
     updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: query.sequelize.literal('CURRENT_TIMESTAMP(3)'),
+      defaultValue: Sequelize.fn('now'),
     },
     deleted_at: {
       type: DataTypes.DATE,
