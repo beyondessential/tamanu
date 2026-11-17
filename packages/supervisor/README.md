@@ -48,7 +48,6 @@ A blank value counts as unset, and an unknown `TAMANU_SUPERVISOR_` variable is a
 | `TAMANU_SUPERVISOR_ACTUATOR_URL` | none | The platform's actuator. Without one the server never sleeps |
 | `TAMANU_SUPERVISOR_IDLE_TIME` | `30m` facility, `15m` central | Time without activity before the server sleeps, as a Go duration |
 | `TAMANU_SUPERVISOR_API_TOKEN` | none | Credential for the api's supervisor routes. Required with an actuator |
-| `TAMANU_SUPERVISOR_DATA_DIR` | none | Where the supervisor keeps its state. Required with an actuator |
 | `TAMANU_SUPERVISOR_TRUSTED_PROXIES` | none | Comma-separated CIDR ranges of the platform's proxies, whose `X-Forwarded-For` is believed for rate limiting and passed on to the parts |
 
 To see the Caddy configuration the environment produces, without running it:
@@ -68,7 +67,7 @@ The status server answers `GET /status` and `GET /health`, as JSON.
 The steps of a sleep call the api's supervisor routes in this order: `GET /api/supervisor/status`
 (the release check, run first), `POST /api/supervisor/tasks/hold`, and on a facility `POST
 /api/supervisor/final-sync`. A wake ends with `DELETE /api/supervisor/tasks/hold`. How far a sleep or wake
-got is kept in `supervisor-state.json` in the data directory.
+got is saved with the actuator, which also holds the lease.
 
 ## Actuator contract
 
@@ -101,6 +100,6 @@ The server's side of the api token is its own `SUPERVISOR_TOKEN` variable, which
 | `internal/machine` | The sleep and wake state machine |
 | `internal/actuator` | The actuator contract's client, and a fake actuator |
 | `internal/apiclient` | The client for the api's supervisor routes, and a fake api for tests |
-| `internal/persist` | The state file in the data directory |
+| `internal/persist` | The saved state's document |
 | `internal/buildinfo` | The release the supervisor was built for |
 | `cmd/fake-actuator` | The fake actuator, for running locally |

@@ -8,6 +8,7 @@ import (
 	"maps"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -40,6 +41,10 @@ type Actuator struct {
 	failPut   func(map[state.Part]actuator.Desired) bool
 	puts      []map[state.Part]actuator.Desired
 	onPut     func(map[state.Part]actuator.Desired)
+
+	lease   lease
+	saved   []byte
+	reports map[string]actuator.Report
 }
 
 // New returns an actuator that controls parts, with every part up and ready.
@@ -49,6 +54,7 @@ func New() *Actuator {
 		controls: true,
 		stalled:  map[state.Part]bool{},
 		failing:  map[state.Part]bool{},
+		reports:  map[string]actuator.Report{},
 	}
 	for _, p := range AllParts {
 		a.parts[p] = &part{desired: actuator.Up, observed: actuator.Ready}
@@ -143,7 +149,17 @@ func (a *Actuator) stateLocked() actuator.State {
 	for name, p := range a.parts {
 		parts[name] = actuator.PartState{Desired: p.desired, Observed: p.observed}
 	}
-	return actuator.State{ControlsParts: a.controls, Upgrading: a.upgrading, Parts: parts}
+	s := actuator.State{ControlsParts: a.controls, Upgrading: a.upgrading, Parts: parts, Reports: map[string]actuator.Report{}}
+	now := time.Now()
+	if a.lease.heldAt(now) {
+		s.Lease = &actuator.LeaseInfo{Holder: a.lease.holder, ExpiresAt: a.lease.expires}
+	}
+	for instance, r := range a.reports {
+		if r.ExpiresAt.After(now) {
+			s.Reports[instance] = r
+		}
+	}
+	return s
 }
 
 // ServeHTTP implements the contract, plus PUT /fake/upgrading and
@@ -155,6 +171,12 @@ func (a *Actuator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, a.State())
 	case r.URL.Path == "/v1/state" && r.Method == http.MethodPut:
 		a.put(w, r)
+	case r.URL.Path == "/v1/lease":
+		a.serveLease(w, r)
+	case r.URL.Path == "/v1/saved-state":
+		a.serveSavedState(w, r)
+	case strings.HasPrefix(r.URL.Path, "/v1/reports/") && r.Method == http.MethodPut:
+		a.serveReport(w, r)
 	case r.URL.Path == "/fake/upgrading" && r.Method == http.MethodPut:
 		a.knob(w, r, a.SetUpgrading)
 	case r.URL.Path == "/fake/controls-parts" && r.Method == http.MethodPut:
@@ -190,8 +212,13 @@ func (a *Actuator) put(w http.ResponseWriter, r *http.Request) {
 	a.mu.Lock()
 	a.puts = append(a.puts, maps.Clone(body.Parts))
 	onPut, failPut, controls := a.onPut, a.failPut, a.controls
+	current := a.lease.current(r)
 	a.mu.Unlock()
 
+	if !current {
+		a.refuse(w)
+		return
+	}
 	if onPut != nil {
 		onPut(body.Parts)
 	}
@@ -200,7 +227,7 @@ func (a *Actuator) put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !controls {
-		http.Error(w, "this actuator does not control the server's parts", http.StatusConflict)
+		http.Error(w, "this actuator does not control the server's parts", http.StatusForbidden)
 		return
 	}
 

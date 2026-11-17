@@ -83,6 +83,9 @@ func TestIdleSince(t *testing.T) {
 	if got := read(); got["idleSince"] == nil || got["release"] != "dev" {
 		t.Errorf("idle status = %v", got)
 	}
+	if got := read(); got["lease"] != nil || got["instance"] != nil {
+		t.Errorf("a supervisor without an actuator reports a lease: %v", got)
+	}
 	_, done := a.state.AdmitActivity(state.API)
 	if got := read(); got["idleSince"] != nil || got["inFlight"] != float64(1) {
 		t.Errorf("status with a request in flight = %v", got)

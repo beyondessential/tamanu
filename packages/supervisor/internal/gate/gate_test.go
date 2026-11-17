@@ -27,6 +27,7 @@ var (
 	apiNotReady   = condition{"api not ready", func(s *state.Server) { s.SetReady(state.API, false) }}
 	upgrading     = condition{"upgrading", func(s *state.Server) { s.SetUpgrading(true) }}
 	upgradeAsleep = condition{"upgrading while asleep", func(s *state.Server) { s.SetPhase(state.Asleep); s.SetUpgrading(true) }}
+	standby       = condition{"on standby", func(s *state.Server) { s.SetServing(false) }}
 )
 
 // outcome is what a request met.
@@ -60,6 +61,10 @@ func TestGate(t *testing.T) {
 		{Static, goingToSleep, result{forwarded, true, true}},
 		{Static, upgrading, result{forwarded, false, true}},
 		{Static, upgradeAsleep, result{forwarded, false, true}},
+		{Static, standby, result{wakingResp, false, false}},
+		{Activity, standby, result{wakingResp, false, false}},
+		{Exempt, standby, result{wakingResp, false, false}},
+		{Websocket, standby, result{wakingResp, false, false}},
 
 		{Activity, awake, result{forwarded, false, true}},
 		{Activity, asleep, result{wakingResp, true, true}},

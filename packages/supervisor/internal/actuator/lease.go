@@ -1,0 +1,120 @@
+package actuator
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"time"
+)
+
+// TokenHeader carries the lease token on requests that need the lease.
+const TokenHeader = "Tamanu-Lease-Token"
+
+// LeaseInfo is the lease as the actuator reports it.
+type LeaseInfo struct {
+	Holder    string    `json:"holder"`
+	Token     int64     `json:"token,omitempty"`
+	ExpiresAt time.Time `json:"expiresAt"`
+}
+
+// LeaseRequest is the body that takes or renews the lease.
+type LeaseRequest struct {
+	Holder     string  `json:"holder"`
+	TTLSeconds float64 `json:"ttlSeconds"`
+}
+
+// Report is one supervisor's report on its activity.
+type Report struct {
+	LastActivity  time.Time `json:"lastActivity"`
+	InFlight      int       `json:"inFlight"`
+	WakeRequested bool      `json:"wakeRequested"`
+	TTLSeconds    float64   `json:"ttlSeconds,omitempty"`
+	ExpiresAt     time.Time `json:"expiresAt,omitzero"`
+}
+
+// ErrConflict is the actuator's answer to a request it refused for the
+// lease: one to take it while another holds it, or one carrying a token that
+// is not the current one.
+type ErrConflict struct {
+	Method, Path string
+	// Lease is the lease as the actuator reported it, when it did.
+	Lease LeaseInfo
+}
+
+func (e *ErrConflict) Error() string {
+	if e.Lease.Holder != "" {
+		return fmt.Sprintf("actuator: %s /v1/%s refused: the lease is held by %s until %s",
+			e.Method, e.Path, e.Lease.Holder, e.Lease.ExpiresAt.Format(time.RFC3339))
+	}
+	return fmt.Sprintf("actuator: %s /v1/%s refused: this supervisor does not hold the lease", e.Method, e.Path)
+}
+
+// IsConflict reports whether err is the actuator refusing a request for the
+// lease.
+func IsConflict(err error) bool {
+	var conflict *ErrConflict
+	return errors.As(err, &conflict)
+}
+
+// Token is the lease token the client sends, or zero.
+func (c *Client) Token() int64 { return c.token.Load() }
+
+// TakeLease takes the lease for holder, for ttl. It answers an *ErrConflict
+// while another holder has it.
+//
+// spec: SLPWK#actuator-contract
+func (c *Client) TakeLease(ctx context.Context, holder string, ttl time.Duration) (LeaseInfo, error) {
+	var lease LeaseInfo
+	err := c.do(ctx, http.MethodPost, "lease", LeaseRequest{holder, seconds(ttl)}, &lease, http.StatusOK)
+	if err == nil {
+		c.token.Store(lease.Token)
+	}
+	return lease, err
+}
+
+// RenewLease extends the lease the client holds by ttl.
+func (c *Client) RenewLease(ctx context.Context, holder string, ttl time.Duration) (LeaseInfo, error) {
+	var lease LeaseInfo
+	err := c.do(ctx, http.MethodPut, "lease", LeaseRequest{holder, seconds(ttl)}, &lease, http.StatusOK)
+	return lease, err
+}
+
+// ReleaseLease gives up the lease the client holds, and forgets its token.
+func (c *Client) ReleaseLease(ctx context.Context) error {
+	err := c.do(ctx, http.MethodDelete, "lease", nil, nil, http.StatusNoContent, http.StatusOK)
+	c.token.Store(0)
+	return err
+}
+
+// SavedState gets the supervisor's saved state. found is false when none has
+// been saved. It needs the lease.
+func (c *Client) SavedState(ctx context.Context) (doc []byte, found bool, err error) {
+	status, b, err := c.request(ctx, http.MethodGet, "saved-state", nil)
+	switch {
+	case err != nil:
+		return nil, false, err
+	case status == http.StatusNotFound:
+		return nil, false, nil
+	case status == http.StatusConflict:
+		return nil, false, &ErrConflict{Method: http.MethodGet, Path: "saved-state"}
+	case status != http.StatusOK:
+		return nil, false, fmt.Errorf("actuator: GET /v1/saved-state answered %d", status)
+	}
+	return b, true, nil
+}
+
+// SaveState replaces the supervisor's saved state with doc. It needs the
+// lease.
+func (c *Client) SaveState(ctx context.Context, doc []byte) error {
+	return c.do(ctx, http.MethodPut, "saved-state", doc, nil, http.StatusNoContent, http.StatusOK)
+}
+
+// Report sends instance's report, which the actuator keeps for ttl.
+func (c *Client) Report(ctx context.Context, instance string, r Report, ttl time.Duration) error {
+	r.TTLSeconds = seconds(ttl)
+	r.ExpiresAt = time.Time{}
+	return c.do(ctx, http.MethodPut, "reports/"+instance, r, nil, http.StatusNoContent, http.StatusOK)
+}
+
+func seconds(d time.Duration) float64 { return d.Seconds() }

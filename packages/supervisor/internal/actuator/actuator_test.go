@@ -13,7 +13,17 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
+// setup returns a fake actuator and a client holding its lease.
 func setup(t *testing.T) (*fake.Actuator, *actuator.Client) {
+	t.Helper()
+	f, c := setupWithoutLease(t)
+	if _, err := c.TakeLease(context.Background(), "test", time.Minute); err != nil {
+		t.Fatal(err)
+	}
+	return f, c
+}
+
+func setupWithoutLease(t *testing.T) (*fake.Actuator, *actuator.Client) {
 	t.Helper()
 	f := fake.New()
 	srv := httptest.NewServer(f)
@@ -121,7 +131,7 @@ func TestSetErrors(t *testing.T) {
 	f.FailPuts(nil)
 
 	f.SetControlsParts(false)
-	if _, err := c.Set(ctx, map[state.Part]actuator.Desired{state.API: actuator.Down}); err == nil || !strings.Contains(err.Error(), "409") {
+	if _, err := c.Set(ctx, map[state.Part]actuator.Desired{state.API: actuator.Down}); err == nil || !strings.Contains(err.Error(), "403") {
 		t.Errorf("put to an actuator that does not control parts: %v", err)
 	}
 }
