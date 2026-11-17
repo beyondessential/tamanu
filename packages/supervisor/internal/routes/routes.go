@@ -18,6 +18,7 @@ import (
 	caddyzstd "github.com/caddyserver/caddy/v2/modules/caddyhttp/encode/zstd"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp/headers"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp/reverseproxy"
+	"github.com/caddyserver/caddy/v2/modules/caddytls"
 	ratelimit "github.com/mholt/caddy-ratelimit"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/app"
@@ -113,6 +114,13 @@ func Build(c config.Config) ([]byte, error) {
 		},
 		AppsRaw: caddy.ModuleMap{
 			"http": caddyconfig.JSON(caddyhttp.App{Servers: servers}, nil),
+			// The supervisor has no certificates, so Caddy's certificate
+			// storage is never checked or cleaned, and it writes nothing to
+			// disk.
+			"tls": caddyconfig.JSON(caddytls.TLS{
+				DisableStorageCheck: true,
+				DisableStorageClean: true,
+			}, nil),
 			app.ID: caddyconfig.JSON(tamanu, nil),
 		},
 	}
