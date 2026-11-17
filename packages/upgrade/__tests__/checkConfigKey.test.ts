@@ -163,6 +163,56 @@ describe('checkConfigKey', () => {
     ]);
   });
 
+  it('re-encrypts a secret under the published development key behind one the configured key reads', async () => {
+    keyFile.path = join(dir, 'present.key');
+    const sequelize = fakeSequelize({
+      local_system_secrets: [
+        { id: 'a', key: 'deviceKey', value: readable },
+        {
+          id: 'b',
+          key: 'syncPassword',
+          value: await encryptSecret(PUBLISHED_DEVELOPMENT_KEY, 'two'),
+        },
+      ],
+    });
+
+    await checkConfigKey(sequelize);
+    keyFile.path = missing;
+
+    const updates = sequelize.query.mock.calls.filter(([sql]: [string]) =>
+      sql.startsWith('UPDATE'),
+    );
+    expect(updates.map(([, { bind }]: [string, { bind: { id: string } }]) => bind.id)).toEqual([
+      'b',
+    ]);
+  });
+
+  it('gives the copy advice, rewriting nothing, when a secret is under neither key', async () => {
+    keyFile.path = join(dir, 'present.key');
+    const sequelize = fakeSequelize(
+      {
+        local_system_secrets: [
+          {
+            id: 'a',
+            key: 'deviceKey',
+            value: await encryptSecret(PUBLISHED_DEVELOPMENT_KEY, 'one'),
+          },
+          {
+            id: 'b',
+            key: 'syncPassword',
+            value: await encryptSecret(Buffer.alloc(32, 2), 'two'),
+          },
+        ],
+      },
+      { hasForgetFunction: true },
+    );
+
+    const error = await checkConfigKey(sequelize).catch((err: Error) => err);
+    keyFile.path = missing;
+    expect((error as Error).message).toContain('forget_server_identity()');
+    expect(sequelize.transaction).not.toHaveBeenCalled();
+  });
+
   it('refuses the published development key as the configured key in production', async () => {
     const developmentKeyPath = join(dir, 'development.key');
     await fs.writeFile(developmentKeyPath, PUBLISHED_DEVELOPMENT_KEY);

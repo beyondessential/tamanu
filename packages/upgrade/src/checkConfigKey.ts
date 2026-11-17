@@ -52,13 +52,19 @@ async function decrypts(keyBuffer: Buffer, encrypted: string): Promise<boolean> 
   }
 }
 
+async function anyDecrypts(keyBuffer: Buffer, secrets: StoredSecret[]): Promise<boolean> {
+  for (const { value } of secrets) {
+    if (await decrypts(keyBuffer, value)) return true;
+  }
+  return false;
+}
+
 async function readKey(keyFilePath: string, secrets: StoredSecret[]): Promise<Buffer> {
   try {
     return await readConfigKeyFile();
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
-    const sample = secrets[0]?.value;
-    if (sample && (await decrypts(PUBLISHED_DEVELOPMENT_KEY, sample))) {
+    if (await anyDecrypts(PUBLISHED_DEVELOPMENT_KEY, secrets)) {
       throw new Error(
         [
           `There is no key file at ${keyFilePath} (config crypto.keyFile), and this server's secrets are encrypted with the development key published in the Tamanu repository.`,
@@ -95,20 +101,30 @@ async function checkConfigSecrets(keyBuffer: Buffer, keyFilePath: string): Promi
   );
 }
 
+// Sorts the secrets the configured key does not read by whether the published development key does.
+async function findUnreadableSecrets(secrets: StoredSecret[], keyBuffer: Buffer) {
+  const underDevelopmentKey: StoredSecret[] = [];
+  const underUnknownKey: StoredSecret[] = [];
+  for (const secret of secrets) {
+    if (await decrypts(keyBuffer, secret.value)) continue;
+    if (await decrypts(PUBLISHED_DEVELOPMENT_KEY, secret.value)) {
+      underDevelopmentKey.push(secret);
+    } else {
+      underUnknownKey.push(secret);
+    }
+  }
+  return { underDevelopmentKey, underUnknownKey };
+}
+
 // A server that ran on the published development key holds its secrets under it. Re-encrypt them
 // under the configured key, in one transaction so a failure leaves them all as they were.
 async function reencryptFromDevelopmentKey(
   sequelize: Sequelize,
-  secrets: StoredSecret[],
+  underDevelopmentKey: StoredSecret[],
   keyBuffer: Buffer,
   keyFilePath: string,
   parentTransaction: Transaction | null,
 ): Promise<void> {
-  const underDevelopmentKey = [];
-  for (const secret of secrets) {
-    if (!(await decrypts(keyBuffer, secret.value))) underDevelopmentKey.push(secret);
-  }
-
   // Nested under parentTransaction during a dry run, so it rolls back with it.
   await sequelize.transaction({ transaction: parentTransaction }, async () => {
     for (const { table, id, value } of underDevelopmentKey) {
@@ -158,25 +174,24 @@ export async function checkConfigKey(
   const keyBuffer = await readKey(keyFilePath, secrets);
   await checkConfigSecrets(keyBuffer, keyFilePath);
 
-  const sample = secrets[0]?.value;
-  if (!sample || (await decrypts(keyBuffer, sample))) return;
+  const { underDevelopmentKey, underUnknownKey } = await findUnreadableSecrets(secrets, keyBuffer);
+  if (underUnknownKey.length > 0) {
+    throw new Error(
+      [
+        `The config key file at ${keyFilePath} (config crypto.keyFile) does not decrypt this database's secrets.`,
+        "A database restored from another deployment holds that deployment's secrets, and only its key file reads them.",
+        await asCopyAdvice(sequelize),
+      ].join('\n'),
+    );
+  }
 
-  if (await decrypts(PUBLISHED_DEVELOPMENT_KEY, sample)) {
+  if (underDevelopmentKey.length > 0) {
     await reencryptFromDevelopmentKey(
       sequelize,
-      secrets,
+      underDevelopmentKey,
       keyBuffer,
       keyFilePath,
       parentTransaction,
     );
-    return;
   }
-
-  throw new Error(
-    [
-      `The config key file at ${keyFilePath} (config crypto.keyFile) does not decrypt this database's secrets.`,
-      "A database restored from another deployment holds that deployment's secrets, and only its key file reads them.",
-      await asCopyAdvice(sequelize),
-    ].join('\n'),
-  );
 }
