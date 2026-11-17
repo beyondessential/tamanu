@@ -40,7 +40,7 @@ lints.md
 !**/config/local.example
 
 # Development key files, generated on first use
-**/config/dev-secret.key
+**/config/dev-secret.key*
 
 # Hidden files
 *.aes
