@@ -1,0 +1,275 @@
+package machine
+
+import (
+	"context"
+	"fmt"
+	"maps"
+	"slices"
+	"strings"
+	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator"
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
+)
+
+// announcementsPerLease spaces announcement numbers by lease token, so a new
+// holder's announcements are newer than any of the holder before it, with
+// nothing to carry over between them.
+const announcementsPerLease = 1_000_000
+
+// announcement is a phase the holder announced, or the one a supervisor
+// follows.
+type announcement struct {
+	phase  state.Phase
+	number int64
+	// at is when this supervisor announced or started following it.
+	at time.Time
+}
+
+func (m *Machine) current() announcement {
+	m.annMu.Lock()
+	defer m.annMu.Unlock()
+	return m.ann
+}
+
+// announce moves the server to phase and, if the phase changed or this holder
+// has not announced yet, numbers a new announcement and reports it at once.
+//
+// spec: SLPWK#actuator-contract
+func (m *Machine) announce(phase state.Phase) {
+	m.st.SetPhase(phase)
+	first := m.token * announcementsPerLease
+	m.annMu.Lock()
+	if m.ann.phase == phase && m.ann.number > first {
+		m.annMu.Unlock()
+		return
+	}
+	m.ann = announcement{phase: phase, number: max(m.ann.number+1, first+1), at: time.Now()}
+	m.annMu.Unlock()
+	notify(m.reportNow)
+}
+
+// pollActuator reads the actuator's state for as long as the machine runs. A
+// supervisor that does not hold the lease follows the holder from it; the
+// holder learns of the others' activity from it. While the actuator cannot be
+// reached, a follower keeps to the last phase and readiness it saw.
+//
+// spec: SLPWK#waking
+func (m *Machine) pollActuator(ctx context.Context) {
+	ticker := time.NewTicker(m.cfg.Timing.ActuatorPoll)
+	defer ticker.Stop()
+	failing := false
+	for {
+		s, err := m.act.State(ctx)
+		switch {
+		case err == nil:
+			failing = false
+			m.seen.Store(true)
+			m.latest.Store(&s)
+			m.observe(s)
+			m.roleMu.Lock()
+			holding := m.holding.Load()
+			if !holding {
+				m.follow(s)
+			}
+			m.roleMu.Unlock()
+			if holding {
+				m.takeWakeRequests(s)
+				notify(m.polled)
+			}
+		case ctx.Err() == nil && !failing:
+			m.log.Warn("reading the actuator's state", zap.Error(err))
+			failing = true
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+	}
+}
+
+// follow takes the phase from the holder's newest announcement, and each
+// part's readiness from the actuator. A supervisor that has followed nothing
+// yet goes by the parts alone. Called with roleMu held.
+func (m *Machine) follow(s actuator.State) {
+	if !m.controls.Load() {
+		m.st.SetAllReady(true)
+		m.st.SetPhase(state.Awake)
+		return
+	}
+	for _, p := range m.cfg.Parts {
+		m.st.SetReady(p, s.Parts[p].Observed == actuator.Ready)
+	}
+
+	if s.Lease != nil && s.Lease.Holder != m.cfg.Instance {
+		if r, ok := s.Reports[s.Lease.Holder]; ok && r.Announcement > 0 {
+			m.annMu.Lock()
+			newer := r.Announcement > m.ann.number
+			if newer {
+				m.ann = announcement{phase: r.Phase, number: r.Announcement, at: time.Now()}
+			}
+			m.annMu.Unlock()
+			if newer {
+				m.st.SetPhase(r.Phase)
+				notify(m.reportNow)
+			}
+			return
+		}
+	}
+	if m.current().number == 0 {
+		switch {
+		case s.AllObserved(m.cfg.Parts, actuator.Ready):
+			m.st.SetPhase(state.Awake)
+		case s.AllDesired(m.cfg.Parts, actuator.Down):
+			m.st.SetPhase(state.Asleep)
+		default:
+			m.st.SetPhase(state.Waking)
+		}
+	}
+}
+
+// takeWakeRequests asks the holder for a wake when another supervisor
+// reports one made while following the current announcement.
+//
+// spec: SLPWK#waking
+func (m *Machine) takeWakeRequests(s actuator.State) {
+	ann := m.current()
+	if ann.phase == state.Awake {
+		return
+	}
+	for instance, r := range s.Reports {
+		if instance != m.cfg.Instance && r.WakeRequested && r.Follows == ann.number {
+			m.st.RequestWake()
+			return
+		}
+	}
+}
+
+// others folds the other supervisors' reports: their latest activity, and
+// how many requests that count as activity they have in flight.
+//
+// spec: SLPWK#activity
+func (m *Machine) others() (lastActivity time.Time, inFlight int) {
+	s := m.latest.Load()
+	if s == nil {
+		return time.Time{}, 0
+	}
+	for instance, r := range s.Reports {
+		if instance == m.cfg.Instance {
+			continue
+		}
+		if r.LastActivity.After(lastActivity) {
+			lastActivity = r.LastActivity
+		}
+		inFlight += r.InFlight
+	}
+	return lastActivity, inFlight
+}
+
+// settle waits until every supervisor reporting follows the current
+// announcement with nothing in flight, as must this one.
+//
+// spec: SLPWK#going-to-sleep
+func (m *Machine) settle(ctx context.Context) error {
+	number := m.current().number
+	timeout := time.NewTimer(m.cfg.Timing.SettleTimeout)
+	defer timeout.Stop()
+	for {
+		waiting := m.unsettled(number)
+		if len(waiting) == 0 {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-timeout.C:
+			return fmt.Errorf("supervisors still busy or behind: %s", strings.Join(waiting, ", "))
+		case <-m.polled:
+		case <-m.st.Activity():
+		}
+	}
+}
+
+func (m *Machine) unsettled(number int64) []string {
+	var waiting []string
+	if n := m.st.Snapshot().InFlight; n > 0 {
+		waiting = append(waiting, fmt.Sprintf("%s (%d in flight)", m.cfg.Instance, n))
+	}
+	s := m.latest.Load()
+	if s == nil {
+		return waiting
+	}
+	for _, instance := range slices.Sorted(maps.Keys(s.Reports)) {
+		r := s.Reports[instance]
+		switch {
+		case instance == m.cfg.Instance:
+		case r.Follows != number:
+			waiting = append(waiting, fmt.Sprintf("%s (following %d)", instance, r.Follows))
+		case r.InFlight > 0:
+			waiting = append(waiting, fmt.Sprintf("%s (%d in flight)", instance, r.InFlight))
+		}
+	}
+	return waiting
+}
+
+// report sends this supervisor's report to the actuator until ctx ends: on
+// every tick, on a new announcement, and while the server is not awake, as
+// soon as a wake is asked for or the last request in flight finishes.
+//
+// spec: SLPWK#actuator-contract
+func (m *Machine) report(ctx context.Context) {
+	ticker := time.NewTicker(m.cfg.Timing.ReportEvery)
+	defer ticker.Stop()
+	failing := false
+	for {
+		err := m.act.Report(ctx, m.cfg.Instance, m.ownReport(), m.cfg.Timing.ReportTTL)
+		switch {
+		case err == nil:
+			failing = false
+		case ctx.Err() == nil && !failing:
+			m.log.Warn("reporting to the actuator", zap.Error(err))
+			failing = true
+		}
+		if !m.awaitReport(ctx, ticker.C) {
+			return
+		}
+	}
+}
+
+// awaitReport waits until a report is due, and reports false if ctx ended
+// first.
+func (m *Machine) awaitReport(ctx context.Context, tick <-chan time.Time) bool {
+	for {
+		select {
+		case <-ctx.Done():
+			return false
+		case <-tick:
+			return true
+		case <-m.reportNow:
+			return true
+		case <-m.st.ReportDue():
+			if m.st.Snapshot().Phase != state.Awake {
+				return true
+			}
+		}
+	}
+}
+
+func (m *Machine) ownReport() actuator.Report {
+	ann := m.current()
+	snap := m.st.Snapshot()
+	r := actuator.Report{
+		LastActivity:  snap.LastActivity.UTC(),
+		InFlight:      snap.InFlight,
+		WakeRequested: snap.LastWakeRequest.After(ann.at),
+		Follows:       ann.number,
+	}
+	if m.holding.Load() {
+		r.Phase = ann.phase
+		r.Announcement = ann.number
+	}
+	return r
+}

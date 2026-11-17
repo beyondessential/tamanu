@@ -173,10 +173,7 @@ func TestAdmitStatic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := New(Parts())
 			tt.setup(s)
-			admission, done := s.AdmitStatic()
-			if admission != Forward {
-				t.Errorf("admission = %v", admission)
-			}
+			done := s.AdmitStatic()
 			if n := s.Snapshot().InFlight; n != 1 {
 				t.Errorf("in flight = %d", n)
 			}
@@ -197,35 +194,29 @@ func TestAdmitStatic(t *testing.T) {
 	}
 }
 
-// spec: SUPV#resilience
-func TestStandby(t *testing.T) {
+func TestReportDue(t *testing.T) {
 	s := New(Parts())
-	s.SetServing(false)
-	s.SetPhase(Asleep)
-	if got := s.Admit(API); got != Standby {
-		t.Errorf("Admit = %v", got)
+	due := func() bool {
+		select {
+		case <-s.ReportDue():
+			return true
+		default:
+			return false
+		}
 	}
-	if got, done := s.AdmitActivity(API); got != Standby {
-		t.Errorf("AdmitActivity = %v", got)
-	} else {
-		done()
+	_, first := s.AdmitActivity(API)
+	_, second := s.AdmitActivity(API)
+	first()
+	if due() {
+		t.Error("a report was due with a request still in flight")
 	}
-	if got, done := s.AdmitStatic(); got != Standby {
-		t.Errorf("AdmitStatic = %v", got)
-	} else {
-		done()
+	second()
+	if !due() {
+		t.Error("no report due once nothing was in flight")
 	}
-	if wakes(s) {
-		t.Error("a request on standby asked for a wake")
-	}
-	select {
-	case <-s.Activity():
-		t.Error("a request on standby counted as activity")
-	default:
-	}
-	s.SetServing(true)
-	if got := s.Admit(API); got != Hold {
-		t.Errorf("Admit once serving = %v", got)
+	s.RequestWake()
+	if !due() {
+		t.Error("no report due on a wake request")
 	}
 }
 

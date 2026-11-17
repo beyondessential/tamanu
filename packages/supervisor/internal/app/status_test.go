@@ -93,6 +93,13 @@ func TestIdleSince(t *testing.T) {
 	done()
 }
 
+func TestReadyWithoutAnActuator(t *testing.T) {
+	w, err := serve(t, &StatusHandler{app: newTestApp()}, "GET", "/ready")
+	if err != nil || w.Code != http.StatusOK || w.Body.String() != "{\"ready\":true}\n" {
+		t.Errorf("ready = %d %q %v", w.Code, w.Body, err)
+	}
+}
+
 func TestHealth(t *testing.T) {
 	a := newTestApp()
 	a.state.SetPhase(state.Asleep)

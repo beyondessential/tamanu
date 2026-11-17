@@ -80,7 +80,7 @@ func TestActivityKeepsTheServerAwake(t *testing.T) {
 	h := newHarness(t, false)
 	h.timing.IdleTime = 200 * time.Millisecond
 	h.start(testRelease)
-	h.waitServing()
+	h.waitHolding()
 	h.holdOpen()
 	time.Sleep(3 * h.timing.IdleTime)
 	if len(h.api.Calls()) != 0 || h.snapshot().Phase != state.Awake {

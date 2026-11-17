@@ -156,35 +156,37 @@ func (a *App) Start() error {
 	}()
 
 	// Caddy drains connections before it stops the apps, so the lease is
-	// released here, as the signal arrives, rather than in Stop.
+	// given up here, as the signal arrives, and the machine goes on following
+	// while the connections drain.
 	//
 	// spec: SUPV#resilience
 	a.signals = make(chan os.Signal, 1)
 	signal.Notify(a.signals, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		if _, ok := <-a.signals; ok {
-			a.release()
+			a.machine.StepDown()
 		}
 	}()
 	return nil
 }
 
-// Stop stops the machine, releases the lease and waits for the machine.
+// Stop gives up the lease, stops the machine and waits for it.
 func (a *App) Stop() error {
 	if a.cancel == nil {
 		return nil
 	}
 	signal.Stop(a.signals)
 	close(a.signals)
-	a.release()
+	a.machine.StepDown()
+	a.cancel()
 	<-a.done
 	return nil
 }
 
-func (a *App) release() {
-	a.cancel()
-	a.machine.ReleaseLease()
-}
+// Ready reports whether the supervisor knows what to do with requests: at
+// once without an actuator, and once it has read the actuator's state with
+// one, whether or not it holds the lease.
+func (a *App) Ready() bool { return a.machine == nil || a.machine.Ready() }
 
 // Cleanup releases the app's hold on the shared state.
 func (a *App) Cleanup() error {
@@ -219,9 +221,13 @@ type Status struct {
 	IdleTime  string     `json:"idleTime"`
 	CanSleep  bool       `json:"canSleep"`
 	Release   string     `json:"release"`
-	// Lease is "holder" or "waiting" with an actuator, and empty without.
-	Lease    string `json:"lease,omitempty"`
-	Instance string `json:"instance,omitempty"`
+	// Lease is "holder" or "follower" with an actuator, and empty without.
+	Lease string `json:"lease,omitempty"`
+	// Announcement is the number of the phase announcement this supervisor
+	// made or follows.
+	Announcement int64  `json:"announcement,omitempty"`
+	Instance     string `json:"instance,omitempty"`
+	Ready        bool   `json:"ready"`
 }
 
 // Status reports the server's state.
@@ -248,8 +254,17 @@ func (a *App) Status() Status {
 		CanSleep:     a.CanSleep(),
 		Release:      buildinfo.Version,
 		Lease:        a.leaseState(),
+		Announcement: a.announcement(),
 		Instance:     a.instance,
+		Ready:        a.Ready(),
 	}
+}
+
+func (a *App) announcement() int64 {
+	if a.machine == nil {
+		return 0
+	}
+	return a.machine.Announcement()
 }
 
 func (a *App) leaseState() string {
@@ -259,7 +274,7 @@ func (a *App) leaseState() string {
 	case a.machine.HoldsLease():
 		return "holder"
 	default:
-		return "waiting"
+		return "follower"
 	}
 }
 
