@@ -127,7 +127,8 @@ jobs:
         with:
           name: e2e-built-artifacts
           # The dev-secret.key files are generated on first use, and the snapshot's secrets are
-          # encrypted with them.
+          # encrypted with them. Shipping both together is only acceptable because the snapshot
+          # holds test data and test credentials alone.
           path: |
             packages/*/dist
             packages/central-server/config/local.json5
