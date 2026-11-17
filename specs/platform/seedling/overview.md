@@ -52,8 +52,10 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 
 ### Changing a parameter
 
-- Changing the database URL, crypto key, authentication secrets or canonical URL of an installed server restarts the parts that use it, with the new value.
+- Changing the database URL, crypto key, authentication secrets, canonical URL or primary timezone of an installed server restarts the parts that use it, with the new value.
 - Setting the patient portal URL on an installed central server starts the patient portal and its ingress. Unsetting it stops them.
+- Changing the primary timezone leaves the datetimes already stored as they are, read in the new timezone.
+- A facility server's primary timezone matches its central server's, which [sync](../../sync/overview.md#primary-timezone) enforces.
 
 ## Ingress
 

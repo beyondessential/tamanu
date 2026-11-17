@@ -1,5 +1,9 @@
 # Production Seedling definitions
 
+## Tamanu changes beside the definitions
+
+- **Primary timezone check (SYNC, FSETUP):** a facility server compares its `TZ` with the `primaryTimeZone` central already returns from `/login` (`packages/central-server/app/auth/login.js`), at sync login in `CentralServerConnection` and in the setup wizard before minting sync credentials, and stops on a mismatch. This is what lets both definitions keep the timezone as an ordinary parameter defaulting to UTC.
+
 ## Dependencies
 
 - **Supervisor specs (L13):** the Seedling definitions specs assume the supervisor specs return to `main` before this card merges, carrying the upgrading response in `specs/platform/supervisor/overview.md#upgrades`. Whether the platform's "upgrade finished" signal stays is filed on L13.
