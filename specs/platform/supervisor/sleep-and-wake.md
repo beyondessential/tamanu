@@ -15,6 +15,7 @@ Applies to a server whose platform provides an actuator sleeping when its own us
 - Websocket upgrade requests are not activity, and frames on an open socket are invisible to the supervisor.
 - A server goes to sleep after its idle time passes with no activity. The idle time is supervisor configuration, and defaults to 30 minutes on a facility server and 15 minutes on central.
 - A server with steady use never goes quiet, and so never sleeps.
+- Activity at any of a server's supervisors counts. The supervisor holding the lease goes by every supervisor's activity, as each reports it to the actuator.
 - Sync requests to central are activity there. An awake facility server syncs with central every minute, so central goes quiet only once every facility server is asleep.
 
 > [!NOTE]
@@ -23,14 +24,15 @@ Applies to a server whose platform provides an actuator sleeping when its own us
 ## Going to sleep
 
 - A server's parts are its database, api, sync, tasks and fhir. Asleep means every one of them is stopped. The web app and the patient portal are the [supervisor's own](overview.md#front-door), and stay up.
-- When the idle time is reached, the supervisor first stops forwarding requests that count as activity, and handles them itself, so nothing new reaches the server.
+- When the idle time is reached, the supervisor holding the lease announces that the server is going to sleep. Every supervisor then stops forwarding requests that count as activity, and handles them itself, so nothing new reaches the server.
+- Nothing is stopped until every running supervisor has followed the announcement and has no request that counts as activity in flight. A supervisor that stops reporting is no longer waited for once its last report expires.
 - It then asks the api whether the server is busy: a scheduled task is running, or a FHIR job is queued or in progress. A busy server goes back to forwarding requests and stays awake, and the supervisor asks again every minute while there is still no activity.
 - From the moment the api answers that the server is not busy, no scheduled task starts a run until the server is awake again or the sleep is cancelled.
 - It then asks the actuator to stop tasks and fhir, and waits until they have stopped. Stopping them waits for no work to finish, as when a server is stopped for any other reason.
 - On a facility server, it then asks the api to sync with central once more. A final sync that does not complete, such as when central cannot be reached, cancels the sleep, and the facility stays awake until its next idle time.
 - It then asks the actuator to stop sync and the api, and waits until they have stopped.
 - Only then does it ask the actuator to stop the database.
-- A request that counts as activity, arriving while the server is going to sleep, cancels the sleep. The supervisor wakes the server again from whatever point the sleep had reached.
+- A request that counts as activity, arriving at any supervisor while the server is going to sleep, cancels the sleep. The supervisor holding the lease wakes the server again from whatever point the sleep had reached.
 - A step that fails cancels the sleep in the same way. The supervisor reports the failure and tries again after the next idle time.
 - The supervisor only puts a server to sleep when the api runs the supervisor's own [release line](overview.md#compatibility).
 
@@ -39,7 +41,8 @@ Applies to a server whose platform provides an actuator sleeping when its own us
 
 ## Waking
 
-- A request that counts as activity, arriving at a server that is asleep, starts a wake.
+- A request that counts as activity, arriving at any supervisor of a server that is asleep, starts a wake. A supervisor without the lease tells the actuator at once, and the supervisor holding the lease starts the wake.
+- Every supervisor follows the phase the supervisor holding the lease announces, and forwards to each part once the actuator reports it ready.
 - While the server wakes, a request to an API path is answered at once with `503 Service Unavailable` and a `Retry-After` header.
 - While the server wakes, a browser opening a page gets a waking page, which reloads itself once the server is up.
 - The web app's and patient portal's files are served in every state. Like any other request, a request for one counts as activity.
@@ -71,6 +74,8 @@ Applies to a server whose platform provides an actuator sleeping when its own us
 - The actuator holds a lease that one supervisor at a time takes, renews before it expires, and releases. Each taking of the lease carries a token larger than any before it, and the actuator refuses a change of desired state carrying an older token, so a supervisor that lost the lease cannot act on the server.
 - The actuator stores the supervisor's saved state for the holder of the lease.
 - The actuator takes a report from each running supervisor: when it last saw activity, how many requests that count as activity it has in flight, and whether a request has asked for a wake. A report not renewed in time stops counting.
+- The report of the supervisor holding the lease also announces the server's phase, numbered so that each announcement is newer than the one before. Every other supervisor's report says which announcement it follows.
+- The actuator reports every supervisor's report that still counts, so each supervisor learns the announced phase, and the holder learns every supervisor's activity, from the actuator's status.
 - Each version of the contract stays supported by the actuator for as long as a deployed Tamanu release uses it.
 - Requests always reach the server through its supervisor, whatever state the actuator puts the parts in.
 
