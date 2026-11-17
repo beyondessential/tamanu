@@ -1,3 +1,4 @@
+import { unlink } from 'node:fs/promises';
 import path from 'node:path';
 import multiparty from 'multiparty';
 import { InvalidParameterError } from '@tamanu/errors';
@@ -26,36 +27,63 @@ export function assertUploadedFilePath(file) {
   }
 }
 
+/**
+ * Deletes every file the parser wrote to disk except the one being handed to the
+ * caller, which that caller deletes once it is done with it. Anything else — a
+ * part the caller never asked for, or the whole upload when parsing fails — has
+ * nobody left to clean it up, so it would sit in the upload directory for good.
+ * Never throws: a file left behind must not fail the request.
+ */
+async function deleteUploadsExcept(files, keep) {
+  const paths = Object.values(files ?? {})
+    .flat()
+    .map(uploaded => uploaded?.path)
+    .filter(uploadedPath => uploadedPath && uploadedPath !== keep);
+
+  await Promise.all(paths.map(uploadedPath => unlink(uploadedPath).catch(() => {})));
+}
+
 async function getMultipartData(req) {
   const form = new multiparty.Form({ autoFiles: true, uploadDir: await tmpdir() });
 
   return new Promise((resolve, reject) => {
-    form.parse(req, (err, fields, files) => {
-      if (err) {
-        reject(err);
-      } else {
+    form.parse(req, async (err, fields, files) => {
+      try {
+        if (err) {
+          await deleteUploadsExcept(files);
+          reject(err);
+          return;
+        }
+
         const { jsonData, ...otherFields } = fields;
 
+        let parsedData;
         try {
-          const parsedData = jsonData ? JSON.parse(jsonData) : {};
-
-          const fileInfo = files.file
-            ? {
-                file: files.file[0].path,
-                fileName: files.file[0].originalFilename,
-                fileContentType: files.file[0].headers?.['content-type'],
-                deleteFileAfterImport: true,
-              }
-            : {};
-
-          resolve({
-            ...withoutUploadedFileKeys(parsedData),
-            ...withoutUploadedFileKeys(otherFields),
-            ...fileInfo,
-          });
+          parsedData = jsonData ? JSON.parse(jsonData) : {};
         } catch (e) {
+          await deleteUploadsExcept(files);
           reject(e);
+          return;
         }
+
+        const fileInfo = files.file
+          ? {
+              file: files.file[0].path,
+              fileName: files.file[0].originalFilename,
+              fileContentType: files.file[0].headers?.['content-type'],
+              deleteFileAfterImport: true,
+            }
+          : {};
+
+        await deleteUploadsExcept(files, fileInfo.file);
+
+        resolve({
+          ...withoutUploadedFileKeys(parsedData),
+          ...withoutUploadedFileKeys(otherFields),
+          ...fileInfo,
+        });
+      } catch (e) {
+        reject(e);
       }
     });
   });
