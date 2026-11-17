@@ -227,7 +227,12 @@ reportsRouter.post(
 
     const feedback = {};
     try {
-      const versionData = await readJSON(file);
+      const fileData = await readJSON(file);
+      // A file that names no connection is a reporting one, as a report created through the form is.
+      const versionData = {
+        ...fileData,
+        dbSchema: fileData.dbSchema ?? REPORT_DB_CONNECTIONS.REPORTING,
+      };
 
       if (versionData.versionNumber)
         throw new InvalidOperationError('Cannot import a report with a version number');

@@ -392,6 +392,14 @@ describe('reportRoutes', () => {
         .attach('file', file)
         .field('jsonData', JSON.stringify(jsonData));
 
+    it('should import a report whose file names no schema', async () => {
+      const name = 'Report Import No Schema';
+      const res = await importReport(path.join(__dirname, '/data/no-schema.json'), { name });
+      expect(res).toHaveSucceeded();
+      const report = await models.ReportDefinition.findOne({ where: { name } });
+      expect(report.dbSchema).toBe(REPORT_DB_CONNECTIONS.REPORTING);
+    });
+
     it('should refuse a report on an unknown reporting schema', async () => {
       const name = 'Report Import Unknown Schema';
       const res = await importReport(path.join(__dirname, '/data/unknown-schema.json'), { name });
