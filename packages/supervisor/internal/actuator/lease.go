@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
 // TokenHeader carries the lease token on requests that need the lease.
@@ -24,13 +26,20 @@ type LeaseRequest struct {
 	TTLSeconds float64 `json:"ttlSeconds"`
 }
 
-// Report is one supervisor's report on its activity.
+// Report is one supervisor's report on its activity, and on the phase the
+// holder announces or the announcement another follows.
 type Report struct {
 	LastActivity  time.Time `json:"lastActivity"`
 	InFlight      int       `json:"inFlight"`
 	WakeRequested bool      `json:"wakeRequested"`
-	TTLSeconds    float64   `json:"ttlSeconds,omitempty"`
-	ExpiresAt     time.Time `json:"expiresAt,omitzero"`
+	// Phase and Announcement are the holder's announcement, in its report
+	// alone.
+	Phase        state.Phase `json:"phase,omitempty"`
+	Announcement int64       `json:"announcement,omitempty"`
+	// Follows is the announcement the supervisor follows.
+	Follows    int64     `json:"follows,omitempty"`
+	TTLSeconds float64   `json:"ttlSeconds,omitempty"`
+	ExpiresAt  time.Time `json:"expiresAt,omitzero"`
 }
 
 // ErrConflict is the actuator's answer to a request it refused for the
