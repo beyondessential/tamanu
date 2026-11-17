@@ -772,6 +772,57 @@ describe('Medication', () => {
       expect(secondResult).toHaveRequestError();
     });
 
+    // v2.48 left both kinds of request in the active medication requests table after dispensing,
+    // and let them be dispensed again.
+    describe.each([
+      ['an inpatient request', { isDischargePrescription: false, repeats: 0 }],
+      [
+        'an outpatient or discharge request with repeats',
+        { isDischargePrescription: true, repeats: 2 },
+      ],
+    ])('dispensing %s', (_label, requestType) => {
+      const dispenseRequest = request =>
+        dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: request.id,
+            quantity: 10,
+            instructions: 'Take as directed',
+          },
+        ]);
+
+      const listActiveRequestIds = async () => {
+        const result = await app.get(
+          `/api/medication/medication-requests?facilityId=${facilityId}`,
+        );
+        expect(result).toHaveSucceeded();
+        return result.body.data.map(row => row.id);
+      };
+
+      it('completes the request and removes it from the active medication requests', async () => {
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+          ...requestType,
+        });
+        expect(await listActiveRequestIds()).toContain(pharmacyOrderPrescription.id);
+
+        expect(await dispenseRequest(pharmacyOrderPrescription)).toHaveSucceeded();
+
+        await pharmacyOrderPrescription.reload();
+        expect(pharmacyOrderPrescription.isCompleted).toBe(true);
+        expect(await listActiveRequestIds()).not.toContain(pharmacyOrderPrescription.id);
+      });
+
+      it('rejects dispensing the request a second time', async () => {
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+          ...requestType,
+        });
+        expect(await dispenseRequest(pharmacyOrderPrescription)).toHaveSucceeded();
+
+        expect(await dispenseRequest(pharmacyOrderPrescription)).toHaveRequestError();
+      });
+    });
+
     it('should reject dispense when prescriptions are from different patients', async () => {
       const otherPatient = await models.Patient.create(fake(models.Patient));
       const { pharmacyOrderPrescription: pop1 } = await createPharmacyOrderWithPrescription({
