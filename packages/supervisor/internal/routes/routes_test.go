@@ -319,4 +319,7 @@ func TestActuatorAndToken(t *testing.T) {
 	if app["actuator_url"] != "http://actuator:7000" || app["api_token"] != "{env.TAMANU_SUPERVISOR_API_TOKEN}" || app["data_dir"] != "/var/lib/supervisor" {
 		t.Errorf("tamanu app = %v", app)
 	}
+	if upstreams, _ := json.Marshal(app["api_upstreams"]); string(upstreams) != `["api-1:4000","api-2:4000"]` {
+		t.Errorf("tamanu app api upstreams = %s", upstreams)
+	}
 }

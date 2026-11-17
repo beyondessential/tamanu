@@ -93,10 +93,11 @@ func Build(c config.Config) ([]byte, error) {
 	}
 
 	tamanu := app.App{
-		Role:     string(c.Role),
-		Parts:    state.PartsFor(c.Role == config.Central),
-		IdleTime: caddy.Duration(c.IdleTime),
-		DataDir:  c.DataDir,
+		Role:         string(c.Role),
+		Parts:        state.PartsFor(c.Role == config.Central),
+		IdleTime:     caddy.Duration(c.IdleTime),
+		DataDir:      c.DataDir,
+		APIUpstreams: c.APIUpstreams,
 	}
 	if c.HasActuator() {
 		tamanu.ActuatorURL = c.ActuatorURL.String()
