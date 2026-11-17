@@ -49,7 +49,7 @@ Dropped with the earlier design: the changes-pending check and its tick, central
   - [x] PR 4b (`feat/L13/supervisor`): the supervisor as a Caddy build, the actuator contract, and sleep and wake. Brings back SUPV and SLPWK (without its scheduled tasks section), with the Telegram webhook and polling lines in SLPWK
   - PR 5: scheduled tasks, with SLPWK's scheduled tasks section
   - PR 6: health, packaging and docs
-  - [x] Mobile waiting message: its own small PR, branch `feat/L13/mobile-waking-central-message`
+  - [ ] Mobile waiting message: its own small PR, branch `feat/L13/mobile-waking-central-message`; held until product confirms the wording
 
 ### PR 4: the supervisor (SUPV, SLPWK)
 
@@ -108,7 +108,7 @@ Built as PR 4a (#11700, server side) and PR 4b (branch `feat/L13/supervisor`, st
 
 ### Mobile
 
-- [x] While a sync waits in line behind a waking central, the sync screen says it is waiting for central to wake up, in place of "Sync in queue". `MobileSyncManager` is under the sync code-owned paths, so this goes in a small PR of its own
+- [ ] While a sync waits in line behind a waking central, the sync screen says it is waiting for central to wake up, in place of "Sync in queue". `MobileSyncManager` is under the sync code-owned paths, so this goes in a small PR of its own
 
 ### Health, packaging and docs
 
