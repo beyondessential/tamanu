@@ -18,8 +18,8 @@ export class SyncTask extends ScheduledTask {
 
   beginPolling() {
     super.beginPolling();
-    // Sync straight away rather than at the first scheduled time. Here rather than in the
-    // constructor, so the run is recorded and held like any other (see recordScheduledTaskRuns).
+    // Sync straight away rather than at the first scheduled time.
+    // Can't be in the constructor, as that would bypass the task run record.
     this.runImmediately();
   }
 
