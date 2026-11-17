@@ -1230,14 +1230,14 @@ a { color: #0969da; text-decoration: none; }
   <div class="commit-bar">
     <span class="avatar"></span>
     <span class="author">MeganLane29</span>
-    <span class="message">chore: K12: remove mobile forms, sync and sensitive network fixes from v2.67 release notes</span>
+    <span class="message">chore: K12: remove required patient type fix from v2.67 release notes</span>
     <span class="meta"><span>now</span><span><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="m.427 1.927 1.215 1.215a8.002 8.002 0 1 1-1.6 5.685.75.75 0 1 1 1.493-.154 6.5 6.5 0 1 0 1.18-4.458l1.358 1.358A.25.25 0 0 1 3.896 6H.25A.25.25 0 0 1 0 5.75V2.104a.25.25 0 0 1 .427-.177ZM7.75 4a.75.75 0 0 1 .75.75v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5A.75.75 0 0 1 7.75 4Z"></path></svg> <strong>History</strong></span></span>
   </div>
 
   <div class="file-box">
     <div class="file-header">
       <div class="segmented"><span class="selected">Preview</span><span>Code</span><span>Blame</span></div>
-      <span class="file-stats">71 lines (43 loc) · 5.76 KB</span>
+      <span class="file-stats">66 lines (40 loc) · 5.21 KB</span>
       <div class="file-actions">
         <span class="btn btn-sm">Raw</span>
         <div class="btn-group">
@@ -1275,7 +1275,7 @@ a { color: #0969da; text-decoration: none; }
 <div class="markdown-heading"><h2 class="heading-element">Desktop</h2><a id="user-content-desktop" class="anchor" aria-label="Permalink: Desktop" href="#desktop"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
 <ul>
 <li>
-<strong>Encounters</strong> - Where 'Patient type' is set as required, every encounter form enforces it, including when editing an encounter and admitting to hospital. 'Patient type' is filled in when admitting from triage or from a referral. Editing an emergency encounter refuses an arrival or triage time in the future.</li>
+<strong>Encounters</strong> - 'Patient type' is filled in when admitting from triage or from a referral. Editing an emergency encounter refuses an arrival or triage time in the future.</li>
 <li>
 <strong>Patients</strong> - The duplicate NHN check when editing a patient ignores capitalisation. Recording a death with an empty contributing condition row saves without it. A patient removed from a program registry can be registered again.</li>
 <li>
@@ -1306,11 +1306,6 @@ a { color: #0969da; text-decoration: none; }
 <hr>
 <div class="markdown-heading"><h1 class="heading-element"><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji> Critical upgrade notes</h1><a id="user-content-️-critical-upgrade-notes" class="anchor" aria-label="Permalink: ⚠️ Critical upgrade notes" href="#️-critical-upgrade-notes"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
 <div class="markdown-heading"><h3 class="heading-element">Required</h3><a id="user-content-required" class="anchor" aria-label="Permalink: Required" href="#required"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
-<p><strong><em>Patient type</em></strong></p>
-<ul>
-<li>Where your deployment sets 'Patient type' as required, staff must now choose one on every encounter form, including emergency triage, admitting to hospital and editing an encounter. Until now some of these forms saved without one.</li>
-<li>Check that the patient type list is complete, and let triage and admissions staff know.</li>
-</ul>
 <p><strong><em>Patient data</em></strong></p>
 <ul>
 <li>Patients and administered vaccines are imported and exported only through the new 'Patient data' view, not the reference data view. Let anyone who imports or exports patient records know where to find them.</li>
@@ -1320,7 +1315,7 @@ a { color: #0969da; text-decoration: none; }
 <div class="markdown-heading"><h3 class="heading-element">Required</h3><a id="user-content-required-1" class="anchor" aria-label="Permalink: Required" href="#required-1"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
 <p><strong><em>Patient type</em></strong></p>
 <ul>
-<li>On a deployment where 'Patient type' is required, create an emergency encounter for a patient with a patient type recorded. Confirm the field is filled in and cannot be left empty, then admit the patient to hospital and confirm the patient type carries over.</li>
+<li>Create an emergency encounter for a patient with a patient type recorded. Confirm the field is filled in, then admit the patient to hospital and confirm the patient type carries over.</li>
 </ul>
 <p><strong><em>Patient data</em></strong></p>
 <ul>

@@ -270,7 +270,7 @@
     <div class="group">
       <p class="platform">Desktop</p>
       <ul>
-        <li><strong>Encounters</strong> - Where 'Patient type' is set as required, every encounter form enforces it, including when editing an encounter and admitting to hospital. 'Patient type' is filled in when admitting from triage or from a referral. Editing an emergency encounter refuses an arrival or triage time in the future.</li>
+        <li><strong>Encounters</strong> - 'Patient type' is filled in when admitting from triage or from a referral. Editing an emergency encounter refuses an arrival or triage time in the future.</li>
         <li><strong>Patients</strong> - The duplicate NHN check when editing a patient ignores capitalisation. Recording a death with an empty contributing condition row saves without it. A patient removed from a program registry can be registered again.</li>
         <li><strong>Medications</strong> - A medication marked unavailable at the facility shows 'Unavailable' stock rather than 'Unknown'. Users without permission to see the medication administration record or not dispensed details see a message rather than a blank page. Pharmacy note and not dispensed notifications open straight away.</li>
         <li><strong>Labs and imaging</strong> - The active lab requests status filter no longer offers 'Rejected'. Clearing 'Date &amp; time collected' clears the sample details recorded with it. Changing the imaging type clears 'Areas to be imaged'.</li>
@@ -304,14 +304,6 @@
       <span class="required-tag">Required</span>
 
       <div class="upgrade-item">
-        <p class="name">Patient type</p>
-        <ul>
-          <li>Where your deployment sets 'Patient type' as required, staff must now choose one on every encounter form, including emergency triage, admitting to hospital and editing an encounter. Until now some of these forms saved without one.</li>
-          <li>Check that the patient type list is complete, and let triage and admissions staff know.</li>
-        </ul>
-      </div>
-
-      <div class="upgrade-item">
         <p class="name">Patient data</p>
         <ul>
           <li>Patients and administered vaccines are imported and exported only through the new 'Patient data' view, not the reference data view. Let anyone who imports or exports patient records know where to find them.</li>
@@ -329,7 +321,7 @@
       <div class="upgrade-item">
         <p class="name">Patient type</p>
         <ul>
-          <li>On a deployment where 'Patient type' is required, create an emergency encounter for a patient with a patient type recorded. Confirm the field is filled in and cannot be left empty, then admit the patient to hospital and confirm the patient type carries over.</li>
+          <li>Create an emergency encounter for a patient with a patient type recorded. Confirm the field is filled in, then admit the patient to hospital and confirm the patient type carries over.</li>
         </ul>
       </div>
 
