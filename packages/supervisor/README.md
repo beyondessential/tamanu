@@ -15,11 +15,12 @@ go test ./...
 ```
 
 The `-X` flag sets the release the supervisor belongs to. A build without it reports its release as
-`dev`, and skips the check that the server runs the same release before sleeping.
+`dev`, and skips the check that the server runs the same release line before sleeping.
 
 The image is the root Dockerfile's `supervisor` target, stamped with the release in the root
-`package.json`. It runs as a non-root user, with `/var/lib/tamanu-supervisor` as a volume for
-`TAMANU_SUPERVISOR_DATA_DIR`. From the repository root:
+`package.json`. It carries the built web app at `/srv/web`, with Tamanu's error pages, and the
+patient portal at `/srv/patient-portal`, and sets `TAMANU_SUPERVISOR_WEB_ROOT` and
+`TAMANU_SUPERVISOR_PORTAL_ROOT` to them. It runs as a non-root user. From the repository root:
 
 ```sh
 docker build --target supervisor -t tamanu-supervisor .
@@ -60,18 +61,26 @@ The api token never appears in it: the configuration names the variable instead.
 
 ## Status
 
-The status server answers `GET /status` and `GET /health`, as JSON.
+The status server answers `GET /status` and `GET /health`, as JSON. `/health` answers whenever the
+process is up, so it suits a readiness probe: with an actuator, a supervisor waiting for the lease
+answers every request on its other addresses with `503 Service Unavailable` and a `Retry-After`
+header until it takes the lease, so a rolling replacement can start the new one while the old one
+holds it. `/status` says whether this supervisor holds the lease or is waiting for it.
 
 ## Sleep and wake
 
 The steps of a sleep call the api's supervisor routes in this order: `GET /api/supervisor/status`
 (the release check, run first), `POST /api/supervisor/tasks/hold`, and on a facility `POST
 /api/supervisor/final-sync`. A wake ends with `DELETE /api/supervisor/tasks/hold`. How far a sleep or wake
-got is saved with the actuator, which also holds the lease.
+got is saved with the actuator.
 
 ## Actuator contract
 
-The platform implements the actuator contract, [`actuator/v1.openapi.yaml`](actuator/v1.openapi.yaml).
+The platform implements the actuator contract, [`actuator/v1.openapi.yaml`](actuator/v1.openapi.yaml),
+specified in [Sleep and wake](../../specs/platform/supervisor/sleep-and-wake.md#actuator-contract).
+The supervisor takes the lease for 30 seconds, renews it every 10, and stops acting if it cannot
+renew it within 20 of the last renewal. It reports its activity every 10 seconds, each report
+lasting 30. On `SIGTERM` or `SIGINT` it releases the lease at once, then drains.
 
 For running the supervisor locally, `cmd/fake-actuator` keeps the parts in memory:
 
