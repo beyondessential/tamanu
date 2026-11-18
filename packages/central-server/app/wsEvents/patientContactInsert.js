@@ -55,7 +55,12 @@ const insertPatientContact = async (models, socketData, payload) => {
     await models.PatientContact.create(contact);
     return true;
   } catch (e) {
-    log.error('Error inserting patient contact', e);
+    // The error can carry the contact's values, so log only what failed
+    log.error('Error inserting patient contact', {
+      userId: user.id,
+      error: e.message,
+      fields: e.errors?.map(error => error.path),
+    });
     return false;
   }
 };
