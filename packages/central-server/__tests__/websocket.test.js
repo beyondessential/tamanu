@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
+import { createServer } from 'node:http';
 import config from 'config';
 import { io } from 'socket.io-client';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
   DEVICE_SCOPES,
@@ -13,9 +14,11 @@ import {
   WS_PATH,
 } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
+import { log } from '@tamanu/shared/services/logging';
 import { keepSocketConnected } from '@tamanu/utils/keepSocketConnected';
 
 import { buildToken } from '../app/auth/utils';
+import { defineWebsocketService } from '../app/services/websocketService';
 import { createTestContext } from './utilities';
 
 describe('Websocket', () => {
@@ -131,6 +134,50 @@ describe('Websocket', () => {
         expect(socket.connected).toBe(true);
       } finally {
         stop();
+      }
+    });
+  });
+
+  describe('event handlers', () => {
+    it('logs a handler that fails and keeps serving the connection', async () => {
+      const httpServer = createServer();
+      await new Promise(resolve => {
+        httpServer.listen(0, '127.0.0.1', resolve);
+      });
+      const service = await defineWebsocketService({
+        httpServer,
+        models,
+        sequelize: ctx.store.sequelize,
+      });
+      service.registerEvent('test:fail', async () => {
+        throw new Error('handler failed');
+      });
+      service.registerEvent('test:echo', (socket, value, acknowledge) => acknowledge(value));
+      const errorLog = vi.spyOn(log, 'error').mockImplementation(() => {});
+
+      try {
+        const user = await models.User.create(fake(models.User));
+        const socket = io(`http://127.0.0.1:${httpServer.address().port}`, {
+          path: WS_PATH,
+          transports: ['websocket'],
+          reconnection: false,
+          auth: { token: await buildAccessToken(user) },
+        });
+        sockets.push(socket);
+
+        socket.emit('test:fail');
+        expect(await socket.timeout(10_000).emitWithAck('test:echo', 'still here')).toBe(
+          'still here',
+        );
+        await vi.waitFor(() =>
+          expect(errorLog).toHaveBeenCalledWith('Websocket event handler failed', {
+            eventName: 'test:fail',
+            error: 'handler failed',
+          }),
+        );
+      } finally {
+        errorLog.mockRestore();
+        await service.getSocketServer().close();
       }
     });
   });

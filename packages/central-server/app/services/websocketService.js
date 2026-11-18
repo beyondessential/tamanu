@@ -123,10 +123,16 @@ export const defineWebsocketService = async injector => {
    */
   const registerEvent = (eventName, handler) => {
     socketServer.on('connection', socket => {
-      // Changes an event makes are recorded against the connected user, as for an HTTP request
-      socket.on(eventName, (...args) =>
-        runWithAuditUser(socket.data.user.id, () => handler(socket, ...args)),
-      );
+      // Changes an event makes are recorded against the connected user, as for an HTTP request.
+      // socket.io ignores the handler's promise, so a failure is caught here. Only the message is
+      // logged, as the error can carry the event's patient data.
+      socket.on(eventName, async (...args) => {
+        try {
+          await runWithAuditUser(socket.data.user.id, () => handler(socket, ...args));
+        } catch (e) {
+          log.error('Websocket event handler failed', { eventName, error: e.message });
+        }
+      });
     });
   };
 
