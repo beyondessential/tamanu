@@ -322,6 +322,25 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(resWrongSurvey).toHaveRequestError(404);
     });
 
+    it('Should reject a body without a survey or answers', async () => {
+      await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+      const submit = body =>
+        baseApp
+          .post(`/api/portal/surveyResponse`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send(body);
+
+      expect(await submit({ answers: { [baseDataElement.id]: 1 } })).toHaveRequestError();
+      expect(await submit({ surveyId: baseSurvey.id })).toHaveRequestError();
+      expect(await store.models.SurveyResponse.count({ where: { surveyId: baseSurvey.id } })).toBe(
+        0,
+      );
+    });
+
     it('Should reject unauthorized requests', async () => {
       const response = await baseApp.post('/api/portal/surveyResponse');
       expect(response).toHaveRequestError();
