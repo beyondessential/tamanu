@@ -24,10 +24,18 @@ const mayWritePatient = async (models, { user, device, impersonateRoleId }, pati
 };
 
 const insertPatientContact = async (models, socketData, payload) => {
-  try {
-    const contact = patientContactInsertPayload.parse(payload);
+  const { user } = socketData;
+  const parsed = patientContactInsertPayload.safeParse(payload);
+  if (!parsed.success) {
+    log.warn('Patient contact insert refused: invalid payload', {
+      userId: user.id,
+      fields: parsed.error.issues.map(issue => issue.path.join('.')),
+    });
+    return false;
+  }
 
-    const { user } = socketData;
+  const contact = parsed.data;
+  try {
     if (!(await mayWritePatient(models, socketData, contact.patientId))) {
       log.warn('Patient contact insert refused: user may not write to this patient', {
         userId: user.id,
