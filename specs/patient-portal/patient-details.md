@@ -48,10 +48,19 @@ Applies to Your details on the [portal dashboard](overview.md), which shows the 
 ## Saving
 
 - Saving updates the patient record immediately, without staff review.
-- Only the details the patient changed are written, so a change made by staff to another detail in the meantime is preserved.
+- Only the details the patient changed are written, so a change made by staff to another detail in the meantime is preserved, except as described for Email under [syncing](#syncing-to-facilities).
 - Saving with nothing changed returns to the dashboard at Your details, with More details open, without writing anything.
 - A successful save returns to the dashboard at Your details, with More details open, showing the saved values, with a "Details saved" message at the top of the screen.
 - The "Details saved" message disappears on its own after 3 seconds, and the patient can also dismiss it sooner with its close button.
 - If the save fails, the edit screen stays open with the patient's edits intact and an error message is shown above Save.
-- Changes made through the portal reach facility servers through the normal sync process and appear on the patient's record in Tamanu like any other update.
 - A patient can only edit their own record.
+
+## Syncing to facilities
+
+- Changes made through the portal reach facility servers through the normal sync process and appear on the patient's record in Tamanu like any other update.
+- Email is held on the patient's core record. Every other editable detail is held in the patient's additional data.
+- Additional data is merged detail by detail when facilities sync, so a portal change to one of those details survives a facility saving other details of the same patient.
+- A facility that pushes a patient's core record replaces the whole core record held centrally. An Email change made through the portal is lost if that facility pushes the patient's core record before the change has synced to it, and the facility's Email stays as the patient's Email.
+
+> [!NOTE]
+> The core record is replaced whole rather than merged detail by detail, so a facility that has not yet received the portal's Email change overwrites it when it pushes any other core detail, such as a name edited by staff. Address and the other additional data details are unaffected in the same situation.
