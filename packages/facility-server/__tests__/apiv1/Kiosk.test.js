@@ -1095,9 +1095,12 @@ describe('Kiosk', () => {
       expect(clinicians).toHaveSucceeded();
       expect(clinicians.body.map(({ id }) => id)).toEqual([clinician.id]);
 
-      expect(
-        await kioskApp.get('/api/kiosk/suggestions/facilityLocationGroup').query({ q: 'a' }),
-      ).toHaveSucceeded();
+      // The kiosk sends its facility with every search, as staff web does
+      const clinics = await kioskApp
+        .get('/api/kiosk/suggestions/facilityLocationGroup')
+        .query({ q: locationGroup.name, facilityId });
+      expect(clinics).toHaveSucceeded();
+      expect(clinics.body.map(({ id }) => id)).toContain(locationGroup.id);
     });
 
     it('offers a kiosk account no other suggestions, and no way to create them', async () => {
