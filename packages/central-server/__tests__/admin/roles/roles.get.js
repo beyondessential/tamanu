@@ -1,7 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 
-import { createRole, ROLE_URL, ROLES_URL, SAMPLE_ROLES, seedSampleRoles } from './helpers';
+import {
+  createRole,
+  destroyRole,
+  ROLE_URL,
+  ROLES_URL,
+  SAMPLE_ROLES,
+  seedSampleRoles,
+} from './helpers';
 
 export function describeRolesGet(getTestContext) {
   describe('GET /api/admin/roles', () => {
@@ -34,6 +41,24 @@ export function describeRolesGet(getTestContext) {
         expect.objectContaining({ id: 'role-traineeIntern', name: 'Trainee intern' }),
       ]);
       expect(response.body.count).toBe(1);
+    });
+
+    it('should match wildcard characters in the ID filter literally', async () => {
+      const { adminApp, models } = getTestContext();
+      const idPrefix = `roleSearch${Date.now().toString(36)}`;
+      const underscoreId = `${idPrefix}_nurse`;
+      const lookalikeId = `${idPrefix}Xnurse`;
+      const seededIds = [underscoreId, lookalikeId];
+      await Promise.all(seededIds.map(id => createRole(models, { id, name: id })));
+
+      try {
+        const response = await adminApp.get(ROLES_URL).query({ id: `${idPrefix}_` });
+        expect(response).toHaveSucceeded();
+        expect(response.body.data).toEqual([expect.objectContaining({ id: underscoreId })]);
+        expect(response.body.count).toBe(1);
+      } finally {
+        await Promise.all(seededIds.map(id => destroyRole(models, id)));
+      }
     });
 
     it('should filter roles by name case-insensitively, matching from word-boundary', async () => {
