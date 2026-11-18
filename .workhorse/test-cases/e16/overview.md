@@ -6,7 +6,7 @@
 - [x] A portal request to add a reference data entry through the suggestion routes is refused and adds nothing (verifies spec: PPORT)
 - [x] A drug search on a portal form leaves out drugs marked sensitive (verifies spec: PPORT)
 - [x] A portal search without a sign-in is refused
-- [ ] A drug question on a portal form still finds a non-sensitive drug and submits it as the answer
+- [x] A drug question on a portal form still finds a non-sensitive drug and submits it as the answer
 
 ## Submitting a form
 

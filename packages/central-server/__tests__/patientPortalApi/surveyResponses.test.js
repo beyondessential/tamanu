@@ -322,6 +322,38 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(resWrongSurvey).toHaveRequestError(404);
     });
 
+    it('Should record a drug chosen in a search question as the answer', async () => {
+      const { ProgramDataElement, ReferenceData, SurveyScreenComponent, SurveyResponseAnswer } =
+        store.models;
+      const drugQuestion = await ProgramDataElement.create(
+        fake(ProgramDataElement, { type: 'Autocomplete' }),
+      );
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: drugQuestion.id,
+          surveyId: baseSurvey.id,
+          config: JSON.stringify({ source: 'ReferenceData', where: { type: 'drug' } }),
+        }),
+      );
+      const drug = await ReferenceData.create(fake(ReferenceData, { type: 'drug' }));
+      await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+
+      const response = await baseApp
+        .post(`/api/portal/surveyResponse`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ surveyId: baseSurvey.id, answers: { [drugQuestion.id]: drug.id } });
+
+      expect(response).toHaveSucceeded();
+      const answer = await SurveyResponseAnswer.findOne({
+        where: { responseId: response.body.id, dataElementId: drugQuestion.id },
+      });
+      expect(answer.body).toBe(drug.id);
+    });
+
     it('Should reject a body without a survey or answers', async () => {
       await createAssignment({
         patientId: testPatient.id,
