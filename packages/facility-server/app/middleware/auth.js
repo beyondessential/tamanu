@@ -23,6 +23,9 @@ import { buildWebsocketAuthMiddleware } from '@tamanu/shared/utils/websocketAuth
 
 const jwtSecretKey = getAuthSecret() ?? crypto.randomBytes(32).toString('hex');
 
+// The issuer of the access tokens this server signs and accepts
+const getTokenIssuer = () => getCanonicalHostName() ?? 'localhost';
+
 const CENTRAL_LOGIN_INCOMPATIBLE_ERROR_TYPES = new Set([
   ERROR_TYPE.CLIENT_INCOMPATIBLE,
   ERROR_TYPE.REMOTE_INCOMPATIBLE,
@@ -63,7 +66,6 @@ export async function buildToken({
   impersonateRoleId = undefined,
 }) {
   const secretKey = crypto.createSecretKey(new TextEncoder().encode(jwtSecretKey));
-  const canonicalHostName = getCanonicalHostName() ?? 'localhost';
 
   let expirationTime;
   try {
@@ -87,7 +89,7 @@ export async function buildToken({
   })
     .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
     .setJti(crypto.randomBytes(32).toString('base64url'))
-    .setIssuer(canonicalHostName)
+    .setIssuer(getTokenIssuer())
     .setIssuedAt()
     .setExpirationTime(expirationTime)
     .setAudience(JWT_TOKEN_TYPES.ACCESS)
@@ -336,7 +338,6 @@ export async function refreshHandler(req, res) {
 
 function createAuthMiddleware({ requireDeviceId }) {
   return async (req, res, next) => {
-    const canonicalHostName = getCanonicalHostName() ?? 'localhost';
     const { models, settings } = req;
     try {
       const globalSettings = settings.global ?? settings;
@@ -345,7 +346,7 @@ function createAuthMiddleware({ requireDeviceId }) {
           log,
           settings: globalSettings,
           tokenDuration: await globalSettings.get('auth.tokenDuration'),
-          tokenIssuer: canonicalHostName,
+          tokenIssuer: getTokenIssuer(),
           tokenSecret: jwtSecretKey,
         });
 
@@ -406,7 +407,7 @@ function createAuthMiddleware({ requireDeviceId }) {
 export const createWebsocketAuthMiddleware = models =>
   buildWebsocketAuthMiddleware({
     models,
-    tokenIssuer: getCanonicalHostName() ?? 'localhost',
+    tokenIssuer: getTokenIssuer(),
     tokenSecret: jwtSecretKey,
   });
 
