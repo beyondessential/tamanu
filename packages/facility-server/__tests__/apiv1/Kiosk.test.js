@@ -617,9 +617,26 @@ describe('Kiosk', () => {
 
       const result = await checkIn(appointment.id, []);
 
-      expect(result).toHaveRequestError();
+      expect(result).toHaveStatus(409);
+      expect(result.body.type).toContain('conflict');
       await appointment.reload();
       expect(appointment.status).toEqual(APPOINTMENT_STATUSES.SEEN);
+    });
+
+    it('saves no responses when staff marked the appointment arrived during the forms', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+      await appointment.update({ status: APPOINTMENT_STATUSES.ARRIVED });
+
+      const result = await checkIn(appointment.id, [
+        { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
+      ]);
+
+      expect(result).toHaveStatus(409);
+      expect(await findPatientResponses(patient)).toHaveLength(0);
     });
 
     it('saves the forms and marks the appointment arrived', async () => {

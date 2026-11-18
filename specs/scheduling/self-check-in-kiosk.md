@@ -77,6 +77,7 @@ Applies to the tablet at a facility where patients check themselves in for today
 - Check in saves every completed form as a form response for the patient, recorded at this facility, and marks the appointment Arrived. Either all of these are saved or none are, and an appointment can only be checked in once.
 - Form responses are recorded against the staff account the kiosk is signed in with, each timed from when the patient opened that form to when they completed it.
 - Each patient record the kiosk puts on screen is recorded in the access audit, so the staff account the tablet is signed in with can be answered for.
+- If the appointment has moved past Confirmed by the time the patient checks in, for example staff marked it Arrived while the patient was completing their forms, the patient sees that they are already checked in and is directed to take a seat. None of their answers are saved.
 - If check-in fails, the patient is told to go to reception and their answers are kept so they or staff can try again.
 - After check-in, "You're checked in" asks the patient to take a seat. Done, or a short wait, returns to the landing page.
 

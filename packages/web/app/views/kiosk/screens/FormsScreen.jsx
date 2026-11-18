@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
+import { ERROR_TYPE } from '@tamanu/errors';
 import {
   getAnswersFromData,
   getVisibleAnswers,
@@ -361,7 +362,12 @@ export const FormsScreen = () => {
       }),
     );
   const handleCheckIn = () =>
-    checkIn.mutate(buildResponses, { onSuccess: () => dispatch({ type: 'checkedIn' }) });
+    checkIn.mutate(buildResponses, {
+      onSuccess: () => dispatch({ type: 'checkedIn' }),
+      onError: error => {
+        if (error?.type === ERROR_TYPE.EDIT_CONFLICT) dispatch({ type: 'alreadyCheckedIn' });
+      },
+    });
 
   if (isLoading || isError) return <LoadingForms isError={isError} />;
 
