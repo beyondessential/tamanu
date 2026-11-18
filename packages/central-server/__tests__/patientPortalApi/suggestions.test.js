@@ -61,7 +61,7 @@ describe('Patient Portal suggestions', () => {
       .set('Authorization', `Bearer ${authToken}`)
       .send({ name: 'Portal-created diagnosis' });
 
-    expect(response).toHaveStatus(404);
+    expect(response.status).toBe(404);
     const created = await store.models.ReferenceData.count({
       where: { type: REFERENCE_TYPES.DIAGNOSIS, name: 'Portal-created diagnosis' },
     });

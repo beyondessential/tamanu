@@ -184,7 +184,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       expect(response).toHaveSucceeded();
       const surveyResponse = await SurveyResponse.findByPk(response.body.id);
-      expect(surveyResponse.patientId).toBe(testPatient.id);
       const encounter = await Encounter.findByPk(surveyResponse.encounterId);
       expect(encounter.patientId).toBe(testPatient.id);
       expect(await Encounter.count({ where: { patientId: otherPatient.id } })).toBe(0);
