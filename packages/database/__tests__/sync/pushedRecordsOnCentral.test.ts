@@ -21,8 +21,8 @@ import { fakeUUID } from '@tamanu/utils/generateId';
 import { saveChangesForModel } from '../../src/sync';
 import { closeDatabase, createTestDatabase } from '../utilities';
 
-const pushToCentral = (model, data) =>
-  saveChangesForModel(model, [{ data, isDeleted: false }], true, log);
+const pushToCentral = (model, data, sessionId?: string) =>
+  saveChangesForModel(model, [{ data, isDeleted: false }], true, log, sessionId);
 
 describe('records pushed to central', () => {
   let models;
@@ -138,6 +138,18 @@ describe('records pushed to central', () => {
     let restrictedVersionId;
     let permittedUser;
     let unpermittedUser;
+    let facility;
+    let otherFacility;
+    let sessionId;
+
+    const startSession = async facilityIds =>
+      (
+        await models.SyncSession.create({
+          startTime: new Date(),
+          lastConnectionTime: new Date(),
+          parameters: { facilityIds },
+        })
+      ).id;
 
     const reportRequest = overrides => ({
       id: fakeUUID(),
@@ -188,10 +200,13 @@ describe('records pushed to central', () => {
         ['run', 'ReportDefinition', permitted.definition.id],
       ]);
       unpermittedUser = await makeUserWithPermissions([]);
+      facility = await models.Facility.create(fake(models.Facility));
+      otherFacility = await models.Facility.create(fake(models.Facility));
+      sessionId = await startSession([facility.id]);
     });
 
-    const pushAndRead = async data => {
-      await pushToCentral(models.ReportRequest, data);
+    const pushAndRead = async (data, pushingSessionId = sessionId) => {
+      await pushToCentral(models.ReportRequest, data, pushingSessionId);
       return models.ReportRequest.findByPk(data.id);
     };
 
@@ -242,7 +257,9 @@ describe('records pushed to central', () => {
     });
 
     it('stores a request by a user who cannot run the report as an error', async () => {
-      const stored = await pushAndRead(reportRequest({ reportDefinitionVersionId: restrictedVersionId }));
+      const stored = await pushAndRead(
+        reportRequest({ reportDefinitionVersionId: restrictedVersionId }),
+      );
 
       expect(stored.status).toBe(REPORT_REQUEST_STATUSES.ERROR);
       expect(stored.error).toBe('Requesting user cannot run this report');
@@ -305,6 +322,7 @@ describe('records pushed to central', () => {
         [allowed, denied].map(data => ({ data, isDeleted: false })),
         true,
         log,
+        sessionId,
       );
 
       expect((await models.ReportRequest.findByPk(allowed.id)).status).toBe(
@@ -313,6 +331,40 @@ describe('records pushed to central', () => {
       expect((await models.ReportRequest.findByPk(denied.id)).status).toBe(
         REPORT_REQUEST_STATUSES.ERROR,
       );
+    });
+
+    it('stores a request pushed without a sync session as an error', async () => {
+      const stored = await pushAndRead(reportRequest(), null);
+
+      expect(stored.status).toBe(REPORT_REQUEST_STATUSES.ERROR);
+      expect(stored.error).toBe('Requesting user cannot run this report');
+    });
+
+    describe('with users restricted to their facilities', () => {
+      beforeAll(async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', true);
+      });
+
+      afterAll(async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', false);
+      });
+
+      it('runs a request whose requester can use a facility the session is for', async () => {
+        await models.UserFacility.create({ userId: permittedUser.id, facilityId: facility.id });
+
+        const stored = await pushAndRead(reportRequest());
+
+        expect(stored.status).toBe(REPORT_REQUEST_STATUSES.RECEIVED);
+      });
+
+      it('stores a request whose requester cannot use any facility the session is for as an error', async () => {
+        const otherSessionId = await startSession([otherFacility.id]);
+
+        const stored = await pushAndRead(reportRequest(), otherSessionId);
+
+        expect(stored.status).toBe(REPORT_REQUEST_STATUSES.ERROR);
+        expect(stored.error).toBe('Requesting user cannot run this report');
+      });
     });
   });
 });

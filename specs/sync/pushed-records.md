@@ -19,6 +19,7 @@ Applies to how the central server accepts patient communications and report requ
 - Recipients given as a plain comma-separated string are read as the same list of email addresses.
 - A report request whose recipients are empty, are not all email addresses, or ask for any other kind of destination is stored with the Error status and the error "Invalid recipients", and is never run.
 - A report request is only run when the user it names as the requester holds permission to run that report, and for the generic survey export, to read the survey being exported.
+- The requester must also be able to use at least one of the facilities that the sync pushing the request is for. A request pushed outside a sync session has no such facility.
 - A report request whose requester lacks that permission, does not exist, or names a report that does not exist is stored with the Error status and an error, and is never run.
 - Each request in a batch is checked on its own, so one rejected request does not affect the others.
 

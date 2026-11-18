@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import {
+  CAN_ACCESS_ALL_FACILITIES,
   REPORT_EXPORT_FORMATS,
   REPORT_REQUEST_STATUSES,
   REPORT_REQUEST_STATUS_VALUES,
@@ -54,6 +55,21 @@ const parseEmailRecipients = (recipients: unknown): string[] | null => {
 
   if (!Array.isArray(emails) || emails.length === 0) return null;
   return emails.every(isEmailAddress) ? emails : null;
+};
+
+const filterAsync = async <T>(items: T[], predicate: (item: T) => Promise<boolean>) => {
+  const kept: T[] = [];
+  for (const item of items) {
+    if (await predicate(item)) kept.push(item);
+  }
+  return kept;
+};
+
+/** Whether a user may use at least one of the facilities a sync session is for. */
+const canUseAnyFacility = async (user: any, facilityIds: string[]) => {
+  const allowedFacilityIds = await user.allowedFacilityIds();
+  if (allowedFacilityIds === CAN_ACCESS_ALL_FACILITIES) return facilityIds.length > 0;
+  return facilityIds.some(facilityId => allowedFacilityIds.includes(facilityId));
 };
 
 export class ReportRequest extends Model {
@@ -128,15 +144,24 @@ export class ReportRequest extends Model {
   /**
    * Resolves once for the whole batch whether each requesting user may run their report, so the
    * per-record sanitiser can stay synchronous. A user or report that cannot be found, or whose
-   * permissions cannot be resolved, may not run it.
+   * permissions cannot be resolved, may not run it. Nor may a user who cannot use any of the
+   * facilities the pushing sync session is for, since a facility only raises requests for the
+   * users it serves.
    */
-  static async prepareSanitizeContext(changes: SyncSnapshotAttributes[]): Promise<SanitizeContext> {
+  static async prepareSanitizeContext(
+    changes: SyncSnapshotAttributes[],
+    sessionId?: string,
+  ): Promise<SanitizeContext> {
     const { models } = this.sequelize!;
     const requests = changes.map(({ data }) => data as PushedReportRequest);
 
     const userIds = [...new Set(requests.map(r => r.requestedByUserId).filter(Boolean))];
     const reportIds = [...new Set(requests.map(getReportIdOf).filter(Boolean))];
-    const users = await models.User!.findAll({ where: { id: userIds } });
+    const session = sessionId ? await models.SyncSession!.findByPk(sessionId) : null;
+    const sessionFacilityIds: string[] = session?.get('parameters')?.facilityIds ?? [];
+    const users = await filterAsync(await models.User!.findAll({ where: { id: userIds } }), user =>
+      canUseAnyFacility(user, sessionFacilityIds),
+    );
     const versions = await models.ReportDefinitionVersion!.findAll({ where: { id: reportIds } });
     const definitions = await models.ReportDefinition!.findAll({
       where: { id: [...new Set(versions.map(version => version.get('reportDefinitionId')))] },
