@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/postgres-adapter';
 import { log } from '@tamanu/shared/services/logging';
-import { WS_PATH } from '@tamanu/constants';
+import { NOTIFY_CHANNELS, WS_EVENTS, WS_PATH } from '@tamanu/constants';
 import { ReadSettings } from '@tamanu/settings';
 import {
   buildWebsocketHttpsGuard,
@@ -25,7 +25,7 @@ const scheduleDisconnectAtExpiry = (socket, expirySeconds) => {
 
 /**
  *
- * @param {{ httpServer: import('http').Server, sequelize: import('sequelize').Sequelize, models: import('@tamanu/database/models'), app: import('express').Express}} injector
+ * @param {{ httpServer: import('http').Server, sequelize: import('sequelize').Sequelize, models: import('@tamanu/database/models'), app: import('express').Express, dbNotifier?: Awaited<ReturnType<import('@tamanu/shared/services/dbNotifier').defineDbNotifier>>}} injector
  * @returns
  */
 export const defineWebsocketService = async injector => {
@@ -69,6 +69,13 @@ export const defineWebsocketService = async injector => {
       log.warn('Rejected websocket connection', { reason: e.message });
       next(new Error('Unauthorised'));
     }
+  });
+
+  // The web app refetches its settings when told they changed, so that is the only table relayed,
+  // and without the changed row or columns. Each instance gets table_changed from postgres directly; relaying via the adapter costs a pooled query per row
+  injector.dbNotifier?.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]?.(({ table }) => {
+    if (table !== 'settings') return;
+    socketServer.local.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:settings`);
   });
 
   const testMode = process.env.NODE_ENV === 'test';

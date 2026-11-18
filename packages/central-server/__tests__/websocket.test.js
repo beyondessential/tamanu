@@ -103,6 +103,21 @@ describe('Websocket', () => {
     });
   });
 
+  describe('change notifications', () => {
+    it('tells a connection that settings have changed, without the changed row', async () => {
+      const user = await models.User.create(fake(models.User));
+      const socket = await connectAs(user);
+      const notified = new Promise(resolve => {
+        socket.once(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:settings`, (...args) => resolve(args));
+      });
+
+      await models.Setting.set('audit.changes.enabled', true);
+
+      // A broadcast carries a string offset for connection state recovery, and nothing else
+      expect((await notified).every(arg => typeof arg === 'string')).toBe(true);
+    });
+  });
+
   describe('patient contact insert', () => {
     const buildContactPayload = async () => {
       const patient = await models.Patient.create(fake(models.Patient));

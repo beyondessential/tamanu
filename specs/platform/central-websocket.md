@@ -21,6 +21,11 @@ Applies to the socket connections that the mobile app and the facility server op
 - The contact is stored when the connected user may write to the patient. Otherwise the insert is refused.
 - An insert with a communication channel the central server does not offer, or with a missing id, patient or name, is refused.
 
+## Change notifications
+
+- When a setting changes, the central server tells every connection that settings have changed, without saying which.
+- The central server sends no other table change notifications.
+
 ## Replies
 
 - The Telegram bot information reply goes to the connection that asked for it.
