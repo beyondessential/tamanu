@@ -10,6 +10,7 @@ import (
 
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/pages"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -117,7 +118,7 @@ func TestGate(t *testing.T) {
 		t.Run(string(tt.class)+"/"+acceptNames[tt.accept]+"/"+tt.cond.name, func(t *testing.T) {
 			s := state.New(state.Parts())
 			tt.cond.setup(s)
-			g := &Gate{Class: tt.class, state: s}
+			g := &Gate{Class: tt.class, state: s, pages: pages.Load("")}
 
 			inFlightDuring := -1
 			next := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
@@ -164,9 +165,9 @@ func classify(w *httptest.ResponseRecorder) outcome {
 		return forwarded
 	case w.Code != http.StatusServiceUnavailable:
 		return outcome("status " + http.StatusText(w.Code))
-	case (strings.Contains(body, "ServerWaking") || strings.Contains(body, "Starting up")) && retry == "10":
+	case strings.Contains(body, "starting up") && retry == "10":
 		return wakingResp
-	case (strings.Contains(body, "ServerUpgrading") || strings.Contains(body, "Upgrade in progress")) && retry != "":
+	case strings.Contains(body, "being upgraded") && retry != "":
 		return upgradeResp
 	case retry == "":
 		return refused

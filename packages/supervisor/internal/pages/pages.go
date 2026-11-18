@@ -3,24 +3,17 @@
 package pages
 
 import (
-	"embed"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 )
-
-//go:embed html
-var files embed.FS
-
-func mustRead(name string) []byte {
-	b, err := files.ReadFile("html/" + name)
-	if err != nil {
-		panic(err)
-	}
-	return b
-}
 
 // Response is one of the supervisor's own responses.
 type Response struct {
@@ -40,7 +33,6 @@ var (
 		Name:       "ServerWaking",
 		Message:    "The server is starting up. Try again shortly.",
 		RetryAfter: 10 * time.Second,
-		page:       mustRead("waking.html"),
 	}
 
 	// spec: SUPV#upgrades
@@ -48,7 +40,6 @@ var (
 		Name:       "ServerUpgrading",
 		Message:    "The server is being upgraded. Try again shortly.",
 		RetryAfter: 30 * time.Second,
-		page:       mustRead("upgrading.html"),
 	}
 
 	// Unavailable answers a request whose part could not be reached. It has
@@ -56,9 +47,63 @@ var (
 	Unavailable = Response{
 		Name:    "ServerUnavailable",
 		Message: "The server cannot be reached right now.",
-		page:    mustRead("unavailable.html"),
 	}
 )
+
+// Pages are the responses with Tamanu's pages for a browser, from the web
+// app's resources/errors.
+type Pages struct {
+	Waking, Upgrading Response
+	unavailable       map[int]Response
+}
+
+// errorsDir is where the web app keeps its error pages, as it serves them.
+const errorsDir = "/resources/errors/"
+
+// Load reads Tamanu's pages from the web app's directory: waking.html for
+// waking, 526.html for upgrading, and each status's own page for unavailable.
+// A response whose page is missing answers a browser in plain text.
+//
+// spec: SUPV#front-door
+func Load(webRoot string) *Pages {
+	read := func(resp Response, name string) Response {
+		if webRoot == "" {
+			return resp
+		}
+		page, err := os.ReadFile(filepath.Join(webRoot, filepath.FromSlash(errorsDir), name))
+		if err != nil {
+			return resp
+		}
+		return resp.WithPage(withBase(page))
+	}
+	p := &Pages{
+		Waking:      read(Waking, "waking.html"),
+		Upgrading:   read(Upgrading, "526.html"),
+		unavailable: map[int]Response{},
+	}
+	for _, status := range []int{http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout} {
+		p.unavailable[status] = read(Unavailable, fmt.Sprintf("%d.html", status))
+	}
+	return p
+}
+
+// Unavailable is the response for a part that could not be reached, with
+// status, and whether there is one for it.
+func (p *Pages) Unavailable(status int) (Response, bool) {
+	resp, ok := p.unavailable[status]
+	return resp, ok
+}
+
+// withBase points page's relative addresses, such as its images, at the
+// errors directory, since it is served at whatever path was asked for.
+func withBase(page []byte) []byte {
+	i := bytes.Index(bytes.ToLower(page), []byte("<head>"))
+	if i < 0 {
+		return page
+	}
+	i += len("<head>")
+	return slices.Concat(page[:i], []byte(`<base href="`+errorsDir+`">`), page[i:])
+}
 
 // WithPage returns the response with page as its browser form.
 func (resp Response) WithPage(page []byte) Response {
@@ -77,7 +122,7 @@ func (resp Response) Write(w http.ResponseWriter, r *http.Request, status int) {
 
 	var body []byte
 	switch {
-	case IsBrowser(r):
+	case IsBrowser(r) && resp.page != nil:
 		h.Set("Content-Type", "text/html; charset=utf-8")
 		body = resp.page
 	case IsAPIPath(r.URL.Path):

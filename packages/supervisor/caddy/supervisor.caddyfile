@@ -33,6 +33,7 @@
 		# Read from the environment when the app starts, so the adapted
 		# configuration does not carry the credential.
 		api_token {env.TAMANU_SUPERVISOR_API_TOKEN}
+		web_root {$TAMANU_SUPERVISOR_WEB_ROOT}
 	}
 }
 
@@ -175,7 +176,7 @@
 	}
 
 	handle_errors {
-		tamanu_error_page * {$TAMANU_SUPERVISOR_WEB_ROOT}
+		tamanu_error_page
 	}
 }
 

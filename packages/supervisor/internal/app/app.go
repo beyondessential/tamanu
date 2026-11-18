@@ -19,6 +19,7 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/machine"
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/pages"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -43,8 +44,11 @@ type App struct {
 	APIToken string `json:"api_token,omitempty"`
 	// APIUpstreams are the api instances (host:port) the supervisor calls.
 	APIUpstreams []string `json:"api_upstreams,omitempty"`
+	// WebRoot is the web app's directory, holding Tamanu's pages.
+	WebRoot string `json:"web_root,omitempty"`
 
 	state    *state.Server
+	pages    *pages.Pages
 	apiToken string
 	instance string
 	machine  *machine.Machine
@@ -65,6 +69,7 @@ func (App) CaddyModule() caddy.ModuleInfo {
 func (a *App) Provision(ctx caddy.Context) error {
 	a.apiToken = caddy.NewReplacer().ReplaceAll(a.APIToken, "")
 	a.state = state.New(state.Parts())
+	a.pages = pages.Load(a.WebRoot)
 
 	if a.ActuatorURL == "" {
 		return nil
@@ -160,6 +165,9 @@ func (a *App) Stop() error {
 // once without an actuator, and once it has read the actuator's state with
 // one, whether or not it holds the lease.
 func (a *App) Ready() bool { return a.machine == nil || a.machine.Ready() }
+
+// Pages are the supervisor's own responses.
+func (a *App) Pages() *pages.Pages { return a.pages }
 
 // State is the server's run-time state.
 func (a *App) State() *state.Server { return a.state }

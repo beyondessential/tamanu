@@ -54,9 +54,9 @@ func upstream(t *testing.T, name string) *httptest.Server {
 func hostPort(srv *httptest.Server) string { return strings.TrimPrefix(srv.URL, "http://") }
 
 // frontRoot writes a stand-in for a built front end named name, with its
-// index, an asset, a precompressed asset, a manifest and, given errorPage, an
-// error page for 502.
-func frontRoot(t *testing.T, name string, errorPage bool) string {
+// index, an asset, a precompressed asset, a manifest and, given errorPages,
+// Tamanu's error page for 502 and its waking page.
+func frontRoot(t *testing.T, name string, errorPages bool) string {
 	t.Helper()
 	root := t.TempDir()
 	files := map[string]string{
@@ -65,8 +65,9 @@ func frontRoot(t *testing.T, name string, errorPage bool) string {
 		"assets/app.js.gz": "not really gzip",
 		"manifest.json":    `{"name":"` + name + `"}`,
 	}
-	if errorPage {
+	if errorPages {
 		files["resources/errors/502.html"] = "<p>Tamanu is currently unavailable</p>"
+		files["resources/errors/waking.html"] = "<head></head><p>Tamanu is starting up</p>"
 	}
 	for path, content := range files {
 		full := filepath.Join(root, path)
@@ -313,8 +314,8 @@ func TestSmoke(t *testing.T) {
 			{"api", "/api/patient", nil, 503, "ServerWaking", true},
 			{"legacy login", "/v1/login", nil, 308, "", false},
 			{"index from a probe", "/", nil, 200, "web index", false},
-			{"index from a browser", "/", browser, 503, `http-equiv="refresh"`, true},
-			{"page from a browser", "/patients", browser, 503, `http-equiv="refresh"`, true},
+			{"index from a browser", "/", browser, 503, "Tamanu is starting up", true},
+			{"page from a browser", "/patients", browser, 503, "Tamanu is starting up", true},
 			{"page from anything else", "/patients", nil, 200, "web index", true},
 			{"asset", "/assets/app.js", []string{"Accept-Encoding", "identity"}, 200, "web app", true},
 			{"env.js", "/env.js", nil, 200, "window.env", true},

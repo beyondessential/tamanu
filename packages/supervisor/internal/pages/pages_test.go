@@ -4,11 +4,32 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
+// spec: SUPV#front-door
 func TestForms(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "resources", "errors")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for name, content := range map[string]string{
+		"waking.html": "<html><head><title>Tamanu</title></head><body>Tamanu is starting up</body></html>",
+		"526.html":    "<html><head></head><body><img src=\"logo.svg\">Maintenance in progress</body></html>",
+		"503.html":    "<p>Tamanu is currently unavailable</p>",
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	tamanu := Load(root)
+	unavailable, _ := tamanu.Unavailable(http.StatusServiceUnavailable)
+	missing, _ := tamanu.Unavailable(http.StatusBadGateway)
+
 	tests := []struct {
 		name       string
 		method     string
@@ -20,15 +41,16 @@ func TestForms(t *testing.T) {
 		wantRetry  string
 		wantNoBody bool
 	}{
-		{"api waking", "POST", "/api/sync", "", Waking, "application/json", `"ServerWaking"`, "10", false},
-		{"browser waking", "GET", "/patients", "text/html,application/xhtml+xml", Waking, "text/html", `http-equiv="refresh"`, "10", false},
-		{"other waking", "GET", "/assets/app.js", "*/*", Waking, "text/plain", "starting up", "10", false},
-		{"post is not a browser page", "POST", "/form", "text/html", Waking, "text/plain", "starting up", "10", false},
-		{"browser upgrading", "GET", "/", "text/html", Upgrading, "text/html", "being upgraded", "30", false},
-		{"api upgrading", "GET", "/api/user/me", "", Upgrading, "application/json", `"ServerUpgrading"`, "30", false},
-		{"browser unavailable", "GET", "/", "text/html", Unavailable, "text/html", "cannot be reached", "", false},
-		{"api unavailable", "GET", "/api/x", "", Unavailable, "application/json", `"ServerUnavailable"`, "", false},
-		{"head", "HEAD", "/", "text/html", Waking, "text/html", "", "10", true},
+		{"api waking", "POST", "/api/sync", "", tamanu.Waking, "application/json", `"ServerWaking"`, "10", false},
+		{"browser waking", "GET", "/patients", "text/html,application/xhtml+xml", tamanu.Waking, "text/html", "<head><base href=\"/resources/errors/\"><title>", "10", false},
+		{"other waking", "GET", "/assets/app.js", "*/*", tamanu.Waking, "text/plain", "starting up", "10", false},
+		{"post is not a browser page", "POST", "/form", "text/html", tamanu.Waking, "text/plain", "starting up", "10", false},
+		{"browser upgrading", "GET", "/", "text/html", tamanu.Upgrading, "text/html", "Maintenance in progress", "30", false},
+		{"api upgrading", "GET", "/api/user/me", "", tamanu.Upgrading, "application/json", `"ServerUpgrading"`, "30", false},
+		{"browser unavailable", "GET", "/", "text/html", unavailable, "text/html", "currently unavailable", "", false},
+		{"browser with no page", "GET", "/", "text/html", missing, "text/plain", "cannot be reached", "", false},
+		{"api unavailable", "GET", "/api/x", "", unavailable, "application/json", `"ServerUnavailable"`, "", false},
+		{"head", "HEAD", "/", "text/html", tamanu.Waking, "text/html", "", "10", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

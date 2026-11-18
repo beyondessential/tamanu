@@ -5,13 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/app"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/pages"
 )
 
@@ -21,33 +20,24 @@ func init() {
 	httpcaddyfile.RegisterDirectiveOrder("tamanu_error_page", httpcaddyfile.Before, "respond")
 }
 
-// parseCaddyfile reads the tamanu_error_page directive:
-// tamanu_error_page [<root>].
+// parseCaddyfile reads the tamanu_error_page directive, which takes no
+// arguments.
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
 	h.Next()
-	handler := new(Handler)
-	h.Args(&handler.Root)
 	if h.NextArg() {
 		return nil, h.ArgErr()
 	}
-	return handler, nil
+	return new(Handler), nil
 }
 
-// statuses are the errors the reverse proxy raises when no instance of a part
-// answers.
-var statuses = []int{http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout}
-
 // Handler is the http.handlers.tamanu_error_page handler, for a server's
-// error routes. It answers the reverse proxy's errors with Tamanu's page for
-// the status from Root, or the supervisor's own when Root has none, and
-// passes any other error on.
+// error routes. It answers the reverse proxy's errors when no instance of a
+// part answers with Tamanu's page for the status, and passes any other error
+// on.
 //
 // spec: SUPV#front-door
 type Handler struct {
-	// Root is the web app's directory, holding resources/errors/{status}.html.
-	Root string `json:"root,omitempty"`
-
-	responses map[int]pages.Response
+	pages *pages.Pages
 }
 
 // CaddyModule returns the Caddy module information.
@@ -58,19 +48,13 @@ func (Handler) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
-// Provision reads the pages Root has.
-func (h *Handler) Provision(caddy.Context) error {
-	h.responses = make(map[int]pages.Response, len(statuses))
-	for _, status := range statuses {
-		h.responses[status] = pages.Unavailable
-		if h.Root == "" {
-			continue
-		}
-		page, err := os.ReadFile(filepath.Join(h.Root, "resources", "errors", fmt.Sprintf("%d.html", status)))
-		if err == nil {
-			h.responses[status] = pages.Unavailable.WithPage(page)
-		}
+// Provision takes the pages from the tamanu app.
+func (h *Handler) Provision(ctx caddy.Context) error {
+	a, err := ctx.App(app.ID)
+	if err != nil {
+		return fmt.Errorf("finding the %s app: %w", app.ID, err)
 	}
+	h.pages = a.(*app.App).Pages()
 	return nil
 }
 
@@ -80,7 +64,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyht
 	if !errors.As(err, &handlerErr) {
 		return next.ServeHTTP(w, r)
 	}
-	resp, ok := h.responses[handlerErr.StatusCode]
+	resp, ok := h.pages.Unavailable(handlerErr.StatusCode)
 	if !ok {
 		return next.ServeHTTP(w, r)
 	}

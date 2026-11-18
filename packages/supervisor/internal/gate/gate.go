@@ -62,6 +62,7 @@ type Gate struct {
 	Class Class `json:"class"`
 
 	state *state.Server
+	pages *pages.Pages
 }
 
 // CaddyModule returns the Caddy module information.
@@ -72,13 +73,14 @@ func (Gate) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
-// Provision takes the server's state from the tamanu app.
+// Provision takes the server's state and the pages from the tamanu app.
 func (g *Gate) Provision(ctx caddy.Context) error {
 	a, err := ctx.App(app.ID)
 	if err != nil {
 		return fmt.Errorf("finding the %s app: %w", app.ID, err)
 	}
 	g.state = a.(*app.App).State()
+	g.pages = a.(*app.App).Pages()
 	return nil
 }
 
@@ -126,14 +128,15 @@ func (g *Gate) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.
 		return next.ServeHTTP(w, r)
 	case state.Upgrading:
 		// spec: SUPV#upgrades
-		pages.Upgrading.Write(w, r, http.StatusServiceUnavailable)
+		g.pages.Upgrading.Write(w, r, http.StatusServiceUnavailable)
 	default:
 		if class == Websocket {
 			// spec: SLPWK#waking
-			pages.Unavailable.Write(w, r, http.StatusServiceUnavailable)
+			unavailable, _ := g.pages.Unavailable(http.StatusServiceUnavailable)
+			unavailable.Write(w, r, http.StatusServiceUnavailable)
 		} else {
 			// spec: SLPWK#waking
-			pages.Waking.Write(w, r, http.StatusServiceUnavailable)
+			g.pages.Waking.Write(w, r, http.StatusServiceUnavailable)
 		}
 	}
 	return nil

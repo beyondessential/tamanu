@@ -22,6 +22,7 @@ func init() {
 //		actuator_url  [<url>]
 //		idle_time     <duration>
 //		api_token     [<token>]
+//		web_root      <directory>
 //	}
 //
 // An actuator_url or api_token with no value, as an unset environment
@@ -52,6 +53,8 @@ func parseGlobalOption(d *caddyfile.Dispenser, _ any) (any, error) {
 			a.ActuatorURL = value
 		case "api_token":
 			a.APIToken = value
+		case "web_root":
+			a.WebRoot = value
 		case "idle_time":
 			idle, err := caddy.ParseDuration(value)
 			if err != nil {
