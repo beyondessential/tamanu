@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/postgres-adapter';
 import { log } from '@tamanu/shared/services/logging';
+import { runWithAuditUser } from '@tamanu/database/utils/audit';
 import { NOTIFY_CHANNELS, WS_EVENTS, WS_PATH } from '@tamanu/constants';
 import { ReadSettings } from '@tamanu/settings';
 import {
@@ -122,7 +123,10 @@ export const defineWebsocketService = async injector => {
    */
   const registerEvent = (eventName, handler) => {
     socketServer.on('connection', socket => {
-      socket.on(eventName, (...args) => handler(socket, ...args));
+      // Changes an event makes are recorded against the connected user, as for an HTTP request
+      socket.on(eventName, (...args) =>
+        runWithAuditUser(socket.data.user.id, () => handler(socket, ...args)),
+      );
     });
   };
 

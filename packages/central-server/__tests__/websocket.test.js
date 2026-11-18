@@ -156,6 +156,20 @@ describe('Websocket', () => {
       });
     });
 
+    it('records the stored contact against the connected user in the changelog', async () => {
+      const { contact } = await buildContactPayload();
+      const { user } = await ctx.baseApp.asNewRole([['write', 'Patient']]);
+
+      expect(await insertContact(user, contact)).toBe(true);
+
+      const [change] = await ctx.store.sequelize.query(
+        `SELECT updated_by_user_id FROM logs.changes
+          WHERE table_name = 'patient_contacts' AND record_id = $recordId`,
+        { bind: { recordId: contact.id }, type: ctx.store.sequelize.QueryTypes.SELECT },
+      );
+      expect(change).toEqual({ updated_by_user_id: user.id });
+    });
+
     it('does not store connection details sent by the client', async () => {
       const { contact } = await buildContactPayload();
       const { user } = await ctx.baseApp.asNewRole([['write', 'Patient']]);
