@@ -38,7 +38,7 @@ Applies to Your details on the [portal dashboard](overview.md), which shows the 
 
 ## Validation
 
-- A field the deployment has configured as required is marked as required, and the details can't be saved while it is blank, including when it was already blank before editing.
+- A field is required when the deployment requires it on Patient details in the web app, using the same required patient data setting. A required field is marked as required, and the details can't be saved while it is blank, including when it was already blank before editing.
 - Email must be a valid email address.
 - Mobile phone, Other phone and emergency contact Phone accept only digits, spaces, a leading plus sign, hyphens and brackets.
 - Formats are checked only on details the patient changed, so a value recorded by staff in another format doesn't stop the patient saving the rest.
