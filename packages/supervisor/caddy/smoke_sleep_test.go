@@ -33,14 +33,15 @@ func TestSmokeSleepAndWake(t *testing.T) {
 	t.Cleanup(api.Close)
 
 	env, caddyfile := supervisorEnv(t, map[string]string{
-		"TAMANU_SUPERVISOR_ROLE":          "central",
-		"TAMANU_SUPERVISOR_LISTEN":        freeAddr(t),
-		"TAMANU_SUPERVISOR_STATUS_LISTEN": freeAddr(t),
-		"TAMANU_SUPERVISOR_API_UPSTREAMS": hostPort(api),
-		"TAMANU_SUPERVISOR_WEB_ROOT":      frontRoot(t, "web", false),
-		"TAMANU_SUPERVISOR_ACTUATOR_URL":  actSrv.URL,
-		"TAMANU_SUPERVISOR_IDLE_TIME":     "200ms",
-		"TAMANU_SUPERVISOR_API_TOKEN":     fakeapi.Token,
+		"TAMANU_SUPERVISOR_ROLE":            "central",
+		"TAMANU_SUPERVISOR_TRUSTED_PROXIES": "10.0.0.0/8",
+		"TAMANU_SUPERVISOR_LISTEN":          freeAddr(t),
+		"TAMANU_SUPERVISOR_STATUS_LISTEN":   freeAddr(t),
+		"TAMANU_SUPERVISOR_API_UPSTREAMS":   hostPort(api),
+		"TAMANU_SUPERVISOR_WEB_ROOT":        frontRoot(t, "web", false),
+		"TAMANU_SUPERVISOR_ACTUATOR_URL":    actSrv.URL,
+		"TAMANU_SUPERVISOR_IDLE_TIME":       "200ms",
+		"TAMANU_SUPERVISOR_API_TOKEN":       fakeapi.Token,
 	})
 	listen, statusAddr := env["TAMANU_SUPERVISOR_LISTEN"], env["TAMANU_SUPERVISOR_STATUS_LISTEN"]
 	load(t, adapt(t, caddyfile, env))

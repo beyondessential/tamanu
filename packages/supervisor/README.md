@@ -62,7 +62,7 @@ does not check everything: the operator follows the contract below.
 | `TAMANU_SUPERVISOR_ACTUATOR_URL` | none | The platform's actuator. Without one the server never sleeps |
 | `TAMANU_SUPERVISOR_IDLE_TIME` | `30m` facility, `15m` central | Time without activity before the server sleeps, as a Go duration |
 | `TAMANU_SUPERVISOR_API_TOKEN` | none | Credential for the api's supervisor routes. Required with an actuator |
-| `TAMANU_SUPERVISOR_TRUSTED_PROXIES` | none | Space-separated CIDR ranges of the platform's proxies, whose `X-Forwarded-For` is believed for rate limiting and passed on to the parts |
+| `TAMANU_SUPERVISOR_TRUSTED_PROXIES` | required | Space-separated CIDR ranges of the platform's proxies, whose `X-Forwarded-For` is believed for rate limiting and passed on to the parts |
 
 The defaults are the entrypoint's. Addresses are `host:port` or `:port`. The entrypoint also sets
 `_TAMANU_SUPERVISOR_PORT`, `_TAMANU_SUPERVISOR_PORTAL_PORT` and `_TAMANU_SUPERVISOR_STATUS_PORT` for

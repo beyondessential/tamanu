@@ -69,9 +69,10 @@ func supervisorEnv(t *testing.T, vars map[string]string) (env map[string]string,
 // changed, or removed where the value is "unset".
 func supervisorVars(pairs ...string) map[string]string {
 	vars := map[string]string{
-		"TAMANU_SUPERVISOR_ROLE":          "facility",
-		"TAMANU_SUPERVISOR_API_UPSTREAMS": "api-1:4000 api-2:4000",
-		"TAMANU_SUPERVISOR_WEB_ROOT":      "/srv/web",
+		"TAMANU_SUPERVISOR_ROLE":            "facility",
+		"TAMANU_SUPERVISOR_API_UPSTREAMS":   "api-1:4000 api-2:4000",
+		"TAMANU_SUPERVISOR_WEB_ROOT":        "/srv/web",
+		"TAMANU_SUPERVISOR_TRUSTED_PROXIES": "10.0.0.0/8",
 	}
 	for i := 0; i+1 < len(pairs); i += 2 {
 		if pairs[i+1] == "unset" {
@@ -103,6 +104,11 @@ func TestEntrypoint(t *testing.T) {
 			name:    "missing variable",
 			vars:    supervisorVars("WEB_ROOT", "unset"),
 			problem: "TAMANU_SUPERVISOR_WEB_ROOT is required",
+		},
+		{
+			name:    "missing trusted proxies",
+			vars:    supervisorVars("TRUSTED_PROXIES", "unset"),
+			problem: "TAMANU_SUPERVISOR_TRUSTED_PROXIES is required",
 		},
 		{
 			name:    "empty variable",

@@ -168,13 +168,14 @@ func (c client) get(base, path string, headers ...string) (*http.Response, strin
 func TestSmoke(t *testing.T) {
 	api := upstream(t, "api")
 	env, caddyfile := supervisorEnv(t, map[string]string{
-		"TAMANU_SUPERVISOR_ROLE":          "central",
-		"TAMANU_SUPERVISOR_LISTEN":        freeAddr(t),
-		"TAMANU_SUPERVISOR_PORTAL_LISTEN": freeAddr(t),
-		"TAMANU_SUPERVISOR_STATUS_LISTEN": freeAddr(t),
-		"TAMANU_SUPERVISOR_API_UPSTREAMS": hostPort(api),
-		"TAMANU_SUPERVISOR_WEB_ROOT":      frontRoot(t, "web", true),
-		"TAMANU_SUPERVISOR_PORTAL_ROOT":   frontRoot(t, "portal", false),
+		"TAMANU_SUPERVISOR_ROLE":            "central",
+		"TAMANU_SUPERVISOR_TRUSTED_PROXIES": "10.0.0.0/8",
+		"TAMANU_SUPERVISOR_LISTEN":          freeAddr(t),
+		"TAMANU_SUPERVISOR_PORTAL_LISTEN":   freeAddr(t),
+		"TAMANU_SUPERVISOR_STATUS_LISTEN":   freeAddr(t),
+		"TAMANU_SUPERVISOR_API_UPSTREAMS":   hostPort(api),
+		"TAMANU_SUPERVISOR_WEB_ROOT":        frontRoot(t, "web", true),
+		"TAMANU_SUPERVISOR_PORTAL_ROOT":     frontRoot(t, "portal", false),
 	})
 	listen, portal, status := env["TAMANU_SUPERVISOR_LISTEN"], env["TAMANU_SUPERVISOR_PORTAL_LISTEN"], env["TAMANU_SUPERVISOR_STATUS_LISTEN"]
 	raw := adapt(t, caddyfile, env)
@@ -344,11 +345,12 @@ func TestSmoke(t *testing.T) {
 func TestSmokeErrorPages(t *testing.T) {
 	// Nothing listens on port 1, unlike a freed port another test may take.
 	env, caddyfile := supervisorEnv(t, map[string]string{
-		"TAMANU_SUPERVISOR_ROLE":          "facility",
-		"TAMANU_SUPERVISOR_LISTEN":        freeAddr(t),
-		"TAMANU_SUPERVISOR_STATUS_LISTEN": freeAddr(t),
-		"TAMANU_SUPERVISOR_API_UPSTREAMS": "127.0.0.1:1",
-		"TAMANU_SUPERVISOR_WEB_ROOT":      frontRoot(t, "web", true),
+		"TAMANU_SUPERVISOR_ROLE":            "facility",
+		"TAMANU_SUPERVISOR_TRUSTED_PROXIES": "10.0.0.0/8",
+		"TAMANU_SUPERVISOR_LISTEN":          freeAddr(t),
+		"TAMANU_SUPERVISOR_STATUS_LISTEN":   freeAddr(t),
+		"TAMANU_SUPERVISOR_API_UPSTREAMS":   "127.0.0.1:1",
+		"TAMANU_SUPERVISOR_WEB_ROOT":        frontRoot(t, "web", true),
 	})
 	listen := env["TAMANU_SUPERVISOR_LISTEN"]
 	load(t, adapt(t, caddyfile, env))

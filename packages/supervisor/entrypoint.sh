@@ -31,7 +31,9 @@ for name in $(env | sed -n "s/^$P\([A-Za-z0-9_]*\)=.*/\1/p"); do
 	case $known in *" $name "*) ;; *) fail "$name" "is not a variable the supervisor reads" ;; esac
 done
 
-for name in ROLE API_UPSTREAMS WEB_ROOT; do
+# A platform proxy is always in front, and without it named every client shares
+# the proxy's rate limits.
+for name in ROLE API_UPSTREAMS WEB_ROOT TRUSTED_PROXIES; do
 	[ -n "$(get $name)" ] || fail $name "is required"
 done
 
