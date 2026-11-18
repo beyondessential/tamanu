@@ -7,6 +7,7 @@ import {
   listenForSyncBindAddresses,
 } from '@tamanu/shared/utils/bindAddress';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { sweepStaleUploadDirs } from '@tamanu/shared/utils/tmpdir';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
@@ -82,6 +83,8 @@ const startApp =
     } else {
       await setupSyncRuntime(context);
     }
+
+    await sweepStaleUploadDirs();
 
     let server, express;
     switch (appType) {

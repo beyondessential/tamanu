@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -16,6 +17,15 @@ describe('uploadDir', () => {
   afterEach(() => {
     vi.doUnmock('node:fs/promises');
     vi.resetModules();
+  });
+
+  it("names the directory after this process's id", async () => {
+    const { uploadDir } = await loadTmpdir();
+
+    const directory = await uploadDir();
+
+    expect(path.basename(directory)).toMatch(new RegExp(`^tamanu-uploads-${process.pid}-`));
+    await fs.rm(directory, { recursive: true });
   });
 
   it('makes the directory once and hands back the same one after that', async () => {
@@ -58,5 +68,106 @@ describe('uploadDir', () => {
     expect(path.dirname(directory)).toBe(path.resolve(os.tmpdir()));
     expect(mkdtemp).toHaveBeenCalledTimes(2);
     await fs.rm(directory, { recursive: true });
+  });
+});
+
+describe('sweepStaleUploadDirs', () => {
+  const made = [];
+
+  // A process that has run and exited, so its id belongs to nothing running.
+  const deadPid = () => spawnSync(process.execPath, ['-e', '']).pid;
+
+  const makeUploadDirectory = async pid => {
+    const prefix = pid === undefined ? 'tamanu-uploads-' : `tamanu-uploads-${pid}-`;
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
+    await fs.writeFile(path.join(directory, 'upload.pdf'), 'patient document');
+    made.push(directory);
+    return directory;
+  };
+
+  const exists = directory =>
+    fs.lstat(directory).then(
+      () => true,
+      () => false,
+    );
+
+  afterEach(async () => {
+    vi.doUnmock('node:fs/promises');
+    vi.resetModules();
+    await Promise.all(
+      made.splice(0).map(directory => fs.rm(directory, { recursive: true, force: true })),
+    );
+  });
+
+  it('removes a directory left by a process that is no longer running', async () => {
+    const { sweepStaleUploadDirs } = await loadTmpdir();
+    const stale = await makeUploadDirectory(deadPid());
+
+    await sweepStaleUploadDirs();
+
+    expect(await exists(stale)).toBe(false);
+  });
+
+  it('removes a directory with our id that is not the one we hold', async () => {
+    const { sweepStaleUploadDirs, uploadDir } = await loadTmpdir();
+    const current = await uploadDir();
+    made.push(current);
+    const leftByEarlierProcess = await makeUploadDirectory(process.pid);
+
+    await sweepStaleUploadDirs();
+
+    expect(await exists(leftByEarlierProcess)).toBe(false);
+    expect(await exists(current)).toBe(true);
+  });
+
+  const lastTouchedDaysAgo = async (directory, days) => {
+    const then = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    await fs.utimes(directory, then, then);
+  };
+
+  it('removes a directory untouched for over a week, even when its id is in use', async () => {
+    const { sweepStaleUploadDirs } = await loadTmpdir();
+    const recycled = await makeUploadDirectory(process.ppid);
+    await lastTouchedDaysAgo(recycled, 8);
+
+    await sweepStaleUploadDirs();
+
+    expect(await exists(recycled)).toBe(false);
+  });
+
+  it('removes a directory named without an id once it is over a week old', async () => {
+    const { sweepStaleUploadDirs } = await loadTmpdir();
+    const old = await makeUploadDirectory();
+    await lastTouchedDaysAgo(old, 8);
+    const recent = await makeUploadDirectory();
+
+    await sweepStaleUploadDirs();
+
+    expect(await exists(old)).toBe(false);
+    expect(await exists(recent)).toBe(true);
+  });
+
+  it('keeps the directory of another process that is still running', async () => {
+    const { sweepStaleUploadDirs } = await loadTmpdir();
+    const live = await makeUploadDirectory(process.ppid);
+
+    await sweepStaleUploadDirs();
+
+    expect(await exists(live)).toBe(true);
+  });
+
+  it('leaves a link under an upload directory name, and what it points at, alone', async () => {
+    const { sweepStaleUploadDirs } = await loadTmpdir();
+    const target = await fs.mkdtemp(path.join(os.tmpdir(), 'not-an-upload-'));
+    made.push(target);
+    await fs.writeFile(path.join(target, 'keep.txt'), 'keep');
+    const link = path.join(os.tmpdir(), `tamanu-uploads-${deadPid()}-symlnk`);
+    await fs.symlink(target, link, 'dir');
+    made.push(link);
+
+    await sweepStaleUploadDirs();
+
+    expect(await exists(link)).toBe(true);
+    expect(await exists(path.join(target, 'keep.txt'))).toBe(true);
   });
 });

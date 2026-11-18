@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { sweepStaleUploadDirs } from '@tamanu/shared/utils/tmpdir';
 import { syncDatabaseServerVersion } from '@tamanu/database';
 import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
 
@@ -29,6 +30,7 @@ export const startApi = async ({ skipMigrationCheck }) => {
     serverVersion: version,
   });
 
+  await sweepStaleUploadDirs();
   const { express, server } = await createApp(context);
 
   await performTimeZoneChecks({
