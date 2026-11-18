@@ -45,6 +45,11 @@ export const defineWebsocketService = injector => {
   // Events about one user or one facility go to its room, so only the connections they concern
   // receive them. The facility is the one named in the connection's token.
   socketServer.on('connection', socket => {
+    // A recovered connection gets back the rooms it had, which were for the token it held then
+    for (const room of socket.rooms) {
+      if (room !== socket.id) socket.leave(room);
+    }
+
     const { user, facility } = socket.data;
     socket.join(userRoom(user.id));
     if (facility) {
