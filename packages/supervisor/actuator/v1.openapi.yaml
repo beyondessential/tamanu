@@ -77,8 +77,9 @@ paths:
       description: |
         Succeeds when nobody holds the lease, when it has expired, or when the
         holder named already holds it. Taking a lease that is free or expired
-        gives a new token, larger than any before it; taking one the holder
-        already holds keeps its token and extends it.
+        gives a new token, larger than any before it, including those given
+        before the actuator last restarted; taking one the holder already
+        holds keeps its token and extends it.
       requestBody:
         required: true
         content:
