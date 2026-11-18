@@ -41,3 +41,11 @@ export const PORTAL_SUGGESTER_ALLOW_LIST = [
   OTHER_REFERENCE_TYPES.FACILITY,
   OTHER_REFERENCE_TYPES.LOCATION,
 ];
+
+// What a kiosk form's search questions offer: the portal's lists, plus the staff and facility-scoped
+// areas that clinician and clinic questions search. spec: KIOSK#forms
+export const KIOSK_SUGGESTER_ALLOW_LIST = [
+  ...PORTAL_SUGGESTER_ALLOW_LIST,
+  'practitioner',
+  'facilityLocationGroup',
+];
