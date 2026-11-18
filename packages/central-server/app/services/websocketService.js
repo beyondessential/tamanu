@@ -71,8 +71,11 @@ export const defineWebsocketService = async injector => {
     }
   });
 
-  // The web app refetches its settings when told they changed, so that is the only table relayed,
-  // and without the changed row or columns. Each instance gets table_changed from postgres directly; relaying via the adapter costs a pooled query per row
+  // The admin panel refetches its settings when told they changed, so that is the only table
+  // relayed, and without the changed row or columns. Every other table change listener in the web
+  // app is on a screen only the facility server serves, and the facility server relays those.
+  // Each instance gets table_changed from postgres directly; relaying via the adapter costs a
+  // pooled query per row.
   injector.dbNotifier?.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]?.(({ table }) => {
     if (table !== 'settings') return;
     socketServer.local.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:settings`);

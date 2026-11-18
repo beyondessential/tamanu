@@ -29,6 +29,9 @@ const acquireSharedSocket = api => {
     // attempt, so a reconnection carries the token as the app last refreshed it.
     auth: sendToken => sendToken({ token: api.getToken() }),
   });
+  // No credential refresh before a retry: the web app's refresh sends no refresh token, which
+  // central refuses, and an auth error ends the session. A retry picks up the token the app holds
+  // once the user's activity refreshes it or they sign in again.
   stopReconnectingSharedSocket = keepSocketConnected(sharedSocket);
   return sharedSocket;
 };
