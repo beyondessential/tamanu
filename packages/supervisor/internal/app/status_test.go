@@ -29,106 +29,122 @@ func serve(t *testing.T, h *StatusHandler, method, path string) (*httptest.Respo
 	return w, err
 }
 
+// spec: SUPV#status
 func TestStatus(t *testing.T) {
+	tests := []struct {
+		name      string
+		setup     func(*state.Server)
+		wantState string
+		apiReady  bool
+		failure   string
+		inFlight  int
+		idle      bool
+	}{
+		{
+			name:      "awake and idle",
+			setup:     func(*state.Server) {},
+			wantState: "awake", apiReady: true, idle: true,
+		},
+		{
+			name: "asleep, after a failure",
+			setup: func(s *state.Server) {
+				s.SetPhase(state.Asleep)
+				s.SetReady(state.API, false)
+				s.SetFailure("fhir did not stop")
+			},
+			wantState: "asleep", failure: "fhir did not stop", idle: true,
+		},
+		{
+			name:      "a request in flight",
+			setup:     func(s *state.Server) { s.AdmitActivity(state.API) },
+			wantState: "awake", apiReady: true, inFlight: 1,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := newTestApp()
+			a.state.SetPhase(state.Awake)
+			tt.setup(a.state)
+
+			w, err := serve(t, &StatusHandler{app: a}, "GET", "/status")
+			if err != nil || w.Code != http.StatusOK {
+				t.Fatalf("status = %d, %v", w.Code, err)
+			}
+			var got struct {
+				State       string
+				Parts       map[string]struct{ Ready bool }
+				Upgrading   bool
+				LastFailure *struct{ Message string }
+				InFlight    int
+				IdleSince   *time.Time
+				IdleTime    string
+				CanSleep    bool
+				Release     string
+				Lease       string
+				Instance    string
+			}
+			if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
+				t.Fatalf("%v in %s", err, w.Body)
+			}
+			if got.State != tt.wantState || got.Upgrading || got.CanSleep || got.IdleTime != "15m0s" || got.Release != "dev" {
+				t.Errorf("status = %s", w.Body)
+			}
+			if len(got.Parts) != 5 || got.Parts["api"].Ready != tt.apiReady || !got.Parts["sync"].Ready {
+				t.Errorf("parts = %+v", got.Parts)
+			}
+			var failure string
+			if got.LastFailure != nil {
+				failure = got.LastFailure.Message
+			}
+			if failure != tt.failure {
+				t.Errorf("last failure = %q, want %q", failure, tt.failure)
+			}
+			if got.InFlight != tt.inFlight || (got.IdleSince != nil) != tt.idle {
+				t.Errorf("in flight %d, idle since %v", got.InFlight, got.IdleSince)
+			}
+			if got.Lease != "" || got.Instance != "" {
+				t.Errorf("a supervisor without an actuator reports a lease: %s", w.Body)
+			}
+		})
+	}
+}
+
+// spec: SUPV#status
+func TestEndpoints(t *testing.T) {
 	a := newTestApp()
 	a.state.SetPhase(state.Asleep)
-	a.state.SetReady(state.API, false)
-	a.state.SetFailure("fhir did not stop")
 	h := &StatusHandler{app: a}
-
-	w, err := serve(t, h, "GET", "/status")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if w.Code != http.StatusOK {
-		t.Errorf("an asleep server reports status %d, not 200", w.Code)
-	}
-	var got struct {
-		State       string                          `json:"state"`
-		Parts       map[string]struct{ Ready bool } `json:"parts"`
-		Upgrading   bool                            `json:"upgrading"`
-		LastFailure *struct{ Message string }       `json:"lastFailure"`
-		IdleTime    string                          `json:"idleTime"`
-		CanSleep    bool                            `json:"canSleep"`
-	}
-	if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
-		t.Fatalf("%v in %s", err, w.Body)
-	}
-	if got.State != "asleep" || got.Upgrading || got.CanSleep || got.IdleTime != "15m0s" {
-		t.Errorf("status = %s", w.Body)
-	}
-	if len(got.Parts) != 5 || got.Parts["api"].Ready || !got.Parts["sync"].Ready {
-		t.Errorf("parts = %+v", got.Parts)
-	}
-	if got.LastFailure == nil || got.LastFailure.Message != "fhir did not stop" {
-		t.Errorf("last failure = %+v", got.LastFailure)
-	}
-}
-
-func TestIdleSince(t *testing.T) {
-	a := newTestApp()
-	h := &StatusHandler{app: a}
-	read := func() map[string]any {
-		w, err := serve(t, h, "GET", "/status")
-		if err != nil {
-			t.Fatal(err)
+	for _, tt := range []struct {
+		method, path string
+		wantCode     int
+		wantBody     string
+	}{
+		{"GET", "/ready", http.StatusOK, "{\"ready\":true}\n"},
+		{"GET", "/health", http.StatusOK, "{\"status\":\"ok\"}\n"},
+		{"POST", "/status", http.StatusMethodNotAllowed, ""},
+		{"PUT", "/status", http.StatusMethodNotAllowed, ""},
+		{"DELETE", "/status", http.StatusMethodNotAllowed, ""},
+		{"PATCH", "/status", http.StatusMethodNotAllowed, ""},
+		{"GET", "/config/", http.StatusNotFound, ""},
+	} {
+		w, err := serve(t, h, tt.method, tt.path)
+		code := w.Code
+		var herr caddyhttp.HandlerError
+		if errors.As(err, &herr) {
+			code = herr.StatusCode
+		} else if err != nil {
+			t.Fatalf("%s %s: %v", tt.method, tt.path, err)
 		}
-		var got map[string]any
-		if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
-			t.Fatal(err)
+		if code != tt.wantCode || w.Body.String() != tt.wantBody {
+			t.Errorf("%s %s = %d %q, want %d %q", tt.method, tt.path, code, w.Body, tt.wantCode, tt.wantBody)
 		}
-		return got
-	}
-
-	if got := read(); got["idleSince"] == nil || got["release"] != "dev" {
-		t.Errorf("idle status = %v", got)
-	}
-	if got := read(); got["lease"] != nil || got["instance"] != nil {
-		t.Errorf("a supervisor without an actuator reports a lease: %v", got)
-	}
-	_, done := a.state.AdmitActivity(state.API)
-	if got := read(); got["idleSince"] != nil || got["inFlight"] != float64(1) {
-		t.Errorf("status with a request in flight = %v", got)
-	}
-	done()
-}
-
-func TestReadyWithoutAnActuator(t *testing.T) {
-	w, err := serve(t, &StatusHandler{app: newTestApp()}, "GET", "/ready")
-	if err != nil || w.Code != http.StatusOK || w.Body.String() != "{\"ready\":true}\n" {
-		t.Errorf("ready = %d %q %v", w.Code, w.Body, err)
-	}
-}
-
-func TestHealth(t *testing.T) {
-	a := newTestApp()
-	a.state.SetPhase(state.Asleep)
-	w, err := serve(t, &StatusHandler{app: a}, "GET", "/health")
-	if err != nil || w.Code != http.StatusOK || w.Body.String() != "{\"status\":\"ok\"}\n" {
-		t.Errorf("health = %d %q %v", w.Code, w.Body, err)
 	}
 	if n := a.state.Snapshot().InFlight; n != 0 {
-		t.Errorf("health counted as activity")
+		t.Errorf("an endpoint counted as activity")
 	}
 	select {
 	case <-a.state.WakeRequests():
-		t.Error("health asked for a wake")
+		t.Error("an endpoint asked for a wake")
 	default:
-	}
-}
-
-func TestStatusIsReadOnly(t *testing.T) {
-	h := &StatusHandler{app: newTestApp()}
-	for _, method := range []string{"POST", "PUT", "DELETE", "PATCH"} {
-		_, err := serve(t, h, method, "/status")
-		var herr caddyhttp.HandlerError
-		if !errors.As(err, &herr) || herr.StatusCode != http.StatusMethodNotAllowed {
-			t.Errorf("%s /status = %v, want 405", method, err)
-		}
-	}
-	_, err := serve(t, h, "GET", "/config/")
-	var herr caddyhttp.HandlerError
-	if !errors.As(err, &herr) || herr.StatusCode != http.StatusNotFound {
-		t.Errorf("GET /config/ = %v, want 404", err)
 	}
 }
