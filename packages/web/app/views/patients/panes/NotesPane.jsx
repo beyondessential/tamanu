@@ -25,9 +25,11 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
 
   // Encounter updates (move, edit) can add system notes, so refetch when the encounter changes.
-  const [lastSeenEncounterUpdatedAt, setLastSeenEncounterUpdatedAt] = useState(encounter.updatedAt);
-  if (encounter.updatedAt !== lastSeenEncounterUpdatedAt) {
-    setLastSeenEncounterUpdatedAt(encounter.updatedAt);
+  // Compared by reference rather than updatedAt: an edit to its diets alone leaves the encounter
+  // row untouched, and React Query keeps the same object when a refetch returns identical data.
+  const [lastSeenEncounter, setLastSeenEncounter] = useState(encounter);
+  if (encounter !== lastSeenEncounter) {
+    setLastSeenEncounter(encounter);
     setRefreshCount(count => count + 1);
   }
 
