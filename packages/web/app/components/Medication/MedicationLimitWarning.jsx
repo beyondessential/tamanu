@@ -3,7 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { DRUG_LIMIT_BREACHES } from '@tamanu/constants';
-import { getDoseLimitBreach, getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
 
 import { Colors } from '../../constants';
@@ -43,7 +43,7 @@ export const MedicationLimitWarning = ({ breach, unit, ...props }) => {
   const replacements = { limit: breach.limit, unit: unitLabel };
 
   return (
-    <Warning role="status" data-testid="medication-limit-warning" {...props}>
+    <Warning data-testid="medication-limit-warning" {...props}>
       <WarningIcon size={14} color={Colors.orange} aria-hidden />
       {breach.type === DRUG_LIMIT_BREACHES.ABOVE_MAX ? (
         <TranslatedText
@@ -63,26 +63,8 @@ export const MedicationLimitWarning = ({ breach, unit, ...props }) => {
 };
 
 /**
- * For an input's helper text slot, which takes space whenever it is given anything: the warning
- * when there is a limit to warn about, otherwise nothing.
+ * The warning when there is a limit to warn about, otherwise nothing. Used for an input's helper
+ * text slot, which takes space whenever it is given anything, and below a dose shown as text.
  */
 export const renderLimitWarning = (breach, unit) =>
   breach ? <MedicationLimitWarning breach={breach} unit={unit} /> : undefined;
-
-/**
- * A prescription's dose amount against the drug's dose limits, in its dosing unit. A variable
- * dose has no amount, so it is never out of range.
- */
-export const DoseLimitWarning = ({
-  doseAmount,
-  isVariableDose = false,
-  referenceDrug,
-  dosingUnit,
-  ...props
-}) => (
-  <MedicationLimitWarning
-    breach={isVariableDose ? null : getDoseLimitBreach(doseAmount, referenceDrug)}
-    unit={dosingUnit}
-    {...props}
-  />
-);

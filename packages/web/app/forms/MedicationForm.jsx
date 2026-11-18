@@ -675,7 +675,7 @@ export const MedicationForm = ({
   const drugStockStatus = selectedDrug?.facilities?.[0]?.stockStatus;
   // spec: DQLIM#prescribing
   // A medication set item is edited with its drug fixed, so its limits come with the item.
-  const drugLimits = selectedDrug ?? editingMedication?.medication?.referenceDrug;
+  const referenceDrug = selectedDrug ?? editingMedication?.medication?.referenceDrug;
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -1035,7 +1035,7 @@ export const MedicationForm = ({
                     : undefined
                 }
                 helperText={renderLimitWarning(
-                  getDoseLimitBreach(values.doseAmount, drugLimits),
+                  getDoseLimitBreach(values, referenceDrug),
                   values.dosingUnit,
                 )}
                 data-testid="medication-field-doseAmount-3t6w"
@@ -1270,7 +1270,7 @@ export const MedicationForm = ({
                     : undefined
                 }
                 helperText={renderLimitWarning(
-                  getDispensingQuantityLimitBreach(values.quantity, drugLimits),
+                  getDispensingQuantityLimitBreach(values.quantity, referenceDrug),
                   dispensingUnit,
                 )}
                 data-testid="medication-field-quantity-6j9m"

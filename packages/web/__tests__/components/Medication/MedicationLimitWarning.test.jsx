@@ -5,8 +5,8 @@ import { screen } from '@testing-library/react';
 import { DRUG_LIMIT_BREACHES, DRUG_UNITS } from '@tamanu/constants';
 
 import {
-  DoseLimitWarning,
   MedicationLimitWarning,
+  renderLimitWarning,
 } from '../../../app/components/Medication/MedicationLimitWarning';
 import {
   createTranslationContextWithReplacements,
@@ -47,27 +47,14 @@ describe('MedicationLimitWarning', () => {
   });
 });
 
-describe('DoseLimitWarning', () => {
-  const referenceDrug = { doseMin: '1', doseMax: '2' };
-
-  it('checks the dose against the dose limits', () => {
-    renderWarning(
-      <DoseLimitWarning doseAmount={10} referenceDrug={referenceDrug} dosingUnit="Tablet" />,
-    );
+describe('renderLimitWarning', () => {
+  it('renders the warning for a limit crossed', () => {
+    renderWarning(<div>{renderLimitWarning(aboveMax(2), DRUG_UNITS.tablet)}</div>);
 
     expect(screen.getByText('Above expected max of 2 tablets')).toBeTruthy();
   });
 
-  it('never flags a variable dose', () => {
-    renderWarning(
-      <DoseLimitWarning
-        doseAmount={10}
-        isVariableDose
-        referenceDrug={referenceDrug}
-        dosingUnit="Tablet"
-      />,
-    );
-
-    expect(screen.queryByTestId('medication-limit-warning')).toBeNull();
+  it('gives nothing, so a helper text slot stays empty, when the value is in range', () => {
+    expect(renderLimitWarning(null, DRUG_UNITS.tablet)).toBeUndefined();
   });
 });

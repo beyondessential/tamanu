@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import { MAX_REPEATS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import {
   getDispensingQuantityLimitBreach,
+  getDoseLimitBreach,
   getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
@@ -22,10 +23,7 @@ import {
 } from '@tamanu/ui-components';
 import { CheckField } from '../components/Field';
 import { LastSentCell } from '../components/Medication/LastSentCell';
-import {
-  DoseLimitWarning,
-  renderLimitWarning,
-} from '../components/Medication/MedicationLimitWarning';
+import { renderLimitWarning } from '../components/Medication/MedicationLimitWarning';
 import { Colors } from '../constants';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
 import { getStockStatus } from '../utils/medications';
@@ -186,12 +184,10 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
           .join(', ')}
       </Box>
       {/* spec: DQLIM#discharging */}
-      <DoseLimitWarning
-        doseAmount={medication.doseAmount}
-        isVariableDose={medication.isVariableDose}
-        referenceDrug={medicationReferenceData.referenceDrug}
-        dosingUnit={medication.dosingUnit}
-      />
+      {renderLimitWarning(
+        getDoseLimitBreach(medication, medicationReferenceData.referenceDrug),
+        medication.dosingUnit,
+      )}
     </Box>
   );
 };

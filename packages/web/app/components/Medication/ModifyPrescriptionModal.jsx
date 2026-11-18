@@ -259,9 +259,7 @@ export const ModifyPrescriptionModal = ({
               }
               // spec: DQLIM#dispensing
               helperText={renderLimitWarning(
-                values.isVariableDose
-                  ? null
-                  : getDoseLimitBreach(values.doseAmount, values.referenceDrug),
+                getDoseLimitBreach(values, values.referenceDrug),
                 values.dosingUnit,
               )}
               data-testid="modify-prescription-dose"

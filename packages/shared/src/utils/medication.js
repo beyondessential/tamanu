@@ -4,8 +4,6 @@ import { camelCase } from 'es-toolkit/compat';
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_FREQUENCY_DETAILS,
-  DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS,
-  DRUG_DOSE_LIMIT_FIELDS,
   DRUG_LIMIT_BREACHES,
   DRUG_UNIT_LABELS,
   DRUG_UNIT_PLURAL_LABELS,
@@ -220,25 +218,52 @@ export const getLimitBreach = (value, min, max) => {
 };
 
 /**
- * A dose amount against a drug's dose limits. `referenceDrug` holds the drug's limit fields, and
- * is absent until a drug is chosen, in which case nothing is out of range.
+ * A prescription's dose against its drug's dose limits. `referenceDrug` holds the drug's limit
+ * fields, and is absent until a drug is chosen, in which case nothing is out of range. A variable
+ * dose has no amount, so it is never out of range.
  */
-export const getDoseLimitBreach = (doseAmount, referenceDrug) =>
-  getLimitBreach(
-    doseAmount,
-    referenceDrug?.[DRUG_DOSE_LIMIT_FIELDS.min],
-    referenceDrug?.[DRUG_DOSE_LIMIT_FIELDS.max],
-  );
+export const getDoseLimitBreach = ({ doseAmount, isVariableDose }, referenceDrug) =>
+  isVariableDose
+    ? null
+    : getLimitBreach(doseAmount, referenceDrug?.doseMin, referenceDrug?.doseMax);
 
 /** A dispensing quantity against a drug's dispensing quantity limits. */
 export const getDispensingQuantityLimitBreach = (quantity, referenceDrug) =>
   getLimitBreach(
     quantity,
-    referenceDrug?.[DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS.min],
-    referenceDrug?.[DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS.max],
+    referenceDrug?.dispensingQuantityMin,
+    referenceDrug?.dispensingQuantityMax,
   );
 
-const isBlank = value => value === null || value === undefined || value === '';
+/**
+ * spec: DQLIM#medication-sets
+ * Why a medication template's dose is outside its drug's dose limits, or null when it is within
+ * them. The template's discharge quantity is deliberately not checked.
+ */
+export const getTemplateDoseLimitError = (template, referenceDrug, drugId) => {
+  const breach = getDoseLimitBreach(template, referenceDrug);
+  if (!breach) return null;
+
+  return breach.type === DRUG_LIMIT_BREACHES.ABOVE_MAX
+    ? `Dose amount ${template.doseAmount} is above the maximum dose of ${breach.limit} for drug "${drugId}".`
+    : `Dose amount ${template.doseAmount} is below the minimum dose of ${breach.limit} for drug "${drugId}".`;
+};
+
+const PLAIN_DECIMAL = /^-?(\d+(\.\d*)?|\.\d+)$/;
+
+/**
+ * spec: DQLIM#configuring-limits
+ * A drug limit as entered, as a number. Blank, including spaces only, is null. Anything other than
+ * a number or a plain decimal string is NaN, so it is rejected here rather than by the database.
+ */
+export const parseDrugLimit = value => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'number') return value;
+  if (typeof value !== 'string') return NaN;
+  const trimmed = value.trim();
+  if (trimmed === '') return null;
+  return PLAIN_DECIMAL.test(trimmed) ? Number(trimmed) : NaN;
+};
 
 /**
  * spec: DQLIM#configuring-limits
@@ -249,9 +274,8 @@ export const validateDrugLimits = limits => {
   const errors = [];
 
   const checkLimit = (field, { isWholeNumber }) => {
-    const value = limits[field];
-    if (isBlank(value)) return;
-    const number = Number(value);
+    const number = parseDrugLimit(limits[field]);
+    if (number === null) return;
     if (!Number.isFinite(number)) {
       errors.push(`${field} must be a number`);
     } else if (number < 0) {
@@ -260,20 +284,20 @@ export const validateDrugLimits = limits => {
       errors.push(`${field} must be a whole number`);
     }
   };
-  const checkRange = ({ min, max }) => {
-    const minLimit = toLimitNumber(limits[min]);
-    const maxLimit = toLimitNumber(limits[max]);
-    if (minLimit !== null && maxLimit !== null && minLimit > maxLimit) {
-      errors.push(`${min} must not be greater than ${max}`);
+  const checkRange = (minField, maxField) => {
+    const minLimit = parseDrugLimit(limits[minField]);
+    const maxLimit = parseDrugLimit(limits[maxField]);
+    if (Number.isFinite(minLimit) && Number.isFinite(maxLimit) && minLimit > maxLimit) {
+      errors.push(`${minField} must not be greater than ${maxField}`);
     }
   };
 
-  checkLimit(DRUG_DOSE_LIMIT_FIELDS.min, { isWholeNumber: false });
-  checkLimit(DRUG_DOSE_LIMIT_FIELDS.max, { isWholeNumber: false });
-  checkLimit(DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS.min, { isWholeNumber: true });
-  checkLimit(DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS.max, { isWholeNumber: true });
-  checkRange(DRUG_DOSE_LIMIT_FIELDS);
-  checkRange(DRUG_DISPENSING_QUANTITY_LIMIT_FIELDS);
+  checkLimit('doseMin', { isWholeNumber: false });
+  checkLimit('doseMax', { isWholeNumber: false });
+  checkLimit('dispensingQuantityMin', { isWholeNumber: true });
+  checkLimit('dispensingQuantityMax', { isWholeNumber: true });
+  checkRange('doseMin', 'doseMax');
+  checkRange('dispensingQuantityMin', 'dispensingQuantityMax');
 
   return errors;
 };

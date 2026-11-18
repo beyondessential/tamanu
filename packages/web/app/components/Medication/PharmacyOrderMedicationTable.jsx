@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import {
   getDispensingQuantityLimitBreach,
+  getDoseLimitBreach,
   getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
@@ -26,7 +27,7 @@ import { getStockStatus } from '../../utils/medications';
 import { CheckInput } from '../Field';
 import { Table } from '../Table';
 import { LastSentCell } from './LastSentCell';
-import { DoseLimitWarning, renderLimitWarning } from './MedicationLimitWarning';
+import { renderLimitWarning } from './MedicationLimitWarning';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -174,12 +175,10 @@ const getColumns = (
             getEnumTranslation,
           )}
           {/* spec: DQLIM#sending-to-pharmacy */}
-          <DoseLimitWarning
-            doseAmount={doseAmount}
-            isVariableDose={isVariableDose}
-            referenceDrug={medication?.referenceDrug}
-            dosingUnit={dosingUnit}
-          />
+          {renderLimitWarning(
+            getDoseLimitBreach({ doseAmount, isVariableDose }, medication?.referenceDrug),
+            dosingUnit,
+          )}
         </>
       ),
     },

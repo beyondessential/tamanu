@@ -16,6 +16,8 @@ import {
   getDoseLimitBreach,
   getFirstAdministrationDate,
   getLimitBreach,
+  getTemplateDoseLimitError,
+  parseDrugLimit,
   validateDrugLimits,
 } from '../../src/utils/medication';
 
@@ -406,14 +408,18 @@ describe('getDoseLimitBreach and getDispensingQuantityLimitBreach', () => {
   };
 
   it('checks a dose against the dose limits only', () => {
-    expect(getDoseLimitBreach(3, referenceDrug)).toEqual({
+    expect(getDoseLimitBreach({ doseAmount: 3 }, referenceDrug)).toEqual({
       type: DRUG_LIMIT_BREACHES.ABOVE_MAX,
       limit: 2,
     });
-    expect(getDoseLimitBreach(50, referenceDrug)).toEqual({
+    expect(getDoseLimitBreach({ doseAmount: 50 }, referenceDrug)).toEqual({
       type: DRUG_LIMIT_BREACHES.ABOVE_MAX,
       limit: 2,
     });
+  });
+
+  it('never flags a variable dose', () => {
+    expect(getDoseLimitBreach({ doseAmount: 50, isVariableDose: true }, referenceDrug)).toBeNull();
   });
 
   it('checks a quantity against the dispensing quantity limits only', () => {
@@ -425,9 +431,56 @@ describe('getDoseLimitBreach and getDispensingQuantityLimitBreach', () => {
   });
 
   it('never flags a drug without limits', () => {
-    expect(getDoseLimitBreach(500, {})).toBeNull();
-    expect(getDoseLimitBreach(500, null)).toBeNull();
+    expect(getDoseLimitBreach({ doseAmount: 500 }, {})).toBeNull();
+    expect(getDoseLimitBreach({ doseAmount: 500 }, null)).toBeNull();
     expect(getDispensingQuantityLimitBreach(500)).toBeNull();
+  });
+});
+
+describe('getTemplateDoseLimitError', () => {
+  const referenceDrug = { doseMin: '1', doseMax: '2' };
+
+  it('names the dose, the limit crossed and the drug', () => {
+    expect(getTemplateDoseLimitError({ doseAmount: 3 }, referenceDrug, 'drug-a')).toBe(
+      'Dose amount 3 is above the maximum dose of 2 for drug "drug-a".',
+    );
+    expect(getTemplateDoseLimitError({ doseAmount: 0.5 }, referenceDrug, 'drug-a')).toBe(
+      'Dose amount 0.5 is below the minimum dose of 1 for drug "drug-a".',
+    );
+  });
+
+  it('accepts a dose within the limits, a variable dose, and a drug without limits', () => {
+    expect(getTemplateDoseLimitError({ doseAmount: 2 }, referenceDrug, 'drug-a')).toBeNull();
+    expect(
+      getTemplateDoseLimitError(
+        { doseAmount: 'variable', isVariableDose: true },
+        referenceDrug,
+        'drug-a',
+      ),
+    ).toBeNull();
+    expect(getTemplateDoseLimitError({ doseAmount: 3 }, null, 'drug-a')).toBeNull();
+  });
+});
+
+describe('parseDrugLimit', () => {
+  it('reads numbers and plain decimal strings as numbers', () => {
+    expect(parseDrugLimit(2)).toBe(2);
+    expect(parseDrugLimit('2.5')).toBe(2.5);
+    expect(parseDrugLimit(' 4 ')).toBe(4);
+  });
+
+  it('reads a blank value, including spaces only, as no limit', () => {
+    expect(parseDrugLimit(null)).toBeNull();
+    expect(parseDrugLimit(undefined)).toBeNull();
+    expect(parseDrugLimit('')).toBeNull();
+    expect(parseDrugLimit('   ')).toBeNull();
+  });
+
+  it('reads anything else as not a number', () => {
+    expect(parseDrugLimit(true)).toBeNaN();
+    expect(parseDrugLimit([5])).toBeNaN();
+    expect(parseDrugLimit('1e1')).toBeNaN();
+    expect(parseDrugLimit('two')).toBeNaN();
   });
 });
 
@@ -474,5 +527,12 @@ describe('validateDrugLimits', () => {
 
   it('rejects a limit that is not a number', () => {
     expect(validateDrugLimits({ doseMax: 'two' })).toEqual(['doseMax must be a number']);
+    expect(validateDrugLimits({ dispensingQuantityMax: true })).toEqual([
+      'dispensingQuantityMax must be a number',
+    ]);
+  });
+
+  it('treats a limit of spaces only as blank', () => {
+    expect(validateDrugLimits({ doseMin: '  ', doseMax: '2' })).toEqual([]);
   });
 });

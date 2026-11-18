@@ -1333,6 +1333,7 @@ describe('Reference Data Manage', () => {
     });
 
     it.each([
+      ['a limit that is not a number', { doseMax: true }],
       ['a negative limit', { doseMin: -1 }],
       ['a dispensing quantity limit that is not a whole number', { dispensingQuantityMin: 1.5 }],
       [

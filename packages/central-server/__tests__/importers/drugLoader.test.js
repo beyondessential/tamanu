@@ -449,7 +449,21 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
       expect(errors).toHaveLength(0);
     });
 
+    it('treats a cell of spaces only as blank', async () => {
+      const rows = [drugRow({ doseMin: '   ', doseMax: 2 })];
+
+      const { errors } = await doImport(buildDrugWorkbookBuffer(limitHeaders, rows));
+
+      expect(errors).toHaveLength(0);
+      expect(await findLimits('drug-limits')).toMatchObject({ doseMin: null, doseMax: 2 });
+    });
+
     it.each([
+      [
+        'a limit that is not a number',
+        { dispensingQuantityMax: true },
+        'dispensingQuantityMax must be a number',
+      ],
       ['a negative limit', { doseMin: -1 }, 'doseMin must be 0 or more'],
       [
         'a dispensing quantity limit that is not a whole number',

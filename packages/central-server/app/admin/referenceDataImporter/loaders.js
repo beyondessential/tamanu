@@ -15,9 +15,12 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   DRUG_LIMIT_FIELDS,
-  DRUG_LIMIT_BREACHES,
 } from '@tamanu/constants';
-import { getDoseLimitBreach, validateDrugLimits } from '@tamanu/shared/utils/medication';
+import {
+  getTemplateDoseLimitError,
+  parseDrugLimit,
+  validateDrugLimits,
+} from '@tamanu/shared/utils/medication';
 import __cjs_inflection from 'inflection';
 const { pluralize } = __cjs_inflection;
 import { isEmpty, isNil } from 'es-toolkit/compat';
@@ -731,17 +734,18 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
   const rows = [];
 
   // spec: DQLIM#configuring-limits
-  // A blank cell leaves the limit unset. Like an invalid unit, an invalid limit rejects the row.
-  const limits = Object.fromEntries(
-    DRUG_LIMIT_FIELDS.map(field => [field, item[field] === '' ? null : (item[field] ?? null)]),
-  );
-  const limitErrors = validateDrugLimits(limits);
+  // Like an invalid unit, an invalid limit rejects the row. A blank cell leaves the limit unset, and
+  // each limit is saved as the number it was read as.
+  const limitErrors = validateDrugLimits(item);
   if (limitErrors.length > 0) {
     for (const message of limitErrors) {
       pushError(`Drug "${drugId}": ${message}.`);
     }
     return [];
   }
+  const limits = Object.fromEntries(
+    DRUG_LIMIT_FIELDS.map(field => [field, parseDrugLimit(item[field])]),
+  );
 
   const validDrugUnits = Object.values(DRUG_UNITS);
   if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
@@ -855,28 +859,6 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
   return rows;
 }
 
-/**
- * spec: DQLIM#medication-sets
- * The reason a medication template's dose is outside its drug's dose limits, or null when it is
- * within them. A variable dose has no amount, so it is never out of range. The template's
- * discharge quantity is deliberately not checked.
- */
-export async function getTemplateDoseLimitError(models, drugReferenceDataId, doseAmount) {
-  const referenceDrug = await models.ReferenceDrug.findOne({
-    where: { referenceDataId: drugReferenceDataId },
-    attributes: DRUG_LIMIT_FIELDS,
-  });
-  if (!referenceDrug) return null;
-
-  const isVariableDose = doseAmount?.toString().toLowerCase() === 'variable';
-  const breach = isVariableDose ? null : getDoseLimitBreach(doseAmount, referenceDrug);
-  if (!breach) return null;
-
-  return breach.type === DRUG_LIMIT_BREACHES.ABOVE_MAX
-    ? `Dose amount ${doseAmount} is above the maximum dose of ${breach.limit} for drug "${drugReferenceDataId}".`
-    : `Dose amount ${doseAmount} is below the minimum dose of ${breach.limit} for drug "${drugReferenceDataId}".`;
-}
-
 export async function medicationTemplateLoader(item, { models, pushError }) {
   const {
     id: referenceDataId,
@@ -894,8 +876,11 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
 
   const rows = [];
 
+  // spec: DQLIM#medication-sets
+  // The Drug sheet is imported first (see dependencies.js), so the drug's limits are its saved ones.
   const drug = await models.ReferenceData.findOne({
     where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
+    include: { association: 'referenceDrug', attributes: DRUG_LIMIT_FIELDS },
   });
   if (!drug) {
     pushError(
@@ -904,19 +889,20 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     );
   }
 
-  if (isNaN(doseAmount) && doseAmount?.toString().toLowerCase() !== 'variable') {
+  const isVariableDose = doseAmount?.toString().toLowerCase() === 'variable';
+  if (isNaN(doseAmount) && !isVariableDose) {
     pushError(
       `Dose amount must be a number or the string "variable".`,
       'ReferenceMedicationTemplate',
     );
   }
 
-  // spec: DQLIM#medication-sets
-  // Drug rows in the same workbook are saved before templates are loaded, so this sees their limits.
-  if (drug) {
-    const doseLimitError = await getTemplateDoseLimitError(models, drugReferenceDataId, doseAmount);
-    if (doseLimitError) pushError(doseLimitError, 'ReferenceMedicationTemplate');
-  }
+  const doseLimitError = getTemplateDoseLimitError(
+    { doseAmount, isVariableDose },
+    drug?.referenceDrug,
+    drugReferenceDataId,
+  );
+  if (doseLimitError) pushError(doseLimitError, 'ReferenceMedicationTemplate');
 
   const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
     where: { referenceDataId },
@@ -929,7 +915,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     referenceDataId,
     medicationId: drugReferenceDataId,
     isPrn: prnMedication,
-    isVariableDose: doseAmount?.toString().toLowerCase() === 'variable',
+    isVariableDose,
     doseAmount: parseFloat(doseAmount) || null,
     dosingUnit,
     frequency,
