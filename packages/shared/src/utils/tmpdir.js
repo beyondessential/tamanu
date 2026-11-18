@@ -25,9 +25,16 @@ let uploadDirectory = null;
 let creatingUploadDirectory = null;
 
 // The name carries the owning process's id, so that a later process can tell a
-// directory left by one that died mid-upload from one still in use.
+// directory left by one that died mid-upload from one still in use. The id is
+// optional in the pattern because directories were once named without one.
 const UPLOAD_DIRECTORY_PREFIX = 'tamanu-uploads-';
-const UPLOAD_DIRECTORY_PATTERN = new RegExp(`^${UPLOAD_DIRECTORY_PREFIX}(\\d+)-`);
+const UPLOAD_DIRECTORY_PATTERN = new RegExp(
+  `^${UPLOAD_DIRECTORY_PREFIX}(?:(\\d+)-)?[A-Za-z0-9]{6}$`,
+);
+
+// Far longer than any handler holds an upload, so a directory untouched for this
+// long is abandoned whoever its name says owns it.
+const STALE_UPLOAD_DIRECTORY_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 // A temp directory cleaner removes what has sat around long enough, which on a
 // server left running is ours between one upload and the next. Forget it so the
@@ -97,27 +104,30 @@ function isRunning(pid) {
 
 // A directory carrying our own id that is not the one we hold was left by an
 // earlier process given the same id, as every restart of a container is.
-function isLeftByDeadProcess(name) {
-  const match = UPLOAD_DIRECTORY_PATTERN.exec(name);
-  if (!match) return false;
-
-  const pid = Number(match[1]);
+function isLeftByDeadProcess(pid) {
   return pid === process.pid || !isRunning(pid);
+}
+
+// The age check catches what the id cannot: a dead process's id taken by another
+// process, and a directory named before names carried an id. A live process's
+// directory untouched this long goes too, and its next upload makes another.
+function isStale(pid, stats) {
+  if (pid && isLeftByDeadProcess(Number(pid))) return true;
+  return Date.now() - stats.mtimeMs > STALE_UPLOAD_DIRECTORY_AGE_MS;
 }
 
 // Only a real directory we own: never follow a link someone else planted under
 // one of our names, and leave another account's directories to that account.
-async function isOursToRemove(directory) {
-  const stats = await lstat(directory);
+function isOursToRemove(stats) {
   if (!stats.isDirectory()) return false;
   return typeof process.getuid !== 'function' || stats.uid === process.getuid();
 }
 
 /**
- * Removes upload directories left by processes that are no longer running.
- * An upload is deleted by the handler that received it, which never happens if
- * the process dies first, and nothing else would ever remove what it left. Run
- * on startup. Never throws: a directory left behind must not stop the server.
+ * Removes upload directories left by processes that are no longer running, or
+ * left untouched for a week. An upload is deleted by the handler that received
+ * it, which never happens if the process dies first, and nothing else would ever
+ * remove what it left. Run on startup. Never throws: a directory left behind must not stop the server.
  */
 export async function sweepStaleUploadDirs() {
   let names;
@@ -130,12 +140,14 @@ export async function sweepStaleUploadDirs() {
 
   for (const name of names) {
     const directory = path.join(tmpdirPath(), name);
-    if (directory === uploadDirectory || !isLeftByDeadProcess(name)) continue;
+    const match = UPLOAD_DIRECTORY_PATTERN.exec(name);
+    if (directory === uploadDirectory || !match) continue;
 
     try {
-      if (!(await isOursToRemove(directory))) continue;
+      const stats = await lstat(directory);
+      if (!isOursToRemove(stats) || !isStale(match[1], stats)) continue;
       await rm(directory, { recursive: true, force: true });
-      log.info('Removed an upload directory left by a stopped process', { directory });
+      log.info('Removed a stale upload directory', { directory });
     } catch (error) {
       log.warn('Could not remove a stale upload directory', { directory, error });
     }

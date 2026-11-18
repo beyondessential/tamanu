@@ -78,7 +78,8 @@ describe('sweepStaleUploadDirs', () => {
   const deadPid = () => spawnSync(process.execPath, ['-e', '']).pid;
 
   const makeUploadDirectory = async pid => {
-    const directory = await fs.mkdtemp(path.join(os.tmpdir(), `tamanu-uploads-${pid}-`));
+    const prefix = pid === undefined ? 'tamanu-uploads-' : `tamanu-uploads-${pid}-`;
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
     await fs.writeFile(path.join(directory, 'upload.pdf'), 'patient document');
     made.push(directory);
     return directory;
@@ -119,6 +120,33 @@ describe('sweepStaleUploadDirs', () => {
     expect(await exists(current)).toBe(true);
   });
 
+  const lastTouchedDaysAgo = async (directory, days) => {
+    const then = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    await fs.utimes(directory, then, then);
+  };
+
+  it('removes a directory untouched for over a week, even when its id is in use', async () => {
+    const { sweepStaleUploadDirs } = await loadTmpdir();
+    const recycled = await makeUploadDirectory(process.ppid);
+    await lastTouchedDaysAgo(recycled, 8);
+
+    await sweepStaleUploadDirs();
+
+    expect(await exists(recycled)).toBe(false);
+  });
+
+  it('removes a directory named without an id once it is over a week old', async () => {
+    const { sweepStaleUploadDirs } = await loadTmpdir();
+    const old = await makeUploadDirectory();
+    await lastTouchedDaysAgo(old, 8);
+    const recent = await makeUploadDirectory();
+
+    await sweepStaleUploadDirs();
+
+    expect(await exists(old)).toBe(false);
+    expect(await exists(recent)).toBe(true);
+  });
+
   it('keeps the directory of another process that is still running', async () => {
     const { sweepStaleUploadDirs } = await loadTmpdir();
     const live = await makeUploadDirectory(process.ppid);
@@ -133,7 +161,7 @@ describe('sweepStaleUploadDirs', () => {
     const target = await fs.mkdtemp(path.join(os.tmpdir(), 'not-an-upload-'));
     made.push(target);
     await fs.writeFile(path.join(target, 'keep.txt'), 'keep');
-    const link = path.join(os.tmpdir(), `tamanu-uploads-${deadPid()}-link`);
+    const link = path.join(os.tmpdir(), `tamanu-uploads-${deadPid()}-symlnk`);
     await fs.symlink(target, link, 'dir');
     made.push(link);
 
