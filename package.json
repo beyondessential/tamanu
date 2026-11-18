@@ -33,7 +33,7 @@
     "mobile-run-android": "npm run --workspace @tamanu/mobile android",
     "shared-test": "npm run --workspace @tamanu/shared test",
     "central-test": "npm run --workspace @tamanu/central-server test",
-    "central-shell": "npm run --workspace @tamanu/central-server shell",
+    "central-shell": "NODE_ENV=${NODE_ENV:-development} npm run --workspace @tamanu/central-server shell",
     "central-start-dev": "npm run watch-shared-and @tamanu/central-server start-dev",
     "central-test-watch": "npm run watch-shared-and @tamanu/central-server test-watch",
     "central-start": "npm run central-start-dev",
