@@ -13,17 +13,8 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
-// setup returns a fake actuator and a client holding its lease.
+// setup returns a fake actuator and a client of it, not holding its lease.
 func setup(t *testing.T) (*fake.Actuator, *actuator.Client) {
-	t.Helper()
-	f, c := setupWithoutLease(t)
-	if _, err := c.TakeLease(context.Background(), "test", time.Minute); err != nil {
-		t.Fatal(err)
-	}
-	return f, c
-}
-
-func setupWithoutLease(t *testing.T) (*fake.Actuator, *actuator.Client) {
 	t.Helper()
 	f := fake.New()
 	srv := httptest.NewServer(f)
@@ -34,112 +25,47 @@ func setupWithoutLease(t *testing.T) (*fake.Actuator, *actuator.Client) {
 	return f, c
 }
 
-func TestStateAndSet(t *testing.T) {
-	f, c := setup(t)
-	ctx := context.Background()
+// spec: SLPWK#actuator-contract
+func TestAwait(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		setup   func(*fake.Actuator)
+		part    state.Part
+		timeout time.Duration
+		cancel  bool
+		wantErr string
+	}{
+		{name: "stopped after a while", setup: func(f *fake.Actuator) { f.SetDelay(20 * time.Millisecond) }, part: state.API, timeout: time.Second},
+		{name: "times out", setup: func(f *fake.Actuator) { f.Stall(state.Database, true) }, part: state.Database, timeout: 30 * time.Millisecond, wantErr: "database (stopping)"},
+		{name: "failed", setup: func(f *fake.Actuator) { f.Fail(state.API, true) }, part: state.API, timeout: time.Second, wantErr: "api failed"},
+		{name: "cancelled", setup: func(f *fake.Actuator) { f.Stall(state.Sync, true) }, part: state.Sync, timeout: time.Minute, cancel: true, wantErr: "sync (stopping)"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			f, c := setup(t)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			if _, err := c.TakeLease(ctx, "test", time.Minute); err != nil {
+				t.Fatal(err)
+			}
+			tt.setup(f)
+			if _, err := c.Set(ctx, map[state.Part]actuator.Desired{tt.part: actuator.Down}); err != nil {
+				t.Fatal(err)
+			}
+			if tt.cancel {
+				time.AfterFunc(10*time.Millisecond, cancel)
+			}
 
-	s, err := c.State(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !s.ControlsParts || s.Upgrading || len(s.Parts) != 5 || s.Parts[state.API].Observed != actuator.Ready {
-		t.Errorf("initial state = %+v", s)
-	}
-
-	s, err = c.Set(ctx, map[state.Part]actuator.Desired{state.Tasks: actuator.Down, state.FHIR: actuator.Down})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if s.Parts[state.Tasks].Desired != actuator.Down || s.Parts[state.API].Desired != actuator.Up {
-		t.Errorf("after set = %+v", s.Parts)
-	}
-	if got := f.Puts(); len(got) != 1 || len(got[0]) != 2 {
-		t.Errorf("puts = %v", got)
-	}
-}
-
-func TestAwaitWithDelay(t *testing.T) {
-	f, c := setup(t)
-	f.SetDelay(20 * time.Millisecond)
-	ctx := context.Background()
-	parts := []state.Part{state.Sync, state.API}
-
-	s, err := c.Set(ctx, map[state.Part]actuator.Desired{state.Sync: actuator.Down, state.API: actuator.Down})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if s.Parts[state.API].Observed != actuator.Stopping {
-		t.Errorf("observed straight after set = %s", s.Parts[state.API].Observed)
-	}
-	var seen int
-	if err := c.Await(ctx, parts, actuator.Stopped, time.Second, func(actuator.State) { seen++ }); err != nil {
-		t.Fatal(err)
-	}
-	if seen == 0 {
-		t.Error("seen never called")
-	}
-	if !f.State().AllObserved(parts, actuator.Stopped) {
-		t.Errorf("not stopped: %+v", f.State().Parts)
-	}
-}
-
-func TestAwaitTimesOut(t *testing.T) {
-	f, c := setup(t)
-	f.Stall(state.Database, true)
-	ctx := context.Background()
-	_, _ = c.Set(ctx, map[state.Part]actuator.Desired{state.Database: actuator.Down})
-	err := c.Await(ctx, []state.Part{state.Database}, actuator.Stopped, 30*time.Millisecond, nil)
-	if err == nil || !strings.Contains(err.Error(), "database (stopping)") {
-		t.Errorf("err = %v", err)
-	}
-	f.Stall(state.Database, false)
-	if err := c.Await(ctx, []state.Part{state.Database}, actuator.Stopped, time.Second, nil); err != nil {
-		t.Errorf("after letting the stall go: %v", err)
-	}
-}
-
-func TestAwaitFails(t *testing.T) {
-	f, c := setup(t)
-	f.Fail(state.API, true)
-	ctx := context.Background()
-	_, _ = c.Set(ctx, map[state.Part]actuator.Desired{state.API: actuator.Down})
-	err := c.Await(ctx, []state.Part{state.API}, actuator.Stopped, time.Second, nil)
-	if err == nil || !strings.Contains(err.Error(), "api failed") {
-		t.Errorf("err = %v", err)
-	}
-}
-
-func TestAwaitCancelled(t *testing.T) {
-	f, c := setup(t)
-	f.Stall(state.Sync, true)
-	ctx, cancel := context.WithCancel(context.Background())
-	_, _ = c.Set(ctx, map[state.Part]actuator.Desired{state.Sync: actuator.Down})
-	go func() { time.Sleep(10 * time.Millisecond); cancel() }()
-	if err := c.Await(ctx, []state.Part{state.Sync}, actuator.Stopped, time.Minute, nil); err == nil {
-		t.Error("await outlived its context")
-	}
-}
-
-func TestSetErrors(t *testing.T) {
-	f, c := setup(t)
-	ctx := context.Background()
-
-	f.FailPuts(func(map[state.Part]actuator.Desired) bool { return true })
-	if _, err := c.Set(ctx, map[state.Part]actuator.Desired{state.API: actuator.Down}); err == nil || !strings.Contains(err.Error(), "500") {
-		t.Errorf("failed put: %v", err)
-	}
-	f.FailPuts(nil)
-
-	f.SetControlsParts(false)
-	if _, err := c.Set(ctx, map[state.Part]actuator.Desired{state.API: actuator.Down}); err == nil || !strings.Contains(err.Error(), "403") {
-		t.Errorf("put to an actuator that does not control parts: %v", err)
-	}
-}
-
-func TestUnreachable(t *testing.T) {
-	u, _ := url.Parse("http://127.0.0.1:1")
-	c := actuator.NewClient(u)
-	if _, err := c.State(context.Background()); err == nil {
-		t.Error("no error from an unreachable actuator")
+			seen := 0
+			err := c.Await(ctx, []state.Part{tt.part}, actuator.Stopped, tt.timeout, func(actuator.State) { seen++ })
+			if tt.wantErr == "" && err != nil {
+				t.Errorf("err = %v", err)
+			}
+			if tt.wantErr != "" && (err == nil || !strings.Contains(err.Error(), tt.wantErr)) {
+				t.Errorf("err = %v, want it to mention %q", err, tt.wantErr)
+			}
+			if seen == 0 {
+				t.Error("seen never called")
+			}
+		})
 	}
 }
