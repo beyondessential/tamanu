@@ -3,6 +3,7 @@ import { omit } from 'es-toolkit/compat';
 
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
+import { readConfigKeyFile } from '@tamanu/shared/utils/crypto';
 import { ReadSettings } from '@tamanu/settings/reader';
 import {
   getFhirWorkerSettings,
@@ -50,6 +51,10 @@ export class ApplicationContext {
         });
       }
     }
+
+    // Fails before anything is served when the key is missing or refused, rather than at the
+    // first secret read.
+    await readConfigKeyFile();
 
     const key = dbKey ?? appType ?? 'main';
     this.store = await initDatabase(databaseOverrides ?? {}, key);

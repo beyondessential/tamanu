@@ -6,8 +6,7 @@ import {
   encryptSecret,
   decryptSecret,
   isEncryptedSecret,
-  readKeyFile,
-  getConfigKeyFilePath,
+  readConfigKeyFile,
 } from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
@@ -58,7 +57,7 @@ export class LocalSystemSecret extends Model {
       return null;
     }
     if (isEncryptedSecret(value)) {
-      const keyBuffer = await readKeyFile(getConfigKeyFilePath());
+      const keyBuffer = await readConfigKeyFile();
       return decryptSecret(keyBuffer, value);
     }
     // Legacy plaintext value (moved out of local_system_facts before encryption
@@ -69,7 +68,7 @@ export class LocalSystemSecret extends Model {
   }
 
   static async set(key: SecretName, value: string): Promise<void> {
-    const keyBuffer = await readKeyFile(getConfigKeyFilePath());
+    const keyBuffer = await readConfigKeyFile();
     const encryptedValue = await encryptSecret(keyBuffer, value);
     const existing = await this.findOne({ where: { key } });
     if (existing) {
@@ -83,7 +82,7 @@ export class LocalSystemSecret extends Model {
   }
 
   static async setIfAbsent(key: SecretName, value: string): Promise<void> {
-    const keyBuffer = await readKeyFile(getConfigKeyFilePath());
+    const keyBuffer = await readConfigKeyFile();
     const encryptedValue = await encryptSecret(keyBuffer, value);
     await this.sequelize.query(
       `

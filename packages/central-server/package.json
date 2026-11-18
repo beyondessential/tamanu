@@ -20,7 +20,7 @@
     "clean:deps": "rimraf -- node_modules",
     "setup-dev": "node --import tsx app setup",
     "shell": "node --import tsx app shell",
-    "start-dev": "MIGRATE_ON_STARTUP=true TAMANU_PRIMARY_TIMEZONE=Pacific/Auckland AUTH_SECRET=insecure-dev-secret AUTH_REFRESH_TOKEN_SECRET=insecure-dev-refresh-secret npm run start-watch",
+    "start-dev": "NODE_ENV=development MIGRATE_ON_STARTUP=true TAMANU_PRIMARY_TIMEZONE=Pacific/Auckland AUTH_SECRET=insecure-dev-secret AUTH_REFRESH_TOKEN_SECRET=insecure-dev-refresh-secret npm run start-watch",
     "start-dev:test": "NODE_ENV=test MIGRATE_ON_STARTUP=true TAMANU_PRIMARY_TIMEZONE=Pacific/Auckland npm run start-watch",
     "start-watch": "node --import tsx --watch app",
     "start": "node --import tsx app",

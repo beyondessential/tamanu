@@ -6,6 +6,7 @@ import { ReadSettings } from '@tamanu/settings';
 import { settingsCache } from '@tamanu/settings/cache';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
+import { readConfigKeyFile } from '@tamanu/shared/utils/crypto';
 import { initReporting } from '@tamanu/database/services/reporting';
 import {
   getFhirWorkerSettings,
@@ -79,6 +80,10 @@ export class ApplicationContext {
         });
       }
     }
+
+    // Fails before anything is served when the key is missing or refused, rather than at the
+    // first secret read.
+    await readConfigKeyFile();
 
     this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 

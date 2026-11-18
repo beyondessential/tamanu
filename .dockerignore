@@ -3,3 +3,4 @@ node_modules
 .ssh
 .tmp
 database/docs
+**/config/dev-secret.key*

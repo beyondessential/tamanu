@@ -131,6 +131,8 @@ jobs:
             packages/central-server/config/local.json5
             packages/central-server/provisioning.json5
             packages/facility-server/config/local.json5
+            packages/central-server/config/dev-secret.key
+            packages/facility-server/config/dev-secret.key
           retention-days: 1
       - name: Upload prepared database snapshot
         uses: actions/upload-artifact@v7
