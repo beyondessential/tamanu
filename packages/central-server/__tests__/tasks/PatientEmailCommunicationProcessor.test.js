@@ -1,6 +1,6 @@
 import { access, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   COMMUNICATION_STATUSES,
@@ -63,9 +63,12 @@ describe('PatientEmailCommunicationProcessor', () => {
     await writeFile(otherFile, 'secret');
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await rm(otherDirectory, { recursive: true, force: true });
     await rm(generatedFile, { force: true });
+  });
+
+  afterAll(async () => {
     await ctx.close();
   });
 
