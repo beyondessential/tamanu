@@ -19,6 +19,7 @@ import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { CentralServerConnection } from '../sync';
 import { getAuthSecret, getCanonicalHostName } from '@tamanu/shared/utils';
+import { buildWebsocketAuthMiddleware } from '@tamanu/shared/utils/websocketAuth';
 
 const jwtSecretKey = getAuthSecret() ?? crypto.randomBytes(32).toString('hex');
 
@@ -400,6 +401,14 @@ function createAuthMiddleware({ requireDeviceId }) {
     }
   };
 }
+
+// Websocket handshakes present the same access token as the HTTP API
+export const createWebsocketAuthMiddleware = models =>
+  buildWebsocketAuthMiddleware({
+    models,
+    tokenIssuer: getCanonicalHostName() ?? 'localhost',
+    tokenSecret: jwtSecretKey,
+  });
 
 export const authMiddleware = createAuthMiddleware({ requireDeviceId: true });
 export const deviceOptionalAuthMiddleware = createAuthMiddleware({ requireDeviceId: false });

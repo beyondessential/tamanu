@@ -61,7 +61,7 @@ export const defineWebsocketClientService = injector => {
       contact.connectionDetails = { chatId };
       await contact.save();
 
-      injector.websocketService?.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE_SUCCESS, { contactId, chatId });
+      injector.websocketService?.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE_SUCCESS, { contactId });
     },
   );
 
