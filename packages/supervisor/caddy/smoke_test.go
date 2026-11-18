@@ -23,6 +23,7 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/app"
 	_ "github.com/beyondessential/tamanu/packages/supervisor/internal/errorpage"
 	_ "github.com/beyondessential/tamanu/packages/supervisor/internal/gate"
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/pages"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -367,5 +368,32 @@ func TestSmokeErrorPages(t *testing.T) {
 	res, body = cl.get(listen, "/api/patient", "Accept", "text/html")
 	if res.StatusCode != http.StatusBadGateway || !strings.Contains(body, "Tamanu is currently unavailable") {
 		t.Errorf("browser opening an api path with the api down = %d %q", res.StatusCode, body)
+	}
+}
+
+// TestAPIPathsMatchThePages checks the Caddyfile's api routes against the
+// paths the pages answer as an api's, which only comments otherwise keep in
+// step.
+func TestAPIPathsMatchThePages(t *testing.T) {
+	raw, err := os.ReadFile("supervisor.caddyfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := regexp.MustCompile(`(?m)^\s*@api path (.+)$`).FindSubmatch(raw)
+	if m == nil {
+		t.Fatal("no @api matcher in supervisor.caddyfile")
+	}
+	for _, pattern := range strings.Fields(string(m[1])) {
+		prefix := strings.TrimSuffix(pattern, "*")
+		for _, path := range []string{prefix + "patient", strings.TrimSuffix(prefix, "/")} {
+			if !pages.IsAPIPath(path) {
+				t.Errorf("%s is routed to the api but its pages are not an api's", path)
+			}
+		}
+	}
+	for _, path := range []string{"/", "/apis", "/v1x", "/patients"} {
+		if pages.IsAPIPath(path) {
+			t.Errorf("%s is not routed to the api but its pages are an api's", path)
+		}
 	}
 }
