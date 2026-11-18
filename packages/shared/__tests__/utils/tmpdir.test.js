@@ -93,7 +93,9 @@ describe('sweepStaleUploadDirs', () => {
   afterEach(async () => {
     vi.doUnmock('node:fs/promises');
     vi.resetModules();
-    await Promise.all(made.splice(0).map(directory => fs.rm(directory, { recursive: true, force: true })));
+    await Promise.all(
+      made.splice(0).map(directory => fs.rm(directory, { recursive: true, force: true })),
+    );
   });
 
   it('removes a directory left by a process that is no longer running', async () => {
