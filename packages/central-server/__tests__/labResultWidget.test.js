@@ -1,10 +1,12 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { Op } from 'sequelize';
+import supertest from 'supertest';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { settingsCache } from '@tamanu/settings';
 
 import { createTestContext } from './utilities';
+import { createApp } from '../app/createApp';
 
 const DISPLAY_ID = 'WIDGET1';
 const UNPUBLISHED_DISPLAY_ID = 'WIDGET2';
@@ -132,6 +134,7 @@ describe('Lab result widget', () => {
         [Op.or]: [
           { key: { [Op.like]: 'labResultWidget.%' } },
           { key: 'security.cors.allowedOrigin' },
+          { key: { [Op.like]: 'rateLimit.labResultWidget.%' } },
         ],
       },
     });
@@ -214,5 +217,26 @@ describe('Lab result widget', () => {
     expect(refused.status).toBe(429);
     expect(refused.headers['retry-after']).toBeDefined();
     expect(refused.headers['access-control-allow-origin']).toBe(allowedOrigin);
+  });
+
+  it('applies a configured lookup limit once the server restarts', async () => {
+    await models.Setting.set('rateLimit.labResultWidget.max', 2, SETTINGS_SCOPES.CENTRAL);
+    settingsCache.reset();
+
+    process.env.TEST_RATE_LIMITING = 'enabled';
+    let server;
+    try {
+      ({ server } = await createApp(ctx));
+    } finally {
+      delete process.env.TEST_RATE_LIMITING;
+    }
+    try {
+      const restartedApp = supertest.agent(server);
+      await restartedApp.get(ENDPOINT).expect(200);
+      await restartedApp.get(ENDPOINT).expect(200);
+      await restartedApp.get(ENDPOINT).expect(429);
+    } finally {
+      server.close();
+    }
   });
 });
