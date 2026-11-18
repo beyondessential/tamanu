@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 export const labRequestLog = express.Router();
@@ -40,7 +39,7 @@ labRequestLog.get(
     const publishedLog = await models.LabRequestLog.findOne({
       where: {
         labRequestId: params.id,
-        status: { [Op.in]: [LAB_REQUEST_STATUSES.PUBLISHED, LAB_REQUEST_STATUSES.VERIFIED] },
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
       },
       order: [['createdAt', 'DESC']],
       include: [{ association: 'updatedBy', attributes: ['displayName'] }],
