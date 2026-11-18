@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/app"
@@ -16,6 +17,20 @@ import (
 
 func init() {
 	caddy.RegisterModule(Gate{})
+	httpcaddyfile.RegisterHandlerDirective("tamanu_gate", parseCaddyfile)
+	// Ahead of anything that sets response headers or answers, so a request
+	// the gate answers itself gets the gate's response alone.
+	httpcaddyfile.RegisterDirectiveOrder("tamanu_gate", httpcaddyfile.Before, "header")
+}
+
+// parseCaddyfile reads the tamanu_gate directive: tamanu_gate <class>.
+func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
+	h.Next()
+	var class string
+	if !h.Args(&class) || h.NextArg() {
+		return nil, h.ArgErr()
+	}
+	return &Gate{Class: Class(class)}, nil
 }
 
 // Class is how a route's requests bear on sleep and wake.

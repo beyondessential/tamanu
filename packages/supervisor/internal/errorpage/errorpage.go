@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/pages"
@@ -16,6 +17,20 @@ import (
 
 func init() {
 	caddy.RegisterModule(Handler{})
+	httpcaddyfile.RegisterHandlerDirective("tamanu_error_page", parseCaddyfile)
+	httpcaddyfile.RegisterDirectiveOrder("tamanu_error_page", httpcaddyfile.Before, "respond")
+}
+
+// parseCaddyfile reads the tamanu_error_page directive:
+// tamanu_error_page [<root>].
+func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
+	h.Next()
+	handler := new(Handler)
+	h.Args(&handler.Root)
+	if h.NextArg() {
+		return nil, h.ArgErr()
+	}
+	return handler, nil
 }
 
 // statuses are the errors the reverse proxy raises when no instance of a part
