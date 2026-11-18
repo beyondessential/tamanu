@@ -36,32 +36,41 @@ const makeLimiter = ({ name, windowMs, max, skipSuccessfulRequests = false }) =>
 const DEFAULT_GLOBAL = { windowMs: 60 * 1000, max: 600 };
 const DEFAULT_AUTH = { windowMs: 15 * 60 * 1000, max: 30 };
 
+const NOOP_LIMITERS = {
+  globalLimiter: noopMiddleware,
+  authLimiter: noopMiddleware,
+  labResultWidgetLimiter: noopMiddleware,
+};
+
 /**
- * Returns a pair of express middlewares:
+ * Returns the express rate-limiting middlewares:
  *  - `globalLimiter`: permissive, applied to every request as a DoS backstop.
  *  - `authLimiter`: strict, applied to unauthenticated / expensive endpoints
  *    (login, refresh, password reset, patient-portal login). Successful
  *    requests are not counted, so only failed/abusive traffic accumulates
  *    toward the limit.
+ *  - `labResultWidgetLimiter`: applied to the central server's public lab
+ *    result widget. Every lookup counts, since one that matches nothing still
+ *    succeeds. Built only when `rateLimit.labResultWidget` is given (central
+ *    settings); a no-op otherwise.
  *
- * Both limiters are no-ops when `NODE_ENV === 'test'` or when the passed-in
+ * All limiters are no-ops when `NODE_ENV === 'test'` or when the passed-in
  * `rateLimit.enabled === false`.
  *
- * Limits come from the caller's `rateLimit.{global,auth}.{windowMs,max}` settings.
- * `skipSuccessfulRequests` for the auth limiter is always true and cannot be
+ * Limits come from the caller's `rateLimit.{global,auth,labResultWidget}.{windowMs,max}`
+ * settings. `skipSuccessfulRequests` for the auth limiter is always true and cannot be
  * overridden (spread order below).
  */
 export const buildRateLimiters = (rateLimitConfig = {}) => {
-  if (rateLimitingDisabled()) {
-    return { globalLimiter: noopMiddleware, authLimiter: noopMiddleware };
+  if (rateLimitingDisabled() || rateLimitConfig.enabled === false) {
+    return NOOP_LIMITERS;
   }
 
-  if (rateLimitConfig.enabled === false) {
-    return { globalLimiter: noopMiddleware, authLimiter: noopMiddleware };
-  }
-
-  const { global: globalConfig = DEFAULT_GLOBAL, auth: authConfig = DEFAULT_AUTH } =
-    rateLimitConfig;
+  const {
+    global: globalConfig = DEFAULT_GLOBAL,
+    auth: authConfig = DEFAULT_AUTH,
+    labResultWidget: labResultWidgetConfig,
+  } = rateLimitConfig;
 
   return {
     globalLimiter: makeLimiter({ name: 'global', ...globalConfig }),
@@ -71,5 +80,8 @@ export const buildRateLimiters = (rateLimitConfig = {}) => {
       // Must follow spread: config must not override this safety-critical flag.
       skipSuccessfulRequests: true,
     }),
+    labResultWidgetLimiter: labResultWidgetConfig
+      ? makeLimiter({ name: 'labResultWidget', ...labResultWidgetConfig })
+      : noopMiddleware,
   };
 };

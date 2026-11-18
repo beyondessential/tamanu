@@ -1,9 +1,6 @@
-
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-
-export const labResultWidgetRoutes = express.Router();
 
 const getInitial = s => (s ? s[0] : '');
 
@@ -44,31 +41,38 @@ const transformLabRequest = async (models, labRequest, testTypeWhitelist) => {
   };
 };
 
-labResultWidgetRoutes.get(
-  '/:displayId',
-  asyncHandler(async (req, res) => {
-    const { params } = req;
-    const { displayId } = params;
-    const { models } = req.store;
-    const { testTypeWhitelist, categoryWhitelist } = await req.settings.get('labResultWidget');
-    const labRequests = await models.LabRequest.findAll({
-      where: {
-        display_id: displayId,
-      },
-    });
+// spec: LPUB
+// Exported as a factory so createApi can inject the shared rate-limiter instance.
+export const labResultWidgetRoutes = ({ labResultWidgetLimiter }) => {
+  const router = express.Router();
+  router.get(
+    '/:displayId',
+    labResultWidgetLimiter,
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { displayId } = params;
+      const { models } = req.store;
+      const { testTypeWhitelist, categoryWhitelist } = await req.settings.get('labResultWidget');
+      const labRequests = await models.LabRequest.findAll({
+        where: {
+          display_id: displayId,
+        },
+      });
 
-    const returnableLabRequests = labRequests.filter(({ labTestCategoryId }) =>
-      categoryWhitelist.includes(labTestCategoryId),
-    );
+      const returnableLabRequests = labRequests.filter(({ labTestCategoryId }) =>
+        categoryWhitelist.includes(labTestCategoryId),
+      );
 
-    const labRequestsToReport = await Promise.all(
-      returnableLabRequests.map(labRequest =>
-        transformLabRequest(models, labRequest, testTypeWhitelist),
-      ),
-    );
+      const labRequestsToReport = await Promise.all(
+        returnableLabRequests.map(labRequest =>
+          transformLabRequest(models, labRequest, testTypeWhitelist),
+        ),
+      );
 
-    res.send({
-      data: labRequestsToReport,
-    });
-  }),
-);
+      res.send({
+        data: labRequestsToReport,
+      });
+    }),
+  );
+  return router;
+};
