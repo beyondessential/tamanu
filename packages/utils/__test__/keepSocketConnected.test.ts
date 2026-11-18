@@ -93,13 +93,23 @@ describe('keepSocketConnected', () => {
     expect(socket.connect).toHaveBeenCalledTimes(3);
   });
 
+  it('does not reconnect after the client disconnects on purpose', async () => {
+    const socket = new FakeSocket();
+    keepSocketConnected(socket);
+
+    socket.emit('disconnect', 'io client disconnect');
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(socket.connect).not.toHaveBeenCalled();
+  });
+
   it('stops retrying once stopped', async () => {
     const socket = new FakeSocket();
     const stop = keepSocketConnected(socket);
 
     socket.emit('connect_error', new Error('Unauthorised'));
     stop();
-    socket.emit('disconnect', 'io client disconnect');
+    socket.emit('disconnect', 'io server disconnect');
     await vi.advanceTimersByTimeAsync(60_000);
 
     expect(socket.connect).not.toHaveBeenCalled();

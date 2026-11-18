@@ -17,7 +17,7 @@ const MAX_RETRY_DELAY_MS = 60_000;
  * is missing or expires, the client has to reconnect on its own. This does so, refreshing the
  * credentials first, with one retry pending at a time and a delay that grows while retries fail.
  *
- * Returns a function that stops retrying; call it before disconnecting the socket on purpose.
+ * Returns a function that stops retrying. A disconnection the client makes itself is not retried.
  */
 export const keepSocketConnected = (
   socket: ReconnectableSocket,
@@ -43,19 +43,23 @@ export const keepSocketConnected = (
     delay = Math.min(delay * 2, MAX_RETRY_DELAY_MS);
   };
 
+  const retryUnlessDisconnectedOnPurpose = (reason: string) => {
+    if (reason !== 'io client disconnect') scheduleRetry();
+  };
+
   const resetDelay = () => {
     delay = FIRST_RETRY_DELAY_MS;
   };
 
   socket.on('connect_error', scheduleRetry);
-  socket.on('disconnect', scheduleRetry);
+  socket.on('disconnect', retryUnlessDisconnectedOnPurpose);
   socket.on('connect', resetDelay);
 
   return () => {
     isStopped = true;
     clearTimeout(timer);
     socket.off('connect_error', scheduleRetry);
-    socket.off('disconnect', scheduleRetry);
+    socket.off('disconnect', retryUnlessDisconnectedOnPurpose);
     socket.off('connect', resetDelay);
   };
 };
