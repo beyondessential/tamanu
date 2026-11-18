@@ -11,7 +11,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { tmpdir } from '@tamanu/shared/utils';
 
 import { PatientEmailCommunicationProcessor } from '../../app/tasks/PatientEmailCommunicationProcessor';
-import { isGeneratedFile } from '../../app/utils/files';
+import { attachmentDir, isGeneratedFile } from '../../app/utils/files';
 import { createTestContext } from '../utilities';
 
 vi.mock('../../app/services/mailConfig', () => ({
@@ -55,8 +55,7 @@ describe('PatientEmailCommunicationProcessor', () => {
     await ctx.store.models.PatientCommunication.destroy({ where: {}, force: true });
     ctx.emailService.sendEmail.mockClear();
 
-    // central writes the files it generates straight into its temp directory
-    generatedFile = path.join(await tmpdir(), `generated-${Date.now()}.pdf`);
+    generatedFile = path.join(await attachmentDir(), `generated-${Date.now()}.pdf`);
     await writeFile(generatedFile, 'generated');
     otherDirectory = await mkdtemp(path.join(await tmpdir(), 'other-'));
     otherFile = path.join(otherDirectory, 'secret.txt');
@@ -130,11 +129,13 @@ describe('PatientEmailCommunicationProcessor', () => {
 
 describe('isGeneratedFile', () => {
   let directory;
+  let tempDirectory;
   let outside;
 
   beforeAll(async () => {
-    directory = await tmpdir();
-    outside = await mkdtemp(path.join(directory, 'outside-'));
+    directory = await attachmentDir();
+    tempDirectory = await tmpdir();
+    outside = await mkdtemp(path.join(tempDirectory, 'outside-'));
     await writeFile(path.join(outside, 'secret.txt'), 'secret');
   });
 
@@ -142,7 +143,7 @@ describe('isGeneratedFile', () => {
     await rm(outside, { recursive: true, force: true });
   });
 
-  it('accepts a file this process wrote directly in the temp directory', async () => {
+  it('accepts a file this process wrote in the attachment directory', async () => {
     const filePath = path.join(directory, `generated-${Date.now()}.pdf`);
     await writeFile(filePath, 'generated');
     try {
@@ -152,7 +153,7 @@ describe('isGeneratedFile', () => {
     }
   });
 
-  it('rejects a link in the temp directory to a file elsewhere', async () => {
+  it('rejects a link in the attachment directory to a file elsewhere', async () => {
     const linkPath = path.join(directory, `link-${Date.now()}.pdf`);
     await symlink(path.join(outside, 'secret.txt'), linkPath);
     try {
@@ -162,16 +163,32 @@ describe('isGeneratedFile', () => {
     }
   });
 
-  it('rejects a path in the temp directory with no file', async () => {
+  it('rejects a path in the attachment directory with no file', async () => {
     expect(await isGeneratedFile(path.join(directory, 'missing.pdf'))).toBe(false);
   });
 
+  it('rejects a file other code wrote directly in the temp directory', async () => {
+    const filePath = path.join(tempDirectory, `report-${Date.now()}.xlsx`);
+    await writeFile(filePath, 'report data');
+    try {
+      expect(await isGeneratedFile(filePath)).toBe(false);
+    } finally {
+      await rm(filePath, { force: true });
+    }
+  });
+
   it.each([
-    ['a file in a subdirectory of the temp directory', () => [outside, 'secret.txt']],
-    ['a path that climbs out of the temp directory', () => [directory, '..', 'etc', 'passwd']],
+    [
+      'a file in a subdirectory of the attachment directory',
+      () => [directory, 'nested', 'secret.txt'],
+    ],
+    [
+      'a path that climbs out of the attachment directory',
+      () => [directory, '..', 'etc', 'passwd'],
+    ],
     [
       'a path that climbs out and back in',
-      () => [outside, '..', '..', path.basename(directory), path.basename(outside), 'secret.txt'],
+      () => [outside, '..', path.basename(directory), '..', path.basename(outside), 'secret.txt'],
     ],
   ])('rejects %s', async (_name, segments) => {
     expect(await isGeneratedFile(segments().join('/'))).toBe(false);

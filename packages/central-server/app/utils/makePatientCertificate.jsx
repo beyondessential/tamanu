@@ -6,7 +6,7 @@ import ReactPDF from '@react-pdf/renderer';
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
-import { getPatientSurveyResponseAnswer, tmpdir } from '@tamanu/shared/utils';
+import { getPatientSurveyResponseAnswer } from '@tamanu/shared/utils';
 import {
   CertificateTypes,
   CovidLabCertificate,
@@ -15,6 +15,7 @@ import {
 } from '@tamanu/shared/utils/patientCertificates';
 
 import { getLocalisation } from '../localisation';
+import { attachmentDir } from './files';
 
 async function getCertificateAssets(models, footerAssetName) {
   const footerAsset = await models.Asset.findOne({
@@ -38,7 +39,7 @@ async function getCertificateAssets(models, footerAssetName) {
 }
 
 async function renderPdf(element, fileName) {
-  const folder = await tmpdir();
+  const folder = await attachmentDir();
   const filePath = path.join(folder, fileName);
 
   await ReactPDF.render(element, filePath);
