@@ -109,6 +109,9 @@ WORKDIR /src
 COPY packages/supervisor/go.mod packages/supervisor/go.sum ./
 RUN go mod download
 COPY packages/supervisor/ ./
+# Compiled unstamped first, so a release that changes only the version relinks
+# from this layer's build cache rather than compiling Caddy again.
+RUN CGO_ENABLED=0 go build -trimpath -o /dev/null ./cmd/supervisor
 COPY package.json /tamanu/package.json
 RUN version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' /tamanu/package.json)" \
   && test -n "$version" \
