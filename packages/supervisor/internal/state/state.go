@@ -67,7 +67,7 @@ type Server struct {
 	inFlight     int
 	lastActivity time.Time
 	lastFailure  *Failure
-	lastWake     time.Time
+	wakePending  bool
 	now          func() time.Time
 	wake         chan struct{}
 	activity     chan struct{}
@@ -162,11 +162,14 @@ func (s *Server) AdmitActivity(part Part) (admission Admission, done func()) {
 	return admission, func() {}
 }
 
-// requestWake asks for a wake, with s.mu held.
+// requestWake asks for a wake, with s.mu held. The request stays pending
+// until the server is awake, and only the first is reported at once.
 func (s *Server) requestWake() {
-	s.lastWake = s.now()
 	notify(s.wake)
-	notify(s.reportDue)
+	if !s.wakePending {
+		s.wakePending = true
+		notify(s.reportDue)
+	}
 }
 
 func (s *Server) endActivity() {
@@ -196,15 +199,19 @@ func (s *Server) WakeRequests() <-chan struct{} { return s.wake }
 // the last one was received, so an idle timer can rearm itself.
 func (s *Server) Activity() <-chan struct{} { return s.activity }
 
-// ReportDue delivers a value whenever a wake has been asked for, or the last
-// request in flight has finished, since the last one was received.
+// ReportDue delivers a value whenever a wake has been asked for while none was
+// pending, or the last request in flight has finished, since the last one was
+// received.
 func (s *Server) ReportDue() <-chan struct{} { return s.reportDue }
 
-// SetPhase moves the server to phase.
+// SetPhase moves the server to phase. An awake server has no wake pending.
 func (s *Server) SetPhase(phase Phase) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.phase = phase
+	if phase == Awake {
+		s.wakePending = false
+	}
 }
 
 // SetReady records whether part is ready to be forwarded requests.
@@ -253,8 +260,9 @@ type Snapshot struct {
 	InFlight     int
 	LastActivity time.Time
 	LastFailure  *Failure
-	// LastWakeRequest is when a wake was last asked for.
-	LastWakeRequest time.Time
+	// WakePending is whether a wake has been asked for since the server was
+	// last awake.
+	WakePending bool
 }
 
 // Idle reports how long the server has had no activity, which is zero while
@@ -280,14 +288,14 @@ func (s *Server) Snapshot() Snapshot {
 		failure = &f
 	}
 	return Snapshot{
-		LastWakeRequest: s.lastWake,
-		Phase:           s.phase,
-		Ready:           ready,
-		Parts:           append([]Part(nil), s.parts...),
-		Upgrading:       s.upgrading,
-		InFlight:        s.inFlight,
-		LastActivity:    s.lastActivity,
-		LastFailure:     failure,
+		WakePending:  s.wakePending,
+		Phase:        s.phase,
+		Ready:        ready,
+		Parts:        append([]Part(nil), s.parts...),
+		Upgrading:    s.upgrading,
+		InFlight:     s.inFlight,
+		LastActivity: s.lastActivity,
+		LastFailure:  failure,
 	}
 }
 

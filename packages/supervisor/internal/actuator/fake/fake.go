@@ -41,8 +41,9 @@ type Actuator struct {
 	puts      []map[state.Part]actuator.Desired
 	onPut     func(map[state.Part]actuator.Desired)
 
-	lease   lease
-	reports map[string]actuator.Report
+	lease      lease
+	reports    map[string]actuator.Report
+	reportPuts map[string]int
 }
 
 // New returns an actuator that controls parts, with every part up and ready.
@@ -53,6 +54,8 @@ func New() *Actuator {
 		stalled:  map[state.Part]bool{},
 		failing:  map[state.Part]bool{},
 		reports:  map[string]actuator.Report{},
+
+		reportPuts: map[string]int{},
 	}
 	for _, p := range allParts {
 		a.parts[p] = &part{desired: actuator.Up, observed: actuator.Ready}

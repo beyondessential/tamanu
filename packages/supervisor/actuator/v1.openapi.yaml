@@ -283,7 +283,7 @@ components:
           description: How many requests that count as activity it has in flight.
         wakeRequested:
           type: boolean
-          description: Whether a request has asked for a wake since the supervisor began following the announcement it follows.
+          description: Whether a request has asked for a wake that has not happened yet, from the first such request until the supervisor follows an awake server.
         ttlSeconds:
           type: number
           exclusiveMinimum: 0

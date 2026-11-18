@@ -113,13 +113,40 @@ func TestWakeRequestedAtAFollower(t *testing.T) {
 	follower.waitFollowing(holder)
 
 	holder.keepAwakeAfterWake()
-	if got := follower.activity(); got != state.Hold {
-		t.Fatalf("follower admission while asleep = %v", got)
+	// Parts take a while to start, so the follower holds many requests
+	// while the server wakes, and reports the wake request once.
+	h.act.SetDelay(20 * h.timing.ActuatorPoll)
+	reports := h.act.ReportPuts(follower.instance)
+	for range 20 {
+		if got := follower.activity(); got != state.Hold {
+			t.Fatalf("follower admission while asleep = %v", got)
+		}
+		time.Sleep(h.timing.ActuatorPoll / 2)
 	}
 	holder.waitAwakeAfterWake()
 	h.eventually("the follower forwarding again", func() bool {
 		return follower.phase() == state.Awake && follower.st.Admit(state.API) == state.Forward
 	})
+	// One for the wake request, and one for each announcement it followed.
+	if got := h.act.ReportPuts(follower.instance) - reports; got > 4 {
+		t.Errorf("the follower sent %d reports while the server woke", got)
+	}
+}
+
+// spec: SLPWK#waking
+func TestWakeRequestedWhileFollowingAnEarlierAnnouncement(t *testing.T) {
+	h := newHarness(t, false)
+	holder := h.start(testRelease)
+	holder.waitPhase(state.Asleep)
+	holder.keepAwakeAfterWake()
+	// A supervisor whose request was held as the holder's announcement
+	// changed, or under a holder since replaced.
+	h.act.PutReport("supervisor-elsewhere", actuator.Report{
+		LastActivity:  time.Now(),
+		WakeRequested: true,
+		Follows:       actuator.Announcement{Token: 1, Sequence: 1},
+	}, time.Hour)
+	holder.waitAwakeAfterWake()
 }
 
 // spec: SUPV#front-door

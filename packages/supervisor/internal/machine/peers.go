@@ -19,8 +19,6 @@ import (
 type announcement struct {
 	phase state.Phase
 	id    actuator.Announcement
-	// at is when this supervisor announced or started following it.
-	at time.Time
 }
 
 func (m *Machine) current() announcement {
@@ -46,7 +44,7 @@ func (m *Machine) announce(phase state.Phase) {
 	if ours {
 		id.Sequence = m.ann.id.Sequence + 1
 	}
-	m.ann = announcement{phase: phase, id: id, at: time.Now()}
+	m.ann = announcement{phase: phase, id: id}
 	m.annMu.Unlock()
 	notify(m.reportNow)
 }
@@ -118,7 +116,7 @@ func (m *Machine) followPhase(s actuator.State) {
 			m.annMu.Lock()
 			newer := r.Announcement.After(m.ann.id)
 			if newer {
-				m.ann = announcement{phase: r.Phase, id: r.Announcement, at: time.Now()}
+				m.ann = announcement{phase: r.Phase, id: r.Announcement}
 			}
 			m.annMu.Unlock()
 			if newer {
@@ -141,7 +139,8 @@ func (m *Machine) followPhase(s actuator.State) {
 }
 
 // takeWakeRequests asks the holder for a wake when another supervisor
-// reports one made while following the current announcement.
+// reports one pending. A supervisor's request stays pending until it follows
+// an awake server, so one made as the announcement changed still counts.
 //
 // spec: SLPWK#waking
 func (m *Machine) takeWakeRequests(s actuator.State) {
@@ -150,7 +149,7 @@ func (m *Machine) takeWakeRequests(s actuator.State) {
 		return
 	}
 	for instance, r := range s.Reports {
-		if instance != m.cfg.Instance && r.WakeRequested && r.Follows == ann.id {
+		if instance != m.cfg.Instance && r.WakeRequested {
 			m.st.RequestWake()
 			return
 		}
@@ -273,7 +272,7 @@ func (m *Machine) ownReport() actuator.Report {
 	r := actuator.Report{
 		LastActivity:  snap.LastActivity.UTC(),
 		InFlight:      snap.InFlight,
-		WakeRequested: snap.LastWakeRequest.After(ann.at),
+		WakeRequested: snap.WakePending,
 		Follows:       ann.id,
 	}
 	if m.holding.Load() {

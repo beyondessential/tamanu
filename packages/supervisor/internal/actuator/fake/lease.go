@@ -55,6 +55,13 @@ func (a *Actuator) Reports() map[string]actuator.Report {
 	return a.State().Reports
 }
 
+// ReportPuts is how many reports instance has sent.
+func (a *Actuator) ReportPuts(instance string) int {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.reportPuts[instance]
+}
+
 // PutReport keeps r for instance for ttl, as a supervisor reporting would.
 func (a *Actuator) PutReport(instance string, r actuator.Report, ttl time.Duration) {
 	a.mu.Lock()
@@ -135,6 +142,7 @@ func (a *Actuator) serveReport(w http.ResponseWriter, r *http.Request) {
 	report.TTLSeconds = 0
 	a.mu.Lock()
 	a.reports[instance] = report
+	a.reportPuts[instance]++
 	a.mu.Unlock()
 	w.WriteHeader(http.StatusNoContent)
 }
