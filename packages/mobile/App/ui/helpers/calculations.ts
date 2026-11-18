@@ -1,5 +1,6 @@
 import { all as allMath, create } from 'mathjs';
 import { isNumber } from 'es-toolkit/compat';
+import { assertCalculationInScope } from '@tamanu/utils/calculationExpression';
 import type { ISurveyScreenComponent } from '~/types/ISurvey';
 
 // set up math context
@@ -12,7 +13,9 @@ export function runCalculations(components: ISurveyScreenComponent[], values: an
   for (const c of components) {
     if (c.calculation) {
       try {
-        let value = math.evaluate(c.calculation, inputValues);
+        const expression = math.parse(c.calculation);
+        assertCalculationInScope(expression, inputValues);
+        let value = expression.compile().evaluate(inputValues);
         if (!Number.isFinite(value)) {
           throw new Error('Value is not a valid number');
         }

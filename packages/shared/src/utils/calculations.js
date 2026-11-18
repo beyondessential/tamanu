@@ -1,4 +1,5 @@
 import { all as allMath, create } from 'mathjs';
+import { assertCalculationInScope } from '@tamanu/utils/calculationExpression';
 
 // set up math context
 const math = create(allMath);
@@ -14,23 +15,6 @@ function getConfigObject(componentId, config) {
   }
 }
 
-const isBuiltInFunction = name => {
-  try {
-    // see https://mathjs.org/docs/reference/functions/help.html
-    math.help(name);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
-
-const extractVariables = calculation => {
-  const parsed = math.parse(calculation);
-  return parsed
-    .filter(node => node.isSymbolNode && !isBuiltInFunction(node))
-    .map(({ name }) => name);
-};
-
 export function runCalculations(components, values) {
   const inputValues = {};
   // calculation expression use "code"
@@ -42,7 +26,8 @@ export function runCalculations(components, values) {
   for (const c of components) {
     if (c.calculation) {
       try {
-        const variables = extractVariables(c.calculation);
+        const expression = math.parse(c.calculation);
+        const variables = assertCalculationInScope(expression, inputValues);
 
         const variableInputs = {};
         for (const variable of variables) {
@@ -56,8 +41,8 @@ export function runCalculations(components, values) {
           calculatedValues[c.dataElement.id] = null;
           continue;
         }
-        
-        let value = math.evaluate(c.calculation, inputValues);
+
+        let value = expression.compile().evaluate(inputValues);
 
         if (Number.isNaN(value)) {
           throw new Error('Value is NaN');
