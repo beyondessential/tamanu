@@ -18,16 +18,24 @@ info:
     An actuator that does not control the server's parts reports
     `controlsParts: false`, and still reports on the parts and on upgrades.
 
+    Every request carries the supervisor's credential as a bearer token: the
+    same credential the supervisor uses with the server's api. The platform
+    gives the actuator that credential, and the actuator answers
+    `401 Unauthorized` to a request without it.
+
     Requests that act on the server carry the lease token in the
     `Tamanu-Lease-Token` header. The actuator answers `409 Conflict` to any
     carrying a token that is not the current one, or none. A token stays
     current until the lease is released or another supervisor takes it,
-    including after the lease expires.
+    including after the lease expires. The lease token keeps one supervisor
+    from acting after another has taken the lease; it is not a credential.
 
     A change that is not backwards compatible is a new version under a new
     path prefix.
 servers:
   - url: http://actuator.example
+security:
+  - supervisorCredential: []
 paths:
   /v1/state:
     get:
@@ -158,6 +166,11 @@ paths:
         "204":
           description: Kept.
 components:
+  securitySchemes:
+    supervisorCredential:
+      type: http
+      scheme: bearer
+      description: The credential the supervisor uses with the server's api.
   parameters:
     LeaseToken:
       name: Tamanu-Lease-Token

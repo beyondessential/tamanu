@@ -67,7 +67,8 @@ type DesiredState struct {
 
 // Client talks to an actuator.
 type Client struct {
-	base *url.URL
+	base       *url.URL
+	credential string
 	// HTTP makes the requests. Each request is bounded by RequestTimeout.
 	HTTP *http.Client
 	// RequestTimeout bounds each request.
@@ -78,10 +79,14 @@ type Client struct {
 	token atomic.Int64
 }
 
-// NewClient returns a client for the actuator at base.
-func NewClient(base *url.URL) *Client {
+// NewClient returns a client for the actuator at base, authenticating with
+// credential, the one the supervisor also uses with the api.
+//
+// spec: SLPWK#actuator-contract
+func NewClient(base *url.URL, credential string) *Client {
 	return &Client{
 		base:           base,
+		credential:     credential,
 		HTTP:           &http.Client{},
 		RequestTimeout: 10 * time.Second,
 		PollInterval:   time.Second,
@@ -215,6 +220,7 @@ func (c *Client) request(ctx context.Context, method, path string, body any) (in
 		return 0, nil, err
 	}
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.credential)
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}

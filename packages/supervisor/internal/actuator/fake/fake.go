@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator"
+	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient/fakeapi"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -45,6 +46,10 @@ type Actuator struct {
 	reports    map[string]actuator.Report
 	reportPuts map[string]int
 }
+
+// Credential is the credential the fake accepts: the fake api's, since a
+// supervisor uses the same one with both.
+const Credential = fakeapi.Token
 
 // New returns an actuator that controls parts, with every part up and ready.
 func New() *Actuator {
@@ -164,6 +169,10 @@ func (a *Actuator) stateLocked() actuator.State {
 
 // ServeHTTP implements the contract.
 func (a *Actuator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Authorization") != "Bearer "+Credential {
+		http.Error(w, "unauthorised", http.StatusUnauthorized)
+		return
+	}
 	switch {
 	case r.URL.Path == "/v1/state" && r.Method == http.MethodGet:
 		writeJSON(w, http.StatusOK, a.State())

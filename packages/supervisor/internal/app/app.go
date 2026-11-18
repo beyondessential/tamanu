@@ -87,7 +87,7 @@ func (a *App) Provision(ctx caddy.Context) error {
 		Timing:   machine.DefaultTiming(time.Duration(a.IdleTime)),
 	},
 		a.state,
-		actuator.NewClient(actuatorURL),
+		actuator.NewClient(actuatorURL, a.apiToken),
 		apiclient.New(a.APIUpstreams, a.apiToken),
 		ctx.Logger(a),
 	)

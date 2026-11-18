@@ -118,7 +118,7 @@ func newHarness(t *testing.T, central bool) *harness {
 func (h *harness) start(release string) *supervisor {
 	h.t.Helper()
 	parts := state.Parts()
-	act := actuator.NewClient(h.actURL)
+	act := actuator.NewClient(h.actURL, fake.Credential)
 	act.PollInterval = time.Millisecond
 	api := apiclient.New([]string{h.apiAddr}, fakeapi.Token)
 	h.mu.Lock()

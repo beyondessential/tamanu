@@ -61,7 +61,7 @@ does not check everything: the operator follows the contract below.
 | `TAMANU_SUPERVISOR_PORTAL_ROOT` | none | Directory of the built patient portal. Required with `PORTAL_LISTEN`, and ignored without it |
 | `TAMANU_SUPERVISOR_ACTUATOR_URL` | none | The platform's actuator. Without one the server never sleeps |
 | `TAMANU_SUPERVISOR_IDLE_TIME` | `30m` facility, `15m` central | Time without activity before the server sleeps, as a Go duration |
-| `TAMANU_SUPERVISOR_API_TOKEN` | none | Credential for the api's supervisor routes. Required with an actuator |
+| `TAMANU_SUPERVISOR_API_TOKEN` | none | Credential for the api's supervisor routes and the actuator. Required with an actuator |
 | `TAMANU_SUPERVISOR_TRUSTED_PROXIES` | required | Space-separated CIDR ranges of the platform's proxies, whose `X-Forwarded-For` is believed for rate limiting and passed on to the parts |
 
 The defaults are the entrypoint's. Addresses are `host:port` or `:port`. The entrypoint also sets
@@ -108,7 +108,8 @@ while it drains. A supervisor that cannot reach the actuator keeps to the last p
 readiness it read.
 
 The server's side of the api token is its own `SUPERVISOR_TOKEN` variable, which must match
-`TAMANU_SUPERVISOR_API_TOKEN`.
+`TAMANU_SUPERVISOR_API_TOKEN`. The supervisor sends the same token to the actuator as a bearer token,
+so the platform gives the actuator it too.
 
 ## Layout
 

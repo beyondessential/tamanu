@@ -20,7 +20,7 @@ func setup(t *testing.T) (*fake.Actuator, *actuator.Client) {
 	srv := httptest.NewServer(f)
 	t.Cleanup(srv.Close)
 	u, _ := url.Parse(srv.URL)
-	c := actuator.NewClient(u)
+	c := actuator.NewClient(u, fake.Credential)
 	c.PollInterval = time.Millisecond
 	return f, c
 }
@@ -67,5 +67,19 @@ func TestAwait(t *testing.T) {
 				t.Error("seen never called")
 			}
 		})
+	}
+}
+
+// spec: SLPWK#actuator-contract
+func TestWrongCredentialIsRefused(t *testing.T) {
+	srv := httptest.NewServer(fake.New())
+	t.Cleanup(srv.Close)
+	u, _ := url.Parse(srv.URL)
+	_, err := actuator.NewClient(u, "not-the-credential").State(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "401") {
+		t.Fatalf("err = %v, want a 401", err)
+	}
+	if strings.Contains(err.Error(), "not-the-credential") {
+		t.Errorf("the error carries the credential: %v", err)
 	}
 }

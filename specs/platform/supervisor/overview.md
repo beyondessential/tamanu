@@ -46,7 +46,7 @@ Applies to the supervisor, the small always-on process that sits in front of eve
 
 - The supervisor talks only to its server's api and to the actuator. It has no connection to the server's database.
 - What the supervisor needs to know about the server (whether it is busy and which release it runs) and the facility's final sync it asks of the api, on routes that only the supervisor can call.
-- The supervisor authenticates to those routes with a credential from its configuration. With no credential configured on the server, those routes refuse every request.
+- The supervisor authenticates to those routes, and to the actuator, with one credential from its configuration. With no credential configured on the server, those routes refuse every request.
 
 ## Upgrades
 

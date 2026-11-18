@@ -66,6 +66,7 @@ Applies to a server whose platform provides an actuator sleeping when its own us
 ## Actuator contract
 
 - The supervisor and the actuator talk over a versioned HTTP contract, described by an OpenAPI file in the Tamanu repository. The platform implements it.
+- The supervisor authenticates to the actuator with the same credential it uses with the api, which the platform also gives the actuator. The actuator refuses any request without it.
 - The supervisor sets the desired state of each part (up or down) rather than sending commands, so a repeated request cannot leave the server half started.
 - Setting a desired state returns at once. The actuator applies it in the background, and the supervisor polls the actuator's status until each part is ready or stopped.
 - The parts are `database`, `api`, `sync`, `tasks` and `fhir`. A platform that runs a server without one of these parts reports it as ready whenever it is asked to be up.
