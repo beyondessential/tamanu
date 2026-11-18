@@ -51,11 +51,7 @@ export const defineWebsocketService = async injector => {
         throw new Error('Missing token');
       }
 
-      const tokenDuration = await settings.get('auth.tokenDuration');
       const { user, impersonateRoleId } = await injector.models.User.loginFromToken(token, {
-        log,
-        settings,
-        tokenDuration,
         tokenIssuer: getCanonicalHostName(),
         tokenSecret: getAuthSecret(),
       });
