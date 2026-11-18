@@ -89,8 +89,12 @@ const Provider = ({
     // the database, we don't need or want to store it in app state as well.
     const userData = { ...authenticatedUser };
     delete userData.password;
+    const abilityObject = generateAbilityForUser(userData);
+    if (!abilityObject) {
+      throw new Error('No permissions are stored on this device for the signing-in user');
+    }
     setUser(userData);
-    setContextUserAndAbility(userData, generateAbilityForUser(userData));
+    setContextUserAndAbility(userData, abilityObject);
     setSignedInStatus(true);
   };
 
@@ -113,10 +117,11 @@ const Provider = ({
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user: usr, settings, token, refreshToken } = await backend.auth.remoteSignIn(params);
+    // first, so a sign-in it refuses leaves no session behind
+    signInAs(usr);
     setToken(token);
     setSettings(settings);
     setRefreshToken(refreshToken);
-    signInAs(usr);
   };
 
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
