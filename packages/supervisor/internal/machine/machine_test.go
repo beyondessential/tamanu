@@ -377,6 +377,9 @@ func TestUpgrades(t *testing.T) {
 		// settled, if not nil, is when the step under way as the upgrade
 		// started has finished.
 		settled func(h *harness) bool
+		// untouched are parts whose desired state the upgrade must leave as
+		// it was when the upgrade started.
+		untouched []state.Part
 	}{
 		{
 			name: "at startup, awake",
@@ -418,8 +421,7 @@ func TestUpgrades(t *testing.T) {
 				s.activity()
 				return s
 			},
-			// The wake asks for the other parts once the database is ready.
-			settled: (*harness).allUp,
+			untouched: []state.Part{state.API, state.Sync, state.Tasks, state.FHIR},
 		},
 		{
 			name: "mid-sleep",
@@ -454,6 +456,11 @@ func TestUpgrades(t *testing.T) {
 			}
 			if got := s.st.Admit(state.API); got != state.Upgrading {
 				t.Errorf("the gate answers %v during the upgrade", got)
+			}
+			for _, p := range tt.untouched {
+				if got := h.act.State().Parts[p].Desired; got != actuator.Down {
+					t.Errorf("%s desired %s during the upgrade", p, got)
+				}
 			}
 
 			s.keepAwakeAfterWake()

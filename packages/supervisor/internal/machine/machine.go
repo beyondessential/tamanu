@@ -654,6 +654,9 @@ func (m *Machine) wake(ctx context.Context) {
 		if ctx.Err() != nil {
 			return
 		}
+		if errors.Is(err, errUpgrade) {
+			continue
+		}
 		m.fail(fmt.Sprintf("waking: %v", err))
 		m.wakeFailed = true
 		if !sleepCtx(ctx, backoff) {
@@ -691,6 +694,10 @@ func (m *Machine) wakeOnce(ctx context.Context) error {
 		return err
 	}
 	if err := m.act.Await(ctx, []state.Part{state.Database}, actuator.Ready, m.cfg.Timing.PartTimeout, markReady); err != nil {
+		return err
+	}
+	// spec: SUPV#upgrades
+	if err := m.notUpgrading(); err != nil {
 		return err
 	}
 	rest := slices.DeleteFunc(slices.Clone(m.cfg.Parts), func(p state.Part) bool { return p == state.Database })
