@@ -38,14 +38,14 @@ export const defineWebsocketClientService = injector => {
   const client = io(url.toString(), {
     path: WS_PATH,
     transports: ['websocket', 'webtransport'],
-    // Run for every connection attempt, so a reconnection carries the current token
-    auth: async sendToken => {
-      if (!centralServer.hasToken()) await logIn();
-      sendToken({ token: centralServer.getToken() });
-    },
+    // Read on every attempt, so a reconnection carries the current token. Logging in happens
+    // before the first attempt and before each retry after a refusal, never in the handshake.
+    auth: sendToken => sendToken({ token: centralServer.getToken() }),
+    autoConnect: false,
   });
   const getClient = () => client;
   keepSocketConnected(client, { refreshCredentials: logIn });
+  logIn().then(() => client.connect());
 
   //forward event to facility client
   client.on(
