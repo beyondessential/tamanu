@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AutocompleteInput } from '@tamanu/ui-components';
 
@@ -20,7 +20,78 @@ const createDeferredSuggester = () => {
   };
 };
 
+const createCreatableSuggester = (existingOptions = []) => ({
+  fetchCurrentOption: vi.fn().mockResolvedValue(undefined),
+  fetchSuggestions: vi.fn().mockResolvedValue(existingOptions),
+  createSuggestion: vi.fn(({ name }) => Promise.resolve({ label: name, value: `new-${name}` })),
+});
+
+// react-autosuggest reads keyCode, which user-event does not set for these keys
+const KEY_CODES = { ArrowDown: 40, ArrowUp: 38, Enter: 13 };
+const pressKeys = (input, keys) => {
+  for (const key of keys) {
+    fireEvent.keyDown(input, { key, keyCode: KEY_CODES[key] });
+  }
+};
+
+const renderCreatableInput = suggester => {
+  const onChange = vi.fn();
+  renderElementWithTranslatedText(
+    <AutocompleteInput
+      name="allergyId"
+      value=""
+      onChange={onChange}
+      suggester={suggester}
+      allowCreatingCustomValue
+    />,
+  );
+  return { input: screen.getByRole('textbox'), onChange };
+};
+
 describe('AutocompleteInput', () => {
+  describe('creating an item not in the list', () => {
+    it('creates it once when picked with the arrow keys and Enter', async () => {
+      const suggester = createCreatableSuggester();
+      const { input, onChange } = renderCreatableInput(suggester);
+
+      await userEvent.type(input, 'Zzsmoke');
+      await screen.findByText(/item not in list/);
+      pressKeys(input, ['ArrowDown', 'Enter']);
+
+      await waitFor(() =>
+        expect(onChange).toHaveBeenCalledWith({
+          target: { label: 'Zzsmoke', value: 'new-Zzsmoke', name: 'allergyId' },
+        }),
+      );
+      expect(suggester.createSuggestion).toHaveBeenCalledTimes(1);
+      expect(suggester.createSuggestion).toHaveBeenCalledWith({ name: 'Zzsmoke' });
+    });
+
+    it('creates it once when clicked', async () => {
+      const suggester = createCreatableSuggester();
+      const { input } = renderCreatableInput(suggester);
+
+      await userEvent.type(input, 'Zzsmoke');
+      await userEvent.click(await screen.findByText(/item not in list/));
+
+      await waitFor(() => expect(suggester.createSuggestion).toHaveBeenCalledTimes(1));
+    });
+
+    it('does not create it when the arrow keys only pass over it', async () => {
+      const suggester = createCreatableSuggester([{ label: 'Peanuts', value: 'allergy-peanuts' }]);
+      const { input, onChange } = renderCreatableInput(suggester);
+
+      await userEvent.type(input, 'Zzsmoke');
+      await screen.findByText(/item not in list/);
+      pressKeys(input, ['ArrowDown', 'ArrowDown', 'ArrowUp', 'Enter']);
+
+      expect(suggester.createSuggestion).not.toHaveBeenCalled();
+      expect(onChange).toHaveBeenLastCalledWith({
+        target: { label: 'Peanuts', value: 'allergy-peanuts', name: 'allergyId' },
+      });
+    });
+  });
+
   it('keeps the suggestions for the latest search when an earlier search responds last', async () => {
     const suggester = createDeferredSuggester();
     renderElementWithTranslatedText(

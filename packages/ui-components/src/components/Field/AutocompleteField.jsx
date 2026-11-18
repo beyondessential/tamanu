@@ -200,20 +200,32 @@ export class AutocompleteInput extends Component {
   };
 
   handleSuggestionChange = option => {
-    const { onChange, name, suggester } = this.props;
-    if (!option.isCustomizedOption) {
-      onChange({ target: { ...option, name } });
-    } else if (suggester) {
-      const payload = { name: option.label };
-      suggester
-        .createSuggestion(payload)
-        .then(result => onChange({ target: { ...result, name } }))
-        .catch(e => {
-          notifyError(e.message);
-          onChange({ target: { value: undefined, name } });
-        });
-    }
+    const { onChange, name } = this.props;
+    onChange({ target: { ...option, name } });
     return option.label;
+  };
+
+  createCustomSuggestion = option => {
+    const { onChange, name, suggester } = this.props;
+    if (!suggester) return;
+    suggester
+      .createSuggestion({ name: option.label })
+      .then(result => onChange({ target: { ...result, name } }))
+      .catch(e => {
+        notifyError(e.message);
+        onChange({ target: { value: undefined, name } });
+      });
+  };
+
+  // Autosuggest also asks for a suggestion's value when the arrow keys highlight it, so the
+  // "item not in list" option is only created once it is actually selected
+  getSuggestionValue = suggestion =>
+    suggestion.isCustomizedOption ? suggestion.label : this.handleSuggestionChange(suggestion);
+
+  handleSuggestionSelected = (event, { suggestion }) => {
+    if (suggestion.isCustomizedOption) {
+      this.createCustomSuggestion(suggestion);
+    }
   };
 
   fetchAllOptions = async (searchValue = '') => {
@@ -554,7 +566,8 @@ export class AutocompleteInput extends Component {
           onSuggestionsFetchRequested={this.debouncedFetchOptions}
           onSuggestionsClearRequested={this.clearOptions}
           renderSuggestionsContainer={this.renderContainer}
-          getSuggestionValue={this.handleSuggestionChange}
+          getSuggestionValue={this.getSuggestionValue}
+          onSuggestionSelected={this.handleSuggestionSelected}
           renderSuggestion={this.renderSuggestion}
           renderInputComponent={this.renderInputComponent}
           inputProps={{
