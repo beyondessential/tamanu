@@ -388,7 +388,7 @@ export async function readConfigKeyFile() {
       [
         `The key file at ${keyFilePath} (config crypto.keyFile) is the development key published in the Tamanu repository, which only development environments use (NODE_ENV is ${process.env.NODE_ENV ?? 'unset'}).`,
         PROVIDE_KEY_ADVICE,
-        "The next upgrade re-encrypts this server's stored secrets under it.",
+        "Once the server has a key of its own, the next upgrade re-encrypts its stored secrets from the development key under that key.",
       ].join('\n'),
     );
   }
