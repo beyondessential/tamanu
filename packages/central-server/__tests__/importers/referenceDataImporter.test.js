@@ -383,6 +383,63 @@ describe('Data definition import', () => {
     );
   });
 
+  describe('foreign keys given by name', () => {
+    const FACILITY_ID = 'facility-fk-by-name';
+
+    const importFacilityInCatchment = catchment =>
+      importerTransaction({
+        importer: referenceDataImporter,
+        workbook: {
+          SheetNames: ['Facilities'],
+          Sheets: {
+            Facilities: utils.aoa_to_sheet([
+              ['id', 'code', 'name', 'catchment'],
+              [FACILITY_ID, FACILITY_ID, 'Facility by catchment name', catchment],
+            ]),
+          },
+        },
+        models,
+        includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
+        checkPermission: () => true,
+      });
+
+    // The look-alike is created first, so a name read as a LIKE pattern would find it first.
+    const seedCatchment = (id, name) =>
+      models.ReferenceData.create({ id, code: id, name, type: REFERENCE_TYPES.CATCHMENT });
+
+    beforeEach(async () => {
+      await seedCatchment('catchment-fk-lookalike', 'Fk catchmentXA');
+      await seedCatchment('catchment-fk-underscore', 'Fk catchment_A');
+    });
+
+    afterEach(async () => {
+      await models.Facility.destroy({ where: { id: FACILITY_ID }, force: true });
+      await models.ReferenceData.destroy({
+        where: { id: ['catchment-fk-lookalike', 'catchment-fk-underscore'] },
+        force: true,
+      });
+    });
+
+    it('matches an underscore in the name literally', async () => {
+      const { errors } = await importFacilityInCatchment('fk CATCHMENT_A');
+
+      expect(errors).toEqual([]);
+      const facility = await models.Facility.findByPk(FACILITY_ID);
+      expect(facility.catchmentId).toBe('catchment-fk-underscore');
+    });
+
+    it('matches a percent sign in the name literally', async () => {
+      const { didntSendReason, errors } = await importFacilityInCatchment('Fk catchment%');
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainFkError(
+        'facility',
+        2,
+        'valid foreign key expected in column catchment (corresponding to catchmentId) but found: Fk catchment%',
+      );
+    });
+  });
+
   it('should import visibility status', async () => {
     const { ReferenceData } = ctx.store.models;
 
