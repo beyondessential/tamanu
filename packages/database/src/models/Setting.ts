@@ -2,6 +2,7 @@ import { DataTypes, Op, Sequelize } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'es-toolkit/compat';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
+import { likePattern } from '@tamanu/utils/likePattern';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
 import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
@@ -133,7 +134,7 @@ export class Setting extends Model {
               key: {
                 [Op.or]: {
                   [Op.eq]: key,
-                  [Op.like]: `${key}.%`,
+                  [Op.like]: likePattern`${key}.%`,
                 },
               },
             }
@@ -217,7 +218,7 @@ export class Setting extends Model {
       ? {
           [Op.or]: {
             [Op.eq]: key,
-            [Op.like]: `${key}.%`,
+            [Op.like]: likePattern`${key}.%`,
           },
         }
       : {};

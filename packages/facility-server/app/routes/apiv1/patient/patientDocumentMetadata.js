@@ -5,18 +5,14 @@ import { DOCUMENT_SIZE_LIMIT } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { createDocumentMetadata } from '../../../utils/createDocumentMetadata';
-import { getCaseInsensitiveFilter, getOrderClause, mapQueryFilters } from '../../../database/utils';
+import {
+  caseInsensitiveContainsFilter,
+  caseInsensitiveStartsWithFilter,
+  getOrderClause,
+  mapQueryFilters,
+} from '../../../database/utils';
 import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
 import { deleteDocumentMetadata } from '../../../routeHandlers/deleteModel';
-
-// Object used to map field names to database column names
-const SNAKE_CASE_COLUMN_NAMES = {
-  type: 'type',
-  documentOwner: 'document_owner',
-};
-
-// Filtering functions for sequelize queries
-const caseInsensitiveFilter = getCaseInsensitiveFilter(SNAKE_CASE_COLUMN_NAMES);
 
 export const patientDocumentMetadataRoutes = express.Router();
 
@@ -44,8 +40,8 @@ patientDocumentMetadataRoutes.get(
 
     // Create filters
     const documentFilters = mapQueryFilters(filterParams, [
-      { key: 'type', operator: Op.substring, mapFn: caseInsensitiveFilter },
-      { key: 'documentOwner', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
+      { key: 'type', mapFn: caseInsensitiveContainsFilter },
+      { key: 'documentOwner', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'departmentId', operator: Op.eq },
     ]);
 

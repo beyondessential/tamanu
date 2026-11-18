@@ -26,6 +26,7 @@ import {
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 import { buildAvailableFacilitiesFilter } from '@tamanu/shared/utils/availableFacilities';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
@@ -128,7 +129,7 @@ function createSuggesterRoute(
       delete query.noLimit;
 
       const searchQuery = (query.q || '').trim().toLowerCase();
-      const search = `%${searchQuery}%`;
+      const search = likePattern`%${searchQuery}%`;
       const positionQuery = literal(
         `POSITION(LOWER($positionMatch) in LOWER(${translationCoalesce(endpoint, modelName, searchColumn)})) > 1`,
       );
@@ -179,7 +180,7 @@ function createSuggesterRoute(
         bind: {
           positionMatch: searchQuery,
           language,
-          searchQuery: `%${searchQuery}%`,
+          searchQuery: search,
           ...extraReplacementsBuilder(query),
         },
         limit: noLimit ? undefined : DEFAULT_LIMIT,
@@ -975,7 +976,7 @@ createSuggester(
     orderBuilder: req => {
       const searchQuery = (req.query.q || '').trim().toLowerCase();
       const escapedQuery = req.db.escape(searchQuery);
-      const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
+      const escapedPartialMatch = req.db.escape(likePattern`${searchQuery}%`);
       return Sequelize.literal(`
           CASE
             WHEN LOWER(display_id) = ${escapedQuery} THEN 0
@@ -1309,7 +1310,7 @@ function buildDateSearchConditions(searchQuery) {
   if (!sq) return conditions;
 
   // 1) Direct string search (matches full timestamp/date substrings)
-  conditions.push({ startDate: { [Op.iLike]: `%${sq.replaceAll('/', '-')}%` } });
+  conditions.push({ startDate: { [Op.iLike]: likePattern`%${sq.replaceAll('/', '-')}%` } });
 
   // Normalize delimiter detection
   const hasDash = sq.includes('-');
@@ -1327,14 +1328,14 @@ function buildDateSearchConditions(searchQuery) {
   if (parts.length === 2) {
     const [a, b] = parts;
     // Interpret as DD-MM and MM-DD (ambiguous)
-    const ddmm = `%-${zp(b)}-${zp(a)} %`;
-    const mmdd = `%-${zp(a)}-${zp(b)} %`;
+    const ddmm = likePattern`%-${zp(b)}-${zp(a)} %`;
+    const mmdd = likePattern`%-${zp(a)}-${zp(b)} %`;
     conditions.push({ startDate: { [Op.iLike]: ddmm } });
     conditions.push({ startDate: { [Op.iLike]: mmdd } });
 
     // Interpret as YYYY-MM where applicable (only when first segment is 4 digits)
     if (/^\d{4}$/.test(a)) {
-      conditions.push({ startDate: { [Op.iLike]: `${a}-${zp(b)}-%` } });
+      conditions.push({ startDate: { [Op.iLike]: likePattern`${a}-${zp(b)}-%` } });
     }
     return conditions;
   }
@@ -1344,13 +1345,13 @@ function buildDateSearchConditions(searchQuery) {
 
     if (/^\d{4}$/.test(p1)) {
       // YYYY-MM-DD (or YYYY/MM/DD)
-      conditions.push({ startDate: { [Op.iLike]: `${p1}-${zp(p2)}-${zp(p3)}%` } });
+      conditions.push({ startDate: { [Op.iLike]: likePattern`${p1}-${zp(p2)}-${zp(p3)}%` } });
     } else {
       // DD-MM-YYYY and MM-DD-YYYY (ambiguous when last is year)
-      conditions.push({ startDate: { [Op.iLike]: `${p3}%-${zp(p2)}-${zp(p1)}%` } });
+      conditions.push({ startDate: { [Op.iLike]: likePattern`${p3}%-${zp(p2)}-${zp(p1)}%` } });
       // Interpret as DD-MM-YYYY
       // Interpret as MM-DD-YYYY
-      conditions.push({ startDate: { [Op.iLike]: `${p3}%-${zp(p1)}-${zp(p2)}%` } });
+      conditions.push({ startDate: { [Op.iLike]: likePattern`${p3}%-${zp(p1)}-${zp(p2)}%` } });
     }
     return conditions;
   }

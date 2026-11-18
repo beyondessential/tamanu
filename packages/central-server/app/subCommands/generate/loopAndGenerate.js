@@ -19,6 +19,7 @@ export async function loopAndGenerate(store, count, generatorFn) {
       // \r works because the length of this is guaranteed to always grow longer or stay the same
       const pct = ((complete / count) * 100).toFixed(2);
       const perSecond = startMs ? (complete / ((Date.now() - startMs) / 1000)).toFixed(2) : '-';
+      // eslint-disable-next-line no-restricted-syntax -- a displayed percentage
       process.stdout.write(`\rGenerating ${complete}/${count} (${pct}% | ${perSecond}/sec)...`);
     };
 

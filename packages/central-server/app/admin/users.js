@@ -25,6 +25,7 @@ import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { getPermissionsForEachRole } from '@tamanu/shared/permissions/rolesToPermissions';
 import { subject } from '@casl/ability';
 import z from 'zod';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 export const usersRouter = express.Router();
 
@@ -113,13 +114,13 @@ const createUserFilters = async (filterParams, models) => {
   const filters = [
     // Text search filters
     filterParams.displayName && {
-      [Op.or]: [{ displayName: { [Op.iLike]: `%${filterParams.displayName}%` } }],
+      [Op.or]: [{ displayName: { [Op.iLike]: likePattern`%${filterParams.displayName}%` } }],
     },
     filterParams.displayId && {
-      displayId: { [Op.iLike]: `%${filterParams.displayId}%` },
+      displayId: { [Op.iLike]: likePattern`%${filterParams.displayId}%` },
     },
     filterParams.email && {
-      email: { [Op.iLike]: `%${filterParams.email}%` },
+      email: { [Op.iLike]: likePattern`%${filterParams.email}%` },
     },
     // Exact match filters
     filterParams.roleId && {
@@ -320,7 +321,7 @@ usersRouter.post(
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: { [Op.iLike]: fields.displayName },
+        displayName: { [Op.iLike]: likePattern`${fields.displayName}` },
       },
     });
     if (existingUserWithSameDisplayName) {
@@ -449,7 +450,7 @@ usersRouter.post(
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: { [Op.iLike]: fields.displayName },
+        displayName: { [Op.iLike]: likePattern`${fields.displayName}` },
       },
     });
 
@@ -535,7 +536,7 @@ usersRouter.put(
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: { [Op.iLike]: fields.displayName },
+        displayName: { [Op.iLike]: likePattern`${fields.displayName}` },
         id: { [Op.ne]: id },
       },
     });

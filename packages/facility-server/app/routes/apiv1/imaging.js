@@ -14,7 +14,12 @@ import { NotFoundError } from '@tamanu/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 import { toDateString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
-import { mapQueryFilters } from '../../database/utils';
+import { likePattern } from '@tamanu/utils/likePattern';
+import {
+  caseInsensitiveContainsFilter,
+  caseInsensitiveStartsWithFilter,
+  mapQueryFilters,
+} from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults({ models, settings }, imagingRequest) {
@@ -54,19 +59,6 @@ async function renderResults({ models, settings }, imagingRequest) {
 
   return results.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 }
-
-// Filtering functions for sequelize queries
-const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
-  [fieldName]: {
-    [Op.iLike]: `${value}%`,
-  },
-});
-
-const caseInsensitiveFilter = (fieldName, _operator, value) => ({
-  [fieldName]: {
-    [Op.iLike]: `%${value}%`,
-  },
-});
 
 export const imagingRequest = express.Router();
 
@@ -332,7 +324,7 @@ globalImagingRequests.get(
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
-      { key: 'displayId', mapFn: caseInsensitiveFilter },
+      { key: 'displayId', mapFn: caseInsensitiveContainsFilter },
     ]);
 
     const encounterFilters = mapQueryFilters(filterParams, [
@@ -430,7 +422,7 @@ globalImagingRequests.get(
           )`,
         ),
       };
-      replacements.completedAtFilterDate = `${toDateString(parseISO(filterParams.completedAt))}%`;
+      replacements.completedAtFilterDate = likePattern`${toDateString(parseISO(filterParams.completedAt))}%`;
     }
 
     // Query database

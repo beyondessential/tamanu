@@ -36,7 +36,7 @@ const checkVisibilityCriteria = (component, allComponentsFromQuery, values) => {
 };
 
 const formatResultText = value =>
-  // as percentage
+  // eslint-disable-next-line no-restricted-syntax -- a displayed percentage
   `${value.toFixed(0)}%`;
 
 const getAnswerByCode = answerRows => {

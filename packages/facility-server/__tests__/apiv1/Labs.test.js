@@ -2131,6 +2131,43 @@ describe('Labs', () => {
       });
     });
 
+    describe('Filtering by publishedDate', () => {
+      let publishedOnDateId;
+      let publishedOnOtherDateId;
+
+      const createPublishedLabRequest = async publishedDate => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId,
+        });
+        const labRequest = await models.LabRequest.create({
+          ...fake(models.LabRequest),
+          encounterId: encounter.id,
+          requestedById: app.user.id,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          publishedDate,
+        });
+        return labRequest.id;
+      };
+
+      beforeAll(async () => {
+        await models.LabRequest.truncate({ cascade: true, force: true });
+
+        publishedOnDateId = await createPublishedLabRequest('2024-03-15 09:30:00');
+        publishedOnOtherDateId = await createPublishedLabRequest('2024-03-16 09:30:00');
+      });
+
+      it('should only return requests published on the given date', async () => {
+        const result = await app.get(
+          `/api/labRequest?allFacilities=true&statuses[]=${LAB_REQUEST_STATUSES.PUBLISHED}&publishedDate=2024-03-15`,
+        );
+        expect(result).toHaveSucceeded();
+        const labRequestIds = result.body.data.map(labRequest => labRequest.id);
+        expect(labRequestIds).toContain(publishedOnDateId);
+        expect(labRequestIds).not.toContain(publishedOnOtherDateId);
+      });
+    });
+
     describe('Permissions', () => {
       let sensitiveLabRequestId;
 

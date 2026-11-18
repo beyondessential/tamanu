@@ -9,6 +9,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REGISTRATION_STATUSES,
+  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -86,6 +87,23 @@ describe('Suggestions', () => {
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should match LIKE wildcards in the search literally', async () => {
+      const underscorePatient = await models.Patient.create(
+        await createDummyPatient(models, { firstName: 'Under_score', lastName: 'Wildcard' }),
+      );
+
+      const underscoreResult = await userApp.get('/api/suggestions/patient').query({ q: '_' });
+      expect(underscoreResult).toHaveSucceeded();
+      expect(underscoreResult.body.map(patient => patient.id)).toContain(underscorePatient.id);
+      underscoreResult.body.forEach(({ firstName, lastName, displayId }) => {
+        expect(`${firstName} ${lastName} ${displayId}`).toContain('_');
+      });
+
+      const percentResult = await userApp.get('/api/suggestions/patient').query({ q: '%' });
+      expect(percentResult).toHaveSucceeded();
+      expect(percentResult.body).toHaveLength(0);
     });
 
     it('should get a patient by combined first then last name', async () => {
@@ -199,6 +217,70 @@ describe('Suggestions', () => {
       const result = await noPermsApp.get('/api/suggestions/patient').query({ q: 'anything' });
       expect(result).toBeForbidden();
     });
+  });
+
+  describe('Encounters', () => {
+    let patient;
+    let februaryEncounter;
+    let julyEncounter;
+
+    const searchPatientEncounters = q =>
+      userApp.get('/api/suggestions/encounter').query({ q, patientId: patient.id });
+
+    beforeAll(async () => {
+      const facility = await models.Facility.create(
+        fake(models.Facility, { name: 'Encounter Search Facility' }),
+      );
+      const location = await models.Location.create(
+        fake(models.Location, { name: 'Encounter Search Ward', facilityId: facility.id }),
+      );
+      patient = await models.Patient.create(await createDummyPatient(models));
+      februaryEncounter = await models.Encounter.create(
+        await createDummyEncounter(models, {
+          patientId: patient.id,
+          locationId: location.id,
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          startDate: '2023-02-01 10:00:00',
+          endDate: '2023-02-01 11:00:00',
+        }),
+      );
+      julyEncounter = await models.Encounter.create(
+        await createDummyEncounter(models, {
+          patientId: patient.id,
+          locationId: location.id,
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          startDate: '2023-07-15 09:30:00',
+          endDate: '2023-07-15 10:30:00',
+        }),
+      );
+    });
+
+    it.each(['2023-02-01', '01/02/2023', '01/02'])(
+      'should find an encounter by its start date with %s',
+      async q => {
+        const result = await searchPatientEncounters(q);
+        expect(result).toHaveSucceeded();
+        expect(result.body.map(encounter => encounter.id)).toStrictEqual([februaryEncounter.id]);
+      },
+    );
+
+    it('should find every encounter of the patient by a shared start date fragment', async () => {
+      const result = await searchPatientEncounters('2023');
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(encounter => encounter.id)).toStrictEqual([
+        julyEncounter.id,
+        februaryEncounter.id,
+      ]);
+    });
+
+    it.each(['_', '%', '02_01', '02%01'])(
+      'should match LIKE wildcards in %s literally',
+      async q => {
+        const result = await searchPatientEncounters(q);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveLength(0);
+      },
+    );
   });
 
   // Locations suggester has specialised functionality for determining location availability

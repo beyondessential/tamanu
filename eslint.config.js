@@ -129,6 +129,40 @@ export default [
     },
   },
   {
+    // A value spliced into a LIKE pattern has its own `%` and `_` read as wildcards, so a search
+    // for `_` matches every row. Build patterns with likePattern from @tamanu/utils, which matches
+    // interpolated values literally. Flags an untagged template with a `%` in the unbroken run of
+    // text either side of an interpolation, as in `%${value}%` or `${key}.%`. Test files take
+    // the next block's rule set instead.
+    files: [`packages/{central-server,facility-server,database,shared,mobile}/**/*.${EXTS}`],
+    ignores: [
+      '**/migrations/**',
+      // Code-owned by the sync and integrations teams, who bring it onto likePattern themselves
+      'packages/*/{app,src}/sync/**',
+      'packages/mobile/App/services/sync/**',
+      'packages/central-server/app/hl7fhir/**',
+      'packages/database/src/{models,utils}/fhir/**',
+      'packages/shared/src/{routes,tasks,utils}/fhir/**',
+      'packages/shared/src/services/fhirTypes/**',
+    ],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'TemplateLiteral[expressions.length>0]:not(TaggedTemplateExpression > TemplateLiteral) > TemplateElement:matches([tail=false][value.raw=/%\\S*$/], [value.raw=/^\\S*%/])',
+          message:
+            'Build LIKE patterns with the likePattern tagged template from @tamanu/utils so interpolated values are matched literally. For a displayed percentage, disable this rule on the line.',
+        },
+        {
+          selector: "MemberExpression[object.name='Op'][property.name=/^(substring|startsWith|endsWith)$/]",
+          message:
+            'Sequelize does not escape wildcards for this operator. Use Op.like or Op.iLike with likePattern from @tamanu/utils.',
+        },
+      ],
+    },
+  },
+  {
     files: [
       `packages/*/__{mocks,tests}__/**/*.${EXTS}`,
       `packages/shared/src/test-helpers/**/*.${EXTS}`,

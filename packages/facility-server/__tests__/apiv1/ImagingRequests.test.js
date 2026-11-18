@@ -599,6 +599,21 @@ describe('Imaging requests', () => {
       });
     });
 
+    it.each([
+      ['lastName', '_'],
+      ['firstName', '%'],
+      ['displayId', '%'],
+    ])('should treat %s %s as a literal character, not a wildcard', async (field, value) => {
+      await makeRequestAtFacility(facilityId);
+
+      const result = await app.get('/api/imagingRequest').query({
+        allFacilities: true,
+        [field]: value,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(0);
+    });
+
     describe('Pagination', () => {
       // create a bunch of tests, use a number that isn't divisible by 10 to
       // stress the pagination a bit harder

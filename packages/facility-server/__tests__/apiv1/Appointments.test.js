@@ -139,6 +139,47 @@ describe('Appointments', () => {
     expect(searchByInvalidString.body.count).toBe(0);
   });
 
+  it.each([
+    ['_', 'Under_score'],
+    ['%', 'Per%cent'],
+  ])(
+    'should treat patientNameOrId %s as a literal character, not a wildcard',
+    async (wildcard, literalFirstName) => {
+      const createAppointmentForPatient = async patientOverrides => {
+        const appointmentPatient = await models.Patient.create(
+          await createDummyPatient(models, patientOverrides),
+        );
+        return models.Appointment.create({
+          ...fake(models.Appointment),
+          patientId: appointmentPatient.id,
+          status: APPOINTMENT_STATUSES.CONFIRMED,
+          startTime: add(new Date(), { days: 1 }),
+          endTime: add(new Date(), { days: 2 }),
+        });
+      };
+      const unmatchedAppointment = await createAppointmentForPatient({
+        firstName: 'Plain',
+        lastName: 'Name',
+      });
+      const literalMatchAppointment = await createAppointmentForPatient({
+        firstName: literalFirstName,
+        lastName: 'Name',
+      });
+
+      const result = await userApp.get('/api/appointments').query({ patientNameOrId: wildcard });
+      expect(result).toHaveSucceeded();
+
+      const returnedIds = result.body.data.map(({ id }) => id);
+      expect(returnedIds).not.toContain(unmatchedAppointment.id);
+      expect(returnedIds).toContain(literalMatchAppointment.id);
+      for (const { patient: returnedPatient } of result.body.data) {
+        expect(
+          `${returnedPatient.firstName} ${returnedPatient.lastName} ${returnedPatient.displayId}`,
+        ).toContain(wildcard);
+      }
+    },
+  );
+
   describe('outpatient appointments', () => {
     describe('reminder emails', () => {
       const TEST_EMAIL = 'test@email.com';
