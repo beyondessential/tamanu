@@ -22,6 +22,7 @@ Run the cut-release-branch workflow against a fork, or replay its steps locally 
 ## Commits and branches
 
 - [ ] The refresh is its own commit on main, after `release: Bump version to …`
+- [ ] The lockfile is written by the `packageManager` npm, so CI's lockfile check passes on main after the refresh
 - [ ] The new release branch carries no refresh commit
 - [x] When nothing is out of date, no refresh commit is made and the bump is pushed as before
 
@@ -30,5 +31,6 @@ Run the cut-release-branch workflow against a fork, or replay its steps locally 
 - [x] A refresh that fails in `npm update` (e.g. a forced resolution conflict) leaves a warning annotation, and the bump is pushed alone
 - [ ] A refresh that fails in `npm install` (e.g. the patch no longer applies) leaves a warning annotation, and the bump is pushed alone
 - [x] A refresh that changes anything besides the lockfile is discarded with a warning
-- [x] A push rejected because main moved, with no lockfile conflict, rebases and pushes both commits
-- [x] A push rejected because main changed `package-lock.json` drops the refresh commit with a warning and pushes the bump alone
+- [x] When main moved without touching dependency files, the refresh is committed on top of it and pushed
+- [x] When main's lockfile changed since the refresh resolved, the refresh is dropped with a warning
+- [ ] The refresh job has no credential that can push: its checkout persists none and no secret reaches it
