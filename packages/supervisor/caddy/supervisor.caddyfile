@@ -57,10 +57,12 @@
 		# goes quiet for a sweep, so sweeping often bounds the memory a burst
 		# of addresses takes.
 		sweep_interval 10s
+		# 1000 requests a second, counted over a tenth of a second, so each
+		# client address holds a buffer of 100 events rather than 1000.
 		zone tamanu_api {
 			key {http.request.client_ip}
-			events 1000
-			window 1s
+			events 100
+			window 100ms
 		}
 		zone tamanu_login {
 			match {
