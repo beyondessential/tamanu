@@ -186,7 +186,8 @@ func (c *Client) do(ctx context.Context, method, path string, body, out any, ok 
 		return conflict
 	}
 	if !slices.Contains(ok, status) {
-		return fmt.Errorf("actuator: %s /v1/%s answered %d: %s", method, path, status, strings.TrimSpace(string(b)))
+		// The body stays out of the error, which the status reports.
+		return fmt.Errorf("actuator: %s /v1/%s answered %d", method, path, status)
 	}
 	if out == nil {
 		return nil
