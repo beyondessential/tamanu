@@ -41,6 +41,16 @@ func silentAddr(t *testing.T) string {
 	return strings.TrimPrefix(srv.URL, "http://")
 }
 
+// failingAddr starts a server that answers every request with a server error.
+func failingAddr(t *testing.T) string {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	t.Cleanup(srv.Close)
+	return strings.TrimPrefix(srv.URL, "http://")
+}
+
 // spec: SUPV#talking-to-the-server
 func TestWrongTokenFailsWithoutLeakingIt(t *testing.T) {
 	c := apiclient.New([]string{liveAddr(t)}, "not-the-token")
@@ -62,6 +72,7 @@ func TestInstances(t *testing.T) {
 		{"passes over an unreachable instance", func(t *testing.T) []string { return []string{deadAddr(t), liveAddr(t)} }, true},
 		{"no reachable instance", func(t *testing.T) []string { return []string{deadAddr(t), deadAddr(t)} }, false},
 		{"passes over an instance that never answers", func(t *testing.T) []string { return []string{silentAddr(t), liveAddr(t)} }, true},
+		{"passes over an instance that fails", func(t *testing.T) []string { return []string{failingAddr(t), liveAddr(t)} }, true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			c := apiclient.New(tt.instances(t), fakeapi.Token)
