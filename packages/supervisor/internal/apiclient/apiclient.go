@@ -12,7 +12,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -138,10 +137,12 @@ func (c *Client) callOne(ctx context.Context, upstream, method, route string, ou
 		return &unreachableError{fmt.Errorf("api: %s %s: %w", method, route, err)}
 	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
+	// The body of an error stays out of the error, which the status reports:
+	// the server logs the error itself.
 	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return fmt.Errorf("api: %s %s answered %s: %s", method, route, res.Status, excerpt(body))
+		return fmt.Errorf("api: %s %s answered %s", method, route, res.Status)
 	}
+	body, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
 	if out == nil || len(body) == 0 {
 		return nil
 	}
@@ -149,12 +150,4 @@ func (c *Client) callOne(ctx context.Context, upstream, method, route string, ou
 		return fmt.Errorf("api: reading %s %s: %w", method, route, err)
 	}
 	return nil
-}
-
-func excerpt(body []byte) string {
-	s := strings.TrimSpace(string(body))
-	if len(s) > 200 {
-		s = s[:200] + "..."
-	}
-	return s
 }
