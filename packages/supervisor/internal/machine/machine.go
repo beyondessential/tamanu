@@ -321,11 +321,11 @@ func (m *Machine) actAsHolder(ctx context.Context) {
 		if !m.waitUpgrade(ctx) {
 			return
 		}
-		if s, ok = m.readActuator(ctx); !ok {
-			return
-		}
+		// spec: SLPWK#rollouts
+		m.wake(ctx)
+	} else {
+		m.takeOver(ctx, s)
 	}
-	m.takeOver(ctx, s)
 	for ctx.Err() == nil {
 		m.next(ctx)
 	}
