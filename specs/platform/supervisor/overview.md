@@ -22,7 +22,7 @@ Applies to the supervisor, the small always-on process that sits in front of eve
 
 - The supervisor is configured entirely by environment variables: its role, its listening addresses, the address of each of the server's parts, the actuator's address, the [idle time](sleep-and-wake.md#activity), and the credential it uses with the api.
 - A part that runs as several instances, such as the api, is given as a list of addresses, and the supervisor spreads requests across them.
-- The configuration names the proxies in front of the supervisor that it trusts to report the client's address. Rate limits apply to each client by that address, so that every request arriving through the platform's proxy does not share one limit.
+- The configuration names the proxies in front of the supervisor that it trusts to report the client's address. Rate limits apply to each client by that address, so that every request arriving through the platform's proxy does not share one limit. Each supervisor counts only the requests that reach it, so a server with several supervisors allows a client that many times the limit.
 - The configuration is a documented contract the platform follows. When the supervisor starts, it catches the obvious mistakes: a required variable that is missing or empty, a variable of its own that it does not know, or a value of the wrong form stops it, with an error naming the variable.
 
 > [!NOTE]

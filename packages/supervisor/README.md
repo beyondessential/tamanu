@@ -64,6 +64,9 @@ does not check everything: the operator follows the contract below.
 | `TAMANU_SUPERVISOR_API_TOKEN` | none | Credential for the api's supervisor routes and the actuator. Required with an actuator |
 | `TAMANU_SUPERVISOR_TRUSTED_PROXIES` | required | Space-separated CIDR ranges of the platform's proxies, whose `X-Forwarded-For` is believed for rate limiting and passed on to the parts |
 
+Rate limits are counted by each supervisor for the requests that reach it, so a platform running
+several supervisors of one server allows a client that many times the limits in the Caddyfile.
+
 The defaults are the entrypoint's. Addresses are `host:port` or `:port`. The entrypoint also sets
 `_TAMANU_SUPERVISOR_PORT`, `_TAMANU_SUPERVISOR_PORTAL_PORT` and `_TAMANU_SUPERVISOR_STATUS_PORT` for
 the Caddyfile, which takes each address's port from them and its host from `bind`.
