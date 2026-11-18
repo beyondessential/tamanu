@@ -69,7 +69,8 @@ export const labResultWidgetRoutes = ({ labResultWidgetLimiter }) => {
         ),
       );
 
-      res.send({
+      // Patient data on an unauthenticated GET: keep it out of browser and proxy caches.
+      res.set('Cache-Control', 'no-store').send({
         data: labRequestsToReport,
       });
     }),
