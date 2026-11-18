@@ -112,13 +112,49 @@ describe('resolveSyncBindAddresses', () => {
     });
   });
 
-  it('ignores the API server’s BIND_ADDRESS and PORT', () => {
+  it('ignores BIND_ADDRESS and PORT alongside the API server', () => {
     delete process.env.SYNC_BIND_ADDRESS;
     process.env.BIND_ADDRESS = '[::]:3000';
     process.env.PORT = '3000';
     expect(resolveSyncBindAddresses(4100).addresses).toEqual([
       { host: '::1', port: 4100 },
       { host: '127.0.0.1', port: 4100 },
+    ]);
+  });
+
+  it('uses BIND_ADDRESS when standalone', () => {
+    delete process.env.SYNC_BIND_ADDRESS;
+    process.env.BIND_ADDRESS = '[::]:3000';
+    process.env.PORT = '5000';
+    expect(resolveSyncBindAddresses(4100, { isStandalone: true })).toEqual({
+      addresses: [{ host: '::', port: 3000 }],
+      isDefault: false,
+    });
+  });
+
+  it('uses PORT on every interface when standalone', () => {
+    delete process.env.SYNC_BIND_ADDRESS;
+    delete process.env.BIND_ADDRESS;
+    process.env.PORT = '3000';
+    expect(resolveSyncBindAddresses(4100, { isStandalone: true })).toEqual({
+      addresses: [{ host: undefined, port: 3000 }],
+      isDefault: false,
+    });
+  });
+
+  it('defaults to loopback when standalone with neither BIND_ADDRESS nor PORT', () => {
+    delete process.env.SYNC_BIND_ADDRESS;
+    delete process.env.BIND_ADDRESS;
+    delete process.env.PORT;
+    expect(resolveSyncBindAddresses(4100, { isStandalone: true }).isDefault).toBe(true);
+  });
+
+  it('uses SYNC_BIND_ADDRESS over BIND_ADDRESS and PORT when standalone', () => {
+    process.env.SYNC_BIND_ADDRESS = ':4100';
+    process.env.BIND_ADDRESS = '[::]:3000';
+    process.env.PORT = '5000';
+    expect(resolveSyncBindAddresses(4100, { isStandalone: true }).addresses).toEqual([
+      { host: undefined, port: 4100 },
     ]);
   });
 

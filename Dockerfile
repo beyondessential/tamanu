@@ -65,7 +65,7 @@ ENV PORT=3000
 EXPOSE 3000
 # the facility sync server listens on loopback by default; in a container it is
 # reached over the container network instead
-ENV SYNC_BIND_ADDRESS=[::]:4100
+ENV SYNC_BIND_ADDRESS=:4100
 
 # read configuration from source and from /config
 #

@@ -12,7 +12,8 @@ Applies to multi-directional data synchronisation between central, facility, and
 - The sync server listens on the configured sync port at the machine's IPv6 and IPv4 loopback addresses.
 - The sync server starts when it can listen on at least one of the two loopback addresses, and logs a warning naming any it could not. It fails to start when it can listen on neither.
 - The `SYNC_BIND_ADDRESS` environment variable replaces the loopback addresses with its own comma-separated list of listeners, each an IPv4 or bracketed IPv6 host and port. Every listener it names must bind, or the sync server fails to start.
-- The sync server's listeners are set independently of the API server's, which `BIND_ADDRESS` and `PORT` set.
+- When the sync server runs in a process of its own, `BIND_ADDRESS` and then `PORT` set its listeners as they do the API server's, and `SYNC_BIND_ADDRESS` takes precedence over both. The loopback addresses apply only when none of the three is set.
+- When the sync server runs alongside the API, `BIND_ADDRESS` and `PORT` set only the API server's listeners.
 - The server's container images set `SYNC_BIND_ADDRESS` to every interface on port 4100.
 - The other parts reach the sync server at `localhost` by default, trying each address it resolves to.
 

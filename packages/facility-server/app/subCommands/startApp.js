@@ -95,6 +95,7 @@ const startApp =
           server,
           app: express,
           port: config.sync.syncApiConnection.port,
+          isStandalone: true,
         });
 
         // start SyncTask as part of sync app so that it is in the same process with tamanu-sync process

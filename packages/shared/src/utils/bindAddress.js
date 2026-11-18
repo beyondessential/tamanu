@@ -78,15 +78,22 @@ const LOOPBACK_HOSTS = ['::1', '127.0.0.1'];
  * Resolve the addresses the facility sync server should listen on: `SYNC_BIND_ADDRESS`
  * (same format as `BIND_ADDRESS`), or else both loopback addresses at the given port.
  *
+ * A standalone sync server, the only listener in its process, also honours
+ * `BIND_ADDRESS` and `PORT` ahead of the loopback addresses. Alongside the API
+ * server, those belong to the API server.
+ *
  * @returns {{ addresses: { host?: string, port: number }[], isDefault: boolean }}
  */
-export function resolveSyncBindAddresses(port) {
+export function resolveSyncBindAddresses(port, { isStandalone = false } = {}) {
   const syncBindAddress = process.env.SYNC_BIND_ADDRESS?.trim();
   if (syncBindAddress) {
     return {
       addresses: parseBindAddressList(syncBindAddress, 'SYNC_BIND_ADDRESS'),
       isDefault: false,
     };
+  }
+  if (isStandalone && (process.env.BIND_ADDRESS?.trim() || +process.env.PORT)) {
+    return { addresses: resolveBindAddresses(port), isDefault: false };
   }
   return { addresses: LOOPBACK_HOSTS.map(host => ({ host, port })), isDefault: true };
 }
@@ -143,8 +150,14 @@ export function listenForBindAddresses({ server, app, fallbackPort, label = 'Ser
  *
  * @returns {Promise<import('node:http').Server[]>} the servers that are listening
  */
-export async function listenForSyncBindAddresses({ server, app, port, label = 'Sync server' }) {
-  const { addresses, isDefault } = resolveSyncBindAddresses(port);
+export async function listenForSyncBindAddresses({
+  server,
+  app,
+  port,
+  isStandalone = false,
+  label = 'Sync server',
+}) {
+  const { addresses, isDefault } = resolveSyncBindAddresses(port, { isStandalone });
   const servers = listenOnAddresses({ server, app, addresses, label });
   const outcomes = await Promise.allSettled(servers.map(waitForListening));
 
