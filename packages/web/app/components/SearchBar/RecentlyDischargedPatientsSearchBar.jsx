@@ -11,11 +11,9 @@ const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'dischargingClinicia
 
 const RecentlyDischargedPatientsAdvancedFields = () => {
   const { getTranslation } = useTranslation();
-  const areaSuggester = useSuggester('facilityLocationGroup');
-  const departmentSuggester = useSuggester('department', {
-    baseQueryParameters: { filterByFacility: true },
-  });
-  const practitionerSuggester = useSuggester('practitioner');
+  const areaSuggester = useSuggester('dischargeLocationGroup');
+  const departmentSuggester = useSuggester('dischargeDepartment');
+  const dischargingClinicianSuggester = useSuggester('dischargingClinician');
 
   return (
     <>
@@ -66,7 +64,7 @@ const RecentlyDischargedPatientsAdvancedFields = () => {
           />
         }
         component={AutocompleteField}
-        suggester={practitionerSuggester}
+        suggester={dischargingClinicianSuggester}
         size="small"
         data-testid="field-rdp-discharging-clinician"
       />
