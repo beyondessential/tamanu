@@ -192,7 +192,10 @@ const auditPatientAccess = async (req, patients) => {
   }
 };
 
-/** What a patient may search on a form: the patient portal's lists, plus clinicians and clinics. */
+/**
+ * The reference data a patient may search on a form: the same lists the patient portal offers,
+ * plus clinicians and the facility's clinics.
+ */
 kiosk.use(
   '/suggestions',
   asyncHandler(async (req, res, next) => {
