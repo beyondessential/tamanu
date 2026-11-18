@@ -117,7 +117,7 @@ The supervisor came out far larger than a small component should be. The decisio
 
 Build order, on this card's branch (#11712):
 
-- [ ] Specs: SUPV and SLPWK without the saved state (resilience, compatibility, the actuator contract), and configuration as the entrypoint's contract
+- [x] Specs: SUPV and SLPWK without the saved state (resilience, compatibility, the actuator contract), and configuration as the entrypoint's contract
 - [ ] Drop the saved state: `internal/persist`, the contract's saved-state endpoint and the fake's, step tracking and resuming; a new holder reads the phase from part states. New-holder table test
 - [ ] Caddyfile routing: the shipped Caddyfiles, the `tamanu` app's Caddyfile block, the `sh` entrypoint with its test table, the Dockerfile; remove `internal/config`, `internal/routes` (but the smoke tests) and `internal/command`. Smoke tests against the Caddyfile, with the path table
 - [ ] Test review cuts and merges, package by package, and the remaining gap tests
