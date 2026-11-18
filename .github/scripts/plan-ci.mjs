@@ -142,8 +142,11 @@ if (event === 'pull_request' && baseSha) {
   runFacilityOffline = touched.has('facility-server') || touched.has('central-server');
   runDbtModel = migrationsTouched;
   // The supervisor is a Go module, not an npm workspace, so it has no
-  // package.json and is not in the test matrix above.
-  runSupervisor = touched.has('supervisor');
+  // package.json and is not in the test matrix above. Its tests also adapt
+  // the frontend images' own Caddyfiles, which import its env.js snippet.
+  runSupervisor =
+    touched.has('supervisor') ||
+    files.some((f) => /^packages\/(web|patient-portal)\/Caddyfile\.docker$/.test(f));
 }
 
 const runTest = testMatrix.length > 0;

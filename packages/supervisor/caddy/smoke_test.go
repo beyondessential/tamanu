@@ -403,3 +403,40 @@ func TestAPIPathsMatchThePages(t *testing.T) {
 		}
 	}
 }
+
+// TestFrontendCaddyfilesAdapt adapts each frontend image's own Caddyfile laid
+// out as the image lays it out, with the supervisor's Caddyfiles, whose env.js
+// snippet it imports, beside it in supervisor/.
+func TestFrontendCaddyfilesAdapt(t *testing.T) {
+	for _, app := range []string{"web", "patient-portal"} {
+		t.Run(app, func(t *testing.T) {
+			dir := t.TempDir()
+			if err := os.Mkdir(filepath.Join(dir, "supervisor"), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			snippets, _ := filepath.Glob("*.caddyfile")
+			for _, file := range append(snippets, filepath.Join("..", "..", app, "Caddyfile.docker")) {
+				text, err := os.ReadFile(file)
+				if err != nil {
+					t.Fatal(err)
+				}
+				target := filepath.Join(dir, "supervisor", file)
+				if filepath.Base(file) == "Caddyfile.docker" {
+					target = filepath.Join(dir, "Caddyfile")
+				}
+				if err := os.WriteFile(target, text, 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			path := filepath.Join(dir, "Caddyfile")
+			text, _ := os.ReadFile(path)
+			raw, _, err := caddyconfig.GetAdapter("caddyfile").Adapt(text, map[string]any{"filename": path})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(string(raw), "window.env") {
+				t.Error("the configuration does not serve env.js")
+			}
+		})
+	}
+}
