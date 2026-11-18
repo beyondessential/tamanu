@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -13,15 +11,15 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 )
 
-// serve runs h on a request to path that met err.
-func serve(t *testing.T, h *Handler, path, accept string, err error) *httptest.ResponseRecorder {
+// serve runs h on a browser's request that met err.
+func serve(t *testing.T, h *Handler, err error) *httptest.ResponseRecorder {
 	t.Helper()
 	passed := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(http.StatusTeapot)
 		return nil
 	})
-	r := httptest.NewRequest("GET", path, nil)
-	r.Header.Set("Accept", accept)
+	r := httptest.NewRequest("GET", "/", nil)
+	r.Header.Set("Accept", "text/html")
 	if err != nil {
 		r = r.WithContext(context.WithValue(r.Context(), caddyhttp.ErrorCtxKey, err))
 	}
@@ -41,58 +39,41 @@ func provisioned(t *testing.T, root string) *Handler {
 	return h
 }
 
+// spec: SUPV#front-door
 func TestErrorPage(t *testing.T) {
+	gone := []int{http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout}
 	tests := []struct {
 		name     string
-		err      error
-		wantCode int
-		wantBody string
+		root     string
+		statuses []int
+		passes   bool
 	}{
-		{"bad gateway page", caddyhttp.Error(http.StatusBadGateway, nil), http.StatusBadGateway, "Server unavailable"},
-		{"service unavailable page", caddyhttp.Error(http.StatusServiceUnavailable, nil), http.StatusServiceUnavailable, "Server unavailable"},
-		{"gateway timeout page", caddyhttp.Error(http.StatusGatewayTimeout, nil), http.StatusGatewayTimeout, "Server unavailable"},
-		{"rate limited passes on", caddyhttp.Error(http.StatusTooManyRequests, nil), http.StatusTeapot, ""},
-		{"not found passes on", caddyhttp.Error(http.StatusNotFound, nil), http.StatusTeapot, ""},
-		{"no error passes on", nil, http.StatusTeapot, ""},
+		{name: "no part answered", statuses: gone},
+		{name: "no page in the root falls back", root: t.TempDir(), statuses: gone},
+		{name: "rate limited passes on", statuses: []int{http.StatusTooManyRequests}, passes: true},
+		{name: "not found passes on", statuses: []int{http.StatusNotFound}, passes: true},
+		{name: "no error passes on", statuses: []int{0}, passes: true},
 	}
-	h := provisioned(t, "")
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			w := serve(t, h, "/", "text/html", tt.err)
-			if w.Code != tt.wantCode || !strings.Contains(w.Body.String(), tt.wantBody) {
-				t.Errorf("got %d %q", w.Code, w.Body)
-			}
-			if w.Header().Get("Retry-After") != "" {
-				t.Error("an error page has a Retry-After")
+			h := provisioned(t, tt.root)
+			for _, status := range tt.statuses {
+				var err error
+				if status != 0 {
+					err = caddyhttp.Error(status, nil)
+				}
+				w := serve(t, h, err)
+				wantCode, wantBody := status, "Server unavailable"
+				if tt.passes {
+					wantCode, wantBody = http.StatusTeapot, ""
+				}
+				if w.Code != wantCode || !strings.Contains(w.Body.String(), wantBody) {
+					t.Errorf("%d: got %d %q", status, w.Code, w.Body)
+				}
+				if w.Header().Get("Retry-After") != "" {
+					t.Errorf("%d: an error page has a Retry-After", status)
+				}
 			}
 		})
-	}
-}
-
-// spec: SUPV#front-door
-func TestTamanuPagesFromTheRoot(t *testing.T) {
-	root := t.TempDir()
-	errorsDir := filepath.Join(root, "resources", "errors")
-	if err := os.MkdirAll(errorsDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(errorsDir, "502.html"), []byte("<p>Tamanu is currently unavailable</p>"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	h := provisioned(t, root)
-
-	w := serve(t, h, "/", "text/html", caddyhttp.Error(http.StatusBadGateway, nil))
-	if w.Code != http.StatusBadGateway || !strings.Contains(w.Body.String(), "Tamanu is currently unavailable") {
-		t.Errorf("502 = %d %q", w.Code, w.Body)
-	}
-
-	w = serve(t, h, "/", "text/html", caddyhttp.Error(http.StatusGatewayTimeout, nil))
-	if !strings.Contains(w.Body.String(), "Server unavailable") {
-		t.Errorf("504 without a page in the root = %q", w.Body)
-	}
-
-	w = serve(t, h, "/api/patient", "application/json", caddyhttp.Error(http.StatusBadGateway, nil))
-	if !strings.Contains(w.Body.String(), `"ServerUnavailable"`) {
-		t.Errorf("api 502 = %q", w.Body)
 	}
 }

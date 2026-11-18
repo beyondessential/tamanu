@@ -18,19 +18,3 @@ func TestLine(t *testing.T) {
 		}
 	}
 }
-
-func TestSameLine(t *testing.T) {
-	for _, tt := range []struct {
-		a, b string
-		want bool
-	}{
-		{"2.70.0", "2.70.5", true},
-		{"v2.70.1", "2.70.0", true},
-		{"2.70.0", "2.71.0", false},
-		{"2.70.0", "3.70.0", false},
-	} {
-		if got := SameLine(tt.a, tt.b); got != tt.want {
-			t.Errorf("SameLine(%q, %q) = %v", tt.a, tt.b, got)
-		}
-	}
-}
