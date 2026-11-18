@@ -4,7 +4,7 @@ id: CWS
 
 # Central websocket connections
 
-Applies to the socket connections that the mobile app and the facility server open to the central server, and to the events the central server accepts and sends over them.
+Applies to the socket connections that the mobile app, the web app and the facility server open to the central server, and to the events the central server accepts and sends over them.
 
 ## Connecting
 
@@ -12,7 +12,7 @@ Applies to the socket connections that the mobile app and the facility server op
 - A connection with no token, an invalid token, an expired token, or a token for a user who is no longer active is refused.
 - The central server ends a connection when the token it was accepted with expires. The client reconnects with a current token.
 - A connection that is recovered after a brief disconnection presents a valid token again.
-- The mobile app sends the token of the signed-in user. The facility server sends the token of its sync account.
+- The mobile app and the web app send the token of the signed-in user. The facility server sends the token of its sync account.
 
 ## Patient contact insert
 
