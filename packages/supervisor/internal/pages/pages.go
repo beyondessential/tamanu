@@ -96,7 +96,8 @@ func (resp Response) Write(w http.ResponseWriter, r *http.Request, status int) {
 	}
 }
 
-// IsAPIPath reports whether path is one of the api's.
+// IsAPIPath reports whether path is one of the api's. Keep in step with the
+// @api matcher in caddy/supervisor.caddyfile.
 func IsAPIPath(path string) bool {
 	return path == "/api" || path == "/v1" ||
 		strings.HasPrefix(path, "/api/") || strings.HasPrefix(path, "/v1/")

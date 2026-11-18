@@ -98,6 +98,8 @@
 			import api
 		}
 
+		# Keep in step with pages.IsAPIPath, which gives these paths JSON
+		# responses.
 		@api path /api/* /v1/*
 		handle @api {
 			tamanu_gate activity
