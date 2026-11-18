@@ -12,7 +12,7 @@ import {
   READONLY_DATA_FIELDS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { EditConflictError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { getDayBoundaries, getCurrentDateStringInTimezone } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
@@ -361,7 +361,8 @@ kiosk.post(
       await models.Appointment.findByPk(req.params.id, { lock: true });
       const appointment = await findKioskAppointment(req, facilitySettings);
       if (isCheckedIn(appointment)) {
-        throw new InvalidOperationError('This appointment has already been checked in');
+        // A conflict, so the kiosk can tell the patient they're checked in rather than that it failed
+        throw new EditConflictError('This appointment has already been checked in');
       }
 
       const configuredSurveyIds = (await getKioskSurveys(req, facilitySettings, appointment)).map(

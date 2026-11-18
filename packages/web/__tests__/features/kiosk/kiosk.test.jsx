@@ -182,6 +182,11 @@ describe('Kiosk session', () => {
     expect(session.step).toEqual(KIOSK_STEPS.ALREADY_CHECKED_IN);
   });
 
+  it('tells a patient they are checked in when staff checked them in during their forms', () => {
+    const session = sessionReducer(atForms(), { type: 'alreadyCheckedIn' });
+    expect(session.step).toEqual(KIOSK_STEPS.ALREADY_CHECKED_IN);
+  });
+
   it('marks a form in progress as soon as progress is saved', () => {
     const session = sessionReducer(atForms(), {
       type: 'saveFormProgress',

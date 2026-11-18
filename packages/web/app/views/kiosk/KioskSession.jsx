@@ -107,6 +107,9 @@ export function sessionReducer(session, action) {
       };
     case 'checkedIn':
       return { ...session, step: KIOSK_STEPS.CHECKED_IN };
+    case 'alreadyCheckedIn':
+      // Staff moved the appointment on while the patient was completing their forms
+      return { ...session, step: KIOSK_STEPS.ALREADY_CHECKED_IN };
     default:
       throw new Error(`Unknown kiosk session action: ${action.type}`);
   }
