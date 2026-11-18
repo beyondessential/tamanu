@@ -23,7 +23,7 @@ export async function createApp(ctx) {
   });
 
   if (await ctx.settings.get('websocket.enabled')) {
-    await createWebsocket(api.httpServer, ctx, dbNotifier, api.express);
+    await createWebsocket(api.httpServer, ctx, api.express);
   }
 
   // Release the connection back to the pool when the server is closed

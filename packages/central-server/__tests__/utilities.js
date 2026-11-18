@@ -113,6 +113,7 @@ export async function createTestContext({
       }),
   );
   ctx.baseApp = baseApp;
+  ctx.appServer = appServer;
 
   return ctx;
 }

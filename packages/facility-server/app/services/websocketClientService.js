@@ -1,7 +1,9 @@
 import { io } from 'socket.io-client';
 import { WS_EVENTS, WS_PATH } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 import { getSyncConfig } from '../serverConfig';
+import { CentralServerConnection } from '../sync/CentralServerConnection';
 
 const NOOP_CLIENT_SERVICE = {
   getClient: () => null,
@@ -10,9 +12,13 @@ const NOOP_CLIENT_SERVICE = {
   removeListener: () => {},
 };
 
+// socket.io only retries a connection on its own after a transport failure. Central ending the
+// connection, or refusing it for a missing or expired token, needs a manual retry.
+const RECONNECT_DELAY_MS = 5000;
+
 /**
  *
- * @param {{websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('@tamanu/database/models')}} injector
+ * @param {{config: import('config').IConfig, deviceId: string, websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('@tamanu/database/models')}} injector
  */
 export const defineWebsocketClientService = injector => {
   // No host until the server is configured — nothing to connect to, so no-op.
@@ -22,8 +28,30 @@ export const defineWebsocketClientService = injector => {
   }
 
   const url = new URL(host);
-  const client = io(url.toString(), { path: WS_PATH, transports: ['websocket', 'webtransport'] });
+  // Central only accepts connections from clients that hold an access token
+  const centralServer = new CentralServerConnection({ deviceId: injector.deviceId });
+  const client = io(url.toString(), {
+    path: WS_PATH,
+    transports: ['websocket', 'webtransport'],
+    // Run for every connection attempt, so a reconnection carries a current token
+    auth: async sendToken => {
+      try {
+        await centralServer.connect(false, injector.config.sync.timeout);
+        sendToken({ token: centralServer.getToken() });
+      } catch (error) {
+        log.warn(`Could not get a token for the central websocket: ${error}`);
+        sendToken({});
+      }
+    },
+  });
   const getClient = () => client;
+
+  const reconnectLater = () => {
+    if (client.active) return;
+    setTimeout(() => client.connect(), RECONNECT_DELAY_MS).unref();
+  };
+  client.on('connect_error', reconnectLater);
+  client.on('disconnect', reconnectLater);
 
   //forward event to facility client
   client.on(
