@@ -62,6 +62,7 @@ Applies to the tablet at a facility where patients check themselves in for today
 - The open form shows its own page progress ("Page 2 of 3") with a progress bar.
 - When a page is longer than the screen, the questions scroll while the form title, page progress and Back and Next stay in place.
 - Form questions use the question types that patient-facing forms support. Questions of other types are left out of the kiosk, as are questions that draw on a program registry, which a patient checking in is not within.
+- Search questions offer the same reference data lists as patient portal forms, and also clinicians and the clinics of the facility.
 - Questions that fill from the patient record show the patient's existing value. The tablet receives only the parts of the patient's record that the forms show, and only after the patient confirms who they are.
 - Required questions are marked with a red asterisk. Tapping Next with required questions unanswered keeps the patient on the page, scrolls to the first unanswered required question, and shows "This question is required" under each one.
 - A question's validation message clears as soon as it has a valid answer.

@@ -1083,13 +1083,33 @@ describe('Kiosk', () => {
       expect(lookup.body).toMatchObject({ id: village.id, name: 'Kioskvale' });
     });
 
+    it('lets an account with only permission to run the kiosk search clinicians and clinics', async () => {
+      const clinician = await models.User.create(
+        fake(models.User, { displayName: 'Kioskclinician Smith' }),
+      );
+      const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
+
+      const clinicians = await kioskApp
+        .get('/api/kiosk/suggestions/practitioner')
+        .query({ q: 'Kioskclin' });
+      expect(clinicians).toHaveSucceeded();
+      expect(clinicians.body.map(({ id }) => id)).toEqual([clinician.id]);
+
+      // The kiosk sends its facility with every search, as staff web does
+      const clinics = await kioskApp
+        .get('/api/kiosk/suggestions/facilityLocationGroup')
+        .query({ q: locationGroup.name, facilityId });
+      expect(clinics).toHaveSucceeded();
+      expect(clinics.body.map(({ id }) => id)).toContain(locationGroup.id);
+    });
+
     it('offers a kiosk account no other suggestions, and no way to create them', async () => {
       const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
 
       expect(await kioskApp.get('/api/kiosk/suggestions/patient').query({ q: 'a' })).toHaveStatus(
         404,
       );
-      expect(await kioskApp.get('/api/kiosk/suggestions/practitioner')).toHaveStatus(404);
+      expect(await kioskApp.get('/api/kiosk/suggestions/user')).toHaveStatus(404);
       expect(
         await kioskApp.post('/api/kiosk/suggestions/village/create').send({ name: 'Newvale' }),
       ).toHaveStatus(404);

@@ -7,7 +7,7 @@ import { z } from 'zod';
 import {
   APPOINTMENT_STATUSES,
   PATIENT_DATA_FIELD_LOCATIONS,
-  PORTAL_SUGGESTER_ALLOW_LIST,
+  KIOSK_SUGGESTER_ALLOW_LIST,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
   VISIBILITY_STATUSES,
@@ -192,14 +192,17 @@ const auditPatientAccess = async (req, patients) => {
   }
 };
 
-/** The reference data a patient may search on a form: the same lists the patient portal offers. */
+/**
+ * The reference data a patient may search on a form: the same lists the patient portal offers,
+ * plus clinicians and the facility's clinics.
+ */
 kiosk.use(
   '/suggestions',
   asyncHandler(async (req, res, next) => {
     req.checkPermission('run', 'Kiosk');
     await getKioskSettings(req);
     const category = req.path.split('/')[1];
-    if (req.method !== 'GET' || !PORTAL_SUGGESTER_ALLOW_LIST.includes(category)) {
+    if (req.method !== 'GET' || !KIOSK_SUGGESTER_ALLOW_LIST.includes(category)) {
       throw new NotFoundError();
     }
     // The suggesters check `list` on their model, which a kiosk account doesn't have
