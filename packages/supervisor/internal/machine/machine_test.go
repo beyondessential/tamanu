@@ -492,6 +492,28 @@ func TestActuatorThatDoesNotControlPartsNeverSleeps(t *testing.T) {
 	h.eventually("upgrading", func() bool { return s.st.Admit(state.API) == state.Upgrading })
 }
 
+// spec: SUPV#resilience
+func TestActuatorThatControlsPartsAgainIsTakenOverAfresh(t *testing.T) {
+	h := newHarness(t, false)
+	// Only taking over afresh, not going idle, can put the server to sleep.
+	h.timing.IdleTime = time.Hour
+	h.act.SetControlsParts(false)
+	s := h.start(testRelease)
+	s.waitHolding()
+	// The parts stopped while the actuator did not control them.
+	for _, p := range state.Parts() {
+		h.act.SetPart(p, actuator.Down, actuator.Stopped)
+	}
+	h.act.SetControlsParts(true)
+	s.waitPhase(state.Asleep)
+
+	s.keepAwakeAfterWake()
+	if got := s.activity(); got != state.Hold {
+		t.Errorf("admission while asleep = %v", got)
+	}
+	s.waitAwakeAfterWake()
+}
+
 // spec: SLPWK#waking
 func TestStalledWakeIsRetried(t *testing.T) {
 	h := newHarness(t, false)

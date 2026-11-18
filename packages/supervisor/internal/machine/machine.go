@@ -419,6 +419,12 @@ func (m *Machine) next(ctx context.Context) {
 		case <-ctx.Done():
 		case <-m.changed:
 		}
+		// Parts the actuator left stopped meanwhile are taken over afresh.
+		if m.controls.Load() {
+			if s, ok := m.readActuator(ctx); ok {
+				m.takeOver(ctx, s)
+			}
+		}
 	case snap.Phase == state.Asleep:
 		select {
 		case <-ctx.Done():
