@@ -419,6 +419,12 @@ jobs:
           rm -rf layer
           mkdir -p layer/Files/app layer/Files/caddy
           cp -r "packages/${{ matrix.package.path }}/dist/." layer/Files/app
+          # the built web app lacks Tamanu's error pages, so they go beside it,
+          # as in the Linux image
+          if [ -d "packages/${{ matrix.package.path }}/resources/errors" ]; then
+            mkdir -p layer/Files/app/resources
+            cp -r "packages/${{ matrix.package.path }}/resources/errors" layer/Files/app/resources/
+          fi
 
           # the Caddy release the Linux image's supervisor is built on, so the
           # same Caddyfile runs on the same Caddy on both
