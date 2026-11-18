@@ -2610,6 +2610,55 @@ describe('Encounter', () => {
             ),
           );
         });
+
+        describe('order', () => {
+          const earlierDate = '2026-01-01 10:00:00';
+          const laterDate = '2026-01-02 10:00:00';
+
+          beforeEach(async () => {
+            for (const date of [earlierDate, laterDate]) {
+              await app.post('/api/surveyResponse').send({
+                surveyId: 'vitals-survey',
+                patientId: vitalsPatient.id,
+                startTime: date,
+                endTime: date,
+                answers: {
+                  'pde-PatientVitalsDate': date,
+                  'pde-PatientVitalsHeartRate': 80,
+                },
+                facilityId,
+              });
+            }
+          });
+
+          const getRecordedDates = async order => {
+            const result = await app
+              .get(`/api/encounter/${vitalsEncounter.id}/vitals`)
+              .query({ rowsPerPage: 1, ...(order && { order }) });
+            expect(result).toHaveSucceeded();
+            const dateElement = result.body.data.find(
+              ({ dataElementId }) => dataElementId === 'pde-PatientVitalsDate',
+            );
+            return Object.keys(dateElement.records);
+          };
+
+          it('should return the latest reading first by default', async () => {
+            expect(await getRecordedDates()).toEqual([laterDate]);
+          });
+
+          it('should return readings in the requested order, in either case', async () => {
+            expect(await getRecordedDates('ASC')).toEqual([earlierDate]);
+            expect(await getRecordedDates('asc')).toEqual([earlierDate]);
+            expect(await getRecordedDates('desc')).toEqual([laterDate]);
+          });
+
+          it('should reject an order other than ascending or descending', async () => {
+            const result = await app
+              .get(`/api/encounter/${vitalsEncounter.id}/vitals`)
+              .query({ order: 'body' });
+            expect(result).toHaveRequestError();
+          });
+        });
       });
 
       describe('vitals data by data element id', () => {
