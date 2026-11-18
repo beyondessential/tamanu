@@ -40,9 +40,12 @@ func New(upstreams []string, token string) *Client {
 }
 
 // transport bounds each connection attempt on its own, so an instance that
-// drops connections leaves time in the call to try the next.
+// drops connections leaves time in the call to try the next. It never goes
+// through a proxy from the environment: the api is reached directly, as the
+// supervisor routes to it, and the credential stays inside the server.
 func transport() *http.Transport {
 	t := http.DefaultTransport.(*http.Transport).Clone()
+	t.Proxy = nil
 	t.DialContext = (&net.Dialer{Timeout: 5 * time.Second, KeepAlive: 30 * time.Second}).DialContext
 	return t
 }

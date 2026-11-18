@@ -79,6 +79,14 @@ type Client struct {
 	token atomic.Int64
 }
 
+// direct is the default transport without a proxy from the environment, so
+// the credential goes only to the actuator.
+func direct() *http.Transport {
+	t := http.DefaultTransport.(*http.Transport).Clone()
+	t.Proxy = nil
+	return t
+}
+
 // NewClient returns a client for the actuator at base, authenticating with
 // credential, the one the supervisor also uses with the api.
 //
@@ -87,7 +95,7 @@ func NewClient(base *url.URL, credential string) *Client {
 	return &Client{
 		base:           base,
 		credential:     credential,
-		HTTP:           &http.Client{},
+		HTTP:           &http.Client{Transport: direct()},
 		RequestTimeout: 10 * time.Second,
 		PollInterval:   time.Second,
 	}
