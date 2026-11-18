@@ -19,6 +19,10 @@
 	servers {
 		protocols h1 h2c
 		trusted_proxies static {$TAMANU_SUPERVISOR_TRUSTED_PROXIES}
+		# The client's address is the nearest untrusted one in
+		# X-Forwarded-For, which a client cannot forge to get a rate limit of
+		# its own.
+		trusted_proxies_strict
 	}
 
 	tamanu {
@@ -48,6 +52,10 @@
 # names.
 (rate_limit) {
 	rate_limit {
+		# Each client address holds a buffer of its zone's events until it
+		# goes quiet for a sweep, so sweeping often bounds the memory a burst
+		# of addresses takes.
+		sweep_interval 10s
 		zone tamanu_api {
 			key {http.request.client_ip}
 			events 1000
