@@ -17,6 +17,8 @@ describe('toSafeFileName', () => {
     ['re: <report> "x" | y * z?', 're report x  y  z'],
     ['..', ''],
     ['.hidden', 'hidden'],
+    [' .hidden', 'hidden'],
+    ['name. ', 'name'],
   ])('turns %j into %j', (input, expected) => {
     expect(toSafeFileName(input)).toBe(expected);
   });

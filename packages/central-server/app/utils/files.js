@@ -8,11 +8,12 @@ import { tmpdir } from '@tamanu/shared/utils';
 /**
  * Makes a string usable as a single file name inside a known folder: removes path separators,
  * characters that are invalid in file names on common platforms, control characters (including
- * null bytes), and leading dots, so the result can never name a parent folder or a hidden file.
+ * null bytes), and leading and trailing dots and whitespace, so the result can never name a
+ * parent folder or a hidden file.
  */
 export function toSafeFileName(name) {
   // eslint-disable-next-line no-control-regex
-  return name.replace(/[/\\:*?"<>|\x00-\x1f\x7f]/g, '').replace(/^\.+/, '');
+  return name.replace(/[/\\:*?"<>|\x00-\x1f\x7f]/g, '').replace(/^[\s.]+|[\s.]+$/g, '');
 }
 
 export function removeFile(filePath) {
