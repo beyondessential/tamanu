@@ -10,7 +10,6 @@ import {
   WS_PATH,
 } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { buildToken } from '../app/auth/utils';
 import { createTestContext } from './utilities';
@@ -134,16 +133,17 @@ describe('Websocket', () => {
 
     const insertContact = async (user, payload) => {
       const socket = await connectAs(user);
-      socket.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, payload);
-      // The event has no acknowledgement to wait for
-      await sleepAsync(500);
+      const { stored } = await socket
+        .timeout(10_000)
+        .emitWithAck(WS_EVENTS.PATIENT_CONTACT_INSERT, payload);
+      return stored;
     };
 
     it('stores the contact for a user who may write to patients', async () => {
       const { contact } = await buildContactPayload();
       const { user } = await ctx.baseApp.asNewRole([['write', 'Patient']]);
 
-      await insertContact(user, contact);
+      expect(await insertContact(user, contact)).toBe(true);
 
       const stored = await models.PatientContact.findByPk(contact.id);
       expect(stored).toMatchObject({
@@ -159,7 +159,9 @@ describe('Websocket', () => {
       const { contact } = await buildContactPayload();
       const { user } = await ctx.baseApp.asNewRole([['write', 'Patient']]);
 
-      await insertContact(user, { ...contact, connectionDetails: { chatId: '123456' } });
+      expect(
+        await insertContact(user, { ...contact, connectionDetails: { chatId: '123456' } }),
+      ).toBe(true);
 
       const stored = await models.PatientContact.findByPk(contact.id);
       expect(stored).not.toBeNull();
@@ -170,8 +172,7 @@ describe('Websocket', () => {
       const { contact } = await buildContactPayload();
       const { user } = await ctx.baseApp.asNewRole([['read', 'Patient']]);
 
-      await insertContact(user, contact);
-
+      expect(await insertContact(user, contact)).toBe(false);
       expect(await models.PatientContact.findByPk(contact.id)).toBeNull();
     });
 
@@ -179,8 +180,15 @@ describe('Websocket', () => {
       const { contact } = await buildContactPayload();
       const { user } = await ctx.baseApp.asNewRole([['write', 'Patient']]);
 
-      await insertContact(user, { ...contact, method: 'carrier-pigeon' });
+      expect(await insertContact(user, { ...contact, method: 'carrier-pigeon' })).toBe(false);
+      expect(await models.PatientContact.findByPk(contact.id)).toBeNull();
+    });
 
+    it('does not store a contact without a relationship', async () => {
+      const { contact } = await buildContactPayload();
+      const { user } = await ctx.baseApp.asNewRole([['write', 'Patient']]);
+
+      expect(await insertContact(user, { ...contact, relationshipId: null })).toBe(false);
       expect(await models.PatientContact.findByPk(contact.id)).toBeNull();
     });
   });

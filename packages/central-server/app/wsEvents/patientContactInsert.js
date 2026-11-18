@@ -15,6 +15,26 @@ const patientContactInsertPayload = z.object({
   method: z.enum(Object.values(PATIENT_COMMUNICATION_CHANNELS)),
 });
 
+const insertPatientContact = async (models, { user, impersonateRoleId }, payload) => {
+  try {
+    const contact = patientContactInsertPayload.parse(payload);
+
+    const ability = await getAbilityForUser(models, user, { impersonateRoleId });
+    if (!ability.can('write', subject('Patient', { id: contact.patientId }))) {
+      log.warn('Patient contact insert refused: user may not write to this patient', {
+        userId: user.id,
+      });
+      return false;
+    }
+
+    await models.PatientContact.create(contact);
+    return true;
+  } catch (e) {
+    log.error('Error inserting patient contact', e);
+    return false;
+  }
+};
+
 /**
  * @typedef {import('@tamanu/database/models')} Models
  * @param {{ websocketService: ReturnType<import('../services/websocketService').defineWebsocketService>, models: Models}} injector
@@ -25,24 +45,11 @@ export const registerPatientContactInsert = injector => {
     /**
      * @param {import('socket.io').Socket} socket
      * @param {unknown} payload
+     * @param {unknown} acknowledge called with whether the contact was stored, when the client asks
      */
-    async (socket, payload) => {
-      try {
-        const contact = patientContactInsertPayload.parse(payload);
-
-        const { user, impersonateRoleId } = socket.data;
-        const ability = await getAbilityForUser(injector.models, user, { impersonateRoleId });
-        if (!ability.can('write', subject('Patient', { id: contact.patientId }))) {
-          log.warn('Patient contact insert refused: user may not write to this patient', {
-            userId: user.id,
-          });
-          return;
-        }
-
-        await injector.models.PatientContact.create(contact);
-      } catch (e) {
-        log.error('Error inserting patient contact', e);
-      }
+    async (socket, payload, acknowledge) => {
+      const stored = await insertPatientContact(injector.models, socket.data, payload);
+      if (typeof acknowledge === 'function') acknowledge({ stored });
     },
   );
 };
