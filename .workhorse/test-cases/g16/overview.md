@@ -15,3 +15,4 @@ Each user's permissions on a device come from their own online sign-in, offline 
 - [ ] Reopening the app with a session open restores the signed-in user's own permissions, not those of whoever signed in online last (verifies spec: MSIGN)
 - [ ] After upgrading from a version that stored one permission list per device, a user who was signed in is returned to the sign-in screen on reopening, signs in online, and continues normally (verifies spec: MSIGN)
 - [ ] After that upgrade, a user who signed in online before it, but not since, is told to sign in while connected before they can sign in offline (verifies spec: MSIGN)
+- [x] After that upgrade, the single permission list the earlier version stored for the whole device is removed on launch

@@ -1,11 +1,12 @@
 import mitt from 'mitt';
 import type { AuthService } from './auth';
-import { readConfig, writeConfig } from './config';
+import { readConfig, removeConfig, writeConfig } from './config';
 import { PermissionsService } from './permissions';
 
 jest.mock('./config', () => ({
   readConfig: jest.fn(),
   writeConfig: jest.fn(),
+  removeConfig: jest.fn(),
 }));
 
 const nursePermissions = [{ verb: 'read', noun: 'Patient' }];
@@ -50,6 +51,13 @@ describe('PermissionsService', () => {
     expect(readConfig).toHaveBeenCalledWith('permissionsByUser');
     expect(permissions.getForUser('nurse')).toEqual(nursePermissions);
     expect(permissions.getForUser('clinician')).toBeUndefined();
+  });
+
+  it('removes the device-wide permission list stored before per-user storage', () => {
+    (readConfig as jest.Mock).mockResolvedValue(null);
+    new PermissionsService(auth);
+
+    expect(removeConfig).toHaveBeenCalledWith('permissions');
   });
 
   it('loads as empty when the stored value cannot be read', async () => {
