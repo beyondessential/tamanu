@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { subject } from '@casl/ability';
+import { z } from 'zod';
 import { VITALS_DATA_ELEMENT_IDS, CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
@@ -34,11 +35,19 @@ export const fetchAnswersWithHistory = (options = {}) =>
     res.send({ count: parseInt(count, 10), data });
   });
 
+const answersWithHistoryQuerySchema = z.object({
+  order: z.preprocess(
+    value => (typeof value === 'string' ? value.toUpperCase() : value),
+    z.enum(['ASC', 'DESC']).optional().default('DESC'),
+  ),
+});
+
 // Used in charts and vitals to query responses based on the date of a response answer
 async function getAnswersWithHistory(req, options = {}) {
   const { db, query } = req;
   const { encounterId = null, patientId = null, surveyId = null } = options;
-  const { order = 'DESC', instanceId = null } = query;
+  const { instanceId = null } = query;
+  const { order } = await answersWithHistoryQuerySchema.parseAsync(query);
 
   const isVitals = surveyId === null;
   const dateDataElement = isVitals
