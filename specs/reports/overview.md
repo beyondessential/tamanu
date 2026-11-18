@@ -10,7 +10,7 @@ Applies to report definitions, generation, and exports.
 
 - An exported report's file name is `report-<date>-<report name>-<country name>`.
 - The name is lowercased, and spaces become dashes, with consecutive dashes collapsed to one.
-- The same name is used for a report downloaded from this facility and for one emailed after running against all facilities, including the emailed zip and the email that delivers it.
+- This naming applies both to a report downloaded from this facility and to one emailed after running against all facilities, where it also names the zip and appears in the email that delivers it.
 
 ### Generic Survey Export
 

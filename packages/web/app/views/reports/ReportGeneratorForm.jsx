@@ -34,8 +34,8 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useSuggester } from '../../api';
 import { saveFile } from '../../utils/fileSystemAccess';
+import { getCurrentLanguageCode } from '../../utils/translation';
 import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
@@ -107,8 +107,7 @@ const useFileName = () => {
   const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);
 
   return (reportName, surveyName) => {
-    const nameSegments = surveyName ? [reportName, surveyName] : [reportName];
-    const dashedName = `${nameSegments.join('-')}-${countryName}`
+    const dashedName = `${[reportName, surveyName].filter(Boolean).join('-')}-${countryName}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
@@ -145,7 +144,6 @@ export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
   const getFileName = useFileName();
-  const surveySuggester = useSuggester('survey');
   const { currentUser, facilityId } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
   const [requestError, setRequestError] = useState(null);
@@ -226,6 +224,19 @@ export const ReportGeneratorForm = () => {
     })();
   }, [api, getTranslation]);
 
+  // The survey's name in the user's language, as the Survey field shows it. It only labels the
+  // export, so a failed lookup leaves the survey out of the name rather than stopping the export.
+  const fetchSurveyName = async surveyId => {
+    try {
+      const survey = await api.get(route('suggestions/survey/:surveyId', { surveyId }), {
+        language: getCurrentLanguageCode(),
+      });
+      return survey.name;
+    } catch {
+      return null;
+    }
+  };
+
   const submitRequestReport = async formValues => {
     const { reportId, emails, timezone, ...filterValues } = formValues;
 
@@ -249,7 +260,7 @@ export const ReportGeneratorForm = () => {
         // spec: REPORTS
         const isGenericSurveyExport = definitionId === GENERIC_SURVEY_EXPORT_REPORT_ID;
         const surveyName = isGenericSurveyExport
-          ? (await surveySuggester.fetchCurrentOption(filterValues.surveyId))?.label
+          ? await fetchSurveyName(filterValues.surveyId)
           : null;
 
         const metadata = [

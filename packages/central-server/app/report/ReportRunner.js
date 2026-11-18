@@ -97,7 +97,7 @@ export class ReportRunner {
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ');
 
-    const surveyName = await this.getSurveyName(await this.getReportDefinitionVersion());
+    const { surveyName } = await this.getReportDetails();
 
     return [
       ['Report Name:', reportName],
@@ -214,25 +214,32 @@ export class ReportRunner {
     }
   }
 
-  async getReportDefinitionVersion() {
-    return this.store.models.ReportDefinitionVersion.findByPk(this.reportId, {
-      include: ['reportDefinition'],
-    });
-  }
-
   /**
-   * The name of the survey a Generic Survey Export is run against, or null for any other report.
+   * The report's name and, for a Generic Survey Export, the name of the survey it is run against.
+   * Looked up once per run, as both the report's file name and its metadata need them.
    * spec: REPORTS
    *
-   * @param reportVersion the ReportDefinitionVersion being run
-   * @returns {Promise<string | null>}
+   * @returns {Promise<{ reportName: string, surveyName: string | null }>}
    */
-  async getSurveyName(reportVersion) {
-    if (reportVersion?.reportDefinitionId !== GENERIC_SURVEY_EXPORT_REPORT_ID) return null;
+  async getReportDetails() {
+    if (!this.reportDetails) {
+      const { ReportDefinitionVersion, Survey } = this.store.models;
+      const reportVersion = await ReportDefinitionVersion.findByPk(this.reportId, {
+        include: ['reportDefinition'],
+      });
+      const isGenericSurveyExport =
+        reportVersion?.reportDefinitionId === GENERIC_SURVEY_EXPORT_REPORT_ID;
+      // A survey that can't be found is left out of the name
+      const survey = isGenericSurveyExport
+        ? await Survey.findByPk(this.parameters?.surveyId)
+        : null;
 
-    // Tolerate a survey that can't be found, so naming the report never stops a failure email
-    const survey = await this.store.models.Survey.findByPk(this.parameters?.surveyId);
-    return survey?.name ?? null;
+      this.reportDetails = {
+        reportName: reportVersion?.reportDefinition.name ?? this.reportId,
+        surveyName: survey?.name ?? null,
+      };
+    }
+    return this.reportDetails;
   }
 
   /**
@@ -242,14 +249,11 @@ export class ReportRunner {
   async getReportName() {
     const { country } = await getLocalisation(this.settings);
 
-    const reportVersion = await this.getReportDefinitionVersion();
-    const reportName = reportVersion ? `${reportVersion.reportDefinition.name}` : this.reportId;
-    const surveyName = await this.getSurveyName(reportVersion);
-    const nameSegments = surveyName ? [reportName, surveyName] : [reportName];
+    const { reportName, surveyName } = await this.getReportDetails();
 
     const date = formatDate(new Date(), 'ddMMyyyy');
 
-    const dashedName = `${nameSegments.join('-')}-${country.name}`
+    const dashedName = `${[reportName, surveyName].filter(Boolean).join('-')}-${country.name}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
