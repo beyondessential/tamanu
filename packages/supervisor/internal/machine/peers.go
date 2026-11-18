@@ -59,12 +59,14 @@ func (m *Machine) pollActuator(ctx context.Context) {
 	ticker := time.NewTicker(m.cfg.Timing.ActuatorPoll)
 	defer ticker.Stop()
 	failing := false
+	var received map[string]receivedReport
 	for {
 		s, err := m.act.State(ctx)
 		switch {
 		case err == nil:
 			failing = false
 			m.seen.Store(true)
+			received = m.receive(s, received)
 			m.latest.Store(&s)
 			m.observe(s)
 			m.roleMu.Lock()
@@ -156,12 +158,42 @@ func (m *Machine) takeWakeRequests(s actuator.State) {
 	}
 }
 
+// receivedReport is when this supervisor first read a report, which the
+// actuator's expiry identifies.
+type receivedReport struct {
+	expires time.Time
+	at      time.Time
+}
+
+// receive records when each other supervisor last saw activity, counting its
+// report's idle time back from when this supervisor first read the report,
+// never by the reporter's clock. It can only make another's activity seem
+// later, by up to the time between polls.
+func (m *Machine) receive(s actuator.State, before map[string]receivedReport) map[string]receivedReport {
+	now := time.Now()
+	received := make(map[string]receivedReport, len(s.Reports))
+	activity := make(map[string]time.Time, len(s.Reports))
+	for instance, r := range s.Reports {
+		if instance == m.cfg.Instance {
+			continue
+		}
+		seen, ok := before[instance]
+		if !ok || !seen.expires.Equal(r.ExpiresAt) {
+			seen = receivedReport{expires: r.ExpiresAt, at: now}
+		}
+		received[instance] = seen
+		activity[instance] = seen.at.Add(-time.Duration(r.IdleSeconds * float64(time.Second)))
+	}
+	m.activity.Store(&activity)
+	return received
+}
+
 // others folds the other supervisors' reports: their latest activity, and
 // how many requests that count as activity they have in flight.
 //
 // spec: SLPWK#activity
 func (m *Machine) others() (lastActivity time.Time, inFlight int) {
-	s := m.latest.Load()
+	s, activity := m.latest.Load(), m.activity.Load()
 	if s == nil {
 		return time.Time{}, 0
 	}
@@ -169,8 +201,8 @@ func (m *Machine) others() (lastActivity time.Time, inFlight int) {
 		if instance == m.cfg.Instance {
 			continue
 		}
-		if r.LastActivity.After(lastActivity) {
-			lastActivity = r.LastActivity
+		if active := (*activity)[instance]; active.After(lastActivity) {
+			lastActivity = active
 		}
 		inFlight += r.InFlight
 	}
@@ -270,7 +302,7 @@ func (m *Machine) ownReport() actuator.Report {
 	ann := m.current()
 	snap := m.st.Snapshot()
 	r := actuator.Report{
-		LastActivity:  snap.LastActivity.UTC(),
+		IdleSeconds:   max(time.Since(snap.LastActivity).Seconds(), 0),
 		InFlight:      snap.InFlight,
 		WakeRequested: snap.WakePending,
 		Follows:       ann.id,

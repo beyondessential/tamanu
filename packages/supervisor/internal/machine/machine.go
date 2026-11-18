@@ -130,7 +130,10 @@ type Machine struct {
 	// read, and polled is notified of each read while holding the lease.
 	seen   atomic.Bool
 	latest atomic.Pointer[actuator.State]
-	polled chan struct{}
+	// activity is when each other supervisor last saw activity, by this
+	// supervisor's clock, from the reports in latest.
+	activity atomic.Pointer[map[string]time.Time]
+	polled   chan struct{}
 
 	annMu     sync.Mutex
 	ann       announcement

@@ -29,9 +29,11 @@ type LeaseRequest struct {
 // Report is one supervisor's report on its activity, and on the phase the
 // holder announces or the announcement another follows.
 type Report struct {
-	LastActivity  time.Time `json:"lastActivity"`
-	InFlight      int       `json:"inFlight"`
-	WakeRequested bool      `json:"wakeRequested"`
+	// IdleSeconds is how long the supervisor had seen no activity when it
+	// reported, so no supervisor relies on another's clock.
+	IdleSeconds   float64 `json:"idleSeconds"`
+	InFlight      int     `json:"inFlight"`
+	WakeRequested bool    `json:"wakeRequested"`
 	// Phase and Announcement are the holder's announcement, in its report
 	// alone.
 	Phase        state.Phase  `json:"phase,omitempty"`

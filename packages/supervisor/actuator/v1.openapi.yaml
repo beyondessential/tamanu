@@ -274,7 +274,7 @@ components:
           format: date-time
     ReportRequest:
       type: object
-      required: [lastActivity, inFlight, wakeRequested, ttlSeconds]
+      required: [idleSeconds, inFlight, wakeRequested, ttlSeconds]
       properties:
         phase:
           type: string
@@ -286,10 +286,10 @@ components:
         follows:
           description: The announcement the supervisor follows, its own for the holder.
           $ref: "#/components/schemas/Announcement"
-        lastActivity:
-          type: string
-          format: date-time
-          description: When the supervisor last saw a request that counts as activity start or finish.
+        idleSeconds:
+          type: number
+          minimum: 0
+          description: How long the supervisor had gone, when it reported, since it last saw a request that counts as activity start or finish. A duration rather than a time, so no supervisor relies on another's clock.
         inFlight:
           type: integer
           minimum: 0
@@ -324,9 +324,8 @@ components:
           $ref: "#/components/schemas/Announcement"
         follows:
           $ref: "#/components/schemas/Announcement"
-        lastActivity:
-          type: string
-          format: date-time
+        idleSeconds:
+          type: number
         inFlight:
           type: integer
         wakeRequested:

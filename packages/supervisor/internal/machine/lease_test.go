@@ -142,7 +142,6 @@ func TestWakeRequestedWhileFollowingAnEarlierAnnouncement(t *testing.T) {
 	// A supervisor whose request was held as the holder's announcement
 	// changed, or under a holder since replaced.
 	h.act.PutReport("supervisor-elsewhere", actuator.Report{
-		LastActivity:  time.Now(),
 		WakeRequested: true,
 		Follows:       actuator.Announcement{Token: 1, Sequence: 1},
 	}, time.Hour)
@@ -201,7 +200,7 @@ func TestSleepWaitsForEverySupervisor(t *testing.T) {
 			name: "a report, until it expires",
 			others: func(_ *testing.T, h *harness, _ *supervisor) func() {
 				// A supervisor that stopped reporting, behind on announcements.
-				h.act.PutReport("gone", actuator.Report{LastActivity: time.Now().Add(-time.Hour)}, 500*time.Millisecond)
+				h.act.PutReport("gone", actuator.Report{IdleSeconds: 3600}, 500*time.Millisecond)
 				return func() {}
 			},
 		},
@@ -215,7 +214,7 @@ func TestSleepWaitsForEverySupervisor(t *testing.T) {
 					ticker := time.NewTicker(10 * time.Millisecond)
 					defer ticker.Stop()
 					for {
-						h.act.PutReport("stuck", actuator.Report{}, 40*time.Millisecond)
+						h.act.PutReport("stuck", actuator.Report{IdleSeconds: 3600}, 40*time.Millisecond)
 						select {
 						case <-stop:
 							return

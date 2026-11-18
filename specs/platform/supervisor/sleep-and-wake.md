@@ -73,7 +73,7 @@ Applies to a server whose platform provides an actuator sleeping when its own us
 - The actuator reports whether it controls the server's parts. One that does not still reports on them and on [upgrades](overview.md#upgrades), and its server never sleeps.
 - The actuator reports whether an upgrade of the server is in progress.
 - The actuator holds a lease that one supervisor at a time takes, renews before it expires, and releases. Each taking of the lease carries a token larger than any before it, across restarts of the actuator, and the actuator refuses a change of desired state carrying an older token, so a supervisor that lost the lease cannot act on the server.
-- The actuator takes a report from each running supervisor: when it last saw activity, how many requests that count as activity it has in flight, and whether a request has asked for a wake. A report not renewed in time stops counting.
+- The actuator takes a report from each running supervisor: how long it has gone without activity, how many requests that count as activity it has in flight, and whether a request has asked for a wake. A report not renewed in time stops counting. Supervisors compare reports without relying on each other's clocks.
 - The report of the supervisor holding the lease also announces the server's phase, numbered so that each announcement is newer than the one before. Every other supervisor's report says which announcement it follows.
 - The actuator reports every supervisor's report that still counts, so each supervisor learns the announced phase, and the holder learns every supervisor's activity, from the actuator's status.
 - Each version of the contract stays supported by the actuator for as long as a deployed Tamanu release uses it.
