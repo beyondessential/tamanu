@@ -19,4 +19,4 @@ Applies to signing in to the mobile app, online and offline, and to the permissi
 
 - A signed-in user holds the permissions they received at their own most recent online sign-in on this device. Another user's sign-in on the same device leaves them unchanged.
 - An administrator holds full access whatever permissions were received.
-- Reopening the app with a session still open restores that user's stored permissions. When the device holds none for them, the app returns to the sign-in screen.
+- Reopening the app with a session still open restores that user's stored permissions. When the device holds none for them, the session ends and the app returns to the sign-in screen.

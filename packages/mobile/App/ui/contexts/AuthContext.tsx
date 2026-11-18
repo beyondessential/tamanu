@@ -187,7 +187,7 @@ const Provider = ({
     if (abilityObject) {
       setContextUserAndAbility(props.user, abilityObject);
     } else {
-      signOutClient(false);
+      signOut();
     }
   }, []);
 
