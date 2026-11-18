@@ -236,6 +236,11 @@ jobs:
       with:
         node-version-file: '.node-version'
 
+    # As in CI's test-package-lock: the npm bundled with Node follows the
+    # release series, so pin the npm that writes the lockfile to packageManager.
+    - name: Install the npm from packageManager
+      run: npm install -g "$(jq -r .packageManager package.json)"
+
     - name: Refresh the lockfile
       id: refresh
       run: |
