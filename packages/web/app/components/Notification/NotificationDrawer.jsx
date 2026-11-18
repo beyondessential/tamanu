@@ -14,6 +14,7 @@ import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
+import { escapeHtml } from '../../utils/escapeHtml';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -27,8 +28,9 @@ const NOTIFICATION_ICONS = {
 };
 
 const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
-  const { firstName, lastName, displayId } = patient;
-  const patientName = `${firstName} ${lastName}`;
+  const { firstName, lastName } = patient;
+  const displayId = escapeHtml(patient.displayId);
+  const patientName = escapeHtml(`${firstName} ${lastName}`);
 
   if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
     return getTranslation(

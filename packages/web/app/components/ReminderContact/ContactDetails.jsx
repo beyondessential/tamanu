@@ -9,6 +9,7 @@ import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
 import { usePatient } from '../../contexts/Patient';
 import { joinNames } from '../../utils/user';
+import { escapeHtml } from '../../utils/escapeHtml';
 import { useSocket } from '../../utils/useSocket';
 import { DataFetchingTable, Table } from '../Table';
 
@@ -352,7 +353,7 @@ export const ContactDetails = ({
             __html: getTranslation(
               'patient.details.reminderContacts.emptyDescription',
               "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
-              { replacements: { patientName: `<span>${patientName}</span>` } },
+              { replacements: { patientName: `<span>${escapeHtml(patientName)}</span>` } },
             ),
           }}
           data-testid="styledtext-r6fj"
@@ -363,7 +364,7 @@ export const ContactDetails = ({
             __html: getTranslation(
               'patient.details.reminderContacts.description',
               'The below contact list is registered to receive reminders for :patientName.',
-              { replacements: { patientName: `<span>${patientName}</span>` } },
+              { replacements: { patientName: `<span>${escapeHtml(patientName)}</span>` } },
             ),
           }}
           data-testid="styledtext-rxy4"

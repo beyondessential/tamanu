@@ -4,6 +4,7 @@ import { useApi } from '../../api';
 import { ConfirmModal } from '../ConfirmModal';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';
+import { escapeHtml } from '../../utils/escapeHtml';
 import { route } from '@tamanu/api-client';
 
 const SubText = styled.div`
@@ -51,7 +52,7 @@ export const DeleteOngoingConditionModal = ({
             __html: getTranslation(
               'conditions.modal.delete.description',
               'Are you sure you would like to delete :conditionName? This action is irreversible.',
-              { replacements: { conditionName: `<b>${conditionName}</b>` } },
+              { replacements: { conditionName: `<b>${escapeHtml(conditionName)}</b>` } },
             ),
           }}
         />

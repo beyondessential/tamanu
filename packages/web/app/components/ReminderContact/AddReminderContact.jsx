@@ -9,6 +9,7 @@ import { Colors } from '../../constants/styles';
 import { LocalisedField, SuggesterSelectField } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { joinNames } from '../../utils/user';
+import { escapeHtml } from '../../utils/escapeHtml';
 import { useTranslation } from '../../contexts/Translation';
 import { usePatient } from '../../contexts/Patient';
 import { useApi } from '../../api';
@@ -120,7 +121,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                 __html: getTranslation(
                   'patient.details.addReminderContact.description',
                   'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
-                  { patientName: `<span>${patientName}</span>` },
+                  { replacements: { patientName: `<span>${escapeHtml(patientName)}</span>` } },
                 ),
               }}
               data-testid="formsubheading-72l1"
