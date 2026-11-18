@@ -1,0 +1,10 @@
+# The web app's and the patient portal's /env.js, imported by the supervisor's
+# Caddyfiles and by each app's Caddyfile.docker. Keep in step with
+# packages/web/app/utils/env.js and packages/ui-components/src/utils/env.js.
+respond /env.js <<JS
+	window.env = {
+		NODE_ENV: `{env.NODE_ENV}` || 'production',
+		BUGSNAG_API_KEY: `{env.BUGSNAG_API_KEY}` || null,
+		REVISION: `{env.REVISION}` || null,
+	}
+	JS 200

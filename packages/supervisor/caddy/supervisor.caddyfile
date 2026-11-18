@@ -117,19 +117,11 @@
 			import api
 		}
 
-		# Keep in step with packages/web/app/utils/env.js and the web app's
-		# Caddyfile.docker.
 		handle /env.js {
 			tamanu_gate static
 			header >Cache-Control no-cache
 			header Content-Type "text/javascript; charset=utf-8"
-			respond <<JS
-				window.env = {
-					NODE_ENV: `{env.NODE_ENV}` || 'production',
-					BUGSNAG_API_KEY: `{env.BUGSNAG_API_KEY}` || null,
-					REVISION: `{env.REVISION}` || null,
-				}
-				JS 200
+			import env-js.caddyfile
 		}
 
 		handle /manifest.json {
