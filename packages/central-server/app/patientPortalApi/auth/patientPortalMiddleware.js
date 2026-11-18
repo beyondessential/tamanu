@@ -106,7 +106,9 @@ export const patientPortalMiddleware = ({ secret }) =>
      */
     req.checkPermission = (action, subject) => {
       if (!isPermittedForPortal(action, subject)) {
-        throw new ForbiddenError();
+        throw new ForbiddenError(
+          `No permission to perform action “${action}” on “${getSubjectName(subject)}” in the patient portal`,
+        );
       }
     };
     req.ability = {
