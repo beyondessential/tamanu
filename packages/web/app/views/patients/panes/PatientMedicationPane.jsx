@@ -775,6 +775,7 @@ export const PatientMedicationPane = ({ patient }) => {
               order: 'desc',
             }}
             onClickRow={handleDispensedMedicationClick}
+            data-testid="dispensed-medications-table"
             $maxHeight={'320px'}
           />
         </TableContainer>

@@ -172,6 +172,21 @@ describe('NotDispensedMedicationDetailsModal', () => {
   });
 
   it.each([
+    [false, ['Patient name', 'Prescription date', 'Date not dispensed']],
+    [
+      true,
+      ['Patient name', 'Prescription date', 'Remaining repeats', 'Date not dispensed'],
+    ],
+  ])(
+    'lays out the right column for isDischargePrescription=%s, with Remaining repeats only for Outpatient/Discharge',
+    (isDischarge, expected) => {
+      renderModal(buildNotDispensedRecord(isDischarge));
+
+      expect(columnLabels('right-column')).toEqual(expected);
+    },
+  );
+
+  it.each([
     [false, 'Inpatient'],
     [true, 'Outpatient/Discharge'],
   ])('shows prescription type for isDischargePrescription=%s as %s', (isDischarge, expected) => {

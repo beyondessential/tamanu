@@ -1,6 +1,10 @@
 # Prescription type in dispensed and not dispensed details
 
-Automated cases are covered by `packages/web/__tests__/components/Medication/DispenseDetailsModals.test.jsx`.
+Automated cases are covered by:
+
+- the component tests in `packages/web/__tests__/components/Medication/DispenseDetailsModals.test.jsx`
+- the endpoint tests in `packages/facility-server/__tests__/apiv1/Medication.test.js`
+- the end to end tests in `packages/e2e-tests/tests/medication/medication.spec.ts` and `notDispensed.spec.ts`
 
 ## Dispensed medication modal
 
@@ -14,12 +18,16 @@ Automated cases are covered by `packages/web/__tests__/components/Medication/Dis
 
 - [x] Left column reads Patient ID, Medication, Prescription type, Request no., Reason not dispensed (verifies spec: DSPDET)
 - [x] Inpatient and Outpatient/Discharge orders show as Inpatient and Outpatient/Discharge (verifies spec: DSPDET)
+- [x] Right column reads Patient name, Prescription date, Remaining repeats, Date not dispensed for an Outpatient/Discharge request, and leaves out Remaining repeats for an Inpatient one (verifies spec: DSPDET)
+
+## Prescription type reaching the modals
+
+- [x] Both dispensed medication lists return the prescription type of the order each fill was dispensed from, for Inpatient and Outpatient/Discharge orders (verifies spec: DSPDET)
+- [ ] An Outpatient/Discharge dispense shows Outpatient/Discharge when opened from the pharmacy's Dispensed medications list and from the patient's Medication tab (verifies spec: DSPDET)
+- [ ] An Outpatient/Discharge request marked not dispensed shows Outpatient/Discharge and Remaining repeats when opened from the encounter's Medication tab (verifies spec: DSPDET)
 
 ## Manual checks
 
-- [ ] Open a dispensed medication from the pharmacy's Dispensed medications list and see its prescription type
-- [ ] Open a dispensed medication from the patient's Medication tab and see the same prescription type
-- [ ] Open a not dispensed request from the encounter's Medication tab and see its prescription type
 - [ ] An order sent from ongoing medications shows Outpatient/Discharge in both modals (verifies spec: PHORD)
 - [ ] An order raised from the discharge form shows Outpatient/Discharge in the Dispensed modal (verifies spec: PHORD)
 - [ ] A new prescription sent straight to pharmacy shows the type chosen in the prescribing form (verifies spec: PHORD)

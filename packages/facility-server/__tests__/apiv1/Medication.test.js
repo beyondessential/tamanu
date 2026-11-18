@@ -1600,6 +1600,33 @@ describe('Medication', () => {
       expect(Number(row.doseAmount)).toBe(250);
     });
 
+    // The dispensed medication details window reads the prescription type from this field.
+    it.each([true, false])(
+      'should return the prescription type of the order, isDischargePrescription=%s',
+      async isDischargePrescription => {
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+          isDischargePrescription,
+        });
+        const dispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(dispenseResult).toHaveSucceeded();
+
+        const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+        expect(result).toHaveSucceeded();
+
+        const row = result.body.data.find(d => d.id === dispenseResult.body[0].id);
+        expect(row.pharmacyOrderPrescription.pharmacyOrder.isDischargePrescription).toBe(
+          isDischargePrescription,
+        );
+      },
+    );
+
     it('should filter by the dispensed medication rather than the prescribed one', async () => {
       const { dispenseId, medication, substitute } = await arrangeModifiedDispense();
 
@@ -1860,6 +1887,34 @@ describe('Medication', () => {
       expect(row.medicationId).toBe(substitute.id);
       expect(row.frequency).toBe(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY);
     });
+
+    // The dispensed medication details window reads the prescription type from this field.
+    it.each([true, false])(
+      'should return the prescription type of the order, isDischargePrescription=%s',
+      async isDischargePrescription => {
+        const localPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: localPatient.id,
+          isDischargePrescription,
+        });
+        const dispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(dispenseResult).toHaveSucceeded();
+
+        const result = await app.get(`/api/patient/${localPatient.id}/dispensed-medications`);
+        expect(result).toHaveSucceeded();
+
+        const row = result.body.data.find(d => d.id === dispenseResult.body[0].id);
+        expect(row.pharmacyOrderPrescription.pharmacyOrder.isDischargePrescription).toBe(
+          isDischargePrescription,
+        );
+      },
+    );
 
     describe('permissions', () => {
       disableHardcodedPermissionsForSuite();
