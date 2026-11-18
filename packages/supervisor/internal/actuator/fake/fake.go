@@ -16,8 +16,8 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
-// AllParts are the parts the contract names.
-var AllParts = []state.Part{
+// allParts are the parts the contract names.
+var allParts = []state.Part{
 	state.Database, state.API, state.Sync, state.Tasks, state.FHIR,
 }
 
@@ -55,7 +55,7 @@ func New() *Actuator {
 		failing:  map[state.Part]bool{},
 		reports:  map[string]actuator.Report{},
 	}
-	for _, p := range AllParts {
+	for _, p := range allParts {
 		a.parts[p] = &part{desired: actuator.Up, observed: actuator.Ready}
 	}
 	return a
