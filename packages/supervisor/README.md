@@ -107,14 +107,6 @@ flight finishes. On `SIGTERM` or `SIGINT` it releases the lease at once and goes
 while it drains. A supervisor that cannot reach the actuator keeps to the last phase and part
 readiness it read.
 
-For running the supervisor locally, `cmd/fake-actuator` keeps the parts in memory:
-
-```sh
-go run ./cmd/fake-actuator -listen 127.0.0.1:7000 -delay 2s
-TAMANU_SUPERVISOR_ACTUATOR_URL=http://127.0.0.1:7000 ...
-curl -X PUT -d true http://127.0.0.1:7000/fake/upgrading
-```
-
 The server's side of the api token is its own `SUPERVISOR_TOKEN` variable, which must match
 `TAMANU_SUPERVISOR_API_TOKEN`.
 
@@ -131,7 +123,6 @@ The server's side of the api token is its own `SUPERVISOR_TOKEN` variable, which
 | `internal/pages` | The waking, upgrading and unavailable responses |
 | `internal/errorpage` | The `tamanu_error_page` handler for parts that cannot be reached |
 | `internal/machine` | The sleep and wake state machine |
-| `internal/actuator` | The actuator contract's client, and a fake actuator |
+| `internal/actuator` | The actuator contract's client, and a fake actuator for tests |
 | `internal/apiclient` | The client for the api's supervisor routes, and a fake api for tests |
 | `internal/buildinfo` | The release the supervisor was built for |
-| `cmd/fake-actuator` | The fake actuator, for running locally |

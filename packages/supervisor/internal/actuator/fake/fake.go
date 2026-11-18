@@ -1,6 +1,5 @@
-// Package fake is an actuator that keeps its parts in memory, for tests and
-// for running the supervisor locally. It implements the actuator contract, and
-// has knobs for how parts behave.
+// Package fake is an actuator that keeps its parts in memory, for tests. It
+// implements the actuator contract, and has knobs for how parts behave.
 package fake
 
 import (
@@ -160,9 +159,7 @@ func (a *Actuator) stateLocked() actuator.State {
 	return s
 }
 
-// ServeHTTP implements the contract, plus PUT /fake/upgrading and
-// PUT /fake/controls-parts with a body of true or false, for driving a local
-// run by hand.
+// ServeHTTP implements the contract.
 func (a *Actuator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.URL.Path == "/v1/state" && r.Method == http.MethodGet:
@@ -173,23 +170,9 @@ func (a *Actuator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		a.serveLease(w, r)
 	case strings.HasPrefix(r.URL.Path, "/v1/reports/") && r.Method == http.MethodPut:
 		a.serveReport(w, r)
-	case r.URL.Path == "/fake/upgrading" && r.Method == http.MethodPut:
-		a.knob(w, r, a.SetUpgrading)
-	case r.URL.Path == "/fake/controls-parts" && r.Method == http.MethodPut:
-		a.knob(w, r, a.SetControlsParts)
 	default:
 		http.NotFound(w, r)
 	}
-}
-
-func (a *Actuator) knob(w http.ResponseWriter, r *http.Request, set func(bool)) {
-	var value bool
-	if err := json.NewDecoder(r.Body).Decode(&value); err != nil {
-		http.Error(w, "body must be true or false", http.StatusBadRequest)
-		return
-	}
-	set(value)
-	writeJSON(w, http.StatusOK, a.State())
 }
 
 func (a *Actuator) put(w http.ResponseWriter, r *http.Request) {
