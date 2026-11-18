@@ -10,7 +10,7 @@ import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions
 const patientContactInsertPayload = z.object({
   id: z.string().min(1),
   patientId: z.string().min(1),
-  relationshipId: z.string().min(1).nullish(),
+  relationshipId: z.string().min(1),
   name: z.string().min(1),
   method: z.enum(Object.values(PATIENT_COMMUNICATION_CHANNELS)),
 });
