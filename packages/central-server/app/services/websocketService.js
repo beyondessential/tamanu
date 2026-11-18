@@ -16,9 +16,9 @@ const MAX_TIMER_DELAY_MS = 2 ** 31 - 1;
 
 // A token is only checked at the handshake, so end the connection when it expires; clients
 // reconnect with a fresh one.
-const scheduleDisconnectAtExpiry = (socket, expirySeconds) => {
-  if (!expirySeconds) return;
-  const delay = Math.min(expirySeconds * 1000 - Date.now(), MAX_TIMER_DELAY_MS);
+const scheduleDisconnectAtExpiry = (socket, expiresAtSeconds) => {
+  if (!expiresAtSeconds) return;
+  const delay = Math.min(expiresAtSeconds * 1000 - Date.now(), MAX_TIMER_DELAY_MS);
   const timer = setTimeout(() => socket.disconnect(true), delay);
   timer.unref();
   socket.on('disconnect', () => clearTimeout(timer));
