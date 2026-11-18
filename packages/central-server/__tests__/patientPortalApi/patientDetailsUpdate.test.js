@@ -160,7 +160,7 @@ describe('Patient Portal: updating patient details', () => {
 
   it('keeps required details from being cleared, and hidden ones from being changed', async () => {
     await store.models.Setting.set('fields', {
-      primaryContactNumber: { required: true },
+      primaryContactNumber: { requiredPatientData: true },
       occupationId: { hidden: true },
     });
     settingsCache.reset();
@@ -170,8 +170,15 @@ describe('Patient Portal: updating patient details', () => {
     expect(await updateDetails({ occupationId: null })).toHaveRequestError();
   });
 
+  it('only treats a detail as required when Patient details does, through requiredPatientData', async () => {
+    await store.models.Setting.set('fields', { primaryContactNumber: { required: true } });
+    settingsCache.reset();
+
+    expect(await updateDetails({ primaryContactNumber: '' })).toHaveSucceeded();
+  });
+
   it('refuses a save while a required detail is still blank, even one not being changed', async () => {
-    await store.models.Setting.set('fields', { emergencyContactName: { required: true } });
+    await store.models.Setting.set('fields', { emergencyContactName: { requiredPatientData: true } });
     settingsCache.reset();
 
     expect(await updateDetails({ cityTown: 'Apia' })).toHaveRequestError();
