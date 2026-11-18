@@ -6,7 +6,8 @@ import {
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { getPermissionsForEachRole } from '@tamanu/shared/permissions/rolesToPermissions';
 import { canRunReport } from '@tamanu/shared/reports/utilities/canRunReport';
 import { InvalidOperationError } from '@tamanu/errors';
 import { isEmailAddress } from '@tamanu/utils/isEmailAddress';
@@ -130,27 +131,40 @@ export class ReportRequest extends Model {
    * permissions cannot be resolved, may not run it.
    */
   static async prepareSanitizeContext(changes: SyncSnapshotAttributes[]): Promise<SanitizeContext> {
-    const { User, ReportDefinitionVersion } = this.sequelize!.models;
+    const { models } = this.sequelize!;
     const requests = changes.map(({ data }) => data as PushedReportRequest);
 
     const userIds = [...new Set(requests.map(r => r.requestedByUserId).filter(Boolean))];
     const reportIds = [...new Set(requests.map(getReportIdOf).filter(Boolean))];
-    const users = await User!.findAll({ where: { id: userIds } });
-    const versions = await ReportDefinitionVersion!.findAll({ where: { id: reportIds } });
+    const users = await models.User!.findAll({ where: { id: userIds } });
+    const versions = await models.ReportDefinitionVersion!.findAll({ where: { id: reportIds } });
+    const definitions = await models.ReportDefinition!.findAll({
+      where: { id: [...new Set(versions.map(version => version.get('reportDefinitionId')))] },
+    });
 
+    // Users mostly share a handful of roles, so each role's permissions are read once
+    const roles = [...new Set(users.map(user => user.get('role') as string))];
+    const permissionsByRole = await getPermissionsForEachRole(models, roles);
     const abilityByUserId = new Map<string, unknown>();
     for (const user of users) {
+      const permissions = permissionsByRole.get(user.get('role'));
+      if (!permissions) continue;
       try {
-        abilityByUserId.set(user.get('id'), await getAbilityForUser(this.sequelize!.models, user));
+        abilityByUserId.set(user.get('id'), buildAbilityForUser(user, permissions));
       } catch (e) {
         log.warn(`Could not resolve permissions for user ${user.get('id')}: ${e}`);
       }
     }
 
-    const definitionByReportId = new Map<string, unknown>();
-    for (const version of versions) {
-      definitionByReportId.set(version.get('id'), await (version as any).getReportDefinition());
-    }
+    const definitionById = new Map(
+      definitions.map(definition => [definition.get('id'), definition]),
+    );
+    const definitionByReportId = new Map(
+      versions.map(version => [
+        version.get('id'),
+        definitionById.get(version.get('reportDefinitionId')),
+      ]),
+    );
 
     return {
       canRun: request => {
@@ -168,7 +182,7 @@ export class ReportRequest extends Model {
    * recipients are rebuilt as a list of email addresses and nothing else, and a request that
    * cannot be held to it is stored as an error, which the processor leaves unrun.
    */
-  static sanitizeForCentralServer(values: PushedReportRequest, context?: unknown) {
+  static sanitizeForCentralServer(values: PushedReportRequest, context?: SanitizeContext) {
     const reject = (error: string) => ({
       ...values,
       recipients: JSON.stringify({ email: [] }),
@@ -178,7 +192,8 @@ export class ReportRequest extends Model {
 
     const emails = parseEmailRecipients(values.recipients);
     if (!emails) return reject('Invalid recipients');
-    if (!(context as SanitizeContext).canRun(values)) {
+    // without a context nothing has been checked, so the request is refused rather than run
+    if (!context?.canRun(values)) {
       return reject('Requesting user cannot run this report');
     }
     return { ...values, recipients: JSON.stringify({ email: emails }) };
