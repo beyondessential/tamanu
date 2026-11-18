@@ -170,8 +170,8 @@ func TestEntrypoint(t *testing.T) {
 		{
 			name:     "adapting the configuration",
 			vars:     supervisorVars("IDLE_TIME", "1h30m"),
-			args:     []string{"supervisor", "adapt"},
-			wantArgs: []string{"adapt", "--config", filepath.Join(caddyfiles, "supervisor.caddyfile"), "--adapter", "caddyfile"},
+			args:     []string{"supervisor", "adapt", "--pretty"},
+			wantArgs: []string{"adapt", "--config", filepath.Join(caddyfiles, "supervisor.caddyfile"), "--adapter", "caddyfile", "--pretty"},
 			wantEnv:  map[string]string{"TAMANU_SUPERVISOR_IDLE_TIME": "1h30m"},
 		},
 		{

@@ -1,8 +1,8 @@
 #!/bin/sh
-# The frontend image's entrypoint. "supervisor [run|adapt|validate]" checks the
-# supervisor's environment for the obvious mistakes, fills in its defaults and
-# runs Caddy with the supervisor's Caddyfile. Anything else is Caddy's command
-# line, run as given.
+# The frontend image's entrypoint. "supervisor [run|adapt|validate] [flags]"
+# checks the supervisor's environment for the obvious mistakes, fills in its
+# defaults and runs Caddy with the supervisor's Caddyfile and any further flags.
+# Anything else is Caddy's command line, run as given.
 #
 # spec: SUPV#configuration
 set -euf
@@ -11,7 +11,9 @@ CADDY=${CADDY:-/usr/bin/caddy}
 CADDYFILES=${CADDYFILES:-/etc/caddy/supervisor}
 
 [ "${1-}" = supervisor ] || exec "$CADDY" "$@"
-command=${2:-run}
+shift
+command=${1:-run}
+[ $# -eq 0 ] || shift
 case $command in
 run | adapt | validate) ;;
 *) echo "supervisor: $command is not run, adapt or validate" >&2 && exit 2 ;;
@@ -86,4 +88,4 @@ fi
 # A Caddyfile's site address gives the port, and bind the host.
 export _TAMANU_SUPERVISOR_PORT="${TAMANU_SUPERVISOR_LISTEN##*:}"
 export _TAMANU_SUPERVISOR_STATUS_PORT="${TAMANU_SUPERVISOR_STATUS_LISTEN##*:}"
-exec "$CADDY" "$command" --config "$caddyfile" --adapter caddyfile
+exec "$CADDY" "$command" --config "$caddyfile" --adapter caddyfile "$@"
