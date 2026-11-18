@@ -7,12 +7,17 @@ import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/errors';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { initAuditActions } from '@tamanu/database/utils/audit';
+import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 
 import { version } from '../../serverInfo';
 import { verifyToken } from '../../auth/utils';
 import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 const PORTAL_PERMITTED_ACTIONS = ['read', 'list'];
+
+export const isPermittedForPortal = (action, subject) =>
+  PORTAL_PERMITTED_ACTIONS.includes(action) &&
+  !getSubjectName(subject)?.startsWith('Sensitive');
 
 export const patientPortalMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -86,15 +91,15 @@ export const patientPortalMiddleware = ({ secret }) =>
 
     /**
      * Portal users hold no role, but shared code such as the suggesters checks permissions, so
-     * stand in for them with a grant of read actions only.
+     * stand in for them with a grant of read actions only, on anything but sensitive records.
      */
-    req.checkPermission = action => {
-      if (!PORTAL_PERMITTED_ACTIONS.includes(action)) {
+    req.checkPermission = (action, subject) => {
+      if (!isPermittedForPortal(action, subject)) {
         throw new ForbiddenError();
       }
     };
     req.ability = {
-      can: action => PORTAL_PERMITTED_ACTIONS.includes(action),
+      can: isPermittedForPortal,
     };
 
     const spanAttributes = {
