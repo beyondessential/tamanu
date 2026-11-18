@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
-import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS, REPORT_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import {
   createTestContext,
@@ -101,52 +101,62 @@ describe('CentralSyncManager.addIncomingChanges syncDirection validation', () =>
   });
 
   it.each([
-    ['report_definitions', 'ReportDefinition'],
-    ['report_definition_versions', 'ReportDefinitionVersion'],
-  ])('rejects incoming %s, which are only authored on central', async (recordType, modelName) => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '20');
-    const facility = await models.Facility.create(fake(models.Facility));
-
-    const recordData = fake(models[modelName]);
-    const changes = [
+    ['report_definitions', 'ReportDefinition', { dbSchema: REPORT_DB_CONNECTIONS.RAW }],
+    [
+      'report_definition_versions',
+      'ReportDefinitionVersion',
       {
-        direction: SYNC_SESSION_DIRECTION.OUTGOING,
-        isDeleted: false,
-        recordType,
-        recordId: recordData.id,
-        data: recordData,
+        queryOptions: JSON.stringify({ parameters: [], defaultDateRange: 'allTime' }),
+        status: REPORT_STATUSES.PUBLISHED,
       },
-    ];
+    ],
+  ])(
+    'rejects incoming %s, which are only authored on central',
+    async (recordType, modelName, overrides) => {
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '20');
+      const facility = await models.Facility.create(fake(models.Facility));
 
-    const centralSyncManager = await initializeCentralSyncManager({
-      sync: {
-        lookupTable: {
-          enabled: true,
+      const recordData = fake(models[modelName], overrides);
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType,
+          recordId: recordData.id,
+          data: recordData,
         },
-        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-      },
-    });
-    await centralSyncManager.updateLookupTable();
-    const { sessionId } = await centralSyncManager.startSession();
-    await waitForSession(centralSyncManager, sessionId);
+      ];
 
-    await centralSyncManager.setupSnapshotForPull(
-      sessionId,
-      {
-        since: 1,
-        facilityIds: [facility.id],
-      },
-      () => true,
-    );
+      const centralSyncManager = await initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      await centralSyncManager.updateLookupTable();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
 
-    await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).rejects.toThrow(
-      'Sync security violation',
-    );
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
 
-    const session = await models.SyncSession.findByPk(sessionId);
-    expect(session.debugInfo.rejectedRecord).toEqual({ type: recordType, id: recordData.id });
-    expect(await models[modelName].findByPk(recordData.id)).toBeNull();
-  });
+      await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).rejects.toThrow(
+        'Sync security violation',
+      );
+
+      const session = await models.SyncSession.findByPk(sessionId);
+      expect(session.debugInfo.rejectedRecord).toEqual({ type: recordType, id: recordData.id });
+      expect(await models[modelName].findByPk(recordData.id)).toBeNull();
+    },
+  );
 
   it('allows incoming changes with valid syncDirection', async () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '19');
