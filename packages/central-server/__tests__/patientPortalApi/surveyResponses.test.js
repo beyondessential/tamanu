@@ -160,6 +160,36 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(refreshedAssignment.surveyResponseId).toBe(response.body.id);
     });
 
+    it('Should record the response against the signed-in patient, whatever the body names', async () => {
+      const { Patient, Facility, SurveyResponse, Encounter } = store.models;
+      await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+      const otherPatient = await Patient.create(fake(Patient));
+      const otherFacility = await Facility.create(fake(Facility));
+
+      const response = await baseApp
+        .post(`/api/portal/surveyResponse`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          surveyId: baseSurvey.id,
+          locationId: testLocationId,
+          departmentId: testDepartmentId,
+          patientId: otherPatient.id,
+          facilityId: otherFacility.id,
+          answers: { [baseDataElement.id]: 3 },
+        });
+
+      expect(response).toHaveSucceeded();
+      const surveyResponse = await SurveyResponse.findByPk(response.body.id);
+      expect(surveyResponse.patientId).toBe(testPatient.id);
+      const encounter = await Encounter.findByPk(surveyResponse.encounterId);
+      expect(encounter.patientId).toBe(testPatient.id);
+      expect(await Encounter.count({ where: { patientId: otherPatient.id } })).toBe(0);
+    });
+
     it('Should return 404 when assignment does not match patient/survey or is not outstanding', async () => {
       const { Survey } = store.models;
 

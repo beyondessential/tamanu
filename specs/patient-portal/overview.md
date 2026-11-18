@@ -46,10 +46,11 @@ Applies to the patient portal, where a patient signs in on their own phone or co
 - The dashboard loads each outstanding form ahead of time, so tapping one opens it straight away.
 - A form fills the screen below the header, page by page, with the form's name, its page count and a progress bar at the top and Back and Next kept in view at the bottom. On a phone the form spans the screen edge to edge.
 - Questions are the kiosk's question controls, in the same order and with the same answer formats as forms filled in by staff, so a response is the same wherever it was filled in. Questions that draw on a program registry are left out, as a patient filling a form in is not within one.
+- Search questions offer the deployment's existing reference data, leaving out medications marked sensitive.
 - Next checks the page: a required question left unanswered, or an answer that fails its question's validation, is marked with a message and scrolled into view, and the patient stays on the page.
 - Pages whose questions are all hidden by earlier answers are skipped, and only answers to questions the patient could see are submitted.
 - Dates and times are entered in the time of the facility that sent the form, and stored as staff entries are.
-- The last page's button is Submit. Submitting records the response, marks the form as completed, returns the patient to the dashboard and shows "Form submitted".
+- The last page's button is Submit. Submitting records the response for the signed-in patient at the facility that sent the form, marks the form as completed, returns the patient to the dashboard and shows "Form submitted".
 - Back on the first page returns to the dashboard.
 - Leaving a form with answers entered and not submitted, by Back, the header or the browser's back button, shows the same "Discard changes?" prompt as [editing details](patient-details.md). Closing or reloading the tab triggers the browser's leave-page warning. A form left untouched is left without asking.
 - A form that can't be opened says so, with a link back to the dashboard.

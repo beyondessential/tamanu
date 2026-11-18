@@ -33,17 +33,19 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
     models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
-    const { locationId, departmentId, ...payload } = body;
+    const { surveyId, answers, startTime, endTime, locationId, departmentId } = body;
 
-    const updatedBody = {
-      patientId: patient.id,
+    const surveyResponse = await models.SurveyResponse.createWithAnswers({
+      surveyId,
+      answers,
+      startTime,
+      endTime,
       locationId: locationId || (await getDefaultId('location')),
       departmentId: departmentId || (await getDefaultId('department')),
-      userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
+      patientId: patient.id,
       facilityId,
-      ...payload,
-    };
-    const surveyResponse = await models.SurveyResponse.createWithAnswers(updatedBody);
+      userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
+    });
     await assignedSurvey.update({
       surveyResponseId: surveyResponse.id,
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
