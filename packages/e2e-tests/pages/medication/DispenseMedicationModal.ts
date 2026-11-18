@@ -47,6 +47,18 @@ export class DispenseMedicationModal {
     return this.page.getByTestId(`dispense-row-actions-${rowIndex}`);
   }
 
+  getRowQuantityInput(rowIndex: number): Locator {
+    return this.page.getByTestId('dispense-quantity').nth(rowIndex).locator('input');
+  }
+
+  // The out-of-range warning sits in the quantity field's helper text, inside the field's wrapper.
+  getRowQuantityLimitWarning(rowIndex: number): Locator {
+    return this.page
+      .getByTestId('dispense-quantity')
+      .nth(rowIndex)
+      .getByTestId('medication-limit-warning');
+  }
+
   async waitForModalToLoad(): Promise<void> {
     await this.dispenseWithoutLabelsButton.waitFor({ state: 'visible' });
   }
