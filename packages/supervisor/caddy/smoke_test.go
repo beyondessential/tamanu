@@ -1,4 +1,6 @@
-package routes_test
+// Package caddy_test runs the shipped Caddyfiles in Caddy, in process, against
+// stand-in parts, and runs the image's entrypoint script.
+package caddy_test
 
 import (
 	"encoding/json"
@@ -8,16 +10,19 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig"
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
+	_ "github.com/mholt/caddy-ratelimit"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/app"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/config"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/routes"
+	_ "github.com/beyondessential/tamanu/packages/supervisor/internal/errorpage"
+	_ "github.com/beyondessential/tamanu/packages/supervisor/internal/gate"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -74,6 +79,44 @@ func frontRoot(t *testing.T, name string, errorPage bool) string {
 	return root
 }
 
+var variable = regexp.MustCompile(`\{(\$|env\.)([A-Za-z0-9_]+)\}`)
+
+// adapt adapts the shipped Caddyfile the entrypoint chose to Caddy's JSON. Its
+// {$NAME} variables are filled from env, as Caddy fills them from the
+// environment, and so are the {env.NAME} placeholders that env names, which
+// Caddy fills from the environment as the configuration runs.
+func adapt(t *testing.T, caddyfile string, env map[string]string) []byte {
+	t.Helper()
+	dir := t.TempDir()
+	files, err := filepath.Glob("*.caddyfile")
+	if err != nil || len(files) == 0 {
+		t.Fatalf("no Caddyfiles: %v", err)
+	}
+	for _, file := range files {
+		text, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		filled := variable.ReplaceAllStringFunc(string(text), func(v string) string {
+			m := variable.FindStringSubmatch(v)
+			if value, ok := env[m[2]]; ok || m[1] == "$" {
+				return value
+			}
+			return v
+		})
+		if err := os.WriteFile(filepath.Join(dir, file), []byte(filled), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	path := filepath.Join(dir, filepath.Base(caddyfile))
+	text, _ := os.ReadFile(path)
+	raw, _, err := caddyconfig.GetAdapter("caddyfile").Adapt(text, map[string]any{"filename": path})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return raw
+}
+
 // load runs raw in Caddy for the rest of the test, with Caddy's storage in an
 // empty directory that must stay empty.
 func load(t *testing.T, raw []byte) {
@@ -121,23 +164,22 @@ func (c client) get(base, path string, headers ...string) (*http.Response, strin
 	return res, string(body)
 }
 
-// TestSmoke runs the generated configuration in Caddy, in process, against a
-// stand-in api and front ends.
+// TestSmoke runs the central server's Caddyfile with a patient portal.
 func TestSmoke(t *testing.T) {
 	api := upstream(t, "api")
-	c := config.Config{
-		Role:         config.Central,
-		Listen:       freeAddr(t),
-		PortalListen: freeAddr(t),
-		StatusListen: freeAddr(t),
-		APIUpstreams: []string{hostPort(api)},
-		WebRoot:      frontRoot(t, "web", true),
-		PortalRoot:   frontRoot(t, "portal", false),
-		IdleTime:     15 * time.Minute,
-	}
-	raw, err := routes.Build(c)
-	if err != nil {
-		t.Fatal(err)
+	env, caddyfile := supervisorEnv(t, map[string]string{
+		"TAMANU_SUPERVISOR_ROLE":          "central",
+		"TAMANU_SUPERVISOR_LISTEN":        freeAddr(t),
+		"TAMANU_SUPERVISOR_PORTAL_LISTEN": freeAddr(t),
+		"TAMANU_SUPERVISOR_STATUS_LISTEN": freeAddr(t),
+		"TAMANU_SUPERVISOR_API_UPSTREAMS": hostPort(api),
+		"TAMANU_SUPERVISOR_WEB_ROOT":      frontRoot(t, "web", true),
+		"TAMANU_SUPERVISOR_PORTAL_ROOT":   frontRoot(t, "portal", false),
+	})
+	listen, portal, status := env["TAMANU_SUPERVISOR_LISTEN"], env["TAMANU_SUPERVISOR_PORTAL_LISTEN"], env["TAMANU_SUPERVISOR_STATUS_LISTEN"]
+	raw := adapt(t, caddyfile, env)
+	if !strings.Contains(string(raw), `"api_token":"{env.TAMANU_SUPERVISOR_API_TOKEN}"`) {
+		t.Error("the configuration does not read the api token from the environment as it runs")
 	}
 	load(t, raw)
 
@@ -149,7 +191,7 @@ func TestSmoke(t *testing.T) {
 	cl := newClient(t)
 
 	t.Run("api", func(t *testing.T) {
-		res, body := cl.get(c.Listen, "/api/patient/1")
+		res, body := cl.get(listen, "/api/patient/1")
 		if res.StatusCode != 200 || body != "api /api/patient/1" {
 			t.Errorf("got %d %q", res.StatusCode, body)
 		}
@@ -159,42 +201,42 @@ func TestSmoke(t *testing.T) {
 	})
 
 	t.Run("index", func(t *testing.T) {
-		res, body := cl.get(c.Listen, "/", "Accept", "text/html")
+		res, body := cl.get(listen, "/", "Accept", "text/html")
 		if res.StatusCode != 200 || body != "<title>web index</title>" || res.Header.Get("Cache-Control") != "no-cache" {
 			t.Errorf("got %d %q %q", res.StatusCode, body, res.Header.Get("Cache-Control"))
 		}
 	})
 
 	t.Run("spa fallback", func(t *testing.T) {
-		res, body := cl.get(c.Listen, "/patients/all?page=2", "Accept", "text/html")
+		res, body := cl.get(listen, "/patients/all?page=2", "Accept", "text/html")
 		if res.StatusCode != 200 || body != "<title>web index</title>" {
 			t.Errorf("got %d %q", res.StatusCode, body)
 		}
 	})
 
 	t.Run("asset", func(t *testing.T) {
-		res, body := cl.get(c.Listen, "/assets/app.js", "Accept-Encoding", "identity")
+		res, body := cl.get(listen, "/assets/app.js", "Accept-Encoding", "identity")
 		if res.StatusCode != 200 || body != "web app" {
 			t.Errorf("got %d %q", res.StatusCode, body)
 		}
 	})
 
 	t.Run("precompressed asset", func(t *testing.T) {
-		res, body := cl.get(c.Listen, "/assets/app.js", "Accept-Encoding", "gzip")
+		res, body := cl.get(listen, "/assets/app.js", "Accept-Encoding", "gzip")
 		if res.Header.Get("Content-Encoding") != "gzip" || body != "not really gzip" {
 			t.Errorf("got %q %q", res.Header.Get("Content-Encoding"), body)
 		}
 	})
 
 	t.Run("manifest", func(t *testing.T) {
-		res, body := cl.get(c.Listen, "/manifest.json")
+		res, body := cl.get(listen, "/manifest.json")
 		if res.StatusCode != 200 || !strings.Contains(body, `"web"`) || res.Header.Get("Cache-Control") != "no-cache" {
 			t.Errorf("got %d %q %q", res.StatusCode, body, res.Header.Get("Cache-Control"))
 		}
 	})
 
 	t.Run("env.js", func(t *testing.T) {
-		res, body := cl.get(c.Listen, "/env.js")
+		res, body := cl.get(listen, "/env.js")
 		if res.StatusCode != 200 || !strings.Contains(body, "window.env = {") ||
 			!strings.HasPrefix(res.Header.Get("Content-Type"), "text/javascript") ||
 			res.Header.Get("Cache-Control") != "no-cache" {
@@ -206,36 +248,36 @@ func TestSmoke(t *testing.T) {
 	})
 
 	t.Run("legacy login", func(t *testing.T) {
-		res, _ := cl.get(c.Listen, "/v1/login")
+		res, _ := cl.get(listen, "/v1/login")
 		if res.StatusCode != http.StatusPermanentRedirect || res.Header.Get("Location") != "/api/login" {
 			t.Errorf("got %d to %q", res.StatusCode, res.Header.Get("Location"))
 		}
 	})
 
 	t.Run("portal serves its own files", func(t *testing.T) {
-		res, body := cl.get(c.PortalListen, "/somewhere", "Accept", "text/html")
+		res, body := cl.get(portal, "/somewhere", "Accept", "text/html")
 		if res.StatusCode != 200 || body != "<title>portal index</title>" {
 			t.Errorf("got %d %q", res.StatusCode, body)
 		}
 	})
 
 	t.Run("portal api goes to the api", func(t *testing.T) {
-		res, body := cl.get(c.PortalListen, "/api/portal/me")
+		res, body := cl.get(portal, "/api/portal/me")
 		if res.StatusCode != 200 || body != "api /api/portal/me" {
 			t.Errorf("got %d %q", res.StatusCode, body)
 		}
 	})
 
 	t.Run("status", func(t *testing.T) {
-		res, body := cl.get(c.StatusListen, "/status")
-		var status app.Status
-		if err := json.Unmarshal([]byte(body), &status); err != nil || res.StatusCode != 200 {
+		res, body := cl.get(status, "/status")
+		var s app.Status
+		if err := json.Unmarshal([]byte(body), &s); err != nil || res.StatusCode != 200 {
 			t.Fatalf("got %d %q %v", res.StatusCode, body, err)
 		}
-		if status.State != state.Awake || status.CanSleep || !status.Parts[state.API].Ready {
-			t.Errorf("status = %+v", status)
+		if s.State != state.Awake || s.CanSleep || !s.Parts[state.API].Ready || s.IdleTime != "15m0s" {
+			t.Errorf("status = %+v", s)
 		}
-		res, _ = cl.get(c.StatusListen, "/health")
+		res, _ = cl.get(status, "/health")
 		if res.StatusCode != 200 {
 			t.Errorf("health = %d", res.StatusCode)
 		}
@@ -254,7 +296,7 @@ func TestSmoke(t *testing.T) {
 		}
 		drain()
 
-		res, body := cl.get(c.Listen, "/api/public/ping")
+		res, body := cl.get(listen, "/api/public/ping")
 		if res.StatusCode != 503 || res.Header.Get("Retry-After") == "" || strings.HasPrefix(body, "api") {
 			t.Errorf("ping while asleep = %d %q", res.StatusCode, body)
 		}
@@ -262,7 +304,7 @@ func TestSmoke(t *testing.T) {
 			t.Error("a health probe woke the server")
 		}
 
-		res, body = cl.get(c.Listen, "/assets/app.js", "Accept-Encoding", "identity")
+		res, body = cl.get(listen, "/assets/app.js", "Accept-Encoding", "identity")
 		if res.StatusCode != 200 || body != "web app" {
 			t.Errorf("asset while asleep = %d %q", res.StatusCode, body)
 		}
@@ -271,7 +313,7 @@ func TestSmoke(t *testing.T) {
 		}
 
 		for _, path := range []string{"/", "/patients"} {
-			res, body = cl.get(c.Listen, path, "Accept", "text/html")
+			res, body = cl.get(listen, path, "Accept", "text/html")
 			if res.StatusCode != 503 || !strings.Contains(body, `http-equiv="refresh"`) {
 				t.Errorf("browser opening %s while asleep = %d %q", path, res.StatusCode, body)
 			}
@@ -285,23 +327,18 @@ func TestSmoke(t *testing.T) {
 // spec: SUPV#front-door
 func TestSmokeErrorPages(t *testing.T) {
 	// Nothing listens on port 1, unlike a freed port another test may take.
-	down := "127.0.0.1:1"
-	c := config.Config{
-		Role:         config.Facility,
-		Listen:       freeAddr(t),
-		StatusListen: freeAddr(t),
-		APIUpstreams: []string{down},
-		WebRoot:      frontRoot(t, "web", true),
-		IdleTime:     15 * time.Minute,
-	}
-	raw, err := routes.Build(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	load(t, raw)
+	env, caddyfile := supervisorEnv(t, map[string]string{
+		"TAMANU_SUPERVISOR_ROLE":          "facility",
+		"TAMANU_SUPERVISOR_LISTEN":        freeAddr(t),
+		"TAMANU_SUPERVISOR_STATUS_LISTEN": freeAddr(t),
+		"TAMANU_SUPERVISOR_API_UPSTREAMS": "127.0.0.1:1",
+		"TAMANU_SUPERVISOR_WEB_ROOT":      frontRoot(t, "web", true),
+	})
+	listen := env["TAMANU_SUPERVISOR_LISTEN"]
+	load(t, adapt(t, caddyfile, env))
 	cl := newClient(t)
 
-	res, body := cl.get(c.Listen, "/api/patient", "Accept", "application/json")
+	res, body := cl.get(listen, "/api/patient", "Accept", "application/json")
 	if res.StatusCode != http.StatusBadGateway || !strings.Contains(body, "ServerUnavailable") {
 		t.Errorf("api request with the api down = %d %q", res.StatusCode, body)
 	}
@@ -309,7 +346,7 @@ func TestSmokeErrorPages(t *testing.T) {
 		t.Error("an unreachable part answered with Retry-After")
 	}
 
-	res, body = cl.get(c.Listen, "/api/patient", "Accept", "text/html")
+	res, body = cl.get(listen, "/api/patient", "Accept", "text/html")
 	if res.StatusCode != http.StatusBadGateway || !strings.Contains(body, "Tamanu is currently unavailable") {
 		t.Errorf("browser opening an api path with the api down = %d %q", res.StatusCode, body)
 	}

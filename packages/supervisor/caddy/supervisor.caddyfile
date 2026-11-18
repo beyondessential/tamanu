@@ -1,0 +1,188 @@
+# The supervisor's routing, for either role. entrypoint.sh checks the
+# environment, fills in its defaults and the ports below, and runs this file,
+# or supervisor-portal.caddyfile on a central server with a patient portal.
+#
+# spec: SUPV#front-door
+# spec: SUPV#configuration
+{
+	# spec: SUPV#status
+	admin off
+	persist_config off
+	auto_https off
+	# No certificates, so keep Caddy from writing to its storage.
+	storage_check off
+	storage_clean_interval off
+	# Bounds the wait for open connections on stopping, so a long request or an
+	# open websocket cannot hold up a restart.
+	grace_period 10s
+
+	servers {
+		protocols h1 h2c
+		trusted_proxies static {$TAMANU_SUPERVISOR_TRUSTED_PROXIES}
+	}
+
+	tamanu {
+		role {$TAMANU_SUPERVISOR_ROLE}
+		api_upstreams {$TAMANU_SUPERVISOR_API_UPSTREAMS}
+		actuator_url {$TAMANU_SUPERVISOR_ACTUATOR_URL}
+		idle_time {$TAMANU_SUPERVISOR_IDLE_TIME}
+		# Read from the environment when the app starts, so the adapted
+		# configuration does not carry the credential.
+		api_token {env.TAMANU_SUPERVISOR_API_TOKEN}
+	}
+}
+
+(api) {
+	reverse_proxy {$TAMANU_SUPERVISOR_API_UPSTREAMS} {
+		lb_policy least_conn
+		lb_retries 2
+		lb_try_duration 5s
+		transport http {
+			keepalive 2m
+			keepalive_idle_conns_per_host 32
+		}
+	}
+}
+
+# Per client address, shared by every route and server through the zones'
+# names.
+(rate_limit) {
+	rate_limit {
+		zone tamanu_api {
+			key {http.request.client_ip}
+			events 1000
+			window 1s
+		}
+		zone tamanu_login {
+			match {
+				path /api/login
+			}
+			key {http.request.client_ip}
+			events 10
+			window 1s
+		}
+	}
+}
+
+# The server's or the patient portal's address, serving the files in
+# {args[0]}. The routes are tried in order: the websocket and exempt routes come
+# before the api's general route, which would take theirs, and files come
+# before pages, which the index answers.
+(front) {
+	root * {args[0]}
+
+	route {
+		handle /v1/login {
+			redir * /api/login 308
+		}
+
+		# spec: SLPWK#activity
+		@websocket {
+			path /api/socket.io/*
+			header_regexp Connection (?i)(^|[\s,])upgrade($|[\s,])
+			header_regexp Upgrade (?i)^websocket$
+		}
+		handle @websocket {
+			tamanu_gate websocket
+			import rate_limit
+			import api
+		}
+
+		# Health probes and time synchronisation.
+		# spec: SLPWK#activity
+		@exempt path /api/public/ping /api/timesync
+		handle @exempt {
+			tamanu_gate exempt
+			import rate_limit
+			header >Cache-Control no-store
+			import api
+		}
+
+		@api path /api/* /v1/*
+		handle @api {
+			tamanu_gate activity
+			import rate_limit
+			header >Cache-Control no-store
+			encode zstd gzip
+			import api
+		}
+
+		# Keep in step with packages/web/app/utils/env.js and the web app's
+		# Caddyfile.docker.
+		handle /env.js {
+			tamanu_gate static
+			header >Cache-Control no-cache
+			header Content-Type "text/javascript; charset=utf-8"
+			respond <<JS
+				window.env = {
+					NODE_ENV: `{env.NODE_ENV}` || 'production',
+					BUGSNAG_API_KEY: `{env.BUGSNAG_API_KEY}` || null,
+					REVISION: `{env.REVISION}` || null,
+				}
+				JS 200
+		}
+
+		handle /manifest.json {
+			tamanu_gate static
+			header >Cache-Control no-cache
+			encode zstd gzip
+			file_server {
+				precompressed zstd br gzip
+			}
+		}
+
+		# spec: SLPWK#waking
+		@file {
+			file {path}
+			not path /
+		}
+		handle @file {
+			tamanu_gate static
+			encode zstd gzip
+			file_server {
+				precompressed zstd br gzip
+			}
+		}
+
+		handle / {
+			tamanu_gate index
+			header >Cache-Control no-cache
+			encode zstd gzip
+			file_server {
+				precompressed zstd br gzip
+			}
+		}
+
+		# The web app's own routes, which its index answers.
+		@page file {path} {path}/ /index.html
+		handle @page {
+			tamanu_gate page
+			rewrite * {file_match.relative}
+			encode zstd gzip
+			file_server {
+				precompressed zstd br gzip
+			}
+		}
+
+		handle {
+			tamanu_gate static
+			file_server {
+				precompressed zstd br gzip
+			}
+		}
+	}
+
+	handle_errors {
+		tamanu_error_page * {$TAMANU_SUPERVISOR_WEB_ROOT}
+	}
+}
+
+http://:{$_TAMANU_SUPERVISOR_PORT} {
+	bind {$TAMANU_SUPERVISOR_LISTEN}
+	import front {$TAMANU_SUPERVISOR_WEB_ROOT}
+}
+
+http://:{$_TAMANU_SUPERVISOR_STATUS_PORT} {
+	bind {$TAMANU_SUPERVISOR_STATUS_LISTEN}
+	tamanu_status
+}

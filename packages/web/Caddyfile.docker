@@ -34,7 +34,8 @@
 		}
 	}
 
-	# make sure to update app/utils/env.js when changing this
+	# make sure to update app/utils/env.js, and the supervisor's
+	# packages/supervisor/caddy/supervisor.caddyfile, when changing this
 	respond /env.js <<JS
 		window.env = {
 			NODE_ENV: `{$NODE_ENV}` || 'production',

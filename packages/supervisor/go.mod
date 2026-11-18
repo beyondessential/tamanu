@@ -3,7 +3,6 @@ module github.com/beyondessential/tamanu/packages/supervisor
 go 1.27.0
 
 require (
-	github.com/KimMachineGun/automemlimit v1.0.0
 	github.com/caddyserver/caddy/v2 v2.11.9
 	github.com/mholt/caddy-ratelimit v0.1.0
 	go.uber.org/zap v1.28.0
@@ -21,6 +20,7 @@ require (
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
 	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/DeRuina/timberjack v1.4.8 // indirect
+	github.com/KimMachineGun/automemlimit v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect

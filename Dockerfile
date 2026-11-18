@@ -128,11 +128,13 @@ RUN DOCKER_BUILD=1 scripts/docker-build.sh patient-portal
 
 ## Minimal image to serve frontend packages, with the supervisor as its Caddy.
 ## By default it serves the frontend at /app with its Caddyfile, for deployments that
-## route to the server's parts themselves; started with `tamanu-supervisor` it runs the supervisor.
+## route to the server's parts themselves; started with `supervisor` it runs the supervisor.
 FROM alpine AS frontend-base
 RUN adduser -D -u 10001 supervisor
 COPY --from=build-supervisor /supervisor /usr/bin/caddy
-ENTRYPOINT ["/usr/bin/caddy"]
+COPY --chmod=755 packages/supervisor/entrypoint.sh /usr/bin/tamanu-entrypoint
+COPY packages/supervisor/caddy/*.caddyfile /etc/caddy/supervisor/
+ENTRYPOINT ["/usr/bin/tamanu-entrypoint"]
 CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 
 ## The web app's image, which is also the supervisor's: it carries the patient portal too.

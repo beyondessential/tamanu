@@ -1,26 +1,21 @@
-package routes_test
+package caddy_test
 
 import (
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/caddyserver/caddy/v2"
-
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator/fake"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient/fakeapi"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/config"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/routes"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
-// TestSmokeSleepAndWake runs the generated configuration in Caddy with a fake
+// TestSmokeSleepAndWake runs the central server's Caddyfile with a fake
 // actuator, and checks a request wakes a server that went to sleep.
 func TestSmokeSleepAndWake(t *testing.T) {
 	act := fake.New()
@@ -37,35 +32,22 @@ func TestSmokeSleepAndWake(t *testing.T) {
 	}))
 	t.Cleanup(api.Close)
 
-	actuatorURL, _ := url.Parse(actSrv.URL)
-	c := config.Config{
-		Role:         config.Central,
-		Listen:       freeAddr(t),
-		StatusListen: freeAddr(t),
-		APIUpstreams: []string{hostPort(api)},
-		WebRoot:      frontRoot(t, "web", false),
-		ActuatorURL:  actuatorURL,
-		IdleTime:     200 * time.Millisecond,
-		APIToken:     "set below",
-	}
-	raw, err := routes.Build(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// The generated configuration reads the token from the environment; give
-	// it the fake api's directly instead.
-	var cfg map[string]any
-	_ = json.Unmarshal(raw, &cfg)
-	cfg["apps"].(map[string]any)["tamanu"].(map[string]any)["api_token"] = fakeapi.Token
-	raw, _ = json.Marshal(cfg)
-	if err := caddy.Load(raw, true); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = caddy.Stop() })
+	env, caddyfile := supervisorEnv(t, map[string]string{
+		"TAMANU_SUPERVISOR_ROLE":          "central",
+		"TAMANU_SUPERVISOR_LISTEN":        freeAddr(t),
+		"TAMANU_SUPERVISOR_STATUS_LISTEN": freeAddr(t),
+		"TAMANU_SUPERVISOR_API_UPSTREAMS": hostPort(api),
+		"TAMANU_SUPERVISOR_WEB_ROOT":      frontRoot(t, "web", false),
+		"TAMANU_SUPERVISOR_ACTUATOR_URL":  actSrv.URL,
+		"TAMANU_SUPERVISOR_IDLE_TIME":     "200ms",
+		"TAMANU_SUPERVISOR_API_TOKEN":     fakeapi.Token,
+	})
+	listen, statusAddr := env["TAMANU_SUPERVISOR_LISTEN"], env["TAMANU_SUPERVISOR_STATUS_LISTEN"]
+	load(t, adapt(t, caddyfile, env))
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	status := func() (phase string, canSleep bool, lease string) {
-		res, err := client.Get("http://" + c.StatusListen + "/status")
+		res, err := client.Get("http://" + statusAddr + "/status")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -101,7 +83,7 @@ func TestSmokeSleepAndWake(t *testing.T) {
 		t.Errorf("parts not stopped while asleep: %+v", s.Parts)
 	}
 
-	res, err := client.Get("http://" + c.Listen + "/api/patient")
+	res, err := client.Get("http://" + listen + "/api/patient")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +93,7 @@ func TestSmokeSleepAndWake(t *testing.T) {
 	}
 
 	eventually("a forwarded request", func() bool {
-		res, err := client.Get("http://" + c.Listen + "/api/patient")
+		res, err := client.Get("http://" + listen + "/api/patient")
 		if err != nil {
 			return false
 		}
