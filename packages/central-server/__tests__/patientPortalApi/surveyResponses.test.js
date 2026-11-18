@@ -354,6 +354,57 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(answer.body).toBe(drug.id);
     });
 
+    it("Should run the response's actions at the facility that sent the form", async () => {
+      const {
+        Facility,
+        ProgramDataElement,
+        ProgramRegistry,
+        ProgramRegistryClinicalStatus,
+        SurveyScreenComponent,
+        PatientProgramRegistration,
+      } = store.models;
+      const registry = await ProgramRegistry.create(
+        fake(ProgramRegistry, {
+          programId: baseSurvey.programId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        }),
+      );
+      const clinicalStatus = await ProgramRegistryClinicalStatus.create(
+        fake(ProgramRegistryClinicalStatus, { programRegistryId: registry.id }),
+      );
+      const statusQuestion = await ProgramDataElement.create(
+        fake(ProgramDataElement, { type: 'PatientData' }),
+      );
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: statusQuestion.id,
+          surveyId: baseSurvey.id,
+          config: JSON.stringify({ writeToPatient: { fieldName: 'registrationClinicalStatus' } }),
+        }),
+      );
+      const otherFacility = await Facility.create(fake(Facility));
+      await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+
+      const response = await baseApp
+        .post(`/api/portal/surveyResponse`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          surveyId: baseSurvey.id,
+          facilityId: otherFacility.id,
+          answers: { [statusQuestion.id]: clinicalStatus.id },
+        });
+
+      expect(response).toHaveSucceeded();
+      const registration = await PatientProgramRegistration.findOne({
+        where: { patientId: testPatient.id, programRegistryId: registry.id },
+      });
+      expect(registration.registeringFacilityId).toBe(testFacility.id);
+    });
+
     it('Should reject a body without a survey or answers', async () => {
       await createAssignment({
         patientId: testPatient.id,
