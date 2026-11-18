@@ -1,5 +1,12 @@
-import { describe, expect, it } from 'vitest';
-import { toSafeFileName } from '../../app/utils/files';
+import fs from 'fs';
+import path from 'path';
+import { beforeAll, describe, expect, it } from 'vitest';
+import * as XLSX from 'xlsx';
+import {
+  createZippedSpreadsheet,
+  removeZippedSpreadsheet,
+  toSafeFileName,
+} from '../../app/utils/files';
 
 describe('toSafeFileName', () => {
   it('leaves an ordinary name alone', () => {
@@ -25,5 +32,29 @@ describe('toSafeFileName', () => {
 
   it('keeps dots within a name', () => {
     expect(toSafeFileName('Dr. J. Smith..png')).toBe('Dr. J. Smith..png');
+  });
+});
+
+describe('createZippedSpreadsheet', () => {
+  const reportData = { data: [['a'], [1]], metadata: [['Report', 'Test']] };
+
+  // The server wires xlsx's file system up at startup.
+  beforeAll(() => XLSX.set_fs(fs));
+
+  it('gives each run of the same report its own file', async () => {
+    const first = await createZippedSpreadsheet('report-name', reportData, 'csv');
+    const second = await createZippedSpreadsheet('report-name', reportData, 'csv');
+    try {
+      expect(path.basename(first)).toBe('report-name.zip');
+      expect(path.basename(second)).toBe('report-name.zip');
+      expect(first).not.toBe(second);
+      expect(fs.existsSync(first)).toBe(true);
+      expect(fs.existsSync(second)).toBe(true);
+    } finally {
+      await removeZippedSpreadsheet(first);
+      await removeZippedSpreadsheet(second);
+    }
+    expect(fs.existsSync(path.dirname(first))).toBe(false);
+    expect(fs.existsSync(path.dirname(second))).toBe(false);
   });
 });

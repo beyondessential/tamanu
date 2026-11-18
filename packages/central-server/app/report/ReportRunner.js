@@ -12,7 +12,7 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import {
   createZippedSpreadsheet,
-  removeFile,
+  removeZippedSpreadsheet,
   toSafeFileName,
   writeToSpreadsheet,
 } from '../utils/files';
@@ -283,7 +283,7 @@ export class ReportRunner {
         throw new Error(`ReportRunner - Mailgun error: ${result.error}`);
       }
     } finally {
-      if (zipFile) await removeFile(zipFile);
+      if (zipFile) await removeZippedSpreadsheet(zipFile);
     }
   }
 
@@ -345,7 +345,7 @@ export class ReportRunner {
         zipFile,
       });
     } finally {
-      if (zipFile) await removeFile(zipFile);
+      if (zipFile) await removeZippedSpreadsheet(zipFile);
     }
   }
 }
