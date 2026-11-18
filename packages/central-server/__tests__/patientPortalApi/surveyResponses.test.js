@@ -194,6 +194,55 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(await Encounter.count({ where: { patientId: otherPatient.id } })).toBe(0);
     });
 
+    it("Should add the response to the patient's open encounter", async () => {
+      const {
+        Patient,
+        PortalUser,
+        Facility,
+        Location,
+        Department,
+        User,
+        Encounter,
+        SurveyResponse,
+      } = store.models;
+      // A patient of their own, so the open encounter doesn't carry into other tests
+      const admittedPatient = await Patient.create(fake(Patient));
+      const email = 'admitted-patient@test.com';
+      await PortalUser.create({
+        email,
+        patientId: admittedPatient.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      const admittedPatientToken = await getPatientAuthToken(baseApp, store.models, email);
+      const admittingFacility = await Facility.create(fake(Facility));
+      const openEncounter = await Encounter.create(
+        fake(Encounter, {
+          patientId: admittedPatient.id,
+          locationId: (await Location.create(fake(Location, { facilityId: admittingFacility.id })))
+            .id,
+          departmentId: (
+            await Department.create(fake(Department, { facilityId: admittingFacility.id }))
+          ).id,
+          examinerId: (await User.create(fake(User))).id,
+          endDate: null,
+        }),
+      );
+      await createAssignment({
+        patientId: admittedPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+
+      const response = await baseApp
+        .post(`/api/portal/surveyResponse`)
+        .set('Authorization', `Bearer ${admittedPatientToken}`)
+        .send({ surveyId: baseSurvey.id, answers: { [baseDataElement.id]: 4 } });
+
+      expect(response).toHaveSucceeded();
+      const surveyResponse = await SurveyResponse.findByPk(response.body.id);
+      expect(surveyResponse.encounterId).toBe(openEncounter.id);
+    });
+
     it('Should return 404 when assignment does not match patient/survey or is not outstanding', async () => {
       const { Survey } = store.models;
 

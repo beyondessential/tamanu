@@ -11,6 +11,7 @@
 ## Submitting a form
 
 - [x] A submitted response is recorded for the signed-in patient even when the request names another patient (verifies spec: PPORT)
-- [x] A submitted response's encounter takes the sending facility's default location and department, even when the request names another facility's (verifies spec: PPORT)
+- [x] With no open encounter, a submitted response's encounter takes the sending facility's default location and department, even when the request names another facility's (verifies spec: PPORT)
+- [x] A submitted response joins the patient's open encounter (verifies spec: PPORT)
 - [ ] A submitted response's actions (such as a program registration) use the facility that sent the form, even when the request names another facility (verifies spec: PPORT)
 - [ ] Filling in and submitting a form on the portal still records the response and marks the form completed
