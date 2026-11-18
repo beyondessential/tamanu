@@ -15,6 +15,7 @@ import { isEmailAddress } from '@tamanu/utils/isEmailAddress';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
+import type { User } from './User';
 import type { ModelSanitizeArgs, SyncSnapshotAttributes } from '../types/sync';
 
 const REPORT_EXPORT_FORMAT_VALUES = Object.values(REPORT_EXPORT_FORMATS);
@@ -66,7 +67,7 @@ const filterAsync = async <T>(items: T[], predicate: (item: T) => Promise<boolea
 };
 
 /** Whether a user may use at least one of the facilities a sync session is for. */
-const canUseAnyFacility = async (user: any, facilityIds: string[]) => {
+const canUseAnyFacility = async (user: User, facilityIds: string[]) => {
   const allowedFacilityIds = await user.allowedFacilityIds();
   if (allowedFacilityIds === CAN_ACCESS_ALL_FACILITIES) return facilityIds.length > 0;
   return facilityIds.some(facilityId => allowedFacilityIds.includes(facilityId));
