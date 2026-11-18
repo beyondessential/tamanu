@@ -14,8 +14,7 @@ Applies to multi-directional data synchronisation between central, facility, and
 - The `SYNC_BIND_ADDRESS` environment variable replaces the loopback addresses with its own comma-separated list of listeners, each an IPv4 or bracketed IPv6 host and port. Every listener it names must bind, or the sync server fails to start.
 - When the sync server runs in a process of its own, `BIND_ADDRESS` and then `PORT` set its listeners as they do the API server's, and `SYNC_BIND_ADDRESS` takes precedence over both. The loopback addresses apply only when none of the three is set.
 - When the sync server runs alongside the API, `BIND_ADDRESS` and `PORT` set only the API server's listeners.
-- The server's container images set `SYNC_BIND_ADDRESS` to every interface on port 4100.
 - The other parts reach the sync server at `localhost` by default, trying each address it resolves to.
 
 > [!NOTE]
-> Only the facility server's own parts need the sync server, so it listens where only they reach it. Both loopback addresses are tried because a host may have only one of IPv6 or IPv4. Parts running in separate containers reach each other over the container network rather than loopback, so the images listen on every interface.
+> Only the facility server's own parts need the sync server, so it listens where only they reach it. Both loopback addresses are tried because a host may have only one of IPv6 or IPv4.

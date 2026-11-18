@@ -21,4 +21,3 @@
 - [ ] `startApi` plus `startSync` as separate processes with no overrides: same as above, and the API starts a sync through the sync server (verifies spec: SYNC)
 - [ ] `startSync` with `PORT` set and no `SYNC_BIND_ADDRESS`: listens on every interface at `PORT` (verifies spec: SYNC)
 - [ ] On a host with IPv6 disabled, the sync server starts on `127.0.0.1`, logs a warning about `[::1]`, and syncs still run (verifies spec: SYNC)
-- [ ] The facility server container image listens on every interface on port 4100 without extra configuration (verifies spec: SYNC)
