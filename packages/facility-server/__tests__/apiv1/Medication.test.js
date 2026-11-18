@@ -2653,6 +2653,20 @@ describe('Medication', () => {
       return { prescription, pharmacyOrder, pharmacyOrderPrescription };
     };
 
+    it.each([
+      ['lastName', '_'],
+      ['firstName', '%'],
+      ['displayId', '%'],
+    ])('should treat %s %s as a literal character, not a wildcard', async (field, value) => {
+      await createMedicationRequest();
+
+      const result = await app
+        .get('/api/medication/medication-requests')
+        .query({ facilityId, [field]: value });
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(0);
+    });
+
     it('should not include invoiceItem when invoicing is disabled', async () => {
       await models.Setting.set('features.invoicing.enabled', false);
 

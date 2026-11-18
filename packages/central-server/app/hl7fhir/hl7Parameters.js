@@ -26,11 +26,12 @@ export const hl7ParameterTypes = {
 
 // Modifiers supported by Tamanu with the corresponding
 // sequelize operator. Classified by HL7 search parameter type.
+// The LIKE modifiers' patterns are built by getQueryObject.
 export const modifiers = {
   [hl7ParameterTypes.string]: {
-    contains: Op.substring,
-    'starts-with': Op.startsWith,
-    'ends-with': Op.endsWith,
+    contains: Op.like,
+    'starts-with': Op.like,
+    'ends-with': Op.like,
     exact: Op.eq,
   },
 };

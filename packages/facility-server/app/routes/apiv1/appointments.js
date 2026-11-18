@@ -21,8 +21,7 @@ import {
   getCurrentPrimaryTimeZoneDateString,
   getCurrentPrimaryTimeZoneDateTimeString,
 } from '@tamanu/shared/utils/primaryDateTime';
-
-import { escapePatternWildcard } from '../../utils/query';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 export const appointments = express.Router();
 
@@ -354,7 +353,7 @@ const buildPatientNameOrIdQuery = patientNameOrId => {
   if (!patientNameOrId) return null;
 
   const ilikeClause = {
-    [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+    [Op.iLike]: likePattern`%${patientNameOrId}%`,
   };
   return {
     [Op.or]: [
@@ -445,7 +444,7 @@ appointments.get(
       } else if (typeof queryValue === 'string') {
         comparison = EXACT_MATCH_SEARCHABLE_FIELDS.includes(queryField)
           ? { [Op.eq]: queryValue }
-          : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+          : { [Op.iLike]: likePattern`%${queryValue}%` };
       } else {
         comparison = { [Op.in]: queryValue };
       }

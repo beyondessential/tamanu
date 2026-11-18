@@ -171,6 +171,7 @@ export function getResultValue(components, originalValues, specialValues) {
 
   return {
     result: rawValue,
+    // eslint-disable-next-line no-restricted-syntax -- a displayed percentage
     resultText: `${rawValue.toFixed(0)}%`,
   };
 }

@@ -3,6 +3,7 @@ import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
 import { base64ToJson, jsonToBase64 } from '@tamanu/utils/encodings';
 import { InvalidParameterError } from '@tamanu/errors';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { likePattern } from '@tamanu/utils/likePattern';
 import { endOfDay, endOfMonth, endOfYear, parseISO, startOfDay, startOfMonth, startOfYear, isMatch } from 'date-fns';
 import __cjs_date_fns_tz from 'date-fns-tz';
 const { zonedTimeToUtc } = __cjs_date_fns_tz;
@@ -31,7 +32,7 @@ export function getParamAndModifier(fullParam) {
 
 export function getDefaultOperator(type) {
   if (type === FHIR_SEARCH_PARAMETERS.STRING) {
-    return Op.startsWith;
+    return Op.like;
   }
   if (type === FHIR_SEARCH_PARAMETERS.DATE) {
     return Op.between;
@@ -40,14 +41,22 @@ export function getDefaultOperator(type) {
   return Op.eq;
 }
 
+// String search patterns by modifier, matching the value literally; no modifier is starts-with
+const stringSearchPatterns = {
+  contains: value => likePattern`%${value}%`,
+  'starts-with': value => likePattern`${value}%`,
+  'ends-with': value => likePattern`%${value}`,
+};
+
 // Helper function to deal with case insensitive searches for strings
 export function getQueryObject(columnName, value, operator, modifier, parameterType) {
   // String searches should be case insensitive unless the modifier is "exact"
   if (parameterType === FHIR_SEARCH_PARAMETERS.STRING && modifier !== 'exact') {
     // Perform case insensitive search by using SQL function UPPER
     // and modifying the string to be uppercase.
+    const toPattern = stringSearchPatterns[modifier ?? 'starts-with'];
     return Sequelize.where(Sequelize.fn('upper', Sequelize.col(columnName)), {
-      [operator]: value.toUpperCase(),
+      [operator]: toPattern(value.toUpperCase()),
     });
   }
 

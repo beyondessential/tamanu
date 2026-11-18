@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 import { ENGLISH_LANGUAGE_CODE, USER_KINDS } from '@tamanu/constants';
+import { likePattern } from '@tamanu/utils';
 import type { BaseModel } from '~/models/BaseModel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
@@ -146,7 +147,9 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       query = this.selectDisplayLabel(query, language);
 
       if (search) {
-        query = query.andWhere('entity_display_label LIKE :search', { search: `%${search}%` });
+        query = query.andWhere("entity_display_label LIKE :search ESCAPE '\\'", {
+          search: likePattern`%${search}%`,
+        });
       }
 
       for (const [key, value] of Object.entries(where)) {
@@ -178,8 +181,8 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       // Rank prefix matches first, then other substring matches
       if (search) {
         query = query
-          .orderBy('entity_display_label LIKE :prefixSearch', 'DESC')
-          .setParameter('prefixSearch', `${search}%`)
+          .orderBy("entity_display_label LIKE :prefixSearch ESCAPE '\\'", 'DESC')
+          .setParameter('prefixSearch', likePattern`${search}%`)
           .addOrderBy('entity_display_label', 'ASC');
       } else {
         query = query.orderBy('entity_display_label', 'ASC');

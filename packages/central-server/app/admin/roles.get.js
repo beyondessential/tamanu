@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 
 import { NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
+import { likePattern } from '@tamanu/utils/likePattern';
 import { getDeletableRoleOrThrow } from './roles.delete';
 
 export const getRoles = asyncHandler(async (req, res) => {
@@ -14,7 +15,7 @@ export const getRoles = asyncHandler(async (req, res) => {
   if (idQuery) {
     filters.push({
       // Not matching word boundary; IDs often camel case
-      id: { [Op.iLike]: `%${idQuery}%` },
+      id: { [Op.iLike]: likePattern`%${idQuery}%` },
     });
   }
   const nameQuery = req.query.name?.trim();

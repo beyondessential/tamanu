@@ -88,6 +88,23 @@ describe('Suggestions', () => {
       expect(body[0]).toHaveProperty('id', searchPatient.id);
     });
 
+    it('should match LIKE wildcards in the search literally', async () => {
+      const underscorePatient = await models.Patient.create(
+        await createDummyPatient(models, { firstName: 'Under_score', lastName: 'Wildcard' }),
+      );
+
+      const underscoreResult = await userApp.get('/api/suggestions/patient').query({ q: '_' });
+      expect(underscoreResult).toHaveSucceeded();
+      expect(underscoreResult.body.map(patient => patient.id)).toContain(underscorePatient.id);
+      underscoreResult.body.forEach(({ firstName, lastName, displayId }) => {
+        expect(`${firstName} ${lastName} ${displayId}`).toContain('_');
+      });
+
+      const percentResult = await userApp.get('/api/suggestions/patient').query({ q: '%' });
+      expect(percentResult).toHaveSucceeded();
+      expect(percentResult.body).toHaveLength(0);
+    });
+
     it('should get a patient by combined first then last name', async () => {
       const result = await userApp.get('/api/suggestions/patient').query({ q: 'Test Appear' });
       expect(result).toHaveSucceeded();

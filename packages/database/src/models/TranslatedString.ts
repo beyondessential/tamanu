@@ -9,6 +9,7 @@ import { keyBy, mapValues } from 'es-toolkit/compat';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import type { InitOptions } from '../types/model';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -121,7 +122,7 @@ export class TranslatedString extends Model {
         // filter Boolean to avoid query all records
         [Op.or]: prefixIds.filter(Boolean).map(prefixId => ({
           id: {
-            [Op.startsWith]: prefixId,
+            [Op.like]: likePattern`${prefixId}%`,
           },
         })),
       },

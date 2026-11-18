@@ -15,6 +15,7 @@ import {
 } from '@tamanu/constants';
 import { keyBy } from 'es-toolkit/compat';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
+import { likePattern } from '@tamanu/utils/likePattern';
 import {
   permissionCheckingRouter,
   simpleGet,
@@ -339,7 +340,7 @@ labRequest.get(
         'lab_requests.published_date LIKE :publishedDate',
         ({ publishedDate }) => {
           return {
-            publishedDate: `${publishedDate}%`,
+            publishedDate: likePattern`${publishedDate}%`,
           };
         },
       ),

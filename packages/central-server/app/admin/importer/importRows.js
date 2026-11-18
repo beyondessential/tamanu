@@ -2,6 +2,7 @@ import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'es-tool
 import { AggregateError, DataTypes, Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import { ReadSettings } from '@tamanu/settings';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
 import { statkey, updateStat } from '../stats';
@@ -192,11 +193,11 @@ export async function importRows(
                 const idByRemoteName = (
                   fkSchema.model === 'ReferenceData'
                     ? await models.ReferenceData.findOne({
-                        where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
+                        where: { type: fkSchema.types, name: { [Op.iLike]: likePattern`${fkFieldValue}` } },
                       })
                     : await models[fkSchema.model].findOne({
                         where: {
-                          name: { [Op.iLike]: fkFieldValue },
+                          name: { [Op.iLike]: likePattern`${fkFieldValue}` },
                         },
                       })
                 )?.id;
