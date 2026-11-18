@@ -124,7 +124,7 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
   const viewImageText = getTranslation('program.modal.view.title.viewImage', 'View image');
   const imageText = getTranslation('program.modal.view.title.image', 'Image');
   const title = isChartView ? `${chartTitle} | ${viewImageText}` : imageText;
-  const canDelete = ability.can('delete', subject('Charting', { id: surveyId }));
+  const canDelete = isChartView && ability.can('delete', subject('Charting', { id: surveyId }));
 
   return (
     <>
