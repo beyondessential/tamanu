@@ -138,7 +138,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       const payload = {
         surveyId: baseSurvey.id,
-        patientId: testPatient.id,
         answers: {
           [baseDataElement.id]: 5,
         },
@@ -280,7 +279,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       const payload = {
         surveyId: baseSurvey.id,
-        patientId: testPatient.id,
         answers: {
           [baseDataElement.id]: 1,
         },
@@ -319,7 +317,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           surveyId: anotherSurvey.id,
-          patientId: testPatient.id,
           answers: { [baseDataElement.id]: 2 },
         });
       expect(resWrongSurvey).toHaveRequestError(404);
