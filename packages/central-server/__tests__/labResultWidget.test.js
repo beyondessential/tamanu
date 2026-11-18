@@ -151,6 +151,7 @@ describe('Lab result widget', () => {
 
     const res = await baseApp.get(ENDPOINT);
     expect(res).toHaveSucceeded();
+    expect(res.headers['cache-control']).toBe('no-store');
     expect(res.body.data).toEqual([
       expect.objectContaining({ patientInitials: 'ABC', testResults: [{ result: 'Negative' }] }),
     ]);
