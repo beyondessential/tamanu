@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo, useReducer } from 'react';
+import { isEqual } from 'es-toolkit/compat';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
@@ -31,6 +32,20 @@ export const initialSession = {
   formProgress: {},
   /** The survey open in the forms panel; null opens the first unfinished form, false shows Ready to check in. */
   openFormId: null,
+};
+
+/**
+ * A completed form whose answers change is no longer complete: its required questions haven't
+ * been checked against the new answers. Progress that states its own status, like completing the
+ * form, is taken as given.
+ */
+const withStatusAfterSave = (saved, progress) => {
+  const isEdited =
+    saved?.status === FORM_STATUSES.COMPLETED &&
+    progress.status === undefined &&
+    progress.values !== undefined &&
+    !isEqual(progress.values, saved.values);
+  return isEdited ? { ...progress, status: FORM_STATUSES.IN_PROGRESS } : progress;
 };
 
 export function sessionReducer(session, action) {
@@ -86,7 +101,7 @@ export function sessionReducer(session, action) {
             status: FORM_STATUSES.IN_PROGRESS,
             startTime: action.startTime,
             ...session.formProgress[action.formId],
-            ...action.progress,
+            ...withStatusAfterSave(session.formProgress[action.formId], action.progress),
           },
         },
       };

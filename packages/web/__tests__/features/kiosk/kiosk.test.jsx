@@ -194,6 +194,38 @@ describe('Kiosk session', () => {
     });
   });
 
+  describe('a completed form', () => {
+    const completed = () =>
+      sessionReducer(atForms(), {
+        type: 'saveFormProgress',
+        formId: 'survey-1',
+        progress: { status: FORM_STATUSES.COMPLETED, values: { 'pde-Name': 'Tess' } },
+      });
+    const save = (session, progress) =>
+      sessionReducer(session, { type: 'saveFormProgress', formId: 'survey-1', progress });
+
+    it('is in progress again once an answer is changed', () => {
+      const session = save(completed(), { values: { 'pde-Name': '' } });
+      expect(session.formProgress['survey-1'].status).toEqual(FORM_STATUSES.IN_PROGRESS);
+    });
+
+    it('stays completed when the patient only looks at it', () => {
+      const session = save(save(completed(), { pageIndex: 0 }), {
+        values: { 'pde-Name': 'Tess' },
+      });
+      expect(session.formProgress['survey-1'].status).toEqual(FORM_STATUSES.COMPLETED);
+    });
+
+    it('is completed again when finished with its new answers', () => {
+      const edited = save(completed(), { values: { 'pde-Name': 'Mere' } });
+      const session = save(edited, {
+        status: FORM_STATUSES.COMPLETED,
+        values: { 'pde-Name': 'Mere' },
+      });
+      expect(session.formProgress['survey-1'].status).toEqual(FORM_STATUSES.COMPLETED);
+    });
+  });
+
   it('keeps the time the patient first opened a form', () => {
     const opened = sessionReducer(atForms(), {
       type: 'saveFormProgress',
