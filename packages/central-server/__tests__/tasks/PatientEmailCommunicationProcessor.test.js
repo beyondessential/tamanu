@@ -32,7 +32,7 @@ describe('PatientEmailCommunicationProcessor', () => {
   let otherDirectory;
   let otherFile;
 
-  const queueEmail = attachment =>
+  const queueEmail = (attachment, overrides = {}) =>
     ctx.store.models.PatientCommunication.create({
       type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
       channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
@@ -42,6 +42,7 @@ describe('PatientEmailCommunicationProcessor', () => {
       destination: 'patient@example.com',
       patientId: patient.id,
       attachment,
+      ...overrides,
     });
 
   beforeAll(async () => {
@@ -89,6 +90,26 @@ describe('PatientEmailCommunicationProcessor', () => {
     expect(ctx.emailService.sendEmail).toHaveBeenCalledOnce();
     await email.reload();
     expect(email.status).toBe(COMMUNICATION_STATUSES.SENT);
+  });
+
+  it.each([
+    ['a destination', { destination: 'a@example.com\r\nBcc: b@example.com' }],
+    ['the patient address it falls back to', { destination: null, useBadPatientEmail: true }],
+  ])('does not send to %s that is not a single address', async (_name, overrides) => {
+    const { useBadPatientEmail, ...fields } = overrides;
+    const recipient = useBadPatientEmail
+      ? await ctx.store.models.Patient.create(
+          fake(ctx.store.models.Patient, { email: 'a@example.com, b@example.com' }),
+        )
+      : patient;
+    const email = await queueEmail(null, { ...fields, patientId: recipient.id });
+
+    await processor.processEmails();
+
+    expect(ctx.emailService.sendEmail).not.toHaveBeenCalled();
+    await email.reload();
+    expect(email.status).toBe(COMMUNICATION_STATUSES.BAD_FORMAT);
+    expect(email.error).toBe('Invalid destination address');
   });
 
   it('neither sends nor removes a file it did not generate', async () => {

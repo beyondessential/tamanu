@@ -1,6 +1,7 @@
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { isEmailAddress } from '@tamanu/utils/isEmailAddress';
 import { isGeneratedFilePath, removeFile } from '../utils/files';
 import { getDefaultFromAddress } from '../services/mailConfig';
 
@@ -59,6 +60,15 @@ export class BaseCommunicationProcessor extends ScheduledTask {
       patientId: emailPlain.patient?.id,
       email: toAddress ? maskEmail(toAddress) : null,
     });
+
+    // The patient's own address is used as entered, and a queued record may predate the
+    // destination being checked when it was pushed, so the address is checked again here.
+    if (toAddress && !isEmailAddress(toAddress)) {
+      return this.handleEmailResult(email, emailPlain, {
+        status: COMMUNICATION_STATUSES.BAD_FORMAT,
+        error: 'Invalid destination address',
+      });
+    }
 
     if (emailPlain.attachment && !isGeneratedFilePath(emailPlain.attachment)) {
       return this.handleEmailResult(email, emailPlain, {
