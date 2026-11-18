@@ -1,6 +1,7 @@
 import { unlink } from 'node:fs/promises';
 import path from 'node:path';
 import multiparty from 'multiparty';
+import { UPLOAD_SIZE_LIMIT } from '@tamanu/constants';
 import { InvalidParameterError } from '@tamanu/errors';
 
 import { uploadDir, uploadDirPath } from './tmpdir';
@@ -48,15 +49,26 @@ async function deleteUploadsExcept(files, keep) {
   await Promise.all(paths.map(uploadedPath => unlink(uploadedPath).catch(() => {})));
 }
 
-async function getMultipartData(req) {
-  const form = new multiparty.Form({ autoFiles: true, uploadDir: await uploadDir() });
+async function getMultipartData(req, maxFileSize) {
+  // The limit is enforced as the file is written, so an oversize upload is cut
+  // off and deleted rather than landing on disk in full before anything can
+  // check its size. multiparty counts every file part in the request towards it.
+  const form = new multiparty.Form({
+    autoFiles: true,
+    uploadDir: await uploadDir(),
+    maxFilesSize: maxFileSize,
+  });
 
   return new Promise((resolve, reject) => {
     form.parse(req, async (err, fields, files) => {
       try {
         if (err) {
           await deleteUploadsExcept(files);
-          reject(err);
+          reject(
+            err.code === 'ETOOBIG'
+              ? new InvalidParameterError(`Uploaded file exceeds limit of ${maxFileSize} bytes.`)
+              : err,
+          );
           return;
         }
 
@@ -93,7 +105,11 @@ async function getMultipartData(req) {
   });
 }
 
-export async function getUploadedData(req) {
+/**
+ * Reads the fields and uploaded file of a request. A multipart upload whose files
+ * come to more than `maxFileSize` bytes is rejected with an InvalidParameterError.
+ */
+export async function getUploadedData(req, { maxFileSize = UPLOAD_SIZE_LIMIT } = {}) {
   const contentType = (req.headers['content-type'] || '')
     .split(';')[0]
     .trim()
@@ -101,7 +117,7 @@ export async function getUploadedData(req) {
 
   switch (contentType) {
     case 'multipart/form-data':
-      return getMultipartData(req);
+      return getMultipartData(req, maxFileSize);
     case 'application/json':
       return withoutUploadedFileKeys(req.body);
     default:

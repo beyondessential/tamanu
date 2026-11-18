@@ -31,7 +31,9 @@ describe('UploadAttachment', () => {
   const mockReq = { name: 'hello world image', type: 'image/jpeg', deviceId: 'test-device-id' };
 
   it('abort uploading file if its above permitted max file size', async () => {
+    getUploadedData.mockRejectedValueOnce(new InvalidParameterError('too big'));
     await expect(uploadAttachment(mockReq, 1000)).rejects.toThrow(InvalidParameterError);
+    expect(getUploadedData).toHaveBeenLastCalledWith(mockReq, { maxFileSize: 1000 });
     expect(CentralServerConnection.mock.calls.length).toBe(0);
   });
 

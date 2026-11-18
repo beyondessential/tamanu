@@ -1,5 +1,5 @@
 import fs, { promises as asyncFs } from 'fs';
-import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
+import { RemoteCallError } from '@tamanu/errors';
 import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging';
 import { CentralServerConnection } from '../sync';
@@ -13,7 +13,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
 
   // Read request and extract file, stats and metadata
   const { deviceId } = req;
-  const { file, type, ...metadata } = await getUploadedData(req);
+  const { file, type, ...metadata } = await getUploadedData(req, { maxFileSize });
   assertUploadedFilePath(file);
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
@@ -23,11 +23,6 @@ export const uploadAttachment = async (req, maxFileSize) => {
   await asyncFs.unlink(file).catch(error => {
     log.warn('uploadAttachment: failed to delete uploaded file', { error: error.message });
   });
-
-  // Check file size constraint
-  if (maxFileSize && size > maxFileSize) {
-    throw new InvalidParameterError(`Uploaded file exceeds limit of ${maxFileSize} bytes.`);
-  }
 
   // Upload file to central server
   // CentralServerConnection takes care of adding headers and convert body to JSON

@@ -100,6 +100,29 @@ describe('getUploadedData', () => {
     expect(await uploadsWithExtension(extensionFor('malformed'))).toEqual([]);
   });
 
+  it('rejects an upload over the size limit and deletes what it wrote', async () => {
+    const request = multipartRequest([
+      { name: 'file', filename: `upload${extensionFor('oversize')}`, content: 'hello world' },
+    ]);
+
+    await expect(getUploadedData(request, { maxFileSize: 5 })).rejects.toThrow(
+      InvalidParameterError,
+    );
+    await expect.poll(() => uploadsWithExtension(extensionFor('oversize'))).toEqual([]);
+  });
+
+  it('accepts an upload within the size limit', async () => {
+    const data = await getUploadedData(
+      multipartRequest([{ name: 'file', filename: 'upload.txt', content: 'hello' }]),
+      { maxFileSize: 5 },
+    );
+    try {
+      expect(await fs.readFile(data.file, 'utf8')).toBe('hello');
+    } finally {
+      await fs.unlink(data.file);
+    }
+  });
+
   it('deletes file parts it does not hand back', async () => {
     const data = await getUploadedData(
       multipartRequest([
