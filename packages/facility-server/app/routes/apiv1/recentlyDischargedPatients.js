@@ -53,6 +53,9 @@ const createSearchFilters = filterParams => {
 // lookup (locations_pkey, patients_pkey, discharges_encounter_id). The work scales with the
 // discharges in the window rather than the size of encounters, so running this for both the count
 // and the page stays cheap.
+//
+// The search bar's discharge suggesters (recentDischargesSubquery in the shared suggestions
+// service) select the same discharges, so keep the two in step.
 // spec: RDISCH#which-discharges-are-listed
 const buildLatestDischargesCte = searchClauses => `
   WITH patient_statuses (encounter_type, patient_status) AS (

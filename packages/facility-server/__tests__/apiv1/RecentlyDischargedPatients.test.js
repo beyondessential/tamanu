@@ -6,6 +6,7 @@ import {
   ENCOUNTER_TYPE_PATIENT_STATUSES,
   MAX_ROWS_PER_PAGE,
   PATIENT_STATUSES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -434,6 +435,87 @@ describe('Recently discharged patients', () => {
           dischargeDate: olderMatchingEncounter.endDate,
         }),
       ]);
+    });
+  });
+
+  describe('search suggestions', () => {
+    const suggest = async (endpoint, name) => {
+      const response = await app.get(`/api/suggestions/${endpoint}`).query({ facilityId, q: name });
+      expect(response).toHaveSucceeded();
+      return response.body.map(({ id }) => id);
+    };
+
+    it('suggests areas, departments, and clinicians recorded on discharges in the window, including inactive ones', async () => {
+      const inactiveArea = await models.LocationGroup.create(
+        fake(models.LocationGroup, {
+          facilityId,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+        }),
+      );
+      const inactiveAreaLocation = await models.Location.create(
+        fake(models.Location, { facilityId, locationGroupId: inactiveArea.id }),
+      );
+      const inactiveDepartment = await models.Department.create(
+        fake(models.Department, { facilityId, visibilityStatus: VISIBILITY_STATUSES.HISTORICAL }),
+      );
+      const deactivatedDischarger = await models.User.create(
+        fakeUser({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL }),
+      );
+      await createDischargedEncounter(await createPatient(), {
+        locationId: inactiveAreaLocation.id,
+        departmentId: inactiveDepartment.id,
+        dischargerId: deactivatedDischarger.id,
+      });
+
+      expect(await suggest('dischargeLocationGroup', inactiveArea.name)).toEqual([inactiveArea.id]);
+      expect(await suggest('dischargeDepartment', inactiveDepartment.name)).toEqual([
+        inactiveDepartment.id,
+      ]);
+      expect(await suggest('dischargingClinician', deactivatedDischarger.displayName)).toEqual([
+        deactivatedDischarger.id,
+      ]);
+    });
+
+    it('leaves out values only recorded on discharges the view does not list', async () => {
+      const unlistedArea = await models.LocationGroup.create(
+        fake(models.LocationGroup, { facilityId }),
+      );
+      const unlistedAreaLocation = await models.Location.create(
+        fake(models.Location, { facilityId, locationGroupId: unlistedArea.id }),
+      );
+      const unlistedDepartment = await models.Department.create(
+        fake(models.Department, { facilityId }),
+      );
+      const unlistedDischarger = await models.User.create(fakeUser());
+      const unlisted = {
+        locationId: unlistedAreaLocation.id,
+        departmentId: unlistedDepartment.id,
+        dischargerId: unlistedDischarger.id,
+      };
+      await createDischargedEncounter(await createPatient(), {
+        ...unlisted,
+        hoursSinceDischarge: 25,
+      });
+      await createDischargedEncounter(await createPatient(), {
+        ...unlisted,
+        encounterType: ENCOUNTER_TYPES.SURVEY_RESPONSE,
+      });
+      await createDischargedEncounter(await createPatient(), {
+        ...unlisted,
+        locationId: otherFacilityLocation.id,
+      });
+
+      expect(await suggest('dischargeLocationGroup', unlistedArea.name)).toEqual([]);
+      expect(await suggest('dischargeDepartment', unlistedDepartment.name)).toEqual([]);
+      expect(await suggest('dischargingClinician', unlistedDischarger.displayName)).toEqual([]);
+    });
+
+    it('requires permission to list patients', async () => {
+      const noPermsApp = await baseApp.asRole('base');
+      const response = await noPermsApp
+        .get('/api/suggestions/dischargeDepartment')
+        .query({ facilityId });
+      expect(response).toBeForbidden();
     });
   });
 

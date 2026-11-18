@@ -11,6 +11,9 @@ export const SUGGESTER_ENDPOINTS_SUPPORTING_ALL = [
 export const SUGGESTER_ENDPOINTS = [
   ...SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
   'department',
+  'dischargeDepartment',
+  'dischargeLocationGroup',
+  'dischargingClinician',
   'facility',
   'facilityLocationGroup',
   'bookableLocationGroup',
