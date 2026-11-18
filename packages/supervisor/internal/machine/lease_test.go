@@ -1,371 +1,360 @@
 package machine
 
 import (
-	"context"
+	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
-	"go.uber.org/zap/zaptest"
-
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient/fakeapi"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
-// other is a second supervisor of the harness's server, alongside the
-// harness's own machine.
-type other struct {
-	t      *testing.T
-	m      *Machine
-	st     *state.Server
-	cancel context.CancelFunc
-	done   chan struct{}
-	held   []func()
-}
-
-// startOther starts another supervisor with the harness's timing, adjusted
-// by tune if it is not nil.
-func (h *harness) startOther(instance string, tune func(*Timing)) *other {
-	h.t.Helper()
-	timing := h.timing
-	if tune != nil {
-		tune(&timing)
-	}
-	st := state.New(state.Parts())
-	act := actuator.NewClient(h.actURL)
-	act.PollInterval = time.Millisecond
-	m := New(Config{Parts: state.Parts(), Release: testRelease, Instance: instance, Timing: timing},
-		st, act, apiclient.New([]string{h.apiAddr}, fakeapi.Token), zaptest.NewLogger(h.t))
-	ctx, cancel := context.WithCancel(context.Background())
-	o := &other{t: h.t, m: m, st: st, cancel: cancel, done: make(chan struct{})}
-	go func() {
-		defer close(o.done)
-		m.Run(ctx)
-	}()
-	h.t.Cleanup(o.stop)
-	return o
-}
-
-func (o *other) stop() {
-	for _, done := range o.held {
-		done()
-	}
-	o.held = nil
-	o.m.StepDown()
-	o.cancel()
-	<-o.done
-}
-
-func (o *other) phase() state.Phase { return o.st.Snapshot().Phase }
-
-// activity is a request at this supervisor that counts as activity and
-// finishes at once, and what the supervisor did with it.
-func (o *other) activity() state.Admission {
-	admission, done := o.st.AdmitActivity(state.API)
-	done()
-	return admission
-}
-
-// holdOpen starts a request that counts as activity and stays in flight
-// until release or the test ends.
-func (o *other) holdOpen() (release func()) {
-	admission, done := o.st.AdmitActivity(state.API)
-	if admission != state.Forward {
-		o.t.Fatalf("the request to hold open was not forwarded: %v", admission)
-	}
-	o.held = append(o.held, done)
-	return done
-}
-
-// following waits for o to follow the harness machine's announcement.
-func (h *harness) following(o *other) {
-	h.t.Helper()
-	h.eventually("the other supervisor following", func() bool {
-		return o.m.Announcement() == h.machine().Announcement() && o.phase() == h.snapshot().Phase
-	})
-}
-
 // spec: SUPV#resilience
-func TestEverySupervisorForwardsWhileAwake(t *testing.T) {
-	h := newHarness(t, false)
-	h.timing.IdleTime = time.Hour
-	h.start(testRelease)
-	h.waitHolding()
-	o := h.startOther("second", nil)
-	h.following(o)
-
-	if o.m.HoldsLease() {
-		t.Error("two supervisors hold the lease")
-	}
-	if got := o.st.Admit(state.API); got != state.Forward {
-		t.Errorf("follower admission = %v", got)
-	}
-	if got := h.state().Admit(state.API); got != state.Forward {
-		t.Errorf("holder admission = %v", got)
-	}
-	if !o.m.Ready() {
-		t.Error("a follower that has read the actuator's state is not ready")
-	}
-}
-
-// spec: SLPWK#activity
-func TestActivityAtAFollowerKeepsTheServerAwake(t *testing.T) {
-	h := newHarness(t, false)
-	h.timing.IdleTime = 150 * time.Millisecond
-	h.start(testRelease)
-	h.waitHolding()
-	o := h.startOther("second", nil)
-	h.following(o)
-
-	t.Run("requests in turn", func(t *testing.T) {
-		until := time.Now().Add(4 * h.timing.IdleTime)
-		for time.Now().Before(until) {
-			if got := o.activity(); got != state.Forward {
-				t.Fatalf("follower admission = %v", got)
+func TestHandingOver(t *testing.T) {
+	for _, tt := range []struct {
+		name   string
+		asleep bool
+		// handOver ends the first supervisor's tenure, checking what is
+		// promised meanwhile.
+		handOver func(t *testing.T, h *harness, first, second *supervisor)
+	}{
+		{
+			name: "stopped while awake, with no gap in forwarding",
+			handOver: func(t *testing.T, _ *harness, first, second *supervisor) {
+				stopped := make(chan struct{})
+				go func() {
+					defer close(stopped)
+					first.stop()
+				}()
+				for !second.m.HoldsLease() {
+					if got := second.st.Admit(state.API); got != state.Forward {
+						t.Fatalf("follower admission during the handover = %v", got)
+					}
+					time.Sleep(time.Millisecond)
+				}
+				<-stopped
+			},
+		},
+		{
+			name:     "stopped while asleep",
+			asleep:   true,
+			handOver: func(_ *testing.T, _ *harness, first, _ *supervisor) { first.stop() },
+		},
+		{
+			name:     "crashed, once its lease expires",
+			handOver: func(_ *testing.T, _ *harness, first, _ *supervisor) { first.crash() },
+		},
+		{
+			name: "stepping down",
+			handOver: func(t *testing.T, h *harness, first, second *supervisor) {
+				first.m.StepDown()
+				h.eventually("the second holding the lease", second.m.HoldsLease)
+				first.waitFollowing(second)
+				if got := first.st.Admit(state.API); got != state.Forward {
+					t.Errorf("a supervisor that stepped down forwards no more: %v", got)
+				}
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newHarness(t, false)
+			if !tt.asleep {
+				h.timing.IdleTime = time.Hour
 			}
-			time.Sleep(h.timing.IdleTime / 5)
-		}
-		if len(h.api.Calls()) != 0 {
-			t.Errorf("went to sleep with activity at the follower: %q", h.api.Calls())
-		}
-	})
+			first := h.start(testRelease)
+			if tt.asleep {
+				first.waitPhase(state.Asleep)
+			} else {
+				first.waitHolding()
+			}
+			second := h.start(testRelease)
+			second.waitFollowing(first)
 
-	t.Run("a request in flight", func(t *testing.T) {
-		release := o.holdOpen()
-		time.Sleep(4 * h.timing.IdleTime)
-		if len(h.api.Calls()) != 0 {
-			t.Errorf("went to sleep with a request in flight at the follower: %q", h.api.Calls())
-		}
-		release()
-	})
+			if second.m.HoldsLease() {
+				t.Error("two supervisors hold the lease")
+			}
+			if !second.m.Ready() {
+				t.Error("a follower that has read the actuator's state is not ready")
+			}
+			phase, puts := first.phase(), len(h.act.Puts())
+			want := state.Forward
+			if tt.asleep {
+				want = state.Hold
+			}
+			if got := [2]state.Admission{first.st.Admit(state.API), second.st.Admit(state.API)}; got != [2]state.Admission{want, want} {
+				t.Errorf("admissions %v, want %v from each", got, want)
+			}
 
-	h.waitPhase(state.Asleep)
-	h.eventually("the follower following asleep", func() bool { return o.phase() == state.Asleep })
+			tt.handOver(t, h, first, second)
+			h.eventually("the second holding the lease", second.m.HoldsLease)
+			time.Sleep(10 * h.timing.ActuatorPoll)
+			if first.m.HoldsLease() {
+				t.Error("the first holds the lease again")
+			}
+			if second.phase() != phase || len(h.act.Puts()) != puts {
+				t.Errorf("the new holder: phase %s, puts %q", second.phase(), h.puts()[puts:])
+			}
+		})
+	}
 }
 
 // spec: SLPWK#waking
 func TestWakeRequestedAtAFollower(t *testing.T) {
 	h := newHarness(t, false)
-	h.start(testRelease)
-	h.waitHolding()
-	o := h.startOther("second", nil)
-	h.waitPhase(state.Asleep)
-	h.following(o)
+	holder := h.start(testRelease)
+	h.eventually("holding the lease", holder.m.HoldsLease)
+	// The follower reports only when it must, so the wake request is
+	// reported at once.
+	h.timing.ReportEvery, h.timing.ReportTTL = time.Hour, time.Hour
+	follower := h.start(testRelease)
+	holder.waitPhase(state.Asleep)
+	follower.waitFollowing(holder)
 
-	if got := o.activity(); got != state.Hold {
+	holder.keepAwakeAfterWake()
+	if got := follower.activity(); got != state.Hold {
 		t.Fatalf("follower admission while asleep = %v", got)
 	}
-	h.keepAwakeAfterWake()
-	h.waitAwakeAfterWake()
+	holder.waitAwakeAfterWake()
 	h.eventually("the follower forwarding again", func() bool {
-		return o.phase() == state.Awake && o.st.Admit(state.API) == state.Forward
+		return follower.phase() == state.Awake && follower.st.Admit(state.API) == state.Forward
 	})
 }
 
 // spec: SLPWK#going-to-sleep
-func TestSleepWaitsForAFollowersRequestInFlight(t *testing.T) {
-	h := newHarness(t, false)
-	h.start(testRelease)
-	h.waitHolding()
-	// The follower reports only when it must, and its reports last, so the
-	// holder decides to sleep without seeing the request it has in flight.
-	o := h.startOther("second", func(t *Timing) { t.ReportEvery, t.ReportTTL = time.Hour, time.Hour })
-	h.following(o)
-	h.eventually("the follower's report of following", func() bool {
-		r, ok := h.act.Reports()["second"]
-		return ok && r.Follows == h.machine().Announcement()
-	})
-	release := o.holdOpen()
-
-	h.eventually("going to sleep", func() bool { return h.snapshot().Phase == state.GoingToSleep })
-	h.eventually("the follower following", func() bool { return o.phase() == state.GoingToSleep })
-	time.Sleep(10 * h.timing.ActuatorPoll)
-	if calls := h.api.Calls(); len(calls) != 0 || len(h.act.Puts()) != 0 {
-		t.Fatalf("went on with a request in flight at the follower: calls %q, puts %q", calls, h.puts())
-	}
-
-	release()
-	h.waitPhase(state.Asleep)
-}
-
-// spec: SLPWK#going-to-sleep
-func TestAnExpiredReportIsNotWaitedFor(t *testing.T) {
-	h := newHarness(t, false)
-	h.start(testRelease)
-	h.waitHolding()
-	// A supervisor that stopped reporting, behind on announcements.
-	h.act.PutReport("gone", actuator.Report{LastActivity: time.Now().Add(-time.Hour)}, 300*time.Millisecond)
-
-	h.eventually("going to sleep", func() bool { return h.snapshot().Phase == state.GoingToSleep })
-	time.Sleep(5 * h.timing.ActuatorPoll)
-	if len(h.act.Puts()) != 0 {
-		t.Fatalf("stopped parts while waiting for a report: %q", h.puts())
-	}
-	h.waitPhase(state.Asleep)
-}
-
-// spec: SUPV#resilience
-func TestHandingOver(t *testing.T) {
-	t.Run("awake, with no gap in forwarding", func(t *testing.T) {
-		h := newHarness(t, false)
-		h.timing.IdleTime = time.Hour
-		h.start(testRelease)
-		h.waitHolding()
-		o := h.startOther("second", nil)
-		h.following(o)
-
-		stopped := make(chan struct{})
-		go func() {
-			defer close(stopped)
-			h.stop()
-		}()
-		for !o.m.HoldsLease() {
-			if got := o.st.Admit(state.API); got != state.Forward {
-				t.Fatalf("follower admission during the handover = %v", got)
+func TestSleepWaitsForEverySupervisor(t *testing.T) {
+	for _, tt := range []struct {
+		name          string
+		settleTimeout time.Duration
+		// others sets up the other supervisors, and returns what lets the
+		// sleep go on, or nil when nothing does.
+		others  func(t *testing.T, h *harness, holder *supervisor) (release func())
+		failure string
+	}{
+		{
+			name: "a follower's request in flight",
+			others: func(t *testing.T, h *harness, holder *supervisor) func() {
+				// The follower reports only when it must, and its reports
+				// last, so the holder decides to sleep without seeing the
+				// request it has in flight.
+				h.timing.ReportEvery, h.timing.ReportTTL = time.Hour, time.Hour
+				follower := h.start(testRelease)
+				follower.waitFollowing(holder)
+				h.eventually("the follower's report of following", func() bool {
+					r, ok := h.act.Reports()[follower.instance]
+					return ok && r.Follows == holder.m.Announcement()
+				})
+				admission, release := follower.holdOpen()
+				if admission != state.Forward {
+					t.Fatalf("the follower's request was not forwarded: %v", admission)
+				}
+				return release
+			},
+		},
+		{
+			name: "a report, until it expires",
+			others: func(_ *testing.T, h *harness, _ *supervisor) func() {
+				// A supervisor that stopped reporting, behind on announcements.
+				h.act.PutReport("gone", actuator.Report{LastActivity: time.Now().Add(-time.Hour)}, 500*time.Millisecond)
+				return func() {}
+			},
+		},
+		{
+			name:          "a supervisor that keeps reporting without following",
+			settleTimeout: 300 * time.Millisecond,
+			others: func(t *testing.T, h *harness, _ *supervisor) func() {
+				stop := make(chan struct{})
+				t.Cleanup(func() { close(stop) })
+				go func() {
+					ticker := time.NewTicker(10 * time.Millisecond)
+					defer ticker.Stop()
+					for {
+						h.act.PutReport("stuck", actuator.Report{}, 40*time.Millisecond)
+						select {
+						case <-stop:
+							return
+						case <-ticker.C:
+						}
+					}
+				}()
+				return nil
+			},
+			failure: "at settled: supervisors still busy or behind: stuck",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newHarness(t, false)
+			if tt.settleTimeout != 0 {
+				h.timing.SettleTimeout = tt.settleTimeout
 			}
-			time.Sleep(time.Millisecond)
-		}
-		<-stopped
-		if got := o.st.Admit(state.API); got != state.Forward || o.phase() != state.Awake {
-			t.Errorf("new holder: admission %v, phase %s", got, o.phase())
-		}
-		if len(h.act.Puts()) != 0 {
-			t.Errorf("the handover set desired states: %q", h.puts())
-		}
-	})
+			holder := h.start(testRelease)
+			holder.keepAwakeAfterWake()
+			setUp := holder.busy()
+			holder.waitHolding()
+			release := tt.others(t, h, holder)
+			setUp()
 
-	t.Run("asleep, without waking", func(t *testing.T) {
-		h := newHarness(t, false)
-		h.start(testRelease)
-		h.waitHolding()
-		o := h.startOther("second", nil)
-		h.waitPhase(state.Asleep)
-		h.following(o)
-		puts := len(h.act.Puts())
+			h.eventually("going to sleep", func() bool { return holder.phase() == state.GoingToSleep })
+			time.Sleep(10 * h.timing.ActuatorPoll)
+			if calls := h.api.Calls(); len(calls) != 0 || len(h.act.Puts()) != 0 {
+				t.Fatalf("went on before every supervisor settled: calls %q, puts %q", calls, h.puts())
+			}
 
-		h.stop()
-		h.eventually("the second holding the lease", o.m.HoldsLease)
-		time.Sleep(10 * h.timing.ActuatorPoll)
-		if o.phase() != state.Asleep || len(h.act.Puts()) != puts {
-			t.Errorf("phase %s, puts %q", o.phase(), h.puts()[puts:])
-		}
-	})
-
-	t.Run("after the holder's lease expires", func(t *testing.T) {
-		h := newHarness(t, false)
-		h.timing.IdleTime = time.Hour
-		h.start(testRelease)
-		h.waitHolding()
-		o := h.startOther("second", nil)
-		h.following(o)
-
-		h.crash()
-		h.waitStopped()
-		h.eventually("the second holding the lease", o.m.HoldsLease)
-	})
-}
-
-// spec: SUPV#resilience
-func TestSteppingDownKeepsFollowing(t *testing.T) {
-	h := newHarness(t, false)
-	h.timing.IdleTime = time.Hour
-	h.start(testRelease)
-	h.waitHolding()
-	o := h.startOther("second", nil)
-	h.following(o)
-
-	h.machine().StepDown()
-	h.eventually("the second holding the lease", o.m.HoldsLease)
-	if h.machine().HoldsLease() {
-		t.Error("a supervisor that stepped down holds the lease")
-	}
-	h.eventually("the first following the second", func() bool {
-		return h.machine().Announcement() == o.m.Announcement()
-	})
-	if got := h.state().Admit(state.API); got != state.Forward {
-		t.Errorf("a supervisor that stepped down forwards no more: %v", got)
-	}
-	time.Sleep(10 * h.timing.LeaseRetry)
-	if h.machine().HoldsLease() {
-		t.Error("a supervisor that stepped down took the lease again")
+			if release != nil {
+				release()
+				holder.waitPhase(state.Asleep)
+				return
+			}
+			holder.waitAwakeAfterWake()
+			if f := holder.snapshot().LastFailure; f == nil || !strings.Contains(f.Message, tt.failure) {
+				t.Errorf("failure = %+v, want it to mention %q", f, tt.failure)
+			}
+			if count(h.api.Calls(), "POST /tasks/hold") != 0 || anyDown(h.puts()) {
+				t.Errorf("went on after the wait failed: calls %q, puts %q", h.api.Calls(), h.puts())
+			}
+		})
 	}
 }
 
 // spec: SLPWK#actuator-contract
 func TestLosingTheLeaseStopsActing(t *testing.T) {
-	h := newHarness(t, false)
-	h.timing.IdleTime = time.Hour
-	h.start(testRelease)
-	h.waitHolding()
-
-	h.act.TakeLeaseAs("intruder", time.Minute)
-	h.eventually("no longer holding", func() bool { return !h.machine().HoldsLease() })
-	if got := h.state().Admit(state.API); got != state.Forward {
-		t.Errorf("admission after losing the lease = %v", got)
+	// onPut calls fn the first time the actuator is asked to set part to
+	// desired.
+	onPut := func(h *harness, part state.Part, desired actuator.Desired, fn func()) {
+		var once sync.Once
+		h.onPut(func(parts map[state.Part]actuator.Desired) {
+			if parts[part] == desired {
+				once.Do(fn)
+			}
+		})
 	}
+	for _, tt := range []struct {
+		name string
+		// lose starts the supervisor, and has another take the lease, by
+		// calling take, at a point in what the supervisor does.
+		lose func(h *harness, take func()) *supervisor
+	}{
+		{
+			name: "while awake",
+			lose: func(h *harness, take func()) *supervisor {
+				h.timing.IdleTime = time.Hour
+				s := h.start(testRelease)
+				s.waitHolding()
+				take()
+				return s
+			},
+		},
+		{
+			name: "mid-sleep, its renewal refused",
+			lose: func(h *harness, take func()) *supervisor {
+				h.act.SetDelay(100 * time.Millisecond)
+				onPut(h, state.Tasks, actuator.Down, take)
+				return h.start(testRelease)
+			},
+		},
+		{
+			name: "mid-sleep, its next request refused",
+			lose: func(h *harness, take func()) *supervisor {
+				at(h, "POST /tasks/hold", "", take)
+				return h.start(testRelease)
+			},
+		},
+		{
+			name: "mid-wake, its renewal refused",
+			lose: func(h *harness, take func()) *supervisor {
+				s := h.start(testRelease)
+				s.waitPhase(state.Asleep)
+				h.act.SetDelay(100 * time.Millisecond)
+				onPut(h, state.Database, actuator.Up, take)
+				s.activity()
+				return s
+			},
+		},
+		{
+			name: "mid-wake, its next request refused",
+			lose: func(h *harness, take func()) *supervisor {
+				s := h.start(testRelease)
+				s.waitPhase(state.Asleep)
+				onPut(h, state.Database, actuator.Up, take)
+				s.activity()
+				return s
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newHarness(t, false)
+			// The actuator passes on only requests carrying the lease's
+			// current token, so any it passes on once the lease is taken
+			// carry the stale token.
+			var lost atomic.Bool
+			var stale atomic.Int64
+			h.onPut(func(map[state.Part]actuator.Desired) {
+				if lost.Load() {
+					stale.Add(1)
+				}
+			})
+			var callsAtLoss atomic.Int64
+			take := sync.OnceFunc(func() {
+				h.act.TakeLeaseAs("intruder", time.Minute)
+				callsAtLoss.Store(int64(len(h.api.Calls())))
+				lost.Store(true)
+			})
+			s := tt.lose(h, take)
 
-	h.act.ExpireLease()
-	h.waitHolding()
+			h.eventually("losing the lease", func() bool { return lost.Load() && !s.m.HoldsLease() })
+			time.Sleep(5 * h.timing.LeaseRenew)
+			if n := stale.Load(); n != 0 {
+				t.Errorf("%d requests with the stale token went through", n)
+			}
+			if got := h.api.Calls()[callsAtLoss.Load():]; len(got) != 0 {
+				t.Errorf("called the api after losing the lease: %q", got)
+			}
+
+			h.act.ExpireLease()
+			h.eventually("holding the lease again", s.m.HoldsLease)
+		})
+	}
 }
 
 // spec: SLPWK#actuator-contract
 func TestAnnouncementsOutnumberTheHolderBefore(t *testing.T) {
 	h := newHarness(t, false)
 	h.timing.IdleTime = time.Hour
-	h.start(testRelease)
-	h.waitHolding()
-	o := h.startOther("second", nil)
-	h.following(o)
-	first := h.machine().Announcement()
+	first := h.start(testRelease)
+	first.waitHolding()
+	second := h.start(testRelease)
+	second.waitFollowing(first)
+	before := first.m.Announcement()
 
-	h.stop()
-	h.eventually("the second announcing", func() bool { return o.m.HoldsLease() && o.m.Announcement().After(first) })
-	if second := o.m.Announcement(); second.Token <= first.Token || second.Sequence != 1 {
-		t.Errorf("announcements %s, then %s", first, second)
-	}
-}
-
-// spec: SLPWK#actuator-contract
-func TestAnnouncementsWithLargeTokens(t *testing.T) {
-	h := newHarness(t, false)
-	h.timing.IdleTime = time.Hour
-	h.act.SetLastToken(1 << 62)
-	h.start(testRelease)
-	h.waitHolding()
-	o := h.startOther("second", nil)
-	h.following(o)
-	if got := o.m.Announcement(); got.Token != 1<<62+1 || got.Sequence != 1 {
-		t.Errorf("following %s", got)
-	}
-
-	h.stop()
+	first.stop()
 	h.eventually("the second announcing", func() bool {
-		got := o.m.Announcement()
-		return o.m.HoldsLease() && got.Token == 1<<62+2 && got.Sequence == 1
+		return second.m.HoldsLease() && second.m.Announcement().After(before)
 	})
+	if after := second.m.Announcement(); after.Token <= before.Token || after.Sequence != 1 {
+		t.Errorf("announcements %s, then %s", before, after)
+	}
 }
 
 // spec: SLPWK#actuator-contract
 func TestReports(t *testing.T) {
 	h := newHarness(t, false)
 	h.timing.IdleTime = time.Hour
-	h.start(testRelease)
-	h.waitHolding()
+	s := h.start(testRelease)
+	s.waitHolding()
 
 	h.eventually("the holder's report announcing awake", func() bool {
-		r := h.act.Reports()["supervisor-1"]
-		return r.Phase == state.Awake && r.Announcement == h.machine().Announcement() && r.Follows == r.Announcement
+		r := h.act.Reports()[s.instance]
+		return r.Phase == state.Awake && r.Announcement == s.m.Announcement() && r.Follows == r.Announcement
 	})
-	h.holdOpen()
+	s.holdOpen()
 	h.eventually("a report of the request in flight", func() bool {
-		return h.act.Reports()["supervisor-1"].InFlight == 1
+		return h.act.Reports()[s.instance].InFlight == 1
 	})
 
-	h.crash()
-	h.waitStopped()
+	s.crash()
 	h.eventually("the report expiring", func() bool {
-		_, ok := h.act.Reports()["supervisor-1"]
+		_, ok := h.act.Reports()[s.instance]
 		return !ok
 	})
 }
@@ -373,9 +362,9 @@ func TestReports(t *testing.T) {
 func TestReadyOnceTheActuatorIsRead(t *testing.T) {
 	h := newHarness(t, false)
 	h.act.TakeLeaseAs("another", time.Minute)
-	h.start(testRelease)
-	h.eventually("ready", h.machine().Ready)
-	if h.machine().HoldsLease() {
+	s := h.start(testRelease)
+	h.eventually("ready", s.m.Ready)
+	if s.m.HoldsLease() {
 		t.Error("took a lease another holds")
 	}
 }

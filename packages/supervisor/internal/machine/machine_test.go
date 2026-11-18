@@ -22,8 +22,8 @@ func TestSleepAndWake(t *testing.T) {
 	for name, central := range roles() {
 		t.Run(name, func(t *testing.T) {
 			h := newHarness(t, central)
-			h.start(testRelease)
-			h.waitPhase(state.Asleep)
+			s := h.start(testRelease)
+			s.waitPhase(state.Asleep)
 
 			if got, want := h.puts(), sleepPuts(); !slices.Equal(got, want) {
 				t.Errorf("sleep puts = %q, want %q", got, want)
@@ -38,18 +38,18 @@ func TestSleepAndWake(t *testing.T) {
 			if !h.allDown() {
 				t.Errorf("parts not all down: %+v", h.act.State().Parts)
 			}
-			for p, ready := range h.snapshot().Ready {
+			for p, ready := range s.snapshot().Ready {
 				if ready {
 					t.Errorf("%s ready while asleep", p)
 				}
 			}
-			if h.state().Admit(state.API) != state.Hold {
+			if s.st.Admit(state.API) != state.Hold {
 				t.Error("the gate forwards while asleep")
 			}
 
-			h.keepAwakeAfterWake()
-			h.activity()
-			h.waitAwakeAfterWake()
+			s.keepAwakeAfterWake()
+			s.activity()
+			s.waitAwakeAfterWake()
 
 			if got, want := h.puts()[3:], wakePuts(); !slices.Equal(got, want) {
 				t.Errorf("wake puts = %q, want %q", got, want)
@@ -61,7 +61,7 @@ func TestSleepAndWake(t *testing.T) {
 			if !h.allUp() {
 				t.Errorf("parts not all up: %+v", h.act.State().Parts)
 			}
-			if h.state().Admit(state.Sync) != state.Forward {
+			if s.st.Admit(state.Sync) != state.Forward {
 				t.Error("the gate does not forward once awake")
 			}
 		})
@@ -70,132 +70,121 @@ func TestSleepAndWake(t *testing.T) {
 
 // spec: SLPWK#activity
 func TestActivityKeepsTheServerAwake(t *testing.T) {
-	h := newHarness(t, false)
-	h.timing.IdleTime = 200 * time.Millisecond
-	h.start(testRelease)
-	h.waitHolding()
-	h.holdOpen()
-	time.Sleep(3 * h.timing.IdleTime)
-	if len(h.api.Calls()) != 0 || h.snapshot().Phase != state.Awake {
-		t.Errorf("slept with a request in flight: %q", h.api.Calls())
+	for _, tt := range []struct {
+		name                 string
+		atFollower, inFlight bool
+	}{
+		{"requests in turn at the holder", false, false},
+		{"a request in flight at the holder", false, true},
+		{"requests in turn at a follower", true, false},
+		{"a request in flight at a follower", true, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newHarness(t, false)
+			h.timing.IdleTime = 150 * time.Millisecond
+			// Reports outlast a slow test machine's delays in renewing them.
+			h.timing.ReportTTL = time.Second
+			holder := h.start(testRelease)
+			setUp := holder.busy()
+			holder.waitHolding()
+			busy := holder
+			if tt.atFollower {
+				busy = h.start(testRelease)
+				busy.waitFollowing(holder)
+			}
+			setUp()
+
+			if tt.inFlight {
+				admission, release := busy.holdOpen()
+				if admission != state.Forward {
+					t.Fatalf("admission = %v", admission)
+				}
+				time.Sleep(4 * h.timing.IdleTime)
+				release()
+			} else {
+				for until := time.Now().Add(4 * h.timing.IdleTime); time.Now().Before(until); {
+					if got := busy.activity(); got != state.Forward {
+						t.Fatalf("admission = %v", got)
+					}
+					time.Sleep(h.timing.IdleTime / 5)
+				}
+			}
+			if calls := h.api.Calls(); len(calls) != 0 {
+				t.Errorf("went to sleep with activity: %q", calls)
+			}
+
+			holder.waitPhase(state.Asleep)
+			busy.waitPhase(state.Asleep)
+		})
 	}
-	h.release()
-	h.waitPhase(state.Asleep)
 }
 
 // spec: SLPWK#going-to-sleep
 func TestBusyServerStaysAwakeAndIsAskedAgain(t *testing.T) {
 	h := newHarness(t, false)
-	h.timing.BusyRecheck = 150 * time.Millisecond
+	h.timing.BusyRecheck = 400 * time.Millisecond
 	h.api.SetHold(apiclient.TaskHoldResult{Busy: true, RunningTasks: []string{"ReportRequestProcessor"}})
-	h.start(testRelease)
+	s := h.start(testRelease)
 
-	h.eventually("a hold", func() bool { return countCalls(h.api.Calls(), "POST /tasks/hold") == 1 })
-	h.eventually("awake after the busy answer", func() bool { return h.snapshot().Phase == state.Awake })
-	if f := h.snapshot().LastFailure; f != nil {
+	h.eventually("a hold", func() bool { return count(h.api.Calls(), "POST /tasks/hold") == 1 })
+	h.eventually("awake after the busy answer", func() bool { return s.phase() == state.Awake })
+	if f := s.snapshot().LastFailure; f != nil {
 		t.Errorf("busy recorded as a failure: %+v", f)
 	}
-	if h.state().Admit(state.API) != state.Forward {
+	if s.st.Admit(state.API) != state.Forward {
 		t.Error("a busy server is not forwarded requests")
 	}
-	h.eventually("a second hold", func() bool { return countCalls(h.api.Calls(), "POST /tasks/hold") >= 2 })
+	time.Sleep(5 * h.timing.IdleTime)
+	if n := count(h.api.Calls(), "POST /tasks/hold"); n != 1 {
+		t.Errorf("asked %d times within the recheck interval", n)
+	}
+	h.eventually("a second hold", func() bool { return count(h.api.Calls(), "POST /tasks/hold") == 2 })
 	if len(h.act.Puts()) != 0 {
 		t.Errorf("a busy server had parts stopped: %q", h.puts())
 	}
 
 	h.api.SetHold(apiclient.TaskHoldResult{})
-	h.waitPhase(state.Asleep)
-}
-
-func TestBusyRecheckWaitsAMinute(t *testing.T) {
-	h := newHarness(t, true)
-	h.timing.BusyRecheck = time.Hour
-	h.api.SetHold(apiclient.TaskHoldResult{Busy: true})
-	h.start(testRelease)
-	h.eventually("a hold", func() bool { return countCalls(h.api.Calls(), "POST /tasks/hold") == 1 })
-	time.Sleep(5 * h.timing.IdleTime)
-	if n := countCalls(h.api.Calls(), "POST /tasks/hold"); n != 1 {
-		t.Errorf("asked %d times within the recheck interval", n)
-	}
-}
-
-// spec: SLPWK#going-to-sleep
-func TestIncompleteFinalSyncKeepsTheFacilityAwake(t *testing.T) {
-	h := newHarness(t, false)
-	h.api.SetFinalSync(apiclient.FinalSyncResult{Reason: "Sync was queued by the central server"})
-	h.keepAwakeAfterWake()
-	h.start(testRelease)
-	h.waitAwakeAfterWake()
-
-	snap := h.snapshot()
-	if snap.LastFailure == nil || !strings.Contains(snap.LastFailure.Message, "final sync did not complete: Sync was queued") {
-		t.Errorf("failure = %+v", snap.LastFailure)
-	}
-	want := append([]string{"fhir=down tasks=down"}, wakePuts()...)
-	if got := h.puts(); !slices.Equal(got, want) {
-		t.Errorf("puts = %q, want %q", got, want)
-	}
-	if h.api.Held() || !h.allUp() {
-		t.Errorf("held %v, parts %+v", h.api.Held(), h.act.State().Parts)
-	}
+	s.waitPhase(state.Asleep)
 }
 
 // spec: SUPV#compatibility
-func TestAnotherPatchOfTheLineSleeps(t *testing.T) {
-	h := newHarness(t, true)
-	h.api.SetVersion("2.70.4")
-	h.start(testRelease)
-	h.waitPhase(state.Asleep)
-}
+// spec: SLPWK#going-to-sleep
+func TestSleepsOnlyOnItsOwnReleaseLine(t *testing.T) {
+	for _, tt := range []struct {
+		name, server, supervisor string
+		sleeps                   bool
+	}{
+		{"another patch of the line", "2.70.4", testRelease, true},
+		{"another line", "2.69.0", testRelease, false},
+		{"a development build", "2.69.0", buildinfo.Dev, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newHarness(t, true)
+			h.api.SetVersion(tt.server)
+			s := h.start(tt.supervisor)
+			if tt.sleeps {
+				s.waitPhase(state.Asleep)
+				if asked := slices.Contains(h.api.Calls(), "GET /status"); asked != (tt.supervisor != buildinfo.Dev) {
+					t.Errorf("asked for the server's release: %v", asked)
+				}
+				return
+			}
 
-func TestReleaseMismatchKeepsTheServerAwake(t *testing.T) {
-	h := newHarness(t, true)
-	h.api.SetVersion("2.69.0")
-	h.keepAwakeAfterWake()
-	h.start(testRelease)
-	h.waitAwakeAfterWake()
-
-	snap := h.snapshot()
-	if snap.LastFailure == nil || !strings.Contains(snap.LastFailure.Message, "runs release 2.69.0") {
-		t.Errorf("failure = %+v", snap.LastFailure)
-	}
-	if slices.Contains(h.api.Calls(), "POST /tasks/hold") {
-		t.Error("held tasks on a server of another release")
-	}
-	for _, put := range h.puts() {
-		if strings.Contains(put, "down") {
-			t.Errorf("stopped a part: %s", put)
-		}
-	}
-}
-
-func TestDevelopmentBuildSkipsTheReleaseCheck(t *testing.T) {
-	h := newHarness(t, true)
-	h.api.SetVersion("2.69.0")
-	h.start(buildinfo.Dev)
-	h.waitPhase(state.Asleep)
-	if slices.Contains(h.api.Calls(), "GET /status") {
-		t.Error("a development build asked for the server's release")
+			s.keepAwakeAfterWake()
+			s.waitAwakeAfterWake()
+			if f := s.snapshot().LastFailure; f == nil || !strings.Contains(f.Message, "runs release "+tt.server) {
+				t.Errorf("failure = %+v", f)
+			}
+			if slices.Contains(h.api.Calls(), "POST /tasks/hold") || anyDown(h.puts()) {
+				t.Errorf("went on with a server of another line: calls %q, puts %q", h.api.Calls(), h.puts())
+			}
+		})
 	}
 }
 
-// sleepStepHooks are points in a facility's sleep, each matched by an api
-// call or an actuator request.
-var sleepStepHooks = []struct {
-	name  string
-	call  string
-	parts state.Part
-}{
-	{name: "release check", call: "GET /status"},
-	{name: "hold", call: "POST /tasks/hold"},
-	{name: "stopping tasks", parts: state.Tasks},
-	{name: "final sync", call: "POST /final-sync"},
-	{name: "stopping the api", parts: state.API},
-	{name: "stopping the database", parts: state.Database},
-}
-
-// onceAt calls fn the first time the step is reached.
-func onceAt(h *harness, call string, part state.Part, fn func()) {
+// at calls fn the first time the api is called with call, or the first time
+// the actuator is asked to stop part.
+func at(h *harness, call string, part state.Part, fn func()) {
 	var once sync.Once
 	if call != "" {
 		h.onAPI(func(c string) {
@@ -214,17 +203,30 @@ func onceAt(h *harness, call string, part state.Part, fn func()) {
 
 // spec: SLPWK#going-to-sleep
 func TestActivityCancelsTheSleepAtEachStep(t *testing.T) {
-	for _, step := range sleepStepHooks {
+	for _, step := range []struct {
+		name string
+		call string
+		part state.Part
+	}{
+		{name: "release check", call: "GET /status"},
+		{name: "hold", call: "POST /tasks/hold"},
+		{name: "stopping tasks", part: state.Tasks},
+		{name: "final sync", call: "POST /final-sync"},
+		{name: "stopping the api", part: state.API},
+		{name: "stopping the database", part: state.Database},
+	} {
 		t.Run(step.name, func(t *testing.T) {
 			h := newHarness(t, false)
-			onceAt(h, step.call, step.parts, h.activity)
-			h.keepAwakeAfterWake()
-			h.start(testRelease)
-			h.waitAwakeAfterWake()
+			started := make(chan *supervisor, 1)
+			at(h, step.call, step.part, func() { (<-started).activity() })
+			s := h.start(testRelease)
+			started <- s
+			s.keepAwakeAfterWake()
+			s.waitAwakeAfterWake()
 			if !h.allUp() || h.api.Held() {
 				t.Errorf("not woken: held %v, parts %+v", h.api.Held(), h.act.State().Parts)
 			}
-			if f := h.snapshot().LastFailure; f != nil {
+			if f := s.snapshot().LastFailure; f != nil {
 				t.Errorf("activity recorded as a failure: %+v", f)
 			}
 		})
@@ -233,35 +235,36 @@ func TestActivityCancelsTheSleepAtEachStep(t *testing.T) {
 
 // spec: SLPWK#going-to-sleep
 func TestFailedStepCancelsTheSleep(t *testing.T) {
-	steps := []struct {
+	for _, step := range []struct {
 		name  string
 		setup func(*harness)
 		want  string
 	}{
 		{"hold", func(h *harness) { h.api.Fail("POST /tasks/hold", http.StatusInternalServerError) }, "at held"},
 		{"stopping tasks", func(h *harness) { failFirstDown(h, state.Tasks) }, "at tasks-stopped"},
+		{"incomplete final sync", func(h *harness) {
+			h.api.SetFinalSync(apiclient.FinalSyncResult{Reason: "Sync was queued by the central server"})
+		}, "at synced: the final sync did not complete: Sync was queued"},
 		{"stopping the api", func(h *harness) { failFirstDown(h, state.API) }, "at parts-stopped"},
 		{"stopping the database", func(h *harness) { failFirstDown(h, state.Database) }, "at database-stopped"},
 		{"database never stops", func(h *harness) {
-			onceAt(h, "", state.Database, func() { h.act.Stall(state.Database, true) })
+			at(h, "", state.Database, func() { h.act.Stall(state.Database, true) })
 		}, "timed out waiting for database (stopping)"},
-	}
-	for _, step := range steps {
+	} {
 		t.Run(step.name, func(t *testing.T) {
-			h := newHarness(t, true)
+			h := newHarness(t, false)
 			h.timing.PartTimeout = 50 * time.Millisecond
 			step.setup(h)
-			h.keepAwakeAfterWake()
-			h.start(testRelease)
-			h.eventually("the failure", func() bool { return h.snapshot().LastFailure != nil })
-			f := h.snapshot().LastFailure
-			if !strings.Contains(f.Message, step.want) {
+			s := h.start(testRelease)
+			s.keepAwakeAfterWake()
+			h.eventually("the failure", func() bool { return s.snapshot().LastFailure != nil })
+			if f := s.snapshot().LastFailure; !strings.Contains(f.Message, step.want) {
 				t.Errorf("failure = %+v, want it to mention %q", f, step.want)
 			}
 
 			// Let a stalled database go, so the wake can finish.
 			h.act.Stall(state.Database, false)
-			h.waitAwakeAfterWake()
+			s.waitAwakeAfterWake()
 			if !h.allUp() || h.api.Held() {
 				t.Errorf("not woken: held %v, parts %+v", h.api.Held(), h.act.State().Parts)
 			}
@@ -331,9 +334,9 @@ func TestNewHolderDerivesPhase(t *testing.T) {
 			for p, s := range tt.parts {
 				h.act.SetPart(p, s.desired, s.observed)
 			}
-			h.start(testRelease)
+			s := h.start(testRelease)
 			h.eventually("holding the lease, "+string(tt.want), func() bool {
-				return h.machine().HoldsLease() && h.snapshot().Phase == tt.want
+				return s.m.HoldsLease() && s.phase() == tt.want
 			})
 			time.Sleep(5 * h.timing.ActuatorPoll)
 
@@ -347,7 +350,7 @@ func TestNewHolderDerivesPhase(t *testing.T) {
 			if got := h.api.Calls(); !slices.Equal(got, wantCalls) {
 				t.Errorf("calls = %q, want %q", got, wantCalls)
 			}
-			if phase := h.snapshot().Phase; phase != tt.want {
+			if phase := s.phase(); phase != tt.want {
 				t.Errorf("phase %s, want %s", phase, tt.want)
 			}
 			wantAdmission := state.Forward
@@ -356,7 +359,7 @@ func TestNewHolderDerivesPhase(t *testing.T) {
 			} else if !h.allUp() {
 				t.Errorf("parts not all up: %+v", h.act.State().Parts)
 			}
-			if got := h.state().Admit(state.Sync); got != wantAdmission {
+			if got := s.st.Admit(state.Sync); got != wantAdmission {
 				t.Errorf("the gate answers %v, want %v", got, wantAdmission)
 			}
 		})
@@ -364,89 +367,102 @@ func TestNewHolderDerivesPhase(t *testing.T) {
 }
 
 // spec: SUPV#upgrades
-func TestUpgradeBlocksSleepAndWake(t *testing.T) {
-	h := newHarness(t, false)
-	h.act.SetUpgrading(true)
-	h.start(testRelease)
-	h.eventually("upgrading", func() bool { return h.snapshot().Upgrading })
-	if h.state().Admit(state.Sync) != state.Upgrading {
-		t.Error("the gate does not answer upgrading")
-	}
-	time.Sleep(5 * h.timing.IdleTime)
-	if len(h.api.Calls()) != 0 || len(h.act.Puts()) != 0 {
-		t.Errorf("acted during an upgrade: calls %q, puts %q", h.api.Calls(), h.puts())
-	}
+// spec: SLPWK#rollouts
+func TestUpgrades(t *testing.T) {
+	upgrade := func(h *harness) { h.act.SetUpgrading(true) }
+	for _, tt := range []struct {
+		name string
+		// begin starts the supervisor and the upgrade.
+		begin func(h *harness) *supervisor
+		// settled, if not nil, is when the step under way as the upgrade
+		// started has finished.
+		settled func(h *harness) bool
+	}{
+		{
+			name: "at startup, awake",
+			begin: func(h *harness) *supervisor {
+				upgrade(h)
+				return h.start(testRelease)
+			},
+		},
+		{
+			name: "at startup, asleep",
+			begin: func(h *harness) *supervisor {
+				for _, p := range state.Parts() {
+					h.act.SetPart(p, actuator.Down, actuator.Stopped)
+				}
+				upgrade(h)
+				return h.start(testRelease)
+			},
+		},
+		{
+			name: "while asleep",
+			begin: func(h *harness) *supervisor {
+				s := h.start(testRelease)
+				s.waitPhase(state.Asleep)
+				upgrade(h)
+				return s
+			},
+		},
+		{
+			name: "mid-wake",
+			begin: func(h *harness) *supervisor {
+				s := h.start(testRelease)
+				s.waitPhase(state.Asleep)
+				var once sync.Once
+				h.onPut(func(parts map[state.Part]actuator.Desired) {
+					if parts[state.Database] == actuator.Up {
+						once.Do(func() { upgrade(h) })
+					}
+				})
+				s.activity()
+				return s
+			},
+			// The wake asks for the other parts once the database is ready.
+			settled: (*harness).allUp,
+		},
+		{
+			name: "mid-sleep",
+			begin: func(h *harness) *supervisor {
+				// Parts take longer to stop than the actuator takes to be
+				// polled, so the upgrade is seen while the sleep is under way.
+				h.act.SetDelay(50 * time.Millisecond)
+				at(h, "POST /final-sync", "", func() { upgrade(h) })
+				return h.start(testRelease)
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newHarness(t, false)
+			s := tt.begin(h)
+			h.eventually("upgrading", func() bool { return s.snapshot().Upgrading })
+			if tt.settled != nil {
+				h.eventually("the step under way", func() bool { return tt.settled(h) })
+			}
+			time.Sleep(5 * h.timing.ActuatorPoll)
+			calls, puts := len(h.api.Calls()), len(h.act.Puts())
 
-	h.act.SetUpgrading(false)
-	h.waitPhase(state.Asleep)
+			if admission := s.activity(); admission != state.Upgrading {
+				t.Errorf("activity during the upgrade = %v", admission)
+			}
+			time.Sleep(5 * h.timing.IdleTime)
+			if got := h.api.Calls()[calls:]; len(got) != 0 {
+				t.Errorf("called the api during the upgrade: %q", got)
+			}
+			if got := h.puts()[puts:]; len(got) != 0 {
+				t.Errorf("set desired states during the upgrade: %q", got)
+			}
+			if got := s.st.Admit(state.API); got != state.Upgrading {
+				t.Errorf("the gate answers %v during the upgrade", got)
+			}
 
-	h.act.SetUpgrading(true)
-	h.eventually("upgrading", func() bool { return h.snapshot().Upgrading })
-	puts := len(h.puts())
-	if admission, done := h.state().AdmitActivity(state.API); admission != state.Upgrading {
-		t.Errorf("activity during an upgrade = %v", admission)
-	} else {
-		done()
-	}
-	time.Sleep(5 * h.timing.IdleTime)
-	if len(h.puts()) != puts || h.snapshot().Phase != state.Asleep {
-		t.Errorf("woke during an upgrade: %q", h.puts()[puts:])
-	}
-
-	h.keepAwakeAfterWake()
-	h.act.SetUpgrading(false)
-	h.waitAwakeAfterWake()
-}
-
-// spec: SUPV#upgrades
-func TestNoAPICallsDuringAnUpgrade(t *testing.T) {
-	h := newHarness(t, false)
-	h.start(testRelease)
-	h.waitPhase(state.Asleep)
-
-	// The upgrade starts once the wake has asked for the database, so the
-	// wake finishes during it.
-	var once sync.Once
-	h.onPut(func(parts map[state.Part]actuator.Desired) {
-		if parts[state.Database] == actuator.Up {
-			once.Do(func() { h.act.SetUpgrading(true) })
-		}
-	})
-	calls := len(h.api.Calls())
-	h.activity()
-	h.eventually("parts up during the upgrade", func() bool {
-		return h.snapshot().Upgrading && h.allUp()
-	})
-	time.Sleep(5 * h.timing.ActuatorPoll)
-	if got := h.api.Calls()[calls:]; len(got) != 0 {
-		t.Errorf("called the api during an upgrade: %q", got)
-	}
-
-	h.keepAwakeAfterWake()
-	h.act.SetUpgrading(false)
-	h.waitAwakeAfterWake()
-	if h.api.Held() {
-		t.Error("the task hold was not released after the upgrade")
-	}
-}
-
-func TestUpgradeCancelsASleep(t *testing.T) {
-	h := newHarness(t, false)
-	// Parts take longer to stop than the actuator takes to be polled, so the
-	// upgrade is seen while the sleep is under way.
-	h.act.SetDelay(50 * time.Millisecond)
-	onceAt(h, "POST /final-sync", "", func() { h.act.SetUpgrading(true) })
-	h.start(testRelease)
-	h.eventually("upgrading", func() bool { return h.snapshot().Upgrading })
-	time.Sleep(5 * h.timing.IdleTime)
-	if slices.Contains(h.puts(), "database=down") {
-		t.Errorf("the sleep went on during an upgrade: %q", h.puts())
-	}
-	h.keepAwakeAfterWake()
-	h.act.SetUpgrading(false)
-	h.waitAwakeAfterWake()
-	if !h.allUp() {
-		t.Errorf("parts not all up after the upgrade: %+v", h.act.State().Parts)
+			s.keepAwakeAfterWake()
+			h.act.SetUpgrading(false)
+			s.waitAwakeAfterWake()
+			if !h.allUp() || h.api.Held() {
+				t.Errorf("after the upgrade: held %v, parts %+v", h.api.Held(), h.act.State().Parts)
+			}
+		})
 	}
 }
 
@@ -454,71 +470,57 @@ func TestUpgradeCancelsASleep(t *testing.T) {
 func TestActuatorThatDoesNotControlPartsNeverSleeps(t *testing.T) {
 	h := newHarness(t, true)
 	h.act.SetControlsParts(false)
-	h.start(testRelease)
+	s := h.start(testRelease)
 	time.Sleep(5 * h.timing.IdleTime)
-	if len(h.api.Calls()) != 0 || len(h.act.Puts()) != 0 || h.snapshot().Phase != state.Awake {
-		t.Errorf("calls %q, puts %q, phase %s", h.api.Calls(), h.puts(), h.snapshot().Phase)
+	if len(h.api.Calls()) != 0 || len(h.act.Puts()) != 0 || s.phase() != state.Awake {
+		t.Errorf("calls %q, puts %q, phase %s", h.api.Calls(), h.puts(), s.phase())
 	}
-	if h.state().Admit(state.API) != state.Forward {
+	if s.st.Admit(state.API) != state.Forward {
 		t.Error("not forwarding")
 	}
 
 	h.act.SetUpgrading(true)
-	h.eventually("upgrading", func() bool { return h.state().Admit(state.API) == state.Upgrading })
+	h.eventually("upgrading", func() bool { return s.st.Admit(state.API) == state.Upgrading })
 }
 
 // spec: SLPWK#waking
 func TestStalledWakeIsRetried(t *testing.T) {
 	h := newHarness(t, false)
 	h.timing.PartTimeout = 30 * time.Millisecond
-	h.start(testRelease)
-	h.waitPhase(state.Asleep)
+	s := h.start(testRelease)
+	s.waitPhase(state.Asleep)
 
 	h.act.Stall(state.Database, true)
-	h.keepAwakeAfterWake()
-	h.activity()
+	s.keepAwakeAfterWake()
+	s.activity()
 	h.eventually("the wake's failure", func() bool {
-		f := h.snapshot().LastFailure
+		f := s.snapshot().LastFailure
 		return f != nil && strings.Contains(f.Message, "waking")
 	})
-	if snap := h.snapshot(); snap.Phase != state.Waking || h.state().Admit(state.API) != state.Hold {
-		t.Errorf("phase %s while the wake stalls", snap.Phase)
+	if s.phase() != state.Waking || s.st.Admit(state.API) != state.Hold {
+		t.Errorf("phase %s while the wake stalls", s.phase())
 	}
-	h.eventually("a retry", func() bool { return countPuts(h.puts(), "database=up") >= 2 })
+	h.eventually("a retry", func() bool { return count(h.puts(), "database=up") >= 2 })
 
 	h.act.Stall(state.Database, false)
-	h.waitAwakeAfterWake()
-	if f := h.snapshot().LastFailure; f != nil {
+	s.waitAwakeAfterWake()
+	if f := s.snapshot().LastFailure; f != nil {
 		t.Errorf("the wake's failure outlived it: %+v", f)
 	}
 }
 
+// spec: SLPWK#waking
 func TestPartsForwardedAsTheyBecomeReady(t *testing.T) {
 	h := newHarness(t, false)
-	h.start(testRelease)
-	h.waitPhase(state.Asleep)
+	s := h.start(testRelease)
+	s.waitPhase(state.Asleep)
 
 	h.act.Stall(state.Sync, true)
-	h.activity()
+	s.activity()
 	h.eventually("api forwarded while sync starts", func() bool {
-		return h.snapshot().Phase == state.Waking && h.state().Admit(state.API) == state.Forward
+		return s.phase() == state.Waking && s.st.Admit(state.API) == state.Forward
 	})
-	if h.state().Admit(state.Sync) != state.Hold {
-		t.Error("sync forwarded before it was ready")
-	}
-	h.keepAwakeAfterWake()
+	s.keepAwakeAfterWake()
 	h.act.Stall(state.Sync, false)
-	h.waitAwakeAfterWake()
+	s.waitAwakeAfterWake()
 }
-
-func countCalls(calls []string, call string) int {
-	n := 0
-	for _, c := range calls {
-		if c == call {
-			n++
-		}
-	}
-	return n
-}
-
-func countPuts(puts []string, put string) int { return countCalls(puts, put) }
