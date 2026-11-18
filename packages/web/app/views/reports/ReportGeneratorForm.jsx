@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 
 import {
   FORM_TYPES,
+  GENERIC_SURVEY_EXPORT_REPORT_ID,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCES,
   REPORT_EXPORT_FORMATS,
@@ -33,6 +34,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useSuggester } from '../../api';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
@@ -104,8 +106,9 @@ const useFileName = () => {
 
   const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);
 
-  return reportName => {
-    const dashedName = `${reportName}-${countryName}`
+  return (reportName, surveyName) => {
+    const nameSegments = surveyName ? [reportName, surveyName] : [reportName];
+    const dashedName = `${nameSegments.join('-')}-${countryName}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
@@ -142,6 +145,7 @@ export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
   const getFileName = useFileName();
+  const surveySuggester = useSuggester('survey');
   const { currentUser, facilityId } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
   const [requestError, setRequestError] = useState(null);
@@ -240,13 +244,20 @@ export const ReportGeneratorForm = () => {
           .map(([key, value]) => `${key}: ${value}`)
           .join(', ');
 
-        const reportName = reportsById[reportId].name;
+        const { name: reportName, definitionId } = reportsById[reportId];
+
+        // spec: REPORTS
+        const isGenericSurveyExport = definitionId === GENERIC_SURVEY_EXPORT_REPORT_ID;
+        const surveyName = isGenericSurveyExport
+          ? (await surveySuggester.fetchCurrentOption(filterValues.surveyId))?.label
+          : null;
 
         const metadata = [
           ['Report Name:', reportName],
           ['Date Generated:', format(getFacilityNowDate(), 'ddMMyyyy')],
           ['User:', currentUser.email],
           ['Filters:', filterString],
+          ...(surveyName ? [['Survey:', surveyName]] : []),
           ['Timezone:', timezone],
         ];
 
@@ -254,7 +265,7 @@ export const ReportGeneratorForm = () => {
           prepareExcelFile({
             data: excelData,
             metadata,
-            defaultFileName: getFileName(reportName),
+            defaultFileName: getFileName(reportName, surveyName),
             bookType,
           }),
         );

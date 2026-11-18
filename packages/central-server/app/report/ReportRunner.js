@@ -5,7 +5,7 @@ import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
 import ms from 'ms';
 
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, GENERIC_SURVEY_EXPORT_REPORT_ID } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
@@ -97,11 +97,14 @@ export class ReportRunner {
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ');
 
+    const surveyName = await this.getSurveyName(await this.getReportDefinitionVersion());
+
     return [
       ['Report Name:', reportName],
       ['Date Generated:', date],
       ['User:', user.email],
       ['Filters:', filterString],
+      ...(surveyName ? [['Survey:', surveyName]] : []),
     ];
   }
 
@@ -211,6 +214,27 @@ export class ReportRunner {
     }
   }
 
+  async getReportDefinitionVersion() {
+    return this.store.models.ReportDefinitionVersion.findByPk(this.reportId, {
+      include: ['reportDefinition'],
+    });
+  }
+
+  /**
+   * The name of the survey a Generic Survey Export is run against, or null for any other report.
+   * spec: REPORTS
+   *
+   * @param reportVersion the ReportDefinitionVersion being run
+   * @returns {Promise<string | null>}
+   */
+  async getSurveyName(reportVersion) {
+    if (reportVersion?.reportDefinitionId !== GENERIC_SURVEY_EXPORT_REPORT_ID) return null;
+
+    // Tolerate a survey that can't be found, so naming the report never stops a failure email
+    const survey = await this.store.models.Survey.findByPk(this.parameters?.surveyId);
+    return survey?.name ?? null;
+  }
+
   /**
    *
    * @returns {Promise<string>}
@@ -218,20 +242,14 @@ export class ReportRunner {
   async getReportName() {
     const { country } = await getLocalisation(this.settings);
 
-    let reportName = this.reportId;
-
-    const dbDefinedReportModule = await this.store.models.ReportDefinitionVersion.findByPk(
-      this.reportId,
-      { include: ['reportDefinition'] },
-    );
-
-    if (dbDefinedReportModule) {
-      reportName = `${dbDefinedReportModule.reportDefinition.name}`;
-    }
+    const reportVersion = await this.getReportDefinitionVersion();
+    const reportName = reportVersion ? `${reportVersion.reportDefinition.name}` : this.reportId;
+    const surveyName = await this.getSurveyName(reportVersion);
+    const nameSegments = surveyName ? [reportName, surveyName] : [reportName];
 
     const date = formatDate(new Date(), 'ddMMyyyy');
 
-    const dashedName = `${reportName}-${country.name}`
+    const dashedName = `${nameSegments.join('-')}-${country.name}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
