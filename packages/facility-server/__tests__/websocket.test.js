@@ -1,17 +1,19 @@
-import { setTimeout as sleep } from 'node:timers/promises';
 import { io } from 'socket.io-client';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
-import { REFERENCE_TYPES, TASK_STATUSES, WS_EVENTS, WS_PATH } from '@tamanu/constants';
+import {
+  REFERENCE_TYPES,
+  TASK_STATUSES,
+  VISIBILITY_STATUSES,
+  WS_EVENTS,
+  WS_PATH,
+} from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake } from '@tamanu/fake-data/fake';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { buildToken } from '../app/middleware/auth';
 import { createTestContext } from './utilities';
-
-// Long enough for an event sent to every room at once to have reached every connection
-const DELIVERY_GRACE_MS = 300;
 
 describe('Websocket', () => {
   let ctx;
@@ -20,6 +22,7 @@ describe('Websocket', () => {
   let encounter;
   let facilityId;
   const sockets = [];
+  let deliveryBarrierCount = 0;
 
   const connect = auth => {
     const socket = io(url, { path: WS_PATH, transports: ['websocket'], reconnection: false, auth });
@@ -27,16 +30,25 @@ describe('Websocket', () => {
     return socket;
   };
 
-  /** Connects as the user, recording every event the connection receives. */
-  const connectAs = async (user, { facilityId: tokenFacilityId } = {}) => {
-    const token = await buildToken({ user, facilityId: tokenFacilityId, expiresIn: '1d' });
-    const socket = connect({ token });
+  const recordReceivedEvents = socket => {
     socket.received = [];
     socket.onAny(eventName => socket.received.push(eventName));
-    await new Promise((resolve, reject) => {
+  };
+
+  const connected = socket =>
+    new Promise((resolve, reject) => {
       socket.once('connect', resolve);
       socket.once('connect_error', reject);
     });
+
+  const buildAccessToken = (user, { facilityId: tokenFacilityId } = {}) =>
+    buildToken({ user, facilityId: tokenFacilityId, expiresIn: '1d' });
+
+  /** Connects as the user, recording every event the connection receives. */
+  const connectAs = async (user, options) => {
+    const socket = connect({ token: await buildAccessToken(user, options) });
+    recordReceivedEvents(socket);
+    await connected(socket);
     return socket;
   };
 
@@ -50,6 +62,18 @@ describe('Websocket', () => {
     new Promise(resolve => {
       socket.once(eventName, (...args) => resolve(args));
     });
+
+  // A connection receives the server's events in the order they were sent. Once each socket has
+  // received a settings change made after an event was sent, it has received that event too if it
+  // was going to.
+  const afterEarlierDeliveries = async (...sockets) => {
+    deliveryBarrierCount += 1;
+    const delivered = sockets.map(socket =>
+      nextEvent(socket, `${WS_EVENTS.DATABASE_TABLE_CHANGED}:settings`),
+    );
+    await models.Setting.set('upcomingVaccinations.ageLimit', 100 + deliveryBarrierCount);
+    await Promise.all(delivered);
+  };
 
   // An event sent to a room carries a string offset for connection state recovery, and nothing else
   const expectNoRecord = args => expect(args.every(arg => typeof arg === 'string')).toBe(true);
@@ -118,6 +142,13 @@ describe('Websocket', () => {
       expect(await connectionError(connect({ token }))).toBe('Unauthorised');
     });
 
+    it('refuses a connection for a user who is no longer active', async () => {
+      const user = await createUser();
+      const token = await buildAccessToken(user);
+      await user.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+      expect(await connectionError(connect({ token }))).toBe('Unauthorised');
+    });
+
     it('accepts a connection with a valid token', async () => {
       const socket = await connectAs(await createUser());
       expect(socket.connected).toBe(true);
@@ -135,7 +166,7 @@ describe('Websocket', () => {
       await createTask({ designatedUser });
 
       expectNoRecord(await notified);
-      await sleep(DELIVERY_GRACE_MS);
+      await afterEarlierDeliveries(otherSocket);
       expect(otherSocket.received).not.toContain(eventName);
     });
 
@@ -148,7 +179,7 @@ describe('Websocket', () => {
       await createTask();
 
       expectNoRecord(await notified);
-      await sleep(DELIVERY_GRACE_MS);
+      await afterEarlierDeliveries(otherSocket);
       expect(otherSocket.received).not.toContain(eventName);
     });
 
@@ -163,7 +194,7 @@ describe('Websocket', () => {
       await createTask({ designatedUser });
 
       await notified;
-      await sleep(DELIVERY_GRACE_MS);
+      await afterEarlierDeliveries(socket);
       expect(socket.received).not.toContain(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:tasks`);
     });
   });
@@ -189,7 +220,7 @@ describe('Websocket', () => {
       );
 
       expectNoRecord(await notified);
-      await sleep(DELIVERY_GRACE_MS);
+      await afterEarlierDeliveries(otherSocket, clinicianSocket);
       expect(otherSocket.received).not.toContain(eventName);
       expect(clinicianSocket.received).not.toContain(
         `${WS_EVENTS.DATABASE_TABLE_CHANGED}:appointments`,
@@ -230,7 +261,7 @@ describe('Websocket', () => {
       );
 
       expectNoRecord(await notified);
-      await sleep(DELIVERY_GRACE_MS);
+      await afterEarlierDeliveries(otherSocket);
       expect(otherSocket.received).not.toContain(eventName);
     });
   });
