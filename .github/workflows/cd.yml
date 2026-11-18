@@ -433,7 +433,7 @@ jobs:
           sed -E 's|root \* /app|root * C:/app|' \
             "packages/${{ matrix.package.path }}/Caddyfile.docker" > layer/Files/caddy/Caddyfile
           mkdir -p layer/Files/caddy/supervisor
-          cp packages/supervisor/caddy/env-js.caddyfile layer/Files/caddy/supervisor/
+          cp packages/supervisor/caddy/*.caddyfile layer/Files/caddy/supervisor/
 
       - name: Pack Windows image
         uses: ./.github/actions/windows-image-pack
