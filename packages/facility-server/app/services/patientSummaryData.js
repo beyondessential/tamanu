@@ -3,6 +3,11 @@ import { Op, literal } from 'sequelize';
 import { VACCINE_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ageInYears } from '@tamanu/utils/dateTime';
 
+import {
+  LAB_REQUEST_WITHOUT_SENSITIVE_TESTS,
+  PRESCRIPTION_OF_NON_SENSITIVE_DRUG,
+} from './summarySensitiveRecords';
+
 const PATIENT_SUMMARY_DATA_LIMIT = 20;
 
 // The summary is stored against the patient and syncs to every facility, so it must not draw on
@@ -209,6 +214,7 @@ export async function fetchPatientSummaryData(patientId, models) {
 
   // 10. Recent lab requests with results
   const labRequests = await LabRequest.findAll({
+    where: LAB_REQUEST_WITHOUT_SENSITIVE_TESTS,
     include: [
       {
         association: 'encounter',
@@ -244,9 +250,12 @@ export async function fetchPatientSummaryData(patientId, models) {
   // patient's encounters or as a patient-level ongoing (regular) prescription,
   // so gather both paths and merge.
   const medicationInclude = [{ association: 'medication' }, { association: 'prescriber' }];
+  const medicationWhere = {
+    [Op.and]: [PRESCRIPTION_OUTSIDE_SENSITIVE_NETWORKS, PRESCRIPTION_OF_NON_SENSITIVE_DRUG],
+  };
 
   const encounterMedications = await Prescription.findAll({
-    where: PRESCRIPTION_OUTSIDE_SENSITIVE_NETWORKS,
+    where: medicationWhere,
     include: [
       {
         association: 'encounters',
@@ -262,7 +271,7 @@ export async function fetchPatientSummaryData(patientId, models) {
   });
 
   const ongoingMedications = await Prescription.findAll({
-    where: PRESCRIPTION_OUTSIDE_SENSITIVE_NETWORKS,
+    where: medicationWhere,
     include: [
       {
         association: 'patients',

@@ -125,7 +125,7 @@ Applies to sensitive networks, and to how a facility's membership of one scopes 
 - A summary draws on no encounter at a facility in a sensitive network, nor on anything recorded against one: its diagnoses, notes, procedures, vitals, vaccinations, lab and imaging requests, and prescriptions.
 - This holds wherever the summary is generated, including at a facility in that network, so a patient currently admitted there has no active encounter in their summary.
 - A prescription linked to such an encounter stays out of the summary even when it is also one of the patient's ongoing medications.
-- Patient-level records that carry no network — allergies, conditions, issues, family history, care plans, ongoing medications recorded outside an encounter, and death data — are summarised as before.
+- Patient-level records that carry no network — allergies, conditions, issues, family history, care plans, ongoing medications recorded outside an encounter, and death data — are summarised as before, apart from the [sensitive records](../patient/ai-summaries.md#sensitive-records) no summary draws on.
 
 ## Mobile
 
