@@ -87,6 +87,10 @@ has read the actuator's state, whether or not it holds the lease. Until then it 
 `/status` says whether this supervisor holds the lease or follows the holder, and which
 announcement it made or follows.
 
+The status server listens on loopback unless told otherwise. A platform whose probes arrive over
+the network, as Kubernetes's do from the kubelet, sets `TAMANU_SUPERVISOR_STATUS_LISTEN` to an
+address they reach, such as `:8081`.
+
 ## Sleep and wake
 
 The steps of a sleep call the api's supervisor routes in this order: `GET /api/supervisor/status`
