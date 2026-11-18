@@ -16,7 +16,6 @@ import {
   createDummyEncounter,
   createDummyPatient,
   createLabTestTypes,
-  randomRecords,
   randomLabRequest,
   randomDate,
   splitIds,
@@ -290,13 +289,12 @@ describe('Suggestions', () => {
     let unrestrictedLocation;
 
     beforeAll(async () => {
-      [occupiedLocation, reservedLocation, unrestrictedLocation] = await randomRecords(
-        models,
-        'Location',
-        3,
-      );
-
-      await unrestrictedLocation.update({ maxOccupancy: null });
+      const facility = await models.Facility.findOne({ order: [['createdAt', 'ASC']] });
+      const createLocation = maxOccupancy =>
+        models.Location.create(fake(models.Location, { facilityId: facility.id, maxOccupancy }));
+      occupiedLocation = await createLocation(1);
+      reservedLocation = await createLocation(1);
+      unrestrictedLocation = await createLocation(null);
 
       // An encounter requires a patient
       const patient = await models.Patient.create(
@@ -324,10 +322,6 @@ describe('Suggestions', () => {
           endDate: null,
         }),
       );
-    });
-
-    afterAll(async () => {
-      await unrestrictedLocation.update({ maxOccupancy: 1 });
     });
 
     it('should calculate location availability and return it with suggestion list', async () => {
@@ -721,7 +715,9 @@ describe('Suggestions', () => {
           type: 'labTestCategory',
         });
         const [sensitiveType] = await createLabTestTypes(models, categoryId, { isSensitive: true });
-        const { id: sensitivePanelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+        const { id: sensitivePanelId } = await models.LabTestPanel.create(
+          fake(models.LabTestPanel),
+        );
         await models.LabTestPanelLabTestTypes.create({
           labTestPanelId: sensitivePanelId,
           labTestTypeId: sensitiveType.id,
