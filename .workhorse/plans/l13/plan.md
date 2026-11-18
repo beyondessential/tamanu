@@ -120,8 +120,8 @@ Build order, on this card's branch (#11712):
 - [x] Specs: SUPV and SLPWK without the saved state (resilience, compatibility, the actuator contract), and configuration as the entrypoint's contract
 - [x] Drop the saved state: `internal/persist`, the contract's saved-state endpoint and the fake's, step tracking and resuming; a new holder reads the phase from part states. New-holder table test
 - [x] Caddyfile routing: the shipped Caddyfiles, the `tamanu` app's Caddyfile block, the `sh` entrypoint with its test table, the Dockerfile; remove `internal/config`, `internal/routes` (but the smoke tests) and `internal/command`. Smoke tests against the Caddyfile, with the path table
-- [ ] Test review cuts and merges, package by package, and the remaining gap tests
-- [ ] Remove `cmd/fake-actuator`; README and PR description
+- [x] Test review cuts and merges, package by package, and the remaining gap tests. The tests came to about 2,800 lines rather than 1,900: the machine's tests stayed near 1,200, the gap rows and the per-supervisor harness taking what the merges saved. The upgrade table caught a wake that went on starting parts after an upgrade began mid-wake, now fixed
+- [x] Remove `cmd/fake-actuator`; README and PR description
 - [ ] Then triage the open review issues against what is left, since many touch removed code
 
 ### Later
