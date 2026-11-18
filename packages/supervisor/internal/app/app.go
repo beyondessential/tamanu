@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
@@ -62,27 +61,10 @@ func (App) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
-// pool keeps the state across config reloads: the incoming config's app
-// takes the state from the outgoing one rather than starting afresh.
-var pool = caddy.NewUsagePool()
-
-const poolKey = "state"
-
-type pooledState struct{ *state.Server }
-
-func (pooledState) Destruct() error { return nil }
-
-// Provision sets up the app and takes the shared state.
+// Provision sets up the app and its state.
 func (a *App) Provision(ctx caddy.Context) error {
 	a.apiToken = caddy.NewReplacer().ReplaceAll(a.APIToken, "")
-
-	val, _, err := pool.LoadOrNew(poolKey, func() (caddy.Destructor, error) {
-		return pooledState{state.New(state.Parts())}, nil
-	})
-	if err != nil {
-		return err
-	}
-	a.state = val.(pooledState).Server
+	a.state = state.New(state.Parts())
 
 	if a.ActuatorURL == "" {
 		return nil
@@ -132,11 +114,6 @@ func (a *App) Validate() error {
 	return nil
 }
 
-// runMu lets one machine run at a time. Caddy starts a new config's apps
-// before it stops the old config's, so a new machine waits for the old one to
-// stop.
-var runMu sync.Mutex
-
 // Start starts the sleep and wake machine, if there is an actuator.
 //
 // spec: SUPV#platforms
@@ -148,11 +125,7 @@ func (a *App) Start() error {
 	a.cancel, a.done = cancel, make(chan struct{})
 	go func() {
 		defer close(a.done)
-		runMu.Lock()
-		defer runMu.Unlock()
-		if ctx.Err() == nil {
-			a.machine.Run(ctx)
-		}
+		a.machine.Run(ctx)
 	}()
 
 	// Caddy drains connections before it stops the apps, so the lease is
@@ -187,12 +160,6 @@ func (a *App) Stop() error {
 // once without an actuator, and once it has read the actuator's state with
 // one, whether or not it holds the lease.
 func (a *App) Ready() bool { return a.machine == nil || a.machine.Ready() }
-
-// Cleanup releases the app's hold on the shared state.
-func (a *App) Cleanup() error {
-	_, err := pool.Delete(poolKey)
-	return err
-}
 
 // State is the server's run-time state.
 func (a *App) State() *state.Server { return a.state }
@@ -280,8 +247,7 @@ func (a *App) leaseState() string {
 
 // Interface guards.
 var (
-	_ caddy.App          = (*App)(nil)
-	_ caddy.Provisioner  = (*App)(nil)
-	_ caddy.Validator    = (*App)(nil)
-	_ caddy.CleanerUpper = (*App)(nil)
+	_ caddy.App         = (*App)(nil)
+	_ caddy.Provisioner = (*App)(nil)
+	_ caddy.Validator   = (*App)(nil)
 )
