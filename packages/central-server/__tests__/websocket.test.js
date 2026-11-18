@@ -11,6 +11,7 @@ import {
   WS_PATH,
 } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
+import { keepSocketConnected } from '@tamanu/utils/keepSocketConnected';
 
 import { buildToken } from '../app/auth/utils';
 import { createTestContext } from './utilities';
@@ -100,6 +101,35 @@ describe('Websocket', () => {
         socket.once('disconnect', resolve);
       });
       expect(reason).toBe('io server disconnect');
+    });
+  });
+
+  describe('reconnecting', () => {
+    it('reconnects with refreshed credentials after a refused handshake', async () => {
+      const user = await models.User.create(fake(models.User));
+      let token = await buildAccessToken(user, '-1h');
+      // socket.io's own reconnection left on, as the clients run it
+      const socket = io(url, {
+        path: WS_PATH,
+        transports: ['websocket'],
+        auth: sendToken => sendToken({ token }),
+      });
+      sockets.push(socket);
+      const stop = keepSocketConnected(socket, {
+        refreshCredentials: async () => {
+          token = await buildAccessToken(user);
+        },
+      });
+
+      try {
+        expect(await connectionError(socket)).toBe('Unauthorised');
+        await new Promise(resolve => {
+          socket.once('connect', resolve);
+        });
+        expect(socket.connected).toBe(true);
+      } finally {
+        stop();
+      }
     });
   });
 
