@@ -85,6 +85,14 @@
 			redir * /api/login 308
 		}
 
+		# The api's routes for the supervisor, which calls them directly and
+		# never through its own front door.
+		# spec: SUPV#talking-to-the-server
+		@supervisor path /api/supervisor /api/supervisor/*
+		handle @supervisor {
+			respond 404
+		}
+
 		# spec: SLPWK#activity
 		@websocket {
 			path /api/socket.io/*

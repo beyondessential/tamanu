@@ -271,6 +271,18 @@ func TestSmoke(t *testing.T) {
 		}
 	})
 
+	// spec: SUPV#talking-to-the-server
+	t.Run("the api's supervisor routes are not reachable", func(t *testing.T) {
+		for _, address := range []string{listen, portal} {
+			for _, path := range []string{"/api/supervisor", "/api/supervisor/status", "/API/Supervisor/tasks/hold", "/api//supervisor/status"} {
+				res, body := cl.get(address, path, "Authorization", "Bearer a-supervisor-token")
+				if res.StatusCode != http.StatusNotFound || strings.HasPrefix(body, "api ") {
+					t.Errorf("%s%s: got %d %q", address, path, res.StatusCode, body)
+				}
+			}
+		}
+	})
+
 	t.Run("status", func(t *testing.T) {
 		res, body := cl.get(status, "/status")
 		var s app.Status
