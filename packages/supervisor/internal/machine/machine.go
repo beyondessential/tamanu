@@ -21,7 +21,6 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/persist"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -33,8 +32,6 @@ type Actuator interface {
 	TakeLease(ctx context.Context, holder string, ttl time.Duration) (actuator.LeaseInfo, error)
 	RenewLease(ctx context.Context, holder string, ttl time.Duration) (actuator.LeaseInfo, error)
 	ReleaseLease(ctx context.Context) error
-	SavedState(ctx context.Context) ([]byte, bool, error)
-	SaveState(ctx context.Context, doc []byte) error
 	Report(ctx context.Context, instance string, r actuator.Report, ttl time.Duration) error
 }
 
@@ -108,17 +105,6 @@ type Config struct {
 	Instance string
 	Timing   Timing
 }
-
-// The steps of going to sleep, by the name persisted once each completes.
-const (
-	stepSettled         = "settled"
-	stepChecked         = "checked"
-	stepHeld            = "held"
-	stepTasksStopped    = "tasks-stopped"
-	stepSynced          = "synced"
-	stepPartsStopped    = "parts-stopped"
-	stepDatabaseStopped = "database-stopped"
-)
 
 var (
 	errBusy          = errors.New("the server is busy")
@@ -339,7 +325,7 @@ func (m *Machine) actAsHolder(ctx context.Context) {
 			return
 		}
 	}
-	m.resume(ctx, s)
+	m.takeOver(ctx, s)
 	for ctx.Err() == nil {
 		m.next(ctx)
 	}
@@ -372,41 +358,22 @@ func (m *Machine) observe(s actuator.State) {
 	}
 }
 
-// resume sets the server's state from the saved state and what the actuator
-// reports, and finishes an interrupted sleep or wake.
+// takeOver sets the server's phase from the state of its parts, and wakes a
+// server that is not asleep.
 //
 // spec: SUPV#resilience
-func (m *Machine) resume(ctx context.Context, s actuator.State) {
-	if !m.controls.Load() {
-		m.setAwake()
-		return
-	}
-	rec, found := m.load(ctx)
-	if found {
-		m.st.RestoreFailure(rec.LastFailure)
-	}
-	sameLine := found && buildinfo.SameLine(rec.Release, m.cfg.Release)
-	log := m.log.With(zap.String("saved_phase", string(rec.Phase)), zap.String("saved_step", rec.Step),
-		zap.String("saved_release", rec.Release))
-
+func (m *Machine) takeOver(ctx context.Context, s actuator.State) {
+	parts := m.cfg.Parts
 	switch {
-	case found && rec.Phase == state.Asleep && sameLine && s.AllDesired(m.cfg.Parts, actuator.Down):
-		log.Info("starting on an asleep server; keeping it asleep")
+	case !m.controls.Load():
+		m.setAwake()
+	case s.AllDesired(parts, actuator.Down) && s.AllObserved(parts, actuator.Stopped):
+		m.log.Info("taking over an asleep server; keeping it asleep")
 		m.serveAs(state.Asleep, s)
-	case found && rec.Phase == state.GoingToSleep && sameLine:
-		log.Info("continuing an interrupted sleep")
-		m.serveAs(state.GoingToSleep, s)
-		m.goToSleep(ctx, rec.Step)
-	case found && rec.Phase != state.Awake:
-		// spec: SLPWK#rollouts
-		log.Info("waking the server on start")
-		m.serveAs(state.Waking, s)
-		m.wake(ctx)
-	case s.AllObserved(m.cfg.Parts, actuator.Ready):
-		m.persistOrLog(ctx, state.Awake, "")
+	case s.AllDesired(parts, actuator.Up) && s.AllObserved(parts, actuator.Ready):
 		m.serveAs(state.Awake, s)
 	default:
-		log.Info("starting with parts not ready; waking the server")
+		m.log.Info("taking over a server neither awake nor asleep; waking it")
 		m.serveAs(state.Waking, s)
 		m.wake(ctx)
 	}
@@ -419,24 +386,6 @@ func (m *Machine) serveAs(phase state.Phase, s actuator.State) {
 		m.st.SetReady(p, s.Parts[p].Observed == actuator.Ready)
 	}
 	m.announce(phase)
-}
-
-// load reads the saved state. found is false when there is none this
-// supervisor can use.
-func (m *Machine) load(ctx context.Context) (rec persist.Record, found bool) {
-	doc, saved, err := m.act.SavedState(ctx)
-	if err != nil {
-		m.log.Warn("reading the saved state; continuing as though there were none", zap.Error(err))
-		return persist.Record{}, false
-	}
-	if !saved {
-		return persist.Record{}, false
-	}
-	rec, found, err = persist.Decode(doc)
-	if err != nil || !found {
-		m.log.Warn("the saved state cannot be used; continuing as though there were none", zap.Error(err))
-	}
-	return rec, found
 }
 
 // next waits for and makes the next transition.
@@ -489,7 +438,7 @@ func (m *Machine) awaitIdle(ctx context.Context, snap state.Snapshot) {
 		}
 		wait := time.Until(due)
 		if wait <= 0 {
-			m.goToSleep(ctx, "")
+			m.goToSleep(ctx)
 			return
 		}
 		timer := time.NewTimer(wait)
@@ -514,40 +463,29 @@ type sleepStep struct {
 
 func (m *Machine) sleepSteps() []sleepStep {
 	steps := []sleepStep{
-		{stepSettled, m.settle},
-		{stepChecked, m.checkRelease},
-		{stepHeld, m.hold},
-		{stepTasksStopped, func(ctx context.Context) error { return m.stop(ctx, state.Tasks, state.FHIR) }},
+		{"settled", m.settle},
+		{"checked", m.checkRelease},
+		{"held", m.hold},
+		{"tasks-stopped", func(ctx context.Context) error { return m.stop(ctx, state.Tasks, state.FHIR) }},
 	}
 	if !m.cfg.Central {
-		steps = append(steps, sleepStep{stepSynced, m.finalSync})
+		steps = append(steps, sleepStep{"synced", m.finalSync})
 	}
 	return append(steps,
-		sleepStep{stepPartsStopped, func(ctx context.Context) error {
+		sleepStep{"parts-stopped", func(ctx context.Context) error {
 			return m.stop(ctx, state.Sync, state.API)
 		}},
-		sleepStep{stepDatabaseStopped, func(ctx context.Context) error { return m.stop(ctx, state.Database) }},
+		sleepStep{"database-stopped", func(ctx context.Context) error { return m.stop(ctx, state.Database) }},
 	)
 }
 
-// resumeIndex is the step to continue an interrupted sleep from. Before tasks
-// have stopped it starts again, since the hold may have expired meanwhile.
-func resumeIndex(steps []sleepStep, from string) int {
-	reached := slices.IndexFunc(steps, func(s sleepStep) bool { return s.name == from })
-	tasksStopped := slices.IndexFunc(steps, func(s sleepStep) bool { return s.name == stepTasksStopped })
-	if reached < tasksStopped {
-		return 0
-	}
-	return reached + 1
-}
-
-// goToSleep puts the server to sleep, continuing after the step named from.
+// goToSleep puts the server to sleep.
 //
 // spec: SLPWK#going-to-sleep
-func (m *Machine) goToSleep(ctx context.Context, from string) {
+func (m *Machine) goToSleep(ctx context.Context) {
 	drain(m.st.WakeRequests())
 	m.announce(state.GoingToSleep)
-	m.log.Info("going to sleep", zap.String("from_step", from))
+	m.log.Info("going to sleep")
 
 	sleepCtx, cancel := context.WithCancelCause(ctx)
 	defer cancel(nil)
@@ -561,18 +499,10 @@ func (m *Machine) goToSleep(ctx context.Context, from string) {
 
 	var failedStep string
 	var err error
-	if err = m.persist(ctx, state.GoingToSleep, from); err != nil {
-		failedStep = "persisting"
-	} else {
-		steps := m.sleepSteps()
-		for _, s := range steps[resumeIndex(steps, from):] {
-			if err = s.run(sleepCtx); err == nil {
-				err = m.persist(ctx, state.GoingToSleep, s.name)
-			}
-			if err != nil || sleepCtx.Err() != nil {
-				failedStep = s.name
-				break
-			}
+	for _, s := range m.sleepSteps() {
+		if err = s.run(sleepCtx); err != nil || sleepCtx.Err() != nil {
+			failedStep = s.name
+			break
 		}
 	}
 	stopWatching()
@@ -589,7 +519,6 @@ func (m *Machine) goToSleep(ctx context.Context, from string) {
 	case errors.Is(err, errBusy):
 		m.log.Info("not sleeping", zap.Error(err))
 		m.nextAttempt = time.Now().Add(m.cfg.Timing.BusyRecheck)
-		m.persistOrLog(ctx, state.Awake, "")
 		m.announce(state.Awake)
 	case err != nil:
 		m.fail(fmt.Sprintf("going to sleep, at %s: %v", failedStep, err))
@@ -598,7 +527,6 @@ func (m *Machine) goToSleep(ctx context.Context, from string) {
 	default:
 		m.st.SetFailure("")
 		m.wakeFailed = false
-		m.persistOrLog(ctx, state.Asleep, "")
 		m.announce(state.Asleep)
 		m.log.Info("asleep")
 	}
@@ -709,7 +637,6 @@ func (m *Machine) set(ctx context.Context, desired map[state.Part]actuator.Desir
 // spec: SLPWK#waking
 func (m *Machine) wake(ctx context.Context) {
 	m.announce(state.Waking)
-	m.persistOrLog(ctx, state.Waking, "")
 	backoff := m.cfg.Timing.WakeBackoff
 	for {
 		// spec: SUPV#upgrades
@@ -729,7 +656,6 @@ func (m *Machine) wake(ctx context.Context) {
 		}
 		m.fail(fmt.Sprintf("waking: %v", err))
 		m.wakeFailed = true
-		m.persistOrLog(ctx, state.Waking, "")
 		if !sleepCtx(ctx, backoff) {
 			return
 		}
@@ -747,7 +673,6 @@ func (m *Machine) wake(ctx context.Context) {
 		m.st.SetFailure("")
 		m.wakeFailed = false
 	}
-	m.persistOrLog(ctx, state.Awake, "")
 	m.setAwake()
 	drain(m.st.WakeRequests())
 	m.log.Info("awake")
@@ -810,29 +735,6 @@ func (m *Machine) setAwake() {
 func (m *Machine) fail(message string) {
 	m.log.Warn(message)
 	m.st.SetFailure(message)
-}
-
-// persist saves phase and step with the actuator. Callers persist a phase
-// before setting it in the shared state, so the status never reports what is
-// not saved.
-func (m *Machine) persist(ctx context.Context, phase state.Phase, step string) error {
-	doc, err := persist.Encode(persist.Record{
-		Release:     m.cfg.Release,
-		Phase:       phase,
-		Step:        step,
-		LastFailure: m.st.Snapshot().LastFailure,
-		UpdatedAt:   time.Now().UTC(),
-	})
-	if err != nil {
-		return err
-	}
-	return m.act.SaveState(ctx, doc)
-}
-
-func (m *Machine) persistOrLog(ctx context.Context, phase state.Phase, step string) {
-	if err := m.persist(ctx, phase, step); err != nil {
-		m.log.Error("persisting the supervisor's state", zap.Error(err))
-	}
 }
 
 func notify(ch chan struct{}) {

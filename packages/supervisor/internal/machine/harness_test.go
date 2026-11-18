@@ -18,7 +18,6 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator/fake"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient/fakeapi"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/persist"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -42,8 +41,8 @@ func testTiming() Timing {
 }
 
 // harness runs machines against a fake actuator and a fake api, over HTTP.
-// The actuator, which keeps the lease and the saved state, outlives each
-// machine, as it does a restart.
+// The actuator, which keeps the lease and the parts, outlives each machine,
+// as it does a restart.
 type harness struct {
 	t       *testing.T
 	central bool
@@ -228,13 +227,6 @@ func (h *harness) onPut(fn func(parts map[state.Part]actuator.Desired)) {
 	h.putHooks = append(h.putHooks, fn)
 }
 
-// clearHooks removes every hook.
-func (h *harness) clearHooks() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.apiHooks, h.putHooks = nil, nil
-}
-
 func (h *harness) eventually(what string, cond func() bool) {
 	h.t.Helper()
 	deadline := time.Now().Add(5 * time.Second)
@@ -269,30 +261,6 @@ func (h *harness) waitAwakeAfterWake() {
 		snap := h.snapshot()
 		return snap.Phase == state.Awake && snap.InFlight > 0
 	})
-}
-
-// persisted is the state saved with the actuator.
-func (h *harness) persisted() persist.Record {
-	h.t.Helper()
-	doc := h.act.SavedState()
-	if doc == nil {
-		return persist.Record{}
-	}
-	rec, _, err := persist.Decode(doc)
-	if err != nil {
-		h.t.Fatal(err)
-	}
-	return rec
-}
-
-// save saves rec with the actuator, as a supervisor before would have.
-func (h *harness) save(rec persist.Record) {
-	h.t.Helper()
-	doc, err := persist.Encode(rec)
-	if err != nil {
-		h.t.Fatal(err)
-	}
-	h.act.SetSavedState(doc)
 }
 
 // puts returns the actuator requests so far, each as its sorted "part=state"

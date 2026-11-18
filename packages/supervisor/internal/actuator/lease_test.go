@@ -82,32 +82,6 @@ func TestStaleTokenRefused(t *testing.T) {
 	if _, err := c.RenewLease(ctx, "test", time.Minute); !actuator.IsConflict(err) {
 		t.Errorf("renew after another took the lease: %v", err)
 	}
-	if err := c.SaveState(ctx, []byte(`{}`)); !actuator.IsConflict(err) {
-		t.Errorf("save after another took the lease: %v", err)
-	}
-}
-
-// spec: SUPV#resilience
-func TestSavedState(t *testing.T) {
-	_, c := setup(t)
-	ctx := context.Background()
-
-	if _, found, err := c.SavedState(ctx); found || err != nil {
-		t.Errorf("nothing saved: found %v, %v", found, err)
-	}
-	doc := []byte(`{"format":1,"phase":"asleep"}`)
-	if err := c.SaveState(ctx, doc); err != nil {
-		t.Fatal(err)
-	}
-	got, found, err := c.SavedState(ctx)
-	if err != nil || !found || string(got) != string(doc) {
-		t.Errorf("saved state = %s, %v, %v", got, found, err)
-	}
-
-	_ = c.ReleaseLease(ctx)
-	if _, _, err := c.SavedState(ctx); !actuator.IsConflict(err) {
-		t.Errorf("read without the lease: %v", err)
-	}
 }
 
 func TestAnnouncementOrder(t *testing.T) {

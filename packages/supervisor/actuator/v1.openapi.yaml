@@ -18,11 +18,11 @@ info:
     An actuator that does not control the server's parts reports
     `controlsParts: false`, and still reports on the parts and on upgrades.
 
-    Requests that act on the server, or read or write the saved state, carry
-    the lease token in the `Tamanu-Lease-Token` header. The actuator answers
-    `409 Conflict` to any carrying a token that is not the current one, or
-    none. A token stays current until the lease is released or another
-    supervisor takes it, including after the lease expires.
+    Requests that act on the server carry the lease token in the
+    `Tamanu-Lease-Token` header. The actuator answers `409 Conflict` to any
+    carrying a token that is not the current one, or none. A token stays
+    current until the lease is released or another supervisor takes it,
+    including after the lease expires.
 
     A change that is not backwards compatible is a new version under a new
     path prefix.
@@ -128,45 +128,6 @@ paths:
       responses:
         "204":
           description: Released.
-        "409":
-          $ref: "#/components/responses/NotHolder"
-  /v1/saved-state:
-    get:
-      operationId: getSavedState
-      summary: The supervisor's saved state
-      parameters:
-        - $ref: "#/components/parameters/LeaseToken"
-      responses:
-        "200":
-          description: The document last saved, exactly as it was saved.
-          content:
-            application/json:
-              schema:
-                type: object
-        "404":
-          description: Nothing has been saved.
-        "409":
-          $ref: "#/components/responses/NotHolder"
-    put:
-      operationId: putSavedState
-      summary: Replace the supervisor's saved state
-      description: |
-        The document is the supervisor's, and opaque to the actuator, which
-        stores it as given. It is a JSON object of at most 64 KiB, and the
-        actuator keeps it durably, across its own restarts.
-      parameters:
-        - $ref: "#/components/parameters/LeaseToken"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        "204":
-          description: Saved.
-        "400":
-          description: The body is not a JSON object, or is too large.
         "409":
           $ref: "#/components/responses/NotHolder"
   /v1/reports/{instance}:

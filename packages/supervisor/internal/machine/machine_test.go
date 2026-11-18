@@ -11,7 +11,6 @@ import (
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo"
-	"github.com/beyondessential/tamanu/packages/supervisor/internal/persist"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/state"
 )
 
@@ -39,9 +38,6 @@ func TestSleepAndWake(t *testing.T) {
 			if !h.allDown() {
 				t.Errorf("parts not all down: %+v", h.act.State().Parts)
 			}
-			if rec := h.persisted(); rec.Phase != state.Asleep || rec.Release != testRelease {
-				t.Errorf("persisted %+v", rec)
-			}
 			for p, ready := range h.snapshot().Ready {
 				if ready {
 					t.Errorf("%s ready while asleep", p)
@@ -64,9 +60,6 @@ func TestSleepAndWake(t *testing.T) {
 			}
 			if !h.allUp() {
 				t.Errorf("parts not all up: %+v", h.act.State().Parts)
-			}
-			if rec := h.persisted(); rec.Phase != state.Awake {
-				t.Errorf("persisted %+v", rec)
 			}
 			if h.state().Admit(state.Sync) != state.Forward {
 				t.Error("the gate does not forward once awake")
@@ -144,9 +137,6 @@ func TestIncompleteFinalSyncKeepsTheFacilityAwake(t *testing.T) {
 	}
 	if h.api.Held() || !h.allUp() {
 		t.Errorf("held %v, parts %+v", h.api.Held(), h.act.State().Parts)
-	}
-	if rec := h.persisted(); rec.LastFailure == nil {
-		t.Error("the failure was not persisted")
 	}
 }
 
@@ -294,128 +284,83 @@ func failFirstDown(h *harness, part state.Part) {
 }
 
 // spec: SUPV#resilience
-func TestRestartDuringSleepContinuesIt(t *testing.T) {
-	for _, step := range sleepStepHooks {
-		t.Run(step.name, func(t *testing.T) {
+func TestNewHolderDerivesPhase(t *testing.T) {
+	type part struct {
+		desired  actuator.Desired
+		observed actuator.Observed
+	}
+	down := part{actuator.Down, actuator.Stopped}
+	for _, tt := range []struct {
+		name string
+		// parts are the parts not up and ready when the holder takes over.
+		parts map[state.Part]part
+		want  state.Phase
+		wakes bool
+	}{
+		{name: "all up and ready", want: state.Awake},
+		{
+			name:  "all down and stopped",
+			parts: map[state.Part]part{state.Database: down, state.API: down, state.Sync: down, state.Tasks: down, state.FHIR: down},
+			want:  state.Asleep,
+		},
+		{
+			name:  "a sleep cut short",
+			parts: map[state.Part]part{state.Tasks: down, state.FHIR: down},
+			want:  state.Awake,
+			wakes: true,
+		},
+		{
+			name: "database stopping",
+			parts: map[state.Part]part{
+				state.Database: {actuator.Down, actuator.Stopping},
+				state.API:      down, state.Sync: down, state.Tasks: down, state.FHIR: down,
+			},
+			want:  state.Awake,
+			wakes: true,
+		},
+		{
+			name:  "a wake cut short",
+			parts: map[state.Part]part{state.API: down, state.Sync: down, state.Tasks: down, state.FHIR: down},
+			want:  state.Awake,
+			wakes: true,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
 			h := newHarness(t, false)
-			crashed := make(chan struct{})
-			onceAt(h, step.call, step.parts, func() {
-				h.crash()
-				close(crashed)
+			h.timing.IdleTime = time.Hour
+			for p, s := range tt.parts {
+				h.act.SetPart(p, s.desired, s.observed)
+			}
+			h.start(testRelease)
+			h.eventually("holding the lease, "+string(tt.want), func() bool {
+				return h.machine().HoldsLease() && h.snapshot().Phase == tt.want
 			})
-			h.start(testRelease)
-			<-crashed
-			h.waitStopped()
-			if rec := h.persisted(); rec.Phase != state.GoingToSleep {
-				t.Fatalf("persisted after the crash: %+v", rec)
-			}
-			before := len(h.api.Calls())
+			time.Sleep(5 * h.timing.ActuatorPoll)
 
-			h.start(testRelease)
-			h.waitPhase(state.Asleep)
-			if !h.allDown() {
-				t.Errorf("parts not all down: %+v", h.act.State().Parts)
+			var wantPuts, wantCalls []string
+			if tt.wakes {
+				wantPuts, wantCalls = wakePuts(), []string{"DELETE /tasks/hold"}
 			}
-			after := h.api.Calls()[before:]
-			if step.parts == state.API || step.parts == state.Database {
-				if len(after) != 0 {
-					t.Errorf("called the api %q after it was stopped", after)
-				}
+			if got := h.puts(); !slices.Equal(got, wantPuts) {
+				t.Errorf("puts = %q, want %q", got, wantPuts)
 			}
-			if f := h.snapshot().LastFailure; f != nil {
-				t.Errorf("failure = %+v", f)
+			if got := h.api.Calls(); !slices.Equal(got, wantCalls) {
+				t.Errorf("calls = %q, want %q", got, wantCalls)
+			}
+			if phase := h.snapshot().Phase; phase != tt.want {
+				t.Errorf("phase %s, want %s", phase, tt.want)
+			}
+			wantAdmission := state.Forward
+			if tt.want == state.Asleep {
+				wantAdmission = state.Hold
+			} else if !h.allUp() {
+				t.Errorf("parts not all up: %+v", h.act.State().Parts)
+			}
+			if got := h.state().Admit(state.Sync); got != wantAdmission {
+				t.Errorf("the gate answers %v, want %v", got, wantAdmission)
 			}
 		})
 	}
-}
-
-// spec: SUPV#resilience
-func TestRestartDuringWakeFinishesIt(t *testing.T) {
-	h := newHarness(t, true)
-	h.start(testRelease)
-	h.waitPhase(state.Asleep)
-
-	crashed := make(chan struct{})
-	var once sync.Once
-	h.onPut(func(parts map[state.Part]actuator.Desired) {
-		if parts[state.Database] == actuator.Up {
-			once.Do(func() {
-				h.crash()
-				close(crashed)
-			})
-		}
-	})
-	h.activity()
-	<-crashed
-	h.waitStopped()
-	if rec := h.persisted(); rec.Phase != state.Waking {
-		t.Fatalf("persisted after the crash: %+v", rec)
-	}
-
-	h.clearHooks()
-	h.keepAwakeAfterWake()
-	h.start(testRelease)
-	h.waitAwakeAfterWake()
-	if !h.allUp() {
-		t.Errorf("parts not all up: %+v", h.act.State().Parts)
-	}
-}
-
-// spec: SUPV#resilience
-// spec: SLPWK#rollouts
-func TestStartingOnAnAsleepServer(t *testing.T) {
-	t.Run("same release stays asleep", func(t *testing.T) {
-		h := newHarness(t, false)
-		h.start(testRelease)
-		h.waitPhase(state.Asleep)
-		h.stop()
-		puts := len(h.puts())
-
-		h.start(testRelease)
-		h.waitPhase(state.Asleep)
-		time.Sleep(5 * h.timing.IdleTime)
-		if h.snapshot().Phase != state.Asleep || len(h.puts()) != puts {
-			t.Errorf("phase %s, puts %q", h.snapshot().Phase, h.puts()[puts:])
-		}
-		if h.state().Admit(state.Sync) != state.Hold {
-			t.Error("the gate forwards on a server kept asleep")
-		}
-	})
-
-	t.Run("another patch of the line stays asleep", func(t *testing.T) {
-		h := newHarness(t, false)
-		h.act.SetAll(actuator.Down, actuator.Stopped)
-		h.save(persist.Record{Release: "2.70.3", Phase: state.Asleep})
-		h.start(testRelease)
-		h.waitPhase(state.Asleep)
-		time.Sleep(5 * h.timing.IdleTime)
-		if h.snapshot().Phase != state.Asleep || len(h.act.Puts()) != 0 || len(h.api.Calls()) != 0 {
-			t.Errorf("phase %s, puts %q, calls %q", h.snapshot().Phase, h.puts(), h.api.Calls())
-		}
-	})
-
-	t.Run("another line wakes it", func(t *testing.T) {
-		h := newHarness(t, false)
-		h.act.SetAll(actuator.Down, actuator.Stopped)
-		h.save(persist.Record{Release: "2.69.0", Phase: state.Asleep})
-		h.keepAwakeAfterWake()
-		h.start(testRelease)
-		h.waitAwakeAfterWake()
-		if got, want := h.puts(), wakePuts(); !slices.Equal(got, want) {
-			t.Errorf("puts = %q, want %q", got, want)
-		}
-	})
-
-	t.Run("parts not ready with no record wakes it", func(t *testing.T) {
-		h := newHarness(t, true)
-		h.act.SetAll(actuator.Down, actuator.Stopped)
-		h.keepAwakeAfterWake()
-		h.start(testRelease)
-		h.waitAwakeAfterWake()
-		if !h.allUp() {
-			t.Errorf("parts not all up: %+v", h.act.State().Parts)
-		}
-	})
 }
 
 // spec: SUPV#upgrades

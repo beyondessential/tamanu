@@ -43,7 +43,6 @@ type Actuator struct {
 	onPut     func(map[state.Part]actuator.Desired)
 
 	lease   lease
-	saved   []byte
 	reports map[string]actuator.Report
 }
 
@@ -83,14 +82,13 @@ func (a *Actuator) SetUpgrading(upgrading bool) {
 	a.upgrading = upgrading
 }
 
-// SetAll sets every part's desired and observed state at once.
-func (a *Actuator) SetAll(desired actuator.Desired, observed actuator.Observed) {
+// SetPart sets p's desired and observed state at once.
+func (a *Actuator) SetPart(p state.Part, desired actuator.Desired, observed actuator.Observed) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	for _, p := range a.parts {
-		p.desired, p.observed = desired, observed
-		p.generation++
-	}
+	part := a.parts[p]
+	part.desired, part.observed = desired, observed
+	part.generation++
 }
 
 // Stall makes p stay starting or stopping until it is let go.
@@ -173,8 +171,6 @@ func (a *Actuator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		a.put(w, r)
 	case r.URL.Path == "/v1/lease":
 		a.serveLease(w, r)
-	case r.URL.Path == "/v1/saved-state":
-		a.serveSavedState(w, r)
 	case strings.HasPrefix(r.URL.Path, "/v1/reports/") && r.Method == http.MethodPut:
 		a.serveReport(w, r)
 	case r.URL.Path == "/fake/upgrading" && r.Method == http.MethodPut:

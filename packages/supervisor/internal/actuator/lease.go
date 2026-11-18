@@ -117,29 +117,6 @@ func (c *Client) ReleaseLease(ctx context.Context) error {
 	return err
 }
 
-// SavedState gets the supervisor's saved state. found is false when none has
-// been saved. It needs the lease.
-func (c *Client) SavedState(ctx context.Context) (doc []byte, found bool, err error) {
-	status, b, err := c.request(ctx, http.MethodGet, "saved-state", nil)
-	switch {
-	case err != nil:
-		return nil, false, err
-	case status == http.StatusNotFound:
-		return nil, false, nil
-	case status == http.StatusConflict:
-		return nil, false, &ErrConflict{Method: http.MethodGet, Path: "saved-state"}
-	case status != http.StatusOK:
-		return nil, false, fmt.Errorf("actuator: GET /v1/saved-state answered %d", status)
-	}
-	return b, true, nil
-}
-
-// SaveState replaces the supervisor's saved state with doc. It needs the
-// lease.
-func (c *Client) SaveState(ctx context.Context, doc []byte) error {
-	return c.do(ctx, http.MethodPut, "saved-state", doc, nil, http.StatusNoContent, http.StatusOK)
-}
-
 // Report sends instance's report, which the actuator keeps for ttl.
 func (c *Client) Report(ctx context.Context, instance string, r Report, ttl time.Duration) error {
 	r.TTLSeconds = seconds(ttl)

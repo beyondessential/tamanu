@@ -2,7 +2,6 @@ package fake
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -57,20 +56,6 @@ func (a *Actuator) ExpireLease() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.lease.expires = time.Now()
-}
-
-// SavedState is the saved state, or nil when none has been saved.
-func (a *Actuator) SavedState() []byte {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	return append([]byte(nil), a.saved...)
-}
-
-// SetSavedState replaces the saved state, as a supervisor before would have.
-func (a *Actuator) SetSavedState(doc []byte) {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.saved = append([]byte(nil), doc...)
 }
 
 // Reports are the reports that have not expired, by instance.
@@ -145,36 +130,6 @@ func (a *Actuator) serveLease(w http.ResponseWriter, r *http.Request) {
 	info := actuator.LeaseInfo{Holder: a.lease.holder, Token: a.lease.token, ExpiresAt: a.lease.expires}
 	a.mu.Unlock()
 	writeJSON(w, http.StatusOK, info)
-}
-
-func (a *Actuator) serveSavedState(w http.ResponseWriter, r *http.Request) {
-	a.mu.Lock()
-	current := a.lease.current(r)
-	saved := a.saved
-	a.mu.Unlock()
-	if !current {
-		a.refuse(w)
-		return
-	}
-	switch r.Method {
-	case http.MethodGet:
-		if saved == nil {
-			http.NotFound(w, r)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write(saved)
-	case http.MethodPut:
-		doc, err := io.ReadAll(io.LimitReader(r.Body, 64<<10))
-		if err != nil || !json.Valid(doc) {
-			http.Error(w, "the body must be a JSON document", http.StatusBadRequest)
-			return
-		}
-		a.SetSavedState(doc)
-		w.WriteHeader(http.StatusNoContent)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
 }
 
 func (a *Actuator) serveReport(w http.ResponseWriter, r *http.Request) {

@@ -80,8 +80,9 @@ announcement it made or follows.
 
 The steps of a sleep call the api's supervisor routes in this order: `GET /api/supervisor/status`
 (the release check, run first), `POST /api/supervisor/tasks/hold`, and on a facility `POST
-/api/supervisor/final-sync`. A wake ends with `DELETE /api/supervisor/tasks/hold`. How far a sleep or wake
-got is saved with the actuator.
+/api/supervisor/final-sync`. A wake ends with `DELETE /api/supervisor/tasks/hold`. Nothing about a
+sleep or wake is saved: a supervisor that takes the lease reads the phase from the state of each
+part, as [Resilience](../../specs/platform/supervisor/overview.md#resilience) describes.
 
 ## Actuator contract
 
@@ -122,6 +123,5 @@ The server's side of the api token is its own `SUPERVISOR_TOKEN` variable, which
 | `internal/machine` | The sleep and wake state machine |
 | `internal/actuator` | The actuator contract's client, and a fake actuator |
 | `internal/apiclient` | The client for the api's supervisor routes, and a fake api for tests |
-| `internal/persist` | The saved state's document |
 | `internal/buildinfo` | The release the supervisor was built for |
 | `cmd/fake-actuator` | The fake actuator, for running locally |

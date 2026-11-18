@@ -172,8 +172,8 @@ func partList(parts []state.Part) string {
 	return strings.Join(names, ", ")
 }
 
-// do makes a request to path under /v1, encoding body as JSON unless it is
-// a []byte, and decoding the answer into out unless out is nil. An answer of
+// do makes a request to path under /v1, encoding body as JSON, and decoding
+// the answer into out unless out is nil. An answer of
 // 409 Conflict is an *ErrConflict; any other status not in ok is an error.
 func (c *Client) do(ctx context.Context, method, path string, body, out any, ok ...int) error {
 	status, b, err := c.request(ctx, method, path, body)
@@ -191,10 +191,6 @@ func (c *Client) do(ctx context.Context, method, path string, body, out any, ok 
 	if out == nil {
 		return nil
 	}
-	if raw, isRaw := out.(*[]byte); isRaw {
-		*raw = b
-		return nil
-	}
 	if err := json.Unmarshal(b, out); err != nil {
 		return fmt.Errorf("actuator: reading %s /v1/%s: %w", method, path, err)
 	}
@@ -206,11 +202,7 @@ func (c *Client) request(ctx context.Context, method, path string, body any) (in
 	defer cancel()
 
 	var reader io.Reader
-	switch b := body.(type) {
-	case nil:
-	case []byte:
-		reader = bytes.NewReader(b)
-	default:
+	if body != nil {
 		encoded, err := json.Marshal(body)
 		if err != nil {
 			return 0, nil, err
