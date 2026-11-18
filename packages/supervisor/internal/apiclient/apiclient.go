@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -33,10 +34,18 @@ func New(upstreams []string, token string) *Client {
 	return &Client{
 		upstreams:        upstreams,
 		token:            token,
-		HTTP:             &http.Client{},
+		HTTP:             &http.Client{Transport: transport()},
 		CallTimeout:      30 * time.Second,
 		FinalSyncTimeout: 15 * time.Minute,
 	}
+}
+
+// transport bounds each connection attempt on its own, so an instance that
+// drops connections leaves time in the call to try the next.
+func transport() *http.Transport {
+	t := http.DefaultTransport.(*http.Transport).Clone()
+	t.DialContext = (&net.Dialer{Timeout: 5 * time.Second, KeepAlive: 30 * time.Second}).DialContext
+	return t
 }
 
 // TaskHoldResult is the api's answer to a hold on scheduled tasks.
