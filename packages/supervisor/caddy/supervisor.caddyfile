@@ -109,7 +109,7 @@
 
 		# Keep in step with pages.IsAPIPath, which gives these paths JSON
 		# responses.
-		@api path /api/* /v1/*
+		@api path /api /api/* /v1 /v1/*
 		handle @api {
 			tamanu_gate activity
 			import rate_limit

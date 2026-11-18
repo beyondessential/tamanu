@@ -384,12 +384,17 @@ func TestAPIPathsMatchThePages(t *testing.T) {
 	if m == nil {
 		t.Fatal("no @api matcher in supervisor.caddyfile")
 	}
+	routed := map[string]bool{}
 	for _, pattern := range strings.Fields(string(m[1])) {
-		prefix := strings.TrimSuffix(pattern, "*")
-		for _, path := range []string{prefix + "patient", strings.TrimSuffix(prefix, "/")} {
-			if !pages.IsAPIPath(path) {
-				t.Errorf("%s is routed to the api but its pages are not an api's", path)
-			}
+		path := strings.Replace(pattern, "*", "patient", 1)
+		routed[path] = true
+		if !pages.IsAPIPath(path) {
+			t.Errorf("%s is routed to the api but its pages are not an api's", path)
+		}
+	}
+	for _, path := range []string{"/api", "/api/patient", "/v1", "/v1/patient"} {
+		if !routed[path] {
+			t.Errorf("%s is an api's to the pages but is not routed to the api", path)
 		}
 	}
 	for _, path := range []string{"/", "/apis", "/v1x", "/patients"} {
