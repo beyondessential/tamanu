@@ -822,6 +822,53 @@ describe('Reference Data Manage', () => {
       expect(names).not.toContain('Beta Drug');
     });
 
+    it('should match wildcard characters in a text field filter literally', async () => {
+      const namePrefix = `Wildcard ${Date.now().toString(36)}`;
+      const underscoreName = `${namePrefix} A_B`;
+      const lookalikeName = `${namePrefix} AxB`;
+      await Promise.all(
+        [underscoreName, lookalikeName].map(name =>
+          models.ReferenceData.create({
+            ...fake(models.ReferenceData),
+            type: TEST_TYPE,
+            name,
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          }),
+        ),
+      );
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        name: `${namePrefix} A_`,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(r => r.name)).toEqual([underscoreName]);
+      expect(response.body.count).toBe(1);
+    });
+
+    it('should match wildcard characters in a linked record name filter literally', async () => {
+      const facilityPrefix = `Wildcard ${Date.now().toString(36)}`;
+      const underscoreFacility = await models.Facility.create(
+        fake(models.Facility, { name: `${facilityPrefix} A_B` }),
+      );
+      const lookalikeFacility = await models.Facility.create(
+        fake(models.Facility, { name: `${facilityPrefix} AxB` }),
+      );
+      const [underscoreDepartment] = await Promise.all(
+        [underscoreFacility, lookalikeFacility].map(facility =>
+          models.Department.create(fake(models.Department, { facilityId: facility.id })),
+        ),
+      );
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: OTHER_REFERENCE_TYPES.DEPARTMENT,
+        facility: `${facilityPrefix} A_`,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(r => r.id)).toEqual([underscoreDepartment.id]);
+      expect(response.body.count).toBe(1);
+    });
+
     it('should filter by visibilityStatus with exact match', async () => {
       const response = await adminApp.get(BASE_URL).query({
         referenceDataType: TEST_TYPE,
