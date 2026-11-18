@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
+import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
@@ -67,19 +67,18 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
     // Login to get auth token
     authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
 
-    // Location/Department setup
-    const facility = await Facility.create(fake(Facility, { code: 'TEST_FAC' }));
+    // The assigning facility's default location and department for form encounters
     const location = await Location.create(
-      fake(Location, {
-        code: 'TEST_LOC',
-        facilityId: facility.id,
-      }),
+      fake(Location, { code: 'PORTAL_TEST_LOC', facilityId: testFacility.id }),
     );
     const department = await Department.create(
-      fake(Department, {
-        code: 'TEST_DEPT',
-        facilityId: facility.id,
-      }),
+      fake(Department, { code: 'PORTAL_TEST_DEPT', facilityId: testFacility.id }),
+    );
+    await Setting.set(
+      'survey.defaultCodes',
+      { location: location.code, department: department.code },
+      SETTINGS_SCOPES.FACILITY,
+      testFacility.id,
     );
     testLocationId = location.id;
     testDepartmentId = department.id;
@@ -139,8 +138,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       const payload = {
         surveyId: baseSurvey.id,
-        locationId: testLocationId,
-        departmentId: testDepartmentId,
         patientId: testPatient.id,
         answers: {
           [baseDataElement.id]: 5,
@@ -160,8 +157,8 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(refreshedAssignment.surveyResponseId).toBe(response.body.id);
     });
 
-    it('Should record the response against the signed-in patient, whatever the body names', async () => {
-      const { Patient, Facility, SurveyResponse, Encounter } = store.models;
+    it('Should record the response against the signed-in patient and assigning facility, whatever the body names', async () => {
+      const { Patient, Facility, Location, Department, SurveyResponse, Encounter } = store.models;
       await createAssignment({
         patientId: testPatient.id,
         surveyId: baseSurvey.id,
@@ -169,23 +166,31 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       });
       const otherPatient = await Patient.create(fake(Patient));
       const otherFacility = await Facility.create(fake(Facility));
+      const otherLocation = await Location.create(fake(Location, { facilityId: otherFacility.id }));
+      const otherDepartment = await Department.create(
+        fake(Department, { facilityId: otherFacility.id }),
+      );
 
       const response = await baseApp
         .post(`/api/portal/surveyResponse`)
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           surveyId: baseSurvey.id,
-          locationId: testLocationId,
-          departmentId: testDepartmentId,
           patientId: otherPatient.id,
           facilityId: otherFacility.id,
+          locationId: otherLocation.id,
+          departmentId: otherDepartment.id,
           answers: { [baseDataElement.id]: 3 },
         });
 
       expect(response).toHaveSucceeded();
       const surveyResponse = await SurveyResponse.findByPk(response.body.id);
       const encounter = await Encounter.findByPk(surveyResponse.encounterId);
-      expect(encounter.patientId).toBe(testPatient.id);
+      expect(encounter).toMatchObject({
+        patientId: testPatient.id,
+        locationId: testLocationId,
+        departmentId: testDepartmentId,
+      });
       expect(await Encounter.count({ where: { patientId: otherPatient.id } })).toBe(0);
     });
 
@@ -202,8 +207,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       const payload = {
         surveyId: baseSurvey.id,
-        locationId: testLocationId,
-        departmentId: testDepartmentId,
         patientId: testPatient.id,
         answers: {
           [baseDataElement.id]: 1,
@@ -244,8 +247,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
         .send({
           surveyId: anotherSurvey.id,
           patientId: testPatient.id,
-          locationId: testLocationId,
-          departmentId: testDepartmentId,
           answers: { [baseDataElement.id]: 2 },
         });
       expect(resWrongSurvey).toHaveRequestError(404);
