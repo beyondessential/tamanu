@@ -141,6 +141,11 @@ func TestEntrypoint(t *testing.T) {
 			problem: "TAMANU_SUPERVISOR_IDLE is not a variable the supervisor reads",
 		},
 		{
+			name:    "unknown variable with a dash",
+			vars:    supervisorVars("ACTUATOR-URL", "https://actuator:7000"),
+			problem: "TAMANU_SUPERVISOR_ACTUATOR-URL is not a variable the supervisor reads",
+		},
+		{
 			name:    "portal on a facility server",
 			vars:    supervisorVars("PORTAL_LISTEN", ":8082", "PORTAL_ROOT", "/srv/patient-portal"),
 			problem: "TAMANU_SUPERVISOR_PORTAL_LISTEN is only for a central server",

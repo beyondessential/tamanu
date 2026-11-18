@@ -27,7 +27,7 @@ fail() { problems="$problems$P$1 $2
 get() { eval "printf %s \"\${$P$1-}\""; }
 is_number() { case $1 in '' | *[!0-9]*) false ;; esac; }
 
-for name in $(env | sed -n "s/^$P\([A-Za-z0-9_]*\)=.*/\1/p"); do
+for name in $(env | sed -n "s/^$P\([^=]*\)=.*/\1/p"); do
 	case $known in *" $name "*) ;; *) fail "$name" "is not a variable the supervisor reads" ;; esac
 done
 
