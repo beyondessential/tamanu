@@ -3,19 +3,19 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { useEncounter } from '../../../contexts/Encounter';
 import { notifyError } from '../../../utils';
 import { route } from '@tamanu/api-client';
 
 export const DeletePhotoLinkModal = ({ open, onClose, answerId }) => {
   const api = useApi();
-  const { encounter } = useEncounter();
   const queryClient = useQueryClient();
 
   const onSubmit = async () => {
     try {
       await api.put(route('surveyResponseAnswer/photo/:answerId', { answerId }));
-      queryClient.invalidateQueries(['encounterCharts', encounter.id]);
+      // Shown from both the encounter and the program registry chart tables
+      queryClient.invalidateQueries(['encounterCharts']);
+      queryClient.invalidateQueries(['programRegistryPatientCharts']);
     } catch (error) {
       notifyError(error);
     }
