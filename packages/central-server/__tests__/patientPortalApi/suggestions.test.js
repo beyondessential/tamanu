@@ -55,6 +55,12 @@ describe('Patient Portal suggestions', () => {
     expect(response.body.map(record => record.id)).toContain(diagnosis.id);
   });
 
+  it('rejects searches without a sign-in', async () => {
+    const response = await baseApp.get('/api/portal/suggestions/diagnosis').query({ q: 'x' });
+
+    expect(response).toHaveRequestError();
+  });
+
   it('does not create reference data', async () => {
     const response = await baseApp
       .post('/api/portal/suggestions/diagnosis/create')
