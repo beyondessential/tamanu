@@ -150,8 +150,10 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         // GENERATE QR
 
+        // The display ID keeps patients who share a name from overwriting each other's QR code
+        // in the shared temp folder before it is sent.
         const qrCodeFileName = toSafeFileName(
-          `International Patient Summary for ${patient.displayName}.png`,
+          `International Patient Summary for ${patient.displayName} (${patient.displayId}).png`,
         );
         const folder = await tmpdir();
         const qrCodeFilePath = path.join(folder, qrCodeFileName);
