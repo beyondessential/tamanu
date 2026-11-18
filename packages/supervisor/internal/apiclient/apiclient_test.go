@@ -3,9 +3,11 @@ package apiclient_test
 import (
 	"context"
 	"net"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient/fakeapi"
@@ -30,6 +32,15 @@ func deadAddr(t *testing.T) string {
 	return addr
 }
 
+// silentAddr starts a server that takes requests and never answers them.
+func silentAddr(t *testing.T) string {
+	t.Helper()
+	done := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { <-done }))
+	t.Cleanup(func() { close(done); srv.Close() })
+	return strings.TrimPrefix(srv.URL, "http://")
+}
+
 // spec: SUPV#talking-to-the-server
 func TestWrongTokenFailsWithoutLeakingIt(t *testing.T) {
 	c := apiclient.New([]string{liveAddr(t)}, "not-the-token")
@@ -50,9 +61,11 @@ func TestInstances(t *testing.T) {
 	}{
 		{"passes over an unreachable instance", func(t *testing.T) []string { return []string{deadAddr(t), liveAddr(t)} }, true},
 		{"no reachable instance", func(t *testing.T) []string { return []string{deadAddr(t), deadAddr(t)} }, false},
+		{"passes over an instance that never answers", func(t *testing.T) []string { return []string{silentAddr(t), liveAddr(t)} }, true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			c := apiclient.New(tt.instances(t), fakeapi.Token)
+			c.CallTimeout = 200 * time.Millisecond
 			v, err := c.Version(context.Background())
 			if tt.answers && (err != nil || v != "2.70.0") {
 				t.Errorf("version = %q, %v", v, err)

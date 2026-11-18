@@ -96,19 +96,20 @@ func (c *Client) FinalSync(ctx context.Context) (FinalSyncResult, error) {
 	return res, err
 }
 
-// call makes a request to the first api instance that can be reached. An
-// instance that answers with an error status fails the call: only one that
-// cannot be reached is passed over.
+// call makes a request to the first api instance that answers, giving each
+// instance timeout to do so. An instance that answers with an error status
+// fails the call: only one that cannot be reached or does not answer in time
+// is passed over, which is safe because every supervisor route can be
+// repeated.
 func (c *Client) call(ctx context.Context, method, route string, timeout time.Duration, out any) error {
 	if len(c.upstreams) == 0 {
 		return errors.New("api: no api addresses configured")
 	}
-	ctx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-
 	var errs []error
 	for _, upstream := range c.upstreams {
-		err := c.callOne(ctx, upstream, method, route, out)
+		attempt, cancel := context.WithTimeout(ctx, timeout)
+		err := c.callOne(attempt, upstream, method, route, out)
+		cancel()
 		var unreachable *unreachableError
 		if !errors.As(err, &unreachable) || ctx.Err() != nil {
 			return err
