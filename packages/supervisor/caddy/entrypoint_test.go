@@ -131,6 +131,16 @@ func TestEntrypoint(t *testing.T) {
 			problem: "TAMANU_SUPERVISOR_API_UPSTREAMS must be a space-separated list",
 		},
 		{
+			name:    "upstream with a scheme",
+			vars:    supervisorVars("API_UPSTREAMS", "http://api-1:4000"),
+			problem: "TAMANU_SUPERVISOR_API_UPSTREAMS must be a space-separated list",
+		},
+		{
+			name:    "trusting every address",
+			vars:    supervisorVars("TRUSTED_PROXIES", "10.0.0.0/8 ::/0"),
+			problem: "TAMANU_SUPERVISOR_TRUSTED_PROXIES must name the platform's proxies",
+		},
+		{
 			name:    "malformed idle time",
 			vars:    supervisorVars("IDLE_TIME", "30"),
 			problem: "TAMANU_SUPERVISOR_IDLE_TIME must be a duration",

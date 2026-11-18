@@ -65,12 +65,16 @@ for name in LISTEN STATUS_LISTEN PORTAL_LISTEN; do
 done
 
 for upstream in $(get API_UPSTREAMS); do
-	case $upstream in *,*) ;; ?*:*) is_number "${upstream##*:}" && continue ;; esac
+	case $upstream in *,* | */*) ;; ?*:*) is_number "${upstream##*:}" && continue ;; esac
 	fail API_UPSTREAMS "must be a space-separated list of host:port addresses, and \"$upstream\" is not one"
 done
 
 for range in $(get TRUSTED_PROXIES); do
-	case $range in *,*) ;; ?*/*) is_number "${range##*/}" && continue ;; esac
+	case $range in
+	*/0) fail TRUSTED_PROXIES "must name the platform's proxies, not trust every address as \"$range\" does" && continue ;;
+	*,*) ;;
+	?*/*) is_number "${range##*/}" && continue ;;
+	esac
 	fail TRUSTED_PROXIES "must be a space-separated list of CIDR ranges, and \"$range\" is not one"
 done
 
