@@ -258,8 +258,9 @@ components:
           exclusiveMinimum: 0
           description: |
             How long the lease lasts unless renewed. The supervisor asks for
-            30 seconds and renews every 10. An actuator may shorten or lengthen
-            it, and says so in the expiry it answers with.
+            30 seconds and renews every 10. The actuator grants the time asked
+            for, since the supervisor times its renewals and stops acting by
+            it rather than by the actuator's clock.
     Lease:
       type: object
       properties:
