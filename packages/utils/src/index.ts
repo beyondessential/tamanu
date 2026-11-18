@@ -18,3 +18,4 @@ export {
   type ProgramRegistryConditionAnswer,
   type ProgramRegistryConditionOptions,
 } from './programRegistryConditions';
+export { keepSocketConnected } from './keepSocketConnected';

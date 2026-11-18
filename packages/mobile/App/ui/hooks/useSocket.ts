@@ -2,11 +2,8 @@ import io, { type Socket } from 'socket.io-client';
 import { useEffect, useState } from 'react';
 import { readConfig } from '~/services/config';
 import { WS_PATH } from '@tamanu/constants';
+import { keepSocketConnected } from '@tamanu/utils';
 import { useBackend } from '~/ui/hooks';
-
-// socket.io only retries a connection on its own after a transport failure. The server ending the
-// connection, or refusing it for a missing or expired token, needs a manual retry.
-const RECONNECT_DELAY_MS = 5000;
 
 export const useSocket = () => {
   const { centralServer } = useBackend();
@@ -30,19 +27,13 @@ export const useSocket = () => {
       auth: sendToken => sendToken({ token: centralServer.token }),
     });
 
-    let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
-    const reconnectLater = () => {
-      if (newSocket.active) return;
-      reconnectTimer = setTimeout(() => newSocket.connect(), RECONNECT_DELAY_MS);
-    };
-    newSocket.on('connect_error', reconnectLater);
-    newSocket.on('disconnect', reconnectLater);
+    const stopReconnecting = keepSocketConnected(newSocket, {
+      refreshCredentials: () => centralServer.refresh(),
+    });
 
     setSocket(newSocket);
     return () => {
-      clearTimeout(reconnectTimer);
-      newSocket.off('connect_error', reconnectLater);
-      newSocket.off('disconnect', reconnectLater);
+      stopReconnecting();
       newSocket.disconnect();
     };
   }, [connectionUrl, centralServer]);
