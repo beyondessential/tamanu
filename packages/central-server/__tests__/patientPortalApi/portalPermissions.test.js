@@ -13,6 +13,11 @@ describe('isPermittedForPortal', () => {
     expect(isPermittedForPortal('write', 'ReferenceData')).toBe(false);
   });
 
+  it('refuses records the portal does not look up, even to read', () => {
+    expect(isPermittedForPortal('list', 'User')).toBe(false);
+    expect(isPermittedForPortal('read', 'Patient')).toBe(false);
+  });
+
   it('refuses sensitive records, even to read', () => {
     expect(isPermittedForPortal('list', 'SensitiveLabRequest')).toBe(false);
     expect(isPermittedForPortal('read', 'SensitiveMedication')).toBe(false);

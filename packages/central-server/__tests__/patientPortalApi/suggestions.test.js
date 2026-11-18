@@ -1,5 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  PORTAL_SUGGESTER_ALLOW_LIST,
+  REFERENCE_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
@@ -53,6 +57,15 @@ describe('Patient Portal suggestions', () => {
 
     expect(response).toHaveSucceeded();
     expect(response.body.map(record => record.id)).toContain(diagnosis.id);
+  });
+
+  it.each(PORTAL_SUGGESTER_ALLOW_LIST)('answers a %s search', async endpoint => {
+    const response = await baseApp
+      .get(`/api/portal/suggestions/${endpoint}`)
+      .query({ q: 'a' })
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response).toHaveSucceeded();
   });
 
   it('rejects searches without a sign-in', async () => {

@@ -15,9 +15,20 @@ import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 const PORTAL_PERMITTED_ACTIONS = ['read', 'list'];
 
+// The records the suggesters on the portal's allow-list read
+const PORTAL_READABLE_SUBJECTS = [
+  'ReferenceData',
+  'LabTestType',
+  'LabTestPanel',
+  'LocationGroup',
+  'Department',
+  'Facility',
+  'Location',
+];
+
 export const isPermittedForPortal = (action, subject) =>
   PORTAL_PERMITTED_ACTIONS.includes(action) &&
-  !getSubjectName(subject)?.startsWith('Sensitive');
+  PORTAL_READABLE_SUBJECTS.includes(getSubjectName(subject));
 
 export const patientPortalMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -91,7 +102,7 @@ export const patientPortalMiddleware = ({ secret }) =>
 
     /**
      * Portal users hold no role, but shared code such as the suggesters checks permissions, so
-     * stand in for them with a grant of read actions only, on anything but sensitive records.
+     * stand in for them with a grant of read actions on the records those lookups need.
      */
     req.checkPermission = (action, subject) => {
       if (!isPermittedForPortal(action, subject)) {
