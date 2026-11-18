@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import config from 'config';
 import { io } from 'socket.io-client';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -7,6 +8,7 @@ import {
   JWT_TOKEN_TYPES,
   PATIENT_COMMUNICATION_CHANNELS,
   REFERENCE_TYPES,
+  USER_KINDS,
   WS_EVENTS,
   WS_PATH,
 } from '@tamanu/constants';
@@ -221,27 +223,33 @@ describe('Websocket', () => {
       expect(await models.PatientContact.findByPk(contact.id)).toBeNull();
     });
 
-    it('stores the contact sent from a sync client device', async () => {
+    const createDevice = (user, scopes) =>
+      models.Device.create({ id: randomUUID(), registeredById: user.id, scopes });
+
+    it('stores the contact sent by a sync account from a sync client device', async () => {
       const { contact } = await buildContactPayload();
       const { user } = await ctx.baseApp.asNewRole([]);
-      const device = await models.Device.create({
-        id: `sync-client-${contact.id}`,
-        registeredById: user.id,
-        scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-      });
+      await user.update({ kind: USER_KINDS.SYNC });
+      const device = await createDevice(user, [DEVICE_SCOPES.SYNC_CLIENT]);
 
       expect(await insertContact(user, contact, { deviceId: device.id })).toBe(true);
       expect(await models.PatientContact.findByPk(contact.id)).not.toBeNull();
     });
 
-    it('does not store a contact from a device that is not a sync client', async () => {
+    it('does not store a contact from a sync account on a device that is not a sync client', async () => {
       const { contact } = await buildContactPayload();
       const { user } = await ctx.baseApp.asNewRole([]);
-      const device = await models.Device.create({
-        id: `other-device-${contact.id}`,
-        registeredById: user.id,
-        scopes: [],
-      });
+      await user.update({ kind: USER_KINDS.SYNC });
+      const device = await createDevice(user, []);
+
+      expect(await insertContact(user, contact, { deviceId: device.id })).toBe(false);
+      expect(await models.PatientContact.findByPk(contact.id)).toBeNull();
+    });
+
+    it('does not store a contact from a person on a sync client device who may not write to patients', async () => {
+      const { contact } = await buildContactPayload();
+      const { user } = await ctx.baseApp.asNewRole([['read', 'Patient']]);
+      const device = await createDevice(user, [DEVICE_SCOPES.SYNC_CLIENT]);
 
       expect(await insertContact(user, contact, { deviceId: device.id })).toBe(false);
       expect(await models.PatientContact.findByPk(contact.id)).toBeNull();
