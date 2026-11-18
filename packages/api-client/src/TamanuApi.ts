@@ -349,6 +349,10 @@ export class TamanuApi {
     return Boolean(this.#authToken);
   }
 
+  getToken(): string | undefined {
+    return this.#authToken;
+  }
+
   async fetch(
     endpoint: Endpoint,
     query: Record<string, any> = {},
