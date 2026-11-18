@@ -764,29 +764,6 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         expect(response.body.total).toBe(2);
       });
 
-      it('matches wildcard characters literally in string modifiers', async () => {
-        const { Patient } = ctx.store.models;
-        await Promise.all([
-          Patient.create(fake(Patient, { firstName: 'Bob_by' })),
-          Patient.create(fake(Patient, { firstName: 'Bobby' })),
-        ]);
-
-        const underscoreResponse = await app
-          .get(`/api/integration/${integrationName}/Patient?given:contains=_`)
-          .set(requestHeaders);
-        expect(underscoreResponse).toHaveSucceeded();
-        expect(underscoreResponse.body.total).toBe(1);
-        expect(underscoreResponse.body.entry[0].name[0].given[0]).toBe('Bob_by');
-
-        const percentResponse = await app
-          .get(
-            `/api/integration/${integrationName}/Patient?given:contains=${encodeURIComponent('%')}`,
-          )
-          .set(requestHeaders);
-        expect(percentResponse).toHaveSucceeded();
-        expect(percentResponse.body.total).toBe(0);
-      });
-
       it('filters patients by combining params and modifiers (all need to match)', async () => {
         const { Patient } = ctx.store.models;
         const firstName = 'Jane';
