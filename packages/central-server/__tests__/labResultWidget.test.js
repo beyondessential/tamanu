@@ -16,6 +16,7 @@ describe('Lab result widget', () => {
   let baseApp;
   let models;
   let category;
+  let unlistedCategory;
   let labTestType;
 
   beforeAll(async () => {
@@ -75,6 +76,30 @@ describe('Lab result widget', () => {
       }),
     );
 
+    // Another patient's request under the same display ID, in another category.
+    unlistedCategory = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY }),
+    );
+    const otherPatient = await models.Patient.create(
+      fake(models.Patient, { firstName: 'Xia', middleName: 'Yan', lastName: 'Zhu' }),
+    );
+    const otherEncounter = await models.Encounter.create(
+      fake(models.Encounter, {
+        patientId: otherPatient.id,
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: examiner.id,
+      }),
+    );
+    await models.LabRequest.create(
+      fake(models.LabRequest, {
+        displayId: DISPLAY_ID,
+        encounterId: otherEncounter.id,
+        labTestCategoryId: unlistedCategory.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      }),
+    );
+
     const unpublishedLabRequest = await models.LabRequest.create(
       fake(models.LabRequest, {
         displayId: UNPUBLISHED_DISPLAY_ID,
@@ -128,6 +153,21 @@ describe('Lab result widget', () => {
     expect(res).toHaveSucceeded();
     expect(res.body.data).toEqual([
       expect.objectContaining({ patientInitials: 'ABC', testResults: [{ result: 'Negative' }] }),
+    ]);
+  });
+
+  it('returns requests only from listed categories', async () => {
+    await models.Setting.set(
+      'labResultWidget.categoryWhitelist',
+      [category.id, unlistedCategory.id],
+      SETTINGS_SCOPES.CENTRAL,
+    );
+    settingsCache.reset();
+
+    const res = await baseApp.get(ENDPOINT);
+    expect(res.body.data.map(({ patientInitials }) => patientInitials).sort()).toEqual([
+      'ABC',
+      'XYZ',
     ]);
   });
 
