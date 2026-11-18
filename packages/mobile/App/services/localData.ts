@@ -32,7 +32,13 @@ export abstract class LocalDataService {
 
   async _readDataFromConfig(): Promise<void> {
     const strData = await readConfig((this.constructor as typeof LocalDataService).CONFIG_KEY);
-    this.data = JSON.parse(strData);
+    try {
+      this.data = JSON.parse(strData);
+    } catch (e) {
+      // Startup waits on this read, so an unreadable value is treated as nothing stored
+      console.warn(e);
+      this.data = null;
+    }
     this.onDataLoaded();
   }
 

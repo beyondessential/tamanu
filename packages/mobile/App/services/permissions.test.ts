@@ -51,4 +51,13 @@ describe('PermissionsService', () => {
     expect(permissions.getForUser('nurse')).toEqual(nursePermissions);
     expect(permissions.getForUser('clinician')).toBeUndefined();
   });
+
+  it('loads as empty when the stored value cannot be read', async () => {
+    (readConfig as jest.Mock).mockResolvedValue('{not json');
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const permissions = new PermissionsService(auth);
+    await permissions.loaded;
+
+    expect(permissions.getForUser('nurse')).toBeUndefined();
+  });
 });
