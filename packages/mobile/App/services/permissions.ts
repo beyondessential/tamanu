@@ -9,8 +9,6 @@ type Permission = { verb: string; noun: string; objectId?: string };
 export class PermissionsService extends LocalDataService {
   static CONFIG_KEY = 'permissionsByUser';
 
-  declare data: Record<string, Permission[]> | null;
-
   extractDataFromPayload(payload: any): Record<string, Permission[]> {
     return { ...this.data, [payload.user.id]: payload.permissions };
   }
