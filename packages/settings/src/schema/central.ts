@@ -787,6 +787,7 @@ export const centralSettings = {
       },
     },
     labResultWidget: {
+      highRisk: true,
       name: 'Lab result widget',
       description: 'Which lab results the public lab-result-by-display-ID widget may return',
       properties: {
