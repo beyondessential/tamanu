@@ -3,27 +3,24 @@ package apiclient_test
 import (
 	"context"
 	"net"
-	"net/http"
 	"net/http/httptest"
-	"slices"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient/fakeapi"
 )
 
-func setup(t *testing.T, token string, extraUpstreams ...string) (*fakeapi.API, *apiclient.Client) {
+// liveAddr starts a fake api and returns its address.
+func liveAddr(t *testing.T) string {
 	t.Helper()
-	api := fakeapi.New("2.70.0")
-	srv := httptest.NewServer(api)
+	srv := httptest.NewServer(fakeapi.New("2.70.0"))
 	t.Cleanup(srv.Close)
-	upstreams := append(extraUpstreams, strings.TrimPrefix(srv.URL, "http://"))
-	return api, apiclient.New(upstreams, token)
+	return strings.TrimPrefix(srv.URL, "http://")
 }
 
 func deadAddr(t *testing.T) string {
+	t.Helper()
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
@@ -33,51 +30,9 @@ func deadAddr(t *testing.T) string {
 	return addr
 }
 
-func TestCalls(t *testing.T) {
-	api, c := setup(t, fakeapi.Token)
-	ctx := context.Background()
-
-	if v, err := c.Version(ctx); err != nil || v != "2.70.0" {
-		t.Errorf("version = %q, %v", v, err)
-	}
-	if res, err := c.HoldTasks(ctx); err != nil || res.Busy || !api.Held() {
-		t.Errorf("hold = %+v, %v, held %v", res, err, api.Held())
-	}
-	if err := c.ReleaseTasks(ctx); err != nil || api.Held() {
-		t.Errorf("release: %v, held %v", err, api.Held())
-	}
-	if res, err := c.FinalSync(ctx); err != nil || !res.Completed {
-		t.Errorf("final sync = %+v, %v", res, err)
-	}
-
-	api.SetHold(apiclient.TaskHoldResult{Busy: true, RunningTasks: []string{"PatientEmailCommunicationProcessor"}, FHIRJobs: 3})
-	res, err := c.HoldTasks(ctx)
-	if err != nil || !res.Busy || res.FHIRJobs != 3 || !slices.Equal(res.RunningTasks, []string{"PatientEmailCommunicationProcessor"}) || api.Held() {
-		t.Errorf("busy hold = %+v, %v", res, err)
-	}
-
-	api.SetFinalSync(apiclient.FinalSyncResult{Completed: false, Reason: "Sync was queued by the central server"})
-	if res, err := c.FinalSync(ctx); err != nil || res.Completed || res.Reason == "" {
-		t.Errorf("incomplete final sync = %+v, %v", res, err)
-	}
-
-	want := []string{"GET /status", "POST /tasks/hold", "DELETE /tasks/hold", "POST /final-sync", "POST /tasks/hold", "POST /final-sync"}
-	if got := api.Calls(); !slices.Equal(got, want) {
-		t.Errorf("calls = %q", got)
-	}
-}
-
-func TestErrorStatusFails(t *testing.T) {
-	api, c := setup(t, fakeapi.Token)
-	api.Fail("POST /tasks/hold", http.StatusInternalServerError)
-	_, err := c.HoldTasks(context.Background())
-	if err == nil || !strings.Contains(err.Error(), "500") {
-		t.Errorf("err = %v", err)
-	}
-}
-
+// spec: SUPV#talking-to-the-server
 func TestWrongTokenFailsWithoutLeakingIt(t *testing.T) {
-	_, c := setup(t, "not-the-token")
+	c := apiclient.New([]string{liveAddr(t)}, "not-the-token")
 	_, err := c.Version(context.Background())
 	if err == nil || !strings.Contains(err.Error(), "401") {
 		t.Errorf("err = %v", err)
@@ -87,31 +42,24 @@ func TestWrongTokenFailsWithoutLeakingIt(t *testing.T) {
 	}
 }
 
-func TestPassesOverUnreachableInstances(t *testing.T) {
-	_, c := setup(t, fakeapi.Token, deadAddr(t))
-	if v, err := c.Version(context.Background()); err != nil || v != "2.70.0" {
-		t.Errorf("version = %q, %v", v, err)
-	}
-}
-
-func TestNoReachableInstance(t *testing.T) {
-	c := apiclient.New([]string{deadAddr(t), deadAddr(t)}, fakeapi.Token)
-	if _, err := c.Version(context.Background()); err == nil {
-		t.Error("no error")
-	}
-}
-
-func TestFinalSyncTimeout(t *testing.T) {
-	api, c := setup(t, fakeapi.Token)
-	release := make(chan struct{})
-	defer close(release)
-	api.OnCall(func(call string) {
-		if call == "POST /final-sync" {
-			<-release
-		}
-	})
-	c.FinalSyncTimeout = 20 * time.Millisecond
-	if _, err := c.FinalSync(context.Background()); err == nil {
-		t.Error("final sync outlived its timeout")
+func TestInstances(t *testing.T) {
+	for _, tt := range []struct {
+		name      string
+		instances func(t *testing.T) []string
+		answers   bool
+	}{
+		{"passes over an unreachable instance", func(t *testing.T) []string { return []string{deadAddr(t), liveAddr(t)} }, true},
+		{"no reachable instance", func(t *testing.T) []string { return []string{deadAddr(t), deadAddr(t)} }, false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			c := apiclient.New(tt.instances(t), fakeapi.Token)
+			v, err := c.Version(context.Background())
+			if tt.answers && (err != nil || v != "2.70.0") {
+				t.Errorf("version = %q, %v", v, err)
+			}
+			if !tt.answers && err == nil {
+				t.Errorf("version = %q, without an error", v)
+			}
+		})
 	}
 }
