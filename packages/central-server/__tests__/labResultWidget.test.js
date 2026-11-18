@@ -1,16 +1,15 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import express from 'express';
-import supertest from 'supertest';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { settingsCache } from '@tamanu/settings';
-import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 
 import { createTestContext } from './utilities';
 
 const DISPLAY_ID = 'WIDGET1';
-const ENDPOINT = `/v1/public/labResultWidget/${DISPLAY_ID}`;
+const UNPUBLISHED_DISPLAY_ID = 'WIDGET2';
+const endpointFor = displayId => `/v1/public/labResultWidget/${displayId}`;
+const ENDPOINT = endpointFor(DISPLAY_ID);
 
 describe('Lab result widget', () => {
   let ctx;
@@ -20,7 +19,13 @@ describe('Lab result widget', () => {
   let labTestType;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    // Limiters are no-ops under NODE_ENV=test unless opted in when the app is built.
+    process.env.TEST_RATE_LIMITING = 'enabled';
+    try {
+      ctx = await createTestContext();
+    } finally {
+      delete process.env.TEST_RATE_LIMITING;
+    }
     baseApp = ctx.baseApp;
     models = ctx.store.models;
 
@@ -69,10 +74,42 @@ describe('Lab result widget', () => {
         result: 'Negative',
       }),
     );
+
+    const unpublishedLabRequest = await models.LabRequest.create(
+      fake(models.LabRequest, {
+        displayId: UNPUBLISHED_DISPLAY_ID,
+        encounterId: encounter.id,
+        labTestCategoryId: category.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+      }),
+    );
+    await models.LabTest.create(
+      fake(models.LabTest, {
+        labRequestId: unpublishedLabRequest.id,
+        labTestTypeId: labTestType.id,
+        result: 'Positive',
+      }),
+    );
   });
 
+  const listWidgetCategoryAndTestType = async () => {
+    await models.Setting.set(
+      'labResultWidget',
+      { categoryWhitelist: [category.id], testTypeWhitelist: [labTestType.id] },
+      SETTINGS_SCOPES.CENTRAL,
+    );
+    settingsCache.reset();
+  };
+
   afterEach(async () => {
-    await models.Setting.destroy({ where: { key: { [Op.like]: 'labResultWidget.%' } } });
+    await models.Setting.destroy({
+      where: {
+        [Op.or]: [
+          { key: { [Op.like]: 'labResultWidget.%' } },
+          { key: 'security.cors.allowedOrigin' },
+        ],
+      },
+    });
     settingsCache.reset();
   });
 
@@ -85,12 +122,7 @@ describe('Lab result widget', () => {
   });
 
   it('returns results for listed categories and test types', async () => {
-    await models.Setting.set(
-      'labResultWidget',
-      { categoryWhitelist: [category.id], testTypeWhitelist: [labTestType.id] },
-      SETTINGS_SCOPES.CENTRAL,
-    );
-    settingsCache.reset();
+    await listWidgetCategoryAndTestType();
 
     const res = await baseApp.get(ENDPOINT);
     expect(res).toHaveSucceeded();
@@ -112,33 +144,34 @@ describe('Lab result widget', () => {
       expect.objectContaining({ patientInitials: 'ABC', testResults: [] }),
     ]);
   });
-});
 
-// The limiters are no-ops under NODE_ENV=test unless explicitly opted in, so this
-// exercises the widget limiter on a bare express app.
-describe('labResultWidgetLimiter', () => {
-  const max = 3;
-  let agent;
+  it('withholds results until the request is published', async () => {
+    await listWidgetCategoryAndTestType();
 
-  beforeAll(() => {
-    process.env.TEST_RATE_LIMITING = 'enabled';
-    const { labResultWidgetLimiter } = buildRateLimiters({
-      labResultWidget: { windowMs: 60000, max },
-    });
-    delete process.env.TEST_RATE_LIMITING;
-
-    const app = express();
-    app.get('/lookup', labResultWidgetLimiter, (_req, res) => res.send({ data: [] }));
-    // mirror the API error handler enough to surface the RateLimitedError status
-    // eslint-disable-next-line no-unused-vars
-    app.use((error, _req, res, _next) => res.status(error.status ?? 500).end());
-    agent = supertest(app);
+    const res = await baseApp.get(endpointFor(UNPUBLISHED_DISPLAY_ID));
+    expect(res).toHaveSucceeded();
+    expect(res.body.data).toEqual([
+      expect.objectContaining({ patientInitials: 'ABC', testResults: [] }),
+    ]);
   });
 
-  it('counts successful lookups towards the limit', async () => {
+  it('refuses lookups past the limit, including ones that find nothing', async () => {
+    const allowedOrigin = 'https://results.example.org';
+    await models.Setting.set('security.cors.allowedOrigin', allowedOrigin, SETTINGS_SCOPES.CENTRAL);
+    settingsCache.reset();
+    const max = await ctx.settings.get('rateLimit.labResultWidget.max');
+
+    // Its own client address, so the other cases' lookups don't count towards this budget.
+    const lookup = () => baseApp.get(ENDPOINT).set('X-Forwarded-For', '203.0.113.7');
     for (let i = 0; i < max; i++) {
-      await agent.get('/lookup').expect(200);
+      const res = await lookup();
+      expect(res).toHaveSucceeded();
+      expect(res.body).toEqual({ data: [] });
     }
-    await agent.get('/lookup').expect(429);
+
+    const refused = await lookup();
+    expect(refused.status).toBe(429);
+    expect(refused.headers['retry-after']).toBeDefined();
+    expect(refused.headers['access-control-allow-origin']).toBe(allowedOrigin);
   });
 });
