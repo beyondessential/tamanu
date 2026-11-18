@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { type FieldHelperProps, type FieldInputProps, type FieldMetaProps, useField } from 'formik';
 import React, { type FC, type ReactElement, useMemo } from 'react';
 import { compose } from 'redux';
-import { likePattern } from '@tamanu/utils';
+import { LIKE_ESCAPE_CLAUSE, likePattern } from '@tamanu/utils';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { Database } from '~/infra/db';
 import type { IPatient } from '~/types';
@@ -62,7 +62,7 @@ const getQueryConfigForField = (
     case 'firstName':
     case 'lastName':
       return {
-        where: `${fieldName} LIKE :${fieldName} ESCAPE '\\'`,
+        where: `${fieldName} LIKE :${fieldName} ${LIKE_ESCAPE_CLAUSE}`,
         substitutions: { [fieldName]: likePattern`%${fieldValue}%` },
       };
     case 'programRegistryId':
@@ -95,11 +95,11 @@ const searchAndFilterPatients = async (
   // Add the search term, which can match across any of 5 key fields
   queryBuilder.where(
     `(
-      patient.displayId LIKE :search ESCAPE '\\' OR
-      patient.firstName LIKE :search ESCAPE '\\' OR
-      patient.middleName LIKE :search ESCAPE '\\' OR
-      patient.lastName LIKE :search ESCAPE '\\' OR
-      patient.culturalName LIKE :search ESCAPE '\\'
+      patient.displayId LIKE :search ${LIKE_ESCAPE_CLAUSE} OR
+      patient.firstName LIKE :search ${LIKE_ESCAPE_CLAUSE} OR
+      patient.middleName LIKE :search ${LIKE_ESCAPE_CLAUSE} OR
+      patient.lastName LIKE :search ${LIKE_ESCAPE_CLAUSE} OR
+      patient.culturalName LIKE :search ${LIKE_ESCAPE_CLAUSE}
     )`,
     { search: likePattern`%${searchTerm}%` },
   );

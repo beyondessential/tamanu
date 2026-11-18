@@ -6,7 +6,7 @@ const likeWildcards = /[\\%_]/g;
  * holds `%`, `_` or `\`.
  *
  * Values are escaped with a backslash, Postgres' default LIKE escape character. SQLite has no
- * default, so a SQLite query using the pattern declares it with `ESCAPE '\'`.
+ * default, so a SQLite query follows each LIKE using the pattern with {@link LIKE_ESCAPE_CLAUSE}.
  */
 export const likePattern = (literals: TemplateStringsArray, ...values: unknown[]): string =>
   values.reduce<string>(
@@ -15,3 +15,6 @@ export const likePattern = (literals: TemplateStringsArray, ...values: unknown[]
       pattern + String(value).replace(likeWildcards, '\\$&') + literals[index + 1],
     literals[0],
   );
+
+/** Declares likePattern's escape character, for SQL dialects without a default one (SQLite). */
+export const LIKE_ESCAPE_CLAUSE = "ESCAPE '\\'";
