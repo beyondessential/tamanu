@@ -6,6 +6,7 @@ import {
   listenForBindAddresses,
   listenForSyncBindAddresses,
 } from '@tamanu/shared/utils/bindAddress';
+import { sweepStaleUploadDirs } from '@tamanu/shared/utils/tmpdir';
 import { DEVICE_TYPES, JOB_TOPICS } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
@@ -32,6 +33,7 @@ async function startApiSyncAndTasks(context) {
   context.syncConnection = new FacilitySyncConnection();
   const isConfigured = await setupSyncRuntime(context);
 
+  await sweepStaleUploadDirs();
   const { express, server } = await createApiApp(context);
 
   listenForBindAddresses({ server, app: express, fallbackPort: config.port, label: 'API Server' });
