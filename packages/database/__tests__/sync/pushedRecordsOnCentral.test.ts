@@ -69,8 +69,11 @@ describe('records pushed to central', () => {
       });
     });
 
-    it('stores a queued email without a destination as queued', async () => {
-      const pushed = communication({ destination: null });
+    it.each([
+      ['no', null],
+      ['an empty', ''],
+    ])('stores a queued email with %s destination as queued', async (_name, destination) => {
+      const pushed = communication({ destination });
       await pushToCentral(models.PatientCommunication, pushed);
 
       const stored = await models.PatientCommunication.findByPk(pushed.id);

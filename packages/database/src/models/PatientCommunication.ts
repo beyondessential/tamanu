@@ -74,7 +74,7 @@ export class PatientCommunication extends Model {
     const { attachment: _attachment, ...sanitized } = values;
 
     const isEmailChannel = EMAIL_CHANNELS.includes(sanitized.channel);
-    if (!isEmailChannel || sanitized.destination == null || isEmailAddress(sanitized.destination)) {
+    if (!isEmailChannel || !sanitized.destination || isEmailAddress(sanitized.destination)) {
       return sanitized;
     }
     return {
