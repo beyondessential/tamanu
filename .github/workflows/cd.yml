@@ -192,10 +192,8 @@ jobs:
             path: facility-server
             target: server
           - name: frontend
-            path: web
             target: frontend
           - name: patient-portal
-            path: patient-portal
             target: patient-portal
 
     name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
@@ -265,7 +263,7 @@ jobs:
           # `mode=max` export per ref); other refs read main's, which is usually a partial hit
           cache-from: type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
           cache-to: ${{ needs.config.outputs.ref == 'main' && format('type=gha,mode=max,ignore-error=true,scope={0}-main-{1}', matrix.platform.arch, matrix.package.name) || '' }}
-          build-args: PACKAGE_PATH=${{ matrix.package.path }}
+          build-args: ${{ matrix.package.path && format('PACKAGE_PATH={0}', matrix.package.path) || '' }}
           target: ${{ matrix.package.target }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
