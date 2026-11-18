@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap/zaptest"
+
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/actuator"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/apiclient"
 	"github.com/beyondessential/tamanu/packages/supervisor/internal/buildinfo"
@@ -530,4 +532,18 @@ func TestPartsForwardedAsTheyBecomeReady(t *testing.T) {
 	s.keepAwakeAfterWake()
 	h.act.Stall(state.Sync, false)
 	s.waitAwakeAfterWake()
+}
+
+// spec: SUPV#upgrades
+func TestAnOlderReadDoesNotUndoANewerOne(t *testing.T) {
+	st := state.New(state.Parts())
+	m := New(Config{Parts: state.Parts(), Timing: DefaultTiming(time.Hour)}, st, nil, nil, zaptest.NewLogger(t))
+	asked := time.Now()
+	m.observe(actuator.State{Upgrading: true, ControlsParts: true}, asked)
+	// A poll that started before the request that saw the upgrade answers
+	// after it.
+	m.observe(actuator.State{ControlsParts: true}, asked.Add(-time.Second))
+	if !m.upgrading.Load() || !st.Snapshot().Upgrading {
+		t.Error("an older read cleared the upgrade")
+	}
 }

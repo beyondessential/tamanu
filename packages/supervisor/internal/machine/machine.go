@@ -126,6 +126,10 @@ type Machine struct {
 	holding      atomic.Bool
 	tenureCancel context.CancelFunc
 	retiring     atomic.Bool
+	// observedAsked is when the request whose answer was last observed
+	// started.
+	observeMu     sync.Mutex
+	observedAsked time.Time
 	// seen is whether the actuator's state has been read; latest is the last
 	// read, and polled is notified of each read while holding the lease.
 	seen   atomic.Bool
@@ -334,23 +338,30 @@ func (m *Machine) actAsHolder(ctx context.Context) {
 	}
 }
 
-// readActuator reads the actuator's state, trying until it answers.
+// readActuator waits for the poll's next read of the actuator's state. Only
+// the poll applies what the actuator reports, one read after another, so an
+// older read never undoes a newer one.
 func (m *Machine) readActuator(ctx context.Context) (actuator.State, bool) {
-	for {
-		s, err := m.act.State(ctx)
-		if err == nil {
-			m.observe(s)
-			return s, true
-		}
-		m.log.Warn("reading the actuator's state", zap.Error(err))
-		if !sleepCtx(ctx, m.cfg.Timing.ActuatorPoll) {
-			return actuator.State{}, false
-		}
+	select {
+	case <-ctx.Done():
+		return actuator.State{}, false
+	case <-m.polled:
+		return *m.latest.Load(), true
 	}
 }
 
+// observe applies what the actuator reports in s, read by a request that
+// started at asked. A read that started before the last one applied is
+// dropped, so a slow poll never undoes what a later request saw.
+//
 // spec: SUPV#upgrades
-func (m *Machine) observe(s actuator.State) {
+func (m *Machine) observe(s actuator.State, asked time.Time) {
+	m.observeMu.Lock()
+	defer m.observeMu.Unlock()
+	if asked.Before(m.observedAsked) {
+		return
+	}
+	m.observedAsked = asked
 	m.st.SetUpgrading(s.Upgrading)
 	wasUpgrading := m.upgrading.Swap(s.Upgrading)
 	controlled := m.controls.Swap(s.ControlsParts)
@@ -624,15 +635,16 @@ func (m *Machine) stop(ctx context.Context, parts ...state.Part) error {
 	if err := m.set(context.WithoutCancel(ctx), desired); err != nil {
 		return err
 	}
-	return m.act.Await(ctx, parts, actuator.Stopped, m.cfg.Timing.PartTimeout, m.observe)
+	return m.act.Await(ctx, parts, actuator.Stopped, m.cfg.Timing.PartTimeout, nil)
 }
 
 // set sets parts' desired states, and observes the state the actuator
 // answers with, so an upgrade it reports is seen before the next poll.
 func (m *Machine) set(ctx context.Context, desired map[state.Part]actuator.Desired) error {
+	asked := time.Now()
 	s, err := m.act.Set(ctx, desired)
 	if err == nil {
-		m.observe(s)
+		m.observe(s, asked)
 	}
 	return err
 }
@@ -686,7 +698,6 @@ func (m *Machine) wake(ctx context.Context) {
 
 func (m *Machine) wakeOnce(ctx context.Context) error {
 	markReady := func(s actuator.State) {
-		m.observe(s)
 		for _, p := range m.cfg.Parts {
 			if s.Parts[p].Observed == actuator.Ready {
 				m.st.SetReady(p, true)

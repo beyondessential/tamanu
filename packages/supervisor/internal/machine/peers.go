@@ -61,6 +61,7 @@ func (m *Machine) pollActuator(ctx context.Context) {
 	failing := false
 	var received map[string]receivedReport
 	for {
+		asked := time.Now()
 		s, err := m.act.State(ctx)
 		switch {
 		case err == nil:
@@ -68,7 +69,7 @@ func (m *Machine) pollActuator(ctx context.Context) {
 			m.seen.Store(true)
 			received = m.receive(s, received)
 			m.latest.Store(&s)
-			m.observe(s)
+			m.observe(s, asked)
 			m.roleMu.Lock()
 			holding := m.holding.Load()
 			if !holding {
