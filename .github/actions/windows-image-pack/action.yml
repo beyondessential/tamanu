@@ -185,6 +185,7 @@ runs:
             Env: [
               "NODE_ENV=production",
               "PORT=3000",
+              "SYNC_BIND_ADDRESS=[::]:4100",
               ("NODE_CONFIG_DIR=C:\\config;C:\\app\\packages\\" + $pp + "\\config"),
               ("PATH=" + $path)
             ],

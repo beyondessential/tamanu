@@ -63,6 +63,9 @@ WORKDIR /app/packages/${PACKAGE_PATH}
 # explicitly configure the port
 ENV PORT=3000
 EXPOSE 3000
+# the facility sync server listens on loopback by default; in a container it is
+# reached over the container network instead
+ENV SYNC_BIND_ADDRESS=[::]:4100
 
 # read configuration from source and from /config
 #

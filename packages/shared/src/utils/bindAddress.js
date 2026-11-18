@@ -41,6 +41,19 @@ function parsePort(portString, address) {
   return port;
 }
 
+// Parse a comma-separated list of listeners read from the named environment variable.
+function parseBindAddressList(value, variableName) {
+  const addresses = value
+    .split(',')
+    .map(entry => entry.trim())
+    .filter(Boolean)
+    .map(parseBindAddress);
+  if (addresses.length === 0) {
+    throw new Error(`${variableName} is set but contains no valid addresses: "${value}"`);
+  }
+  return addresses;
+}
+
 /**
  * Resolve the set of addresses a server should listen on.
  *
@@ -51,19 +64,31 @@ function parsePort(portString, address) {
 export function resolveBindAddresses(fallbackPort) {
   const bindAddress = process.env.BIND_ADDRESS?.trim();
   if (bindAddress) {
-    const addresses = bindAddress
-      .split(',')
-      .map(entry => entry.trim())
-      .filter(Boolean)
-      .map(parseBindAddress);
-    if (addresses.length === 0) {
-      throw new Error(`BIND_ADDRESS is set but contains no valid addresses: "${process.env.BIND_ADDRESS}"`);
-    }
-    return addresses;
+    return parseBindAddressList(bindAddress, 'BIND_ADDRESS');
   }
 
   const port = +process.env.PORT || fallbackPort;
   return [{ host: undefined, port }];
+}
+
+// spec: SYNC#the-facility-sync-server
+const LOOPBACK_HOSTS = ['::1', '127.0.0.1'];
+
+/**
+ * Resolve the addresses the facility sync server should listen on: `SYNC_BIND_ADDRESS`
+ * (same format as `BIND_ADDRESS`), or else both loopback addresses at the given port.
+ *
+ * @returns {{ addresses: { host?: string, port: number }[], isDefault: boolean }}
+ */
+export function resolveSyncBindAddresses(port) {
+  const syncBindAddress = process.env.SYNC_BIND_ADDRESS?.trim();
+  if (syncBindAddress) {
+    return {
+      addresses: parseBindAddressList(syncBindAddress, 'SYNC_BIND_ADDRESS'),
+      isDefault: false,
+    };
+  }
+  return { addresses: LOOPBACK_HOSTS.map(host => ({ host, port })), isDefault: true };
 }
 
 function formatBindAddress({ host, port }) {
@@ -71,18 +96,11 @@ function formatBindAddress({ host, port }) {
   return host.includes(':') ? `[${host}]:${port}` : `${host}:${port}`;
 }
 
-/**
- * Listen on every address resolved from `BIND_ADDRESS` / `PORT` / `fallbackPort`.
- *
- * The primary http server is reused for the first address; any additional
- * addresses get their own http server sharing the same request handler. Closing
- * the primary server also closes the extras, so existing shutdown logic that
- * only tracks the primary server keeps working.
- *
- * @returns {import('node:http').Server[]} every server now listening
- */
-export function listenForBindAddresses({ server, app, fallbackPort, label = 'Server' }) {
-  const addresses = resolveBindAddresses(fallbackPort);
+// Listen on each address, reusing the primary http server for the first one and
+// giving any others their own http server sharing the same request handler.
+// Closing the primary server also closes the extras, so shutdown logic that only
+// tracks the primary server keeps working.
+function listenOnAddresses({ server, app, addresses, label }) {
   return addresses.map(({ host, port }, index) => {
     const target = index === 0 ? server : createServer(app);
     if (index !== 0) {
@@ -93,4 +111,55 @@ export function listenForBindAddresses({ server, app, fallbackPort, label = 'Ser
     });
     return target;
   });
+}
+
+function waitForListening(server) {
+  return new Promise((resolve, reject) => {
+    const onError = error => {
+      server.off('listening', onListening);
+      reject(error);
+    };
+    const onListening = () => {
+      server.off('error', onError);
+      resolve();
+    };
+    server.once('error', onError);
+    server.once('listening', onListening);
+  });
+}
+
+/**
+ * Listen on every address resolved from `BIND_ADDRESS` / `PORT` / `fallbackPort`.
+ *
+ * @returns {import('node:http').Server[]} every server now listening
+ */
+export function listenForBindAddresses({ server, app, fallbackPort, label = 'Server' }) {
+  return listenOnAddresses({ server, app, addresses: resolveBindAddresses(fallbackPort), label });
+}
+
+/**
+ * Listen on every address resolved by {@link resolveSyncBindAddresses}. Of the default
+ * loopback addresses, only one needs to bind; addresses set explicitly must all bind.
+ *
+ * @returns {Promise<import('node:http').Server[]>} the servers that are listening
+ */
+export async function listenForSyncBindAddresses({ server, app, port, label = 'Sync server' }) {
+  const { addresses, isDefault } = resolveSyncBindAddresses(port);
+  const servers = listenOnAddresses({ server, app, addresses, label });
+  const outcomes = await Promise.allSettled(servers.map(waitForListening));
+
+  const failures = outcomes.flatMap((outcome, index) =>
+    outcome.status === 'rejected' ? [{ address: addresses[index], error: outcome.reason }] : [],
+  );
+  if (failures.length === 0) return servers;
+
+  const failureSummary = failures
+    .map(({ address, error }) => `${formatBindAddress(address)}: ${error.message}`)
+    .join('; ');
+  if (!isDefault || failures.length === servers.length) {
+    throw new Error(`${label} could not listen on ${failureSummary}`);
+  }
+
+  log.warn(`${label} could not listen on every loopback address`, { failures: failureSummary });
+  return servers.filter((_, index) => outcomes[index].status === 'fulfilled');
 }
