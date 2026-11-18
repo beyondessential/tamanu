@@ -29,7 +29,7 @@ export class ReportDefinition extends Model {
       {
         ...options,
         indexes: [{ unique: true, fields: ['name'] }],
-        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );
   }

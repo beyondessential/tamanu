@@ -31,7 +31,7 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
     await models.Facility.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
-    await models.ReportDefinition.truncate({ cascade: true, force: true });
+    await models.PortalUser.truncate({ cascade: true, force: true });
     await models.User.create({
       id: SYSTEM_USER_UUID,
       email: 'system',
@@ -123,14 +123,15 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
     expect(child.original_payment_id).toBe(parentId);
   });
 
-  it('persists a push that renames a report off a name reused by a new report in the same batch', async () => {
+  it('persists a push that moves an email off a portal user to a new one in the same batch', async () => {
     const facility = await models.Facility.create(fake(models.Facility));
-    const renamedReport = await models.ReportDefinition.create({
+    const patient = await models.Patient.create(fake(models.Patient));
+    const existingPortalUser = await models.PortalUser.create({
       id: fakeUUID(),
-      name: 'cat',
-      dbSchema: 'reporting',
+      email: 'cat@example.com',
+      patientId: patient.id,
     });
-    const newReportId = fakeUUID();
+    const newPortalUserId = fakeUUID();
 
     const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession({ isMobile: true });
@@ -140,40 +141,40 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
       {
         direction: SYNC_SESSION_DIRECTION.OUTGOING,
         isDeleted: false,
-        recordType: 'report_definitions',
-        recordId: newReportId,
+        recordType: 'portal_users',
+        recordId: newPortalUserId,
         data: {
-          id: newReportId,
-          name: 'cat',
-          dbSchema: 'reporting',
+          id: newPortalUserId,
+          email: 'cat@example.com',
+          patientId: patient.id,
         },
       },
       {
         direction: SYNC_SESSION_DIRECTION.OUTGOING,
         isDeleted: false,
-        recordType: 'report_definitions',
-        recordId: renamedReport.id,
+        recordType: 'portal_users',
+        recordId: existingPortalUser.id,
         data: {
-          id: renamedReport.id,
-          name: 'cat_deprecated',
-          dbSchema: 'reporting',
+          id: existingPortalUser.id,
+          email: 'cat_deprecated@example.com',
+          patientId: patient.id,
         },
       },
     ];
 
     await centralSyncManager.addIncomingChanges(sessionId, changes);
-    await centralSyncManager.completePush(sessionId, facility.id, ['report_definitions']);
+    await centralSyncManager.completePush(sessionId, facility.id, ['portal_users']);
     await waitForPushCompleted(centralSyncManager, sessionId);
 
     const [results] = await sequelize.query(
-      `SELECT id, name FROM report_definitions WHERE id IN (:renamedId, :newId)`,
-      { replacements: { renamedId: renamedReport.id, newId: newReportId } },
+      `SELECT id, email FROM portal_users WHERE id IN (:existingId, :newId)`,
+      { replacements: { existingId: existingPortalUser.id, newId: newPortalUserId } },
     );
     expect(results).toHaveLength(2);
 
-    const renamed = results.find(r => r.id === renamedReport.id);
-    const created = results.find(r => r.id === newReportId);
-    expect(renamed.name).toBe('cat_deprecated');
-    expect(created.name).toBe('cat');
+    const existing = results.find(r => r.id === existingPortalUser.id);
+    const created = results.find(r => r.id === newPortalUserId);
+    expect(existing.email).toBe('cat_deprecated@example.com');
+    expect(created.email).toBe('cat@example.com');
   });
 });

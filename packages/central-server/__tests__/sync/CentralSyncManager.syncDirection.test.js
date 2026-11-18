@@ -100,6 +100,54 @@ describe('CentralSyncManager.addIncomingChanges syncDirection validation', () =>
     });
   });
 
+  it.each([
+    ['report_definitions', 'ReportDefinition'],
+    ['report_definition_versions', 'ReportDefinitionVersion'],
+  ])('rejects incoming %s, which are only authored on central', async (recordType, modelName) => {
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '20');
+    const facility = await models.Facility.create(fake(models.Facility));
+
+    const recordData = fake(models[modelName]);
+    const changes = [
+      {
+        direction: SYNC_SESSION_DIRECTION.OUTGOING,
+        isDeleted: false,
+        recordType,
+        recordId: recordData.id,
+        data: recordData,
+      },
+    ];
+
+    const centralSyncManager = await initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+    await centralSyncManager.updateLookupTable();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    await centralSyncManager.setupSnapshotForPull(
+      sessionId,
+      {
+        since: 1,
+        facilityIds: [facility.id],
+      },
+      () => true,
+    );
+
+    await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).rejects.toThrow(
+      'Sync security violation',
+    );
+
+    const session = await models.SyncSession.findByPk(sessionId);
+    expect(session.debugInfo.rejectedRecord).toEqual({ type: recordType, id: recordData.id });
+    expect(await models[modelName].findByPk(recordData.id)).toBeNull();
+  });
+
   it('allows incoming changes with valid syncDirection', async () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '19');
     const facility = await models.Facility.create(fake(models.Facility));
