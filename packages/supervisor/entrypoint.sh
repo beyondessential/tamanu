@@ -27,7 +27,17 @@ fail() { problems="$problems$P$1 $2
 get() { eval "printf %s \"\${$P$1-}\""; }
 is_number() { case $1 in '' | *[!0-9]*) false ;; esac; }
 
-for name in $(env | sed -n "s/^$P\([^=]*\)=.*/\1/p"); do
+# The environment the container started with, which keeps names that are not
+# shell identifiers, such as ACTUATOR-URL, though some shells drop them.
+environment() {
+	if [ -r "/proc/$$/environ" ]; then
+		tr '\0' '\n' <"/proc/$$/environ"
+	else
+		env
+	fi
+}
+
+for name in $(environment | sed -n "s/^$P\([^=]*\)=.*/\1/p"); do
 	case $known in *" $name "*) ;; *) fail "$name" "is not a variable the supervisor reads" ;; esac
 done
 
