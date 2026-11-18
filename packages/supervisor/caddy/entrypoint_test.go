@@ -63,3 +63,150 @@ func supervisorEnv(t *testing.T, vars map[string]string) (env map[string]string,
 	}
 	return env, args[2]
 }
+
+// supervisorVars is the environment of a facility server's supervisor, with
+// each pair of names (without the TAMANU_SUPERVISOR_ prefix) and values
+// changed, or removed where the value is "unset".
+func supervisorVars(pairs ...string) map[string]string {
+	vars := map[string]string{
+		"TAMANU_SUPERVISOR_ROLE":          "facility",
+		"TAMANU_SUPERVISOR_API_UPSTREAMS": "api-1:4000 api-2:4000",
+		"TAMANU_SUPERVISOR_WEB_ROOT":      "/srv/web",
+	}
+	for i := 0; i+1 < len(pairs); i += 2 {
+		if pairs[i+1] == "unset" {
+			delete(vars, "TAMANU_SUPERVISOR_"+pairs[i])
+		} else {
+			vars["TAMANU_SUPERVISOR_"+pairs[i]] = pairs[i+1]
+		}
+	}
+	return vars
+}
+
+// spec: SUPV#configuration
+// spec: SUPV#platforms
+func TestEntrypoint(t *testing.T) {
+	caddyfiles, _ := filepath.Abs(".")
+	run := func(caddyfile string) []string {
+		return []string{"run", "--config", filepath.Join(caddyfiles, caddyfile), "--adapter", "caddyfile"}
+	}
+	for _, tc := range []struct {
+		name string
+		vars map[string]string
+		args []string
+		// problem is the start of the error, naming the variable.
+		problem  string
+		wantArgs []string
+		wantEnv  map[string]string
+	}{
+		{
+			name:    "missing variable",
+			vars:    supervisorVars("WEB_ROOT", "unset"),
+			problem: "TAMANU_SUPERVISOR_WEB_ROOT is required",
+		},
+		{
+			name:    "empty variable",
+			vars:    supervisorVars("API_UPSTREAMS", ""),
+			problem: "TAMANU_SUPERVISOR_API_UPSTREAMS is required",
+		},
+		{
+			name:    "malformed role",
+			vars:    supervisorVars("ROLE", "hospital"),
+			problem: `TAMANU_SUPERVISOR_ROLE must be central or facility, not "hospital"`,
+		},
+		{
+			name:    "malformed listen address",
+			vars:    supervisorVars("LISTEN", "8080"),
+			problem: "TAMANU_SUPERVISOR_LISTEN must be an address",
+		},
+		{
+			name:    "malformed upstream",
+			vars:    supervisorVars("API_UPSTREAMS", "api-1:4000,api-2:4000"),
+			problem: "TAMANU_SUPERVISOR_API_UPSTREAMS must be a space-separated list",
+		},
+		{
+			name:    "malformed idle time",
+			vars:    supervisorVars("IDLE_TIME", "30"),
+			problem: "TAMANU_SUPERVISOR_IDLE_TIME must be a duration",
+		},
+		{
+			name:    "unknown variable",
+			vars:    supervisorVars("IDLE", "1h"),
+			problem: "TAMANU_SUPERVISOR_IDLE is not a variable the supervisor reads",
+		},
+		{
+			name:    "portal on a facility server",
+			vars:    supervisorVars("PORTAL_LISTEN", ":8082", "PORTAL_ROOT", "/srv/patient-portal"),
+			problem: "TAMANU_SUPERVISOR_PORTAL_LISTEN is only for a central server",
+		},
+		{
+			name:    "actuator without a token",
+			vars:    supervisorVars("ACTUATOR_URL", "http://actuator:7000"),
+			problem: "TAMANU_SUPERVISOR_API_TOKEN is required when TAMANU_SUPERVISOR_ACTUATOR_URL is set",
+		},
+		{
+			name: "central with a portal",
+			vars: supervisorVars("ROLE", "central", "PORTAL_LISTEN", "[::]:8082", "PORTAL_ROOT", "/srv/patient-portal",
+				"ACTUATOR_URL", "https://actuator:7000", "API_TOKEN", "secret", "TRUSTED_PROXIES", "10.0.0.0/8 fd00::/8"),
+			wantArgs: run("supervisor-portal.caddyfile"),
+			wantEnv: map[string]string{
+				"TAMANU_SUPERVISOR_IDLE_TIME":    "15m",
+				"_TAMANU_SUPERVISOR_PORT":        "8080",
+				"_TAMANU_SUPERVISOR_PORTAL_PORT": "8082",
+			},
+		},
+		{
+			name:     "facility",
+			vars:     supervisorVars(),
+			wantArgs: run("supervisor.caddyfile"),
+			wantEnv: map[string]string{
+				"TAMANU_SUPERVISOR_LISTEN":        ":8080",
+				"TAMANU_SUPERVISOR_STATUS_LISTEN": "127.0.0.1:8081",
+				"TAMANU_SUPERVISOR_IDLE_TIME":     "30m",
+				"_TAMANU_SUPERVISOR_PORT":         "8080",
+				"_TAMANU_SUPERVISOR_STATUS_PORT":  "8081",
+			},
+		},
+		{
+			name:     "adapting the configuration",
+			vars:     supervisorVars("IDLE_TIME", "1h30m"),
+			args:     []string{"supervisor", "adapt"},
+			wantArgs: []string{"adapt", "--config", filepath.Join(caddyfiles, "supervisor.caddyfile"), "--adapter", "caddyfile"},
+			wantEnv:  map[string]string{"TAMANU_SUPERVISOR_IDLE_TIME": "1h30m"},
+		},
+		{
+			name:     "without the supervisor command",
+			vars:     map[string]string{"TAMANU_SUPERVISOR_UNKNOWN": "x"},
+			args:     []string{"run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"},
+			wantArgs: []string{"run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			args := tc.args
+			if args == nil {
+				args = []string{"supervisor"}
+			}
+			gotArgs, gotEnv, stderr, err := entrypoint(t, tc.vars, args...)
+			if tc.problem != "" {
+				if err == nil || gotArgs != nil {
+					t.Fatalf("ran Caddy with %q despite the problem", gotArgs)
+				}
+				if !strings.HasPrefix(stderr, tc.problem) || strings.Count(stderr, "\n") != 1 {
+					t.Errorf("stderr = %q, want one line starting %q", stderr, tc.problem)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("entrypoint: %v\n%s", err, stderr)
+			}
+			if !slices.Equal(gotArgs, tc.wantArgs) {
+				t.Errorf("Caddy run with %q, want %q", gotArgs, tc.wantArgs)
+			}
+			for name, want := range tc.wantEnv {
+				if gotEnv[name] != want {
+					t.Errorf("%s = %q, want %q", name, gotEnv[name], want)
+				}
+			}
+		})
+	}
+}

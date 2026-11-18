@@ -283,10 +283,12 @@ func TestSmoke(t *testing.T) {
 		}
 	})
 
+	// spec: SLPWK#activity
+	// spec: SLPWK#waking
 	t.Run("asleep", func(t *testing.T) {
 		st.SetPhase(state.Asleep)
 		defer st.SetPhase(state.Awake)
-		drain := func() bool {
+		woken := func() bool {
 			select {
 			case <-st.WakeRequests():
 				return true
@@ -294,32 +296,46 @@ func TestSmoke(t *testing.T) {
 				return false
 			}
 		}
-		drain()
-
-		res, body := cl.get(listen, "/api/public/ping")
-		if res.StatusCode != 503 || res.Header.Get("Retry-After") == "" || strings.HasPrefix(body, "api") {
-			t.Errorf("ping while asleep = %d %q", res.StatusCode, body)
-		}
-		if drain() {
-			t.Error("a health probe woke the server")
-		}
-
-		res, body = cl.get(listen, "/assets/app.js", "Accept-Encoding", "identity")
-		if res.StatusCode != 200 || body != "web app" {
-			t.Errorf("asset while asleep = %d %q", res.StatusCode, body)
-		}
-		if !drain() {
-			t.Error("an asset request did not wake the server")
-		}
-
-		for _, path := range []string{"/", "/patients"} {
-			res, body = cl.get(listen, path, "Accept", "text/html")
-			if res.StatusCode != 503 || !strings.Contains(body, `http-equiv="refresh"`) {
-				t.Errorf("browser opening %s while asleep = %d %q", path, res.StatusCode, body)
-			}
-			if !drain() {
-				t.Errorf("a browser opening %s did not wake the server", path)
-			}
+		browser := []string{"Accept", "text/html"}
+		for _, tc := range []struct {
+			name    string
+			path    string
+			headers []string
+			status  int
+			body    string
+			wakes   bool
+		}{
+			{"time sync", "/api/timesync", nil, 503, "ServerWaking", false},
+			{"health probe", "/api/public/ping", nil, 503, "ServerWaking", false},
+			{"websocket", "/api/socket.io/?EIO=4&transport=websocket", []string{"Connection", "Upgrade", "Upgrade", "websocket"}, 503, "ServerUnavailable", false},
+			{"api", "/api/patient", nil, 503, "ServerWaking", true},
+			{"legacy login", "/v1/login", nil, 308, "", false},
+			{"index from a probe", "/", nil, 200, "web index", false},
+			{"index from a browser", "/", browser, 503, `http-equiv="refresh"`, true},
+			{"page from a browser", "/patients", browser, 503, `http-equiv="refresh"`, true},
+			{"page from anything else", "/patients", nil, 200, "web index", true},
+			{"asset", "/assets/app.js", []string{"Accept-Encoding", "identity"}, 200, "web app", true},
+			{"env.js", "/env.js", nil, 200, "window.env", true},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				woken()
+				before := st.Snapshot().LastActivity
+				res, body := cl.get(listen, tc.path, tc.headers...)
+				if res.StatusCode != tc.status || !strings.Contains(body, tc.body) {
+					t.Errorf("got %d %q", res.StatusCode, body)
+				}
+				// The waking response alone says when to try again.
+				waking := tc.status == http.StatusServiceUnavailable && tc.body != "ServerUnavailable"
+				if res.Header.Get("Retry-After") != "" != waking {
+					t.Errorf("Retry-After = %q", res.Header.Get("Retry-After"))
+				}
+				if woken() != tc.wakes {
+					t.Errorf("woke the server: %v, want %v", !tc.wakes, tc.wakes)
+				}
+				if active := st.Snapshot().LastActivity != before; active != tc.wakes {
+					t.Errorf("counted as activity: %v, want %v", active, tc.wakes)
+				}
+			})
 		}
 	})
 }
