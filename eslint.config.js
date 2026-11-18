@@ -135,7 +135,16 @@ export default [
     // text either side of an interpolation, as in `%${value}%` or `${key}.%`. Test files take
     // the next block's rule set instead.
     files: [`packages/{central-server,facility-server,database,shared,mobile}/**/*.${EXTS}`],
-    ignores: ['**/migrations/**'],
+    ignores: [
+      '**/migrations/**',
+      // Code-owned by the sync and integrations teams, who bring it onto likePattern themselves
+      'packages/*/{app,src}/sync/**',
+      'packages/mobile/App/services/sync/**',
+      'packages/central-server/app/hl7fhir/**',
+      'packages/database/src/{models,utils}/fhir/**',
+      'packages/shared/src/{routes,tasks,utils}/fhir/**',
+      'packages/shared/src/services/fhirTypes/**',
+    ],
     rules: {
       'no-restricted-syntax': [
         'error',
