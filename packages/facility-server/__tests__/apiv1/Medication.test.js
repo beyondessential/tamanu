@@ -1565,6 +1565,20 @@ describe('Medication', () => {
       expect(byOriginal.body.data.find(d => d.id === dispenseId)).toBeUndefined();
     });
 
+    it.each([
+      ['lastName', '_'],
+      ['firstName', '%'],
+      ['displayId', '%'],
+    ])('should treat %s %s as a literal character, not a wildcard', async (field, value) => {
+      await arrangeModifiedDispense();
+
+      const result = await app
+        .get('/api/medication/medication-dispenses')
+        .query({ facilityId, [field]: value });
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(0);
+    });
+
     describe('permissions', () => {
       disableHardcodedPermissionsForSuite();
 
