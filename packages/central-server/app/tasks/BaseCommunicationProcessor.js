@@ -2,7 +2,7 @@ import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { isEmailAddress } from '@tamanu/utils/isEmailAddress';
-import { isGeneratedFilePath, removeFile } from '../utils/files';
+import { isGeneratedFile, removeFile } from '../utils/files';
 import { getDefaultFromAddress } from '../services/mailConfig';
 
 const maskMiddle = s => s.slice(0, 1) + s.slice(1, -1).replace(/./g, '*') + s.slice(-1);
@@ -70,7 +70,7 @@ export class BaseCommunicationProcessor extends ScheduledTask {
       });
     }
 
-    if (emailPlain.attachment && !isGeneratedFilePath(emailPlain.attachment)) {
+    if (emailPlain.attachment && !(await isGeneratedFile(emailPlain.attachment))) {
       return this.handleEmailResult(email, emailPlain, {
         status: COMMUNICATION_STATUSES.BAD_FORMAT,
         error: 'Invalid attachment',
@@ -105,7 +105,7 @@ export class BaseCommunicationProcessor extends ScheduledTask {
       });
     }
 
-    if (emailPlain.attachment && isGeneratedFilePath(emailPlain.attachment)) {
+    if (emailPlain.attachment && (await isGeneratedFile(emailPlain.attachment))) {
       await removeFile(emailPlain.attachment);
     }
 

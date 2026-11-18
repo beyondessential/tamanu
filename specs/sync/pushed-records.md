@@ -12,7 +12,7 @@ Applies to how the central server accepts patient communications and report requ
 - A communication on an email channel has either no destination, in which case the patient's own email address is used, or a single email address.
 - A communication on an email channel whose destination is anything else, such as a list of addresses or an address with a display name, is stored with the Bad Format status and an error, and is never sent.
 - The address a communication is sent to, whether its destination or the patient's own address, is checked again when it is sent. A communication whose address is not a single email address is given the Bad Format status and is not sent.
-- The central server only sends, and afterwards deletes, an attachment that it generated itself in its own temporary directory. A communication whose attachment is anywhere else is stored with the Bad Format status and is not sent, and the file is left untouched.
+- The central server only sends, and afterwards deletes, an attachment that it generated itself: a regular file its own account owns, directly in its temporary directory. A communication whose attachment is anywhere else is stored with the Bad Format status and is not sent, and the file is left untouched.
 
 ## Report requests
 

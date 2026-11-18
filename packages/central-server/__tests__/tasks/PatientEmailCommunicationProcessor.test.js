@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile, access } from 'node:fs/promises';
+import { access, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -11,7 +11,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { tmpdir } from '@tamanu/shared/utils';
 
 import { PatientEmailCommunicationProcessor } from '../../app/tasks/PatientEmailCommunicationProcessor';
-import { isGeneratedFilePath } from '../../app/utils/files';
+import { isGeneratedFile } from '../../app/utils/files';
 import { createTestContext } from '../utilities';
 
 vi.mock('../../app/services/mailConfig', () => ({
@@ -125,20 +125,56 @@ describe('PatientEmailCommunicationProcessor', () => {
   });
 });
 
-describe('isGeneratedFilePath', () => {
-  it('accepts a file directly in the temp directory', async () => {
-    expect(isGeneratedFilePath(path.join(await tmpdir(), 'file.pdf'))).toBe(true);
+describe('isGeneratedFile', () => {
+  let directory;
+  let outside;
+
+  beforeAll(async () => {
+    directory = await tmpdir();
+    outside = await mkdtemp(path.join(directory, 'outside-'));
+    await writeFile(path.join(outside, 'secret.txt'), 'secret');
+  });
+
+  afterAll(async () => {
+    await rm(outside, { recursive: true, force: true });
+  });
+
+  it('accepts a file this process wrote directly in the temp directory', async () => {
+    const filePath = path.join(directory, `generated-${Date.now()}.pdf`);
+    await writeFile(filePath, 'generated');
+    try {
+      expect(await isGeneratedFile(filePath)).toBe(true);
+    } finally {
+      await rm(filePath, { force: true });
+    }
+  });
+
+  it('rejects a link in the temp directory to a file elsewhere', async () => {
+    const linkPath = path.join(directory, `link-${Date.now()}.pdf`);
+    await symlink(path.join(outside, 'secret.txt'), linkPath);
+    try {
+      expect(await isGeneratedFile(linkPath)).toBe(false);
+    } finally {
+      await rm(linkPath, { force: true });
+    }
+  });
+
+  it('rejects a path in the temp directory with no file', async () => {
+    expect(await isGeneratedFile(path.join(directory, 'missing.pdf'))).toBe(false);
   });
 
   it.each([
-    ['a file in a subdirectory of the temp directory', ['sub', 'file.pdf']],
-    ['a path that climbs out of the temp directory', ['..', 'etc', 'passwd']],
-    ['a path that climbs out and back in', ['sub', '..', '..', 'etc', 'passwd']],
+    ['a file in a subdirectory of the temp directory', () => [outside, 'secret.txt']],
+    ['a path that climbs out of the temp directory', () => [directory, '..', 'etc', 'passwd']],
+    [
+      'a path that climbs out and back in',
+      () => [outside, '..', '..', path.basename(directory), path.basename(outside), 'secret.txt'],
+    ],
   ])('rejects %s', async (_name, segments) => {
-    expect(isGeneratedFilePath([await tmpdir(), ...segments].join('/'))).toBe(false);
+    expect(await isGeneratedFile(segments().join('/'))).toBe(false);
   });
 
-  it('rejects an absolute path elsewhere', () => {
-    expect(isGeneratedFilePath('/etc/passwd')).toBe(false);
+  it('rejects an absolute path elsewhere', async () => {
+    expect(await isGeneratedFile('/etc/passwd')).toBe(false);
   });
 });
