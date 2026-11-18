@@ -73,13 +73,14 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const generateAbilityForUser = (user: User): PureAbility => {
-    return buildAbility(user, backend.permissions.data);
+  /** Null when the user has no permissions cached on this device */
+  const generateAbilityForUser = (user: IUser): PureAbility | null => {
+    const permissions = backend.permissions.getForUser(user.id);
+    return permissions ? buildAbility(user, permissions) : null;
   };
 
-  const setContextUserAndAbility = (userData): void => {
+  const setContextUserAndAbility = (userData, abilityObject: PureAbility): void => {
     setUserData(userData);
-    const abilityObject = generateAbilityForUser(userData);
     setAbility(abilityObject);
   };
 
@@ -88,8 +89,12 @@ const Provider = ({
     // the database, we don't need or want to store it in app state as well.
     const userData = { ...authenticatedUser };
     delete userData.password;
+    const abilityObject = generateAbilityForUser(userData);
+    if (!abilityObject) {
+      throw new Error('No permissions are stored on this device for the signing-in user');
+    }
     setUser(userData);
-    setContextUserAndAbility(userData);
+    setContextUserAndAbility(userData, abilityObject);
     setSignedInStatus(true);
   };
 
@@ -112,10 +117,11 @@ const Provider = ({
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user: usr, settings, token, refreshToken } = await backend.auth.remoteSignIn(params);
+    // first, so a sign-in it refuses leaves no session behind
+    signInAs(usr);
     setToken(token);
     setSettings(settings);
     setRefreshToken(refreshToken);
-    signInAs(usr);
   };
 
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
@@ -176,8 +182,12 @@ const Provider = ({
 
   // sets state again after launching the app
   useEffect(() => {
-    if (props.token && props.user) {
-      setContextUserAndAbility(props.user);
+    if (!props.token || !props.user) return;
+    const abilityObject = generateAbilityForUser(props.user);
+    if (abilityObject) {
+      setContextUserAndAbility(props.user, abilityObject);
+    } else {
+      signOut();
     }
   }, []);
 

@@ -10,6 +10,7 @@ import {
   forbiddenFacilityMessage,
   invalidUserCredentialsMessage,
   OutdatedVersionError,
+  signInOnlineFirstMessage,
 } from '../error';
 import type { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import type { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
@@ -66,7 +67,7 @@ export class AuthService {
 
   async localSignIn(
     { email, password }: SyncConnectionParameters,
-    generateAbilityForUser: (user: User) => PureAbility,
+    generateAbilityForUser: (user: User) => PureAbility | null,
   ): Promise<IUser> {
     const deviceFacilityId = await readConfig('facilityId', null);
     if (!deviceFacilityId) {
@@ -89,16 +90,19 @@ export class AuthService {
     }
 
     if (!user.password) {
-      throw new AuthenticationError(
-        'You need to first login when connected to internet to use your account offline.',
-      );
+      throw new AuthenticationError(signInOnlineFirstMessage);
     }
 
     if (!(await compare(password, user.password))) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
+    // spec: MSIGN
     const ability = generateAbilityForUser(user);
+    if (!ability) {
+      throw new AuthenticationError(signInOnlineFirstMessage);
+    }
+
     const canAccessFacility = await user.canAccessFacility(deviceFacilityId, ability, this.models);
     if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);
