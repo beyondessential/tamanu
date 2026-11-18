@@ -69,7 +69,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
                   notifyError(
                     <TranslatedText
                       stringId="modal.qrScanner.invalidCodeErrorMessage"
-                      fallback="Not a valid QR Code"
+                      fallback="Not a valid QR code"
                     />,
                   );
                 }

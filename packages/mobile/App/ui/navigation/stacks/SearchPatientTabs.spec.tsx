@@ -102,14 +102,14 @@ describe('<SearchPatientTabs /> scanning', () => {
       { screen: Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll },
     );
     expect(queryByText('Read code')).toBeNull();
-    expect(queryByText('Not a valid QR Code')).toBeNull();
+    expect(queryByText('Not a valid QR code')).toBeNull();
   });
 
   it('shows the error and leaves the search alone for a code that fails the format', async () => {
     const { getByText, navigation, queryByText, scan } = await renderTabs();
     await scan('not-a-display-id');
 
-    expect(getByText('Not a valid QR Code')).toBeTruthy();
+    expect(getByText('Not a valid QR code')).toBeTruthy();
     expect(mockSetFieldValue).not.toHaveBeenCalled();
     expect(navigation.navigate).not.toHaveBeenCalled();
     expect(queryByText('Read code')).toBeNull();
