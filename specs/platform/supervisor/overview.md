@@ -10,7 +10,7 @@ Applies to the supervisor, the small always-on process that sits in front of eve
 
 - The supervisor is a build of Caddy carrying Tamanu's own modules, and all of the server's HTTP traffic passes through it.
 - The routing for a Tamanu server (its paths, the parts each path goes to, rate limits, and error, waking and upgrading pages) is Tamanu's and ships with each release. The supervisor fills it in from its role and the addresses of the server's parts.
-- The supervisor serves the web app, and on central the patient portal, itself, from the files of its own release. They stay available while the server sleeps, wakes or has a part down.
+- The supervisor serves the web app, and on central the patient portal, itself, from the files of its own release. They stay available while the server sleeps, wakes, is upgraded or has a part down.
 - When a part does not answer, the supervisor answers with Tamanu's own error pages.
 - The supervisor serves plain HTTP/1.1 and cleartext HTTP/2 on fixed addresses: one for the server, and on central a second for the patient portal. Requests to the patient portal's address get the patient portal, apart from its API paths, which go to the api.
 - TLS, certificates, hostnames and any web application firewall belong to the platform, which forwards to the supervisor's addresses. The supervisor never needs to know a hostname.
@@ -51,7 +51,7 @@ Applies to the supervisor, the small always-on process that sits in front of eve
 ## Upgrades
 
 - The actuator reports when an upgrade of the server is in progress. The supervisor reads that when it starts, and follows it while it runs.
-- While an upgrade is in progress, the supervisor answers every request itself with an upgrading response: a page saying the server is being upgraded for a browser, and `503 Service Unavailable` with a `Retry-After` header for an API request.
+- While an upgrade is in progress, the supervisor answers a browser opening a page with a page saying the server is being upgraded, and any other request for one of the server's parts with `503 Service Unavailable` and a `Retry-After` header.
 - While an upgrade is in progress, the supervisor neither puts the server to sleep nor wakes it, and makes no calls to the api.
 
 > [!NOTE]
