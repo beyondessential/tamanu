@@ -7,6 +7,8 @@ export const PORTAL_ONE_TIME_TOKEN_TYPES = {
 
 export const PORTAL_ONE_TIME_TOKEN_TYPE_VALUES = Object.values(PORTAL_ONE_TIME_TOKEN_TYPES);
 
+// An endpoint added here needs the record its suggester reads in PORTAL_READABLE_SUBJECTS, in the
+// central server's patient portal middleware.
 export const PORTAL_SUGGESTER_ALLOW_LIST = [
   REFERENCE_TYPES.ALLERGY,
   REFERENCE_TYPES.CATCHMENT,

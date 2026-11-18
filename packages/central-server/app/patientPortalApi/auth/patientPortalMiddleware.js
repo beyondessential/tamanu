@@ -15,7 +15,8 @@ import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 const PORTAL_PERMITTED_ACTIONS = ['read', 'list'];
 
-// The records the suggesters on the portal's allow-list read
+// The records the suggesters on PORTAL_SUGGESTER_ALLOW_LIST read; an endpoint added there needs its
+// record here. The portal suggestions tests search every endpoint on that list.
 const PORTAL_READABLE_SUBJECTS = [
   'ReferenceData',
   'LabTestType',
