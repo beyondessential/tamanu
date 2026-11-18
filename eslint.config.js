@@ -131,8 +131,9 @@ export default [
   {
     // A value spliced into a LIKE pattern has its own `%` and `_` read as wildcards, so a search
     // for `_` matches every row. Build patterns with likePattern from @tamanu/utils, which matches
-    // interpolated values literally. Flags an untagged template with a `%` against an
-    // interpolation, or opening with `%`. Test files take the next block's rule set instead.
+    // interpolated values literally. Flags an untagged template with a `%` in the unbroken run of
+    // text either side of an interpolation, as in `%${value}%` or `${key}.%`. Test files take
+    // the next block's rule set instead.
     files: [`packages/{central-server,facility-server,database,shared,mobile}/**/*.${EXTS}`],
     ignores: ['**/migrations/**'],
     rules: {
@@ -140,7 +141,7 @@ export default [
         'error',
         {
           selector:
-            'TemplateLiteral[expressions.length>0]:not(TaggedTemplateExpression > TemplateLiteral) > TemplateElement:matches([tail=false][value.raw=/%$/], [value.raw=/^%/])',
+            'TemplateLiteral[expressions.length>0]:not(TaggedTemplateExpression > TemplateLiteral) > TemplateElement:matches([tail=false][value.raw=/%\\S*$/], [value.raw=/^\\S*%/])',
           message:
             'Build LIKE patterns with the likePattern tagged template from @tamanu/utils so interpolated values are matched literally. For a displayed percentage, disable this rule on the line.',
         },
