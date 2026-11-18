@@ -128,17 +128,90 @@ export function getCalculationVariables(node: CalculationExpressionNode): string
 }
 
 /**
- * Checks a parsed calculation as {@link getCalculationVariables} does, and also that every variable
- * it reads is one of `scope`'s own keys, so no name falls through to math.js' own namespace.
+ * Checks every variable a calculation reads is one of `scope`'s own keys, so no name falls through
+ * to math.js' own namespace of units and functions.
  */
-export function assertCalculationInScope(
-  node: CalculationExpressionNode,
-  scope: Record<string, unknown>,
-): string[] {
-  const variables = getCalculationVariables(node);
+function assertVariablesInScope(variables: string[], scope: Record<string, unknown>): void {
   const missing = variables.find(name => !Object.prototype.hasOwnProperty.call(scope, name));
   if (missing !== undefined) {
     throw new UnsupportedCalculationError(`Unknown variable: ${missing}`);
   }
-  return variables;
+}
+
+/**
+ * A math.js expression compiled for evaluation. What a calculation evaluates to depends on the
+ * expression, so the value is typed as math.js types its own `evaluate`, for the caller to check.
+ */
+export interface CompiledCalculation {
+  evaluate(scope: Record<string, unknown>): any;
+}
+
+/** A math.js parse node, which this reads for its vocabulary and compiles to evaluate. */
+export interface ParsedCalculation extends CalculationExpressionNode {
+  compile(): CompiledCalculation;
+}
+
+/** A calculation ready to evaluate, with the question codes it reads. */
+export interface PreparedCalculation {
+  variables: string[];
+  evaluate(): any;
+}
+
+const DEFAULT_CACHE_SIZE = 200;
+
+/**
+ * Builds the calculation pipeline — parse, check against the vocabulary, check every variable is in
+ * scope, compile — over a math.js `parse`, so each package supplies its own math.js instance and
+ * this one needs none. Both the web/server and mobile calculation paths run calculations through
+ * it, so the checks are made in one place.
+ *
+ * A survey's calculation strings are fixed while it is being filled in, and the calculations rerun
+ * on every answer change, so each distinct string is parsed, checked and compiled once and kept,
+ * up to `cacheSize` of them. Whether a calculation's variables are in scope still depends on the
+ * survey it runs against, so that is checked on every call.
+ */
+export function createCalculationPreparer(
+  parse: (calculation: string) => ParsedCalculation,
+  { cacheSize = DEFAULT_CACHE_SIZE }: { cacheSize?: number } = {},
+): (calculation: string, scope: Record<string, unknown>) => PreparedCalculation {
+  type Entry =
+    | { supported: true; variables: string[]; compiled: CompiledCalculation }
+    | { supported: false; message: string };
+  const cache = new Map<string, Entry>();
+
+  const entryFor = (calculation: string): Entry => {
+    const cached = cache.get(calculation);
+    if (cached) return cached;
+
+    let entry: Entry;
+    try {
+      const expression = parse(calculation);
+      entry = {
+        supported: true,
+        variables: getCalculationVariables(expression),
+        compiled: expression.compile(),
+      };
+    } catch (error) {
+      entry = { supported: false, message: (error as Error).message };
+    }
+
+    if (cache.size >= cacheSize) {
+      // Oldest first, so a survey's own calculations outlast one-off strings
+      cache.delete(cache.keys().next().value!);
+    }
+    cache.set(calculation, entry);
+    return entry;
+  };
+
+  return (calculation, scope) => {
+    const entry = entryFor(calculation);
+    if (!entry.supported) throw new UnsupportedCalculationError(entry.message);
+
+    assertVariablesInScope(entry.variables, scope);
+
+    return {
+      variables: entry.variables,
+      evaluate: () => entry.compiled.evaluate(scope),
+    };
+  };
 }

@@ -163,6 +163,16 @@ describe('Survey calculations', () => {
       expect(calculations.TEST_2).toEqual(0);
     });
 
+    it('should recalculate when the same survey runs again with new answers', () => {
+      const survey = makeDummySurvey([
+        { code: 'INPUT' },
+        { code: 'TEST', type: 'CalculatedQuestion', calculation: 'INPUT * 2' },
+      ]);
+      expect(runCalculations(survey, { INPUT: 5 }).TEST).toEqual(10);
+      expect(runCalculations(survey, { INPUT: 8 }).TEST).toEqual(16);
+      expect(runCalculations(survey, {}).TEST).toEqual(null);
+    });
+
     it.each([
       ['round(INPUT * 2 / 3, 1)', 3.3],
       ['max(INPUT, 10) - min(INPUT, 10)', 5],

@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
-  assertCalculationInScope,
+  createCalculationPreparer,
   getCalculationVariables,
   UnsupportedCalculationError,
   type CalculationExpressionNode,
+  type ParsedCalculation,
 } from '../src/calculationExpression';
 
 // Hand-built trees in the shape math.js' parser produces, so this package needs no math.js
@@ -78,22 +79,73 @@ describe('getCalculationVariables', () => {
   });
 });
 
-describe('assertCalculationInScope', () => {
-  it('returns the variables when every one is in scope', () => {
-    expect(assertCalculationInScope(symbol('A'), { A: 1 })).toEqual(['A']);
+describe('createCalculationPreparer', () => {
+  // Stands in for math.js: "A+B" parses to a sum of its named variables, anything else is refused
+  const parsed = (calculation: string): ParsedCalculation => {
+    const names = calculation.split('+');
+    if (names.some(name => !/^[A-Za-z]+$/.test(name)))
+      throw new Error(`Syntax error: ${calculation}`);
+    return {
+      ...names.map(symbol).reduce((left, right) => operator('add', left, right)),
+      compile: () => ({
+        evaluate: (scope: Record<string, unknown>) =>
+          names.reduce((total, name) => total + Number(scope[name] ?? 0), 0),
+      }),
+    } as ParsedCalculation;
+  };
+
+  it('prepares a calculation, giving its variables and its value in the scope', () => {
+    const prepare = createCalculationPreparer(parsed);
+    const { variables, evaluate } = prepare('A+B', { A: 2, B: 3 });
+    expect(variables).toEqual(['A', 'B']);
+    expect(evaluate()).toEqual(5);
+  });
+
+  it('parses and compiles each calculation once, however often it is prepared', () => {
+    const parse = vi.fn(parsed);
+    const prepare = createCalculationPreparer(parse);
+    expect(prepare('A+B', { A: 1, B: 1 }).evaluate()).toEqual(2);
+    expect(prepare('A+B', { A: 5, B: 5 }).evaluate()).toEqual(10);
+    expect(prepare('A', { A: 7 }).evaluate()).toEqual(7);
+    expect(parse).toHaveBeenCalledTimes(2);
   });
 
   it('accepts a variable whose value is empty', () => {
-    expect(assertCalculationInScope(symbol('A'), { A: undefined })).toEqual(['A']);
+    const prepare = createCalculationPreparer(parsed);
+    expect(prepare('A', { A: undefined }).variables).toEqual(['A']);
   });
 
-  it('refuses a variable missing from scope', () => {
-    expect(() => assertCalculationInScope(symbol('cm'), { A: 1 })).toThrow('Unknown variable: cm');
+  it('checks the scope on every call, not only the first', () => {
+    const prepare = createCalculationPreparer(parsed);
+    prepare('A+B', { A: 1, B: 1 });
+    expect(() => prepare('A+B', { A: 1 })).toThrow('Unknown variable: B');
   });
 
   it('refuses a name only inherited by the scope object', () => {
-    expect(() => assertCalculationInScope(symbol('toString'), {})).toThrow(
-      UnsupportedCalculationError,
-    );
+    const prepare = createCalculationPreparer(parsed);
+    expect(() => prepare('toString', {})).toThrow('Unknown variable: toString');
+  });
+
+  it('refuses a calculation that does not parse, without reparsing it', () => {
+    const parse = vi.fn(parsed);
+    const prepare = createCalculationPreparer(parse);
+    expect(() => prepare('1 + + /', {})).toThrow(UnsupportedCalculationError);
+    expect(() => prepare('1 + + /', {})).toThrow('Syntax error: 1 + + /');
+    expect(parse).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps no more than the cache holds, dropping the oldest first', () => {
+    const parse = vi.fn(parsed);
+    const prepare = createCalculationPreparer(parse, { cacheSize: 2 });
+    prepare('A', { A: 1 });
+    prepare('B', { B: 1 });
+    prepare('C', { C: 1 });
+    expect(parse).toHaveBeenCalledTimes(3);
+
+    prepare('C', { C: 1 });
+    expect(parse).toHaveBeenCalledTimes(3);
+
+    prepare('A', { A: 1 });
+    expect(parse).toHaveBeenCalledTimes(4);
   });
 });

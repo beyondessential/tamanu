@@ -1,8 +1,10 @@
 import { all as allMath, create } from 'mathjs';
-import { assertCalculationInScope } from '@tamanu/utils/calculationExpression';
+import { createCalculationPreparer } from '@tamanu/utils/calculationExpression';
 
 // set up math context
 const math = create(allMath);
+
+const prepareCalculation = createCalculationPreparer(calculation => math.parse(calculation));
 
 function getConfigObject(componentId, config) {
   if (!config) return {};
@@ -26,8 +28,7 @@ export function runCalculations(components, values) {
   for (const c of components) {
     if (c.calculation) {
       try {
-        const expression = math.parse(c.calculation);
-        const variables = assertCalculationInScope(expression, inputValues);
+        const { variables, evaluate } = prepareCalculation(c.calculation, inputValues);
 
         const variableInputs = {};
         for (const variable of variables) {
@@ -42,7 +43,7 @@ export function runCalculations(components, values) {
           continue;
         }
 
-        let value = expression.compile().evaluate(inputValues);
+        let value = evaluate();
 
         if (Number.isNaN(value)) {
           throw new Error('Value is NaN');
