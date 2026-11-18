@@ -69,6 +69,7 @@ Applies to the tablet at a facility where patients check themselves in for today
 - Next on a form's last page completes the form and opens the next form that is not complete; when all are complete, the main panel shows Ready to check in.
 - Answers are kept on the tablet while the patient moves between forms and pages, so a completed form can be reopened and changed until the patient checks in. A form reopened from the forms list opens at its first page and is in progress again until the patient reaches its end.
 - Back from a form's first page returns to the previous form, which keeps the status it had.
+- A completed form whose answers are changed, wherever the patient reached it from, is in progress again until the patient reaches its end, so every required question is checked against the new answers before they can check in.
 - Every form must be complete before the patient can check in.
 
 ## Checking in
