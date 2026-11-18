@@ -1267,6 +1267,49 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('specimenAttached', true);
   });
 
+  it('should clear sample fields sent as null', async () => {
+    const user = await app.get('/api/user/me');
+    const specimenType = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'specimenType',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const labSampleSite = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'labSampleSite',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, {
+        patientId,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        collectedById: user.body.id,
+        specimenTypeId: specimenType.id,
+        specimenAttached: true,
+        labSampleSiteId: labSampleSite.id,
+      }),
+    );
+
+    const response = await app.put(`/api/labRequest/${requestId}`).send({
+      sampleTime: '2023-06-13 09:30:00',
+      collectedById: null,
+      specimenTypeId: null,
+      labSampleSiteId: null,
+    });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(requestId);
+    expect(labRequest).toMatchObject({
+      sampleTime: '2023-06-13 09:30:00',
+      collectedById: null,
+      specimenTypeId: null,
+      specimenAttached: false,
+      labSampleSiteId: null,
+    });
+  });
+
   it('should publish a lab request', async () => {
     const user = await app.get('/api/user/me');
     const encounter = await models.Encounter.create({
