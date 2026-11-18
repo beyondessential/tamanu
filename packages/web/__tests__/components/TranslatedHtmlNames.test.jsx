@@ -10,6 +10,10 @@ const MARKUP_NAME = '<img src=x onerror="window.__injected = true">Mallory';
 const mockPatient = vi.hoisted(() => ({ id: 'patient-1', firstName: '', lastName: '' }));
 vi.mock('../../app/contexts/Patient', () => ({ usePatient: () => ({ patient: mockPatient }) }));
 vi.mock('../../app/api', () => ({ useApi: () => ({}) }));
+vi.mock('../../app/components/Field', () => ({
+  LocalisedField: () => null,
+  SuggesterSelectField: () => null,
+}));
 
 const { DeleteOngoingConditionModal } = await import(
   '../../app/components/PatientInfoPane/DeleteOngoingConditionModal'
