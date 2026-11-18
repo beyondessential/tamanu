@@ -84,3 +84,4 @@ Applies to the supervisor, the small always-on process that sits in front of eve
 - A server that is asleep reports as asleep rather than as down, so monitoring can tell a sleeping server from a broken one.
 - The supervisor's own health is reported separately from the server's, so a probe of the supervisor neither wakes the server nor counts as activity.
 - The status only reports. Nothing changes the supervisor's state through it.
+- The status can be read only from the supervisor's own machine or container, so probes and monitoring read it there and it is never reachable from the network.

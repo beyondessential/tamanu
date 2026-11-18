@@ -64,6 +64,12 @@ for name in LISTEN STATUS_LISTEN PORTAL_LISTEN; do
 	fail $name "must be an address such as :8080 or 127.0.0.1:8080, not \"$address\""
 done
 
+# The status is read from the supervisor's own machine or container only.
+case $(get STATUS_LISTEN) in
+127.0.0.1:* | localhost:* | \[::1\]:*) ;;
+*) fail STATUS_LISTEN "must be on loopback, such as 127.0.0.1:8081, not \"$(get STATUS_LISTEN)\"" ;;
+esac
+
 for upstream in $(get API_UPSTREAMS); do
 	case $upstream in *,* | */*) ;; ?*:*) is_number "${upstream##*:}" && continue ;; esac
 	fail API_UPSTREAMS "must be a space-separated list of host:port addresses, and \"$upstream\" is not one"

@@ -55,7 +55,7 @@ does not check everything: the operator follows the contract below.
 | `TAMANU_SUPERVISOR_ROLE` | required | `central` or `facility` |
 | `TAMANU_SUPERVISOR_LISTEN` | `:8080` | Address for the server's traffic |
 | `TAMANU_SUPERVISOR_PORTAL_LISTEN` | none | Central only: address for the patient portal's traffic. Needs `PORTAL_ROOT` |
-| `TAMANU_SUPERVISOR_STATUS_LISTEN` | `127.0.0.1:8081` | Address for the read-only status server |
+| `TAMANU_SUPERVISOR_STATUS_LISTEN` | `127.0.0.1:8081` | Loopback address for the read-only status server |
 | `TAMANU_SUPERVISOR_API_UPSTREAMS` | required | Space-separated `host:port` list of api instances |
 | `TAMANU_SUPERVISOR_WEB_ROOT` | required | Directory of the built web app. Tamanu's error pages are read from its `resources/errors` |
 | `TAMANU_SUPERVISOR_PORTAL_ROOT` | none | Directory of the built patient portal. Required with `PORTAL_LISTEN`, and ignored without it |
@@ -90,9 +90,9 @@ has read the actuator's state, whether or not it holds the lease. Until then it 
 `/status` says whether this supervisor holds the lease or follows the holder, and which
 announcement it made or follows.
 
-The status server listens on loopback unless told otherwise. A platform whose probes arrive over
-the network, as Kubernetes's do from the kubelet, sets `TAMANU_SUPERVISOR_STATUS_LISTEN` to an
-address they reach, such as `:8081`.
+The status server listens on loopback only, so probes and monitoring read it from inside the
+supervisor's container, or on its host: on Kubernetes, an exec probe such as
+`wget -qO- http://127.0.0.1:8081/ready`.
 
 ## Sleep and wake
 

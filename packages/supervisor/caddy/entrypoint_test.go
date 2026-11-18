@@ -141,6 +141,11 @@ func TestEntrypoint(t *testing.T) {
 			problem: "TAMANU_SUPERVISOR_TRUSTED_PROXIES must name the platform's proxies",
 		},
 		{
+			name:    "status reachable from outside",
+			vars:    supervisorVars("STATUS_LISTEN", ":8081"),
+			problem: "TAMANU_SUPERVISOR_STATUS_LISTEN must be on loopback",
+		},
+		{
 			name:    "malformed idle time",
 			vars:    supervisorVars("IDLE_TIME", "30"),
 			problem: "TAMANU_SUPERVISOR_IDLE_TIME must be a duration",
