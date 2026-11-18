@@ -122,6 +122,24 @@ func TestWakeRequestedAtAFollower(t *testing.T) {
 	})
 }
 
+// spec: SUPV#front-door
+func TestEverySupervisorForwardsToAFailedPartWhileAwake(t *testing.T) {
+	h := newHarness(t, false)
+	h.timing.IdleTime = time.Hour
+	holder := h.start(testRelease)
+	holder.waitHolding()
+	follower := h.start(testRelease)
+	follower.waitFollowing(holder)
+
+	h.act.SetPart(state.API, actuator.Up, actuator.Failed)
+	time.Sleep(10 * h.timing.ActuatorPoll)
+	for _, s := range []*supervisor{holder, follower} {
+		if got := s.activity(); got != state.Forward || s.phase() != state.Awake {
+			t.Errorf("%s: admission %v, phase %s", s.instance, got, s.phase())
+		}
+	}
+}
+
 // spec: SLPWK#going-to-sleep
 func TestSleepWaitsForEverySupervisor(t *testing.T) {
 	for _, tt := range []struct {

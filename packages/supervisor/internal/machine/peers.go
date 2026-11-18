@@ -93,17 +93,26 @@ func (m *Machine) pollActuator(ctx context.Context) {
 
 // follow takes the phase from the holder's newest announcement, and each
 // part's readiness from the actuator. A supervisor that has followed nothing
-// yet goes by the parts alone. Called with roleMu held.
+// yet goes by the parts alone. While the server is awake every part counts as
+// ready, as it does for the holder, so a part that stops answering gets the
+// error page from every supervisor alike. Called with roleMu held.
 func (m *Machine) follow(s actuator.State) {
 	if !m.controls.Load() {
 		m.st.SetAllReady(true)
 		m.st.SetPhase(state.Awake)
 		return
 	}
+	m.followPhase(s)
+	if m.st.Snapshot().Phase == state.Awake {
+		m.st.SetAllReady(true)
+		return
+	}
 	for _, p := range m.cfg.Parts {
 		m.st.SetReady(p, s.Parts[p].Observed == actuator.Ready)
 	}
+}
 
+func (m *Machine) followPhase(s actuator.State) {
 	if s.Lease != nil && s.Lease.Holder != m.cfg.Instance {
 		if r, ok := s.Reports[s.Lease.Holder]; ok && !r.Announcement.IsZero() {
 			m.annMu.Lock()
