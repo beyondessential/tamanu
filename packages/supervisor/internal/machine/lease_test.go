@@ -166,6 +166,41 @@ func TestEverySupervisorForwardsToAFailedPartWhileAwake(t *testing.T) {
 	}
 }
 
+// spec: SLPWK#activity
+func TestActivityElsewhereJustBeforeTheSleepCancelsIt(t *testing.T) {
+	h := newHarness(t, false)
+	h.timing.IdleTime = 300 * time.Millisecond
+	holder := h.start(testRelease)
+	release := holder.busy()
+	holder.waitHolding()
+	// The follower reports only when it must, so its request below reaches
+	// the holder only once it follows the decision to sleep.
+	h.timing.ReportEvery, h.timing.ReportTTL = time.Hour, time.Hour
+	follower := h.start(testRelease)
+	follower.waitFollowing(holder)
+
+	var mu sync.Mutex
+	var held time.Time
+	h.onAPI(func(call string) {
+		mu.Lock()
+		defer mu.Unlock()
+		if call == "POST /tasks/hold" && held.IsZero() {
+			held = time.Now()
+		}
+	})
+	release()
+	time.Sleep(h.timing.IdleTime / 2)
+	requested := time.Now()
+	follower.activity()
+
+	holder.waitPhase(state.Asleep)
+	mu.Lock()
+	defer mu.Unlock()
+	if idle := held.Sub(requested); idle < h.timing.IdleTime {
+		t.Errorf("held tasks %s after a request elsewhere, before the idle time", idle)
+	}
+}
+
 // spec: SLPWK#going-to-sleep
 func TestSleepWaitsForEverySupervisor(t *testing.T) {
 	for _, tt := range []struct {

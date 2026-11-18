@@ -221,6 +221,12 @@ func (m *Machine) settle(ctx context.Context) error {
 	for {
 		waiting := m.unsettled(id)
 		if len(waiting) == 0 {
+			// Reports sent as supervisors followed the announcement show
+			// activity since the decision to sleep, which the reports it was
+			// made on, sent only now and then while awake, could not.
+			if last, _ := m.others(); time.Since(last) < m.cfg.Timing.IdleTime {
+				return fmt.Errorf("%w: another supervisor saw activity %s ago", errBusy, time.Since(last).Round(time.Second))
+			}
 			return nil
 		}
 		select {
