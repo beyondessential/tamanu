@@ -127,22 +127,70 @@ jobs:
         # Committed alongside the version bump by the next step.
         npx --yes update-browserslist-db@latest
 
-    - name: Commit and push
+    - name: Commit version bump
       run: |
         set -ex
         version=$(jq -r .version package.json)
         git commit -am "release: Bump version to $version"
 
+    # On main only, so the refresh gets used through the next cycle and is
+    # regression-tested at the next cut. Declared ranges don't move, and
+    # .npmrc's min-release-age holds back versions too new to trust.
+    # --legacy-peer-deps gets past a known peer conflict in mobile; it drops
+    # implicitly installed peers, which CI's lockfile-peers job keeps out of
+    # main and the check below guards. `npm update` doesn't run the root
+    # prepare script, so `npm install` follows to apply patch-package's patches.
+    # A failed refresh is discarded so it never holds up the version bump.
+    - name: Refresh dependencies within declared ranges
+      id: refresh
+      run: |
+        set -x
+        cp package-lock.json "$RUNNER_TEMP/package-lock.before.json"
+
+        refresh() {
+          npm update --legacy-peer-deps \
+            && npm install \
+            && node scripts/check-lockfile-peers.mjs --baseline "$RUNNER_TEMP/package-lock.before.json" \
+            && git diff --quiet -- . ':!package-lock.json'
+        }
+
+        if ! refresh; then
+          git reset --hard HEAD
+          echo "::warning::Dependency refresh failed and was discarded; see this step's log. The version bump is unaffected."
+        elif git diff --quiet package-lock.json; then
+          echo "Lockfile already up to date"
+        else
+          git commit -m "chore: Refresh dependencies within declared ranges" package-lock.json
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Push to main
+      env:
+        REFRESH_COMMITTED: ${{ steps.refresh.outputs.committed }}
+      run: |
+        set -ex
+
         # The release branch is already pushed by now, so bailing here leaves
         # main un-bumped and the next run trips the "already exists" guard.
         # A fair bit of time has passed since checkout, so rebase and retry
-        # rather than give up on the first reject.
+        # rather than give up on the first reject. A lockfile change landing
+        # on main in the meantime conflicts with the refresh, so drop the
+        # refresh rather than the bump.
         for attempt in $(seq 1 5); do
           if git push; then
             exit 0
           fi
           echo "Push rejected (attempt $attempt/5), rebasing onto main and retrying"
-          git pull --rebase origin main
+          if ! git pull --rebase origin main; then
+            git rebase --abort
+            if [ "$REFRESH_COMMITTED" != true ]; then
+              exit 1
+            fi
+            echo "::warning::Dependency refresh conflicts with main and was dropped. The version bump is unaffected."
+            git reset --hard HEAD~1
+            REFRESH_COMMITTED=false
+            git pull --rebase origin main
+          fi
         done
 
         echo "::error::Could not push the version bump after 5 attempts. The release branch is already cut, so main needs bumping manually before this can run again."
