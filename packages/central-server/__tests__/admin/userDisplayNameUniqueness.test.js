@@ -94,4 +94,39 @@ describe('Admin user display name uniqueness', () => {
       expect(user.displayName).toBe(displayName);
     });
   });
+
+  describe('searching the user list', () => {
+    // The same stem in each field, with a literal wildcard or an ordinary letter at one position
+    const searchStem = character => `ann${character}search-${runSuffix}`;
+    const seededUsersByCharacter = {};
+
+    beforeAll(async () => {
+      for (const character of ['_', '%', 'x']) {
+        seededUsersByCharacter[character] = await models.User.create(
+          fake(models.User, {
+            displayName: searchStem(character),
+            displayId: searchStem(character),
+            email: `${searchStem(character)}@tamanu.io`,
+            role: role.id,
+          }),
+        );
+      }
+    });
+
+    it.each(
+      ['displayName', 'displayId', 'email'].flatMap(field => [
+        [field, '_'],
+        [field, '%'],
+      ]),
+    )('matches %s against a literal %s', async (field, wildcard) => {
+      const response = await adminApp
+        .get('/api/admin/users')
+        .query({ [field]: searchStem(wildcard) });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(user => user.id)).toEqual([
+        seededUsersByCharacter[wildcard].id,
+      ]);
+      expect(response.body.count).toBe(1);
+    });
+  });
 });
