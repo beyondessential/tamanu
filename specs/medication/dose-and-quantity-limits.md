@@ -13,9 +13,10 @@ Applies to the accepted range a drug can carry for its dose amount and for its d
 - Each limit is independent, so a drug can carry any combination of them, and a drug with no limits never shows a warning.
 - Limits are set per drug and apply at every facility.
 - Limits are set on the Drug reference data, either through the import spreadsheet or on the drug's record in the admin panel's reference data management.
-- The Drug tab of the import spreadsheet holds the limits in the columns `doseMin`, `doseMax`, `dispensingQuantityMin` and `dispensingQuantityMax`, and a blank cell leaves that limit unset.
+- The Drug tab of the import spreadsheet holds the limits in the columns `doseMin`, `doseMax`, `dispensingQuantityMin` and `dispensingQuantityMax`, and a blank cell, including one holding only spaces, leaves that limit unset.
+- Clearing a limit on the drug's record in reference data management unsets it.
 - Exporting drugs includes the four limit columns, with a blank cell for each unset limit.
-- A limit is invalid when it is negative, when it is a dispensing quantity limit that is not a whole number, or when it is a minimum greater than its matching maximum.
+- A limit is invalid when it is not a plain number, when it is negative, when it is a dispensing quantity limit that is not a whole number, or when it is a minimum greater than its matching maximum.
 - The importer rejects a Drug row holding an invalid limit, and saving a drug in reference data management rejects it the same way.
 
 > [!NOTE]
