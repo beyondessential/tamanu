@@ -18,6 +18,8 @@ export class OutdatedVersionError extends Error {
 export const invalidUserCredentialsMessage =
   'Invalid user credentials.\nPlease check email and password and try again.';
 export const invalidTokenMessage = 'Your login has expired, please log out and back in';
+export const signInOnlineFirstMessage =
+  'You need to first login when connected to internet to use your account offline.';
 export const forbiddenFacilityMessage = 'You don’t have access to this facility';
 export const generalErrorMessage = 'Sorry, something went wrong.\n Please try again later.';
 export const invalidDeviceMessage =

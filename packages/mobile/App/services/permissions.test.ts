@@ -1,0 +1,54 @@
+import mitt from 'mitt';
+import type { AuthService } from './auth';
+import { readConfig, writeConfig } from './config';
+import { PermissionsService } from './permissions';
+
+jest.mock('./config', () => ({
+  readConfig: jest.fn(),
+  writeConfig: jest.fn(),
+}));
+
+const nursePermissions = [{ verb: 'read', noun: 'Patient' }];
+const clinicianPermissions = [
+  { verb: 'read', noun: 'Patient' },
+  { verb: 'read', noun: 'LabTestResult' },
+];
+
+describe('PermissionsService', () => {
+  let auth: AuthService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    auth = { emitter: mitt() } as unknown as AuthService;
+  });
+
+  it('keeps each user’s permissions from their own online sign-in', async () => {
+    (readConfig as jest.Mock).mockResolvedValue(null);
+    const permissions = new PermissionsService(auth);
+    await permissions.loaded;
+
+    auth.emitter.emit('remoteSignIn', { user: { id: 'nurse' }, permissions: nursePermissions });
+    auth.emitter.emit('remoteSignIn', {
+      user: { id: 'clinician' },
+      permissions: clinicianPermissions,
+    });
+
+    expect(permissions.getForUser('nurse')).toEqual(nursePermissions);
+    expect(permissions.getForUser('clinician')).toEqual(clinicianPermissions);
+    expect(permissions.getForUser('never-online')).toBeUndefined();
+    expect(writeConfig).toHaveBeenLastCalledWith(
+      'permissionsByUser',
+      JSON.stringify({ nurse: nursePermissions, clinician: clinicianPermissions }),
+    );
+  });
+
+  it('reads the permissions cached on the device', async () => {
+    (readConfig as jest.Mock).mockResolvedValue(JSON.stringify({ nurse: nursePermissions }));
+    const permissions = new PermissionsService(auth);
+    await permissions.loaded;
+
+    expect(readConfig).toHaveBeenCalledWith('permissionsByUser');
+    expect(permissions.getForUser('nurse')).toEqual(nursePermissions);
+    expect(permissions.getForUser('clinician')).toBeUndefined();
+  });
+});

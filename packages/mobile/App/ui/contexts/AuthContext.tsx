@@ -73,13 +73,14 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const generateAbilityForUser = (user: User): PureAbility => {
-    return buildAbility(user, backend.permissions.data);
+  /** Null when the user has no permissions cached on this device */
+  const generateAbilityForUser = (user: IUser): PureAbility | null => {
+    const permissions = backend.permissions.getForUser(user.id);
+    return permissions ? buildAbility(user, permissions) : null;
   };
 
-  const setContextUserAndAbility = (userData): void => {
+  const setContextUserAndAbility = (userData, abilityObject: PureAbility): void => {
     setUserData(userData);
-    const abilityObject = generateAbilityForUser(userData);
     setAbility(abilityObject);
   };
 
@@ -89,7 +90,7 @@ const Provider = ({
     const userData = { ...authenticatedUser };
     delete userData.password;
     setUser(userData);
-    setContextUserAndAbility(userData);
+    setContextUserAndAbility(userData, generateAbilityForUser(userData));
     setSignedInStatus(true);
   };
 
@@ -176,8 +177,12 @@ const Provider = ({
 
   // sets state again after launching the app
   useEffect(() => {
-    if (props.token && props.user) {
-      setContextUserAndAbility(props.user);
+    if (!props.token || !props.user) return;
+    const abilityObject = generateAbilityForUser(props.user);
+    if (abilityObject) {
+      setContextUserAndAbility(props.user, abilityObject);
+    } else {
+      signOutClient(false);
     }
   }, []);
 
