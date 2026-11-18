@@ -51,14 +51,14 @@ export const defineWebsocketService = async injector => {
         throw new Error('Missing token');
       }
 
-      const { user, impersonateRoleId } = await injector.models.User.loginFromToken(token, {
+      const { user, device, impersonateRoleId } = await injector.models.User.loginFromToken(token, {
         tokenIssuer: getCanonicalHostName(),
         tokenSecret: getAuthSecret(),
       });
 
       // each socket is only authenticated by its own handshake, so nothing else writes this
       // eslint-disable-next-line require-atomic-updates
-      socket.data = { user, impersonateRoleId };
+      socket.data = { user, device, impersonateRoleId };
       scheduleDisconnectAtExpiry(socket, decodeJwt(token).exp);
       next();
     } catch (e) {

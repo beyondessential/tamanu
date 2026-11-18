@@ -1,7 +1,7 @@
 import { subject } from '@casl/ability';
 import { z } from 'zod';
 
-import { PATIENT_COMMUNICATION_CHANNELS, WS_EVENTS } from '@tamanu/constants';
+import { DEVICE_SCOPES, PATIENT_COMMUNICATION_CHANNELS, WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
 
@@ -15,12 +15,20 @@ const patientContactInsertPayload = z.object({
   method: z.enum(Object.values(PATIENT_COMMUNICATION_CHANNELS)),
 });
 
-const insertPatientContact = async (models, { user, impersonateRoleId }, payload) => {
+// A sync client can already push patient contacts through sync, so its device scope is enough.
+// This is how a facility server relays the contacts its own users add.
+const mayWritePatient = async (models, { user, device, impersonateRoleId }, patientId) => {
+  if (device?.scopes.includes(DEVICE_SCOPES.SYNC_CLIENT)) return true;
+  const ability = await getAbilityForUser(models, user, { impersonateRoleId });
+  return ability.can('write', subject('Patient', { id: patientId }));
+};
+
+const insertPatientContact = async (models, socketData, payload) => {
   try {
     const contact = patientContactInsertPayload.parse(payload);
 
-    const ability = await getAbilityForUser(models, user, { impersonateRoleId });
-    if (!ability.can('write', subject('Patient', { id: contact.patientId }))) {
+    const { user } = socketData;
+    if (!(await mayWritePatient(models, socketData, contact.patientId))) {
       log.warn('Patient contact insert refused: user may not write to this patient', {
         userId: user.id,
       });

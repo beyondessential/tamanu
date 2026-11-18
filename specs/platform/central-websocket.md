@@ -18,7 +18,7 @@ Applies to the socket connections that the mobile app, the web app and the facil
 
 - A patient contact insert stores a contact with an id, a patient, a relationship, a name and a communication channel, and no other fields.
 - Connection details are set when the contact registers with the messaging service and are not accepted from the connection that adds the contact.
-- The contact is stored when the connected user may write to the patient. Otherwise the insert is refused.
+- The contact is stored when the connected user may write to the patient, or when the connection comes from a sync client device, which can already send patient contacts through sync. Otherwise the insert is refused.
 - An insert with a communication channel the central server does not offer, or with a missing id, patient, relationship or name, is refused.
 - A connection that asks for an acknowledgement is told whether the contact was stored.
 

@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import {
+  DEVICE_SCOPES,
   JWT_TOKEN_TYPES,
   PATIENT_COMMUNICATION_CHANNELS,
   REFERENCE_TYPES,
@@ -20,8 +21,8 @@ describe('Websocket', () => {
   let url;
   const sockets = [];
 
-  const buildAccessToken = (user, expiresIn = '1d') =>
-    buildToken({ userId: user.id }, config.auth.secret, {
+  const buildAccessToken = (user, expiresIn = '1d', { deviceId } = {}) =>
+    buildToken({ userId: user.id, deviceId }, config.auth.secret, {
       expiresIn,
       audience: JWT_TOKEN_TYPES.ACCESS,
       issuer: config.canonicalHostName,
@@ -33,8 +34,8 @@ describe('Websocket', () => {
     return socket;
   };
 
-  const connectAs = async user => {
-    const socket = connect({ token: await buildAccessToken(user) });
+  const connectAs = async (user, { deviceId } = {}) => {
+    const socket = connect({ token: await buildAccessToken(user, '1d', { deviceId }) });
     await new Promise((resolve, reject) => {
       socket.once('connect', resolve);
       socket.once('connect_error', reject);
@@ -131,8 +132,8 @@ describe('Websocket', () => {
       return { patient, contact };
     };
 
-    const insertContact = async (user, payload) => {
-      const socket = await connectAs(user);
+    const insertContact = async (user, payload, { deviceId } = {}) => {
+      const socket = await connectAs(user, { deviceId });
       const { stored } = await socket
         .timeout(10_000)
         .emitWithAck(WS_EVENTS.PATIENT_CONTACT_INSERT, payload);
@@ -173,6 +174,32 @@ describe('Websocket', () => {
       const { user } = await ctx.baseApp.asNewRole([['read', 'Patient']]);
 
       expect(await insertContact(user, contact)).toBe(false);
+      expect(await models.PatientContact.findByPk(contact.id)).toBeNull();
+    });
+
+    it('stores the contact sent from a sync client device', async () => {
+      const { contact } = await buildContactPayload();
+      const { user } = await ctx.baseApp.asNewRole([]);
+      const device = await models.Device.create({
+        id: `sync-client-${contact.id}`,
+        registeredById: user.id,
+        scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      });
+
+      expect(await insertContact(user, contact, { deviceId: device.id })).toBe(true);
+      expect(await models.PatientContact.findByPk(contact.id)).not.toBeNull();
+    });
+
+    it('does not store a contact from a device that is not a sync client', async () => {
+      const { contact } = await buildContactPayload();
+      const { user } = await ctx.baseApp.asNewRole([]);
+      const device = await models.Device.create({
+        id: `other-device-${contact.id}`,
+        registeredById: user.id,
+        scopes: [],
+      });
+
+      expect(await insertContact(user, contact, { deviceId: device.id })).toBe(false);
       expect(await models.PatientContact.findByPk(contact.id)).toBeNull();
     });
 
