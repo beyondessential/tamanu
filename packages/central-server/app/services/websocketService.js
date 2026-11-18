@@ -56,11 +56,17 @@ export const defineWebsocketService = async injector => {
         tokenIssuer: getCanonicalHostName(),
         tokenSecret: getAuthSecret(),
       });
+      // Verification allows for clock skew, which would accept a token only to end the connection
+      // straight away
+      const expiresAtSeconds = decodeJwt(token).exp;
+      if (expiresAtSeconds && expiresAtSeconds * 1000 <= Date.now()) {
+        throw new Error('Token expired');
+      }
 
       // each socket is only authenticated by its own handshake, so nothing else writes this
       // eslint-disable-next-line require-atomic-updates
       socket.data = { user, device, impersonateRoleId };
-      scheduleDisconnectAtExpiry(socket, decodeJwt(token).exp);
+      scheduleDisconnectAtExpiry(socket, expiresAtSeconds);
       next();
     } catch (e) {
       log.warn('Rejected websocket connection', { reason: e.message });

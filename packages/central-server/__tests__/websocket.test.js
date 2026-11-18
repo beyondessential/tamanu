@@ -85,6 +85,12 @@ describe('Websocket', () => {
       expect(await connectionError(connect({ token }))).toBe('Unauthorised');
     });
 
+    it('refuses a connection with a token that expired within the allowed clock skew', async () => {
+      const user = await models.User.create(fake(models.User));
+      const token = await buildAccessToken(user, '-3s');
+      expect(await connectionError(connect({ token }))).toBe('Unauthorised');
+    });
+
     it('refuses a connection for a user who no longer exists', async () => {
       const token = await buildAccessToken({ id: 'no-such-user' });
       expect(await connectionError(connect({ token }))).toBe('Unauthorised');
