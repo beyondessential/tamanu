@@ -200,7 +200,9 @@ export const EditVitalCellForm = ({
       const newVitalData = {
         ...newShapeData,
         dataElementId: valueName,
-        encounterId: encounter?.id,
+        ...(programRegistryPatientId
+          ? { patientId: programRegistryPatientId }
+          : { encounterId: encounter?.id }),
         recordedDate: dataPoint.recordedDate,
       };
       await api.post(route('surveyResponseAnswer/:directory', { directory }), {
