@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Tamanu GEDSI and accessibility document</title>
+<style>
+  @font-face { font-family: Roboto; font-style: normal; font-weight: 400; src: url("../../assets/3e253b66056519aa065b00a453bac37ac5ed8f3e6fe7b542e93a9dcdcc11d0bc.woff2") format("woff2"), url("../../assets/1570f866bf6eae82041e407280894a86ad2b8b275e01908ae156914dc693a4ed.woff") format("woff"); }
+  @font-face { font-family: Roboto; font-style: normal; font-weight: 500; src: url("../../assets/5a8c1e7681318caa29e9f44e8a6e271f6a4067a2703e9916dfd4fe9099241db7.woff2") format("woff2"), url("../../assets/3bfe46bb1ca35b205306c5ec664e99e4a816f48a417b6b42e77a1f43f0bc4e7a.woff") format("woff"); }
+  @font-face { font-family: Roboto; font-style: normal; font-weight: 700; src: url("../../assets/1d5b7c64458f4af91dcfee0354be47adde1f739b5aded03a7ab6068a1bb6ca97.woff2") format("woff2"), url("../../assets/468e579fe1210fa55525b1c470ed2d1958404512a2dd4fb972cac5ce0ff00b1f.woff") format("woff"); }
+
+  @page { size: A4; margin: 0; }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #444444; /* darkestText */
+    background: #F3F5F7; /* background */
+    font-size: 10.5pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    margin: 24px auto;
+    padding: 26mm 20mm 24mm;
+    background: #FFFFFF; /* white */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  @media print {
+    body { background: #FFFFFF; }
+    .page { margin: 0; box-shadow: none; }
+  }
+
+  /* Running header and footer */
+  .running-head {
+    position: absolute;
+    top: 10mm;
+    left: 20mm;
+    right: 20mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 3mm;
+    border-bottom: 1px solid #EBEBEB; /* softOutline */
+    font-size: 8pt;
+    color: #888888; /* midText */
+  }
+  .running-head img { height: 5mm; display: block; }
+
+  .running-foot {
+    position: absolute;
+    bottom: 10mm;
+    left: 20mm;
+    right: 20mm;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8pt;
+    color: #888888; /* midText */
+  }
+
+  /* Type */
+  .eyebrow {
+    margin: 0 0 2mm;
+    font-size: 8.5pt;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #326699; /* primary */
+  }
+  h1 {
+    margin: 0 0 4mm;
+    font-size: 22pt;
+    line-height: 1.2;
+    font-weight: 500;
+    color: #2F4358; /* primaryDark */
+  }
+  h2 {
+    margin: 7mm 0 2mm;
+    font-size: 13pt;
+    line-height: 1.3;
+    font-weight: 500;
+    color: #326699; /* primary */
+  }
+  h3 {
+    margin: 4mm 0 1mm;
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #444444; /* darkestText */
+  }
+  p { margin: 0 0 3mm; }
+  ul { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1.2mm; }
+  .lead {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #666666; /* darkText */
+    margin-bottom: 5mm;
+  }
+  .rule {
+    width: 18mm;
+    height: 1.2mm;
+    background: #FFCC24; /* secondary */
+    margin: 0 0 6mm;
+  }
+
+  /* Callout */
+  .callout {
+    margin: 5mm 0;
+    padding: 4mm 5mm;
+    background: #EBF0F5; /* primary10 */
+    border-left: 1.2mm solid #326699; /* primary */
+    border-radius: 0 4px 4px 0;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout strong { color: #2F4358; /* primaryDark */ }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 3mm 0 4mm;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+  th {
+    text-align: left;
+    font-weight: 500;
+    color: #444444; /* darkestText */
+    background: #F3F5F7; /* background */
+    padding: 2.5mm 3mm;
+    border-bottom: 1px solid #DEDEDE; /* outline */
+  }
+  td {
+    vertical-align: top;
+    padding: 2.5mm 3mm;
+    border-bottom: 1px solid #EBEBEB; /* softOutline */
+  }
+  td:first-child { font-weight: 500; color: #2F4358; /* primaryDark */ width: 30%; }
+
+  /* Pillars grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4mm;
+    margin: 4mm 0;
+  }
+  .tile {
+    padding: 4mm 4.5mm;
+    border: 1px solid #DEDEDE; /* outline */
+    border-radius: 4px;
+  }
+  .tile h3 { margin-top: 0; color: #326699; /* primary */ }
+  .tile p { margin: 0; font-size: 9.5pt; color: #666666; /* darkText */ }
+  .tile .letter {
+    display: inline-block;
+    width: 7mm;
+    height: 7mm;
+    margin-bottom: 2mm;
+    border-radius: 50%;
+    background: #326699; /* primary */
+    color: #FFFFFF; /* white */
+    font-weight: 700;
+    font-size: 10pt;
+    line-height: 7mm;
+    text-align: center;
+  }
+
+  /* Cover */
+  .cover {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: #2F4358; /* primaryDark */
+    color: #FFFFFF; /* white */
+  }
+  .cover-top {
+    padding: 20mm 20mm 0;
+  }
+  .cover-logo {
+    display: inline-block;
+    padding: 3mm 4mm;
+    background: #FFFFFF; /* white */
+    border-radius: 4px;
+  }
+  .cover-logo img { height: 8mm; display: block; }
+  .cover-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 20mm;
+  }
+  .cover .rule { margin-bottom: 8mm; }
+  .cover h1 {
+    font-size: 34pt;
+    line-height: 1.12;
+    color: #FFFFFF; /* white */
+    margin-bottom: 6mm;
+  }
+  .cover .subtitle {
+    max-width: 135mm;
+    font-size: 13pt;
+    line-height: 1.5;
+    color: #C2D2E1; /* primary30 */
+  }
+  .cover-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 20mm 18mm;
+    font-size: 9pt;
+    color: #C2D2E1; /* primary30 */
+  }
+  .cover-band {
+    height: 3mm;
+    background: #FFCC24; /* secondary */
+  }
+
+  /* Contents */
+  .contents { list-style: none; padding: 0; margin: 4mm 0 0; }
+  .contents li {
+    display: flex;
+    justify-content: space-between;
+    padding: 3mm 0;
+    border-bottom: 1px solid #EBEBEB; /* softOutline */
+    font-size: 11pt;
+    margin: 0;
+  }
+  .contents .num { color: #326699; /* primary */ font-weight: 500; margin-right: 4mm; }
+  .contents .pg { color: #888888; /* midText */ }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6mm;
+  }
+
+  .status {
+    display: inline-block;
+    padding: 0.4mm 2mm;
+    border-radius: 3px;
+    font-size: 8pt;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .status.in { background: #D1E9DC; color: #19934E; } /* Green 20%, Green 100% */
+  .status.part { background: #FCE5D0; color: #9C4C02; }
+  .muted { color: #888888; /* midText */ font-size: 8.5pt; }
+</style>
+</head>
+<body>
+
+<!-- 1. Cover -->
+<section class="page cover">
+  <div class="cover-top">
+    <span class="cover-logo"><img src="../../assets/a581d4468146b693e07f22c6c24589a7ee623e1853356270a55046c12f08179a.svg" alt="Tamanu"></span>
+  </div>
+  <div class="cover-body">
+    <div class="rule"></div>
+    <h1>Inclusive by design:<br>GEDSI and accessibility in Tamanu</h1>
+    <p class="subtitle">How Tamanu supports gender equality, disability and social inclusion, and how it meets the accessibility standards that make software usable by everyone.</p>
+  </div>
+  <div class="cover-foot">
+    <span>Beyond Essential Systems</span>
+    <span>November 2026</span>
+  </div>
+  <div class="cover-band"></div>
+</section>
+
+<!-- 2. Summary and contents -->
+<section class="page">
+  <div class="running-head"><img src="../../assets/a581d4468146b693e07f22c6c24589a7ee623e1853356270a55046c12f08179a.svg" alt="Tamanu"><span>GEDSI and accessibility</span></div>
+
+  <p class="eyebrow">Summary</p>
+  <h1>A health record for every patient and every health worker</h1>
+  <div class="rule"></div>
+
+  <p class="lead">Tamanu is an electronic medical record built for hospitals and clinics in low-resource, often low-connectivity settings across the Pacific and beyond. Inclusion is part of that brief: a system that only works for some patients, in some places, for some staff, does not do its job.</p>
+
+  <p>This document sets out three things:</p>
+  <ul>
+    <li>what GEDSI means, and how Tamanu supports it in the way care is reached, recorded and protected</li>
+    <li>what accessibility means in software, and the international standard it is measured against</li>
+    <li>how Tamanu meets that standard today, and where the work continues</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>In short.</strong> Tamanu works offline and in the languages a deployment chooses, records the data needed to see inequity, protects the most sensitive health information, and builds on established accessibility practice: semantic controls, assistive technology support, adjustable text size and high contrast on patient-facing screens.</p>
+  </div>
+
+  <h2>Contents</h2>
+  <ol class="contents">
+    <li><span><span class="num">1</span>What GEDSI means</span><span class="pg">3</span></li>
+    <li><span><span class="num">2</span>How Tamanu supports GEDSI</span><span class="pg">3</span></li>
+    <li><span><span class="num">3</span>Accessibility in software</span><span class="pg">5</span></li>
+    <li><span><span class="num">4</span>How Tamanu meets accessibility standards</span><span class="pg">6</span></li>
+    <li><span><span class="num">5</span>Our ongoing commitments</span><span class="pg">7</span></li>
+  </ol>
+
+  <div class="running-foot"><span>Beyond Essential Systems</span><span>2</span></div>
+</section>
+
+<!-- 3. GEDSI part 1 -->
+<section class="page">
+  <div class="running-head"><img src="../../assets/a581d4468146b693e07f22c6c24589a7ee623e1853356270a55046c12f08179a.svg" alt="Tamanu"><span>GEDSI and accessibility</span></div>
+
+  <p class="eyebrow">Section 1</p>
+  <h1>What GEDSI means</h1>
+  <div class="rule"></div>
+
+  <p><strong>GEDSI</strong> stands for Gender Equality, Disability and Social Inclusion. It is a lens used across development and health programmes to ask who benefits from a service, who is left out, and why. It asks a programme to recognise that women, men and gender-diverse people, people with disability, and people marginalised by location, language, ethnicity, age or income meet different barriers, and to design so those barriers come down.</p>
+
+  <p>For a health information system, GEDSI has two sides. The system has to be usable by everyone who delivers and receives care. And the data it holds has to make inequity visible, so it can be acted on.</p>
+
+  <p class="eyebrow" style="margin-top: 8mm;">Section 2</p>
+  <h1>How Tamanu supports GEDSI</h1>
+  <div class="rule"></div>
+
+  <h2>Reaching people wherever they are</h2>
+  <p>Remote and rural communities are among those most often excluded from health services. Tamanu is built so that distance and connectivity do not decide who gets a proper health record.</p>
+  <ul>
+    <li><strong>Works offline.</strong> Each facility runs its own Tamanu server, so care continues when the internet does not. Records synchronise with the central server whenever a connection returns.</li>
+    <li><strong>Goes to the community.</strong> The Tamanu mobile app runs on Android devices at smaller facilities and on outreach visits, holding the records it needs on the device itself.</li>
+    <li><strong>Built for low-resource settings.</strong> Tamanu runs on modest hardware and is designed for the realities of Pacific health systems.</li>
+  </ul>
+
+  <h2>Speaking the patient's and health worker's language</h2>
+  <ul>
+    <li>Every word in the interface can be translated. Each deployment chooses its languages and can adjust wording to suit local terms.</li>
+    <li>Health workers choose their language on the login screen, on both desktop and mobile.</li>
+    <li>Certificates and printouts, such as vaccine certificates and discharge summaries, use the deployment's translations.</li>
+    <li>Patient-facing tools, the self check-in kiosk and the patient portal, appear in the deployment's languages, and the kiosk lets each patient choose theirs.</li>
+  </ul>
+
+  <div class="running-foot"><span>Beyond Essential Systems</span><span>3</span></div>
+</section>
+
+<!-- 4. GEDSI part 2 -->
+<section class="page">
+  <div class="running-head"><img src="../../assets/a581d4468146b693e07f22c6c24589a7ee623e1853356270a55046c12f08179a.svg" alt="Tamanu"><span>GEDSI and accessibility</span></div>
+
+  <h2 style="margin-top: 0;">Making inequity visible in the data</h2>
+  <p>Inequity that is not measured is easy to overlook. Tamanu records the details needed to break health data down by who it concerns.</p>
+  <ul>
+    <li><strong>Sex</strong> is recorded for every patient as male, female or other.</li>
+    <li><strong>Social and cultural details</strong> such as ethnicity, religion, educational attainment, occupation and a cultural or traditional name can be recorded, with each deployment choosing which apply.</li>
+    <li><strong>Location</strong>, from village to catchment and facility, shows where services are and are not reaching.</li>
+    <li><strong>Reports</strong> draw on these fields, so programmes can disaggregate results by sex, age, location and other characteristics.</li>
+    <li><strong>Forms</strong> are configured by each deployment, so programmes can add the questions they need, such as a disability screening question set.</li>
+  </ul>
+
+  <h2>Protecting sensitive health information</h2>
+  <p>Some care is only sought when patients trust that it stays private. Tamanu gives deployments the tools to protect it.</p>
+  <ul>
+    <li><strong>Sensitive networks</strong> keep confidential records within a defined group of facilities, so they never reach facilities outside it.</li>
+    <li><strong>Sensitive medications and lab tests</strong> are shown only to staff with permission to see them.</li>
+    <li><strong>Role-based permissions</strong> control what each staff member can see and do.</li>
+  </ul>
+
+  <h2>Including people with disability</h2>
+  <ul>
+    <li>Patients can check in on the self check-in kiosk with larger text and high contrast, and in their own language.</li>
+    <li>The patient portal works on the patient's own phone, with large touch-friendly controls and support for saved contact details.</li>
+    <li>Tamanu's interfaces are built to work with assistive technology, as set out in section 4.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>GEDSI at a glance.</strong> Access regardless of location and connectivity. Choice of language. Data that can be broken down by sex and social characteristics. Privacy for sensitive care. Accessible patient-facing tools.</p>
+  </div>
+
+  <div class="running-foot"><span>Beyond Essential Systems</span><span>4</span></div>
+</section>
+
+<!-- 5. Accessibility in software -->
+<section class="page">
+  <div class="running-head"><img src="../../assets/a581d4468146b693e07f22c6c24589a7ee623e1853356270a55046c12f08179a.svg" alt="Tamanu"><span>GEDSI and accessibility</span></div>
+
+  <p class="eyebrow">Section 3</p>
+  <h1>Accessibility in software</h1>
+  <div class="rule"></div>
+
+  <p class="lead">Accessible software can be used by everyone, including people with disability, without needing help from someone else.</p>
+
+  <p>The World Health Organization estimates that around one in six people worldwide live with significant disability. Accessibility also helps far more people than that. A barrier can be:</p>
+  <ul>
+    <li><strong>permanent</strong>, such as low vision, deafness or limited use of the hands</li>
+    <li><strong>temporary</strong>, such as a broken arm or an eye injury</li>
+    <li><strong>situational</strong>, such as bright sunlight on a screen, a noisy ward, or gloved hands</li>
+  </ul>
+  <p>People use assistive technologies to get around these barriers: screen readers that read the screen aloud, screen magnifiers, voice control, and keyboards or switches in place of a mouse or touch. Software is accessible when it works with these tools.</p>
+
+  <h2>The international standard: WCAG</h2>
+  <p>The Web Content Accessibility Guidelines (WCAG), published by the World Wide Web Consortium (W3C), are the internationally recognised standard for accessible digital services. The current version, WCAG 2.2, is organised around four principles.</p>
+
+  <div class="grid">
+    <div class="tile"><span class="letter">P</span><h3>Perceivable</h3><p>Information can be seen, heard or read in more than one way: text alternatives for images, enough contrast, text that can be enlarged.</p></div>
+    <div class="tile"><span class="letter">O</span><h3>Operable</h3><p>Everything can be used with a keyboard or assistive device, controls are large enough to hit, and nothing moves or times out unexpectedly.</p></div>
+    <div class="tile"><span class="letter">U</span><h3>Understandable</h3><p>Plain language, predictable layouts, and clear help when something goes wrong.</p></div>
+    <div class="tile"><span class="letter">R</span><h3>Robust</h3><p>Built with standard, well-structured code so browsers and assistive technologies can interpret it reliably.</p></div>
+  </div>
+
+  <p>Each guideline has success criteria at three levels: <strong>A</strong> (essential), <strong>AA</strong> (the level most laws and procurement policies require) and <strong>AAA</strong> (enhanced). Level AA is the widely accepted benchmark for public and health services.</p>
+
+  <div class="running-foot"><span>Beyond Essential Systems</span><span>5</span></div>
+</section>
+
+<!-- 6. How Tamanu meets standards -->
+<section class="page">
+  <div class="running-head"><img src="../../assets/a581d4468146b693e07f22c6c24589a7ee623e1853356270a55046c12f08179a.svg" alt="Tamanu"><span>GEDSI and accessibility</span></div>
+
+  <p class="eyebrow">Section 4</p>
+  <h1>How Tamanu meets accessibility standards</h1>
+  <div class="rule"></div>
+
+  <p>Tamanu follows WCAG 2.2 as its reference for accessible design and development. The table sets out how each principle shows up in the product.</p>
+
+  <table>
+    <thead>
+      <tr><th>Principle</th><th>In Tamanu</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Perceivable</td>
+        <td>A consistent colour system where each colour carries one meaning, with darker variants used wherever a colour carries text. Adjustable text size and a high contrast mode on the self check-in kiosk. Decorative icons are hidden from screen readers so they do not add noise.</td>
+      </tr>
+      <tr>
+        <td>Operable</td>
+        <td>Every action is a real button or link, so it can be reached and used from the keyboard. Visible focus indicators show where the keyboard is. Large touch targets on the kiosk and patient portal, which grow with the chosen text size. Animation is switched off for people who ask their device to reduce motion.</td>
+      </tr>
+      <tr>
+        <td>Understandable</td>
+        <td>Plain, consistent wording maintained through a single translation system, in the user's chosen language. Consistent layouts across screens. Form errors are flagged on the field they relate to and announced to assistive technology.</td>
+      </tr>
+      <tr>
+        <td>Robust</td>
+        <td>Built on standard web technologies and a widely used component library. Controls carry accessible names, states and roles, such as expanded, selected or busy, so screen readers report them correctly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Accessibility is part of how Tamanu is built</h2>
+  <ul>
+    <li><strong>Development rules.</strong> Tamanu's coding standards require semantic buttons and links for every interactive element, and prefer standard accessibility attributes over custom equivalents. Code review checks for both.</li>
+    <li><strong>Design system.</strong> A shared design system keeps colour, type and components consistent, so accessible patterns carry across every screen.</li>
+    <li><strong>Patient-facing first.</strong> The screens patients use themselves, the kiosk and portal, carry the strongest accessibility settings, because their users are the widest group.</li>
+  </ul>
+
+  <div class="running-foot"><span>Beyond Essential Systems</span><span>6</span></div>
+</section>
+
+<!-- 7. Commitments -->
+<section class="page">
+  <div class="running-head"><img src="../../assets/a581d4468146b693e07f22c6c24589a7ee623e1853356270a55046c12f08179a.svg" alt="Tamanu"><span>GEDSI and accessibility</span></div>
+
+  <p class="eyebrow">Section 5</p>
+  <h1>Our ongoing commitments</h1>
+  <div class="rule"></div>
+
+  <p class="lead">Inclusion is never finished. Tamanu is released regularly, and each release is an opportunity to remove another barrier.</p>
+
+  <table>
+    <thead>
+      <tr><th>Area</th><th>Where it stands</th><th style="width: 22%;">Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Offline and remote access</td><td>Facility servers and the mobile app work without internet.</td><td><span class="status in">In place</span></td></tr>
+      <tr><td>Language</td><td>Full translation across desktop, mobile, printouts, kiosk and portal.</td><td><span class="status in">In place</span></td></tr>
+      <tr><td>Disaggregated data</td><td>Sex, location and social characteristics recorded and reportable.</td><td><span class="status in">In place</span></td></tr>
+      <tr><td>Sensitive care</td><td>Sensitive networks, medications and lab tests.</td><td><span class="status in">In place</span></td></tr>
+      <tr><td>Text size and high contrast</td><td>On the self check-in kiosk. Extending to other screens.</td><td><span class="status part">In progress</span></td></tr>
+      <tr><td>Automated accessibility checks</td><td>Adding automated checks to Tamanu's development pipeline.</td><td><span class="status part">In progress</span></td></tr>
+      <tr><td>Assistive technology testing</td><td>Regular testing with screen readers on desktop and Android.</td><td><span class="status part">In progress</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Working with partners</h2>
+  <p>Tamanu is shaped by the ministries, hospitals and health workers who use it. We welcome feedback on any barrier a patient or staff member meets, and treat accessibility issues as defects to be fixed, not features to be scheduled.</p>
+
+  <div class="callout">
+    <p><strong>Contact.</strong> To raise an accessibility or inclusion issue, or to discuss GEDSI requirements for a deployment, contact your Tamanu project manager or Beyond Essential Systems.</p>
+  </div>
+
+  <div class="running-foot"><span>Beyond Essential Systems</span><span>7</span></div>
+</section>
+
+</body>
+</html>
