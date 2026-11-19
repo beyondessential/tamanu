@@ -1,9 +1,15 @@
+import { ReadSettings } from '@tamanu/settings/reader';
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { initTimesync } from './services/initTimesync';
 import { CentralServerConnection, FacilitySyncManager } from './sync';
-import { getSyncConfig, isServerConfigured, initServerConfig } from './serverConfig';
+import {
+  getServerFacilityIds,
+  getSyncConfig,
+  isServerConfigured,
+  initServerConfig,
+} from './serverConfig';
 import { resolveSchedules } from './tasks';
 
 // How often a sync/tasks process re-checks for first-run setup completing.
@@ -52,6 +58,10 @@ export function startSyncRuntimeWhenConfigured(
     try {
       await initServerConfig({ context }); // re-read facts written by the wizard
       if (!isServerConfigured()) return;
+      // context.settings is keyed by the facilities known at boot, which is none here.
+      for (const facilityId of getServerFacilityIds()) {
+        context.settings[facilityId] ??= new ReadSettings(context.models, facilityId);
+      }
       // Only stop polling once the runtime is up — if setup throws (e.g. central
       // briefly unreachable) we retry on the next tick rather than disabling sync.
       await setup(context);

@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 
 import {
   FORM_TYPES,
+  GENERIC_SURVEY_EXPORT_REPORT_ID,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCES,
   REPORT_EXPORT_FORMATS,
@@ -34,6 +35,7 @@ import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
 import { useLocalisation } from '../../contexts/Localisation';
 import { saveFile } from '../../utils/fileSystemAccess';
+import { getCurrentLanguageCode } from '../../utils/translation';
 import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
@@ -104,8 +106,8 @@ const useFileName = () => {
 
   const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);
 
-  return reportName => {
-    const dashedName = `${reportName}-${countryName}`
+  return (reportName, surveyName) => {
+    const dashedName = `${[reportName, surveyName].filter(Boolean).join('-')}-${countryName}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
@@ -222,6 +224,19 @@ export const ReportGeneratorForm = () => {
     })();
   }, [api, getTranslation]);
 
+  // The survey's name in the user's language, as the Survey field shows it. It only labels the
+  // export, so a failed lookup leaves the survey out of the name rather than stopping the export.
+  const fetchSurveyName = async surveyId => {
+    try {
+      const survey = await api.get(route('suggestions/survey/:surveyId', { surveyId }), {
+        language: getCurrentLanguageCode(),
+      });
+      return survey.name;
+    } catch {
+      return null;
+    }
+  };
+
   const submitRequestReport = async formValues => {
     const { reportId, emails, timezone, ...filterValues } = formValues;
 
@@ -240,13 +255,20 @@ export const ReportGeneratorForm = () => {
           .map(([key, value]) => `${key}: ${value}`)
           .join(', ');
 
-        const reportName = reportsById[reportId].name;
+        const { name: reportName, definitionId } = reportsById[reportId];
+
+        // spec: REPORTS
+        const isGenericSurveyExport = definitionId === GENERIC_SURVEY_EXPORT_REPORT_ID;
+        const surveyName = isGenericSurveyExport
+          ? await fetchSurveyName(filterValues.surveyId)
+          : null;
 
         const metadata = [
           ['Report Name:', reportName],
           ['Date Generated:', format(getFacilityNowDate(), 'ddMMyyyy')],
           ['User:', currentUser.email],
           ['Filters:', filterString],
+          ...(surveyName ? [['Survey:', surveyName]] : []),
           ['Timezone:', timezone],
         ];
 
@@ -254,7 +276,7 @@ export const ReportGeneratorForm = () => {
           prepareExcelFile({
             data: excelData,
             metadata,
-            defaultFileName: getFileName(reportName),
+            defaultFileName: getFileName(reportName, surveyName),
             bookType,
           }),
         );
