@@ -1018,8 +1018,29 @@ describe('Form Builder Admin', () => {
         )
         .attach('file', Buffer.from('Patient name'), 'form.txt');
 
-      expect(response).toHaveRequestError(404);
+      expect(response.status).toBe(404);
       expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+      expect(await fs.readdir(uploadDirPath())).toEqual([]);
+    });
+
+    it('refuses an async chat for a program that does not exist before starting a job', async () => {
+      const jobsBefore = await models.FormBuilderChatJob.count();
+
+      const response = await app
+        .post('/v1/admin/form-builder/chat')
+        .field(
+          'jsonData',
+          JSON.stringify({
+            async: true,
+            message: 'Use this form',
+            programId: 'program-does-not-exist',
+          }),
+        )
+        .attach('file', Buffer.from('Patient name'), 'form.txt');
+
+      expect(response.status).toBe(404);
+      expect(aiService.createSession).not.toHaveBeenCalled();
+      expect(await models.FormBuilderChatJob.count()).toBe(jobsBefore);
       expect(await fs.readdir(uploadDirPath())).toEqual([]);
     });
 
@@ -1032,7 +1053,7 @@ describe('Form Builder Admin', () => {
         )
         .attach('file', Buffer.from('Patient name'), 'form.txt');
 
-      expect(response).toHaveRequestError(422);
+      expect(response.status).toBe(422);
       expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
       expect(await fs.readdir(uploadDirPath())).toEqual([]);
     });
