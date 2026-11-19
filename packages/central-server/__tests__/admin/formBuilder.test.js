@@ -881,6 +881,35 @@ describe('Form Builder Admin', () => {
       }
     });
 
+    it('keeps a correction already made when a later check fails', async () => {
+      reportReady();
+      aiService.invokeStructured
+        .mockResolvedValueOnce(unsaveableProgramDefinition)
+        .mockResolvedValueOnce(hospitalNumberCorrection);
+      // the first check finds the survey code free, the one after the correction fails
+      const findSurvey = vi
+        .spyOn(models.Survey, 'findOne')
+        .mockResolvedValueOnce(null)
+        .mockRejectedValueOnce(new Error('Connection terminated'));
+
+      try {
+        const response = await app.post('/v1/admin/form-builder/chat').send({
+          message: 'Build a referral form with the hospital number',
+          programId,
+        });
+
+        expect(response).toHaveSucceeded();
+        expect(response.body.message).toBe(
+          'Your form is ready.\n\nChanged Hospital No to a free text question.',
+        );
+        expect(response.body.programDefinition.surveySheets[0].questions[1].type).toBe(
+          'FreeText',
+        );
+      } finally {
+        findSurvey.mockRestore();
+      }
+    });
+
     it('refuses a program that does not exist', async () => {
       const response = await app.post('/v1/admin/form-builder/chat').send({
         message: 'Build a referral form',

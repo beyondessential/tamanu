@@ -439,7 +439,8 @@ const describeUnsaveablePreview = problems =>
 // The preview schema only checks structure, so dry-run the save against the
 // program it will be saved to and hand any problems back to the model as a
 // tweak. Returns the notes to add to the reply: each correction's message, then
-// any problems left.
+// any problems left. The check is best-effort: a fault while checking keeps the
+// preview as corrected so far.
 const correctUnsaveablePreview = async ({
   aiService,
   db,
@@ -453,6 +454,9 @@ const correctUnsaveablePreview = async ({
     models,
     programId,
     programDefinition,
+  }).catch(error => {
+    log.warn({ error }, 'AI form builder could not check the preview against save validation');
+    return [];
   });
   if (problems.length === 0) return { programDefinition, notes: [] };
 
@@ -462,6 +466,9 @@ const correctUnsaveablePreview = async ({
           aiService,
           currentProgramDefinition: programDefinition,
           userMessage: buildSaveCorrectionRequest(problems),
+        }).catch(error => {
+          log.warn({ error }, 'AI form builder could not correct the preview');
+          return null;
         })
       : null;
   if (!correction) {
@@ -483,8 +490,7 @@ const correctUnsaveablePreview = async ({
 };
 
 // Without the program it will be saved to there's nothing to dry-run the save
-// against, so the preview goes back as generated. The check is best-effort: a
-// fault while checking leaves the preview as generated rather than losing it.
+// against, so the preview goes back as generated.
 const preparePreview = async ({ aiService, db, models, programId, programDefinition, message }) => {
   if (!programId) return { programDefinition, message };
 
@@ -494,9 +500,6 @@ const preparePreview = async ({ aiService, db, models, programId, programDefinit
     models,
     programId,
     programDefinition,
-  }).catch(error => {
-    log.warn({ error }, 'AI form builder could not check the preview against save validation');
-    return { programDefinition, notes: [] };
   });
   return {
     programDefinition: corrected.programDefinition,
