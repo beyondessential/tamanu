@@ -4,20 +4,23 @@ Scenarios that verify this card. Web only; mobile has no patient billing UI.
 
 ## Test environment
 
-The preview deployment at https://facility-1.workhorse-x11.cd.tamanu.app is configured for these
-scenarios. Log in as `admin@tamanu.io` / `admin`, facility Test Facility 1.
+Test against the L1 preview at https://facility-1.workhorse-l1.cd.tamanu.app, not this card's own
+preview and not the epic. Log in as `admin@tamanu.io` / `admin`, facility Test Facility 1.
 
-What is set up on it:
+Why that one:
 
-- Every Billing information field shown: `fields.{adoptionNumber,marriageLicence,familySize,annualIncome,payor1Id,payor1ReferenceNumber,payor2Id,payor2ReferenceNumber}.hidden` set to false, since all eight ship hidden
-- `features.enablePatientInsurer` on, so insurance policy number appears
-- `features.invoicing.enabled` and `features.invoicing.slidingFeeScale` on, so the discount assessment can be reached; the deployment already carries invoice products and a price list
-- An `invoiceInsurancePlan` named **Sliding fee scale**, code `sliding-fee-scale`, matching `invoice.slidingFeeScalePlanCode`. Without it nothing makes family size and annual income required
-- `features.patientPortal` on, for the portal cases
-- **Adeline Giannoni (RQLN820387)** carries a worked example: every billing and identification field filled, the sliding fee scale plan selected, family size 3 and annual income 7,400 - 17,000. The other patients are untouched, for the plan-not-selected state
+- `workhorse/l1` is level with `epic-palau-invoicing` and carries this card's merged work unchanged, so what you see here is attributable to this card
+- It also carries W11's invoice patient details modal, and L1's fix that lets that modal show validation messages at all, so the modal scenarios can actually be exercised
+- The two sliding fee scale defects found on the rig are fixed on that branch
+- It is already configured: all eight billing fields shown, `features.enablePatientInsurer`, `features.invoicing.enabled`, `features.invoicing.slidingFeeScale` and `features.patientPortal` all on, and an `invoiceInsurancePlan` named **Sliding fee scale** with code `sliding-fee-scale` matching `invoice.slidingFeeScalePlanCode`. Nothing to set up
+
+The epic itself is not configured: every billing field is hidden and every one of those flags is
+off, and it carries no sliding-fee-scale plan. Billing information renders two fields there, so a
+scenario run against it passes for the wrong reason.
 
 Two things to know while testing:
 
+- There is no worked-example patient on this deployment, so each scenario fills in what it needs
 - A settings change on the admin panel reaches facility-1 by sync, about a minute later. A screen that looks unchanged straight after a settings save has usually just not caught up
 - The deployment's browser-support gate refuses Playwright's bundled Chromium with "Tamanu is not available on your browser". Drive it with the installed Chrome (`channel: 'chrome'`) instead
 
