@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { DRUG_UNITS } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, DRUG_UNITS } from '@tamanu/constants';
 import { renderElementWithTranslatedText } from '../../../../helpers';
 import { MarStatusLabel } from '../../../../../app/components/Medication/Mar/DoseCell/MarStatusTooltip';
 
@@ -14,8 +14,8 @@ vi.mock('@tamanu/ui-components', async importOriginal => ({
 const getTranslation = (_stringId, fallback, { replacements } = {}) =>
   fallback.replace(/:(\w+)/g, (token, key) => replacements?.[key] ?? token);
 
-const renderLabelLines = props => {
-  const { container } = renderElementWithTranslatedText(
+const renderLabel = props =>
+  renderElementWithTranslatedText(
     <MarStatusLabel
       doseAmount={1000}
       dosingUnit={DRUG_UNITS.mg}
@@ -29,8 +29,10 @@ const renderLabelLines = props => {
       getEnumTranslation: (enumValues, value) => enumValues?.[value] ?? value,
       translations: {},
     },
-  );
-  const tooltipText = container.firstChild.firstChild;
+  ).container;
+
+const renderLabelLines = props => {
+  const tooltipText = renderLabel(props).firstChild.firstChild;
   return [...tooltipText.children].map(line => line.textContent.replace(/\s+/g, ' '));
 };
 
@@ -82,5 +84,32 @@ describe('MarStatusLabel', () => {
 
   it('shows only the due time without a dose window', () => {
     expect(renderLabelLines({})).toEqual(['Due at 1:00pm.']);
+  });
+
+  it('shows no window on a given or not given dose', () => {
+    const doseWindow = { startTime: '13:00', endTime: '14:00' };
+    expect(
+      renderLabelLines({
+        doseWindow,
+        status: ADMINISTRATION_STATUS.GIVEN,
+        marDoses: [{ id: 'dose-1', doseAmount: 500, givenTime: '2026-11-20 13:10:00' }],
+      }),
+    ).toEqual(['', '500 mg given at 1:00pm']);
+    expect(
+      renderLabelLines({
+        doseWindow,
+        status: ADMINISTRATION_STATUS.NOT_GIVEN,
+        reasonNotGiven: { name: 'Patient refused' },
+      }),
+    ).toEqual(['Not given', 'Patient refused']);
+  });
+
+  it('shows nothing for a past PRN dose', () => {
+    const container = renderLabel({
+      doseWindow: { startTime: '13:00', endTime: '14:00' },
+      isPast: true,
+      isPrn: true,
+    });
+    expect(container.innerHTML).toBe('');
   });
 });
