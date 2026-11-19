@@ -1,6 +1,6 @@
 Your dashboard is the landing page for Tamanu, the screen you see each time you log in. It gathers
 what you need for your shift: the patients you have looked at recently, your upcoming tasks, today's
-appointments and bookings, and your notifications. To return to it, select **Dashboard** in the
+appointments and bookings, and your notifications. To return to it, click **Dashboard** in the
 sidebar.
 
 <figure>
@@ -9,7 +9,7 @@ sidebar.
     alt="The dashboard showing Recently viewed, Upcoming tasks, Today's appointments and Today's bookings, with Dashboard in the sidebar outlined in red"
     width="599"
   />
-  <figcaption>Select <b>Dashboard</b> in the sidebar to open your dashboard.</figcaption>
+  <figcaption>Click <b>Dashboard</b> in the sidebar to open your dashboard.</figcaption>
 </figure>
 
 # Before you start
@@ -33,7 +33,7 @@ administrator if you believe you should see a section that is missing.
 1. Find the patient in **Recently viewed**.
 
    Each card shows the patient's name, ID, sex and date of birth. If there are more patients than fit,
-   select the arrows at either end of the row to see the rest.
+   click the arrows at either end of the row to see the rest.
 
    <figure>
      <img
@@ -44,7 +44,7 @@ administrator if you believe you should see a section that is missing.
      <figcaption><b>Recently viewed</b> runs across the top of the dashboard.</figcaption>
    </figure>
 
-2. Select the patient's card.
+2. Click the patient's card.
 
    The patient's record opens.
 
@@ -54,7 +54,7 @@ administrator if you believe you should see a section that is missing.
        alt="A patient's card in Recently viewed, outlined in red"
        width="242"
      />
-     <figcaption>Select a patient's card to open their record.</figcaption>
+     <figcaption>Click a patient's card to open their record.</figcaption>
    </figure>
 
 # Check today's appointments
@@ -65,7 +65,7 @@ administrator if you believe you should see a section that is missing.
    patient's name, and its colour and icon show its status. **Seen** above the list counts how many
    of today's appointments have been seen, and its bar fills as they are.
 
-   If you have no appointments today, the pane says so. Select **Outpatient appointments** to see
+   If you have no appointments today, the pane says so. Click **Outpatient appointments** to see
    other appointments.
 
    <figure>
@@ -77,7 +77,7 @@ administrator if you believe you should see a section that is missing.
      <figcaption><b>Today’s appointments</b> sits at the top right of the dashboard.</figcaption>
    </figure>
 
-2. Select **View all…** to open the outpatient appointments calendar, grouped by clinician.
+2. Click **View all…** to open the outpatient appointments calendar, grouped by clinician.
 
    <figure>
      <img
@@ -85,7 +85,7 @@ administrator if you believe you should see a section that is missing.
        alt="The Today's appointments pane listing four appointments, one seen, with View all… outlined in red"
        width="307"
      />
-     <figcaption>Select <b>View all…</b> to open the outpatient appointments calendar.</figcaption>
+     <figcaption>Click <b>View all…</b> to open the outpatient appointments calendar.</figcaption>
    </figure>
 
 # Check today's bookings
@@ -95,7 +95,7 @@ administrator if you believe you should see a section that is missing.
    It lists the location bookings you are the clinician for today. Each shows its time, its area and
    location, and the patient's name. The icon beside each booking shows its status.
 
-   If you have no bookings today, the pane says so. Select **Location bookings** to see all bookings.
+   If you have no bookings today, the pane says so. Click **Location bookings** to see all bookings.
 
    <figure>
      <img
@@ -106,7 +106,7 @@ administrator if you believe you should see a section that is missing.
      <figcaption><b>Today's bookings</b> sits below <b>Today’s appointments</b>.</figcaption>
    </figure>
 
-2. Select **View all…** to open the location bookings calendar, showing only your bookings.
+2. Click **View all…** to open the location bookings calendar, showing only your bookings.
 
    <figure>
      <img
@@ -114,7 +114,7 @@ administrator if you believe you should see a section that is missing.
        alt="The Today's bookings pane listing three bookings, with View all… outlined in red"
        width="307"
      />
-     <figcaption>Select <b>View all…</b> to open the location bookings calendar.</figcaption>
+     <figcaption>Click <b>View all…</b> to open the location bookings calendar.</figcaption>
    </figure>
 
 # Check your notifications
@@ -127,7 +127,7 @@ Tamanu notifies you when:
 - pharmacy adds a note to a medication you prescribed
 - a medication you prescribed is recorded as not dispensed
 
-1. Select the bell at the top right of the dashboard.
+1. Click the bell at the top right of the dashboard.
 
    A red dot on the bell means you have unread notifications.
 
@@ -137,7 +137,7 @@ Tamanu notifies you when:
        alt="The dashboard with the notification bell outlined in red, showing a red dot"
        width="491"
      />
-     <figcaption>Select the bell at the top right of the dashboard.</figcaption>
+     <figcaption>Click the bell at the top right of the dashboard.</figcaption>
    </figure>
 
    The **Notifications** panel opens on the right. Unread notifications are listed first, under
@@ -154,11 +154,11 @@ Tamanu notifies you when:
      <figcaption>The <b>Notifications</b> panel lists <b>Unread</b> notifications above <b>Recent (last 48 hours)</b>.</figcaption>
    </figure>
 
-2. Select a notification to open it.
+2. Click a notification to open it.
 
    The notification is marked as read, and the lab request, imaging request or the encounter's
    medications open.
 
-3. To mark every unread notification as read without opening them, select **Mark all as read**.
+3. To mark every unread notification as read without opening them, click **Mark all as read**.
 
-4. To close the panel, select the cross at its top right, or anywhere outside it.
+4. To close the panel, click the cross at its top right, or anywhere outside it.

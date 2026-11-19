@@ -79,7 +79,7 @@ shots everywhere are found by one search.
 - **Crop to the part of the screen the step is about**, so the words it names are readable. A shot of a
   dialog or form window is that window alone
 - **Capture at twice screen resolution**, so text stays sharp when shown smaller
-- **Outline in red the control the step asks the reader to select**, with clear space between the
+- **Outline in red the control the step asks the reader to use**, with clear space between the
   outline and the image's edge. Which controls are outlined is the author's call, so ask
 - **Every image has alt text** describing what the shot shows, including any red outline
 - **Every image has a caption**: one short sentence describing what the image
@@ -92,7 +92,7 @@ shots everywhere are found by one search.
     alt="The encounter's Vitals tab, with the Record vitals button outlined in red"
     width="479"
   />
-  <figcaption>Select <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</figcaption>
+  <figcaption>Click <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</figcaption>
 </figure>
 ```
 

@@ -9,7 +9,7 @@ single language. Contact your system administrator if you believe you should be 
 
 # On the Log in screen
 
-1. Select **Language** at the bottom right of the **Log in** screen.
+1. Click **Language** at the bottom right of the **Log in** screen.
 
    <figure>
      <img
@@ -17,7 +17,7 @@ single language. Contact your system administrator if you believe you should be 
        alt="The Log in screen with the language selector open at the bottom right, showing English and Français, with the selector outlined in red"
        width="447"
      />
-     <figcaption>Select the language selector at the bottom right of the <b>Log in</b> screen.</figcaption>
+     <figcaption>Click the language selector at the bottom right of the <b>Log in</b> screen.</figcaption>
    </figure>
 
 2. Choose your language.
@@ -26,7 +26,7 @@ single language. Contact your system administrator if you believe you should be 
 
 # After logging in
 
-1. If the sidebar is collapsed, select the arrow at the top of the sidebar to expand it.
+1. If the sidebar is collapsed, click the arrow at the top of the sidebar to expand it.
 
    <figure>
      <img
@@ -34,10 +34,10 @@ single language. Contact your system administrator if you believe you should be 
        alt="The top of the collapsed sidebar, with the expand arrow outlined in red"
        width="106"
      />
-     <figcaption>Select the arrow at the top of the collapsed sidebar to expand it.</figcaption>
+     <figcaption>Click the arrow at the top of the collapsed sidebar to expand it.</figcaption>
    </figure>
 
-2. Select the menu button, shown as three dots, beside your name at the bottom of the sidebar.
+2. Click the menu button, shown as three dots, beside your name at the bottom of the sidebar.
 
    A menu opens.
 
@@ -47,7 +47,7 @@ single language. Contact your system administrator if you believe you should be 
        alt="The bottom of the expanded sidebar with the three-dot menu open, with the three dots and Change language outlined in red"
        width="260"
      />
-     <figcaption>Select the three dots beside your name, then <b>Change language</b>.</figcaption>
+     <figcaption>Click the three dots beside your name, then select <b>Change language</b>.</figcaption>
    </figure>
 
 3. Select **Change language**.
@@ -65,6 +65,6 @@ single language. Contact your system administrator if you believe you should be 
 
 4. Choose your language from **Language**.
 
-5. Select **Confirm**.
+5. Click **Confirm**.
 
    The window closes and Tamanu changes to that language.

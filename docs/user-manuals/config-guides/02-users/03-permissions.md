@@ -145,8 +145,8 @@ facility, including sensitive ones, and are never restricted from syncing. See
 ### Impersonating a role
 
 A user with the `admin` role can see Tamanu desktop as another role would, to check a role's
-permissions. Hold Ctrl (Cmd on a Mac) and select the user's avatar at the foot of the sidebar to open
-**Impersonate role**, choose a role, and select **Stop impersonating** to return. Impersonation works
+permissions. Hold Ctrl (Cmd on a Mac) and click the user's avatar at the foot of the sidebar to open
+**Impersonate role**, choose a role, and click **Stop impersonating** to return. Impersonation works
 on desktop only.
 
 <figure>
@@ -461,7 +461,7 @@ Scheduling clinicians to locations on the **Location assignment** screen in the 
 | Verb | What it grants |
 | --- | --- |
 | `list` | <ul><li>Open **Users** > **Location assignment** in the admin panel and see the assignment calendar (without it the screen shows a permission message)</li></ul> |
-| `read` | <ul><li>Select an assignment on the calendar to see its details</li></ul> |
+| `read` | <ul><li>Click an assignment on the calendar to see its details</li></ul> |
 | `write` | <ul><li>Change an assignment with the **Edit** action in the assignment panel</li></ul> |
 | `create` | <ul><li>Assign a user to a location with **Assign user**</li></ul> |
 | `delete` | <ul><li>Remove an assignment with **Delete** in the assignment panel</li></ul> |
@@ -976,7 +976,7 @@ Charts recorded on an encounter's **Charts** tab and on a patient's program regi
 | Verb | What it grants |
 | --- | --- |
 | `list` | <ul><li>See the content of the **Charts** tab (a `list` on any one chart is enough)</li><li>See a chart in the chart type list</li><li>See the instances of a complex chart in an encounter (needs `list` on the complex chart's core)</li></ul> |
-| `read` | <ul><li>View a chart's recorded entries and graphs</li><li>Select a recorded value to see its edit history</li><li>See the instances of a complex chart on a patient's program registry record (needs `read` on the core)</li></ul> |
+| `read` | <ul><li>View a chart's recorded entries and graphs</li><li>Click a recorded value to see its edit history</li><li>See the instances of a complex chart on a patient's program registry record (needs `read` on the core)</li></ul> |
 | `write` | <ul><li>Edit or clear a recorded chart value (when chart editing is turned on in settings)</li><li>**Edit** a complex chart instance's details (needs `write` on the core)</li></ul> |
 | `create` | <ul><li>**Record** a chart entry</li><li>Add a value to an existing entry (when chart editing is turned on in settings)</li><li>Add a new complex chart instance with the add button beside the chart list (needs `create` on the core)</li></ul> |
 | `delete` | <ul><li>**Delete** a complex chart instance (needs `delete` on the core)</li><li>**Delete** a photo recorded in a chart</li></ul> |
@@ -1063,7 +1063,7 @@ Outpatient appointments and location bookings in the Scheduling module.
 | `list` | <ul><li>Open the **Outpatient appointments** and **Location bookings** screens (`list` or `read` is enough; with neither, the screen says you do not have permission)</li><li>See a patient's location bookings and outpatient appointments on their **Summary** tab (`list` or `read` is enough)</li><li>See appointments and bookings on the **Dashboard** (needs `read` as well)</li></ul> |
 | `read` | <ul><li>Same screens as `list`: either verb opens them</li><li>See appointments and bookings on the **Dashboard** (needs `list` as well)</li></ul> |
 | `write` | <ul><li>**Modify** or **Cancel** an appointment or booking, and change its status from its details</li><li>**Cancel** from the actions menu in a patient's appointment and booking tables</li><li>**Admit or check in** from an appointment's details (needs `create` for `Encounter` as well)</li></ul> |
-| `create` | <ul><li>**Book appointment** and **Book location**, or select an empty calendar slot to book</li><li>**Book appointment** from a patient's **Summary** tab</li><li>Send a booking by email (**Email booking**)</li></ul> |
+| `create` | <ul><li>**Book appointment** and **Book location**, or click an empty calendar slot to book</li><li>**Book appointment** from a patient's **Summary** tab</li><li>Send a booking by email (**Email booking**)</li></ul> |
 
 ## Immunisations
 
@@ -1217,7 +1217,7 @@ Prescriptions, both within an encounter and on the patient's ongoing medications
 
 | Verb | What it grants |
 | --- | --- |
-| `list` | <ul><li>See the encounter **Medication** tab and the patient **Medication** tab</li><li>View the ongoing medications list and the last inpatient discharge medications</li><li>Open prescription details by selecting a row in those tables</li><li>Search the **Active requests** and **Dispensed medications** lists</li><li>Needed to open the **Medication admin record** (see `MedicationAdministration`)</li></ul> |
+| `list` | <ul><li>See the encounter **Medication** tab and the patient **Medication** tab</li><li>View the ongoing medications list and the last inpatient discharge medications</li><li>Open prescription details by clicking a row in those tables</li><li>Search the **Active requests** and **Dispensed medications** lists</li><li>Needed to open the **Medication admin record** (see `MedicationAdministration`)</li></ul> |
 | `read` | <ul><li>**Print prescription** on the encounter **Medication** tab, and **Finalise & Print** when prescribing</li><li>See whether a prescription is paused, and its pause history</li><li>Open a prescription from a notification link</li><li>Also needed to send medications to pharmacy (see `MedicationRequest`)</li></ul> |
 | `write` | <ul><li>Pause, resume and discontinue a prescription, including discontinuing through the discharge workflow</li><li>Set discharge quantity and repeats when discharging</li><li>Edit repeats, and re-send an ongoing medication with no repeats left, when sending ongoing medications to pharmacy</li><li>Needed to add or edit a pharmacy note (see `MedicationPharmacyNote`)</li></ul> |
 | `create` | <ul><li>**New prescription** in an encounter, including ordering a medication set</li><li>**Add existing ongoing medication to encounter** and **Import existing medications**</li><li>**Add ongoing medication** on the patient **Medication** tab</li></ul> |
@@ -1271,7 +1271,7 @@ Medications dispensed by pharmacy against a medication request.
 | `list` | <ul><li>Not currently checked</li></ul> |
 | `read` | <ul><li>See the **Medication** menu's **Dispensed medications** list</li><li>See the **Dispensed medications** table on the patient **Medication** tab, and print a label from it</li></ul> |
 | `write` | <ul><li>**Print label**, **Edit**, **Cancel** and **View modify history** on the **Dispensed medications** list</li><li>Change the prescription details for a fill while dispensing</li></ul> |
-| `create` | <ul><li>Dispense a medication by selecting a request on the **Active requests** list</li><li>Also requires `read` for `MedicationRequest`</li></ul> |
+| `create` | <ul><li>Dispense a medication by clicking a request on the **Active requests** list</li><li>Also requires `read` for `MedicationRequest`</li></ul> |
 | `delete` | <ul><li>Not currently checked</li></ul> |
 
 ### `SensitiveMedication`
@@ -1294,7 +1294,7 @@ The invoice for an encounter, including its items, approvals and insurance plans
 | Verb | What it grants |
 | --- | --- |
 | `list` | <ul><li>See the patient **Invoices** tab, with its total outstanding balance</li><li>Open the encounter **Invoicing** tab</li></ul> |
-| `read` | <ul><li>View the invoice on the encounter **Invoicing** tab, including its items and prices</li><li>Select a row on the patient **Invoices** tab to go to that encounter's invoice</li></ul> |
+| `read` | <ul><li>View the invoice on the encounter **Invoicing** tab, including its items and prices</li><li>Click a row on the patient **Invoices** tab to go to that encounter's invoice</li></ul> |
 | `write` | <ul><li>Edit invoice items, and approve or remove approval from items (**Mark all as approved**, **Remove all approvals**)</li><li>Set the invoice's insurance plans with **Insurance plan**</li><li>**Cancel invoice**, while it has no payments</li><li>**Finalise** an invoice (the button also needs `create`, see below)</li></ul> |
 | `create` | <ul><li>**Create invoice** on the encounter **Invoicing** tab</li><li>See the **Finalise** button, once the encounter has ended</li></ul> |
 | `delete` | <ul><li>**Delete invoice**, while it is not finalised and has no payments</li></ul> |

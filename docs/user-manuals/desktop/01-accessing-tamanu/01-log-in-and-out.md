@@ -29,7 +29,7 @@ system administrator gives you these.
 
    Leave it unticked to have Tamanu forget your email address.
 
-4. Select **Log in**.
+4. Click **Log in**.
 
    <figure>
      <img
@@ -37,7 +37,7 @@ system administrator gives you these.
        alt="The Log in screen with an email address and password entered, with the Log in button outlined in red"
        width="288"
      />
-     <figcaption>Enter your email address and password, then select <b>Log in</b>.</figcaption>
+     <figcaption>Enter your email address and password, then click <b>Log in</b>.</figcaption>
    </figure>
 
    If your email address or password is wrong, a message appears under the heading. It may tell you
@@ -46,9 +46,9 @@ system administrator gives you these.
    [Reset your password](02-reset-password.md).
 
 5. If the **Select facility** screen opens, choose where you are working from **Facility**, then
-   select **Submit**.
+   click **Submit**.
 
-   This screen opens only when your account can work at more than one facility. Select **Cancel** to
+   This screen opens only when your account can work at more than one facility. Click **Cancel** to
    go back to the **Log in** screen.
 
    Tamanu opens, with the sidebar on the left of the screen.
@@ -56,12 +56,12 @@ system administrator gives you these.
 # Log out
 
 Your site may also log you out after a period of inactivity. Before it does, the **Login timeout**
-window counts down the seconds left. Select **Stay logged in** to carry on working, or **Log out** to
+window counts down the seconds left. Click **Stay logged in** to carry on working, or **Log out** to
 log out straight away.
 
-1. If the sidebar is collapsed, select the arrow at the top of the sidebar to expand it.
+1. If the sidebar is collapsed, click the arrow at the top of the sidebar to expand it.
 
-2. Select **Log out** at the bottom of the sidebar, beside the version number.
+2. Click **Log out** at the bottom of the sidebar, beside the version number.
 
    You cannot log out while you have a note open. Save or close the note first.
 
@@ -71,7 +71,7 @@ log out straight away.
        alt="The bottom of the expanded sidebar, with the Log out button outlined in red"
        width="260"
      />
-     <figcaption>Select <b>Log out</b> at the bottom of the sidebar.</figcaption>
+     <figcaption>Click <b>Log out</b> at the bottom of the sidebar.</figcaption>
    </figure>
 
    The **Log in** screen opens.

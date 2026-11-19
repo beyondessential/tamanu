@@ -41,9 +41,9 @@ your system administrator if you believe you should see it.
 
 3. To list only high priority tasks, tick **High priority only**.
 
-4. To sort the list, select a column heading.
+4. To sort the list, click a column heading.
 
-5. Select a task to open it.
+5. Click a task to open it.
 
    For most tasks, the patient's encounter opens on its **Tasks** tab, where you can mark the task as
    done. For a **Medication Due** task, the patient's **Medication admin record** opens.
