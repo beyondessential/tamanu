@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { FormFieldTag, ThemedTooltip } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 
+const PILL_GREY = '#EDEDED';
+
 export const InfoPanePill = styled(FormFieldTag)`
   box-sizing: border-box;
   flex-shrink: 0;
@@ -25,7 +27,7 @@ export const ResolvedPill = props => (
 );
 
 export const GreyPill = props => (
-  <InfoPanePill $background={Colors.softOutline} $color={Colors.darkestText} {...props} />
+  <InfoPanePill $background={PILL_GREY} $color={Colors.darkestText} {...props} />
 );
 
 export const TruncatedPill = ({ children, ...props }) => {

@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
 import {
   DateDisplay,
-  TableCellTag,
   TranslatedSex,
   TranslatedText,
   useTranslation,
@@ -12,6 +11,7 @@ import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
 import { PATIENT_STATUS_COLORS, Colors } from '../../constants';
+import { GreyPill } from './InfoPanePill';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -29,6 +29,7 @@ const PatientButton = styled(Button)`
 const TitleRow = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   padding: 16px 16px 0;
 `;
@@ -105,10 +106,6 @@ const AgeDisplay = styled.span`
   text-transform: none;
 `;
 
-const DeceasedTag = styled(TableCellTag)`
-  text-transform: none;
-`;
-
 export const HealthIdDisplay = ({ displayId, isDeceased }) => (
   <HealthId $isDeceased={isDeceased} data-testid="healthid-6qrz">
     <span data-testid="healthidtext-v925">
@@ -146,9 +143,9 @@ export const CoreInfoDisplay = memo(({ patient }) => {
             />
           </NameHeader>
           {isDeceased && (
-            <DeceasedTag $color={Colors.midText} data-testid="deceasedtag-sidebar">
+            <GreyPill data-testid="deceasedtag-sidebar">
               <TranslatedText stringId="death.deceased.label" fallback="Deceased" />
-            </DeceasedTag>
+            </GreyPill>
           )}
         </TitleRow>
         <NameText data-testid="namecontainer-047h">
