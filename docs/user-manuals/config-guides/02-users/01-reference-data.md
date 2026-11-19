@@ -46,10 +46,10 @@ role can be added and given permissions in a single import. See
 
 Roles can also be added and deleted on the **Roles** tab of **Users** > **Roles & designations**:
 
-- Select **Add role** and enter an **ID** and **Name**. The id must not already be in use
-- Select the menu against a role, then **Delete**, to remove it. A role cannot be deleted while any user, including a
-  deactivated user, is assigned to it: the screen lists those users, and each needs a different role
-  first
+- Click **Add role** and enter an **ID** and **Name**. The ID must not already be in use
+- Open the More menu&nbsp;(&nbsp;⋮&nbsp;) against a role, then choose **Delete** to remove it. A
+  role can’t be deleted while any user, including a deactivated user, is assigned to it. The screen
+  lists those users, and each needs a different role first.
 
 <figure>
   <img
@@ -57,7 +57,7 @@ Roles can also be added and deleted on the **Roles** tab of **Users** > **Roles 
     alt="The Roles tab of Roles & designations, listing roles, with Add role outlined in red"
     width="731"
   />
-  <figcaption>Select <b>Add role</b> on the <b>Roles</b> tab.</figcaption>
+  <figcaption>Click <b>Add role</b> on the <b>Roles</b> tab.</figcaption>
 </figure>
 
 A role's name cannot be changed on this screen. Change it on the `Role` tab and re-import.
@@ -90,8 +90,8 @@ Where * is a required field.
 Designations can also be added and deleted on the **Designations** tab of **Users** >
 **Roles & designations**:
 
-- Select **Add designation** and enter an **ID**, **Code** and **Name**
-- Select the menu against a designation, then **Delete**, to remove it. A designation cannot be deleted while any
+- Click **Add designation** and enter an **ID**, **Code** and **Name**
+- Click the menu against a designation, then select **Delete**, to remove it. A designation cannot be deleted while any
   user or task is assigned to it: the screen lists them, and each needs updating first
 
 <figure>
@@ -100,7 +100,7 @@ Designations can also be added and deleted on the **Designations** tab of **User
     alt="The Designations tab of Roles & designations, listing designations, with Add designation outlined in red"
     width="731"
   />
-  <figcaption>Select <b>Add designation</b> on the <b>Designations</b> tab.</figcaption>
+  <figcaption>Click <b>Add designation</b> on the <b>Designations</b> tab.</figcaption>
 </figure>
 
 Designations are reference data, so they can also be edited on the **Manage** tab of the
@@ -151,12 +151,12 @@ Users can also be added and edited one at a time on **Users** > **User profiles*
     alt="The User profiles screen listing users, with Add user outlined in red"
     width="731"
   />
-  <figcaption>Select <b>Add user</b> on <b>User profiles</b>.</figcaption>
+  <figcaption>Click <b>Add user</b> on <b>User profiles</b>.</figcaption>
 </figure>
 
 #### Adding a user
 
-Select **Add user** and complete the form. **Display name**, **Role**, **Email**,
+Click **Add user** and complete the form. **Display name**, **Role**, **Email**,
 **Password** and **Confirm password** are required. **Email** and **Display name** must each be
 unique, and display names are compared ignoring case. **Designation** and **Allowed facilities** each
 accept several values.
@@ -167,17 +167,17 @@ accept several values.
     alt="The Add user window with its fields empty, with Confirm outlined in red"
     width="496"
   />
-  <figcaption>Complete the <b>Add user</b> form, then select <b>Confirm</b>.</figcaption>
+  <figcaption>Complete the <b>Add user</b> form, then click <b>Confirm</b>.</figcaption>
 </figure>
 
 #### Editing a user
 
-Select a user's row to open their **User profile**. The same fields can be changed, and:
+Click a user's row to open their **User profile**. The same fields can be changed, and:
 
 - **Status** deactivates a user, by changing it from **Active** to **Deactivated**
 - **Change password** sets a new password. Enter it in **New password** and **Confirm new password**
 
-**Confirm** appears once a change is made. Select it to save, or **Cancel** to discard the changes.
+**Confirm** appears once a change is made. Click it to save, or **Cancel** to discard the changes.
 
 <figure>
   <img
@@ -199,7 +199,7 @@ The accounts facility servers use to sync are not listed and cannot be edited he
 #### Scheduling leave
 
 Leave marks a user as unavailable for a range of dates. In a user's **User profile**, enter a
-**Start date** and **End date** under **Schedule leave** and select **Schedule leave**. For a single
+**Start date** and **End date** under **Schedule leave** and click **Schedule leave**. For a single
 day, enter the same date twice. Leave cannot be scheduled in the past, or overlap the user's existing
 leave.
 
@@ -213,5 +213,5 @@ is listed under **Upcoming scheduled leave**, where **Remove** cancels it. See t
     alt="The Schedule leave section of a User profile, with Schedule leave outlined in red"
     width="496"
   />
-  <figcaption>Enter a <b>Start date</b> and <b>End date</b>, then select <b>Schedule leave</b>.</figcaption>
+  <figcaption>Enter a <b>Start date</b> and <b>End date</b>, then click <b>Schedule leave</b>.</figcaption>
 </figure>

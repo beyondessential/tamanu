@@ -7,7 +7,7 @@ the patient's encounter.
     alt="The encounter's Vitals tab, with the Record vitals button outlined in red"
     width="477"
   />
-  <figcaption>Select <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</figcaption>
+  <figcaption>Click <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</figcaption>
 </figure>
 
 # Steps
@@ -17,17 +17,17 @@ the patient's encounter.
    The table lists every set of vitals already recorded for this encounter. If none have
    been recorded yet, it shows **No data found**.
 
-2. Select **Record vitals**.
+2. Click **Record vitals**.
 
-   The **Record vitals** window opens.
+   The **Record vitals** dialog opens.
 
    <figure>
      <img
        src="images/record-vitals-empty-form.png"
-       alt="The empty Record vitals window, with the date and time filled in"
+       alt="The empty Record vitals dialog, with the date and time filled in"
        width="370"
      />
-     <figcaption>The <b>Record vitals</b> window opens with the date and time filled in.</figcaption>
+     <figcaption>The <b>Record vitals</b> dialog opens with the date and time filled in.</figcaption>
    </figure>
 
 3. Check the date and time at the top of the form.
@@ -41,9 +41,9 @@ the patient's encounter.
    least one reading to record. Some fields work themselves out from other measurements
    and cannot be typed into.
 
-5. Select **Record**.
+5. Click **Record**.
 
-   The window closes and your readings appear as a new column at the left of the table.
+   The dialog closes and your readings appear as a new column at the left of the table.
    The most recent set of vitals is always the first column.
 
    A reading outside the normal range for the patient's age is highlighted. Rest your

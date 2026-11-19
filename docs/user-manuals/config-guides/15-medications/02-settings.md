@@ -32,7 +32,7 @@ relevant to your deployment. Updates apply to all facilities in the deployment.
     alt="Frequencies enabled in Settings, with Save changes and Reset to default outlined in red"
     width="710"
   />
-  <figcaption>Turn a frequency off, then select <b>Save changes</b>.</figcaption>
+  <figcaption>Turn a frequency off, then click <b>Save changes</b>.</figcaption>
 </figure>
 
 ## Default administration schedule
@@ -248,6 +248,6 @@ The task displays when all of the following are met:
 - Where multiple medications are due at the same ideal time for a patient, one task displays for that
   time. A task covering multiple medications is removed only once all its medications are recorded as
   given or not given
-- Selecting the task from the dashboard opens the MAR
+- Clicking the task from the dashboard opens the MAR
 - Where a medication is discontinued, all its tasks falling after the discontinuation time are deleted
 - Where an encounter is discharged, all tasks falling after the time of discharge are deleted
