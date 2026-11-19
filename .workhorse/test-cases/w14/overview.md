@@ -13,6 +13,7 @@ discharge modal looks right and confirming the modals and forms either side of i
 
 ## Other users of the shared components
 
+- [x] A paginated form with one screen renders no stepper, and one with two screens still renders it.
 - [ ] The death form still shows its two-step stepper, and stepping between the screens still moves the active segment.
 - [ ] A modal that takes the standard corner close button is unchanged in header height and close-button position.
 - [ ] The markdown editor modal in admin settings has a full-height header rather than a collapsed one.
