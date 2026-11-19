@@ -483,6 +483,7 @@ export const createPharmacyOrderViaApi = async (
   page: Page,
   encounterId: string,
   prescriptionId: string,
+  { isDischargePrescription = false }: { isDischargePrescription?: boolean } = {},
 ) => {
   const user = await getUser(api);
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
@@ -492,7 +493,7 @@ export const createPharmacyOrderViaApi = async (
     data: {
       orderingClinicianId: user.id,
       comments: '',
-      isDischargePrescription: false,
+      isDischargePrescription,
       facilityId,
       pharmacyOrderPrescriptions: [{ prescriptionId, quantity: 1, repeats: 0 }],
     },
@@ -504,6 +505,31 @@ export const createPharmacyOrderViaApi = async (
   }
 
   return response.json();
+};
+
+// Returns the id of the patient's active medication request (a pharmacy order line), as the
+// pharmacy's active requests list shows it. Assumes the patient has exactly one.
+export const getMedicationRequestIdViaApi = async (
+  api: APIRequestContext,
+  page: Page,
+  patientDisplayId: string,
+): Promise<string> => {
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
+  const url = constructFacilityUrl(
+    `/api/medication/medication-requests?facilityId=${facilityId}&displayId=${patientDisplayId}`,
+  );
+  const response = await api.get(url);
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch medication requests: ${response.status()} ${errorText}`);
+  }
+
+  const { data } = await response.json();
+  if (data.length !== 1) {
+    throw new Error(`Expected one medication request for the patient, found ${data.length}`);
+  }
+  return data[0].id;
 };
 
 // Creates one vitals survey response (a "reading") at a given recorded date/time, so tests can
