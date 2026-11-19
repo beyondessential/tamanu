@@ -37,27 +37,27 @@ single language. Contact your system administrator if you believe you should be 
      <figcaption>Click the arrow at the top of the collapsed sidebar to expand it.</figcaption>
    </figure>
 
-2. Click the menu button, shown as three dots, beside your name at the bottom of the sidebar.
+2. Click the More button&nbsp;(&nbsp;⋮&nbsp;) beside your name at the bottom of the sidebar.
 
    A menu opens.
 
    <figure>
      <img
        src="images/change-language-three-dot-menu.png"
-       alt="The bottom of the expanded sidebar with the three-dot menu open, with the three dots and Change language outlined in red"
+       alt="The bottom of the expanded sidebar with the More menu open, with the More button and Change language outlined in red"
        width="260"
      />
-     <figcaption>Click the three dots beside your name, then select <b>Change language</b>.</figcaption>
+     <figcaption>Open the More menu beside your name, then choose <b>Change language</b>.</figcaption>
    </figure>
 
-3. Select **Change language**.
+3. Choose **Change language**.
 
    The **Change language** dialog opens.
 
    <figure>
      <img
        src="images/change-language-window.png"
-       alt="The Change language dialog, with English selected in Language"
+       alt="The Change language dialog, with English chosen"
        width="276"
      />
      <figcaption>The <b>Change language</b> dialog.</figcaption>
