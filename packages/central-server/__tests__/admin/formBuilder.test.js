@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { uploadDirPath } from '@tamanu/shared/utils/tmpdir';
 import * as XLSX from 'xlsx';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -54,6 +55,36 @@ const programDefinition = {
     },
   ],
 };
+// A question the importer rejects at save: displayId isn't a PatientData column.
+const unsaveableProgramDefinition = {
+  ...programDefinition,
+  surveySheets: [
+    {
+      surveyName: 'Referral form',
+      questions: [
+        ...programDefinition.surveySheets[0].questions,
+        {
+          code: 'referral002',
+          name: 'Hospital No',
+          text: 'Hospital No',
+          type: 'PatientData',
+          config: { column: 'displayId' },
+        },
+      ],
+    },
+  ],
+};
+const hospitalNumberCorrection = {
+  message: 'Changed Hospital No to a free text question.',
+  operations: [
+    {
+      type: 'replaceQuestion',
+      surveyName: 'Referral form',
+      questionCode: 'referral002',
+      question: { type: 'FreeText', config: {} },
+    },
+  ],
+};
 const programDefinitionPreview = {
   ...programDefinition,
   surveys: [
@@ -70,6 +101,8 @@ describe('Form Builder Admin', () => {
   let app;
   let forbiddenApp;
   let aiService;
+  let models;
+  let programId;
 
   // The async job result is written to the DB after the response is sent, so
   // poll until it settles rather than racing a single read.
@@ -90,6 +123,8 @@ describe('Form Builder Admin', () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asNewRole([['write', 'FormBuilder']]);
     forbiddenApp = await ctx.baseApp.asNewRole([]);
+    models = ctx.store.models;
+    ({ id: programId } = await models.Program.create(fake(models.Program)));
   });
 
   beforeEach(() => {
@@ -641,6 +676,159 @@ describe('Form Builder Admin', () => {
     );
     expect(response.body).toMatchObject({
       programDefinition: programDefinitionPreview,
+    });
+  });
+
+  describe('checking previews against save validation', () => {
+    const reportReady = () =>
+      aiService.sendFormBuilderMessage.mockResolvedValueOnce({
+        message: 'Your form is ready.',
+        attach_to_program_code: 'ncd',
+        ready: true,
+      });
+    const countProgramSurveys = () => models.Survey.count({ where: { programId } });
+
+    it('leaves a saveable preview as generated, saving nothing', async () => {
+      reportReady();
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a referral form',
+        programId,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(aiService.invokeStructured).toHaveBeenCalledTimes(1);
+      expect(response.body).toMatchObject({
+        message: 'Your form is ready.',
+        programDefinition: programDefinitionPreview,
+      });
+      expect(await countProgramSurveys()).toBe(0);
+    });
+
+    it('feeds problems the save would reject back to the model', async () => {
+      reportReady();
+      aiService.invokeStructured
+        .mockResolvedValueOnce(unsaveableProgramDefinition)
+        .mockResolvedValueOnce(hospitalNumberCorrection);
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a referral form with the hospital number',
+        programId,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(aiService.invokeStructured).toHaveBeenLastCalledWith(
+        'formBuilderTweakSurveyDefinition',
+        expect.stringMatching(
+          /\[LATEST USER REQUEST\][\s\S]*Question "referral002" in survey "Referral form": config: column must be one of/,
+        ),
+        expect.any(Object),
+        { name: 'form_builder_tweak_response' },
+      );
+      expect(response.body.message).toBe(
+        'Your form is ready.\n\nChanged Hospital No to a free text question.',
+      );
+      expect(response.body.programDefinition.surveySheets[0].questions[1]).toEqual({
+        code: 'referral002',
+        name: 'Hospital No',
+        text: 'Hospital No',
+        type: 'FreeText',
+      });
+      expect(await countProgramSurveys()).toBe(0);
+    });
+
+    it('checks tweaked previews too', async () => {
+      aiService.invokeStructured
+        .mockResolvedValueOnce({
+          message: 'Added the hospital number.',
+          operations: [
+            {
+              type: 'addQuestionAfter',
+              surveyName: 'Referral form',
+              questionCode: 'referral001',
+              question: unsaveableProgramDefinition.surveySheets[0].questions[1],
+            },
+          ],
+        })
+        .mockResolvedValueOnce(hospitalNumberCorrection);
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        sessionId: 'existing-session-id',
+        message: 'Add the hospital number',
+        programDefinition,
+        programId,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(aiService.invokeStructured).toHaveBeenCalledTimes(2);
+      const message = 'Added the hospital number.\n\nChanged Hospital No to a free text question.';
+      expect(response.body.message).toBe(message);
+      expect(response.body.programDefinition.surveySheets[0].questions[1].type).toBe('FreeText');
+      expect(aiService.addSessionMessages).toHaveBeenCalledWith('existing-session-id', {
+        userMessage: 'Add the hospital number',
+        assistantMessage: message,
+      });
+    });
+
+    it('names the problems left once the model has had its corrections', async () => {
+      reportReady();
+      const ineffectiveCorrection = {
+        message: 'Updated Hospital No.',
+        operations: [
+          {
+            type: 'replaceQuestion',
+            surveyName: 'Referral form',
+            questionCode: 'referral002',
+            question: { text: 'Hospital number' },
+          },
+        ],
+      };
+      aiService.invokeStructured
+        .mockResolvedValueOnce(unsaveableProgramDefinition)
+        .mockResolvedValueOnce(ineffectiveCorrection)
+        .mockResolvedValueOnce(ineffectiveCorrection);
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a referral form with the hospital number',
+        programId,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(aiService.invokeStructured).toHaveBeenCalledTimes(3);
+      expect(response.body.message).toMatch(
+        /^Your form is ready\.\n\nUpdated Hospital No\.\n\nUpdated Hospital No\.\n\nThis preview cannot be saved yet:\n- Question "referral002" in survey "Referral form": config: column must be one of/,
+      );
+      expect(response.body.programDefinition.surveySheets[0].questions[1]).toMatchObject({
+        type: 'PatientData',
+        config: { column: 'displayId' },
+      });
+    });
+
+    it('names the problems when a correction does not apply', async () => {
+      reportReady();
+      aiService.invokeStructured
+        .mockResolvedValueOnce(unsaveableProgramDefinition)
+        .mockRejectedValueOnce(new Error('No tool call'));
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a referral form with the hospital number',
+        programId,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.message).toMatch(
+        /^Your form is ready\.\n\nThis preview cannot be saved yet:\n- Question "referral002"/,
+      );
+    });
+
+    it('refuses a program that does not exist', async () => {
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a referral form',
+        programId: 'program-does-not-exist',
+      });
+
+      expect(response).toHaveRequestError(404);
+      expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
     });
   });
 

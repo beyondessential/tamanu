@@ -9,6 +9,7 @@ import {
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
+import { DataImportError, DryRun } from '../errors';
 import { importRows } from '../importer/importRows';
 import { idify } from './idify';
 import { validateProgramDataElementRecords } from './programDataElementValidation';
@@ -386,54 +387,75 @@ const validateSurvey = async ({ context, rows, surveyInfo }) => {
   });
 };
 
-export const saveProgramDefinition = async ({ db, models, programId, programDefinition }) => {
-  const errors = [];
-  const context = {
-    errors,
-    log: log.child({
-      importer: 'programDefinition',
-    }),
-    models,
-  };
-  const customPatientFieldIds = (
+const createImportContext = models => ({
+  errors: [],
+  log: log.child({
+    importer: 'programDefinition',
+  }),
+  models,
+});
+
+const getCustomPatientFieldIds = async models =>
+  (
     await models.PatientFieldDefinition.findAll({
       attributes: ['id'],
     })
   ).map(field => field.id);
+
+const findSurveySheet = (programDefinition, surveyDefinition) =>
+  programDefinition.surveySheets.find(({ surveyName }) => surveyName === surveyDefinition.name);
+
+// Imports one survey, leaving any problems in context.errors. Rows are only
+// imported once the survey as a whole has validated.
+const importSurvey = async ({
+  context,
+  customPatientFieldIds,
+  programId,
+  surveyDefinition,
+  surveySheet,
+}) => {
+  const { models } = context;
+  const surveyCode = await getAvailableSurveyCode(models.Survey, createCode(surveyDefinition.code));
+  const { rows, surveyId, surveyInfo } = createSurveyImportRows({
+    programId,
+    surveyCode,
+    surveyDefinition,
+    surveySheet,
+  });
+  const stats = await validateSurvey({ context, rows, surveyInfo });
+  if (context.errors.length > 0) return surveyId;
+
+  await importRows(
+    context,
+    {
+      rows,
+      sheetName: surveyInfo.name,
+      stats,
+    },
+    {
+      models,
+      programId,
+      customPatientFieldIds,
+    },
+  );
+  return surveyId;
+};
+
+export const saveProgramDefinition = async ({ db, models, programId, programDefinition }) => {
+  const context = createImportContext(models);
+  const customPatientFieldIds = await getCustomPatientFieldIds(models);
   const surveyIds = [];
 
   await db.transaction(async () => {
     for (const surveyDefinition of programDefinition.surveys) {
-      const surveySheet = programDefinition.surveySheets.find(
-        ({ surveyName }) => surveyName === surveyDefinition.name,
-      );
-      const surveyCode = await getAvailableSurveyCode(
-        models.Survey,
-        createCode(surveyDefinition.code),
-      );
-      const { rows, surveyId, surveyInfo } = createSurveyImportRows({
-        programId,
-        surveyCode,
-        surveyDefinition,
-        surveySheet,
-      });
-      const stats = await validateSurvey({ context, rows, surveyInfo });
-      if (errors.length > 0) throw errors[0];
-
-      await importRows(
+      const surveyId = await importSurvey({
         context,
-        {
-          rows,
-          sheetName: surveyInfo.name,
-          stats,
-        },
-        {
-          models,
-          programId,
-          customPatientFieldIds,
-        },
-      );
-      if (errors.length > 0) throw errors[0];
+        customPatientFieldIds,
+        programId,
+        surveyDefinition,
+        surveySheet: findSurveySheet(programDefinition, surveyDefinition),
+      });
+      if (context.errors.length > 0) throw context.errors[0];
 
       surveyIds.push(surveyId);
     }
@@ -442,4 +464,62 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
   return models.Survey.findAll({
     where: { id: surveyIds },
   });
+};
+
+// Import errors name the sheet row, which is the question's position; the
+// question's code is what the definition (and the model reading it) knows it by.
+const describeSaveError = (error, surveySheet) => {
+  if (!(error instanceof DataImportError))
+    return `Survey "${surveySheet.surveyName}": ${error.message}`;
+
+  const question = surveySheet.questions[error.rowNumber - 2];
+  const subject = question
+    ? `Question "${question.code}" in survey "${surveySheet.surveyName}"`
+    : `Survey "${surveySheet.surveyName}"`;
+  return `${subject}: ${error.previous.message}`;
+};
+
+/**
+ * Runs saveProgramDefinition's import in a transaction that is always rolled
+ * back, and describes the problems that would stop the save. Like the save, it
+ * stops at the first survey that fails, reporting every problem in that survey.
+ */
+export const findProgramDefinitionSaveProblems = async ({
+  db,
+  models,
+  programId,
+  programDefinition,
+}) => {
+  const customPatientFieldIds = await getCustomPatientFieldIds(models);
+  const problems = [];
+
+  try {
+    await db.transaction(async () => {
+      for (const surveyDefinition of programDefinition.surveys) {
+        const context = createImportContext(models);
+        const surveySheet = findSurveySheet(programDefinition, surveyDefinition);
+        try {
+          await importSurvey({
+            context,
+            customPatientFieldIds,
+            programId,
+            surveyDefinition,
+            surveySheet,
+          });
+        } catch (error) {
+          context.errors.push(error);
+        }
+
+        if (context.errors.length > 0) {
+          problems.push(...context.errors.map(error => describeSaveError(error, surveySheet)));
+          break;
+        }
+      }
+      throw new DryRun();
+    });
+  } catch (error) {
+    if (!(error instanceof DryRun)) throw error;
+  }
+
+  return problems;
 };

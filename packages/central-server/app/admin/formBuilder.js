@@ -12,6 +12,7 @@ import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@ta
 import { log } from '@tamanu/shared/services/logging';
 import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import {
+  findProgramDefinitionSaveProblems,
   programDefinitionSchema,
   sanitizeProgramDefinitionPreview,
 } from './programImporter/programDefinition';
@@ -26,6 +27,7 @@ const IMAGE_MEDIA_TYPES_BY_EXTENSION = {
 };
 const IMAGE_CONTENT_TYPES = new Set(Object.values(IMAGE_MEDIA_TYPES_BY_EXTENSION));
 const MAX_AI_FILENAME_LENGTH = 80;
+const MAX_SAVE_CORRECTION_ATTEMPTS = 2;
 const CHAT_JOB_TTL_SECONDS = 60 * 30;
 const CHAT_JOB_STATUSES = {
   PENDING: 'pending',
@@ -424,6 +426,80 @@ const tryTweakProgramDefinition = async ({ aiService, currentProgramDefinition, 
   }
 };
 
+const buildSaveCorrectionRequest = problems =>
+  [
+    'Saving this preview fails validation with the problems below. Change only the questions they name, with the smallest change that keeps what each question is for. Where the config a question asks for is not supported, use a supported alternative, such as a plain question type the user fills in.',
+    ...problems.map(problem => `- ${problem}`),
+  ].join('\n');
+
+const describeUnsaveablePreview = problems =>
+  ['This preview cannot be saved yet:', ...problems.map(problem => `- ${problem}`)].join('\n');
+
+// spec: PROGRAMS#ai-form-builder-previews
+// The preview schema only checks structure, so dry-run the save against the
+// program it will be saved to and hand any problems back to the model as a
+// tweak. Returns the notes to add to the reply: each correction's message, then
+// any problems left.
+const correctUnsaveablePreview = async ({
+  aiService,
+  db,
+  models,
+  programId,
+  programDefinition,
+  attemptsLeft = MAX_SAVE_CORRECTION_ATTEMPTS,
+}) => {
+  const problems = await findProgramDefinitionSaveProblems({
+    db,
+    models,
+    programId,
+    programDefinition,
+  });
+  if (problems.length === 0) return { programDefinition, notes: [] };
+
+  const correction =
+    attemptsLeft > 0
+      ? await tryTweakProgramDefinition({
+          aiService,
+          currentProgramDefinition: programDefinition,
+          userMessage: buildSaveCorrectionRequest(problems),
+        })
+      : null;
+  if (!correction) {
+    return { programDefinition, notes: [describeUnsaveablePreview(problems)] };
+  }
+
+  const corrected = await correctUnsaveablePreview({
+    aiService,
+    db,
+    models,
+    programId,
+    programDefinition: correction.programDefinition,
+    attemptsLeft: attemptsLeft - 1,
+  });
+  return {
+    programDefinition: corrected.programDefinition,
+    notes: [correction.message, ...corrected.notes],
+  };
+};
+
+// Without the program it will be saved to there's nothing to dry-run the save
+// against, so the preview goes back as generated.
+const preparePreview = async ({ aiService, db, models, programId, programDefinition, message }) => {
+  if (!programId) return { programDefinition, message };
+
+  const corrected = await correctUnsaveablePreview({
+    aiService,
+    db,
+    models,
+    programId,
+    programDefinition,
+  });
+  return {
+    programDefinition: corrected.programDefinition,
+    message: [message, ...corrected.notes].join('\n\n'),
+  };
+};
+
 // Reuse the client's session when it's still valid (it may have expired, or
 // belonged to a different process), otherwise start a fresh one.
 const resolveFormBuilderSession = async (aiService, sessionId) =>
@@ -433,6 +509,9 @@ const resolveFormBuilderSession = async (aiService, sessionId) =>
 
 const processChatRequest = async ({
   aiService,
+  db,
+  models,
+  programId,
   sessionId: existingSessionId,
   message,
   file,
@@ -485,39 +564,49 @@ const processChatRequest = async ({
       });
 
       if (tweakResult) {
+        const preview = await preparePreview({ aiService, db, models, programId, ...tweakResult });
         // History persistence should not discard a valid tweak result.
-        await aiService.addSessionMessages(sessionId, {
-          userMessage,
-          assistantMessage: tweakResult.message,
-        }).catch(error => {
-          log.warn({ error }, 'AI form builder failed to persist tweak chat history');
-        });
+        await aiService
+          .addSessionMessages(sessionId, {
+            userMessage,
+            assistantMessage: preview.message,
+          })
+          .catch(error => {
+            log.warn({ error }, 'AI form builder failed to persist tweak chat history');
+          });
 
         return {
           sessionId,
-          message: tweakResult.message,
+          message: preview.message,
           attachToProgramCode: null,
-          programDefinition: tweakResult.programDefinition,
+          programDefinition: preview.programDefinition,
         };
       }
     }
 
     const response = await aiService.sendFormBuilderMessage(sessionId, userMessage);
-    const programDefinition = response.ready
-      ? await generateProgramDefinition({
+    const preview = response.ready
+      ? await preparePreview({
           aiService,
-          currentProgramDefinition,
-          response,
-          sessionId,
-          userMessage,
+          db,
+          models,
+          programId,
+          message: response.message,
+          programDefinition: await generateProgramDefinition({
+            aiService,
+            currentProgramDefinition,
+            response,
+            sessionId,
+            userMessage,
+          }),
         })
-      : null;
+      : { message: response.message, programDefinition: null };
 
     return {
       sessionId,
-      message: response.message,
+      message: preview.message,
       attachToProgramCode: response.attach_to_program_code,
-      programDefinition,
+      programDefinition: preview.programDefinition,
     };
   } finally {
     if (file) {
@@ -529,11 +618,12 @@ const processChatRequest = async ({
 // Until the job exists, nothing else will delete the upload: processChatRequest,
 // whose finally does it, only runs once the job has been recorded. So a failure
 // before that point is ours to clean up after.
-const beginAsyncChat = async ({ aiService, models, userId, payload }) => {
+const beginAsyncChat = async ({ aiService, db, models, userId, payload }) => {
   try {
     const sessionId = await resolveFormBuilderSession(aiService, payload.sessionId);
     const jobId = await startChatJob({
       aiService,
+      db,
       models,
       userId,
       payload: { ...payload, sessionId },
@@ -547,7 +637,7 @@ const beginAsyncChat = async ({ aiService, models, userId, payload }) => {
   }
 };
 
-const startChatJob = async ({ aiService, models, userId, payload }) => {
+const startChatJob = async ({ aiService, db, models, userId, payload }) => {
   const { FormBuilderChatJob } = models;
   const jobId = nanoid();
   // Insert the pending row before returning the jobId, so a client that polls
@@ -559,7 +649,7 @@ const startChatJob = async ({ aiService, models, userId, payload }) => {
     expiresAt: jobExpiry(),
   });
 
-  processChatRequest({ aiService, ...payload })
+  processChatRequest({ aiService, db, models, ...payload })
     .then(
       result =>
         FormBuilderChatJob.update(
@@ -592,6 +682,10 @@ formBuilderRouter.post(
 
     const { async: runAsync, ...payload } = await getUploadedData(req);
     if (payload.file) assertUploadedFilePath(payload.file);
+    if (payload.programId && !(await req.models.Program.findByPk(payload.programId))) {
+      if (payload.file) await fs.unlink(payload.file).catch(() => {});
+      throw new NotFoundError('Program was not found');
+    }
 
     if (runAsync) {
       // Resolve the session up front (rather than lazily inside the job) and
@@ -601,6 +695,7 @@ formBuilderRouter.post(
       // dropping any uploaded image's interpretation.
       const { sessionId, jobId } = await beginAsyncChat({
         aiService: req.aiService,
+        db: req.db,
         models: req.models,
         userId: req.user.id,
         payload,
@@ -609,7 +704,14 @@ formBuilderRouter.post(
       return;
     }
 
-    res.send(await processChatRequest({ aiService: req.aiService, ...payload }));
+    res.send(
+      await processChatRequest({
+        aiService: req.aiService,
+        db: req.db,
+        models: req.models,
+        ...payload,
+      }),
+    );
   }),
 );
 
