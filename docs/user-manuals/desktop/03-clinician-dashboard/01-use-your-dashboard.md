@@ -20,8 +20,8 @@ What your dashboard shows depends on your permissions and how your site is set u
   [Work through your upcoming tasks](02-work-through-upcoming-tasks.md)
 - **Today's appointments** shows only if you can view appointments and have been the clinician on at
   least one outpatient appointment
-- **Today's bookings** shows only if you can view appointments and have been the clinician on at least
-  one location booking
+- **Today's bookings** shows only if you can view appointments and have been the clinician on at
+  least one location booking
 
 If none of these show, the dashboard shows **Welcome to Tamanu!** instead. Contact your system
 administrator if you believe you should see a section that is missing.
@@ -32,8 +32,8 @@ administrator if you believe you should see a section that is missing.
 
 1. Find the patient in **Recently viewed**.
 
-   Each card shows the patient's name, ID, sex and date of birth. If there are more patients than fit,
-   click the arrows at either end of the row to see the rest.
+   Each card shows the patient's name, ID, sex and date of birth. If there are more patients than
+   fit, click the arrows at either end of the row to see the rest.
 
    <figure>
      <img
