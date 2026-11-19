@@ -16,7 +16,8 @@ quickly and often on a ward. Assume no knowledge of Tamanu's internals.
 - **Match the verb to the control.** Unless context demands otherwise:
   - buttons and links are _clicked_ on desktop, and _tapped_ on mobile;
   - dropdown/pulldown options are _selected_;
-  - checkboxes and radio options are _selected_;
+  - checkboxes are _checked_;
+  - menu options and radio options are _chosen_;
   - windows and tabs are _closed_;
   - alerts, dialogs and modals are _dismissed_.
 - **Write plainly.** Short sentences in the active voice, addressing the reader as "you", one
