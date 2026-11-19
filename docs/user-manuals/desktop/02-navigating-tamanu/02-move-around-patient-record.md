@@ -6,10 +6,10 @@ from the **Dashboard**, or a patient list under **Patients** in the sidebar.
 1. Open the **Dashboard**, or **All patients**, **Inpatients** or **Outpatients** under **Patients**.
    See [Use the sidebar](01-use-sidebar.md).
 
-   **Recently viewed** lists the last 12 patients you have opened, the most recent first. On
+   **Recently viewed** lists the last 12&nbsp;patients you have opened, the most recent first. On
    **Inpatients** it lists only those admitted to hospital, and on **Outpatients** only outpatients.
    On the patient lists, each patient also shows the type of their current encounter, such as
-   **Clinic**, and you can click **Recently viewed** to hide or show the list.
+   **Clinic**, and you can click **Recently viewed** to expand or collapse the list.
 
    **Recently viewed** does not appear until you have opened a patient's record.
 
