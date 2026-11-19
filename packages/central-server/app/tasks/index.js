@@ -21,6 +21,7 @@ import {
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
   FhirMissingResources,
+  recordScheduledTaskRuns,
 } from '@tamanu/shared/tasks';
 import { FormBuilderChatCleaner } from './FormBuilderChatCleaner';
 import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
@@ -101,6 +102,7 @@ export async function startScheduledTasks(context) {
     }),
     ...reportSchedulers,
   ].filter(x => x);
+  await recordScheduledTaskRuns(tasks, context.store.models);
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
 }

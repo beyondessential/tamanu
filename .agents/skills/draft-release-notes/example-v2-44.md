@@ -24,9 +24,9 @@ Significant enhancements to the **Location Bookings** calendar provide more flex
 
 - **Daily calendar view** - Switch between daily and weekly views using a toggle. The daily view shows a time-based schedule for a single day with assigned clinicians across the top and locations underneath. Booking tiles reflect the actual length of bookings, making it easy to see schedule density at a glance.
 - **Enhanced booking fields** - When creating bookings, the following additional information can now be captured:
-    - Additional clinician - Record secondary clinicians such as anaesthetist involved in the booking.
-    - Procedure type - Specify the type of procedure being booked for a surgical/procedure booking.
-    - Linked encounter - Associate the booking with an existing encounter from the past 6 months, enabling continuity tracking across bookings and care episodes.
+  - Additional clinician - Record secondary clinicians such as anaesthetist involved in the booking.
+  - Procedure type - Specify the type of procedure being booked for a surgical/procedure booking.
+  - Linked encounter - Associate the booking with an existing encounter from the past 6 months, enabling continuity tracking across bookings and care episodes.
 - **Improved 'isBookable' configuration** - Location groups can now specify whether locations should appear on the daily view only, weekly view only, or both views. This provides more granular control over calendar visibility based on how different areas are scheduled.
 - **View state persistence** - The calendar remembers a user's last selected view (daily or weekly) and active filters when they navigate away from and return to the calendar.
 - **Scheduled leave visibility** - When a clinician with scheduled leave is selected while creating a booking, a warning appears to inform the user that the clinician may not be available.
@@ -76,7 +76,7 @@ The new User Management component in the admin panel provides administrators wit
 **Key features**
 
 - **Users table** - View all active and deactivated users in a sortable, searchable table displaying key user details.
-- **User profile management** - Click on any user to view and edit their details including display name, display ID, role, designation, email, phone, status, and allowed facilities. Password changes can also be made directly from the user profile.
+- **User profile management** - Click any user to view and edit their details including display name, display ID, role, designation, email, phone, status, and allowed facilities. Password changes can also be made directly from the user profile.
 - **Create new users** - Add new users directly through the admin panel. The system validates that display names and email addresses are unique.
 - **Schedule user leave** - Record upcoming leave periods for users to ensure their availability is accurately reflected in location assignments. The system automatically handles conflicts by removing location assignments that overlap with scheduled leave.
 
@@ -102,7 +102,7 @@ This tool helps administrators plan and track which staff members are working in
 
 **Supporting documentation**
 
-- Configuration guide/user manual  - [Location Assignments: Admin panel (supported from v2.44 onwards)](https://beyond-essential.slab.com/posts/ndwgf44x)
+- Configuration guide/user manual - [Location Assignments: Admin panel (supported from v2.44 onwards)](https://beyond-essential.slab.com/posts/ndwgf44x)
 
 ---
 
@@ -146,13 +146,13 @@ Please reach out to your Tamanu system administrator/project manager to discuss 
 
 **_Scheduling_**
 
-- Significant performance improvements to the upcoming appointment/booking tables on the patient landing page. This feature can now be confidently enabled across all deployments. See [Scheduling: Configuration guide](https://beyond-essential.slab.com/posts/aeo5nozn#h6e2h-turn-on-patient-level-appointment-bookings)  for further details on this setting.
+- Significant performance improvements to the upcoming appointment/booking tables on the patient landing page. This feature can now be confidently enabled across all deployments. See [Scheduling: Configuration guide](https://beyond-essential.slab.com/posts/aeo5nozn#h6e2h-turn-on-patient-level-appointment-bookings) for further details on this setting.
 - The 'Area' field now automatically populates when creating an encounter from an outpatient appointment.
 
 **_Entity hierarchy_**
 
 - Fixed an issue where location hierarchy fields would not display correctly when the hierarchy contained only division and subdivision levels. The system now correctly handles this hierarchy configuration.
-- See [Reference Data: Hierarchies and Entity Relationships](https://beyond-essential.slab.com/posts/3uiexr86#h9zmd-location-hierarchy)  for further details on location hierarchies.
+- See [Reference Data: Hierarchies and Entity Relationships](https://beyond-essential.slab.com/posts/3uiexr86#h9zmd-location-hierarchy) for further details on location hierarchies.
 
 ---
 

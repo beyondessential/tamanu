@@ -337,13 +337,14 @@ export const MedicationDispensesTable = () => {
     const mappedItem = {
       id: dispenseData.id,
       displayId: dispenseData.pharmacyOrderPrescription?.displayId,
+      isDischargePrescription:
+        dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.isDischargePrescription,
       quantity: dispenseData.quantity,
       instructions: dispenseData.instructions,
       remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
       dispensedAt: dispenseData.dispensedAt,
       dispensedBy: dispenseData.dispensedBy,
       prescription: getDispensedPrescription(dispenseData),
-      medicationPresetLabel: dispenseData.medicationPresetLabel,
       patient,
     };
     setSelectedDetailItem(mappedItem);

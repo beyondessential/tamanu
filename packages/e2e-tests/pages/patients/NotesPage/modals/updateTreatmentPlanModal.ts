@@ -38,7 +38,7 @@ export class UpdateTreatmentPlanModal extends BaseNoteModal {
     });
     const updatedDateTime = format(new Date(), 'yyyy-MM-dd\'T\'HH:mm');
     await fillMuiDateTimeField(this.dateTimeInput, updatedDateTime);
-    await this.noteContentTextarea.fill(updatedContent);
+    await this.noteContentInput.fill(updatedContent);
     await this.confirmButton.click();
     await this.waitForModalToClose();
     return updatedDateTime;

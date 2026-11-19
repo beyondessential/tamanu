@@ -15,8 +15,10 @@ import { runPostMigration, runPreMigration } from '../../src/services/migrations
 //
 // So this drives the real upgrade from a pre-upgrade schema. The facility ending up in a network
 // is only possible if the step ran inside that window.
+//
+// Every case runs a real migrate-down and upgrade, which takes most of the 5s default on CI.
 // spec: specs/sync/sensitive-networks.md
-describe('sensitive network upgrade ordering', () => {
+describe('sensitive network upgrade ordering', { timeout: 30_000 }, () => {
   let database;
   let umzug;
 

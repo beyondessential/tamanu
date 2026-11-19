@@ -6,7 +6,10 @@ export abstract class BaseNoteModal {
   // Common form fields
   readonly writtenByInput!: Locator;
   readonly dateTimeInput!: Locator;
-  readonly noteContentTextarea!: Locator;
+  readonly noteContentInput!: Locator;
+  readonly boldButton!: Locator;
+  readonly italicButton!: Locator;
+  readonly underlineButton!: Locator;
   
   // Common action buttons
   readonly confirmButton!: Locator;
@@ -18,6 +21,9 @@ export abstract class BaseNoteModal {
     // TestId mapping for BaseNoteModal elements
     const testIds = {
       confirmButton: 'formsubmitcancelrow-confirmButton',
+      boldButton: 'field-wxzr-bold',
+      italicButton: 'field-wxzr-italic',
+      underlineButton: 'field-wxzr-underline',
     } as const;
 
     // Create locators using the testId mapping
@@ -28,7 +34,7 @@ export abstract class BaseNoteModal {
     // Special cases that need additional processing
     this.writtenByInput = page.getByTestId('field-ar9q-input').locator('input');
     this.dateTimeInput = page.getByTestId('field-nwwl').locator('input');
-    this.noteContentTextarea = page.getByTestId('field-wxzr').locator('textarea').nth(0);
+    this.noteContentInput = page.getByTestId('field-wxzr-input');
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
   }
 
@@ -40,6 +46,15 @@ export abstract class BaseNoteModal {
 
   async waitForModalToClose() {
     await this.confirmButton.waitFor({ state: 'detached' });
+  }
+
+  async typeContent(parts: { text: string; styleButton?: Locator }[]) {
+    await this.noteContentInput.click();
+    for (const { text, styleButton } of parts) {
+      await styleButton?.click();
+      await this.page.keyboard.type(text);
+      await styleButton?.click();
+    }
   }
 
 }
