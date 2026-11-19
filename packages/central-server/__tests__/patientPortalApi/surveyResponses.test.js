@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
+import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
@@ -67,19 +67,18 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
     // Login to get auth token
     authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
 
-    // Location/Department setup
-    const facility = await Facility.create(fake(Facility, { code: 'TEST_FAC' }));
+    // The assigning facility's default location and department for form encounters
     const location = await Location.create(
-      fake(Location, {
-        code: 'TEST_LOC',
-        facilityId: facility.id,
-      }),
+      fake(Location, { code: 'PORTAL_TEST_LOC', facilityId: testFacility.id }),
     );
     const department = await Department.create(
-      fake(Department, {
-        code: 'TEST_DEPT',
-        facilityId: facility.id,
-      }),
+      fake(Department, { code: 'PORTAL_TEST_DEPT', facilityId: testFacility.id }),
+    );
+    await Setting.set(
+      'survey.defaultCodes',
+      { location: location.code, department: department.code },
+      SETTINGS_SCOPES.FACILITY,
+      testFacility.id,
     );
     testLocationId = location.id;
     testDepartmentId = department.id;
@@ -139,9 +138,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       const payload = {
         surveyId: baseSurvey.id,
-        locationId: testLocationId,
-        departmentId: testDepartmentId,
-        patientId: testPatient.id,
         answers: {
           [baseDataElement.id]: 5,
         },
@@ -160,6 +156,138 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(refreshedAssignment.surveyResponseId).toBe(response.body.id);
     });
 
+    it('Should record the response against the signed-in patient and assigning facility, whatever the body names', async () => {
+      const { Patient, Facility, Location, Department, SurveyResponse, Encounter } = store.models;
+      await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+      const otherPatient = await Patient.create(fake(Patient));
+      const otherFacility = await Facility.create(fake(Facility));
+      const otherLocation = await Location.create(fake(Location, { facilityId: otherFacility.id }));
+      const otherDepartment = await Department.create(
+        fake(Department, { facilityId: otherFacility.id }),
+      );
+
+      const response = await baseApp
+        .post(`/api/portal/surveyResponse`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          surveyId: baseSurvey.id,
+          patientId: otherPatient.id,
+          facilityId: otherFacility.id,
+          locationId: otherLocation.id,
+          departmentId: otherDepartment.id,
+          answers: { [baseDataElement.id]: 3 },
+        });
+
+      expect(response).toHaveSucceeded();
+      const surveyResponse = await SurveyResponse.findByPk(response.body.id);
+      const encounter = await Encounter.findByPk(surveyResponse.encounterId);
+      expect(encounter).toMatchObject({
+        patientId: testPatient.id,
+        locationId: testLocationId,
+        departmentId: testDepartmentId,
+      });
+      expect(await Encounter.count({ where: { patientId: otherPatient.id } })).toBe(0);
+    });
+
+    // A patient of their own with one encounter at another facility, so it doesn't carry into
+    // other tests
+    const signInPatientWithEncounter = async ({ email, startDate, endDate }) => {
+      const { Patient, PortalUser, Facility, Location, Department, User, Encounter } = store.models;
+      const patient = await Patient.create(fake(Patient));
+      await PortalUser.create({
+        email,
+        patientId: patient.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      const token = await getPatientAuthToken(baseApp, store.models, email);
+      const otherFacility = await Facility.create(fake(Facility));
+      const encounter = await Encounter.create(
+        fake(Encounter, {
+          patientId: patient.id,
+          locationId: (await Location.create(fake(Location, { facilityId: otherFacility.id }))).id,
+          departmentId: (
+            await Department.create(fake(Department, { facilityId: otherFacility.id }))
+          ).id,
+          examinerId: (await User.create(fake(User))).id,
+          startDate,
+          endDate,
+        }),
+      );
+      await createAssignment({
+        patientId: patient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+      return { token, encounter };
+    };
+
+    const submitAs = token =>
+      baseApp
+        .post(`/api/portal/surveyResponse`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ surveyId: baseSurvey.id, answers: { [baseDataElement.id]: 4 } });
+
+    it("Should add the response to the patient's open encounter", async () => {
+      const { token, encounter } = await signInPatientWithEncounter({
+        email: 'admitted-patient@test.com',
+        startDate: '2026-01-01 09:00:00',
+        endDate: null,
+      });
+
+      const response = await submitAs(token);
+
+      expect(response).toHaveSucceeded();
+      const surveyResponse = await store.models.SurveyResponse.findByPk(response.body.id);
+      expect(surveyResponse.encounterId).toBe(encounter.id);
+    });
+
+    it("Should not add the response to the patient's closed encounter", async () => {
+      const { token, encounter } = await signInPatientWithEncounter({
+        email: 'discharged-patient@test.com',
+        startDate: '2026-01-01 09:00:00',
+        endDate: '2026-01-02 09:00:00',
+      });
+
+      const response = await submitAs(token);
+
+      expect(response).toHaveSucceeded();
+      const surveyResponse = await store.models.SurveyResponse.findByPk(response.body.id);
+      expect(surveyResponse.encounterId).not.toBe(encounter.id);
+      expect(await store.models.Encounter.findByPk(surveyResponse.encounterId)).toMatchObject({
+        locationId: testLocationId,
+        departmentId: testDepartmentId,
+      });
+    });
+
+    it('Should record one response, returned to both, when a form is submitted twice at once', async () => {
+      const assignment = await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+      const submit = () =>
+        baseApp
+          .post(`/api/portal/surveyResponse`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ surveyId: baseSurvey.id, answers: { [baseDataElement.id]: 6 } });
+
+      const responses = await Promise.all([submit(), submit()]);
+
+      responses.forEach(response => expect(response).toHaveSucceeded());
+      expect(await store.models.SurveyResponse.count({ where: { surveyId: baseSurvey.id } })).toBe(
+        1,
+      );
+      const refreshedAssignment = await store.models.PortalSurveyAssignment.findByPk(assignment.id);
+      expect(responses.map(response => response.body.id)).toEqual([
+        refreshedAssignment.surveyResponseId,
+        refreshedAssignment.surveyResponseId,
+      ]);
+    });
+
     it('Should return 404 when assignment does not match patient/survey or is not outstanding', async () => {
       const { Survey } = store.models;
 
@@ -173,9 +301,6 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       const payload = {
         surveyId: baseSurvey.id,
-        locationId: testLocationId,
-        departmentId: testDepartmentId,
-        patientId: testPatient.id,
         answers: {
           [baseDataElement.id]: 1,
         },
@@ -214,12 +339,111 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           surveyId: anotherSurvey.id,
-          patientId: testPatient.id,
-          locationId: testLocationId,
-          departmentId: testDepartmentId,
           answers: { [baseDataElement.id]: 2 },
         });
       expect(resWrongSurvey).toHaveRequestError(404);
+    });
+
+    it('Should record a drug chosen in a search question as the answer', async () => {
+      const { ProgramDataElement, ReferenceData, SurveyScreenComponent, SurveyResponseAnswer } =
+        store.models;
+      const drugQuestion = await ProgramDataElement.create(
+        fake(ProgramDataElement, { type: 'Autocomplete' }),
+      );
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: drugQuestion.id,
+          surveyId: baseSurvey.id,
+          config: JSON.stringify({ source: 'ReferenceData', where: { type: 'drug' } }),
+        }),
+      );
+      const drug = await ReferenceData.create(fake(ReferenceData, { type: 'drug' }));
+      await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+
+      const response = await baseApp
+        .post(`/api/portal/surveyResponse`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ surveyId: baseSurvey.id, answers: { [drugQuestion.id]: drug.id } });
+
+      expect(response).toHaveSucceeded();
+      const answer = await SurveyResponseAnswer.findOne({
+        where: { responseId: response.body.id, dataElementId: drugQuestion.id },
+      });
+      expect(answer.body).toBe(drug.id);
+    });
+
+    it("Should run the response's actions at the facility that sent the form", async () => {
+      const {
+        Facility,
+        ProgramDataElement,
+        ProgramRegistry,
+        ProgramRegistryClinicalStatus,
+        SurveyScreenComponent,
+        PatientProgramRegistration,
+      } = store.models;
+      const registry = await ProgramRegistry.create(
+        fake(ProgramRegistry, {
+          programId: baseSurvey.programId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        }),
+      );
+      const clinicalStatus = await ProgramRegistryClinicalStatus.create(
+        fake(ProgramRegistryClinicalStatus, { programRegistryId: registry.id }),
+      );
+      const statusQuestion = await ProgramDataElement.create(
+        fake(ProgramDataElement, { type: 'PatientData' }),
+      );
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: statusQuestion.id,
+          surveyId: baseSurvey.id,
+          config: JSON.stringify({ writeToPatient: { fieldName: 'registrationClinicalStatus' } }),
+        }),
+      );
+      const otherFacility = await Facility.create(fake(Facility));
+      await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+
+      const response = await baseApp
+        .post(`/api/portal/surveyResponse`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          surveyId: baseSurvey.id,
+          facilityId: otherFacility.id,
+          answers: { [statusQuestion.id]: clinicalStatus.id },
+        });
+
+      expect(response).toHaveSucceeded();
+      const registration = await PatientProgramRegistration.findOne({
+        where: { patientId: testPatient.id, programRegistryId: registry.id },
+      });
+      expect(registration.registeringFacilityId).toBe(testFacility.id);
+    });
+
+    it('Should reject a body without a survey or answers', async () => {
+      await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+      const submit = body =>
+        baseApp
+          .post(`/api/portal/surveyResponse`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send(body);
+
+      expect(await submit({ answers: { [baseDataElement.id]: 1 } })).toHaveRequestError();
+      expect(await submit({ surveyId: baseSurvey.id })).toHaveRequestError();
+      expect(await store.models.SurveyResponse.count({ where: { surveyId: baseSurvey.id } })).toBe(
+        0,
+      );
     });
 
     it('Should reject unauthorized requests', async () => {
