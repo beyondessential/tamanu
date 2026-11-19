@@ -35,6 +35,18 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
   const responseRecord = await req.store.sequelize.transaction(async () => {
     const { surveyId, answers, startTime, endTime } = body;
 
+    // Claim the assignment first, so a repeated submission returns the response already recorded
+    const [claimedCount] = await models.PortalSurveyAssignment.update(
+      { status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED },
+      {
+        where: { id: assignedSurvey.id, status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING },
+      },
+    );
+    if (claimedCount === 0) {
+      const { surveyResponseId } = await assignedSurvey.reload();
+      return models.SurveyResponse.findByPk(surveyResponseId);
+    }
+
     const surveyResponse = await models.SurveyResponse.createWithAnswers({
       surveyId,
       answers,
@@ -46,19 +58,10 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
       facilityId,
       userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
     });
-    // Only one submission completes the assignment; one that lost the race rolls back
-    const [completedCount] = await models.PortalSurveyAssignment.update(
-      {
-        surveyResponseId: surveyResponse.id,
-        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
-      },
-      {
-        where: { id: assignedSurvey.id, status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING },
-      },
+    await models.PortalSurveyAssignment.update(
+      { surveyResponseId: surveyResponse.id },
+      { where: { id: assignedSurvey.id } },
     );
-    if (completedCount === 0) {
-      throw new NotFoundError('Survey was not assigned to the patient');
-    }
 
     return surveyResponse;
   });

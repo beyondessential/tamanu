@@ -242,7 +242,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(surveyResponse.encounterId).toBe(openEncounter.id);
     });
 
-    it('Should record only one response when a form is submitted twice at once', async () => {
+    it('Should record one response, returned to both, when a form is submitted twice at once', async () => {
       const assignment = await createAssignment({
         patientId: testPatient.id,
         surveyId: baseSurvey.id,
@@ -256,14 +256,15 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       const responses = await Promise.all([submit(), submit()]);
 
-      expect(responses.map(response => response.status).sort()).toEqual([200, 404]);
+      responses.forEach(response => expect(response).toHaveSucceeded());
       expect(await store.models.SurveyResponse.count({ where: { surveyId: baseSurvey.id } })).toBe(
         1,
       );
       const refreshedAssignment = await store.models.PortalSurveyAssignment.findByPk(assignment.id);
-      expect(refreshedAssignment.surveyResponseId).toBe(
-        responses.find(response => response.status === 200).body.id,
-      );
+      expect(responses.map(response => response.body.id)).toEqual([
+        refreshedAssignment.surveyResponseId,
+        refreshedAssignment.surveyResponseId,
+      ]);
     });
 
     it('Should return 404 when assignment does not match patient/survey or is not outstanding', async () => {
