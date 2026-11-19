@@ -287,3 +287,31 @@ describe('AIService structured responses', () => {
     await expect(invokeTweak(service)).rejects.toThrow(/expected the model to call "respond"/);
   });
 });
+
+describe('AIService.reviseLatestFormBuilderMessage', () => {
+  it('replaces the message in the latest response, keeping the rest of the history', async () => {
+    const readyResponse = { message: 'Your form is ready.', ready: true };
+    const session = {
+      messages: [
+        { role: 'system', content: 'process' },
+        { role: 'human', content: 'Build a referral form' },
+        { role: 'ai', content: JSON.stringify(readyResponse) },
+      ],
+      update: vi.fn(),
+    };
+    const service = new AIService();
+    service.models = { AiChatSession: { findOne: vi.fn().mockResolvedValue(session) } };
+
+    await service.reviseLatestFormBuilderMessage(
+      'session-id',
+      'Your form is ready.\n\nChanged it.',
+    );
+
+    const { messages } = session.update.mock.calls[0][0];
+    expect(messages.slice(0, 2)).toEqual(session.messages.slice(0, 2));
+    expect(messages[2]).toEqual({
+      role: 'ai',
+      content: JSON.stringify({ ...readyResponse, message: 'Your form is ready.\n\nChanged it.' }),
+    });
+  });
+});

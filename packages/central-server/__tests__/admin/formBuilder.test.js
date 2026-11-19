@@ -142,6 +142,7 @@ describe('Form Builder Admin', () => {
       interpretFormBuilderPdf: vi.fn().mockResolvedValue('SECTION: PDF Referral\nQUESTION: Patient name'),
       hasContext: vi.fn(() => true),
       addSessionMessages: vi.fn().mockResolvedValue(undefined),
+      reviseLatestFormBuilderMessage: vi.fn().mockResolvedValue(undefined),
     };
     ctx.aiService = aiService;
   });
@@ -702,6 +703,7 @@ describe('Form Builder Admin', () => {
         message: 'Your form is ready.',
         programDefinition: programDefinitionPreview,
       });
+      expect(aiService.reviseLatestFormBuilderMessage).not.toHaveBeenCalled();
       expect(await countProgramSurveys()).toBe(0);
     });
 
@@ -725,8 +727,11 @@ describe('Form Builder Admin', () => {
         expect.any(Object),
         { name: 'form_builder_tweak_response' },
       );
-      expect(response.body.message).toBe(
-        'Your form is ready.\n\nChanged Hospital No to a free text question.',
+      const message = 'Your form is ready.\n\nChanged Hospital No to a free text question.';
+      expect(response.body.message).toBe(message);
+      expect(aiService.reviseLatestFormBuilderMessage).toHaveBeenCalledWith(
+        'new-session-id',
+        message,
       );
       expect(response.body.programDefinition.surveySheets[0].questions[1]).toEqual({
         code: 'referral002',

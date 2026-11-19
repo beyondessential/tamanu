@@ -336,6 +336,27 @@ export class AIService {
     return response;
   }
 
+  /**
+   * Replace the message in the session's latest form builder response, so its
+   * history holds the reply the user was shown.
+   *
+   * @param {string} sessionId
+   * @param {string} message
+   */
+  async reviseLatestFormBuilderMessage(sessionId, message) {
+    const session = await this.getActiveSessionOrThrow(sessionId);
+    const latestIndex = session.messages.findLastIndex(({ role }) => role === 'ai');
+    const latestResponse = JSON.parse(session.messages[latestIndex].content);
+
+    await session.update({
+      messages: session.messages.with(latestIndex, {
+        role: 'ai',
+        content: JSON.stringify({ ...latestResponse, message }),
+      }),
+      expiresAt: sessionExpiry(),
+    });
+  }
+
   async addSessionMessages(sessionId, { userMessage, assistantMessage }) {
     const session = await this.getActiveSessionOrThrow(sessionId);
 
