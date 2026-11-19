@@ -233,6 +233,22 @@ describe('Websocket', () => {
       expect(otherSocket.received).not.toContain(eventName);
     });
 
+    it('tells a user once about tasks changed together', async () => {
+      const designatedUser = await createUser();
+      const socket = await connectAs(designatedUser, { facilityId });
+      const eventName = `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${designatedUser.id}`;
+      const notified = nextEvent(socket, eventName);
+
+      await ctx.sequelize.transaction(async () => {
+        await createTask({ designatedUser });
+        await createTask({ designatedUser });
+      });
+
+      await notified;
+      await afterEarlierDeliveries(socket);
+      expect(socket.received.filter(received => received === eventName)).toHaveLength(1);
+    });
+
     it('does not relay the table change itself', async () => {
       const designatedUser = await createUser();
       const socket = await connectAs(designatedUser, { facilityId });
