@@ -337,21 +337,28 @@ export class AIService {
   }
 
   /**
-   * Replace the message in the session's latest form builder response, so its
-   * history holds the reply the user was shown.
+   * Replace the message in a form builder response the session holds, so its
+   * history holds the reply the user was shown. The response is found by its
+   * content rather than its position, as another turn may have been added since.
    *
    * @param {string} sessionId
+   * @param {z.infer<typeof formBuilderChatResponseSchema>} response as sendFormBuilderMessage returned it
    * @param {string} message
    */
-  async reviseLatestFormBuilderMessage(sessionId, message) {
+  async reviseFormBuilderResponseMessage(sessionId, response, message) {
     const session = await this.getActiveSessionOrThrow(sessionId);
-    const latestIndex = session.messages.findLastIndex(({ role }) => role === 'ai');
-    const latestResponse = JSON.parse(session.messages[latestIndex].content);
+    const storedContent = JSON.stringify(response);
+    const responseIndex = session.messages.findLastIndex(
+      ({ role, content }) => role === 'ai' && content === storedContent,
+    );
+    if (responseIndex === -1) {
+      throw new Error(`AI session "${sessionId}" does not hold the response to revise`);
+    }
 
     await session.update({
-      messages: session.messages.with(latestIndex, {
+      messages: session.messages.with(responseIndex, {
         role: 'ai',
-        content: JSON.stringify({ ...latestResponse, message }),
+        content: JSON.stringify({ ...response, message }),
       }),
       expiresAt: sessionExpiry(),
     });

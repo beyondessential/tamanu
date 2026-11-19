@@ -632,7 +632,7 @@ const processChatRequest = async ({
     if (preview.message !== response.message) {
       // As with a tweak, history persistence should not discard the preview.
       await aiService
-        .reviseLatestFormBuilderMessage(sessionId, preview.message)
+        .reviseFormBuilderResponseMessage(sessionId, response, preview.message)
         .catch(error => {
           log.warn({ error }, 'AI form builder failed to persist chat history');
         });
