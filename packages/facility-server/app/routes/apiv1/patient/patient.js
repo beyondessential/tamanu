@@ -900,11 +900,6 @@ patientRoute.get(
           attributes: ['id', 'displayName'],
           required: true,
         },
-        {
-          association: 'medicationPresetLabel',
-          attributes: ['id', 'code', 'name'],
-          required: false,
-        },
         // The dispensed medication for this fill (differs from the prescription's when modified)
         {
           association: 'medication',

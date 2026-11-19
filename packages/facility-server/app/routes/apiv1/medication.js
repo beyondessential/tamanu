@@ -2314,11 +2314,6 @@ medication.get(
           association: 'dispensedBy',
           attributes: ['id', 'displayName'],
         },
-        {
-          association: 'medicationPresetLabel',
-          attributes: ['id', 'code', 'name'],
-          required: false,
-        },
         // The dispensed medication for this fill (differs from the prescription's when modified)
         {
           association: 'medication',

@@ -291,6 +291,20 @@ jobs:
       - run: npm install --include-workspace-root
       - run: git diff --exit-code
 
+  # The release cut refreshes the lockfile with --legacy-peer-deps, which drops
+  # peers npm installed implicitly, so every peer must be declared explicitly.
+  lockfile-peers:
+    name: Check package-lock.json has no implicit peers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+      - run: node scripts/check-lockfile-peers.mjs
+
   dbt-model:
     needs: [plan, node_modules_cache]
     if: needs.plan.outputs.run-dbt-model == 'true'
@@ -403,6 +417,7 @@ jobs:
       - test-mobile
       - test-facility-offline
       - test-package-lock
+      - lockfile-peers
       - dbt-model
       - dbt-todos
       - typos

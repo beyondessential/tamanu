@@ -11,13 +11,13 @@ able to open a section you cannot see.
 
 1. Click a section in the sidebar, such as **Patients**.
 
-   The section opens to list its pages, and any other open section collapses. **Dashboard** has no pages
-   under it, so it opens straight away.
+   The section opens to list its pages, and any other open section collapses. **Dashboard** has no
+   pages under it, so it opens straight away.
 
-2. Select the page you want.
+2. Click the page you want.
 
-   The page opens, and stays highlighted in the sidebar while you are on it. To collapse a section’s list
-   of pages, click the section again.
+   The page opens, and stays highlighted in the sidebar while you are on it. To collapse a section’s
+   list of pages, click the section again.
 
    You can’t leave a patient’s record while you have a note open. Save or close the note first.
 
@@ -27,7 +27,7 @@ able to open a section you cannot see.
        alt="The sidebar with the Patients section open, listing All patients, Inpatients, Emergency patients and Outpatients, with All patients outlined in red"
        width="161"
      />
-     <figcaption>Select a section, then select the page you want.</figcaption>
+     <figcaption>Click a section, then click the page you want.</figcaption>
    </figure>
 
 # Collapse and expand the sidebar
@@ -38,8 +38,8 @@ able to open a section you cannot see.
 
 2. To expand the sidebar again, click the arrow, or click any of the icons.
 
-   Clicking an icon expands the sidebar without leaving the page you are on. If the section has pages
-   under it, they are listed.
+   Clicking an icon expands the sidebar without leaving the page you are on. If the section has
+   pages under it, they are listed.
 
    <figure>
      <img
