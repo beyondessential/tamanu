@@ -229,12 +229,19 @@ export const MarStatusLabel = props =>
     </VisuallyHidden>
   ) : null;
 
+const DoseWindowTooltip = styled(ThemedTooltip)`
+  && .MuiTooltip-tooltip {
+    padding: 0.5rem 1rem;
+  }
+`;
+
 export const MarStatusTooltip = ({ children, ...tooltipProps }) => {
   const slot = <MarDoseSlot>{children}</MarDoseSlot>;
   if (!hasMarStatusTooltip(tooltipProps)) return slot;
 
+  const Tooltip = tooltipProps.doseWindow ? DoseWindowTooltip : ThemedTooltip;
   return (
-    <ThemedTooltip
+    <Tooltip
       title={
         <TooltipText>
           <MarStatusTooltipContent {...tooltipProps} />
@@ -243,6 +250,6 @@ export const MarStatusTooltip = ({ children, ...tooltipProps }) => {
       PopperProps={popperProps}
     >
       {slot}
-    </ThemedTooltip>
+    </Tooltip>
   );
 };
