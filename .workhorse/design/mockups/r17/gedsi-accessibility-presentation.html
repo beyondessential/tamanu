@@ -149,6 +149,26 @@
     font-weight: 600;
   }
 
+  .features { margin: calc(var(--u) * 18) 0 0; }
+  .features div {
+    display: flex;
+    gap: calc(var(--u) * 14);
+    padding: calc(var(--u) * 8) 0;
+    border-top: 1px solid rgba(56, 189, 248, 0.3);
+    font-size: calc(var(--u) * 19);
+  }
+  .features dt {
+    flex: none;
+    width: calc(var(--u) * 52);
+    font-size: calc(var(--u) * 15);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #38BDF8;
+    line-height: calc(var(--u) * 28);
+  }
+  .features dd { margin: 0; color: #F5F7FB; }
+
   /* 3. Scale */
   .scale {
     position: absolute;
@@ -352,6 +372,10 @@
       <div class="letter">D</div>
       <h3>Disability</h3>
       <p>Patients and health workers use Tamanu independently.</p>
+      <dl class="features">
+        <div><dt>Now</dt><dd>Text size and high contrast on the kiosk</dd></div>
+        <div><dt>Next</dt><dd>Stronger contrast, clear focus and skip links</dd></div>
+      </dl>
       <span class="chip">Accessibility lives here</span>
     </div>
     <div class="card">
