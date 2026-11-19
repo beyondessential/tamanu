@@ -142,6 +142,8 @@ export class AutocompleteInput extends Component {
     this.debouncedFetchOptions = debounce(this.fetchOptions, 200);
     this.latestFetchId = 0; // Identifies the newest fetch, so a slow response to an earlier search
     this.customSuggestionCreations = new Map(); // Lower-cased label to its creation request
+    this.latestValueChangeId = 0; // Identifies the newest change to the field's value, so a slow
+    // creation does not overwrite an option picked after it
     this.inputElementNode = null;
     this.observer = null;
 
@@ -202,6 +204,7 @@ export class AutocompleteInput extends Component {
 
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;
+    this.latestValueChangeId += 1;
     onChange({ target: { ...option, name } });
     return option.label;
   };
@@ -211,6 +214,8 @@ export class AutocompleteInput extends Component {
   createCustomSuggestion = option => {
     const { onChange, name, suggester } = this.props;
     if (!suggester) return;
+    const valueChangeId = ++this.latestValueChangeId;
+    const isSuperseded = () => valueChangeId !== this.latestValueChangeId;
     const creationKey = option.label.toLowerCase();
     if (!this.customSuggestionCreations.has(creationKey)) {
       const creation = suggester.createSuggestion({ name: option.label });
@@ -222,8 +227,12 @@ export class AutocompleteInput extends Component {
     }
     this.customSuggestionCreations
       .get(creationKey)
-      .then(result => onChange({ target: { ...result, name } }))
-      .catch(() => onChange({ target: { value: undefined, name } }));
+      .then(result => {
+        if (!isSuperseded()) onChange({ target: { ...result, name } });
+      })
+      .catch(() => {
+        if (!isSuperseded()) onChange({ target: { value: undefined, name } });
+      });
   };
 
   // Autosuggest also asks for a suggestion's value when the arrow keys highlight it, so the
@@ -330,6 +339,7 @@ export class AutocompleteInput extends Component {
 
   handleClearValue = () => {
     const { onChange, name } = this.props;
+    this.latestValueChangeId += 1;
     onChange({ target: { value: undefined, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
   };
