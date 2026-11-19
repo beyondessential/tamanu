@@ -181,7 +181,10 @@ export const EditVitalCellForm = ({
         ...newShapeData,
         dataElementId: valueName,
         ...(programRegistryPatientId
-          ? { patientId: programRegistryPatientId }
+          ? {
+              patientId: programRegistryPatientId,
+              chartInstanceResponseId: programRegistryInstanceId,
+            }
           : { encounterId: encounter?.id }),
         recordedDate: dataPoint.recordedDate,
       };
