@@ -199,7 +199,7 @@ export const ReportGeneratorForm = () => {
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
   } = reportsById[selectedReportId] || {};
 
-  const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
+  const hasSingleDataSource = dataSourceOptions.length === 1;
 
   useEffect(() => {
     if (!dataSourceOptions.includes(dataSource)) {
@@ -385,38 +385,39 @@ export const ReportGeneratorForm = () => {
               }}
               data-testid="field-sg1t"
             />
-            <Field
-              name="dataSource"
-              label=" "
-              value={dataSource}
-              onChange={e => {
-                setDataSource(e.target.value);
-                resetDownload();
-              }}
-              options={[
-                {
-                  label: (
-                    <TranslatedText
-                      stringId="report.generate.dataSource.option.thisFacility"
-                      fallback="This facility"
-                    />
-                  ),
-                  value: REPORT_DATA_SOURCES.THIS_FACILITY,
-                },
-                {
-                  label: (
-                    <TranslatedText
-                      stringId="report.generate.dataSource.option.allFacilities"
-                      fallback="All facilities"
-                    />
-                  ),
-                  value: REPORT_DATA_SOURCES.ALL_FACILITIES,
-                },
-              ]}
-              component={RadioField}
-              disabled={isDataSourceFieldDisabled}
-              data-testid="field-ran8"
-            />
+            {!hasSingleDataSource && (
+              <Field
+                name="dataSource"
+                label=" "
+                value={dataSource}
+                onChange={e => {
+                  setDataSource(e.target.value);
+                  resetDownload();
+                }}
+                options={[
+                  {
+                    label: (
+                      <TranslatedText
+                        stringId="report.generate.dataSource.option.thisFacility"
+                        fallback="This facility"
+                      />
+                    ),
+                    value: REPORT_DATA_SOURCES.THIS_FACILITY,
+                  },
+                  {
+                    label: (
+                      <TranslatedText
+                        stringId="report.generate.dataSource.option.allFacilities"
+                        fallback="All facilities"
+                      />
+                    ),
+                    value: REPORT_DATA_SOURCES.ALL_FACILITIES,
+                  },
+                ]}
+                component={RadioField}
+                data-testid="field-ran8"
+              />
+            )}
           </FormGrid>
           {reportsById[selectedReportId]?.notes && (
             <>
