@@ -27,7 +27,7 @@ system administrator gives you these.
 3. Select **Remember me** if you want Tamanu to fill in your email address next time you log in on this
    computer.
 
-   Leave it deselected to have Tamanu forget your email address.
+   Leave it unselected to have Tamanu forget your email address.
 
 4. Click **Log in**.
 
