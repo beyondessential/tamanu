@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_permissions_from_sync_lookup
+              - flag_permissions_for_lookup_rebuild
               - record_permissions_changelog
               - set_permissions_updated_at
               - set_permissions_updated_at_sync_tick

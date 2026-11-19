@@ -9,3 +9,7 @@ Reference to the [invoice](#!/source/source.tamanu.tamanu.invoices) that this in
 {% docs invoices_invoice_insurance_plans__invoice_insurance_plan_id %}
 Reference to the [insurance contract](#!/source/source.tamanu.tamanu.invoice_insurance_plans) being applied to the invoice.
 {% enddocs %}
+
+{% docs invoices_invoice_insurance_plans__invoice_section_id %}
+The section of a split invoice this insurance plan covers. Coverage applies only to that section's items, and the same plan covers several sections by being attached once per section. Null where the plan covers the whole invoice.
+{% enddocs %}

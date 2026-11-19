@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_discharges_from_sync_lookup
+              - flag_discharges_for_lookup_rebuild
               - record_discharges_changelog
               - set_discharges_updated_at
               - set_discharges_updated_at_sync_tick

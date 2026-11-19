@@ -4,4 +4,4 @@ id: VITALS
 
 # Vitals
 
-Vitals and clinical observation charting.
+Applies to vitals and clinical observation charting.

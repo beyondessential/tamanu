@@ -86,3 +86,42 @@ export const getFormattedInvoiceItemNetCost = (item: InvoiceItem): string | unde
   const netCost = getInvoiceItemNetCost(item);
   return formatDisplayPrice(netCost);
 };
+
+/**
+ * Format the summary totals printed on an invoice. Both print layouts read their figures from here,
+ * so an invoice prints the same figures whichever layout the facility uses. Deductions are shown
+ * as negative amounts, and the fee scale adjustment is null when the invoice has no fee scale
+ * discount.
+ */
+export const getInvoicePrintTotalsDisplay = (invoice: Invoice) => {
+  const {
+    invoiceItemsUndiscountedTotal,
+    itemAdjustmentsTotal,
+    insuranceCoverageTotal,
+    patientSubtotal,
+    discountTotal,
+    patientPaymentsTotal,
+    patientPaymentRemainingBalance,
+  } = getInvoiceSummary(invoice);
+  const feeScalePercentage = invoice.discount?.percentage;
+
+  return {
+    invoiceTotal: formatDisplayPrice(invoiceItemsUndiscountedTotal),
+    itemAdjustments: formatDisplayPrice(itemAdjustmentsTotal),
+    // Only the receipt prints this total; the A4 lists coverage per insurance plan instead
+    insuranceCoverage: formatDisplayPrice(
+      insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0,
+    ),
+    patientSubtotal: formatDisplayPrice(patientSubtotal),
+    // Shown whether or not the sliding fee scale is still switched on, since the discount still
+    // comes off the patient total due
+    feeScaleAdjustment: feeScalePercentage
+      ? {
+          percentage: Math.round(feeScalePercentage * 100),
+          amount: formatDisplayPrice(discountTotal * -1),
+        }
+      : null,
+    patientPayments: formatDisplayPrice(patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0),
+    patientTotalDue: formatDisplayPrice(patientPaymentRemainingBalance),
+  };
+};

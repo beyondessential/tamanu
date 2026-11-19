@@ -1112,6 +1112,83 @@ describe('Labs', () => {
     expect(created).toHaveLength(0);
   });
 
+  describe('empty availableFacilities means available everywhere', () => {
+    // Removing the last facility in the admin Manage form saves `[]`, which has to behave the same
+    // as an unset (null) list — otherwise the record is offered by the suggesters but filtered out
+    // of the lab endpoints, so a user is shown a test they can't order.
+    let facilityId;
+    let category;
+    let testType;
+    let panel;
+
+    beforeAll(async () => {
+      [facilityId] = selectFacilityIds(config);
+      category = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        }),
+      );
+      testType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        isSensitive: false,
+        availableFacilities: [],
+      });
+      panel = await models.LabTestPanel.create({
+        name: `Everywhere panel ${chance.guid()}`,
+        code: chance.guid(),
+        categoryId: category.id,
+        availableFacilities: [],
+      });
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: panel.id,
+        labTestTypeId: testType.id,
+      });
+    });
+
+    it('offers the test type on GET /labTestType', async () => {
+      const response = await app.get(`/api/labTestType?facilityId=${facilityId}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.map(({ id }) => id)).toContain(testType.id);
+    });
+
+    it('offers the panel and its members on GET /labTestPanel', async () => {
+      const response = await app.get(`/api/labTestPanel?facilityId=${facilityId}`);
+      expect(response).toHaveSucceeded();
+      const listed = response.body.find(({ id }) => id === panel.id);
+      expect(listed).toBeTruthy();
+      expect(listed.labTestTypes.map(({ id }) => id)).toContain(testType.id);
+    });
+
+    it('offers the member on GET /labTestPanel/:id/labTestTypes', async () => {
+      const response = await app.get(
+        `/api/labTestPanel/${panel.id}/labTestTypes?facilityId=${facilityId}`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.map(({ id }) => id)).toContain(testType.id);
+    });
+
+    it('accepts a submission for the panel', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId,
+      });
+
+      const response = await app.post('/api/labRequest').send({
+        panelIds: [panel.id],
+        encounterId: encounter.id,
+      });
+      expect(response).toHaveSucceeded();
+
+      const createdTests = await models.LabTest.findAll({
+        where: { labRequestId: response.body[0].id },
+      });
+      expect(createdTests.map(({ labTestTypeId }) => labTestTypeId)).toContain(testType.id);
+    });
+  });
+
   it('should not record a lab request with an invalid testTypeId', async () => {
     const labTestTypeIds = ['invalid-test-type-id', 'another-invalid-test-type-id'];
     const response = await app.post('/api/labRequest').send({
@@ -1442,7 +1519,9 @@ describe('Labs', () => {
         const response = await app.get(`/api/labTest/${labTest.id}/history`);
         expect(response).toHaveSucceeded();
 
-        const historyItems = response.body;
+        // The result was changed repeatedly, so the server reports the cell as edited.
+        expect(response.body.isEdited).toBe(true);
+        const historyItems = response.body.changes;
         const resultChanges = historyItems.filter(h => h.fieldType === 'result');
         const secondaryChanges = historyItems.filter(h => h.fieldType === 'secondaryResult');
 
@@ -1459,6 +1538,17 @@ describe('Labs', () => {
           fieldType: 'secondaryResult',
           result: 'Negative',
         });
+      });
+
+      it('reports isEdited false when the result and secondary result were each filled once', async () => {
+        const [labTest] = await labRequest.getTests();
+        // A single fill of each field is not an edit (the TAM-3101 regression).
+        await labTest.update({ result: 'Only result', secondaryResult: 'Only secondary' });
+
+        const response = await app.get(`/api/labTest/${labTest.id}/history`);
+        expect(response).toHaveSucceeded();
+        expect(response.body.isEdited).toBe(false);
+        expect(response.body.changes.length).toBeGreaterThan(0);
       });
 
       it('should error if lab test is sensitive', async () => {

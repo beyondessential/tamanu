@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_departments_from_sync_lookup
+              - flag_departments_for_lookup_rebuild
               - record_departments_changelog
               - set_departments_updated_at
               - set_departments_updated_at_sync_tick

@@ -123,6 +123,7 @@ export const DataElementType = {
   UserData: 'UserData',
   PatientData: 'PatientData',
   PatientIssueGenerator: 'PatientIssueGenerator',
+  ProgramRegistryCondition: 'ProgramRegistryCondition',
 } as const;
 
 export type DataElementType = (typeof DataElementType)[keyof typeof DataElementType];

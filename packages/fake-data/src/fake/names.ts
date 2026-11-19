@@ -44,6 +44,8 @@ const GENERIC_IMAGING_AREA_NAMES = [
   'Whole body',
 ];
 
+const INVOICE_SECTION_NAMES = ['Inpatient', 'Outpatient', 'Emergency'];
+
 export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
   [REFERENCE_TYPES.ALLERGY]: names(ALLERGIES),
   [REFERENCE_TYPES.APPOINTMENT_TYPE]: names(APPOINTMENT_TYPES),
@@ -51,6 +53,7 @@ export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
   [REFERENCE_TYPES.DIAGNOSIS]: namesBeforeTab(DIAGNOSES),
   [REFERENCE_TYPES.DISCHARGE_DISPOSITION]: names(DISPOSITIONS),
   [REFERENCE_TYPES.DRUG]: names(DRUGS),
+  [REFERENCE_TYPES.INVOICE_SECTION]: INVOICE_SECTION_NAMES,
   [REFERENCE_TYPES.LAB_SAMPLE_SITE]: names(LAB_SAMPLE_SITES),
   [REFERENCE_TYPES.PROCEDURE_TYPE]: namesAfterTab(PROCEDURE_TYPES),
   [REFERENCE_TYPES.SPECIMEN_TYPE]: names(SPECIMEN_TYPES),
@@ -196,15 +199,6 @@ export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
     'Endoscopy',
     'Colonoscopy',
     'Angiogram',
-  ],
-  [REFERENCE_TYPES.INSURER]: [
-    'National Health Insurance',
-    'Public Service Scheme',
-    'Pacific Health Cover',
-    'Island Mutual',
-    'Seafarers Fund',
-    'Teachers Health Fund',
-    'Veterans Scheme',
   ],
   [REFERENCE_TYPES.LAB_TEST_CATEGORY]: [
     'Haematology',

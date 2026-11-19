@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_notifications_from_sync_lookup
+              - flag_notifications_for_lookup_rebuild
               - notify_notifications_changed
               - record_notifications_changelog
               - set_notifications_updated_at

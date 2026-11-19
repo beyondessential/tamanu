@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_procedure_type_surveys_from_sync_lookup
+              - flag_procedure_type_surveys_for_lookup_rebuild
               - record_procedure_type_surveys_changelog
               - set_procedure_type_surveys_updated_at
               - set_procedure_type_surveys_updated_at_sync_tick

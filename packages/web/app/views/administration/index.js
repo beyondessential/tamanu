@@ -1,4 +1,4 @@
-export { InsurerPaymentsAdminView } from './InsurerPaymentsAdminView';
+export { InsurancePlanPaymentsAdminView } from './InsurancePlanPaymentsAdminView';
 export { LocationAdminView } from './LocationAdminView';
 export { LocationAssignmentsAdminView } from './LocationAssignmentsAdminView';
 export { AssetUploaderView } from './AssetUploaderView';

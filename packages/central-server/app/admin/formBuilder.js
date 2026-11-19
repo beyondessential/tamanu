@@ -566,8 +566,8 @@ formBuilderRouter.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'FormBuilder');
 
-    if (!req.aiService) {
-      throw new InvalidOperationError('AI service is not enabled');
+    if (!req.aiService?.hasContext(AI_CONTEXT_NAMES.FORM_BUILDER)) {
+      throw new InvalidOperationError('Form builder is not enabled or configured');
     }
 
     const { async: runAsync, ...payload } = await getUploadedData(req);

@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_programs_from_sync_lookup
+              - flag_programs_for_lookup_rebuild
               - record_programs_changelog
               - set_programs_updated_at
               - set_programs_updated_at_sync_tick

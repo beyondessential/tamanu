@@ -281,12 +281,6 @@
       "schedule": "0 1 * * *",
       "generateOffsetDays": 7,
     },
-    "sendStatusToMetaServer": {
-      "enabled": true,
-      // every minute
-      "schedule": "* * * * *",
-      jitterTime: "30s",
-    },
     "medicationDiscontinuer": {
       // every hour
       "schedule": "0 * * * *",

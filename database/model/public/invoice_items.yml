@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_invoice_items_from_sync_lookup
+              - flag_invoice_items_for_lookup_rebuild
               - record_invoice_items_changelog
               - set_invoice_items_updated_at
               - set_invoice_items_updated_at_sync_tick
@@ -116,3 +117,12 @@ sources:
             description: "{{ doc('invoice_items__is_fixed_price_final') }}"
             data_tests:
               - not_null
+          - name: invoice_section_id
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__invoice_section_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'invoiceSection'

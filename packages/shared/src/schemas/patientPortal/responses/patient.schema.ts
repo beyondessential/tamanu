@@ -40,7 +40,6 @@ export const PatientAdditionalDataSchema = z.object({
   religionId: z.string().nullish(),
   patientBillingTypeId: z.string().nullish(),
   countryOfBirthId: z.string().nullish(),
-  insurerId: z.string().nullish(),
   // Reference data relations
   nationality: ReferenceDataSchema.nullish(),
   country: ReferenceDataSchema.nullish(),
@@ -54,7 +53,6 @@ export const PatientAdditionalDataSchema = z.object({
   religion: ReferenceDataSchema.nullish(),
   patientBillingType: ReferenceDataSchema.nullish(),
   countryOfBirth: ReferenceDataSchema.nullish(),
-  insurer: ReferenceDataSchema.nullish(),
 });
 
 export const PatientSchema = z.object({

@@ -379,8 +379,10 @@ export class LabRequestModal {
     const input = this.collectedByInputs.nth(index);
     await input.click();
     const firstOption = this.collectedBySuggestionsList.locator('ul').locator('li').first();
+    // Selecting an option unmounts the list, so read its label before clicking.
+    const label = await firstOption.textContent();
     await firstOption.click();
-    return firstOption.textContent();
+    return label;
   }
 
   /** Select the first specimen type option for a sample row. */

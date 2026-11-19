@@ -13,6 +13,7 @@ import {
   DEFAULT_LANGUAGE_CODE,
   LANGUAGE_NAME_STRING_ID,
   REFERENCE_DATA_TRANSLATION_PREFIX,
+  TABLE_PAGE_SIZE_PREFERENCE_KEYS,
 } from '@tamanu/constants';
 import {
   Alert,
@@ -312,6 +313,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
         columns={columns}
         data={tableRows}
         pagination
+        pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.TRANSLATIONS}
         stickyHeader
         data-testid="styledtableformfields-y4iq"
       />

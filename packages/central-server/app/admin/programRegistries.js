@@ -24,7 +24,7 @@ programRegistryRouter.get('/:id', simpleGet('ProgramRegistry'));
 programRegistryRouter.patch(
   '/:id',
   simplePatch('ProgramRegistry', {
-    allowedFields: ['code', 'currentlyAtType', 'name', 'visibilityStatus'],
+    allowedFields: ['code', 'currentlyAtType', 'mandatoryConditionEnabled', 'name', 'visibilityStatus'],
   }),
 );
 

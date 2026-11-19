@@ -259,8 +259,18 @@ export async function loginHandler(req, res, next) {
       throw new MissingCredentialError('Missing deviceId');
     }
 
+    // a device-less (FHIR integration) client can't pick a facility afterwards, as setFacility
+    // needs a device, so give it the facility up front when there's only one it could mean
+    const facilityId =
+      !deviceId && availableFacilities.length === 1 ? availableFacilities[0].id : undefined;
+
     const [token, role] = await Promise.all([
-      buildToken({ user, deviceId, expiresIn: await globalSettings.get('auth.tokenDuration') }),
+      buildToken({
+        user,
+        deviceId,
+        facilityId,
+        expiresIn: await globalSettings.get('auth.tokenDuration'),
+      }),
       models.Role.findByPk(user.role),
     ]);
     res.send({

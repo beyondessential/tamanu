@@ -1112,6 +1112,89 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       expect(persistedChangelogRecords).toHaveLength(pushedChangelogRecords.length);
     });
 
+    it("appends 'duplicate' when the display IDs collide only by case", async () => {
+      // Set up data pre sync
+      const CURRENT_SYNC_TICK = '11';
+      const facility = await models.Facility.create(fake(models.Facility));
+
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
+
+      const existingDisplayId = 'ABC123';
+      const incomingDisplayId = 'abc123';
+
+      // Existing patient
+      const existingPatient = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: existingDisplayId,
+      });
+
+      // Patient data for pushing (not inserted yet) - same display ID but different case
+      const toBeSyncedPatientData = {
+        ...(await createDummyPatient(models)),
+        id: crypto.randomUUID(),
+        displayId: incomingDisplayId,
+      };
+
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'patients',
+          recordId: toBeSyncedPatientData.id,
+          data: toBeSyncedPatientData,
+        },
+      ];
+
+      const centralSyncManager = await initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      await centralSyncManager.updateLookupTable();
+
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      // Push the patient
+      await centralSyncManager.addIncomingChanges(sessionId, changes);
+      await centralSyncManager.completePush(sessionId, facility.id);
+      await waitForPushCompleted(centralSyncManager, sessionId);
+
+      await centralSyncManager.updateLookupTable();
+
+      // Start the snapshot for pull process
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+          deviceId: facility.id,
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      const returnedPatients = outgoingChanges.filter(c => c.recordType === 'patients');
+      const returnedExistingPatient = returnedPatients.find(p => p.data.id === existingPatient.id);
+      const returnedSyncedPatient = returnedPatients.find(
+        p => p.data.id === toBeSyncedPatientData.id,
+      );
+
+      const persistedSyncedPatient = await models.Patient.findByPk(toBeSyncedPatientData.id);
+      const updatedExistingPatient = await models.Patient.findByPk(existingPatient.id);
+
+      // The rename preserves each display ID's original casing
+      expect(updatedExistingPatient.displayId).toBe(`${existingDisplayId}_duplicate_1`);
+      expect(persistedSyncedPatient.displayId).toBe(`${incomingDisplayId}_duplicate_2`);
+
+      expect(returnedPatients).toHaveLength(2);
+      expect(returnedExistingPatient.data.displayId).toBe(`${existingDisplayId}_duplicate_1`);
+      expect(returnedSyncedPatient.data.displayId).toBe(`${incomingDisplayId}_duplicate_2`);
+    });
+
     it("does not append 'duplicate' to existing patient that is being updated", async () => {
       // Set up data pre sync
       const CURRENT_SYNC_TICK = '12';

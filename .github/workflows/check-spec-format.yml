@@ -1,0 +1,30 @@
+name: Check spec format
+
+on:
+  workflow_dispatch:
+  merge_group:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check spec format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+
+      - name: Check specs against the spec format
+        run: node scripts/check-spec-format.mjs

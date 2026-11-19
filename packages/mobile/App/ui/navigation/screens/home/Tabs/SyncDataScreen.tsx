@@ -1,4 +1,3 @@
-import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -59,14 +58,12 @@ export const SyncDataScreen = ({ navigation }) => {
           setProgress(0);
           setProgressMessage('Initialising sync');
           setHasError(false);
-          activateKeepAwake(); // don't let the device sleep while syncing
           break;
         case SYNC_EVENT_ACTIONS.SYNC_ENDED:
           setIsQueuing(false);
           setIsSyncing(false);
           setProgress(0);
           setProgressMessage('');
-          deactivateKeepAwake();
           break;
         case SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED:
           setSyncStage(syncManager.syncStage);

@@ -12,6 +12,7 @@ export interface IProgramRegistry {
   name: string;
   visibilityStatus?: VisibilityStatus;
   currentlyAtType: CurrentlyAtType;
+  mandatoryConditionEnabled: boolean;
   programId: ID;
   program: IProgram;
   clinicalStatuses: IProgramRegistryClinicalStatus[];

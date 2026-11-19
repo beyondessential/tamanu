@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 import {
   ContentPane,
@@ -19,7 +20,7 @@ const StyledContentPane = styled(ContentPane)`
   position: relative;
 `;
 
-const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
+const ImagingRequestListing = ({ tableVersion, advancedFields, pageSizePreferenceKey }) => {
   // Since we need to track the state of the search bar and table for each version of the Imaging request table,
   // We assign a memoryKey to each version of the based on the grouping of statuses it is displaying.
   const { memoryKey, statuses } = tableVersion;
@@ -41,6 +42,7 @@ const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
       <ImagingRequestsTable
         memoryKey={memoryKey}
         statuses={statuses}
+        pageSizePreferenceKey={pageSizePreferenceKey}
         data-testid="imagingrequeststable-ycaa"
       />
     </StyledContentPane>
@@ -64,6 +66,7 @@ export const ImagingRequestListingView = () => (
     <ImagingRequestListing
       tableVersion={IMAGING_TABLE_VERSIONS.ACTIVE}
       advancedFields={ACTIVE_ADVANCED_FIELDS}
+      pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.ACTIVE_IMAGING_REQUESTS}
       data-testid="imagingrequestlisting-9bgv"
     />
   </PageContainer>
@@ -86,6 +89,7 @@ export const CompletedImagingRequestListingView = () => (
     <ImagingRequestListing
       tableVersion={IMAGING_TABLE_VERSIONS.COMPLETED}
       advancedFields={COMPLETED_ADVANCED_FIELDS}
+      pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.COMPLETED_IMAGING_REQUESTS}
       data-testid="imagingrequestlisting-u7f6"
     />
   </PageContainer>

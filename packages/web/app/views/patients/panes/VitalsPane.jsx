@@ -53,6 +53,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
             onClose={handleClose}
             onSubmit={submitVitals}
             patient={patient}
+            encounterType={encounter.encounterType}
             data-testid="vitalsform-dsuf"
           />
         </FormModal>

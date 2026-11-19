@@ -65,6 +65,27 @@ export function route<Template extends string>(
   };
 }
 
+// Appends a path template to an endpoint, keeping any params a descriptor
+// already carries. For a component handed its base endpoint by a caller, which
+// may pass either form, to address a record beneath it:
+//
+//   api.delete(extendRoute(endpoint, ':documentId', { documentId }))
+//
+// Interpolating the endpoint into a template literal instead flattens a
+// descriptor to "[object Object]".
+export function extendRoute<Template extends string>(
+  base: Endpoint,
+  template: Template,
+  ...params: RouteParamsArg<Template>
+): RouteDescriptor {
+  const baseRoute = isRouteDescriptor(base) ? base : { template: base, params: {} };
+  return {
+    [ROUTE_BRAND]: true,
+    template: `${baseRoute.template}/${template}`,
+    params: { ...baseRoute.params, ...(params[0] ?? {}) } as Record<string, string | number>,
+  };
+}
+
 const PLACEHOLDER = /:([A-Za-z0-9_]+)/g;
 
 // Expands a descriptor into a concrete path, URL-encoding each value. Throws if

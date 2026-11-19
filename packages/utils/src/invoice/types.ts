@@ -9,6 +9,10 @@ export interface Product {
     price?: number;
     isFixedPrice?: boolean;
   };
+  invoiceInsurancePlanItems?: Array<{
+    invoiceInsurancePlanId: string;
+    coverageValue?: number;
+  }>;
 }
 
 export interface InvoiceDiscount {
@@ -27,9 +31,27 @@ export interface InvoiceItemDiscount {
 
 export interface InsurancePlanItem {
   id: string;
+  /** The attachment this coverage comes from, where the invoice was loaded with its plan rows */
+  attachmentId?: string;
   name?: string;
   code?: string;
+  label?: string;
   coverageValue?: number;
+}
+
+/** An insurance plan attached to an invoice. */
+export interface InsurancePlan {
+  id: string;
+  /**
+   * The attachment row's id. A plan covering several sections is attached once per section, so the
+   * plan's own id no longer identifies one lot of coverage.
+   */
+  attachmentId?: string;
+  /** The section this attachment covers. Null or absent covers the whole invoice. */
+  invoiceSectionId?: string | null;
+  name?: string;
+  code?: string;
+  defaultCoverage?: number;
 }
 
 export interface FinalisedInsurance {
@@ -39,6 +61,7 @@ export interface FinalisedInsurance {
 
 export interface InvoiceItem {
   id?: string;
+  invoiceSectionId?: string | null;
   priceFinal?: number;
   manualEntryPrice?: number;
   isFixedPriceFinal?: boolean;
@@ -53,18 +76,19 @@ export interface PatientPayment {
   id: string;
 }
 
-export interface InsurerPayment {
+export interface InsurancePlanPayment {
   id: string;
-  insurerId?: string;
+  invoiceInsurancePlanId?: string;
+  invoiceSectionId?: string | null;
 }
 
 export interface Payment {
   id?: string;
   amount: number | Decimal;
   patientPayment?: PatientPayment;
-  insurerPayment?: InsurerPayment;
-  refundPayment?: InsurerPayment;
-  originalPayment?: InsurerPayment;
+  insurancePlanPayment?: InsurancePlanPayment;
+  refundPayment?: InsurancePlanPayment;
+  originalPayment?: InsurancePlanPayment;
 }
 
 export interface Invoice {
@@ -72,7 +96,7 @@ export interface Invoice {
   status?: string;
   items?: InvoiceItem[];
   payments?: Payment[];
-  insurancePlans?: InsurancePlanItem[];
+  insurancePlans?: InsurancePlan[];
   discount?: InvoiceDiscount;
 }
 
@@ -85,8 +109,8 @@ export interface InvoiceSummary {
   itemAdjustmentsTotal: number;
   patientSubtotal: number;
   patientPaymentsTotal: number;
-  insurerPaymentsTotal: number;
+  insurancePlanPaymentsTotal: number;
   paymentsTotal: number;
   patientPaymentRemainingBalance: number;
-  insurerPaymentRemainingBalance: number;
+  insurancePlanPaymentRemainingBalance: number;
 }

@@ -25,6 +25,7 @@ import {
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { buildAvailableFacilitiesFilter } from '@tamanu/shared/utils/availableFacilities';
 
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
@@ -33,6 +34,7 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
+  ['patientLabTestTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
 };
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 // The string_id for the translated_strings table is a concatenation of this prefix
@@ -285,7 +287,12 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   );
 };
 
-const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name', skipVisibilityFilter = false }) => ({
+const DEFAULT_WHERE_BUILDER = ({
+  endpoint,
+  modelName,
+  searchColumn = 'name',
+  skipVisibilityFilter = false,
+}) => ({
   [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
   ...(!skipVisibilityFilter && VISIBILITY_CRITERIA),
 });
@@ -342,19 +349,6 @@ function createSuggester(
 // once there's more than one status that we're checking against
 const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-};
-
-// Reusable filter: if availableFacilities is set on a reference data row,
-// only show it when the requesting facility is in the list. NULL means visible everywhere.
-// Uses the model's attribute so the DB column name comes from the model (field option), not from a literal.
-const buildAvailableFacilitiesFilter = facilityId => {
-  if (!facilityId) return null;
-  return {
-    [Op.or]: [
-      { availableFacilities: null },
-      { availableFacilities: { [Op.contains]: [facilityId] } },
-    ],
-  };
 };
 
 const afterCreatedReferenceData = async (req, newRecord) => {
@@ -613,41 +607,42 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
               },
             ],
           },
-          typeName === REFERENCE_TYPES.MEDICATION_SET && (() => {
-            const childrenWhere = { ...VISIBILITY_CRITERIA };
-            const medicationWhere = { ...VISIBILITY_CRITERIA };
-            const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
-            if (facilityFilter) {
-              childrenWhere[Op.and] = [facilityFilter];
-              medicationWhere[Op.and] = [facilityFilter];
-            }
-            return {
-              model: ReferenceData,
-              as: 'children',
-              where: childrenWhere,
-              through: {
-                attributes: [],
-                where: {
-                  type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
-                  deleted_at: null,
+          typeName === REFERENCE_TYPES.MEDICATION_SET &&
+            (() => {
+              const childrenWhere = { ...VISIBILITY_CRITERIA };
+              const medicationWhere = { ...VISIBILITY_CRITERIA };
+              const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+              if (facilityFilter) {
+                childrenWhere[Op.and] = [facilityFilter];
+                medicationWhere[Op.and] = [facilityFilter];
+              }
+              return {
+                model: ReferenceData,
+                as: 'children',
+                where: childrenWhere,
+                through: {
+                  attributes: [],
+                  where: {
+                    type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                    deleted_at: null,
+                  },
                 },
-              },
-              // referenceDrug (needed for the dispensing quantity autocalculation) is not eager
-              // loaded here: nested four associations deep its column aliases would exceed
-              // PostgreSQL's 63-byte identifier limit and be silently truncated, dropping
-              // dispensingUnit/unitConversion. It is attached in the mapper via a shallow query.
-              include: {
-                model: ReferenceMedicationTemplate,
-                as: 'medicationTemplate',
+                // referenceDrug (needed for the dispensing quantity autocalculation) is not eager
+                // loaded here: nested four associations deep its column aliases would exceed
+                // PostgreSQL's 63-byte identifier limit and be silently truncated, dropping
+                // dispensingUnit/unitConversion. It is attached in the mapper via a shallow query.
                 include: {
-                  model: ReferenceData,
-                  as: 'medication',
-                  where: medicationWhere,
-                  required: !!facilityFilter,
+                  model: ReferenceMedicationTemplate,
+                  as: 'medicationTemplate',
+                  include: {
+                    model: ReferenceData,
+                    as: 'medication',
+                    where: medicationWhere,
+                    required: !!facilityFilter,
+                  },
                 },
-              },
-            };
-          })(),
+              };
+            })(),
         ].filter(Boolean);
 
         return result.length > 0 ? result : null;
@@ -713,21 +708,26 @@ createSuggester(
   },
 );
 
-createSuggester('labTestType', 'LabTestType', ({ req }) => {
-  const baseWhere = { ...VISIBILITY_CRITERIA };
-  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
-  if (facilityFilter) {
-    baseWhere[Op.and] = [facilityFilter];
-  }
-  return baseWhere;
-}, {
-  mapper: ({ name, code, id, labTestCategoryId }) => ({
-    name,
-    code,
-    id,
-    labTestCategoryId,
-  }),
-});
+createSuggester(
+  'labTestType',
+  'LabTestType',
+  ({ req }) => {
+    const baseWhere = { ...VISIBILITY_CRITERIA };
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+    if (facilityFilter) {
+      baseWhere[Op.and] = [facilityFilter];
+    }
+    return baseWhere;
+  },
+  {
+    mapper: ({ name, code, id, labTestCategoryId }) => ({
+      name,
+      code,
+      id,
+      labTestCategoryId,
+    }),
+  },
+);
 
 const filterByFacilityWhereBuilder = ({ query, modelName, endpoint }) => {
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
@@ -760,10 +760,8 @@ const createNameSuggester = (
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
-createNameSuggester(
-  'patientFieldDefinitionCategory',
-  'PatientFieldDefinitionCategory',
-  args => DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
+createNameSuggester('patientFieldDefinitionCategory', 'PatientFieldDefinitionCategory', args =>
+  DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
 );
 createNameSuggester('invoicePriceList');
 createNameSuggester('referenceData', 'ReferenceData');
@@ -961,24 +959,24 @@ const trimAndConcat = (col1, col2) =>
     ' ',
     Sequelize.fn('trim', Sequelize.col(col2)),
   );
-createSuggester(
-  'patient',
-  'Patient',
-  ({ search }) => ({
-    [Op.or]: [
-      Sequelize.where(trimAndConcat('first_name', 'last_name'), { [Op.iLike]: search }),
-      Sequelize.where(trimAndConcat('last_name', 'first_name'), { [Op.iLike]: search }),
-      { displayId: { [Op.iLike]: search } },
-    ],
-  }),
-  {
-    mapper: patient => patient,
-    searchColumn: 'first_name',
-    orderBuilder: req => {
-      const searchQuery = (req.query.q || '').trim().toLowerCase();
-      const escapedQuery = req.db.escape(searchQuery);
-      const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
-      return Sequelize.literal(`
+const patientNameOrDisplayIdMatches = ({ search }) => ({
+  [Op.or]: [
+    Sequelize.where(trimAndConcat('first_name', 'last_name'), { [Op.iLike]: search }),
+    Sequelize.where(trimAndConcat('last_name', 'first_name'), { [Op.iLike]: search }),
+    { displayId: { [Op.iLike]: search } },
+  ],
+});
+
+// An exact display id first, then a display id or name the search starts, so typing an id lands
+// on that patient rather than on whoever happens to sort first.
+const PATIENT_SUGGESTER_OPTIONS = {
+  mapper: patient => patient,
+  searchColumn: 'first_name',
+  orderBuilder: req => {
+    const searchQuery = (req.query.q || '').trim().toLowerCase();
+    const escapedQuery = req.db.escape(searchQuery);
+    const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
+    return Sequelize.literal(`
           CASE
             WHEN LOWER(display_id) = ${escapedQuery} THEN 0
             WHEN LOWER(display_id) LIKE ${escapedPartialMatch} THEN 1
@@ -987,8 +985,21 @@ createSuggester(
             ELSE 4
           END
         `);
-    },
   },
+};
+
+createSuggester('patient', 'Patient', patientNameOrDisplayIdMatches, PATIENT_SUGGESTER_OPTIONS);
+
+// Payors on a patient's billing details. A deceased patient cannot be billed, so they are not
+// offered; the patient being edited is, since a patient can pay for themselves.
+createSuggester(
+  'patientPayor',
+  'Patient',
+  args => ({
+    ...patientNameOrDisplayIdMatches(args),
+    dateOfDeath: null,
+  }),
+  PATIENT_SUGGESTER_OPTIONS,
 );
 
 createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', ({ endpoint, modelName }) => {
@@ -1034,6 +1045,10 @@ createSuggester(
       const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
     }
+
+    // Gate patient-scoped suggestions on the lab-results permission (not just the reference-
+    // data list permission the route checked), since they expose which tests a patient has.
+    req.checkPermission('list', 'LabTest');
 
     // A category that's no longer active (visibilityStatus !== current) should still be
     // selectable here as long as the patient actually has a published lab request against
@@ -1090,32 +1105,111 @@ createSuggester(
   },
 );
 
-// Specifically fetches lab panels that have a lab test against a patient
+// Fetches lab panels the patient has a published lab request ordered under. A panel is not
+// suggested merely because it contains a test the patient has results for — the request must
+// have been placed against the panel itself (via lab_test_panel_requests).
 createSuggester(
   'patientLabTestPanelTypes',
   'LabTestPanel',
-  ({ endpoint, modelName, query }) => {
+  ({ endpoint, modelName, query, req }) => {
     if (!query.patientId) {
       return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     }
 
+    // Gate patient-scoped suggestions on the lab-results permission (not just the reference-
+    // data list permission the route checked), since they expose which tests a patient has.
+    req.checkPermission('list', 'LabTest');
+
     // A panel that's no longer active (visibilityStatus !== current) should still be
-    // selectable here as long as the patient actually has a published lab request against
-    // it — skip the usual "current only" visibility filter and rely on the patient-scoped
-    // id filter below to do the real gating instead.
+    // selectable here as long as the patient actually has a published lab request ordered
+    // under it — skip the usual "current only" visibility filter and rely on the
+    // patient-scoped id filter below to do the real gating instead.
     const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName, skipVisibilityFilter: true });
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+
+    // Hide a panel whose only member tests are sensitive from a user who can't list sensitive lab
+    // requests, matching how the test suggester hides sensitive individual tests — otherwise such a
+    // panel leaks the order and would show an empty table once picked. A mixed panel is kept, since
+    // the results endpoint still filters its sensitive members out. This lives inside the id
+    // subquery rather than a separate Op.and clause, because the searchById route path strips
+    // Op.and and would otherwise reopen the leak.
+    const sensitivePanelFilter = canListSensitive
+      ? ''
+      : `AND EXISTS (
+            SELECT 1
+            FROM lab_test_panel_lab_test_types
+            INNER JOIN lab_test_types
+              ON lab_test_types.id = lab_test_panel_lab_test_types.lab_test_type_id
+            WHERE lab_test_panel_lab_test_types.lab_test_panel_id = lab_test_panel_requests.lab_test_panel_id
+              AND lab_test_panel_lab_test_types.deleted_at IS NULL
+              AND lab_test_types.deleted_at IS NULL
+              AND lab_test_types.is_sensitive IS FALSE
+          )`;
 
     return {
       ...baseWhere,
+      // A picked test category narrows suggestions to panels configured under it.
+      ...(query.categoryId ? { categoryId: query.categoryId } : {}),
       id: {
         [Op.in]: Sequelize.literal(
           `(
-          SELECT DISTINCT(lab_test_panel_id)
-          FROM lab_test_panel_lab_test_types
+          SELECT DISTINCT(lab_test_panel_requests.lab_test_panel_id)
+          FROM lab_test_panel_requests
           INNER JOIN
-            lab_test_types ON lab_test_types.id = lab_test_panel_lab_test_types.lab_test_type_id
+            lab_requests ON lab_requests.id = lab_test_panel_requests.lab_request_id
           INNER JOIN
-            lab_tests ON lab_tests.lab_test_type_id = lab_test_types.id
+            encounters ON encounters.id = lab_requests.encounter_id
+          WHERE lab_requests.status = $lab_request_status
+            AND encounters.patient_id = $patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
+            AND lab_test_panel_requests.deleted_at is null
+            AND lab_requests.sample_time IS NOT NULL
+            ${sensitivePanelFilter}
+        )`,
+        ),
+      },
+    };
+  },
+  {
+    extraReplacementsBuilder: query => ({
+      lab_request_status: query?.status || 'published',
+      patient_id: query.patientId,
+    }),
+  },
+);
+
+// Fetches individual lab test types the patient has a published result for.
+createSuggester(
+  'patientLabTestTypes',
+  'LabTestType',
+  ({ endpoint, modelName, query, req }) => {
+    if (!query.patientId) {
+      return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+    }
+
+    // Gate patient-scoped suggestions on the lab-results permission (not just the reference-
+    // data list permission the route checked), since they expose which tests a patient has.
+    req.checkPermission('list', 'LabTest');
+
+    // A test type that's no longer active (visibilityStatus !== current) should still be
+    // selectable here as long as the patient has a published result for it — skip the usual
+    // "current only" visibility filter and rely on the patient-scoped id filter below.
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName, skipVisibilityFilter: true });
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+
+    return {
+      ...baseWhere,
+      ...(canListSensitive ? {} : { isSensitive: false }),
+      // A picked test category narrows suggestions to tests configured under it.
+      ...(query.categoryId ? { labTestCategoryId: query.categoryId } : {}),
+      id: {
+        [Op.in]: Sequelize.literal(
+          // sample_time must be present to match what the results endpoint returns (it only shows
+          // dated results); otherwise a suggested test would open an empty table.
+          `(
+          SELECT DISTINCT(lab_tests.lab_test_type_id)
+          FROM lab_tests
           INNER JOIN
             lab_requests ON lab_requests.id = lab_tests.lab_request_id
           INNER JOIN
@@ -1124,6 +1218,8 @@ createSuggester(
             AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
+            AND lab_tests.deleted_at is null
+            AND lab_requests.sample_time IS NOT NULL
         )`,
         ),
       },
@@ -1155,10 +1251,15 @@ createSuggester(
       return baseWhere;
     }
 
+    // Exclude registries the patient is actively registered in or has been removed from — a
+    // removed registration is re-enabled via Activate, not re-added here. A recorded-in-error
+    // registration can still be re-added.
+    const excludedStatuses = [REGISTRATION_STATUSES.ACTIVE, REGISTRATION_STATUSES.INACTIVE]
+      .map(status => `'${status}'`)
+      .join(', ');
+
     return {
       ...baseWhere,
-      // Only exclude registries the patient is currently actively registered in. A patient who
-      // was removed (inactive) or recorded-in-error can be suggested again for re-registration.
       id: {
         [Op.notIn]: Sequelize.literal(
           `(
@@ -1169,7 +1270,7 @@ createSuggester(
           WHERE
             ppr.patient_id = $patient_id
           AND
-            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
+            ppr.registration_status IN (${excludedStatuses})
         )`,
         ),
       },

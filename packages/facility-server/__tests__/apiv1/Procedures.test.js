@@ -1,9 +1,11 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import {
   createDummyEncounter,
   createDummyPatient,
   randomRecordId,
 } from '@tamanu/database/demoData';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { generateId } from '@tamanu/utils/generateId';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
@@ -273,35 +275,35 @@ describe('Procedures', () => {
     });
   });
 
+  const createDummyData = async () => {
+    const facility = await models.Facility.create(fake(models.Facility));
+    const location = await models.Location.create({
+      ...fake(models.Location),
+      facilityId: facility.id,
+    });
+    const department = await models.Department.create({
+      ...fake(models.Department),
+      facilityId: facility.id,
+    });
+    const examiner = await models.User.create(fake(models.User));
+    const patient = await models.Patient.create(fake(models.Patient));
+    const encounter = await models.Encounter.create({
+      ...fake(models.Encounter),
+      patientId: patient.id,
+      departmentId: department.id,
+      locationId: location.id,
+      examinerId: examiner.id,
+    });
+    const program = await models.Program.create(fake(models.Program));
+    const survey = await models.Survey.create({
+      ...fake(models.Survey),
+      programId: program.id,
+    });
+
+    return { patient, encounter, facility, survey, department, location, examiner, program };
+  };
+
   describe('Procedure Survey Responses', () => {
-    const createDummyData = async () => {
-      const facility = await models.Facility.create(fake(models.Facility));
-      const location = await models.Location.create({
-        ...fake(models.Location),
-        facilityId: facility.id,
-      });
-      const department = await models.Department.create({
-        ...fake(models.Department),
-        facilityId: facility.id,
-      });
-      const examiner = await models.User.create(fake(models.User));
-      const patient = await models.Patient.create(fake(models.Patient));
-      const encounter = await models.Encounter.create({
-        ...fake(models.Encounter),
-        patientId: patient.id,
-        departmentId: department.id,
-        locationId: location.id,
-        examinerId: examiner.id,
-      });
-      const program = await models.Program.create(fake(models.Program));
-      const survey = await models.Survey.create({
-        ...fake(models.Survey),
-        programId: program.id,
-      });
-
-      return { patient, encounter, facility, survey, department, location, examiner, program };
-    };
-
     it('should create ProcedureSurveyResponse when procedureId is provided', async () => {
       const { patient, encounter, facility, survey, department, location } =
         await createDummyData();
@@ -362,6 +364,186 @@ describe('Procedures', () => {
         procedureSurveyResponse.surveyResponseId,
       );
       expect(surveyResponse).toBeTruthy();
+    });
+  });
+
+  describe('Deleting a procedure', () => {
+    const createProcedureWithForm = async () => {
+      const { patient, encounter, facility, survey, department, location } =
+        await createDummyData();
+      await survey.update({ surveyType: SURVEY_TYPES.PROGRAMS });
+
+      const result = await app.post('/api/procedure/surveyResponse').send({
+        patientId: patient.id,
+        encounterId: encounter.id,
+        surveyId: survey.id,
+        facilityId: facility.id,
+        locationId: location.id,
+        departmentId: department.id,
+        answers: {},
+      });
+      expect(result).toHaveSucceeded();
+
+      const dataElement = await models.ProgramDataElement.create(fake(models.ProgramDataElement));
+      const answer = await models.SurveyResponseAnswer.create({
+        responseId: result.body.surveyResponseId,
+        dataElementId: dataElement.id,
+        body: 'answer',
+      });
+
+      return { patient, encounter, procedureSurveyResponse: result.body, answer };
+    };
+
+    it('should soft-delete the procedure', async () => {
+      const procedure = await models.Procedure.create({
+        encounterId: encounter.id,
+        date: new Date(),
+      });
+
+      const result = await app.delete(`/api/procedure/${procedure.id}`);
+      expect(result).toHaveSucceeded();
+
+      expect(await models.Procedure.findByPk(procedure.id)).toBeNull();
+      const deletedProcedure = await models.Procedure.findByPk(procedure.id, { paranoid: false });
+      expect(deletedProcedure.deletedAt).toBeTruthy();
+    });
+
+    it('should delete a completed procedure', async () => {
+      const procedure = await models.Procedure.create({
+        encounterId: encounter.id,
+        date: new Date(),
+        completed: true,
+      });
+
+      const result = await app.delete(`/api/procedure/${procedure.id}`);
+      expect(result).toHaveSucceeded();
+      expect(await models.Procedure.findByPk(procedure.id)).toBeNull();
+    });
+
+    it('should delete the forms attached to the procedure', async () => {
+      const { patient, encounter, procedureSurveyResponse, answer } =
+        await createProcedureWithForm();
+      const { procedureId, surveyResponseId } = procedureSurveyResponse;
+
+      const result = await app.delete(`/api/procedure/${procedureId}`);
+      expect(result).toHaveSucceeded();
+
+      expect(await models.SurveyResponse.findByPk(surveyResponseId)).toBeNull();
+      expect(await models.SurveyResponseAnswer.findByPk(answer.id)).toBeNull();
+      expect(await models.ProcedureSurveyResponse.findByPk(procedureSurveyResponse.id)).toBeNull();
+
+      const patientForms = await app.get(`/api/patient/${patient.id}/programResponses`);
+      expect(patientForms).toHaveSucceeded();
+      expect(patientForms.body.data.map(form => form.id)).not.toContain(surveyResponseId);
+
+      const encounterForms = await app.get(`/api/encounter/${encounter.id}/programResponses`);
+      expect(encounterForms).toHaveSucceeded();
+      expect(encounterForms.body.data.map(form => form.id)).not.toContain(surveyResponseId);
+    });
+
+    it('should not delete forms attached to other procedures', async () => {
+      const { procedureSurveyResponse: deletedProcedureForm } = await createProcedureWithForm();
+      const { procedureSurveyResponse: keptProcedureForm } = await createProcedureWithForm();
+
+      const result = await app.delete(`/api/procedure/${deletedProcedureForm.procedureId}`);
+      expect(result).toHaveSucceeded();
+
+      expect(await models.Procedure.findByPk(keptProcedureForm.procedureId)).toBeTruthy();
+      expect(await models.SurveyResponse.findByPk(keptProcedureForm.surveyResponseId)).toBeTruthy();
+      expect(await models.ProcedureSurveyResponse.findByPk(keptProcedureForm.id)).toBeTruthy();
+    });
+
+    it('should delete the assistant clinician links of the procedure', async () => {
+      const assistant = await createDummyUser(models, 'delete-assistant@example.com');
+      const { body: procedure } = await app.post('/api/procedure').send({
+        encounterId: encounter.id,
+        date: new Date(),
+        assistantClinicianIds: [assistant.id],
+      });
+      const findAssistantClinicians = () =>
+        models.ProcedureAssistantClinician.findAll({ where: { procedureId: procedure.id } });
+      expect(await findAssistantClinicians()).toHaveLength(1);
+
+      const result = await app.delete(`/api/procedure/${procedure.id}`);
+      expect(result).toHaveSucceeded();
+      expect(await findAssistantClinicians()).toHaveLength(0);
+    });
+
+    it('should keep the procedure and its forms when the deletion fails partway', async () => {
+      const { procedureSurveyResponse, answer } = await createProcedureWithForm();
+      const { procedureId, surveyResponseId } = procedureSurveyResponse;
+      // Removing the invoice item is the last step (from the procedure's afterDestroy hook), so by
+      // the time it fails the forms and the procedure have already been deleted in the transaction
+      const removeItemFromInvoiceSpy = vi
+        .spyOn(models.Invoice, 'removeItemFromInvoice')
+        .mockRejectedValueOnce(new Error('Simulated failure'));
+
+      try {
+        const result = await app.delete(`/api/procedure/${procedureId}`);
+        expect(result).toHaveStatus(500);
+        expect(removeItemFromInvoiceSpy).toHaveBeenCalled();
+      } finally {
+        removeItemFromInvoiceSpy.mockRestore();
+      }
+
+      expect(await models.Procedure.findByPk(procedureId)).toBeTruthy();
+      expect(await models.SurveyResponse.findByPk(surveyResponseId)).toBeTruthy();
+      expect(await models.SurveyResponseAnswer.findByPk(answer.id)).toBeTruthy();
+      expect(
+        await models.ProcedureSurveyResponse.findByPk(procedureSurveyResponse.id),
+      ).toBeTruthy();
+    });
+
+    it('should return not found for a procedure that does not exist', async () => {
+      const result = await app.delete(`/api/procedure/${generateId()}`);
+      expect(result).toHaveStatus(404);
+    });
+
+    describe('with role permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      // Created through the models, as the practitioner app has no role permissions in this suite
+      const createProcedureWithFormRecords = async () => {
+        const { encounter, survey } = await createDummyData();
+        const procedure = await models.Procedure.create({
+          encounterId: encounter.id,
+          date: new Date(),
+        });
+        const surveyResponse = await models.SurveyResponse.create({
+          encounterId: encounter.id,
+          surveyId: survey.id,
+        });
+        await models.ProcedureSurveyResponse.create({
+          procedureId: procedure.id,
+          surveyResponseId: surveyResponse.id,
+        });
+        return { procedure, surveyResponse };
+      };
+
+      it('should delete the forms with only permission to delete procedures', async () => {
+        const { procedure, surveyResponse } = await createProcedureWithFormRecords();
+        const appWithOnlyProcedureDelete = await baseApp.asNewRole([['delete', 'Procedure']]);
+
+        const result = await appWithOnlyProcedureDelete.delete(`/api/procedure/${procedure.id}`);
+        expect(result).toHaveSucceeded();
+        expect(await models.Procedure.findByPk(procedure.id)).toBeNull();
+        expect(await models.SurveyResponse.findByPk(surveyResponse.id)).toBeNull();
+      });
+
+      it('should be forbidden without permission to delete procedures', async () => {
+        const { procedure, surveyResponse } = await createProcedureWithFormRecords();
+        const appWithoutDelete = await baseApp.asNewRole([
+          ['read', 'Procedure'],
+          ['create', 'Procedure'],
+          ['write', 'Procedure'],
+          ['delete', 'SurveyResponse'],
+        ]);
+
+        const result = await appWithoutDelete.delete(`/api/procedure/${procedure.id}`);
+        expect(result).toBeForbidden();
+        expect(await models.Procedure.findByPk(procedure.id)).toBeTruthy();
+        expect(await models.SurveyResponse.findByPk(surveyResponse.id)).toBeTruthy();
+      });
     });
   });
 });

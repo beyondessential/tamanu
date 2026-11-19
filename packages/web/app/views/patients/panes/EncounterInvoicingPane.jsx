@@ -6,14 +6,14 @@ import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@mui/icons-material/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { isInvoiceEditable } from '@tamanu/utils/invoice';
+import { isInvoiceEditable, offersInvoiceWideInsurance } from '@tamanu/utils/invoice';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
   InvoiceForm,
   InvoiceSummaryPanel,
   PatientPaymentsTable,
-  InsurerPaymentsTable,
+  InsurancePlanPaymentsTable,
 } from '../../../features/Invoice';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
@@ -28,6 +28,7 @@ import {
   useBulkUpdateInvoiceItemApproval,
 } from '../../../api/mutations/useInvoiceMutation';
 import { INVOICE_FORM_TYPE } from '../../../features/Invoice/constants.js';
+import { useInvoicePatientDetailsAccess } from '../../../features/Invoice/useInvoicePatientDetailsAccess';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -99,8 +100,9 @@ const PaymentsSection = styled.div`
 
 const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const { ability } = useAuth();
+  const { canViewPatientDetails, canWriteInvoice, isInsurancePlanFieldShown } =
+    useInvoicePatientDetailsAccess(invoice);
   const canCreateInvoice = ability.can('create', 'Invoice');
-  const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
 
   const hasPayments = invoice.payments?.length > 0;
@@ -110,6 +112,8 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const deletable =
     invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice && !hasPayments;
   const { mutate: bulkUpdateApproval } = useBulkUpdateInvoiceItemApproval(invoice);
+  // Finalise asks for `create` on Invoice alone, as it always has. A deployment may hold a role
+  // with create and not write, and adding write here would take the action away from it.
   const finalisable =
     invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
   const allItemsAreApproved = invoice.items.every(item => item.approved);
@@ -130,7 +134,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => handleAllApprovals(true),
-      hidden: allItemsAreApproved || isCancelled,
+      hidden: allItemsAreApproved || isCancelled || !canWriteInvoice,
     },
     {
       label: (
@@ -141,7 +145,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => handleAllApprovals(false),
-      hidden: !someItemsAreApproved || isCancelled || zeroItems,
+      hidden: !someItemsAreApproved || isCancelled || zeroItems || !canWriteInvoice,
     },
     {
       label: (
@@ -188,11 +192,22 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
         />
       ),
       onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.EDIT_ITEMS),
-      hidden: !isInvoiceEditable(invoice),
+      hidden: !isInvoiceEditable(invoice) || !canWriteInvoice,
     });
   }
 
+  ACTIONS.unshift({
+    label: (
+      <TranslatedText stringId="invoice.action.viewPatientDetails" fallback="View patient details" />
+    ),
+    onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.PATIENT_DETAILS),
+    hidden: !canViewPatientDetails,
+  });
+
   const hasVisibleActions = ACTIONS.some(action => !action.hidden);
+  // A split invoice attaches its plans from each section's own header instead. The rule lives
+  // beside the sectioning it depends on, so the view does not carry its own idea of it.
+  const offersInvoiceInsurance = offersInvoiceWideInsurance(invoice);
 
   return (
     <ActionsPane data-testid="actionspane-l9ey">
@@ -209,7 +224,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
           <TranslatedText stringId="general.action.print" fallback="Print" />
         </PrintButton>
       )}
-      {isInProgress && (
+      {isInProgress && canWriteInvoice && isInsurancePlanFieldShown && offersInvoiceInsurance && (
         <NoteModalActionBlocker>
           <Button
             onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
@@ -238,6 +253,8 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
   const { getCurrentDateTime } = useDateTime();
   const { ability } = useAuth();
   const [invoiceModalType, setInvoiceModalType] = useState(null);
+  // The section an Add item or Insurance plan was pressed in, so the window opens against it.
+  const [activeSection, setActiveSection] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
 
@@ -305,18 +322,30 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
             invoice={invoice}
             setInvoiceModalType={setInvoiceModalType}
             invoiceFormType={INVOICE_FORM_TYPE.READ_ONLY}
+            onAddItemsForSection={section => {
+              setActiveSection(section);
+              setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+            }}
+            onInsuranceForSection={section => {
+              setActiveSection(section);
+              setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE);
+            }}
           />
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />
-            <InvoiceSummaryPanel invoice={invoice} />
-            {!isInProgress && <InsurerPaymentsTable invoice={invoice} />}
+            <InvoiceSummaryPanel invoice={invoice} patientId={encounter.patientId} />
+            {!isInProgress && <InsurancePlanPaymentsTable invoice={invoice} />}
           </PaymentsSection>
         </InvoiceContainer>
       </TabPane>
       <InvoiceModalGroup
         invoiceModalType={invoiceModalType}
         invoice={invoice}
-        setOpenInvoiceModal={setInvoiceModalType}
+        section={activeSection}
+        setOpenInvoiceModal={modalType => {
+          setInvoiceModalType(modalType);
+          if (!modalType) setActiveSection(null);
+        }}
       />
     </>
   );

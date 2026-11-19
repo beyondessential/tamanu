@@ -2,23 +2,28 @@ import asyncHandler from 'express-async-handler';
 import { SurveySchema, SurveyWithComponentsSchema } from '@tamanu/shared/schemas/patientPortal';
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { NotFoundError } from '@tamanu/errors';
+import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 
 export const getSurvey = asyncHandler(async (req, res) => {
-  const { params } = req;
+  const { params, patient } = req;
   const { models } = req.store;
   const { surveyId } = params;
 
+  const portalSurveyAssignment = await models.PortalSurveyAssignment.findOne({
+    where: {
+      patientId: patient.id,
+      surveyId,
+      status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+    },
+    attributes: ['id', 'status', 'facilityId'],
+  });
+  if (!portalSurveyAssignment) {
+    throw new NotFoundError('Survey was not found');
+  }
+
   const surveyRecord = await models.Survey.findByPk(surveyId, {
     attributes: getAttributesFromSchema(SurveySchema),
-    include: [
-      {
-        association: 'portalSurveyAssignments',
-        order: [['created_at', 'DESC']],
-        limit: 1,
-      },
-    ],
   });
-
   if (!surveyRecord) {
     throw new NotFoundError('Survey was not found');
   }
@@ -30,12 +35,8 @@ export const getSurvey = asyncHandler(async (req, res) => {
   const payload = {
     ...surveyRecord.forResponse(),
     components,
-    // There can only ever be one portalSurveyAssignment so attach it directly to the survey response
-    portalSurveyAssignment: surveyRecord.portalSurveyAssignments?.[0] || null,
+    portalSurveyAssignment: portalSurveyAssignment.forResponse(),
   };
-
-  // Remove the array version
-  delete payload.portalSurveyAssignments;
 
   // Parse the payload with zod to validate the data but return the unparsed payload
   // as zod is transforming dataElement.default options to a string unintentionally

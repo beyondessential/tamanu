@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
-import { makeFilter } from '../../utils/query';
+import { escapePatternWildcard, makeFilter } from '../../utils/query';
 import {
   MATERIALIZED_VIEWS,
   MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE,
@@ -15,17 +15,17 @@ const createUpcomingVaccinationFilters = filterParams => {
     makeFilter(
       filterParams.displayId,
       `(UPPER(p.display_id) LIKE UPPER(:displayId))`,
-      ({ displayId }) => ({ displayId: `%${displayId}%` }),
+      ({ displayId }) => ({ displayId: `%${escapePatternWildcard(displayId)}%` }),
     ),
     makeFilter(
       filterParams.firstName,
       `UPPER(p.first_name) LIKE UPPER(:firstName)`,
-      ({ firstName }) => ({ firstName: `%${firstName}%` }),
+      ({ firstName }) => ({ firstName: `%${escapePatternWildcard(firstName)}%` }),
     ),
     makeFilter(
       filterParams.lastName,
       `UPPER(p.last_name) LIKE UPPER(:lastName)`,
-      ({ lastName }) => ({ lastName: `%${lastName}%` }),
+      ({ lastName }) => ({ lastName: `%${escapePatternWildcard(lastName)}%` }),
     ),
     makeFilter(filterParams.sex, `p.sex = :sex`),
     makeFilter(filterParams.villageId, `p.village_id = :villageId`),

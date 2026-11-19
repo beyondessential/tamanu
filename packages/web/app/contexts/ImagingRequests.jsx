@@ -1,5 +1,8 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext } from 'react';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
+
+import { usePersistedSearchParameters } from '../hooks/usePersistedSearchParameters';
 
 const ImagingRequestsContext = createContext({});
 
@@ -18,7 +21,7 @@ export const useImagingRequestsQuery = (key = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE
 
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
-    (value) => {
+    value => {
       setAllSearchParameters({
         ...allSearchParameters,
         [key]: value,
@@ -30,11 +33,16 @@ export const useImagingRequestsQuery = (key = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE
   return { searchParameters, setSearchParameters, ...otherProps };
 };
 
+const INITIAL_SEARCH_PARAMETERS = {
+  [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
+  [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
+};
+
 export const ImagingRequestsProvider = ({ children }) => {
-  const [searchParameters, setSearchParameters] = useState({
-    [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
-    [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
-  });
+  const [searchParameters, setSearchParameters] = usePersistedSearchParameters(
+    USER_PREFERENCES_KEYS.IMAGING_REQUEST_SEARCH_PARAMETERS,
+    INITIAL_SEARCH_PARAMETERS,
+  );
 
   return (
     <ImagingRequestsContext.Provider

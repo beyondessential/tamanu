@@ -2,7 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
 import {
+  getImportablePermissionNoun,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  MANAGEABLE_REFERENCE_DATA_TYPES,
   OTHER_REFERENCE_TYPES,
   SEARCHABLE_COLUMN_TYPES,
   VISIBILITY_STATUSES,
@@ -15,6 +17,7 @@ import {
   getDetailModel,
   assertValidType,
   assertValidEnumValues,
+  assertValidIdAndCode,
   splitWritableData,
   pickDetailValues,
   createMultiSelectRecords,
@@ -24,13 +27,21 @@ import {
 
 export const referenceDataManageRouter = express.Router();
 
+// Types with their own table are guarded by their own permission noun, exactly as they are on
+// import and export. The permission check has to come before assertValidType — an endpoint that
+// answers before checking permission is rejected outright — so an unrecognised type falls back to
+// the generic noun and assertValidType rejects it a line later.
+const getPermissionNoun = referenceDataType =>
+  MANAGEABLE_REFERENCE_DATA_TYPES.includes(referenceDataType)
+    ? getImportablePermissionNoun(referenceDataType)
+    : 'ReferenceData';
+
 referenceDataManageRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'ReferenceData');
-
     const { referenceDataType, ...rawData } = req.body;
 
+    req.checkPermission('create', getPermissionNoun(referenceDataType));
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
@@ -38,6 +49,7 @@ referenceDataManageRouter.post(
     const columns = await getColumnsForModel(model, referenceDataType, detailModel);
     const { base, detail } = splitWritableData(columns, rawData, false);
     assertValidEnumValues(columns, { ...base, ...detail });
+    assertValidIdAndCode({ ...base, ...detail });
 
     try {
       if (columns.some(c => c.multiSelect)) {
@@ -70,11 +82,10 @@ referenceDataManageRouter.post(
 referenceDataManageRouter.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'ReferenceData');
-
     const { referenceDataType, ...rawData } = req.body;
     const { id } = req.params;
 
+    req.checkPermission('write', getPermissionNoun(referenceDataType));
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
@@ -88,6 +99,7 @@ referenceDataManageRouter.put(
     const columns = await getColumnsForModel(model, referenceDataType, detailModel);
     const { base, detail } = splitWritableData(columns, rawData, true);
     assertValidEnumValues(columns, { ...base, ...detail });
+    assertValidIdAndCode({ ...base, ...detail }, record);
 
     let detailRecord = null;
     await model.sequelize.transaction(async () => {
@@ -108,7 +120,8 @@ referenceDataManageRouter.put(
 referenceDataManageRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'ReferenceData');
+    // Only reference data relations are deletable from here, so the noun is fixed.
+    req.checkPermission('write', 'ReferenceDataRelation');
 
     const { id } = req.params;
     const { ReferenceDataRelation } = req.store.models;
@@ -126,8 +139,8 @@ referenceDataManageRouter.delete(
 referenceDataManageRouter.get(
   '/columns',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'ReferenceData');
     const { referenceDataType } = req.query;
+    req.checkPermission('list', getPermissionNoun(referenceDataType));
     assertValidType(referenceDataType);
     const { model } = getModelForType(req.store.models, referenceDataType);
     const detailModel = getDetailModel(req.store.models, referenceDataType);
@@ -138,8 +151,6 @@ referenceDataManageRouter.get(
 referenceDataManageRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'ReferenceData');
-
     const {
       query: {
         referenceDataType,
@@ -151,6 +162,7 @@ referenceDataManageRouter.get(
       },
     } = req;
 
+    req.checkPermission('list', getPermissionNoun(referenceDataType));
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
@@ -171,20 +183,21 @@ referenceDataManageRouter.get(
       attributes: ['id', 'name'],
       required: false,
     }));
-    if (detailAssociation) {
-      include.push({ association: detailAssociation, required: false });
-    }
 
-    // Build search filters from query params
+    // Build search filters from query params. Detail columns are shown in the table, so they're
+    // filtered on too, but they live on the joined table rather than on this model and so collect
+    // into their own where (applied to the include below).
     const searchWhere = {};
+    const detailWhere = {};
+    const isSearchable = c =>
+      SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues;
     const searchableKeys = new Set(
-      columns
-        .filter(
-          c =>
-            !c.detail &&
-            (SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues),
-        )
-        .map(c => c.key),
+      columns.filter(c => !c.detail && isSearchable(c)).map(c => c.key),
+    );
+    // Every detail column is a real column on the detail table — getColumnsForModel drops the
+    // synthetic ones — so each can be named in a where on the join.
+    const detailSearchableKeys = new Set(
+      columns.filter(c => c.detail && isSearchable(c)).map(c => c.key),
     );
 
     const normalizedOrder = order.toUpperCase();
@@ -224,9 +237,24 @@ referenceDataManageRouter.get(
         searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: `%${value}%` };
         continue;
       }
+      const match = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
+      // a key the base record can be searched by is the base record's; detail gets what's left
       if (searchableKeys.has(key)) {
-        searchWhere[key] = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
+        searchWhere[key] = match;
+      } else if (detailSearchableKeys.has(key)) {
+        detailWhere[key] = match;
       }
+    }
+
+    if (detailAssociation) {
+      // `required` turns the join inner, dropping records with no detail row — which is what
+      // filtering on a detail value means. Unfiltered, it stays a left join so every record shows.
+      const hasDetailFilter = Object.keys(detailWhere).length > 0;
+      include.push({
+        association: detailAssociation,
+        required: hasDetailFilter,
+        ...(hasDetailFilter && { where: detailWhere }),
+      });
     }
 
     // Default to current records when model has visibilityStatus and no filter was sent.
@@ -246,11 +274,13 @@ referenceDataManageRouter.get(
 
     const where = { ...typeFilter, ...searchWhere };
 
-    // count() only needs the FK joins that a name filter actually references; the rest are
-    // display-only and would add pointless LEFT JOINs to the count query. findAll keeps them
-    // all so every companion column can be populated in the response.
-    const countInclude = include.filter(({ association }) =>
-      Object.prototype.hasOwnProperty.call(searchWhere, `$${association}.name$`),
+    // count() only needs the joins a filter actually references — an FK's name, or a detail
+    // column; the rest are display-only and would add pointless LEFT JOINs to the count query.
+    // findAll keeps them all so every companion column can be populated in the response.
+    const countInclude = include.filter(
+      entry =>
+        entry.where ||
+        Object.prototype.hasOwnProperty.call(searchWhere, `$${entry.association}.name$`),
     );
 
     const count = await model.count({ where, include: countInclude });

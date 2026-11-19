@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
-import { TextField } from './TextField';
+import { QRCodeTextField } from './QRCodeTextField';
 import { LocalisedField } from './LocalisedField';
 import { useTranslation } from '../../contexts/Translation';
 import { useSettings } from '../../contexts/Settings';
@@ -25,7 +25,7 @@ export const DisplayIdField = ({ required }) => {
     <LocalisedField
       name="displayId"
       label={label}
-      component={TextField}
+      component={QRCodeTextField}
       required={required}
       validate={validateFn}
       enablePasting

@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_portal_survey_assignments_from_sync_lookup
+              - flag_portal_survey_assignments_for_lookup_rebuild
               - notify_portal_survey_assignments_changed
               - record_portal_survey_assignments_changelog
               - set_portal_survey_assignments_updated_at

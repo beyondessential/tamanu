@@ -17,6 +17,9 @@ import { NoteModalActionBlocker } from '../../components';
 import { ThreeDotMenu } from '../../components/ThreeDotMenu';
 import { Price } from './Price';
 import { PatientPaymentRefundModal } from './PatientPaymentRefundModal';
+import { NoInsurancePlanModal } from './NoInsurancePlanModal';
+import { INSURANCE_PLAN_ENTRY, InsurancePlanFlow } from './InsurancePlanFlow';
+import { useInvoicePatientDetailsAccess } from './useInvoicePatientDetailsAccess';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -37,8 +40,11 @@ const TableContainer = styled.div`
     }
 
     th {
+      // table-layout is fixed, so these widths are the whole story: whatever they do not claim is
+      // all the method column gets. Date and receipt number are sized to their content with room
+      // to spare, leaving the method heading enough not to collide with the next column.
       &:nth-child(1) {
-        width: 100px;
+        width: 80px;
       }
 
       &:nth-child(2) {
@@ -50,7 +56,7 @@ const TableContainer = styled.div`
       }
 
       &:nth-child(4) {
-        width: 100px;
+        width: 80px;
       }
 
       &:nth-child(5) {
@@ -87,6 +93,11 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [patientPaymentRefundModalIsOpen, setPatientPaymentRefundModalIsOpen] = useState(false);
   const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
   const [selectedPaymentRecord, setSelectedPaymentRecord] = useState(null);
+  const [isConfirmingNoInsurancePlan, setIsConfirmingNoInsurancePlan] = useState(false);
+  const [isAddingInsurancePlan, setIsAddingInsurancePlan] = useState(false);
+
+  const { canAddInsurancePlanToInvoice, isInsurancePlanFieldShown } =
+    useInvoicePatientDetailsAccess(invoice);
 
   const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
 
@@ -116,9 +127,42 @@ export const PatientPaymentsTable = ({ invoice }) => {
     setPatientPaymentRefundModalIsOpen(false);
   };
 
-  const onRecordPayment = () => {
+  const openPaymentForm = () => {
+    setIsConfirmingNoInsurancePlan(false);
+    setIsAddingInsurancePlan(false);
     setSelectedPaymentRecord(null);
     setPaymentModalIsOpen(true);
+  };
+
+  // What the patient owes depends on the invoice's plans, so recording a payment against an invoice
+  // that has none is checked first. A deployment that does not record insurance plans at all has
+  // nothing to check.
+  const onRecordPayment = () => {
+    if (isInsurancePlanFieldShown && (invoice.insurancePlans?.length ?? 0) === 0) {
+      setIsConfirmingNoInsurancePlan(true);
+      return;
+    }
+    openPaymentForm();
+  };
+
+  const onAddInsurancePlan = () => {
+    setIsConfirmingNoInsurancePlan(false);
+    setIsAddingInsurancePlan(true);
+  };
+
+  const onCloseInsurancePlanFlow = () => {
+    setIsConfirmingNoInsurancePlan(false);
+    setIsAddingInsurancePlan(false);
+  };
+
+  // Only a plan that was actually applied changes what is due, so only then does the payment form
+  // follow; leaving the picker with nothing selected ends the flow at the invoice.
+  const onInsurancePlansApplied = appliedPlans => {
+    if (appliedPlans.length > 0) {
+      openPaymentForm();
+      return;
+    }
+    onCloseInsurancePlanFlow();
   };
 
   const onClosePaymentModal = () => {
@@ -274,6 +318,19 @@ export const PatientPaymentsTable = ({ invoice }) => {
         selectedPaymentRecord={selectedPaymentRecord}
         isOpen={patientPaymentRefundModalIsOpen}
         onClose={onClosePatientPaymentRefundModal}
+      />
+      <NoInsurancePlanModal
+        open={isConfirmingNoInsurancePlan}
+        onClose={() => setIsConfirmingNoInsurancePlan(false)}
+        onAddInsurancePlan={canAddInsurancePlanToInvoice ? onAddInsurancePlan : undefined}
+        onContinue={openPaymentForm}
+      />
+      <InsurancePlanFlow
+        invoice={invoice}
+        open={isAddingInsurancePlan}
+        entry={INSURANCE_PLAN_ENTRY.AUTO}
+        onClose={onCloseInsurancePlanFlow}
+        onApplied={onInsurancePlansApplied}
       />
     </>
   );

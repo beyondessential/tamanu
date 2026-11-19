@@ -8,6 +8,7 @@ import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Transl
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 import { useSettings } from '../contexts/Settings';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const ADMITTED_PRIORITY_COLOR = '#888888';
 
@@ -167,6 +168,7 @@ export const TriageTable = React.memo(({ searchParameters = {} }) => {
       verb="list"
       noun="Triage"
       endpoint="triage"
+      pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.EMERGENCY_PATIENTS}
       fetchOptions={{ facilityId, ...searchParameters }}
       columns={columns}
       headStyle={WAIT_TIME_COLUMN_STYLE}

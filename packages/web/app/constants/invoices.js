@@ -16,6 +16,7 @@ export const INVOICE_ITEM_ACTION_MODAL_TYPES = {
 };
 
 export const INVOICE_MODAL_TYPES = {
+  PATIENT_DETAILS: 'patientDetails',
   CANCEL_INVOICE: 'cancelInvoice',
   FINALISE_INVOICE: 'finaliseInvoice',
   DELETE_INVOICE: 'deleteInvoice',

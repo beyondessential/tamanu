@@ -18,6 +18,10 @@ const EXCLUDED_FROM_DEFERRABLE_UNIQUE_CHECK = [
   'settings_alive_key_unique_without_facility_idx',
   'user_preferences_unique_with_facility_id',
   'patient_facilities_patient_id_facility_id_key',
+  // Partial: an attachment covers one section or the whole invoice, and uniqueness holds within
+  // each. Postgres cannot defer a partial unique index, there being no partial unique constraint.
+  'invoices_invoice_insurance_plans_section_unique',
+  'invoices_invoice_insurance_plans_whole_invoice_unique',
 ];
 
 describe('Unique constraints on syncable tables must be DEFERRABLE', () => {

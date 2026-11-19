@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_report_definition_versions_from_sync_lookup
+              - flag_report_definition_versions_for_lookup_rebuild
               - record_report_definition_versions_changelog
               - set_report_definition_versions_updated_at
               - set_report_definition_versions_updated_at_sync_tick

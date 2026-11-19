@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_invoices_invoice_insurance_plans_from_sync_lookup
+              - flag_invoices_invoice_insurance_plans_for_lookup_rebuild
               - record_invoices_invoice_insurance_plans_changelog
               - set_invoices_invoice_insurance_plans_updated_at
               - set_invoices_invoice_insurance_plans_updated_at_sync_tick
@@ -52,3 +53,6 @@ sources:
             description: "{{ doc('invoices_invoice_insurance_plans__invoice_insurance_plan_id') }}"
             data_tests:
               - not_null
+          - name: invoice_section_id
+            data_type: character varying(255)
+            description: "{{ doc('invoices_invoice_insurance_plans__invoice_section_id') }}"

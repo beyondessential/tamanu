@@ -6,7 +6,7 @@ export const SETTING_KEYS = {
   FEATURE_MANDATE_SPECIMEN_TYPE: 'features.labRequest.mandateSpecimenType',
   FEATURE_ONLY_ALLOW_LAB_PANELS: 'features.labRequest.onlyAllowLabPanels',
   SLIDING_FEE_SCALE: 'invoice.slidingFeeScale',
-  INSURER_DEFAULT_CONTRIBUTION: 'insurer.defaultContribution',
+  SLIDING_FEE_SCALE_PLAN_CODE: 'invoice.slidingFeeScalePlanCode',
   CUSTOMISATIONS_COMPONENTS: 'customisations.componentVersions',
   SYNC_ALL_LAB_REQUESTS: 'sync.syncAllLabRequests',
   SYNC_URGENT_INTERVAL_IN_SECONDS: 'sync.urgentIntervalInSeconds',

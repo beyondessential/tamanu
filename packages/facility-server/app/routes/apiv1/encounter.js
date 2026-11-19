@@ -15,6 +15,7 @@ import {
   TASK_STATUSES,
   SURVEY_TYPES,
   DASHBOARD_ONLY_TASK_TYPES,
+  DIAGNOSIS_CERTAINTY,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -53,12 +54,19 @@ import {
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
 import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
+import { buildInvoiceDates } from './invoice/invoiceDates';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
 import {
   discardDischargeDraft,
   getDischargeDraft,
   saveDischargeDraft,
 } from './encounterDischargeDraft';
+import {
+  getDischargeSyndromicSurveillanceSurvey,
+  getEncounterSyndromicSurveillance,
+  submitDischargeSyndromicSurveillance,
+  submitEncounterSyndromicSurveillance,
+} from './encounterSyndromicSurveillance';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -139,7 +147,9 @@ encounter.post(
       // via its completing encounter.
       if (referralId) {
         const referral = await models.Referral.findByPk(referralId, {
-          include: [{ model: models.Encounter, as: 'initiatingEncounter', attributes: ['patientId'] }],
+          include: [
+            { model: models.Encounter, as: 'initiatingEncounter', attributes: ['patientId'] },
+          ],
         });
         if (!referral) {
           throw new NotFoundError(`Referral with id ${referralId} not found`);
@@ -313,6 +323,17 @@ encounter.get('/:id/dischargeDraft', getDischargeDraft);
 encounter.put('/:id/dischargeDraft', saveDischargeDraft);
 encounter.delete('/:id/dischargeDraft', discardDischargeDraft);
 
+encounter.get('/:id/syndromicSurveillance', getEncounterSyndromicSurveillance);
+encounter.post('/:id/syndromicSurveillance/surveyResponse', submitEncounterSyndromicSurveillance);
+encounter.get(
+  '/:id/syndromicSurveillance/dischargeSurvey',
+  getDischargeSyndromicSurveillanceSurvey,
+);
+encounter.post(
+  '/:id/syndromicSurveillance/dischargeSurveyResponse',
+  submitDischargeSyndromicSurveillance,
+);
+
 encounter.post(
   '/:id/notes',
   asyncHandler(async (req, res) => {
@@ -439,7 +460,44 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
-encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
+const DISPROVEN_DIAGNOSES_LAST = literal(
+  `CASE WHEN "EncounterDiagnosis"."certainty" = '${DIAGNOSIS_CERTAINTY.DISPROVEN}' THEN 1 ELSE 0 END`,
+);
+
+// is_primary is nullable, and a diagnosis without it set is not primary, so it sorts among the
+// secondary diagnoses rather than wherever Postgres puts NULLs by default.
+const IS_PRIMARY_DIAGNOSIS = literal('COALESCE("EncounterDiagnosis"."is_primary", false)');
+const orderByIsPrimary = direction => [IS_PRIMARY_DIAGNOSIS, direction];
+
+const getRequestedDiagnosisOrder = (orderBy, direction) =>
+  orderBy === 'isPrimary' ? orderByIsPrimary(direction) : [...orderBy.split('.'), direction];
+
+// Primary diagnoses first and disproven ones last by default. Either way they are then sorted
+// alphabetically by diagnosis, unless that is already the requested sort.
+const buildEncounterDiagnosisOrder = ({ orderBy, order }) => {
+  const leadingOrder = orderBy
+    ? [getRequestedDiagnosisOrder(orderBy, order.toUpperCase())]
+    : [DISPROVEN_DIAGNOSES_LAST, orderByIsPrimary('DESC')];
+  const alphabeticalOrder = orderBy === 'Diagnosis.name' ? [] : [['Diagnosis', 'name', 'ASC']];
+  return [...leadingOrder, ...alphabeticalOrder];
+};
+
+encounterRelations.get(
+  '/:id/diagnoses',
+  simpleGetList('EncounterDiagnosis', 'encounterId', {
+    additionalFilters: {
+      // Certainty is nullable, and `<>` alone would leave out the diagnoses without one as well.
+      certainty: {
+        [Op.or]: [{ [Op.ne]: DIAGNOSIS_CERTAINTY.ERROR }, { [Op.is]: null }],
+      },
+    },
+    // For the diagnosis table's clinician column. Joined here rather than in the model's list
+    // associations, which every diagnosis query uses, and narrowed to what the table shows, as
+    // this list also loads with every encounter.
+    include: [{ association: 'clinician', attributes: ['id', 'displayName'] }],
+    buildOrder: buildEncounterDiagnosisOrder,
+  }),
+);
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
@@ -617,9 +675,8 @@ encounterRelations.get(
         prescriptionIds,
       );
 
-      const latestModifiedDispenses = await Prescription.getLatestModifiedDispensesByPrescriptionId(
-        prescriptionIds,
-      );
+      const latestModifiedDispenses =
+        await Prescription.getLatestModifiedDispensesByPrescriptionId(prescriptionIds);
 
       responseData = responseData.map(p => ({
         ...p,
@@ -761,15 +818,15 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/invoice',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, settings } = req;
     const { Invoice, InvoicePriceList } = models;
     req.checkPermission('read', 'Invoice');
     const encounterId = params.id;
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+    const { invoicePriceListId, include } = await Invoice.resolvePricingAssociations(encounterId);
 
     const invoiceRecord = await Invoice.findOne({
       where: { encounterId },
-      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      include,
       order: [
         [{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC'],
         [{ model: models.InvoiceItem, as: 'items' }, 'createdAt', 'ASC'],
@@ -790,7 +847,13 @@ encounterRelations.get(
 
     const responseRecord = invoiceForResponse(invoiceRecord);
     const priceList = await InvoicePriceList.findByPk(invoicePriceListId, { raw: true });
-    res.send({ ...responseRecord, priceList });
+    const { sections, encounterPeriod } = await buildInvoiceDates({
+      models,
+      settings: settings[req.facilityId],
+      encounterId,
+      items: responseRecord.items,
+    });
+    res.send({ ...responseRecord, priceList, sections, encounterPeriod });
   }),
 );
 
@@ -984,9 +1047,7 @@ encounterRelations.get(
 
     req.checkPermission('list', 'Tasking');
 
-    const upcomingTasksTimeFrame = await settings[facilityId].get(
-      'tasking.upcomingTasksTimeFrame',
-    );
+    const upcomingTasksTimeFrame = await settings[facilityId].get('tasking.upcomingTasksTimeFrame');
     const overdueTasksTimeFrame = await settings[facilityId].get(
       'tasking.encounterOverdueTasksTimeFrame',
     );

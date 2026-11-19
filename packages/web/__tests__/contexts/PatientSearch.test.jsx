@@ -1,14 +1,32 @@
 import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const preferences = vi.hoisted(() => ({
+  data: {},
+  mutate: vi.fn(),
+  user: { id: 'user-1' },
+  facilityId: 'facility-1',
+}));
+
+vi.mock('../../app/api/queries', () => ({
+  useUserPreferencesQuery: () => ({ data: preferences.data }),
+}));
+vi.mock('../../app/api/mutations', () => ({
+  useUserPreferencesMutation: () => ({ mutate: preferences.mutate }),
+}));
+vi.mock('../../app/contexts/Auth', () => ({
+  useAuth: () => ({ currentUser: preferences.user, facilityId: preferences.facilityId }),
+}));
+
 import {
   PatientSearchKeys,
   PatientSearchProvider,
   usePatientSearch,
 } from '../../app/contexts/PatientSearch';
 
-const SEARCH_PARAMETERS = { displayId: 'ABC123', firstName: 'Jane' };
+const SEARCH_PARAMETERS = { displayId: 'ABC123', firstName: 'Jane', departmentId: 'department-1' };
 
 // Stands in for a listing view: shows its stored parameters and can save new ones
 const SearchConsumer = ({ searchKey }) => {
@@ -32,6 +50,13 @@ const Harness = ({ isConsumerMounted, searchKey }) => (
 );
 
 describe('PatientSearch context', () => {
+  beforeEach(() => {
+    preferences.data = {};
+    preferences.mutate.mockClear();
+    preferences.user = { id: 'user-1' };
+    preferences.facilityId = 'facility-1';
+  });
+
   it('retains search parameters when the consumer unmounts and remounts', async () => {
     const searchKey = PatientSearchKeys.TriageListingView;
     const { rerender } = render(<Harness isConsumerMounted searchKey={searchKey} />);
@@ -70,5 +95,85 @@ describe('PatientSearch context', () => {
     expect(
       screen.getByTestId(`parameters-${PatientSearchKeys.AdmittedPatientsView}`).textContent,
     ).toBe(JSON.stringify({}));
+  });
+
+  it("opens with the filters saved in the user's preferences", () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    preferences.data = {
+      patientSearchParameters: { [searchKey]: { departmentId: 'department-2' } },
+    };
+    render(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    expect(screen.getByTestId(`parameters-${searchKey}`).textContent).toBe(
+      JSON.stringify({ departmentId: 'department-2' }),
+    );
+  });
+
+  it('saves the filters, leaving out patient lookups', async () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    render(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    await userEvent.click(screen.getByRole('button', { name: `search-${searchKey}` }));
+
+    expect(preferences.mutate).toHaveBeenLastCalledWith({
+      key: 'patientSearchParameters',
+      value: { [searchKey]: { departmentId: 'department-1' } },
+    });
+  });
+
+  it("replaces the last user's parameters with the next user's", async () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    const { rerender } = render(<Harness isConsumerMounted searchKey={searchKey} />);
+    await userEvent.click(screen.getByRole('button', { name: `search-${searchKey}` }));
+
+    preferences.user = { id: 'user-2' };
+    preferences.data = {
+      patientSearchParameters: { [searchKey]: { departmentId: 'department-3' } },
+    };
+    rerender(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    expect(screen.getByTestId(`parameters-${searchKey}`).textContent).toBe(
+      JSON.stringify({ departmentId: 'department-3' }),
+    );
+  });
+
+  it("doesn't save before the user's preferences load", async () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    preferences.data = undefined;
+    render(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    await userEvent.click(screen.getByRole('button', { name: `search-${searchKey}` }));
+
+    expect(preferences.mutate).not.toHaveBeenCalled();
+  });
+
+  it("clears the last user's parameters at logout", async () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    const { rerender } = render(<Harness isConsumerMounted searchKey={searchKey} />);
+    await userEvent.click(screen.getByRole('button', { name: `search-${searchKey}` }));
+
+    preferences.user = null;
+    preferences.data = undefined;
+    rerender(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    expect(screen.getByTestId(`parameters-${searchKey}`).textContent).toBe(JSON.stringify({}));
+  });
+
+  it("loads the new facility's filters when the facility changes", () => {
+    const searchKey = PatientSearchKeys.TriageListingView;
+    preferences.data = {
+      patientSearchParameters: { [searchKey]: { departmentId: 'department-2' } },
+    };
+    const { rerender } = render(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    preferences.facilityId = 'facility-2';
+    preferences.data = {
+      patientSearchParameters: { [searchKey]: { departmentId: 'department-4' } },
+    };
+    rerender(<Harness isConsumerMounted searchKey={searchKey} />);
+
+    expect(screen.getByTestId(`parameters-${searchKey}`).textContent).toBe(
+      JSON.stringify({ departmentId: 'department-4' }),
+    );
   });
 });

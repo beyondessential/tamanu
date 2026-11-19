@@ -125,7 +125,7 @@ const DiscountTypeSelection = ({ discountType, setDiscountType, onClose, onNext 
   </>
 );
 
-export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) => {
+export const InvoiceDiscountModal = ({ patientId, open, onClose, handleUpdateDiscount }) => {
   const [step, setStep] = useState(STEPS.SELECT);
   const [discountType, setDiscountType] = useState(DISCOUNT_TYPES.ASSESSMENT);
 
@@ -168,6 +168,7 @@ export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) =>
       )}
       {step === STEPS.FORM && discountType === DISCOUNT_TYPES.ASSESSMENT && (
         <InvoiceDiscountAssessmentForm
+          patientId={patientId}
           onClose={handleClose}
           onBack={handleBack}
           handleUpdateDiscount={handleSubmitDiscount}

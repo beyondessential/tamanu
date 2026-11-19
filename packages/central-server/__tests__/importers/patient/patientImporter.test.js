@@ -183,4 +183,26 @@ describe('Patients import', () => {
     expect(stats.PatientAdditionalData).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
     expect(stats.PatientFieldValue).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
   });
+
+  // The Billing information fields are importable only because their column names match
+  // PatientAdditionalData attributes (spec: administration/patient-data.md), so nothing in the
+  // importer names them and a silent drop would go unnoticed.
+  it('imports the billing information fields onto the patient additional data', async () => {
+    const { errors } = await doImport({ file: 'billing-information' });
+    expect(errors).toHaveLength(0);
+
+    const saved = await ctx.store.models.PatientAdditionalData.getForPatient(
+      'b1111111-1111-4111-8111-111111111111',
+    );
+    expect(saved).toMatchObject({
+      adoptionNumber: 'ADOPT-IMPORT-1',
+      marriageLicence: 'ML-IMPORT-1',
+      familySize: '3',
+      // Stored as the sheet gives it, without being checked against the current sliding fee
+      // scale, which does not cover this band
+      annualIncome: '999 - 1,111',
+      payor1ReferenceNumber: 'PAYOR-REF-IMPORT-1',
+      payor2ReferenceNumber: 'PAYOR-REF-IMPORT-2',
+    });
+  });
 });

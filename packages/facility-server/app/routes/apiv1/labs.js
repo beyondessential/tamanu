@@ -22,12 +22,22 @@ import {
   findRouteObject,
 } from '@tamanu/shared/utils/crudHelpers';
 import {
+  buildAvailableFacilitiesFilter,
+  isAvailableAtFacility,
+} from '@tamanu/shared/utils/availableFacilities';
+import {
   getWhereClausesAndReplacementsFromFilters,
   makeDeletedAtIsNullFilter,
   makeFilter,
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
 } from '../../utils/query';
+import {
+  EDITABLE_LAB_TEST_FIELDS,
+  labTestChangelogHasValueSql,
+  labTestFieldEditedSql,
+  labTestResultCellEditedSql,
+} from '../../utils/labTestEdited';
 import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
 // A reflex test exists in reference data only so a LIMS can attach its results to a request; it is
@@ -39,31 +49,15 @@ const UNORDERABLE_VISIBILITY_STATUSES = [LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLE
 const isOrderableTestType = testType =>
   !UNORDERABLE_VISIBILITY_STATUSES.includes(testType.visibilityStatus);
 
-// The fields of a lab test that can change after first entry, mapped from the column captured
-// in the audit log to the key returned to the client.
-const EDITABLE_LAB_TEST_FIELDS = {
-  result: 'result',
-  secondary_result: 'secondaryResult',
-  lab_test_method_id: 'labTestMethodId',
-  laboratory_officer: 'laboratoryOfficer',
-  verification: 'verification',
-  completed_date: 'completedDate',
-};
-
 // A field counts as edited when it has taken more than one distinct non-empty value over its
 // audit history (logs.changes) — so first filling in a blank is not an edit. This matches how
 // the patient-wide results grid derives its edited flag for results, so the two agree.
 const getEditedFieldsByLabTestId = async (db, labRequestId) => {
   const auditColumns = Object.keys(EDITABLE_LAB_TEST_FIELDS);
 
-  // Built from the constant map above, never from user input.
+  // Built from the constant map, never from user input.
   const editedFlagSelections = auditColumns
-    .map(
-      column =>
-        `COUNT(DISTINCT (record_data->>'${column}'))
-           FILTER (WHERE NULLIF(TRIM(record_data->>'${column}'), '') IS NOT NULL) >= 2
-           AS "${column}"`,
-    )
+    .map(column => `${labTestFieldEditedSql(column)} AS "${column}"`)
     .join(',\n       ');
 
   const rows = await db.query(
@@ -72,6 +66,7 @@ const getEditedFieldsByLabTestId = async (db, labRequestId) => {
      FROM logs.changes
      WHERE table_schema = 'public'
        AND table_name = 'lab_tests'
+       AND ${labTestChangelogHasValueSql(auditColumns)}
        AND record_id IN (
          SELECT id::text FROM lab_tests WHERE lab_request_id = :labRequestId
        )
@@ -85,6 +80,23 @@ const getEditedFieldsByLabTestId = async (db, labRequestId) => {
       auditColumns.filter(column => row[column]).map(column => EDITABLE_LAB_TEST_FIELDS[column]),
     ]),
   );
+};
+
+// Whether a single test's result cell is edited. Keyed by equality on record_id (uncast) so the
+// hash index on logs.changes.record_id applies — this runs on the result-detail modal's page-load
+// path. Shares the result-cell rule with the patient grid CTE.
+const isLabTestResultCellEdited = async (db, labTestId) => {
+  const rows = await db.query(
+    `SELECT ${labTestResultCellEditedSql()} AS is_edited
+     FROM logs.changes
+     WHERE table_schema = 'public'
+       AND table_name = 'lab_tests'
+       AND ${labTestChangelogHasValueSql(['result', 'secondary_result'])}
+       AND record_id = :labTestId
+     GROUP BY record_id`,
+    { replacements: { labTestId }, type: QueryTypes.SELECT },
+  );
+  return rows[0]?.is_edited ?? false;
 };
 
 // Attach each category's default specimen type (a reference-data relation) so the sample-recording
@@ -876,7 +888,12 @@ labTest.get(
     }
 
     changes.reverse();
-    res.send(changes);
+
+    // The result cell's edited flag comes from the same rule the results tables use, so the modal's
+    // change log and the tables' asterisk always agree — rather than being re-derived here.
+    const isEdited = await isLabTestResultCellEdited(req.db, labTestId);
+
+    res.send({ changes, isEdited });
   }),
 );
 
@@ -898,12 +915,9 @@ labTestType.get(
       },
       ...(!canCreateSensitive && { isSensitive: false }),
     };
-    if (query.facilityId) {
-      where[Op.and] = [
-        Sequelize.literal(
-          `("LabTestType"."available_facilities" IS NULL OR "LabTestType"."available_facilities" @> ${req.db.escape(JSON.stringify([query.facilityId]))}::jsonb)`,
-        ),
-      ];
+    const facilityFilter = buildAvailableFacilitiesFilter(query.facilityId);
+    if (facilityFilter) {
+      where[Op.and] = [facilityFilter];
     }
     const labTests = await models.LabTestType.findAll({
       include: [
@@ -932,13 +946,9 @@ labTestPanel.get('/', async (req, res) => {
   const where = {
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   };
-  if (query.facilityId) {
-    const escapedFacilityArray = req.db.escape(JSON.stringify([query.facilityId]));
-    where[Op.and] = [
-      Sequelize.literal(
-        `("LabTestPanel"."available_facilities" IS NULL OR "LabTestPanel"."available_facilities" @> ${escapedFacilityArray}::jsonb)`,
-      ),
-    ];
+  const facilityFilter = buildAvailableFacilitiesFilter(query.facilityId);
+  if (facilityFilter) {
+    where[Op.and] = [facilityFilter];
   }
   const panels = await models.LabTestPanel.findAll({
     include: [
@@ -965,9 +975,7 @@ labTestPanel.get('/', async (req, res) => {
         member =>
           isOrderableTestType(member) &&
           (canCreateSensitive || !member.isSensitive) &&
-          (!query.facilityId ||
-            !member.availableFacilities ||
-            member.availableFacilities.includes(query.facilityId)),
+          isAvailableAtFacility(member, query.facilityId),
       )
       .map(({ id, code, name, LabTestPanelLabTestTypes }) => ({
         id,
@@ -999,12 +1007,9 @@ labTestPanel.get(
     const where = {
       visibilityStatus: { [Op.notIn]: UNORDERABLE_VISIBILITY_STATUSES },
     };
-    if (query.facilityId) {
-      where[Op.and] = [
-        Sequelize.literal(
-          `("LabTestType"."available_facilities" IS NULL OR "LabTestType"."available_facilities" @> ${req.db.escape(JSON.stringify([query.facilityId]))}::jsonb)`,
-        ),
-      ];
+    const facilityFilter = buildAvailableFacilitiesFilter(query.facilityId);
+    if (facilityFilter) {
+      where[Op.and] = [facilityFilter];
     }
     const response = await panel.getLabTestTypes({
       include: [
@@ -1047,8 +1052,6 @@ async function createLabRequestsByCategory(models, body, note, user) {
     include: [{ model: models.Location, as: 'location', attributes: ['facilityId'] }],
   });
   const facilityId = encounter?.location?.facilityId;
-  const isAvailableAtFacility = testType =>
-    !facilityId || !testType.availableFacilities || testType.availableFacilities.includes(facilityId);
 
   const groups = new Map();
   const groupFor = (key, categoryId) => {
@@ -1075,7 +1078,7 @@ async function createLabRequestsByCategory(models, body, note, user) {
       // hold here too — otherwise a reflex test lands on the request as an empty row awaiting
       // results it was never meant to be ordered for.
       const orderableTestTypes = (panel.labTestTypes ?? []).filter(
-        testType => isOrderableTestType(testType) && isAvailableAtFacility(testType),
+        testType => isOrderableTestType(testType) && isAvailableAtFacility(testType, facilityId),
       );
       if (!orderableTestTypes.length) {
         throw new InvalidOperationError(

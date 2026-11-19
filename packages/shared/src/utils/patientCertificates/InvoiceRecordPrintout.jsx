@@ -1,8 +1,9 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { capitalize } from 'es-toolkit/compat';
-
-import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
+import {
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
+} from '@tamanu/constants';
 
 import { CertificateHeader, SigningImage, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -15,21 +16,21 @@ import {
   getInvoiceItemPriceDisplay,
   getPatientPaymentsWithRemainingBalanceDisplay,
   formatDisplayPrice,
-  getInsurerPaymentsWithRemainingBalanceDisplay,
+  getInsurancePlanPaymentsWithRemainingBalanceDisplay,
   getInvoiceItemTotalDiscountedPrice,
   hasItemAdjustment,
   getItemAdjustmentAmount,
   getFormattedInvoiceItemCoverageAmount,
   getFormattedInvoiceItemNetCost,
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
-  getInvoiceSummary,
+  getInvoicePrintTotalsDisplay,
 } from '@tamanu/utils/invoice';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { getDrugUnitLabel } from '../medication';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { InvoiceEncounterDetails } from './printComponents/InvoiceEncounterDetails';
+import { InvoiceItemQuantity } from './printComponents/InvoiceItemQuantity';
 
 const borderStyle = '1 solid black';
 
@@ -176,14 +177,6 @@ const CustomCellComponent = ({ children, style = {} }) => (
   <View style={[baseTableStyles.baseCell, style]}>{children}</View>
 );
 
-// Reads the language context itself so the dispensing unit can be pluralised
-// without threading getEnumTranslation through the shared formatters object.
-const QuantityCell = ({ quantity, dispensingUnit }) => {
-  const { getEnumTranslation } = useLanguageContext();
-  if (!dispensingUnit) return quantity != null ? String(quantity) : '';
-  return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
-};
-
 const getPrice = item => {
   const price = getInvoiceItemPriceDisplay(item);
   return <P>{price}</P>;
@@ -196,6 +189,7 @@ const ADJUSTMENT_TOP_MARGIN = 5;
  * Cell component for "Ordered by" column that includes adjustment labels when applicable
  */
 const OrderedByCellWithAdjustments = ({ children, style, item }) => {
+  const { getTranslation } = useLanguageContext();
   const showAdjustments = hasItemAdjustment(item);
 
   return (
@@ -217,7 +211,9 @@ const OrderedByCellWithAdjustments = ({ children, style, item }) => {
               alignSelf: 'flex-end',
             }}
           >
-            <Text style={subRowStyles.labelText}>Item adjustment</Text>
+            <Text style={subRowStyles.labelText}>
+              {getTranslation('invoice.itemAdjustment.label', 'Item adjustment')}
+            </Text>
           </View>
           <View
             style={{
@@ -226,7 +222,9 @@ const OrderedByCellWithAdjustments = ({ children, style, item }) => {
               alignSelf: 'flex-end',
             }}
           >
-            <Text style={subRowStyles.labelText}>Cost after adjustment</Text>
+            <Text style={subRowStyles.labelText}>
+              {getTranslation('invoice.costAfterAdjustment.label', 'Cost after adjustment')}
+            </Text>
           </View>
         </>
       )}
@@ -271,7 +269,8 @@ const PriceCellWithAdjustments = ({ children, style, item }) => {
   );
 };
 
-const getInvoiceItemDetails = item => {
+const InvoiceItemDetailsCell = ({ item }) => {
+  const { getTranslation } = useLanguageContext();
   const name = item.product.name;
   const note = item.note;
 
@@ -282,7 +281,9 @@ const getInvoiceItemDetails = item => {
       </View>
       {!!note && (
         <View>
-          <P style={[baseTableStyles.noteText]}>Note: {note}</P>
+          <P style={[baseTableStyles.noteText]}>
+            {`${getTranslation('invoice.modal.editInvoice.note.label', 'Note')}: ${note}`}
+          </P>
         </View>
       )}
     </View>
@@ -300,71 +301,74 @@ const SectionSpacing = ({ minPresenceAhead = 70 }) => (
   <View style={{ paddingBottom: '10px' }} minPresenceAhead={minPresenceAhead} />
 );
 
-const getInsurerPaymentStatus = insurerPayment => {
-  if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
+const getInsurancePlanPaymentStatus = (insurancePlanPayment, getEnumTranslation) => {
+  const status = getEnumTranslation(
+    INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
+    insurancePlanPayment?.status,
+  );
+  if (insurancePlanPayment?.status === INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED) {
     return (
-      <P>
-        {`${capitalize(insurerPayment?.status)}${
-          insurerPayment?.reason ? ` (${insurerPayment?.reason})` : ''
-        }`}
-      </P>
+      <P>{`${status}${insurancePlanPayment?.reason ? ` (${insurancePlanPayment.reason})` : ''}`}</P>
     );
   }
-  return capitalize(insurerPayment?.status);
+  return status;
 };
 
-const COLUMNS = {
+const getColumns = (getTranslation, getEnumTranslation) => ({
   invoiceItems: [
     {
       key: 'orderDate',
-      title: 'Date',
+      title: getTranslation('general.date.label', 'Date'),
       style: { width: '14%' },
       accessor: ({ orderDate }, { formatShort }) => formatShort(orderDate),
     },
     {
       key: 'productName',
-      title: 'Details',
+      title: getTranslation('invoice.modal.editInvoice.details.label', 'Details'),
       style: { width: '24%' },
-      accessor: row => getInvoiceItemDetails(row),
+      accessor: row => <InvoiceItemDetailsCell item={row} />,
       CellComponent: CustomCellComponent,
     },
     {
       key: 'quantity',
-      title: 'Quantity',
+      title: getTranslation('invoice.modal.editInvoice.quantity.label', 'Quantity'),
       style: { width: '12%' },
       accessor: ({ quantity, sourcePrescription }) => (
-        <QuantityCell quantity={quantity} dispensingUnit={sourcePrescription?.dispensingUnit} />
+        <InvoiceItemQuantity
+          quantity={quantity}
+          dispensingUnit={sourcePrescription?.dispensingUnit}
+        />
       ),
     },
     {
       key: 'approved',
-      title: 'Approved',
+      title: getTranslation('invoice.modal.editInvoice.approved.label', 'Approved'),
       style: { width: '13%' },
       accessor: ({ approved }) => (approved ? 'Y' : ''),
     },
     {
       key: 'orderedBy',
-      title: 'Ordered by',
+      title: getTranslation('invoice.modal.editInvoice.orderedBy.label', 'Ordered by'),
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
       style: { width: '24%' },
       CellComponent: OrderedByCellWithAdjustments,
     },
     {
       key: 'price',
-      title: 'Cost',
+      title: getTranslation('invoice.modal.editInvoice.cost.label', 'Cost'),
       accessor: row => getPrice(row),
       style: { width: '10%', justifyContent: 'flex-end' },
       CellComponent: PriceCellWithAdjustments,
     },
     {
       key: 'insurance',
-      title: 'Insurance',
+      title: getTranslation('invoice.table.column.insurance', 'Insurance'),
       accessor: row => getFormattedInvoiceItemCoverageAmount(row),
       style: { width: '13%', justifyContent: 'flex-end' },
     },
     {
       key: 'netCost',
-      title: 'Net cost',
+      title: getTranslation('invoice.modal.editInvoice.netCost.label', 'Net cost'),
       accessor: row => getFormattedInvoiceItemNetCost(row),
       style: { width: '12%', justifyContent: 'flex-end' },
     },
@@ -372,77 +376,83 @@ const COLUMNS = {
   patientPayments: [
     {
       key: 'date',
-      title: 'Date',
+      title: getTranslation('general.date.label', 'Date'),
       style: { width: '14%', paddingLeft: 13 },
       accessor: ({ date }, { formatShort }) => formatShort(date),
     },
     {
       key: 'methodName',
-      title: 'Method',
+      title: getTranslation('invoice.table.payment.column.method', 'Method'),
       style: { width: '28%' },
       accessor: ({ patientPayment }) => patientPayment?.method?.name,
     },
     {
       key: 'amount',
-      title: 'Amount',
+      title: getTranslation('invoice.table.payment.column.amount', 'Amount'),
       style: { width: '15%' },
       accessor: ({ amount }) => amount,
     },
     {
       key: 'receiptNumber',
-      title: 'Receipt number',
+      title: getTranslation('invoice.table.payment.column.receiptNumber', 'Receipt number'),
       accessor: ({ receiptNumber }) => receiptNumber,
       style: { width: '21%' },
     },
     {
       key: 'status',
-      title: 'Status',
-      accessor: ({ refundPayment }) => refundPayment ? 'Refunded' : 'Paid',
+      title: getTranslation('invoice.table.payment.column.status', 'Status'),
+      accessor: ({ refundPayment }) =>
+        refundPayment
+          ? getTranslation('invoice.paymentStatus.refunded', 'Refunded')
+          : getTranslation('invoice.paymentStatus.paid', 'Paid'),
       style: { width: '21%' },
     },
   ],
-  insurerPayments: [
+  insurancePlanPayments: [
     {
       key: 'date',
-      title: 'Date',
+      title: getTranslation('general.date.label', 'Date'),
       style: { width: '15%', paddingLeft: 13 },
       accessor: ({ date }, { formatShort }) => formatShort(date),
     },
     {
-      key: 'insurerName',
-      title: 'Payer',
+      key: 'insurancePlanName',
+      title: getTranslation('invoice.table.payment.column.payer', 'Payer'),
       style: { width: '17%' },
-      accessor: ({ insurerPayment }) => insurerPayment?.insurer?.name,
+      accessor: ({ insurancePlanPayment }) => insurancePlanPayment?.insurancePlan?.name,
     },
     {
       key: 'amount',
-      title: 'Amount',
+      title: getTranslation('invoice.table.payment.column.amount', 'Amount'),
       style: { width: '11%' },
       accessor: ({ amount }) => amount,
     },
     {
       key: 'receiptNumber',
-      title: 'Receipt number',
+      title: getTranslation('invoice.table.payment.column.receiptNumber', 'Receipt number'),
       accessor: ({ receiptNumber }) => receiptNumber,
       style: { width: '14%' },
     },
     {
       key: 'remainingBalance',
-      title: 'Remaining balance',
+      title: getTranslation('invoice.table.payment.column.remainingBalance', 'Remaining balance'),
       accessor: ({ remainingBalance }) => remainingBalance,
       style: { width: '13%' },
     },
     {
       key: 'status',
-      title: 'Status',
-      accessor: ({ insurerPayment }) => getInsurerPaymentStatus(insurerPayment),
+      title: getTranslation('invoice.table.payment.column.status', 'Status'),
+      accessor: ({ insurancePlanPayment }) =>
+        getInsurancePlanPaymentStatus(insurancePlanPayment, getEnumTranslation),
       style: { width: '30%' },
     },
   ],
-};
+});
 
 const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
+  const { getTranslation } = useLanguageContext();
   let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
+  const continuedTitle = `${title} ${getTranslation('pdf.heading.contentContinued', 'cont...')}`;
   return (
     <Row style={baseTableStyles.heading}>
       <Text
@@ -453,7 +463,7 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
           if (pageNumber < firstPageOccurrence && subPageNumber) {
             firstPageOccurrence = pageNumber;
           }
-          return pageNumber === firstPageOccurrence ? title : `${title} cont...`;
+          return pageNumber === firstPageOccurrence ? title : continuedTitle;
         }}
       />
     </Row>
@@ -598,34 +608,23 @@ const PaymentTableSection = ({ title, data, columns, formatters }) => {
 
 const SummaryPane = ({ invoice }) => {
   const { getTranslation } = useLanguageContext();
-  const {
-    invoiceItemsUndiscountedTotal,
-    patientPaymentRemainingBalance,
-    patientSubtotal,
-    discountTotal,
-    patientPaymentsTotal,
-    itemAdjustmentsTotal,
-  } = getInvoiceSummary(invoice);
+  const totals = getInvoicePrintTotalsDisplay(invoice);
+  const { feeScaleAdjustment } = totals;
   const insurancePlanCoverages = getFormattedCoverageAmountPerInsurancePlanForInvoice(invoice);
-  const patientPaymentsTotalDisplay = patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0;
-  const hasDiscount = Boolean(invoice.discount?.percentage);
-  const discountPercentage = hasDiscount
-    ? Math.round(invoice.discount.percentage * 100)
-    : 0;
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
-        <P>Invoice total</P>
-        <P>{formatDisplayPrice(invoiceItemsUndiscountedTotal)}</P>
+        <P>{getTranslation('invoice.summary.invoiceTotal', 'Invoice total')}</P>
+        <P>{totals.invoiceTotal}</P>
       </View>
       <View style={summaryPaneStyles.item}>
-        <P>Item adjustments</P>
-        <P>{formatDisplayPrice(itemAdjustmentsTotal)}</P>
+        <P>{getTranslation('invoice.summary.itemAdjustments', 'Item adjustments')}</P>
+        <P>{totals.itemAdjustments}</P>
       </View>
       {insurancePlanCoverages.length > 0 && (
         <>
-          <P bold>Insurance coverage</P>
+          <P bold>{getTranslation('invoice.summary.insuranceTotal', 'Insurance coverage')}</P>
           {insurancePlanCoverages.map(plan => (
             <View key={plan.id} style={summaryPaneStyles.item}>
               <P>{plan.name || plan.code}</P>
@@ -636,30 +635,30 @@ const SummaryPane = ({ invoice }) => {
       )}
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
-        <P bold>Patient subtotal</P>
-        <P>{formatDisplayPrice(patientSubtotal)}</P>
+        <P bold>{getTranslation('invoice.summary.patientSubtotal', 'Patient subtotal')}</P>
+        <P>{totals.patientSubtotal}</P>
       </View>
       <HorizontalRule />
-      {hasDiscount && (
+      {feeScaleAdjustment && (
         <View style={summaryPaneStyles.item}>
           <P>
             {getTranslation(
               'invoice.summary.feeScaleAdjustment',
               'Fee scale adjustment - :percentage%',
-              { replacements: { percentage: discountPercentage } },
+              { replacements: { percentage: feeScaleAdjustment.percentage } },
             )}
           </P>
-          <P>{formatDisplayPrice(discountTotal * -1)}</P>
+          <P>{feeScaleAdjustment.amount}</P>
         </View>
       )}
       <View style={summaryPaneStyles.item}>
-        <P>Patient payments</P>
-        <P>{formatDisplayPrice(patientPaymentsTotalDisplay)}</P>
+        <P>{getTranslation('invoice.summary.patientPayments', 'Patient payments')}</P>
+        <P>{totals.patientPayments}</P>
       </View>
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
-        <P bold>Patient total due</P>
-        <P bold>{formatDisplayPrice(patientPaymentRemainingBalance)}</P>
+        <P bold>{getTranslation('invoice.summary.patientTotal', 'Patient total due')}</P>
+        <P bold>{totals.patientTotalDue}</P>
       </View>
     </View>
   );
@@ -676,24 +675,31 @@ const InvoiceRecordPrintoutComponent = ({
   enablePatientInsurer,
 }) => {
   const { formatShort } = useDateTime();
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const formatters = { formatShort };
   const { watermark, logo, footerImg } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
-  const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
+  const insurancePlanPayments = getInsurancePlanPaymentsWithRemainingBalanceDisplay(invoice);
+  const columns = getColumns(getTranslation, getEnumTranslation);
+  const documentTitle = getTranslation(
+    'pdf.invoiceRecord.title',
+    'Invoice number: :invoiceNumber',
+    { replacements: { invoiceNumber: invoice.displayId } },
+  );
 
   return (
     <Document>
       <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName={`Invoice number: ${invoice.displayId}`}
+          documentName={documentTitle}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
         <CertificateHeader>
           <LetterheadSection
             logoSrc={logo}
-            certificateTitle={`Invoice number: ${invoice.displayId}`}
+            certificateTitle={documentTitle}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
@@ -716,26 +722,29 @@ const InvoiceRecordPrintoutComponent = ({
         {invoice?.items?.length > 0 && (
           <InvoiceItemTableSection
             data={invoice?.items}
-            columns={COLUMNS.invoiceItems}
+            columns={columns.invoiceItems}
             showAdjustmentRows
             formatters={formatters}
           />
         )}
         <SummaryPane invoice={invoice} />
         <SectionSpacing />
-        {patientPayments?.length && (
+        {patientPayments?.length > 0 && (
           <PaymentTableSection
-            title="Patient payment"
+            title={getTranslation('pdf.invoiceRecord.patientPayment.title', 'Patient payment')}
             data={patientPayments}
-            columns={COLUMNS.patientPayments}
+            columns={columns.patientPayments}
             formatters={formatters}
           />
         )}
-        {insurerPayments?.length && (
+        {insurancePlanPayments?.length > 0 && (
           <PaymentTableSection
-            title="Insurer payment"
-            data={insurerPayments}
-            columns={COLUMNS.insurerPayments}
+            title={getTranslation(
+              'pdf.invoiceRecord.insurancePlanPayment.title',
+              'Insurance plan payment',
+            )}
+            data={insurancePlanPayments}
+            columns={columns.insurancePlanPayments}
             formatters={formatters}
           />
         )}

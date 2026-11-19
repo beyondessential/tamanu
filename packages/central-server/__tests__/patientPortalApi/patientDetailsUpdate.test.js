@@ -28,6 +28,7 @@ describe('Patient Portal: updating patient details', () => {
     const { Patient, PortalUser, ReferenceData, Setting } = store.models;
 
     await Setting.set('features.patientPortal', true);
+    await Setting.set('features.enablePatientInsurer', true);
     patient = await Patient.create(
       fake(Patient, { firstName: 'Tess', lastName: 'Lavea', email: 'tess@old.example' }),
     );
@@ -73,6 +74,29 @@ describe('Patient Portal: updating patient details', () => {
     });
     const saved = await store.models.PatientAdditionalData.getForPatient(patient.id);
     expect(saved.cityTown).toEqual('Apia');
+  });
+
+  // Insurance plans replaced the patient's insurer reference, so the portal no longer carries it.
+  // The policy number stays (spec: patient-portal/patient-details.md).
+  it('still writes the insurance policy number', async () => {
+    const response = await updateDetails({ insurerPolicyNumber: 'POL-99887' });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.additionalData).toMatchObject({ insurerPolicyNumber: 'POL-99887' });
+    const saved = await store.models.PatientAdditionalData.getForPatient(patient.id);
+    expect(saved.insurerPolicyNumber).toEqual('POL-99887');
+  });
+
+  it('no longer accepts an insurer', async () => {
+    expect(await updateDetails({ insurerId: ethnicity.id })).toHaveRequestError();
+  });
+
+  it('does not return an insurer on the patient', async () => {
+    const response = await updateDetails({ insurerPolicyNumber: 'POL-11223' });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.additionalData).not.toHaveProperty('insurerId');
+    expect(response.body.additionalData).not.toHaveProperty('insurer');
   });
 
   it('leaves details that were not sent as they are', async () => {
@@ -155,6 +179,20 @@ describe('Patient Portal: updating patient details', () => {
       await updateDetails({ cityTown: 'Apia', emergencyContactName: 'Losa Lavea' }),
     ).toHaveSucceeded();
     expect(await updateDetails({ cityTown: 'Lalomanu' })).toHaveSucceeded();
+  });
+
+  it('refuses the policy number unless the deployment uses patient insurance', async () => {
+    const { Setting } = store.models;
+    await Setting.set('fields', {});
+    await Setting.set('features.enablePatientInsurer', false);
+    settingsCache.reset();
+
+    expect(await updateDetails({ insurerPolicyNumber: 'POL-111' })).toHaveRequestError();
+
+    await Setting.set('features.enablePatientInsurer', true);
+    settingsCache.reset();
+
+    expect(await updateDetails({ insurerPolicyNumber: 'POL-111' })).toHaveSucceeded();
   });
 
   it('rejects a request without a portal sign-in', async () => {

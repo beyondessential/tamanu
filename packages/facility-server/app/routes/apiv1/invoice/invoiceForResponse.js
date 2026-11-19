@@ -1,47 +1,57 @@
-import { keyBy } from 'es-toolkit/compat';
+import {
+  getInsurancePlanItemsForInvoiceItem,
+  withInsuranceAttachments,
+} from '@tamanu/utils/invoice';
 
-// Map invoice items with insurance plans and product codes & convert the Sequelize object to a plain object
-export const invoiceForResponse = invoiceRecord => {
-  const processedItems = invoiceRecord.items.map(item => {
+/**
+ * The invoice as it is priced: a plain object whose insurable items carry the coverage each of the
+ * invoice's insurance plans gives them. The web and the server's payment checks both price this
+ * shape, so they agree on what is owed.
+ */
+export const invoiceForPricing = invoiceRecord => {
+  const { insurancePlans } = withInsuranceAttachments({
+    insurancePlanAttachments: invoiceRecord.insurancePlanAttachments?.map(
+      attachment => attachment.get?.({ plain: true }) ?? attachment,
+    ),
+    insurancePlans: (invoiceRecord.insurancePlans ?? []).map(
+      plan => plan.get?.({ plain: true }) ?? plan,
+    ),
+  });
+
+  const pricedItems = invoiceRecord.items.map(item => {
     const plainItem = item.get?.({ plain: true }) ?? item;
-    const productCode = item.product?.getProductCode?.() ?? null;
 
     if (!item.product?.insurable) {
-      return {
-        ...plainItem,
-        productCode,
-      };
+      return plainItem;
     }
-
-    const insurancePlansById = keyBy(
-      item.product?.invoiceInsurancePlanItems,
-      'invoiceInsurancePlanId',
-    );
-
-    const insurancePlanItems =
-      invoiceRecord.insurancePlans?.map(({ id, code, name, defaultCoverage }) => {
-        const planItem = insurancePlansById[id];
-        const coverageValue = planItem?.coverageValue ?? defaultCoverage;
-        return {
-          id,
-          code,
-          name,
-          label: name ?? code,
-          coverageValue,
-        };
-      }) ?? [];
 
     return {
       ...plainItem,
-      insurancePlanItems,
-      productCode,
+      insurancePlanItems: getInsurancePlanItemsForInvoiceItem(plainItem, insurancePlans),
     };
   });
 
-  // Convert to plain object to avoid circular references
-  const plainInvoice = invoiceRecord.get?.({ plain: true }) ?? invoiceRecord;
+  // Convert to plain object to avoid circular references. The attachment rows are dropped: the
+  // flattened plans below are the same truth, and carrying both doubles the plan payload and
+  // leaves a client to choose between two shapes of it.
+  // eslint-disable-next-line no-unused-vars
+  const { insurancePlanAttachments, ...plainInvoice } =
+    invoiceRecord.get?.({ plain: true }) ?? invoiceRecord;
   return {
     ...plainInvoice,
-    items: processedItems,
+    insurancePlans,
+    items: pricedItems,
+  };
+};
+
+// The invoice as the API returns it: the priced invoice, with each item's product code
+export const invoiceForResponse = invoiceRecord => {
+  const invoice = invoiceForPricing(invoiceRecord);
+  return {
+    ...invoice,
+    items: invoice.items.map((item, index) => ({
+      ...item,
+      productCode: invoiceRecord.items[index].product?.getProductCode?.() ?? null,
+    })),
   };
 };

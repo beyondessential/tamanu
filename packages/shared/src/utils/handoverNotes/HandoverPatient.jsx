@@ -4,6 +4,7 @@ import { useDateTime } from '../pdf/withDateTimeContext';
 import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
+import { FormattedNoteText } from '../pdf/FormattedNoteText';
 import { getDob, getName, getSex } from '../patientAccessors';
 
 const PATIENT_FIELDS = [
@@ -77,7 +78,11 @@ export const HandoverPatient = ({
           </Row>
           {diagnosis && <ValueDisplay width="100%" title="Diagnosis" value={diagnosis} />}
           <Row>
-            <ValueDisplay width="100%" title="Notes" value={notes || 'N/A'} />
+            <ValueDisplay
+              width="100%"
+              title="Notes"
+              value={notes ? <FormattedNoteText content={notes} /> : 'N/A'}
+            />
             {!!notes && !!createdAt && (
               <Col style={{ width: '100%' }}>
                 <P style={{ fontSize: 8 }}>

@@ -18,7 +18,6 @@ import { usePatientAdditionalDataQuery, useVitalsSurveyQuery } from '../api/quer
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
-import { useEncounter } from '../contexts/Encounter';
 import { useTranslation } from '../contexts/Translation';
 import { getComponentForQuestionType } from '../components/Surveys';
 
@@ -31,7 +30,6 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     isError,
     error,
   } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery(patient.id)]);
-  const { encounter } = useEncounter();
   const { components = [] } = vitalsSurvey || {};
   const currentComponents = components
     .filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
@@ -43,7 +41,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const validationSchema = useMemo(
     () =>
       getValidationSchema({ components: currentComponents }, getTranslation, {
-        encounterType: encounterType || encounter?.encounterType,
+        encounterType,
       }).concat(
         yup.object().shape({
           [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
@@ -58,7 +56,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
             .required(),
         }),
       ),
-    [currentComponents, encounter?.encounterType, encounterType, getTranslation],
+    [currentComponents, encounterType, getTranslation],
   );
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');
@@ -155,4 +153,5 @@ VitalsForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   patient: PropTypes.object.isRequired,
+  encounterType: PropTypes.string.isRequired,
 };

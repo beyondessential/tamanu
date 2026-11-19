@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
 import { NotFoundError, InvalidOperationError } from '@tamanu/errors';
 import { findRouteObject } from '@tamanu/shared/utils/crudHelpers';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -144,5 +145,38 @@ procedure.put(
     }
 
     res.send(updatedProcedure);
+  }),
+);
+
+// spec: PROC#what-is-deleted
+procedure.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('delete', 'Procedure');
+
+    const procedure = await models.Procedure.findByPk(params.id);
+    if (!procedure) {
+      throw new NotFoundError(`Cannot find procedure with id ${params.id}`);
+    }
+
+    await req.db.transaction(async () => {
+      const procedureSurveyResponses = await models.ProcedureSurveyResponse.findAll({
+        where: { procedureId: procedure.id },
+        attributes: ['surveyResponseId'],
+      });
+      const surveyResponseIds = procedureSurveyResponses.map(link => link.surveyResponseId);
+
+      // Deleting the survey responses themselves (not just the links) keeps them out of the
+      // patient and encounter forms tables, and cascades to their answers
+      await models.SurveyResponse.destroy({ where: { id: { [Op.in]: surveyResponseIds } } });
+      await models.ProcedureSurveyResponse.destroy({ where: { procedureId: procedure.id } });
+      await models.ProcedureAssistantClinician.destroy({ where: { procedureId: procedure.id } });
+
+      // Removes the automatically added invoice item via the afterDestroy hook
+      await procedure.destroy();
+    });
+
+    res.send({ message: 'Procedure deleted successfully' });
   }),
 );

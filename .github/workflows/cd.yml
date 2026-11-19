@@ -583,6 +583,60 @@ jobs:
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
+  # `%synthetic` is Pulumi config, so on its own it only takes effect when the
+  # deploy above finishes, a full `pulumi up` to scale one Deployment. Argo
+  # ignores a Deployment's `.spec.replicas`, so scaling here sticks, and runs
+  # without waiting on the images.
+  synthetic-tests:
+    needs: config
+    if: needs.config.outputs.go-up == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.config.outputs.up) }}
+    name: Synthetic tests on ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-cd
+        with:
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - name: Scale to match the flag
+        env:
+          DEPLOY: ${{ matrix.name }}
+          WANTED: ${{ fromJson(matrix.options).synthetic }}
+        run: |
+          set -euo pipefail
+
+          # Not `[ ... ] && replicas=1`: that tests false when the flag is off,
+          # which is a non-zero status and ends the script under `set -e`.
+          if [ "$WANTED" = true ]; then replicas=1; else replicas=0; fi
+          namespace="tamanu-$DEPLOY"
+
+          # Access to a deploy's namespace is granted as the deploy creates it, so
+          # before the first deploy kubectl answers Forbidden rather than not found.
+          # That deploy applies the flag itself. can-i exits 1 on "no", so only that
+          # answer skips; a failed call prints nothing and the get below reports it.
+          granted=$(kubectl auth can-i get deployments -n "$namespace" || true)
+          if [ "$granted" = no ]; then
+            echo "::notice::$DEPLOY has not been deployed yet"
+            exit 0
+          fi
+
+          # --ignore-not-found, so a missing Deployment reads as empty output
+          # and anything kubectl does report ends the job instead of passing as
+          # one.
+          existing=$(kubectl -n "$namespace" get deploy/synthetic-tests --ignore-not-found -o name)
+          if [ -z "$existing" ]; then
+            echo "::notice::$DEPLOY runs no synthetic tests to scale"
+            exit 0
+          fi
+
+          kubectl -n "$namespace" scale deploy/synthetic-tests --replicas="$replicas"
+
   fake-data:
     needs:
       - config

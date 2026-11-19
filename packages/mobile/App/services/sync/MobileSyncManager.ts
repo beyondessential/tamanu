@@ -1,3 +1,4 @@
+import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
@@ -46,14 +47,14 @@ type SyncOptions = {
   urgent: boolean;
 };
 
-export type MobileSyncSettings = {
+export interface MobileSyncSettings {
   maxBatchesToKeepInMemory: number;
   maxRecordsPerSnapshotBatch: number;
   maxRecordsPerInsertBatch: number;
   maxRecordsPerUpdateBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
-};
+}
 
 export interface PullParams {
   sessionId: string;
@@ -226,6 +227,13 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Began sync run');
     this.isSyncing = true;
 
+    // A VACUUM kicked off while the app was backgrounded may still be running. Let it finish
+    // before opening a central session so the session isn’t held open waiting on the write lock.
+    if (Database.maintenanceInProgress !== null) {
+      console.log('MobileSyncManager.runSync(): Waiting for database maintenance to finish');
+      await Database.maintenanceInProgress;
+    }
+
     // clear persisted cache from last session
     await dropSnapshotTable();
 
@@ -251,7 +259,7 @@ export class MobileSyncManager {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
       this.isSyncing = false;
       this.isQueuing = true;
-      this.progressMessage = urgent ? 'Sync in progress...' : 'Sync in queue';
+      this.progressMessage = urgent ? 'Sync in progress…' : 'Sync in queue';
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE);
       return;
     }
@@ -259,26 +267,35 @@ export class MobileSyncManager {
     this.isSyncing = true;
     this.isQueuing = false;
 
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-    console.log('MobileSyncManager.runSync(): Sync started');
+    // don't let the device sleep while syncing, whatever started the sync and whichever screen is
+    // showing. Released in the finally below, so every exit from here on lets go of it
+    // spec: SYNAWK
+    activateKeepAwake();
 
     try {
-      await this.pushOutgoingChanges(sessionId, newSyncClockTime);
-      await this.pullIncomingChanges(sessionId);
-      await this.centralServer.endSyncSession(sessionId);
-    } catch (error) {
-      // notify central so its own alerting sees the failure immediately, rather than waiting for
-      // the session to time out there (mobile otherwise never reports a session's error to
-      // central, unlike facility servers, which already do this)
-      await this.reportSyncError(sessionId, error);
-      throw error;
+      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
+      console.log('MobileSyncManager.runSync(): Sync started');
+
+      try {
+        await this.pushOutgoingChanges(sessionId, newSyncClockTime);
+        await this.pullIncomingChanges(sessionId);
+        await this.centralServer.endSyncSession(sessionId);
+      } catch (error) {
+        // notify central so its own alerting sees the failure immediately, rather than waiting for
+        // the session to time out there (mobile otherwise never reports a session's error to
+        // central, unlike facility servers, which already do this)
+        await this.reportSyncError(sessionId, error);
+        throw error;
+      }
+
+      // clear persisted cache from this session
+      await dropSnapshotTable();
+
+      this.lastSuccessfulSyncTime = new Date();
+      this.setProgress(0, '');
+    } finally {
+      deactivateKeepAwake();
     }
-
-    // clear persisted cache from this session
-    await dropSnapshotTable();
-
-    this.lastSuccessfulSyncTime = new Date();
-    this.setProgress(0, '');
   }
 
   /**
@@ -366,7 +383,7 @@ export class MobileSyncManager {
     // So only showing a message to indicate this this is still in progress
     this.setProgress(
       this.progressMaxByStage[this.syncStage - 1],
-      'Pausing at 33% while server prepares for pull, please wait...',
+      'Pausing at 33% while server prepares for pull, please wait…',
     );
 
     const tablesForFullResyncSetting = await this.models.LocalSystemFact.findOne({

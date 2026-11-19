@@ -217,6 +217,73 @@ describe('Patient', () => {
       expect(additional).toHaveProperty('passport', 'TEST-PASSPORT');
     });
 
+    // The Billing information section's fields (spec: patient/details.md). The payors are
+    // references to other patients, so this also covers those foreign keys resolving.
+    it('should create a new patient with billing information', async () => {
+      const newPatient = await createDummyPatient(models);
+      const payor1 = await models.Patient.create(await createDummyPatient(models));
+      const payor2 = await models.Patient.create(await createDummyPatient(models));
+
+      const result = await app.post('/api/patient').send({
+        ...newPatient,
+        adoptionNumber: 'ADOPT-1',
+        marriageLicence: 'MARRIAGE-1',
+        familySize: '3',
+        annualIncome: '7,400 - 17,000',
+        payor1Id: payor1.id,
+        payor1ReferenceNumber: 'PAYOR-REF-1',
+        payor2Id: payor2.id,
+        payor2ReferenceNumber: 'PAYOR-REF-2',
+        facilityId,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const additional = await models.PatientAdditionalData.findOne({
+        where: { patientId: result.body.id },
+      });
+      expect(additional).toMatchObject({
+        adoptionNumber: 'ADOPT-1',
+        marriageLicence: 'MARRIAGE-1',
+        familySize: '3',
+        annualIncome: '7,400 - 17,000',
+        payor1Id: payor1.id,
+        payor1ReferenceNumber: 'PAYOR-REF-1',
+        payor2Id: payor2.id,
+        payor2ReferenceNumber: 'PAYOR-REF-2',
+      });
+    });
+
+    it('should update billing information on an existing patient', async () => {
+      const newPatient = await createDummyPatient(models);
+      const payor = await models.Patient.create(await createDummyPatient(models));
+      const created = await app.post('/api/patient').send({ ...newPatient, facilityId });
+      expect(created).toHaveSucceeded();
+
+      const updateResult = await app.put(`/api/patient/${created.body.id}`).send({
+        familySize: '5',
+        // Stored as the band was displayed, so a scale change cannot re-point it
+        annualIncome: '> 17,000',
+        payor1Id: payor.id,
+        payor1ReferenceNumber: 'PAYOR-REF-UPDATED',
+        adoptionNumber: 'ADOPT-UPDATED',
+        facilityId,
+      });
+      expect(updateResult).toHaveSucceeded();
+
+      const additionalDataResult = await app.get(
+        `/api/patient/${created.body.id}/additionalData`,
+      );
+      expect(additionalDataResult).toHaveSucceeded();
+      expect(additionalDataResult.body).toMatchObject({
+        familySize: '5',
+        annualIncome: '> 17,000',
+        payor1Id: payor.id,
+        payor1ReferenceNumber: 'PAYOR-REF-UPDATED',
+        adoptionNumber: 'ADOPT-UPDATED',
+      });
+    });
+
     it('should create a new patient with fields', async () => {
       // Arrange
       const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;
@@ -406,6 +473,60 @@ describe('Patient', () => {
         where: { value: oldDisplayId },
       });
       expect(secondaryId.typeId).toBe('secondaryIdType-nhn');
+    });
+
+    it('Should reject a display ID already in use by another patient', async () => {
+      const existingDisplayId = 'DUPLICATE-EXACT';
+      await models.Patient.create({ ...fake(models.Patient), displayId: existingDisplayId });
+      const patientToEdit = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: 'EDIT-ME-EXACT',
+      });
+
+      const updateResult = await app.put(`/api/patient/${patientToEdit.id}`).send({
+        displayId: existingDisplayId,
+        facilityId,
+      });
+
+      expect(updateResult).toHaveRequestError();
+
+      await patientToEdit.reload();
+      expect(patientToEdit.displayId).toEqual('EDIT-ME-EXACT');
+    });
+
+    it('Should reject a display ID that only differs in case from an existing one', async () => {
+      const existingDisplayId = 'ABC123';
+      await models.Patient.create({ ...fake(models.Patient), displayId: existingDisplayId });
+      const patientToEdit = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: 'EDIT-ME-CASE',
+      });
+
+      const updateResult = await app.put(`/api/patient/${patientToEdit.id}`).send({
+        displayId: existingDisplayId.toLowerCase(),
+        facilityId,
+      });
+
+      expect(updateResult).toHaveRequestError();
+
+      await patientToEdit.reload();
+      expect(patientToEdit.displayId).toEqual('EDIT-ME-CASE');
+    });
+
+    it('Should allow a genuinely distinct display ID', async () => {
+      const patientToEdit = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: 'EDIT-ME-DISTINCT',
+      });
+
+      const newDisplayId = 'GENUINELY-DISTINCT-ID';
+      const updateResult = await app.put(`/api/patient/${patientToEdit.id}`).send({
+        displayId: newDisplayId,
+        facilityId,
+      });
+
+      expect(updateResult).toHaveSucceeded();
+      expect(updateResult.body.displayId).toEqual(newDisplayId);
     });
   });
 

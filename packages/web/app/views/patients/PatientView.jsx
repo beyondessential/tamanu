@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import styled from 'styled-components';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { tabsClasses } from '@mui/material/Tabs';
+import { useQueryClient } from '@tanstack/react-query';
 
-import { TabDisplay } from '../../components/TabDisplay';
+import { TabDisplay, tabScrollButtonStyles } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
 import { useApi } from '../../api';
@@ -26,7 +27,11 @@ import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
 import { usePatient } from '../../contexts/Patient';
-import { usePatientAdditionalDataQuery, usePatientInsurancePlansQuery } from '../../api/queries';
+import {
+  usePatientAdditionalDataQuery,
+  usePatientBirthDataQuery,
+  usePatientInsurancePlansQuery,
+} from '../../api/queries';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../features/Breadcrumbs';
 import { route } from '@tamanu/api-client';
 
@@ -36,6 +41,10 @@ const StyledDisplayTabs = styled(TabDisplay)`
   position: sticky;
   top: ${NAVIGATION_CONTAINER_HEIGHT};
   z-index: 9;
+  ${tabScrollButtonStyles}
+  .${tabsClasses.scrollButtons}:last-child {
+    margin-inline-end: 30px;
+  }
 `;
 
 const TABS = [
@@ -184,11 +193,7 @@ export const PatientView = () => {
   const isSyncing = syncState.isPatientSyncing(patientId);
   const { data: additionalData, isLoading: isLoadingAdditionalData } =
     usePatientAdditionalDataQuery(patientId);
-  const { data: birthData, isLoading: isLoadingBirthData } = useQuery(
-    ['birthData', patientId],
-    () => api.get(route('patient/:patientId/birthData', { patientId })),
-    { enabled: Boolean(patientId) },
-  );
+  const { data: birthData, isLoading: isLoadingBirthData } = usePatientBirthDataQuery(patientId);
   const { data: insurancePlans = [], isLoading: isLoadingInsurancePlans } =
     usePatientInsurancePlansQuery({ patientId });
 

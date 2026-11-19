@@ -19,7 +19,7 @@ import { getApprovalStatus } from '../utils/invoice';
 import { useSettings } from '../contexts/Settings';
 
 export const LabRequestsTable = React.memo(
-  ({ statuses, loadLabRequest, searchParameters }) => {
+  ({ statuses, loadLabRequest, searchParameters, pageSizePreferenceKey }) => {
     const isPublishedTable = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
     const { getSetting } = useSettings();
     const isInvoicingEnabled = getSetting('features.invoicing.enabled');
@@ -113,6 +113,7 @@ export const LabRequestsTable = React.memo(
         noun="LabRequest"
         autoRefresh
         endpoint="labRequest"
+        pageSizePreferenceKey={pageSizePreferenceKey}
         columns={columns}
         noDataMessage={
           <TranslatedText

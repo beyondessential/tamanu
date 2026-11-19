@@ -317,6 +317,8 @@ export class User extends Model {
     return false;
   }
 
+  // The user list's facility filter (central-server admin/users.js) restates these rules in SQL,
+  // so a change to either must be made to both.
   async allowedFacilities() {
     const { Facility, Setting } = this.sequelize.models;
 

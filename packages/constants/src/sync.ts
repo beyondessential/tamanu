@@ -56,3 +56,6 @@ export const BOOTSTRAP_TRANSLATION_STRING_ID_PREFIXES = [
   'splash.',
   'validation.',
 ];
+
+export const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
+  'a facility cannot change sensitive network, only a new facility can be enrolled in a network';

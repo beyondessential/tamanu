@@ -5,6 +5,7 @@ import { AuthContext, SettingsContext, DateTimeProvider } from '@tamanu/ui-compo
 
 import { renderElementWithTranslatedText } from '../../helpers/render';
 import { Table } from '../../../app/components';
+import { PageSizePreferencesContext } from '../../../app/contexts/PageSizePreferences';
 import { systemErrorStore } from '../../../app/state/systemErrorStore';
 import { COLUMNS, SystemErrors } from '../../../app/views/facility/SystemErrors';
 import { SendErrorLogModal } from '../../../app/views/facility/SendErrorLogModal';
@@ -21,6 +22,8 @@ vi.mock('../../../app/api', async importOriginal => ({
 }));
 
 const getSetting = key => (key === 'dateTimeLocale' ? 'en-AU' : undefined);
+// The table remembers its page size; nothing is saved here, so it opens at 50
+const pageSizePreferences = { preferences: {}, isLoaded: true, savePreference: () => {} };
 
 // SystemErrors reads its rows from the systemErrorStore singleton via useSystemErrors, so
 // tests seed it with fixed, known rows before rendering (see state/systemErrorStore.js).
@@ -56,7 +59,9 @@ const withProviders = (element, errors = TEST_ERRORS) => {
   return (
     <AuthContext.Provider value={{ primaryTimeZone: 'Australia/Brisbane' }}>
       <SettingsContext.Provider value={{ getSetting }}>
-        <DateTimeProvider>{element}</DateTimeProvider>
+        <PageSizePreferencesContext.Provider value={pageSizePreferences}>
+          <DateTimeProvider>{element}</DateTimeProvider>
+        </PageSizePreferencesContext.Provider>
       </SettingsContext.Provider>
     </AuthContext.Provider>
   );

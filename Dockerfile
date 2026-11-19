@@ -17,7 +17,7 @@ RUN apk add --no-cache \
   python3 \
   py3-setuptools \
   && npm install -g node-gyp
-COPY common.* ./
+COPY .npmrc common.* ./
 COPY scripts/ scripts/
 
 FROM base AS run-base

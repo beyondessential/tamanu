@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import * as z from 'zod';
+import { MAX_ROWS_PER_PAGE } from '@tamanu/constants';
 
 export const syncLastCompleted = asyncHandler(async (req, res) => {
   req.flagPermissionChecked();
@@ -26,7 +27,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
             return Number.parseInt(val);
           }
           return val;
-        }, z.int().min(1).max(50))
+        }, z.int().min(1).max(MAX_ROWS_PER_PAGE))
         .default(10),
       order: z.enum(['asc', 'desc']).default('desc'),
       orderBy: z

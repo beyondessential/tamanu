@@ -20,6 +20,7 @@ export const theme = {
     ORANGE: '#FF7A00',
     WHITE: '#FFFFFF',
     ERROR_LIGHT: '#FFF4F2',
+    ALERT_LIGHT: '#FFF0EE',
     ERROR: '#FFC7BF',
     LIGHT_BLUE: '#67A6E3',
     DEFAULT_OFF: '#EBEBEB',
