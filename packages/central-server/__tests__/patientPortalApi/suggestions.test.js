@@ -68,6 +68,43 @@ describe('Patient Portal suggestions', () => {
     expect(response).toHaveSucceeded();
   });
 
+  it('looks up a record by id', async () => {
+    const diagnosis = await store.models.ReferenceData.create(
+      fake(store.models.ReferenceData, { type: REFERENCE_TYPES.DIAGNOSIS }),
+    );
+
+    const response = await baseApp
+      .get(`/api/portal/suggestions/diagnosis/${diagnosis.id}`)
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.id).toBe(diagnosis.id);
+  });
+
+  it('looks up a sensitive drug by id', async () => {
+    const sensitiveDrug = await createDrug({ name: 'Portalmycin by id', isSensitive: true });
+
+    const response = await baseApp
+      .get(`/api/portal/suggestions/drug/${sensitiveDrug.id}`)
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.id).toBe(sensitiveDrug.id);
+  });
+
+  it('lists every record of a type', async () => {
+    const diagnosis = await store.models.ReferenceData.create(
+      fake(store.models.ReferenceData, { type: REFERENCE_TYPES.DIAGNOSIS }),
+    );
+
+    const response = await baseApp
+      .get('/api/portal/suggestions/diagnosis/all')
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.map(record => record.id)).toContain(diagnosis.id);
+  });
+
   it('rejects searches without a sign-in', async () => {
     const response = await baseApp.get('/api/portal/suggestions/diagnosis').query({ q: 'x' });
 
