@@ -24,7 +24,8 @@
     "**/.next": true,
     "**/build": true,
     "**/dist": true,
-    "**/node_modules": true
+    "**/node_modules": true,
+    ".claude/worktrees": true
   },
   "yaml.schemas": {
     "https://www.artillery.io/schema.json": []
