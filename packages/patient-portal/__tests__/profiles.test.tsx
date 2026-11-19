@@ -61,6 +61,15 @@ describe('Select profile', () => {
     expect(screen.queryByText('Dashboard')).toBeNull();
   });
 
+  it('says so when the profiles cannot be loaded', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient() });
+    renderPortal({ page: <SelectProfileView />, path: '/select-profile', api });
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/couldn't be loaded/);
+    expect(screen.queryByText('Dashboard')).toBeNull();
+  });
+
   it('goes to the dashboard when the email has one profile', async () => {
     stubTranslations();
     const api = createProfilesApi({ me: fakePatient(), profiles: profilesOf(ANA) });

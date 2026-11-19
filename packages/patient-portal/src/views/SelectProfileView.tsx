@@ -45,14 +45,14 @@ const ProfileButton = styled.button.attrs({ type: 'button' })`
 `;
 
 export const SelectProfileView = () => {
-  const { data: profiles, isPending } = useProfilesQuery();
+  const { data: profiles, isPending, isError: hasLoadFailed } = useProfilesQuery();
   const {
     mutate: selectProfile,
     isPending: isSelecting,
     isError: hasSelectFailed,
   } = useSelectProfile();
 
-  if (!isPending && (profiles?.data.length ?? 0) < 2) {
+  if (!isPending && !hasLoadFailed && (profiles?.data.length ?? 0) < 2) {
     return <Navigate to="/" replace />;
   }
 
@@ -69,6 +69,14 @@ export const SelectProfileView = () => {
           <TranslatedText
             stringId="patientPortal.selectProfile.error"
             fallback="That profile couldn't be opened. Please try again."
+          />
+        </FormErrorMessage>
+      )}
+      {hasLoadFailed && (
+        <FormErrorMessage role="alert">
+          <TranslatedText
+            stringId="patientPortal.selectProfile.loadError"
+            fallback="Your profiles couldn't be loaded. Please try again."
           />
         </FormErrorMessage>
       )}
