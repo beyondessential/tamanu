@@ -13,6 +13,12 @@ quickly and often on a ward. Assume no knowledge of Tamanu's internals.
   lack the permission, say so, and tell the reader to contact their system administrator if they
   believe they should be able to carry it out
 - **Name on-screen words exactly**, in bold, without quotation marks: buttons, fields, tabs and screens
+- **Match the verb to the control.** Unless context demands otherwise:
+  - buttons and links are _clicked_ on desktop, and _tapped_ on mobile;
+  - dropdown/pulldown options are _selected_;
+  - checkboxes and radio options are _selected_;
+  - windows and tabs are _closed_;
+  - alerts, dialogs and modals are _dismissed_.
 - **Write plainly.** Short sentences in the active voice, addressing the reader as "you", one
   instruction to a sentence, and no technical or developer terms
 - **Assume nothing the reader hasn't been told**, starting from the place in the product the guide
