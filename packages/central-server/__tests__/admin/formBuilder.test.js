@@ -939,14 +939,43 @@ describe('Form Builder Admin', () => {
       }
     });
 
-    it('refuses a program that does not exist', async () => {
-      const response = await app.post('/v1/admin/form-builder/chat').send({
-        message: 'Build a referral form',
-        programId: 'program-does-not-exist',
+    it('checks previews in async chats too', async () => {
+      reportReady();
+      aiService.invokeStructured
+        .mockResolvedValueOnce(unsaveableProgramDefinition)
+        .mockResolvedValueOnce(hospitalNumberCorrection);
+
+      const startResponse = await app.post('/v1/admin/form-builder/chat').send({
+        async: true,
+        message: 'Build a referral form with the hospital number',
+        programId,
       });
+
+      expect(startResponse.status).toBe(202);
+      const pollResponse = await pollUntilSettled(startResponse.body.jobId);
+      expect(pollResponse.body).toMatchObject({
+        status: 'complete',
+        result: {
+          message: 'Your form is ready.\n\nChanged Hospital No to a free text question.',
+        },
+      });
+      expect(pollResponse.body.result.programDefinition.surveySheets[0].questions[1].type).toBe(
+        'FreeText',
+      );
+    });
+
+    it('refuses a program that does not exist, deleting the upload', async () => {
+      const response = await app
+        .post('/v1/admin/form-builder/chat')
+        .field(
+          'jsonData',
+          JSON.stringify({ message: 'Use this form', programId: 'program-does-not-exist' }),
+        )
+        .attach('file', Buffer.from('Patient name'), 'form.txt');
 
       expect(response).toHaveRequestError(404);
       expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+      expect(await fs.readdir(uploadDirPath())).toEqual([]);
     });
 
     it('refuses a programId that is not a string, deleting the upload', async () => {
