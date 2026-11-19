@@ -138,9 +138,10 @@ Where \* is a required field.
 | allowedFacilities       | The `id` of each facility the user is linked to, separated by commas. Leave blank to link the user to no facilities. What a link grants depends on the facility access settings: see [Facility access](02-settings.md#facility-access).                 |
 | password                | The password the user logs in with. Needed to create a user who can log in, but not checked by the importer, so a new user imported without one cannot log in until a password is set. Leave blank when updating a user to keep their current password. |
 
-> [!WARNING] On re-import, the `designations` and `allowedFacilities` columns replace the user's
-> existing values rather than adding to them. A blank cell removes all of the user's designations or
-> facility links.
+> [!WARNING]\
+> On re-import, the `designations` and `allowedFacilities` columns replace the user's existing
+> values rather than adding to them. A blank cell removes all of the user's designations or facility
+> links.
 
 An export writes `designations` and `allowedFacilities` back as comma-separated ids, so an exported
 sheet re-imports unchanged. An export has no `password` column, and re-importing it leaves every
@@ -195,9 +196,10 @@ Click a user's row to open their **User profile**. The same fields can be change
 
 The device registration quota is set on the `User` tab only.
 
-> [!WARNING]
-> A user who edits their own profile is warned if the new role would remove their permission to edit
-> user profiles. If they continue, another user with that permission must change their role back.
+> [!WARNING]\
+>  A user who edits their own profile is warned if the new role would remove their permission to
+> edit user profiles. If they continue, another user with that permission must change their role
+> back.
 
 The accounts facility servers use to sync are not listed and cannot be edited here.
 
