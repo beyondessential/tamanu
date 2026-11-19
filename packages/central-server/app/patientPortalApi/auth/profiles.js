@@ -16,9 +16,11 @@ const getRegisteredPortalUsers = async (models, email) => {
 export const getProfiles = asyncHandler(async (req, res) => {
   const email = req.portalSessionEmail;
   const portalUsers = await getRegisteredPortalUsers(req.store.models, email);
-  for (const { patient } of portalUsers) {
-    await req.audit.access({ recordId: patient.id, model: req.models.Patient });
-  }
+  await Promise.all(
+    portalUsers.map(({ patient }) =>
+      req.audit.access({ recordId: patient.id, model: req.models.Patient }),
+    ),
+  );
 
   res.send(
     PortalProfilesSchema.parse({
