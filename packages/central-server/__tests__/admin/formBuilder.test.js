@@ -821,6 +821,41 @@ describe('Form Builder Admin', () => {
       );
     });
 
+    it('names questions by their own codes, whichever check rejects them', async () => {
+      reportReady();
+      aiService.invokeStructured
+        .mockResolvedValueOnce({
+          ...programDefinition,
+          surveySheets: [
+            {
+              surveyName: 'Referral form',
+              questions: [
+                ...programDefinition.surveySheets[0].questions,
+                {
+                  // imported under a generated code, as it doesn't start with the survey's
+                  code: 'Weight-kg',
+                  name: 'Weight',
+                  text: 'Weight (kg)',
+                  type: 'Number',
+                  visualisationConfig: { yAxis: { graphRange: { min: 0, max: 200 } } },
+                },
+              ],
+            },
+          ],
+        })
+        .mockRejectedValueOnce(new Error('No tool call'));
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a referral form with the weight',
+        programId,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.message).toBe(
+        'Your form is ready.\n\nThis preview cannot be saved yet:\n- Question "Weight-kg" in survey "Referral form": validationCriteria must be specified if visualisationConfig is presented',
+      );
+    });
+
     it('leaves the preview as generated when the check itself fails', async () => {
       reportReady();
       aiService.invokeStructured.mockResolvedValueOnce(unsaveableProgramDefinition);

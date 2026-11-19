@@ -289,6 +289,12 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
       return [originalQuestionCode, questionCode];
     }),
   );
+  const definitionCodesByQuestionCode = new Map(
+    surveySheet.questions.map(question => [
+      questionCodeMap.get(createCode(question.code)),
+      question.code,
+    ]),
+  );
   const sortedQuestionCodeEntries = [...questionCodeMap.entries()].sort(
     ([oldCodeA], [oldCodeB]) => oldCodeB.length - oldCodeA.length,
   );
@@ -368,7 +374,7 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
     componentIndex += 1;
   }
 
-  return { rows, surveyId, surveyInfo: rows[0].values };
+  return { definitionCodesByQuestionCode, rows, surveyId, surveyInfo: rows[0].values };
 };
 
 const validateSurvey = async ({ context, rows, surveyInfo }) => {
@@ -405,25 +411,20 @@ const getCustomPatientFieldIds = async models =>
 const findSurveySheet = (programDefinition, surveyDefinition) =>
   programDefinition.surveySheets.find(({ surveyName }) => surveyName === surveyDefinition.name);
 
-// Imports one survey, leaving any problems in context.errors. Rows are only
-// imported once the survey as a whole has validated.
-const importSurvey = async ({
-  context,
-  customPatientFieldIds,
-  programId,
-  surveyDefinition,
-  surveySheet,
-}) => {
-  const { models } = context;
-  const surveyCode = await getAvailableSurveyCode(models.Survey, createCode(surveyDefinition.code));
-  const { rows, surveyId, surveyInfo } = createSurveyImportRows({
+const prepareSurveyImport = async ({ models, programId, surveyDefinition, surveySheet }) =>
+  createSurveyImportRows({
     programId,
-    surveyCode,
+    surveyCode: await getAvailableSurveyCode(models.Survey, createCode(surveyDefinition.code)),
     surveyDefinition,
     surveySheet,
   });
+
+// Imports one survey, leaving any problems in context.errors. Rows are only
+// imported once the survey as a whole has validated.
+const importSurvey = async ({ context, customPatientFieldIds, programId, surveyImport }) => {
+  const { rows, surveyInfo } = surveyImport;
   const stats = await validateSurvey({ context, rows, surveyInfo });
-  if (context.errors.length > 0) return surveyId;
+  if (context.errors.length > 0) return;
 
   await importRows(
     context,
@@ -433,12 +434,11 @@ const importSurvey = async ({
       stats,
     },
     {
-      models,
+      models: context.models,
       programId,
       customPatientFieldIds,
     },
   );
-  return surveyId;
 };
 
 export const saveProgramDefinition = async ({ db, models, programId, programDefinition }) => {
@@ -448,16 +448,16 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
 
   await db.transaction(async () => {
     for (const surveyDefinition of programDefinition.surveys) {
-      const surveyId = await importSurvey({
-        context,
-        customPatientFieldIds,
+      const surveyImport = await prepareSurveyImport({
+        models,
         programId,
         surveyDefinition,
         surveySheet: findSurveySheet(programDefinition, surveyDefinition),
       });
+      await importSurvey({ context, customPatientFieldIds, programId, surveyImport });
       if (context.errors.length > 0) throw context.errors[0];
 
-      surveyIds.push(surveyId);
+      surveyIds.push(surveyImport.surveyId);
     }
   });
 
@@ -466,17 +466,36 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
   });
 };
 
-// Import errors name the sheet row, which is the question's position; the
-// question's code is what the definition (and the model reading it) knows it by.
-const describeSaveError = (error, surveySheet) => {
-  if (!(error instanceof DataImportError))
-    return `Survey "${surveySheet.surveyName}": ${error.message}`;
+// Import errors name a question by its import code or its row, while the
+// definition (and the model reading it) knows the question by its own code.
+const describeSaveError = (error, { definitionCodesByQuestionCode, rows, surveyInfo }) => {
+  const dataElementRows = rows.filter(({ model }) => model === 'ProgramDataElement');
+  const toDefinitionCodes = text =>
+    text.replace(/\w+/g, word => definitionCodesByQuestionCode.get(word) ?? word);
+  const describe = (row, message) => {
+    const subject = row
+      ? `Question "${definitionCodesByQuestionCode.get(row.values.code)}" in survey`
+      : 'Survey';
+    return `${subject} "${surveyInfo.name}": ${toDefinitionCodes(message)}`;
+  };
 
-  const question = surveySheet.questions[error.rowNumber - 2];
-  const subject = question
-    ? `Question "${question.code}" in survey "${surveySheet.surveyName}"`
-    : `Survey "${surveySheet.surveyName}"`;
-  return `${subject}: ${error.previous.message}`;
+  if (error instanceof DataImportError) {
+    const row = dataElementRows.find(({ sheetRow }) => sheetRow === error.rowIndex);
+    return describe(row, error.previous.message);
+  }
+
+  // The data element checks report plain errors, prefixed with the sheet and,
+  // where there is one, the question's import code.
+  const sheetPrefix = `sheetName: ${surveyInfo.name}, `;
+  const questionPrefix = row => `${sheetPrefix}code: '${row.values.code}', `;
+  const row = dataElementRows.find(candidate =>
+    error.message.startsWith(questionPrefix(candidate)),
+  );
+  if (row) return describe(row, error.message.slice(questionPrefix(row).length));
+  return describe(
+    null,
+    error.message.startsWith(sheetPrefix) ? error.message.slice(sheetPrefix.length) : error.message,
+  );
 };
 
 /**
@@ -497,15 +516,14 @@ export const findProgramDefinitionSaveProblems = async ({
     await db.transaction(async () => {
       for (const surveyDefinition of programDefinition.surveys) {
         const context = createImportContext(models);
-        const surveySheet = findSurveySheet(programDefinition, surveyDefinition);
+        const surveyImport = await prepareSurveyImport({
+          models,
+          programId,
+          surveyDefinition,
+          surveySheet: findSurveySheet(programDefinition, surveyDefinition),
+        });
         try {
-          await importSurvey({
-            context,
-            customPatientFieldIds,
-            programId,
-            surveyDefinition,
-            surveySheet,
-          });
+          await importSurvey({ context, customPatientFieldIds, programId, surveyImport });
         } catch (error) {
           // Anything but an import error is a fault no change to the definition fixes.
           if (!(error instanceof DataImportError)) throw error;
@@ -513,7 +531,7 @@ export const findProgramDefinitionSaveProblems = async ({
         }
 
         if (context.errors.length > 0) {
-          problems.push(...context.errors.map(error => describeSaveError(error, surveySheet)));
+          problems.push(...context.errors.map(error => describeSaveError(error, surveyImport)));
           break;
         }
       }
