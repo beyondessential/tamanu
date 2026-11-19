@@ -6,6 +6,7 @@ import { BaseModal, Button, TranslatedReferenceData, TranslatedText, useDateTime
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
+import { PharmacyPrescriptionTypeLabel } from '../../utils/medications';
 import { MedicationDetailsColumns } from './MedicationDetailsColumns';
 
 const Text = styled.div`
@@ -54,6 +55,16 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
           fallback={prescription?.medication?.name}
           value={prescription?.medication?.id}
           category={prescription?.medication?.type}
+        />
+      ),
+    },
+    {
+      label: (
+        <TranslatedText stringId="medication.prescriptionType.label" fallback="Prescription type" />
+      ),
+      value: (
+        <PharmacyPrescriptionTypeLabel
+          isDischargePrescription={pharmacyOrder?.isDischargePrescription}
         />
       ),
     },

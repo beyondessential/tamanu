@@ -1,3 +1,4 @@
+import { Locator } from '@playwright/test';
 import { test, expect } from '@fixtures/baseFixture';
 import { getUser } from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
@@ -88,7 +89,7 @@ test.describe('Notes Tests', () => {
 
       // Set up the form
       await newNoteModal?.selectType(NOTE_TYPES.OTHER);
-      await newNoteModal?.noteContentTextarea.fill(noteContent);
+      await newNoteModal?.noteContentInput.fill(noteContent);
 
       // Validate form field values
       await expect(newNoteModal?.getWrittenByValue()).resolves.toBe(user.displayName);
@@ -128,6 +129,57 @@ test.describe('Notes Tests', () => {
       ).toBeVisible();
     });
 
+    test('should create a note with bold, italic and underlined text', async ({
+      patientDetailsPage,
+    }) => {
+      const notesPane = patientDetailsPage.notesPane!;
+      const newNoteModal = notesPane.getNewNoteModal();
+      const editNoteModal = notesPane.getEditNoteModal();
+      const changeLogModal = notesPane.getChangeLogModal();
+
+      await notesPane.newNoteButton.click();
+      await newNoteModal.waitForModalToLoad();
+      await newNoteModal.selectType(NOTE_TYPES.OTHER);
+      await newNoteModal.typeContent([
+        { text: 'Bold text', styleButton: newNoteModal.boldButton },
+        { text: ' ' },
+        { text: 'Italic text', styleButton: newNoteModal.italicButton },
+        { text: ' ' },
+        { text: 'Underlined text', styleButton: newNoteModal.underlineButton },
+      ]);
+      await newNoteModal.confirmButton.click();
+      await newNoteModal.waitForModalToClose();
+      await notesPane.waitForNotesPaneToLoad();
+
+      const expectStyled = async (container: Locator) => {
+        await expect(container.getByText('Bold text', { exact: true })).toHaveCSS(
+          'font-weight',
+          '700',
+        );
+        await expect(container.getByText('Italic text', { exact: true })).toHaveCSS(
+          'font-style',
+          'italic',
+        );
+        await expect(container.getByText('Underlined text', { exact: true })).toHaveCSS(
+          'text-decoration-line',
+          'underline',
+        );
+      };
+      await expectStyled(notesPane.noteContents.first());
+
+      await notesPane.editIcons.nth(0).click();
+      await editNoteModal.waitForModalToLoad();
+      await expect(editNoteModal.noteContentInput.locator('b')).toHaveText('Bold text');
+      await expect(editNoteModal.noteContentInput.locator('i')).toHaveText('Italic text');
+      await expect(editNoteModal.noteContentInput.locator('u')).toHaveText('Underlined text');
+      await editNoteModal.editNote('Plain text');
+      await notesPane.waitForNotesPaneToLoad();
+      await notesPane.editedButtons.first().click();
+      await changeLogModal.waitForModalToLoad();
+      await expectStyled(changeLogModal.changelogTextContents.nth(1));
+      await changeLogModal.closeButton.click();
+    });
+
     test('[T-0186][AT-0080]should allow cancelling note creation', async ({
       patientDetailsPage,
     }) => {
@@ -135,7 +187,7 @@ test.describe('Notes Tests', () => {
       await patientDetailsPage.notesPane?.newNoteButton.click();
       await newNoteModal?.waitForModalToLoad();
       await newNoteModal?.selectType(NOTE_TYPES.OTHER);
-      await newNoteModal?.noteContentTextarea.fill('this is test note');
+      await newNoteModal?.noteContentInput.fill('this is test note');
       await newNoteModal?.cancelButton.click();
       await newNoteModal?.discardNoteModal.waitForModalToLoad();
       await newNoteModal?.discardNoteModal.confirmButton.click();
@@ -312,7 +364,7 @@ test.describe('Notes Tests', () => {
       // Start editing but cancel
       await patientDetailsPage.notesPane?.editIcons.nth(0).click();
       await editNoteModal?.waitForModalToLoad();
-      await editNoteModal?.noteContentTextarea.fill(updatedContent);
+      await editNoteModal?.noteContentInput.fill(updatedContent);
       await editNoteModal?.cancelButton.click();
       await discardNoteModal?.waitForModalToLoad();
       await discardNoteModal?.confirmButton.click();

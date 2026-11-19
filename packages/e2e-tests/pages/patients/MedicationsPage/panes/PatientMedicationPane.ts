@@ -1,10 +1,12 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
 import { MedicationDetailsModal } from '../modals/MedicationDetailsModal';
+import { MedicationDispenseDetailsModal } from '../../../medication/MedicationDispenseDetailsModal';
 
 export class PatientMedicationPane extends BasePatientPane {
   readonly ongoingMedicationsTable: Locator;
   readonly ongoingMedicationsTableBody: Locator;
+  readonly dispensedMedicationsTableBody: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -12,6 +14,9 @@ export class PatientMedicationPane extends BasePatientPane {
     this.ongoingMedicationsTableBody = this.ongoingMedicationsTable.getByTestId(
       'styledtablebody-a0jz',
     );
+    this.dispensedMedicationsTableBody = page
+      .getByTestId('dispensed-medications-table')
+      .getByTestId('styledtablebody-a0jz');
   }
 
   async waitForPaneToLoad(): Promise<void> {
@@ -45,6 +50,20 @@ export class PatientMedicationPane extends BasePatientPane {
 
     const detailsModal = new MedicationDetailsModal(this.page);
     await detailsModal.dialog.waitFor({ state: 'visible' });
+    return detailsModal;
+  }
+
+  // Waits for a real data cell for the same reason as clickFirstOngoingMedicationRow. Clicks the
+  // medication name, clear of the actions cell, which does not open the details window.
+  async openFirstDispensedMedication(): Promise<MedicationDispenseDetailsModal> {
+    const medicationNameCell = this.dispensedMedicationsTableBody.getByTestId(
+      'styledtablecell-2gyy-0-pharmacyOrderPrescription.prescription.medication.name',
+    );
+    await medicationNameCell.waitFor({ state: 'visible' });
+    await medicationNameCell.click();
+
+    const detailsModal = new MedicationDispenseDetailsModal(this.page, 'Dispensed medication');
+    await detailsModal.waitForModalToLoad();
     return detailsModal;
   }
 }
