@@ -46,8 +46,8 @@ kind of field or screen it describes.
 
 # Notes
 
-- **Keep the record in view.** The note window sits over the patient's record without hiding it, so
-  you can scroll and read the record while you write. Drag the window's title bar to move it, or
+- **Keep the record in view.** The note dialog sits over the patient's record without hiding it, so
+  you can scroll and read the record while you write. Drag the dialog's title bar to move it, or
   drag its edges to resize it.
 - **Finish the note before moving on.** You cannot leave the patient's record while a note is open.
   See [Move around a patient's record](02-move-around-patient-record.md).

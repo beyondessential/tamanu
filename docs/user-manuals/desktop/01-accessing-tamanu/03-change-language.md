@@ -52,19 +52,19 @@ single language. Contact your system administrator if you believe you should be 
 
 3. Select **Change language**.
 
-   The **Change language** window opens.
+   The **Change language** dialog opens.
 
    <figure>
      <img
        src="images/change-language-window.png"
-       alt="The Change language window, with English selected in Language"
+       alt="The Change language dialog, with English selected in Language"
        width="276"
      />
-     <figcaption>The <b>Change language</b> window.</figcaption>
+     <figcaption>The <b>Change language</b> dialog.</figcaption>
    </figure>
 
 4. Choose your language from **Language**.
 
 5. Click **Confirm**.
 
-   The window closes and Tamanu changes to that language.
+   This dismisses the dialog and Tamanu changes to that language.

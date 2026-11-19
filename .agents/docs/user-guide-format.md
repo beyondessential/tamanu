@@ -82,7 +82,7 @@ Screenshots follow one convention across Tamanu's user guides and configuration 
 shots everywhere are found by one search.
 
 - **A shot not yet captured is a placeholder**: a bold `[Screenshot: ...]` on its own line, describing
-  what the shot must show, e.g. `**[Screenshot: the Record vitals window]**`
+  what the shot must show, e.g. `**[Screenshot: the Record vitals dialog]**`
 - **Place a screenshot where a visual helps**, typically on reaching a new screen or where words
   describe a step poorly, rather than at a fixed rate
 - **Capturing replaces the placeholder with the image**, so a guide holds one or the other, never both

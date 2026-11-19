@@ -56,7 +56,7 @@ system administrator gives you these.
 # Log out
 
 Your site may also log you out after a period of inactivity. Before it does, the **Login timeout**
-window counts down the seconds left. Click **Stay logged in** to carry on working, or **Log out** to
+alert counts down the seconds left. Click **Stay logged in** to carry on working, or **Log out** to
 log out straight away.
 
 1. If the sidebar is collapsed, click the arrow at the top of the sidebar to expand it.
