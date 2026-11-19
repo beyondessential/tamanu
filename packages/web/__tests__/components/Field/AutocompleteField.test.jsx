@@ -77,6 +77,83 @@ describe('AutocompleteInput', () => {
       await waitFor(() => expect(suggester.createSuggestion).toHaveBeenCalledTimes(1));
     });
 
+    it('closes the suggestions as soon as it is picked', async () => {
+      const suggester = createCreatableSuggester();
+      const { input } = renderCreatableInput(suggester);
+
+      await userEvent.type(input, 'Zzsmoke');
+      await screen.findByText(/item not in list/);
+      pressKeys(input, ['ArrowDown', 'Enter']);
+
+      expect(screen.queryByText(/item not in list/)).toBeNull();
+    });
+
+    it('creates it once when picked again while the first creation is pending', async () => {
+      const suggester = createCreatableSuggester();
+      let resolveCreation;
+      suggester.createSuggestion.mockImplementationOnce(
+        ({ name }) =>
+          new Promise(resolve => {
+            resolveCreation = () => resolve({ label: name, value: `new-${name}` });
+          }),
+      );
+      const { input, onChange } = renderCreatableInput(suggester);
+
+      await userEvent.type(input, 'Zzsmoke');
+      await screen.findByText(/item not in list/);
+      pressKeys(input, ['ArrowDown', 'Enter']);
+
+      await userEvent.clear(input);
+      await userEvent.type(input, 'Zzsmoke');
+      await screen.findByText(/item not in list/);
+      pressKeys(input, ['ArrowDown', 'Enter']);
+      resolveCreation();
+
+      await waitFor(() =>
+        expect(onChange).toHaveBeenLastCalledWith({
+          target: { label: 'Zzsmoke', value: 'new-Zzsmoke', name: 'allergyId' },
+        }),
+      );
+      expect(suggester.createSuggestion).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps an option picked while its creation is pending', async () => {
+      const existingOptions = [
+        { label: 'Peanuts', value: 'allergy-peanuts' },
+        { label: 'Penicillin', value: 'allergy-penicillin' },
+      ];
+      const suggester = createCreatableSuggester();
+      suggester.fetchSuggestions.mockImplementation(search =>
+        Promise.resolve(existingOptions.filter(option => option.label.startsWith(search))),
+      );
+      let resolveCreation;
+      suggester.createSuggestion.mockImplementationOnce(
+        ({ name }) =>
+          new Promise(resolve => {
+            resolveCreation = () => resolve({ label: name, value: `new-${name}` });
+          }),
+      );
+      const { input, onChange } = renderCreatableInput(suggester);
+
+      await userEvent.type(input, 'Zzsmoke');
+      await screen.findByText(/item not in list/);
+      pressKeys(input, ['ArrowDown', 'Enter']);
+
+      await userEvent.clear(input);
+      await userEvent.type(input, 'Pea');
+      await screen.findByText('Peanuts');
+      pressKeys(input, ['ArrowDown', 'Enter']);
+      resolveCreation();
+      // Let the superseded creation settle before asserting it was discarded
+      await new Promise(resolve => {
+        setTimeout(resolve, 0);
+      });
+
+      expect(onChange).toHaveBeenLastCalledWith({
+        target: { label: 'Peanuts', value: 'allergy-peanuts', name: 'allergyId' },
+      });
+    });
+
     it('does not create it when the arrow keys only pass over it', async () => {
       const suggester = createCreatableSuggester([{ label: 'Peanuts', value: 'allergy-peanuts' }]);
       const { input, onChange } = renderCreatableInput(suggester);

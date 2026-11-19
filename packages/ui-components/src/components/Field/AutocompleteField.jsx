@@ -141,6 +141,9 @@ export class AutocompleteInput extends Component {
     this.anchorEl = React.createRef();
     this.debouncedFetchOptions = debounce(this.fetchOptions, 200);
     this.latestFetchId = 0; // Identifies the newest fetch, so a slow response to an earlier search
+    this.customSuggestionCreations = new Map(); // Lower-cased label to its creation request
+    this.latestValueChangeId = 0; // Identifies the newest change to the field's value, so a slow
+    // creation does not overwrite an option picked after it
     this.inputElementNode = null;
     this.observer = null;
 
@@ -201,19 +204,34 @@ export class AutocompleteInput extends Component {
 
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;
+    this.latestValueChangeId += 1;
     onChange({ target: { ...option, name } });
     return option.label;
   };
 
+  // Picking a label that is being or has been created reuses that creation, so the same
+  // "item not in list" option is never created twice
   createCustomSuggestion = option => {
     const { onChange, name, suggester } = this.props;
     if (!suggester) return;
-    suggester
-      .createSuggestion({ name: option.label })
-      .then(result => onChange({ target: { ...result, name } }))
-      .catch(e => {
+    const valueChangeId = ++this.latestValueChangeId;
+    const isSuperseded = () => valueChangeId !== this.latestValueChangeId;
+    const creationKey = option.label.toLowerCase();
+    if (!this.customSuggestionCreations.has(creationKey)) {
+      const creation = suggester.createSuggestion({ name: option.label });
+      this.customSuggestionCreations.set(creationKey, creation);
+      creation.catch(e => {
+        this.customSuggestionCreations.delete(creationKey);
         notifyError(e.message);
-        onChange({ target: { value: undefined, name } });
+      });
+    }
+    this.customSuggestionCreations
+      .get(creationKey)
+      .then(result => {
+        if (!isSuperseded()) onChange({ target: { ...result, name } });
+      })
+      .catch(() => {
+        if (!isSuperseded()) onChange({ target: { value: undefined, name } });
       });
   };
 
@@ -235,15 +253,22 @@ export class AutocompleteInput extends Component {
       : options.filter(x => x.label.toLowerCase().includes(searchValue.toLowerCase()));
   };
 
+  // A selection closes the list at once and discards searches still in flight, so the option
+  // just picked cannot be picked again from a list that is about to close
+  handleSuggestionsFetchRequested = request => {
+    if (request.reason === 'suggestion-selected') {
+      this.debouncedFetchOptions.cancel();
+      this.latestFetchId += 1;
+      this.clearOptions();
+      return;
+    }
+    this.debouncedFetchOptions(request);
+  };
+
   fetchOptions = async ({ value, reason }) => {
     const { value: formValue, allowCreatingCustomValue, filterer } = this.props;
     const fetchId = ++this.latestFetchId;
     const isStale = () => fetchId !== this.latestFetchId;
-
-    if (reason === 'suggestion-selected') {
-      this.clearOptions();
-      return;
-    }
 
     if (value === '') {
       if (await this.attemptAutoFill(isStale)) return;
@@ -314,6 +339,7 @@ export class AutocompleteInput extends Component {
 
   handleClearValue = () => {
     const { onChange, name } = this.props;
+    this.latestValueChangeId += 1;
     onChange({ target: { value: undefined, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
   };
@@ -563,7 +589,7 @@ export class AutocompleteInput extends Component {
           getSectionSuggestions={this.getSectionSuggestions}
           renderSectionTitle={this.renderSectionTitle}
           suggestions={multiSection ? this.groupSuggestionsByKey(suggestions) : suggestions}
-          onSuggestionsFetchRequested={this.debouncedFetchOptions}
+          onSuggestionsFetchRequested={this.handleSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.clearOptions}
           renderSuggestionsContainer={this.renderContainer}
           getSuggestionValue={this.getSuggestionValue}
