@@ -76,7 +76,7 @@ The new User Management component in the admin panel provides administrators wit
 **Key features**
 
 - **Users table** - View all active and deactivated users in a sortable, searchable table displaying key user details.
-- **User profile management** - Click on any user to view and edit their details including display name, display ID, role, designation, email, phone, status, and allowed facilities. Password changes can also be made directly from the user profile.
+- **User profile management** - Click any user to view and edit their details including display name, display ID, role, designation, email, phone, status, and allowed facilities. Password changes can also be made directly from the user profile.
 - **Create new users** - Add new users directly through the admin panel. The system validates that display names and email addresses are unique.
 - **Schedule user leave** - Record upcoming leave periods for users to ensure their availability is accurately reflected in location assignments. The system automatically handles conflicts by removing location assignments that overlap with scheduled leave.
 
