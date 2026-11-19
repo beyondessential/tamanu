@@ -27,4 +27,5 @@
 - The option opens a print modal following `InvoiceRecordModal`: a `Modal` titled "Print table summary", `printable`, with the PDF in a `PDFLoader`
 - The PDF is a new printout in `packages/shared/src/utils/patientCertificates/`, built from the same pieces as `InvoiceRecordPrintout`: `MultiPageHeader`, `LetterheadSection`, `PatientDetails`, the invoice item table styling, a summary pane holding the total balance, and `Footer`
 - The printout is titled "Patient invoice summary" and lists all of the patient's in-progress and finalised invoices, not only the page shown in the table, so it needs its own unpaginated fetch
-- The printout is landscape A4 (`<Page size="A4" orientation="landscape">`, as in `EncounterRecordPrintout`), so all nine columns fit with their headings on one line
+- The printout is landscape A4 (`<Page size="A4" orientation="landscape">`, as in `EncounterRecordPrintout`), so its columns have room
+- The printout has one column per insurance plan found on any of the listed invoices, headed by the plan's name (its code where it has no name), between Invoice total and Patient subtotal. Each cell is that plan's coverage of that invoice, from `getFormattedCoverageAmountPerInsurancePlanForInvoice` shown as a positive amount, and $0.00 where the plan isn't on the invoice. The on-screen table has no insurance columns
