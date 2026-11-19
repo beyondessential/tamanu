@@ -287,3 +287,50 @@ describe('AIService structured responses', () => {
     await expect(invokeTweak(service)).rejects.toThrow(/expected the model to call "respond"/);
   });
 });
+
+describe('AIService.reviseFormBuilderResponseMessage', () => {
+  const readyResponse = { message: 'Your form is ready.', ready: true };
+  const laterResponse = { message: 'Which date?', ready: false };
+  const serviceHolding = messages => {
+    const session = { messages, update: vi.fn() };
+    const service = new AIService();
+    service.models = { AiChatSession: { findOne: vi.fn().mockResolvedValue(session) } };
+    return { service, session };
+  };
+
+  it('replaces the message in that response, even with a later turn added', async () => {
+    const { service, session } = serviceHolding([
+      { role: 'system', content: 'process' },
+      { role: 'human', content: 'Build a referral form' },
+      { role: 'ai', content: JSON.stringify(readyResponse) },
+      { role: 'human', content: 'Add a date' },
+      { role: 'ai', content: JSON.stringify(laterResponse) },
+    ]);
+
+    await service.reviseFormBuilderResponseMessage(
+      'session-id',
+      readyResponse,
+      'Your form is ready.\n\nChanged it.',
+    );
+
+    const { messages } = session.update.mock.calls[0][0];
+    expect(messages).toEqual(
+      session.messages.with(2, {
+        role: 'ai',
+        content: JSON.stringify({
+          ...readyResponse,
+          message: 'Your form is ready.\n\nChanged it.',
+        }),
+      }),
+    );
+  });
+
+  it('refuses when the session does not hold the response', async () => {
+    const { service, session } = serviceHolding([{ role: 'system', content: 'process' }]);
+
+    await expect(
+      service.reviseFormBuilderResponseMessage('session-id', readyResponse, 'Changed it.'),
+    ).rejects.toThrow(/does not hold the response/);
+    expect(session.update).not.toHaveBeenCalled();
+  });
+});
