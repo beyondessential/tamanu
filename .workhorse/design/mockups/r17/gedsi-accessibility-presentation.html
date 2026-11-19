@@ -252,6 +252,119 @@
   }
   .close .foot { color: #F5F7FB; font-size: calc(var(--u) * 26); }
   .close .foot span:last-child { color: #A9B4CF; font-size: calc(var(--u) * 18); align-self: flex-end; }
+
+  /* Screens and photos */
+  .shot {
+    display: block;
+    border-radius: calc(var(--u) * 10);
+    box-shadow: 0 calc(var(--u) * 20) calc(var(--u) * 60) rgba(0, 0, 0, 0.45);
+  }
+  .tablet-shot {
+    display: block;
+    filter: drop-shadow(0 calc(var(--u) * 20) calc(var(--u) * 40) rgba(0, 0, 0, 0.5));
+  }
+  .light .tablet-shot { filter: drop-shadow(0 calc(var(--u) * 14) calc(var(--u) * 30) rgba(15, 21, 48, 0.22)); }
+  .label {
+    margin-top: calc(var(--u) * 14);
+    font-size: calc(var(--u) * 18);
+    color: #A9B4CF;
+  }
+  .label b { color: #F5F7FB; font-weight: 600; }
+  .light .label { color: #3E4762; }
+  .light .label b { color: #0F1530; }
+
+  /* Cover visual */
+  .cover-visual {
+    position: absolute;
+    right: calc(var(--u) * -40);
+    top: calc(var(--u) * 175);
+    width: calc(var(--u) * 620);
+    transform: rotate(-4deg);
+  }
+
+  /* Meet Tamanu */
+  .meet {
+    position: relative;
+    margin-top: calc(var(--u) * 34);
+    height: calc(var(--u) * 470);
+  }
+  .meet .desktop { position: absolute; left: 0; top: 0; width: calc(var(--u) * 690); }
+  .meet .desktop img { width: 100%; }
+  .meet .kiosk { position: absolute; right: 0; top: calc(var(--u) * 50); width: calc(var(--u) * 520); }
+  .meet .kiosk img { width: 100%; }
+  .chips {
+    margin-top: calc(var(--u) * 24);
+    display: flex;
+    gap: calc(var(--u) * 12);
+  }
+  .chips span {
+    padding: calc(var(--u) * 8) calc(var(--u) * 18);
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    border-radius: 999px;
+    font-size: calc(var(--u) * 18);
+    font-weight: 500;
+    color: #F5F7FB;
+    background: rgba(12, 17, 40, 0.7);
+  }
+
+  /* Beyond disability with photo */
+  .with-photo {
+    display: grid;
+    grid-template-columns: 1fr calc(var(--u) * 360);
+    gap: calc(var(--u) * 18);
+    margin-top: calc(var(--u) * 44);
+  }
+  .with-photo .cards { margin-top: 0; }
+  .with-photo .card h3 { font-size: calc(var(--u) * 26); }
+  .with-photo .card p { font-size: calc(var(--u) * 19); }
+  .photo {
+    height: 100%;
+    border-radius: calc(var(--u) * 18);
+    background: url("assets/health-worker.png") center 30% / cover no-repeat;
+  }
+
+  /* Kiosk accessibility component */
+  .kiosk-split {
+    display: grid;
+    grid-template-columns: calc(var(--u) * 700) 1fr;
+    gap: calc(var(--u) * 64);
+    align-items: center;
+    margin-top: calc(var(--u) * 36);
+  }
+  .kiosk-split img { width: 100%; }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--u) * 18);
+    padding: calc(var(--u) * 16) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: calc(var(--u) * 23);
+  }
+  .steps li::before {
+    content: counter(step);
+    flex: none;
+    width: calc(var(--u) * 34);
+    height: calc(var(--u) * 34);
+    border-radius: 50%;
+    background: #38BDF8;
+    color: #0C1128;
+    font-size: calc(var(--u) * 17);
+    font-weight: 700;
+    line-height: calc(var(--u) * 34);
+    text-align: center;
+    transform: translateY(calc(var(--u) * -3));
+  }
+
+  /* Side by side */
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--u) * 56);
+    margin-top: calc(var(--u) * 40);
+  }
+  .pair img { width: 100%; }
 </style>
 </head>
 <body>
@@ -260,13 +373,31 @@
 <div class="frame"><section class="slide cover glow-a">
   <span class="pill">GEDSI · Beyond Essential Systems</span>
   <h1>Accessibility<br>in Tamanu</h1>
-  <p class="sub">Why it's a GEDSI issue, and how we're building it in</p>
+  <p class="sub">Why it's a GEDSI issue, and how<br>we're building it in</p>
+  <img class="tablet-shot cover-visual" src="assets/kiosk-landing.png" alt="The Tamanu self check-in kiosk welcome screen on a tablet">
   <div class="foot"><span>Felicity · [Date]</span></div>
 </section></div>
 
-<!-- 2. Where it fits -->
+<!-- 2. Meet Tamanu -->
+<div class="frame"><section class="slide glow-b">
+  <p class="kicker">01 · Meet Tamanu</p>
+  <h2>One health record, from ward to waiting room</h2>
+  <div class="chips"><span>Works offline</span><span>Android app for outreach</span><span>Translated into local languages</span></div>
+  <div class="meet">
+    <div class="desktop">
+      <img class="shot" src="assets/tamanu-encounter.jpg" alt="Tamanu desktop showing a patient's hospital admission">
+      <p class="label"><b>Tamanu desktop</b> · for clinical staff</p>
+    </div>
+    <div class="kiosk">
+      <img class="tablet-shot" src="assets/kiosk-forms.png" alt="The self check-in kiosk showing a patient's health questions">
+      <p class="label"><b>Self check-in kiosk</b> · for patients</p>
+    </div>
+  </div>
+</section></div>
+
+<!-- 3. Where it fits -->
 <div class="frame"><section class="slide glow-c">
-  <p class="kicker">01 · Where it fits</p>
+  <p class="kicker">02 · Where it fits</p>
   <h2>Accessibility is how GEDSI<br>shows up in Tamanu</h2>
   <div class="cards three">
     <div class="card">
@@ -288,9 +419,9 @@
   </div>
 </section></div>
 
-<!-- 3. The scale -->
+<!-- 4. The scale -->
 <div class="frame"><section class="slide glow-b">
-  <p class="kicker">02 · The scale</p>
+  <p class="kicker">03 · The scale</p>
   <div class="scale">
     <div class="big">1 in 6</div>
     <div>
@@ -301,9 +432,9 @@
   <div class="foot"><span>Source: World Health Organization, Global report on health equity for persons with disabilities (2022)</span></div>
 </section></div>
 
-<!-- 4. Who it affects -->
+<!-- 5. Who it affects -->
 <div class="frame"><section class="slide light">
-  <p class="kicker">03 · Who it affects</p>
+  <p class="kicker">04 · Who it affects</p>
   <h2>A spectrum we all move along</h2>
   <table>
     <thead>
@@ -319,34 +450,37 @@
   <div class="foot"><span>Adapted from the persona spectrum in Microsoft's Inclusive Design toolkit</span></div>
 </section></div>
 
-<!-- 5. Beyond disability -->
+<!-- 6. Beyond disability -->
 <div class="frame"><section class="slide glow-c">
-  <p class="kicker">04 · Beyond disability</p>
+  <p class="kicker">05 · Beyond disability</p>
   <h2>The same choices widen who Tamanu reaches</h2>
-  <div class="cards four">
-    <div class="card">
-      <h3>Older patients</h3>
-      <p>Larger text and high contrast on the check-in kiosk help as eyesight changes.</p>
+  <div class="with-photo">
+    <div class="cards four">
+      <div class="card">
+        <h3>Older patients</h3>
+        <p>Larger text and high contrast on the kiosk help as eyesight changes.</p>
+      </div>
+      <div class="card">
+        <h3>Many languages</h3>
+        <p>Every word in Tamanu is translatable, and plain labels translate better.</p>
+      </div>
+      <div class="card">
+        <h3>Remote facilities</h3>
+        <p>Tamanu works offline and on Android, so care reaches outreach clinics.</p>
+      </div>
+      <div class="card">
+        <h3>A mostly female workforce</h3>
+        <p>Women are about two-thirds of health workers: clear, forgiving software supports them.</p>
+      </div>
     </div>
-    <div class="card">
-      <h3>Many languages</h3>
-      <p>Every word in Tamanu is translatable, and plain labels translate better.</p>
-    </div>
-    <div class="card">
-      <h3>Remote facilities</h3>
-      <p>Tamanu works offline and on Android, so care reaches outreach clinics.</p>
-    </div>
-    <div class="card">
-      <h3>A mostly female workforce</h3>
-      <p>Women are about two-thirds of health workers: clear, forgiving software supports them.</p>
-    </div>
+    <div class="photo" role="img" aria-label="A health worker using Tamanu on a laptop in a hospital corridor"></div>
   </div>
   <div class="foot"><span>Health workforce figure: World Health Organization (2022)</span></div>
 </section></div>
 
-<!-- 6. WCAG principles -->
+<!-- 7. WCAG principles -->
 <div class="frame"><section class="slide glow-a">
-  <p class="kicker">05 · What good looks like</p>
+  <p class="kicker">06 · What good looks like</p>
   <h2>WCAG's four principles</h2>
   <div class="pour">
     <div>
@@ -377,9 +511,41 @@
   <div class="foot"><span>WCAG 2.2 Level AA is the widely used international benchmark</span></div>
 </section></div>
 
-<!-- 7. Case study -->
+<!-- 8. Kiosk accessibility component -->
 <div class="frame"><section class="slide glow-b">
-  <p class="kicker">06 · Case study</p>
+  <p class="kicker">07 · Designed in: self check-in kiosk</p>
+  <h2>Accessibility, one tap away</h2>
+  <div class="kiosk-split">
+    <img class="tablet-shot" src="assets/kiosk-accessibility.png" alt="The kiosk's Language and accessibility popup, with language choices, three text sizes and a high contrast switch">
+    <ol class="steps">
+      <li>On every screen, in the header</li>
+      <li>Patients choose their language</li>
+      <li>Text size in three steps</li>
+      <li>High contrast on or off</li>
+      <li>Resets for the next patient</li>
+    </ol>
+  </div>
+</section></div>
+
+<!-- 9. Kiosk before and after -->
+<div class="frame"><section class="slide light">
+  <p class="kicker">07 · Designed in: self check-in kiosk</p>
+  <h2>Same screen, set for the patient</h2>
+  <div class="pair">
+    <div>
+      <img class="tablet-shot" src="assets/kiosk-confirm.png" alt="The kiosk's Is this you? screen at standard settings">
+      <p class="label"><b>Standard</b></p>
+    </div>
+    <div>
+      <img class="tablet-shot" src="assets/kiosk-confirm-high-contrast.png" alt="The same Is this you? screen with high contrast and extra large text">
+      <p class="label"><b>High contrast and extra large text</b></p>
+    </div>
+  </div>
+</section></div>
+
+<!-- 10. Case study -->
+<div class="frame"><section class="slide glow-b">
+  <p class="kicker">08 · Case study</p>
   <h2>Tamanu: from audit to action</h2>
   <div class="split">
     <div>
@@ -398,9 +564,9 @@
   </div>
 </section></div>
 
-<!-- 8. What we can do -->
+<!-- 11. What we can do -->
 <div class="frame"><section class="slide light">
-  <p class="kicker">07 · What we can do</p>
+  <p class="kicker">09 · What we can do</p>
   <h2>Everyone has a part to play</h2>
   <table>
     <thead>
@@ -416,7 +582,7 @@
   </table>
 </section></div>
 
-<!-- 9. Close -->
+<!-- 12. Close -->
 <div class="frame"><section class="slide close glow-c">
   <span class="pill">Thank you</span>
   <h2>Inclusive software is software <span class="accent">everyone</span> can use.</h2>
