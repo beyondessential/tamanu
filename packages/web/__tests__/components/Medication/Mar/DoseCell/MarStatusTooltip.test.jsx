@@ -8,6 +8,7 @@ import { MarStatusLabel } from '../../../../../app/components/Medication/Mar/Dos
 vi.mock('@tamanu/ui-components', async importOriginal => ({
   ...(await importOriginal()),
   useDateTime: () => ({ formatTime: () => '1:00pm' }),
+  PlainTimeDisplay: ({ time }) => time,
 }));
 
 const getTranslation = (_stringId, fallback, { replacements } = {}) =>
@@ -36,7 +37,7 @@ const renderLabelLines = props => {
 describe('MarStatusLabel', () => {
   it('shows the dose window and amount for a due sub-slot dose', () => {
     expect(renderLabelLines({ doseWindow: { startTime: '13:00', endTime: '14:00' } })).toEqual([
-      '1:00pm–2:00pm',
+      '13:00–14:00',
       '1000 mg',
       'Due at 1:00pm.',
     ]);
@@ -45,12 +46,12 @@ describe('MarStatusLabel', () => {
   it('shows the dose window and amount for missed and future sub-slot doses', () => {
     const doseWindow = { startTime: '13:00', endTime: '13:30' };
     expect(renderLabelLines({ doseWindow, isPast: true })).toEqual([
-      '1:00pm–1:30pm',
+      '13:00–13:30',
       '1000 mg',
       'Missed. Due at 1:00pm.',
     ]);
     expect(renderLabelLines({ doseWindow, isNotDue: true })).toEqual([
-      '1:00pm–1:30pm',
+      '13:00–13:30',
       '1000 mg',
       'Cannot record future dose. Due at 1:00pm.',
     ]);
@@ -58,7 +59,7 @@ describe('MarStatusLabel', () => {
 
   it('shows midnight for a window ending at 24:00', () => {
     expect(renderLabelLines({ doseWindow: { startTime: '23:00', endTime: '24:00' } })).toEqual([
-      '11:00pm–12:00am',
+      '23:00–00:00',
       '1000 mg',
       'Due at 1:00pm.',
     ]);
@@ -70,7 +71,13 @@ describe('MarStatusLabel', () => {
         doseWindow: { startTime: '13:00', endTime: '14:00' },
         isVariableDose: true,
       }),
-    ).toEqual(['1:00pm–2:00pm', 'Due at 1:00pm.']);
+    ).toEqual(['13:00–14:00', 'Due at 1:00pm.']);
+  });
+
+  it('shows the amount without a unit when the prescription has none', () => {
+    expect(
+      renderLabelLines({ doseWindow: { startTime: '13:00', endTime: '14:00' }, dosingUnit: null }),
+    ).toEqual(['13:00–14:00', '1000', 'Due at 1:00pm.']);
   });
 
   it('shows only the due time without a dose window', () => {

@@ -174,8 +174,13 @@ const MarStatusTooltipContent = ({
               </DoseWindow>
               {!isVariableDose && (
                 <Span>
-                  {doseAmount}&nbsp;
-                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                  {doseAmount}
+                  {dosingUnit && (
+                    <>
+                      &nbsp;
+                      <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                    </>
+                  )}
                 </Span>
               )}
             </>
