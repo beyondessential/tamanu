@@ -7,7 +7,12 @@
 - [x] A tweaked preview is checked the same way, and the corrected reply is what the session history keeps (verifies spec: PROGRAMS)
 - [x] When corrections run out, the reply names the problems still left (verifies spec: PROGRAMS)
 - [x] When a correction cannot be applied, the reply names the problems (verifies spec: PROGRAMS)
-- [x] A chat naming a program that does not exist is refused
+- [x] An async chat checks its preview the same way, and the polled result carries the corrected preview and message (verifies spec: PROGRAMS)
+- [x] A rejected question is named by the code the model gave it, including for problems the data element checks report (verifies spec: PROGRAMS)
+- [x] The corrected reply is what the chat history keeps for a generated preview
+- [x] Prompt markers in quoted problems are stripped before they reach the model
+- [x] A fault while checking leaves the preview as generated, and keeps any correction already made
+- [x] A chat naming a program that does not exist, or a programId that isn't a string, is refused and its upload deleted
 
 ## Manual
 
