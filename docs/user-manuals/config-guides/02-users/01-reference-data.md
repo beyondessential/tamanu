@@ -46,10 +46,10 @@ role can be added and given permissions in a single import. See
 
 Roles can also be added and deleted on the **Roles** tab of **Users** > **Roles & designations**:
 
-- Click **Add role** and enter an **ID** and **Name**. The id must not already be in use
-- Click the menu against a role, then select **Delete**, to remove it. A role cannot be deleted while any user, including a
-  deactivated user, is assigned to it: the screen lists those users, and each needs a different role
-  first
+- Click **Add role** and enter an **ID** and **Name**. The ID must not already be in use
+- Open the More menu&nbsp;(&nbsp;⋮&nbsp;) against a role, then choose **Delete** to remove it. A
+  role can’t be deleted while any user, including a deactivated user, is assigned to it. The screen
+  lists those users, and each needs a different role first.
 
 <figure>
   <img
