@@ -449,15 +449,19 @@ const correctUnsaveablePreview = async ({
   programDefinition,
   attemptsLeft = MAX_SAVE_CORRECTION_ATTEMPTS,
 }) => {
+  // Problems quote the definition, which can carry uploaded content.
   const problems = await findProgramDefinitionSaveProblems({
     db,
     models,
     programId,
     programDefinition,
-  }).catch(error => {
-    log.warn({ error }, 'AI form builder could not check the preview against save validation');
-    return [];
-  });
+  }).then(
+    found => found.map(stripPromptMarkers),
+    error => {
+      log.warn({ error }, 'AI form builder could not check the preview against save validation');
+      return [];
+    },
+  );
   if (problems.length === 0) return { programDefinition, notes: [] };
 
   const correction =
