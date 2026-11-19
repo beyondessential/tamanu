@@ -1,4 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import http from 'node:http';
+import { once } from 'node:events';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
   DEVICE_SCOPES,
@@ -170,5 +172,49 @@ describe('GET /sync/:sessionId/pull/stream', () => {
     );
 
     expect(response).toHaveRequestError();
+  });
+
+  it('stops paging once the client disconnects', async () => {
+    const sessionId = await startReadyPull();
+    const server = baseApp.app;
+    if (!server.listening) await once(server.listen(0), 'listening');
+
+    let serverSocketClosed;
+    server.once('connection', socket => {
+      serverSocketClosed = once(socket, 'close');
+    });
+
+    // the second page is held until central has seen the disconnect
+    const original = CentralSyncManager.prototype.getOutgoingChanges;
+    const pages = [];
+    const spy = vi
+      .spyOn(CentralSyncManager.prototype, 'getOutgoingChanges')
+      .mockImplementation(function (...args) {
+        const page =
+          pages.length === 1
+            ? serverSocketClosed.then(() => original.apply(this, args))
+            : original.apply(this, args);
+        pages.push(page);
+        return page;
+      });
+
+    try {
+      const request = http.get({
+        port: server.address().port,
+        path: `/api/sync/${sessionId}/pull/stream`,
+        headers: { Authorization: `Bearer ${token}`, 'X-Tamanu-Client': SERVER_TYPES.FACILITY },
+      });
+      request.on('error', () => {});
+      await vi.waitFor(() => expect(pages).toHaveLength(2));
+      request.destroy();
+      await pages[1];
+      await new Promise(resolve => {
+        setImmediate(resolve);
+      });
+
+      expect(pages).toHaveLength(2);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });
