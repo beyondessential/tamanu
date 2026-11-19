@@ -9,11 +9,12 @@
 - [x] When a correction cannot be applied, the reply names the problems (verifies spec: PROGRAMS)
 - [x] An async chat checks its preview the same way, and the polled result carries the corrected preview and message (verifies spec: PROGRAMS)
 - [x] A rejected question is named by the code the model gave it, including for problems the data element checks report (verifies spec: PROGRAMS)
-- [x] The corrected reply is what the chat history keeps for a generated preview
+- [x] The corrected reply is what the chat history keeps for a generated preview, in that turn's own entry
 - [x] Prompt markers are stripped from every string in a preview, so neither the definition nor the problems carry one back to the model
 - [x] Two questions whose codes differ only by case or punctuation are a problem naming the later question
 - [x] Chat body keys can't replace the server's database, models or AI service
-- [x] A fault while checking leaves the preview as generated, and keeps any correction already made
+- [x] A fault while checking keeps the preview as corrected so far, and the reply says it could not be checked (verifies spec: PROGRAMS)
+- [x] Survey-level problems are sent back as corrections to the survey
 - [x] A chat naming a program that does not exist, or a programId that isn't a string, is refused and its upload deleted, before any async job starts
 
 ## Manual
