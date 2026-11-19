@@ -15,13 +15,15 @@ quickly and often on a ward. Assume no knowledge of Tamanu's internals.
 - **Name on-screen words exactly**, in bold, without quotation marks: buttons, fields, tabs and
   screens
 - **Match the verb to the control.** Unless context demands otherwise, a user:
-  - buttons and links are _clicked_ (not _clicked on_) on desktop, and _tapped_ (not _tapped on_) on mobile;
-  - checkboxes are _checked_;
-  - dropdown/pulldown, menu and radio options are _chosen_;
-  - windows and tabs are _closed_;
-    - (A window refers to the desktop browser or web app window. No UI element within Tamanu is considered a window.)
-  - alerts, dialogs, popups, modals and toasts are _dismissed_.
-    - (_Dialog_ refers to the UI element; _dialogue_ refers to spoken word.)
+  - _clicks_ a button or link on desktop (not _clicks on_), and _taps_ a button or link on mobile (not _taps on_);
+  - _drags_ an item (not _click and drag_);
+  - _selects_ or _deselects_ a checkbox (but a checkbox can be _unselected_);
+  - _chooses_ an option (e.g. from a menu or when clicking a radio button);
+  - _closes_ a window or tab; and
+  - _dismisses_ an alert, dialog, popup, modal or toast.
+  - NB:
+    - A window refers to the desktop browser or web app window. No UI element within Tamanu is considered a window.
+    - _Dialog_ refers to the UI element; _dialogue_ refers to spoken word.
 - **Write plainly.** Short sentences in the active voice, addressing the reader as "you", one
   instruction to a sentence, and no technical or developer terms
 - **Assume nothing the reader hasn't been told**, starting from the place in the product the guide
