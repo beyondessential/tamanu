@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Accessibility in Tamanu presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: 1456px 819px; margin: 0; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: #2a2f3a;
+    font-family: Inter, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    padding: 24px;
+  }
+
+  /* Each slide scales with the frame width; --u is one pixel of the 1456 by 819 canvas. */
+  .frame {
+    container-type: inline-size;
+    max-width: 1456px;
+    margin: 0 auto 24px;
+  }
+  .slide {
+    --u: calc(100cqw / 1456);
+    position: relative;
+    width: 100cqw;
+    aspect-ratio: 1456 / 819;
+    overflow: hidden;
+    padding: calc(var(--u) * 97);
+    padding-top: calc(var(--u) * 96);
+    color: #F5F7FB;
+    background-color: #0C1128;
+    font-size: calc(var(--u) * 22);
+    line-height: 1.45;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  }
+
+  @media print {
+    body { padding: 0; background: none; }
+    .frame { max-width: none; width: 1456px; margin: 0; break-after: page; page-break-after: always; }
+    .slide { border-radius: 0; box-shadow: none; }
+  }
+
+  /* Backgrounds */
+  .glow-a { background-image:
+      radial-gradient(ellipse 45% 55% at 85% 12%, rgba(8, 82, 130, 0.85), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 60% 105%, rgba(33, 44, 115, 0.8), transparent 70%); }
+  .glow-b { background-image:
+      radial-gradient(ellipse 40% 55% at 22% 75%, rgba(8, 82, 130, 0.85), transparent 70%),
+      radial-gradient(ellipse 35% 40% at 88% 18%, rgba(33, 44, 115, 0.75), transparent 70%); }
+  .glow-c { background-image:
+      radial-gradient(ellipse 40% 45% at 5% 5%, rgba(33, 44, 115, 0.8), transparent 70%),
+      radial-gradient(ellipse 40% 45% at 95% 100%, rgba(8, 82, 130, 0.8), transparent 70%); }
+  .light { background: #F5F7FB; color: #0F1530; }
+
+  /* Type */
+  .kicker {
+    margin: 0 0 calc(var(--u) * 22);
+    font-size: calc(var(--u) * 18);
+    font-weight: 500;
+    color: #38BDF8;
+  }
+  .light .kicker { color: #0B6AA8; }
+  h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.045em; }
+  h2 { font-size: calc(var(--u) * 60); line-height: 1.08; }
+  .light h2 { color: #0F1530; }
+  .accent { color: #38BDF8; }
+  .muted { color: #A9B4CF; }
+  .light .muted { color: #3E4762; }
+
+  .foot {
+    position: absolute;
+    left: calc(var(--u) * 97);
+    right: calc(var(--u) * 97);
+    bottom: calc(var(--u) * 50);
+    display: flex;
+    justify-content: space-between;
+    font-size: calc(var(--u) * 18);
+    color: #A9B4CF;
+  }
+  .light .foot { color: #3E4762; }
+
+  .pill {
+    display: inline-block;
+    padding: calc(var(--u) * 9) calc(var(--u) * 18);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    font-size: calc(var(--u) * 18);
+    font-weight: 600;
+    background: rgba(12, 17, 40, 0.6);
+  }
+
+  /* 1. Cover */
+  .cover h1 {
+    margin-top: calc(var(--u) * 150);
+    font-size: calc(var(--u) * 132);
+    line-height: 0.95;
+    letter-spacing: -0.055em;
+  }
+  .cover .sub {
+    margin-top: calc(var(--u) * 34);
+    font-size: calc(var(--u) * 28);
+    color: #A9B4CF;
+  }
+
+  /* Cards */
+  .cards {
+    display: grid;
+    gap: calc(var(--u) * 18);
+    margin-top: calc(var(--u) * 44);
+  }
+  .cards.three { grid-template-columns: 1fr 1.17fr 1fr; height: calc(var(--u) * 414); }
+  .cards.four { grid-template-columns: 1fr 1fr; }
+  .card {
+    padding: calc(var(--u) * 30);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: calc(var(--u) * 18);
+    background: linear-gradient(160deg, rgba(30, 36, 64, 0.75), rgba(22, 27, 52, 0.75));
+  }
+  .card.focus {
+    border: 1.5px solid #38BDF8;
+    background: rgba(15, 38, 66, 0.9);
+  }
+  .card .letter {
+    font-size: calc(var(--u) * 88);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: calc(var(--u) * 26);
+  }
+  .card.focus .letter { color: #38BDF8; }
+  .card h3 { font-size: calc(var(--u) * 30); margin-bottom: calc(var(--u) * 10); }
+  .card p { margin: 0; color: #A9B4CF; }
+  .chip {
+    display: inline-block;
+    margin-top: calc(var(--u) * 16);
+    padding: calc(var(--u) * 5) calc(var(--u) * 14);
+    border-radius: 999px;
+    background: #38BDF8;
+    color: #0C1128;
+    font-size: calc(var(--u) * 17);
+    font-weight: 600;
+  }
+
+  /* 3. Scale */
+  .scale {
+    position: absolute;
+    left: calc(var(--u) * 97);
+    bottom: calc(var(--u) * 120);
+    display: flex;
+    align-items: flex-end;
+    gap: calc(var(--u) * 50);
+  }
+  .scale .big {
+    font-size: calc(var(--u) * 230);
+    font-weight: 600;
+    line-height: 0.78;
+    letter-spacing: -0.06em;
+  }
+  .scale p { margin: 0; font-size: calc(var(--u) * 29); line-height: 1.3; }
+  .scale p + p { margin-top: calc(var(--u) * 14); font-size: calc(var(--u) * 22); }
+
+  /* Tables */
+  table {
+    width: 100%;
+    margin-top: calc(var(--u) * 44);
+    border-collapse: collapse;
+    font-size: calc(var(--u) * 19);
+  }
+  th, td {
+    text-align: left;
+    padding: calc(var(--u) * 18) calc(var(--u) * 19);
+    border: 1px solid #C9CDD6;
+  }
+  th { background: #E4E6EA; color: #0B6AA8; font-weight: 500; }
+  td { background: #F7F8FA; color: #3E4762; }
+  td:first-child { color: #0F1530; }
+
+  /* POUR */
+  .pour {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: calc(var(--u) * 44);
+    height: calc(var(--u) * 450);
+  }
+  .pour > div { padding: 0 calc(var(--u) * 30); border-left: 1px solid rgba(255, 255, 255, 0.1); }
+  .pour > div:first-child { padding-left: 0; border-left: 0; }
+  .pour .letter {
+    font-size: calc(var(--u) * 110);
+    font-weight: 600;
+    line-height: 1;
+    color: #38BDF8;
+    margin-bottom: calc(var(--u) * 26);
+  }
+  .pour h3 { font-size: calc(var(--u) * 30); margin-bottom: calc(var(--u) * 12); }
+  .pour p { margin: 0; color: #A9B4CF; font-size: calc(var(--u) * 19); }
+  .pour .tamanu {
+    margin-top: calc(var(--u) * 22);
+    padding-top: calc(var(--u) * 14);
+    border-top: 1px solid rgba(56, 189, 248, 0.35);
+    color: #F5F7FB;
+  }
+  .pour .tamanu span {
+    display: block;
+    margin-bottom: calc(var(--u) * 4);
+    font-size: calc(var(--u) * 15);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #38BDF8;
+  }
+
+  /* Case study */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--u) * 60);
+    margin-top: calc(var(--u) * 120);
+  }
+  .figure {
+    display: flex;
+    align-items: center;
+    font-size: calc(var(--u) * 168);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+  .figure svg { width: calc(var(--u) * 145); height: calc(var(--u) * 50); margin: 0 calc(var(--u) * 4); }
+  .figure-caption { margin-top: calc(var(--u) * 30); font-size: calc(var(--u) * 23); color: #A9B4CF; }
+  .list h3 { font-size: calc(var(--u) * 30); margin-bottom: calc(var(--u) * 22); }
+  .list ul { list-style: none; margin: 0; padding: 0; }
+  .list li {
+    padding: calc(var(--u) * 20) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: calc(var(--u) * 22);
+  }
+
+  /* Close */
+  .close h2 {
+    margin-top: calc(var(--u) * 150);
+    font-size: calc(var(--u) * 96);
+    line-height: 0.98;
+    letter-spacing: -0.055em;
+    max-width: calc(var(--u) * 960);
+  }
+  .close .foot { color: #F5F7FB; font-size: calc(var(--u) * 26); }
+  .close .foot span:last-child { color: #A9B4CF; font-size: calc(var(--u) * 18); align-self: flex-end; }
+</style>
+</head>
+<body>
+
+<!-- 1. Cover -->
+<div class="frame"><section class="slide cover glow-a">
+  <span class="pill">GEDSI · Beyond Essential Systems</span>
+  <h1>Accessibility<br>in Tamanu</h1>
+  <p class="sub">Why it's a GEDSI issue, and how we're building it in</p>
+  <div class="foot"><span>Felicity · [Date]</span></div>
+</section></div>
+
+<!-- 2. Where it fits -->
+<div class="frame"><section class="slide glow-c">
+  <p class="kicker">01 · Where it fits</p>
+  <h2>Accessibility is how GEDSI<br>shows up in Tamanu</h2>
+  <div class="cards three">
+    <div class="card">
+      <div class="letter">G</div>
+      <h3>Gender equality</h3>
+      <p>Sex is recorded and reportable, so gaps in care show up in the data.</p>
+    </div>
+    <div class="card focus">
+      <div class="letter">D</div>
+      <h3>Disability</h3>
+      <p>Patients and health workers use Tamanu independently, with their own assistive tech.</p>
+      <span class="chip">Accessibility lives here</span>
+    </div>
+    <div class="card">
+      <div class="letter">SI</div>
+      <h3>Social inclusion</h3>
+      <p>Offline, on mobile and translated, so no one is left out by place, language or connection.</p>
+    </div>
+  </div>
+</section></div>
+
+<!-- 3. The scale -->
+<div class="frame"><section class="slide glow-b">
+  <p class="kicker">02 · The scale</p>
+  <div class="scale">
+    <div class="big">1 in 6</div>
+    <div>
+      <p>people worldwide, about<br><span class="accent">1.3 billion</span>, experience<br>significant disability.</p>
+      <p class="muted">Every one a potential Tamanu patient or user.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Source: World Health Organization, Global report on health equity for persons with disabilities (2022)</span></div>
+</section></div>
+
+<!-- 4. Who it affects -->
+<div class="frame"><section class="slide light">
+  <p class="kicker">03 · Who it affects</p>
+  <h2>A spectrum we all move along</h2>
+  <table>
+    <thead>
+      <tr><th style="width: 10%;"></th><th>Permanent</th><th>Temporary</th><th>Situational, in a Tamanu day</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Seeing</td><td>Blind or low vision</td><td>Eyes dilated after an eye exam</td><td>Glare on a tablet at an outreach clinic</td></tr>
+      <tr><td>Touch</td><td>Limb difference or limited dexterity</td><td>A broken wrist</td><td>Gloved hands at the bedside</td></tr>
+      <tr><td>Hearing</td><td>Deaf or hard of hearing</td><td>An ear infection</td><td>A noisy ward or waiting room</td></tr>
+      <tr><td>Thinking</td><td>Learning or cognitive disability</td><td>Concussion or illness</td><td>Fatigue at the end of a night shift</td></tr>
+    </tbody>
+  </table>
+  <div class="foot"><span>Adapted from the persona spectrum in Microsoft's Inclusive Design toolkit</span></div>
+</section></div>
+
+<!-- 5. Beyond disability -->
+<div class="frame"><section class="slide glow-c">
+  <p class="kicker">04 · Beyond disability</p>
+  <h2>The same choices widen who Tamanu reaches</h2>
+  <div class="cards four">
+    <div class="card">
+      <h3>Older patients</h3>
+      <p>Larger text and high contrast on the check-in kiosk help as eyesight changes.</p>
+    </div>
+    <div class="card">
+      <h3>Many languages</h3>
+      <p>Every word in Tamanu is translatable, and plain labels translate better.</p>
+    </div>
+    <div class="card">
+      <h3>Remote facilities</h3>
+      <p>Tamanu works offline and on Android, so care reaches outreach clinics.</p>
+    </div>
+    <div class="card">
+      <h3>A mostly female workforce</h3>
+      <p>Women are about two-thirds of health workers: clear, forgiving software supports them.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Health workforce figure: World Health Organization (2022)</span></div>
+</section></div>
+
+<!-- 6. WCAG principles -->
+<div class="frame"><section class="slide glow-a">
+  <p class="kicker">05 · What good looks like</p>
+  <h2>WCAG's four principles</h2>
+  <div class="pour">
+    <div>
+      <div class="letter">P</div>
+      <h3>Perceivable</h3>
+      <p>Text alternatives, readable contrast, and never colour alone.</p>
+      <p class="tamanu"><span>In Tamanu</span>Text size and high contrast on the kiosk</p>
+    </div>
+    <div>
+      <div class="letter">O</div>
+      <h3>Operable</h3>
+      <p>Works by keyboard, focus always visible, targets easy to hit.</p>
+      <p class="tamanu"><span>In Tamanu</span>Real buttons and links, large touch targets</p>
+    </div>
+    <div>
+      <div class="letter">U</div>
+      <h3>Understandable</h3>
+      <p>Plain language, predictable navigation, errors that explain the fix.</p>
+      <p class="tamanu"><span>In Tamanu</span>One translation system, consistent wording</p>
+    </div>
+    <div>
+      <div class="letter">R</div>
+      <h3>Robust</h3>
+      <p>Semantic code that assistive tech can interpret reliably.</p>
+      <p class="tamanu"><span>In Tamanu</span>Labelled controls that screen readers announce</p>
+    </div>
+  </div>
+  <div class="foot"><span>WCAG 2.2 Level AA is the widely used international benchmark</span></div>
+</section></div>
+
+<!-- 7. Case study -->
+<div class="frame"><section class="slide glow-b">
+  <p class="kicker">06 · Case study</p>
+  <h2>Tamanu: from audit to action</h2>
+  <div class="split">
+    <div>
+      <div class="figure">97<svg viewBox="0 0 145 50" aria-hidden="true"><path d="M0 25 H128 M108 6 L132 25 L108 44" fill="none" stroke="#38BDF8" stroke-width="7"/></svg>30</div>
+      <p class="figure-caption">findings from an independent WCAG 2.2 AA audit by OpenAccess, grouped into 30 solution-based fixes</p>
+    </div>
+    <div class="list">
+      <h3>Fix the system, not the symptoms</h3>
+      <ul>
+        <li>Colour tokens updated so text meets contrast</li>
+        <li>Stronger borders on inputs and controls</li>
+        <li>One clear, consistent focus indicator</li>
+        <li>Skip links to four main sections of each page</li>
+      </ul>
+    </div>
+  </div>
+</section></div>
+
+<!-- 8. What we can do -->
+<div class="frame"><section class="slide light">
+  <p class="kicker">07 · What we can do</p>
+  <h2>Everyone has a part to play</h2>
+  <table>
+    <thead>
+      <tr><th style="width: 26%;">If you work in...</th><th>Try this</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Product and projects</td><td>Put accessibility in Tamanu's specs and acceptance criteria from day one</td></tr>
+      <tr><td>Design</td><td>Check contrast, design focus states, never rely on colour alone</td></tr>
+      <tr><td>Development</td><td>Use semantic HTML, label every control, test with a keyboard only</td></tr>
+      <tr><td>Testing and training</td><td>Include people with disability and assistive tech in testing and rollout</td></tr>
+      <tr><td>GEDSI and partners</td><td>Ask for accessibility in requirements, procurement and reporting</td></tr>
+    </tbody>
+  </table>
+</section></div>
+
+<!-- 9. Close -->
+<div class="frame"><section class="slide close glow-c">
+  <span class="pill">Thank you</span>
+  <h2>Inclusive software is software <span class="accent">everyone</span> can use.</h2>
+  <div class="foot"><span>Questions?</span><span>Felicity · [email]</span></div>
+</section></div>
+
+</body>
+</html>
