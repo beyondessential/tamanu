@@ -234,23 +234,11 @@
     gap: calc(var(--u) * 60);
     margin-top: calc(var(--u) * 120);
   }
-  .figure {
-    display: flex;
-    align-items: center;
-    font-size: calc(var(--u) * 168);
+  .verdict {
+    font-size: calc(var(--u) * 140);
     font-weight: 600;
-    line-height: 0.9;
-    letter-spacing: -0.06em;
-  }
-  .figure svg { width: calc(var(--u) * 145); height: calc(var(--u) * 50); margin: 0 calc(var(--u) * 4) calc(var(--u) * 40); }
-  .figure .num { display: flex; flex-direction: column; }
-  .figure small {
-    margin-top: calc(var(--u) * 14);
-    font-size: calc(var(--u) * 22);
-    font-weight: 500;
-    letter-spacing: 0;
-    line-height: 1;
-    color: #38BDF8;
+    line-height: 0.95;
+    letter-spacing: -0.055em;
   }
   .figure-caption { margin-top: calc(var(--u) * 30); font-size: calc(var(--u) * 23); color: #A9B4CF; }
   .list h3 { font-size: calc(var(--u) * 30); margin-bottom: calc(var(--u) * 22); }
@@ -507,18 +495,14 @@
 <!-- 9. Case study -->
 <div class="frame"><section class="slide glow-b">
   <p class="kicker">07 · Case study</p>
-  <h2>Tamanu: from audit to action</h2>
+  <h2>Tamanu: independently audited</h2>
   <div class="split">
     <div>
-      <div class="figure">
-        <span class="num">97<small>findings</small></span>
-        <svg viewBox="0 0 145 50" aria-hidden="true"><path d="M0 25 H128 M108 6 L132 25 L108 44" fill="none" stroke="#38BDF8" stroke-width="7"/></svg>
-        <span class="num">30<small>fixes</small></span>
-      </div>
-      <p class="figure-caption">From an independent WCAG 2.2 AA audit by OpenAccess. Many findings share a cause, so 30 fixes resolve them all.</p>
+      <div class="verdict">Strong<br>overall</div>
+      <p class="figure-caption">Tamanu performed well in an independent WCAG 2.2 AA accessibility audit by OpenAccess.</p>
     </div>
     <div class="list">
-      <h3>Fix the system, not the symptoms</h3>
+      <h3>What we're working on now</h3>
       <ul>
         <li>Darker text colours that meet contrast</li>
         <li>Stronger borders on inputs and controls</li>
