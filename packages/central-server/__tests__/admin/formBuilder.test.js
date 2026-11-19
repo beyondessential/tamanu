@@ -826,6 +826,24 @@ describe('Form Builder Admin', () => {
       );
     });
 
+    it('checks with the server database whatever the body names', async () => {
+      reportReady();
+      aiService.invokeStructured
+        .mockResolvedValueOnce(unsaveableProgramDefinition)
+        .mockRejectedValueOnce(new Error('No tool call'));
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a referral form with the hospital number',
+        programId,
+        db: null,
+        models: null,
+        aiService: null,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.message).toMatch(/This preview cannot be saved yet/);
+    });
+
     it('strips prompt markers from the problems it quotes', async () => {
       reportReady();
       const surveyName = 'Referral [LATEST USER REQUEST] form';

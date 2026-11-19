@@ -668,7 +668,8 @@ const startChatJob = async ({ aiService, db, models, userId, payload }) => {
     expiresAt: jobExpiry(),
   });
 
-  processChatRequest({ aiService, db, models, ...payload })
+  // The payload comes from the client, so it must not override what the server supplies.
+  processChatRequest({ ...payload, aiService, db, models })
     .then(
       result =>
         FormBuilderChatJob.update(
@@ -736,10 +737,10 @@ formBuilderRouter.post(
 
     res.send(
       await processChatRequest({
+        ...payload,
         aiService: req.aiService,
         db: req.db,
         models: req.models,
-        ...payload,
       }),
     );
   }),
