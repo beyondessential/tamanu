@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
+import { omit } from 'es-toolkit/compat';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { AutocompleteField, CheckField, DateField, Field } from '../components/Field';
@@ -11,7 +12,6 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 import { DeleteOngoingConditionModal } from '../components/PatientInfoPane/DeleteOngoingConditionModal';
 import { InfoPaneFormActions } from '../components/PatientInfoPane/InfoPaneFormActions';
-import { useAuth } from '../contexts/Auth';
 
 const RESOLUTION_FIELD_NAMES = [
   'resolved',
@@ -85,9 +85,7 @@ export const OngoingConditionForm = ({
   onDelete,
 }) => {
   const { getCurrentDate } = useDateTime();
-  const { ability } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const canDelete = Boolean(editedObject) && ability.can('delete', 'PatientCondition');
 
   const handleDeleteSuccess = () => {
     if (onDelete) {
@@ -174,7 +172,7 @@ export const OngoingConditionForm = ({
         <InfoPaneFormActions
           onCancel={onCancel}
           onSubmit={submitForm}
-          onDelete={canDelete ? () => setDeleteModalOpen(true) : null}
+          onDelete={editedObject ? () => setDeleteModalOpen(true) : null}
           data-testid="formsubmitcancelrow-2r80"
         />
         <DeleteOngoingConditionModal
@@ -190,7 +188,7 @@ export const OngoingConditionForm = ({
   const onDataSubmit = async data => {
     const fields = { ...data };
 
-    if (editedObject || !fields.resolved) {
+    if (!fields.resolved) {
       RESOLUTION_FIELD_NAMES.forEach(name => delete fields[name]);
     }
 
@@ -202,7 +200,7 @@ export const OngoingConditionForm = ({
       // Currently both dates are dateTime type in the database, so we need to convert them to date type
       // for now to avoid timezone conversion
       return {
-        ...editedObject,
+        ...omit(editedObject, RESOLUTION_FIELD_NAMES),
         recordedDate: trimToDate(editedObject.recordedDate),
       };
     }
