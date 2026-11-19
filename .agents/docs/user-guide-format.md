@@ -19,8 +19,9 @@ quickly and often on a ward. Assume no knowledge of Tamanu's internals.
   - checkboxes are _checked_;
   - dropdown/pulldown, menu and radio options are _chosen_;
   - windows and tabs are _closed_;
-    - A window refers to the desktop browser or web app window. No UI element within Tamanu is considered a window.
-  - alerts, dialogs and modals are _dismissed_.
+    - (A window refers to the desktop browser or web app window. No UI element within Tamanu is considered a window.)
+  - alerts, dialogs, popups, modals and toasts are _dismissed_.
+    - (_Dialog_ refers to the UI element; _dialogue_ refers to spoken word.)
 - **Write plainly.** Short sentences in the active voice, addressing the reader as "you", one
   instruction to a sentence, and no technical or developer terms
 - **Assume nothing the reader hasn't been told**, starting from the place in the product the guide
