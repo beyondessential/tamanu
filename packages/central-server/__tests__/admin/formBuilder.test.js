@@ -924,6 +924,20 @@ describe('Form Builder Admin', () => {
       expect(response).toHaveRequestError(404);
       expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
     });
+
+    it('refuses a programId that is not a string, deleting the upload', async () => {
+      const response = await app
+        .post('/v1/admin/form-builder/chat')
+        .field(
+          'jsonData',
+          JSON.stringify({ message: 'Use this form', programId: { id: programId } }),
+        )
+        .attach('file', Buffer.from('Patient name'), 'form.txt');
+
+      expect(response).toHaveRequestError(422);
+      expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+      expect(await fs.readdir(uploadDirPath())).toEqual([]);
+    });
   });
 
   it('refuses chat when the form builder is switched off', async () => {

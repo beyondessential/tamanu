@@ -686,6 +686,16 @@ const startChatJob = async ({ aiService, db, models, userId, payload }) => {
   return jobId;
 };
 
+const assertChatProgramExists = async (models, programId) => {
+  if (!programId) return;
+  if (typeof programId !== 'string') {
+    throw new InvalidParameterError('programId must be a string');
+  }
+  if (!(await models.Program.findByPk(programId))) {
+    throw new NotFoundError('Program was not found');
+  }
+};
+
 formBuilderRouter.post(
   '/chat',
   asyncHandler(async (req, res) => {
@@ -697,10 +707,11 @@ formBuilderRouter.post(
 
     const { async: runAsync, ...payload } = await getUploadedData(req);
     if (payload.file) assertUploadedFilePath(payload.file);
-    if (payload.programId && !(await req.models.Program.findByPk(payload.programId))) {
+    // Nothing else will delete the upload of a request refused here.
+    await assertChatProgramExists(req.models, payload.programId).catch(async error => {
       if (payload.file) await fs.unlink(payload.file).catch(() => {});
-      throw new NotFoundError('Program was not found');
-    }
+      throw error;
+    });
 
     if (runAsync) {
       // Resolve the session up front (rather than lazily inside the job) and
