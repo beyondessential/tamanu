@@ -587,6 +587,35 @@ describe('SurveyResponseAnswer', () => {
         expect(result.body.responseId).toBe(response.id);
       });
 
+      it('should create in the given chart instance when instances share a recorded date', async () => {
+        const instanceA = await createNewVitalsSurveyResponse();
+        await instanceA.update({ metadata: { chartInstanceResponseId: 'instance-a' } });
+        const answers = await instanceA.getAnswers();
+        const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
+        const instanceB = await models.SurveyResponse.sequelize.transaction(() =>
+          models.SurveyResponse.createWithAnswers({
+            encounterId: instanceA.encounterId,
+            surveyId: TEST_VITALS_SURVEY_ID,
+            userId: app.user.id,
+            metadata: { chartInstanceResponseId: 'instance-b' },
+            answers: { [dataElements[3].id]: dateAnswer.body },
+          }),
+        );
+        const encounter = await instanceA.getEncounter();
+        const result = await app.post('/api/surveyResponseAnswer/vital').send({
+          reasonForChange: 'instance-scoped',
+          newValue: chance.integer({ min: 0, max: 100 }),
+          date: getCurrentDateTimeString(),
+          recordedDate: dateAnswer.body,
+          dataElementId: extraDataElement.id,
+          patientId: encounter.patientId,
+          chartInstanceResponseId: 'instance-b',
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.responseId).toBe(instanceB.id);
+      });
+
       it('should reject a create with neither encounterId nor patientId', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
