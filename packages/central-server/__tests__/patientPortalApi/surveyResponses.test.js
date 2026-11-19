@@ -193,53 +193,74 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(await Encounter.count({ where: { patientId: otherPatient.id } })).toBe(0);
     });
 
-    it("Should add the response to the patient's open encounter", async () => {
-      const {
-        Patient,
-        PortalUser,
-        Facility,
-        Location,
-        Department,
-        User,
-        Encounter,
-        SurveyResponse,
-      } = store.models;
-      // A patient of their own, so the open encounter doesn't carry into other tests
-      const admittedPatient = await Patient.create(fake(Patient));
-      const email = 'admitted-patient@test.com';
+    // A patient of their own with one encounter at another facility, so it doesn't carry into
+    // other tests
+    const signInPatientWithEncounter = async ({ email, startDate, endDate }) => {
+      const { Patient, PortalUser, Facility, Location, Department, User, Encounter } = store.models;
+      const patient = await Patient.create(fake(Patient));
       await PortalUser.create({
         email,
-        patientId: admittedPatient.id,
+        patientId: patient.id,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
-      const admittedPatientToken = await getPatientAuthToken(baseApp, store.models, email);
-      const admittingFacility = await Facility.create(fake(Facility));
-      const openEncounter = await Encounter.create(
+      const token = await getPatientAuthToken(baseApp, store.models, email);
+      const otherFacility = await Facility.create(fake(Facility));
+      const encounter = await Encounter.create(
         fake(Encounter, {
-          patientId: admittedPatient.id,
-          locationId: (await Location.create(fake(Location, { facilityId: admittingFacility.id })))
-            .id,
+          patientId: patient.id,
+          locationId: (await Location.create(fake(Location, { facilityId: otherFacility.id }))).id,
           departmentId: (
-            await Department.create(fake(Department, { facilityId: admittingFacility.id }))
+            await Department.create(fake(Department, { facilityId: otherFacility.id }))
           ).id,
           examinerId: (await User.create(fake(User))).id,
-          endDate: null,
+          startDate,
+          endDate,
         }),
       );
       await createAssignment({
-        patientId: admittedPatient.id,
+        patientId: patient.id,
         surveyId: baseSurvey.id,
         status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       });
+      return { token, encounter };
+    };
 
-      const response = await baseApp
+    const submitAs = token =>
+      baseApp
         .post(`/api/portal/surveyResponse`)
-        .set('Authorization', `Bearer ${admittedPatientToken}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ surveyId: baseSurvey.id, answers: { [baseDataElement.id]: 4 } });
 
+    it("Should add the response to the patient's open encounter", async () => {
+      const { token, encounter } = await signInPatientWithEncounter({
+        email: 'admitted-patient@test.com',
+        startDate: '2026-01-01 09:00:00',
+        endDate: null,
+      });
+
+      const response = await submitAs(token);
+
       expect(response).toHaveSucceeded();
-      const surveyResponse = await SurveyResponse.findByPk(response.body.id);
-      expect(surveyResponse.encounterId).toBe(openEncounter.id);
+      const surveyResponse = await store.models.SurveyResponse.findByPk(response.body.id);
+      expect(surveyResponse.encounterId).toBe(encounter.id);
+    });
+
+    it("Should not add the response to the patient's closed encounter", async () => {
+      const { token, encounter } = await signInPatientWithEncounter({
+        email: 'discharged-patient@test.com',
+        startDate: '2026-01-01 09:00:00',
+        endDate: '2026-01-02 09:00:00',
+      });
+
+      const response = await submitAs(token);
+
+      expect(response).toHaveSucceeded();
+      const surveyResponse = await store.models.SurveyResponse.findByPk(response.body.id);
+      expect(surveyResponse.encounterId).not.toBe(encounter.id);
+      expect(await store.models.Encounter.findByPk(surveyResponse.encounterId)).toMatchObject({
+        locationId: testLocationId,
+        departmentId: testDepartmentId,
+      });
     });
 
     it('Should record one response, returned to both, when a form is submitted twice at once', async () => {
