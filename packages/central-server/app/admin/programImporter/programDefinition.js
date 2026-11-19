@@ -12,7 +12,10 @@ import { log } from '@tamanu/shared/services/logging';
 import { DataImportError, DryRun } from '../errors';
 import { importRows } from '../importer/importRows';
 import { idify } from './idify';
-import { validateProgramDataElementRecords } from './programDataElementValidation';
+import {
+  DataElementValidationError,
+  validateProgramDataElementRecords,
+} from './programDataElementValidation';
 import {
   ensureRequiredQuestionsPresent,
   validateChartingSurvey,
@@ -483,19 +486,11 @@ const describeSaveError = (error, { definitionCodesByQuestionCode, rows, surveyI
     const row = dataElementRows.find(({ sheetRow }) => sheetRow === error.rowIndex);
     return describe(row, error.previous.message);
   }
-
-  // The data element checks report plain errors, prefixed with the sheet and,
-  // where there is one, the question's import code.
-  const sheetPrefix = `sheetName: ${surveyInfo.name}, `;
-  const questionPrefix = row => `${sheetPrefix}code: '${row.values.code}', `;
-  const row = dataElementRows.find(candidate =>
-    error.message.startsWith(questionPrefix(candidate)),
-  );
-  if (row) return describe(row, error.message.slice(questionPrefix(row).length));
-  return describe(
-    null,
-    error.message.startsWith(sheetPrefix) ? error.message.slice(sheetPrefix.length) : error.message,
-  );
+  if (error instanceof DataElementValidationError) {
+    const row = dataElementRows.find(({ values }) => values.code === error.dataElementCode);
+    return describe(row, error.reason);
+  }
+  return describe(null, error.message);
 };
 
 /**
