@@ -77,7 +77,6 @@ const MarStatusTooltipContent = ({
   isNotDue,
   isPast,
   isPaused,
-  isPrn,
   isVariableDose,
   marDoses,
   marInfo,
@@ -162,7 +161,6 @@ const MarStatusTooltipContent = ({
         </>
       );
     default:
-      if (isPast && isPrn) return null;
       return (
         <>
           {doseWindow && (
