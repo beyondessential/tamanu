@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import {
   DateDisplay,
+  PlainTimeDisplay,
   ThemedTooltip,
   TranslatedEnum,
   TranslatedText,
@@ -57,7 +58,15 @@ export const hasMarStatusTooltip = ({
   return !(isPast && isPrn);
 };
 
+const DoseWindow = styled(Span)`
+  text-decoration: underline;
+`;
+
+const toPlainTime = time => (time === '24:00' ? '00:00' : time);
+
 const MarStatusTooltipContent = ({
+  doseAmount,
+  doseWindow,
   dosingUnit,
   dueAt,
   endDate,
@@ -69,6 +78,7 @@ const MarStatusTooltipContent = ({
   isPast,
   isPaused,
   isPrn,
+  isVariableDose,
   marDoses,
   marInfo,
   reasonNotGiven,
@@ -152,32 +162,60 @@ const MarStatusTooltipContent = ({
         </>
       );
     default:
-      if (isNotDue) {
-        return (
-          <TranslatedText
-            stringId="medication.mar.future.tooltip"
-            fallback="Cannot record future dose. Due at :dueAt."
-            replacements={{ dueAt: formatTime(dueAt) }}
-          />
-        );
-      }
-      if (isPast) {
-        return isPrn ? null : (
-          <TranslatedText
-            stringId="medication.mar.missed.tooltip"
-            fallback="Missed. Due at :dueAt."
-            replacements={{ dueAt: formatTime(dueAt) }}
-          />
-        );
-      }
+      if (isPast && isPrn) return null;
       return (
-        <TranslatedText
-          stringId="medication.mar.dueAt.tooltip"
-          fallback="Due at :dueAt."
-          replacements={{ dueAt: formatTime(dueAt) }}
-        />
+        <>
+          {doseWindow && (
+            <>
+              <DoseWindow>
+                <PlainTimeDisplay time={toPlainTime(doseWindow.startTime)} />
+                &ndash;
+                <PlainTimeDisplay time={toPlainTime(doseWindow.endTime)} />
+              </DoseWindow>
+              {!isVariableDose && (
+                <Span>
+                  {doseAmount}&nbsp;
+                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                </Span>
+              )}
+            </>
+          )}
+          <Span>
+            <UnrecordedDoseStatus dueAt={dueAt} isNotDue={isNotDue} isPast={isPast} />
+          </Span>
+        </>
       );
   }
+};
+
+const UnrecordedDoseStatus = ({ dueAt, isNotDue, isPast }) => {
+  const { formatTime } = useDateTime();
+
+  if (isNotDue) {
+    return (
+      <TranslatedText
+        stringId="medication.mar.future.tooltip"
+        fallback="Cannot record future dose. Due at :dueAt."
+        replacements={{ dueAt: formatTime(dueAt) }}
+      />
+    );
+  }
+  if (isPast) {
+    return (
+      <TranslatedText
+        stringId="medication.mar.missed.tooltip"
+        fallback="Missed. Due at :dueAt."
+        replacements={{ dueAt: formatTime(dueAt) }}
+      />
+    );
+  }
+  return (
+    <TranslatedText
+      stringId="medication.mar.dueAt.tooltip"
+      fallback="Due at :dueAt."
+      replacements={{ dueAt: formatTime(dueAt) }}
+    />
+  );
 };
 
 export const MarStatusLabel = props =>
