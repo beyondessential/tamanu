@@ -902,6 +902,26 @@ describe('Form Builder Admin', () => {
       );
     });
 
+    it('asks for survey-level problems to be corrected on the survey', async () => {
+      reportReady();
+      aiService.invokeStructured
+        .mockResolvedValueOnce({
+          ...programDefinition,
+          surveys: [{ ...programDefinition.surveys[0], surveyType: 'vitals', isSensitive: true }],
+        })
+        .mockRejectedValueOnce(new Error('No tool call'));
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a sensitive vitals form',
+        programId,
+      });
+
+      expect(response).toHaveSucceeded();
+      const [, tweakInput] = aiService.invokeStructured.mock.lastCall;
+      expect(tweakInput).toMatch(/Change only the questions and surveys they name/);
+      expect(tweakInput).toMatch(/- Survey "Referral form": Vitals survey can not be sensitive/);
+    });
+
     it('names the question whose code clashes with an earlier one', async () => {
       reportReady();
       aiService.invokeStructured

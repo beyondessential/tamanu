@@ -443,7 +443,7 @@ const tryTweakProgramDefinition = async ({ aiService, currentProgramDefinition, 
 
 const buildSaveCorrectionRequest = problems =>
   [
-    'Saving this preview fails validation with the problems below. Change only the questions they name, with the smallest change that keeps what each question is for. Where the config a question asks for is not supported, use a supported alternative, such as a plain question type the user fills in.',
+    'Saving this preview fails validation with the problems below. Change only the questions and surveys they name, with the smallest change that keeps what each is for. Where the config a question asks for is not supported, use a supported alternative, such as a plain question type the user fills in.',
     ...problems.map(problem => `- ${problem}`),
   ].join('\n');
 
