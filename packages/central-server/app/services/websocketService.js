@@ -9,20 +9,7 @@ import {
   getAuthSecret,
   getCanonicalHostName,
 } from '@tamanu/shared/utils';
-import { decodeJwt } from 'jose';
-
-// setTimeout fires immediately for a delay beyond this
-const MAX_TIMER_DELAY_MS = 2 ** 31 - 1;
-
-// A token is only checked at the handshake, so end the connection when it expires; clients
-// reconnect with a fresh one.
-const scheduleDisconnectAtExpiry = (socket, expiresAtSeconds) => {
-  if (!expiresAtSeconds) return;
-  const delay = Math.min(expiresAtSeconds * 1000 - Date.now(), MAX_TIMER_DELAY_MS);
-  const timer = setTimeout(() => socket.disconnect(true), delay);
-  timer.unref();
-  socket.on('disconnect', () => clearTimeout(timer));
-};
+import { buildWebsocketAuthMiddleware } from '@tamanu/shared/utils/websocketAuth';
 
 /**
  *
@@ -43,36 +30,13 @@ export const defineWebsocketService = async injector => {
   });
   const getSocketServer = () => socketServer;
 
-  // Only a client holding a valid access token may connect. The token is the one the client uses
-  // for the HTTP API, sent as `auth.token` in the handshake.
-  socketServer.use(async (socket, next) => {
-    try {
-      const { token } = socket.handshake.auth ?? {};
-      if (typeof token !== 'string' || token.length === 0) {
-        throw new Error('Missing token');
-      }
-
-      const { user, device, impersonateRoleId } = await injector.models.User.loginFromToken(token, {
-        tokenIssuer: getCanonicalHostName(),
-        tokenSecret: getAuthSecret(),
-      });
-      // Verification allows for clock skew, which would accept a token only to end the connection
-      // straight away
-      const expiresAtSeconds = decodeJwt(token).exp;
-      if (expiresAtSeconds && expiresAtSeconds * 1000 <= Date.now()) {
-        throw new Error('Token expired');
-      }
-
-      // each socket is only authenticated by its own handshake, so nothing else writes this
-      // eslint-disable-next-line require-atomic-updates
-      socket.data = { user, device, impersonateRoleId };
-      scheduleDisconnectAtExpiry(socket, expiresAtSeconds);
-      next();
-    } catch (e) {
-      log.warn('Rejected websocket connection', { reason: e.message });
-      next(new Error('Unauthorised'));
-    }
-  });
+  socketServer.use(
+    buildWebsocketAuthMiddleware({
+      models: injector.models,
+      tokenIssuer: getCanonicalHostName(),
+      tokenSecret: getAuthSecret(),
+    }),
+  );
 
   // The admin panel refetches its settings when told they changed, so that is the only table
   // relayed, and without the changed row or columns. Every other table change listener in the web
