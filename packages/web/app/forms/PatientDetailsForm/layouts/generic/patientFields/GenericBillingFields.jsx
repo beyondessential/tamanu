@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useFormikContext } from 'formik';
 
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -23,7 +23,7 @@ import {
 
 export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId, gridTestId }) => {
   const { getSetting } = useSettings();
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue, validateField } = useFormikContext();
   const payor1Suggester = usePatientPayorSuggester();
   const payor2Suggester = usePatientPayorSuggester();
 
@@ -48,6 +48,14 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
   const isAnnualIncomeRequiredOnCreate = Boolean(
     getSetting('fields.annualIncome.requiredPatientData'),
   );
+
+  // A field revalidates itself only when its own value changes, and the form validates on submit,
+  // so removing the plan would leave both messages on screen until the next Save. These two answer
+  // to the plan rather than to themselves, so the selection changing is what has to prompt them.
+  useEffect(() => {
+    validateField('familySize');
+    validateField('annualIncome');
+  }, [isSlidingFeeScaleSelected, validateField]);
 
   const familySizeOptions = useMemo(() => getFamilySizeOptions(slidingFeeScale), [slidingFeeScale]);
   const annualIncomeOptions = useMemo(
@@ -82,7 +90,7 @@ export const GenericBillingFields = ({ filterByMandatory, heading, headingTestId
     familySize: {
       component: SelectField,
       options: familySizeOptions,
-      required: isSlidingFeeScaleSelected || undefined,
+      required: isSlidingFeeScaleSelected || isAnnualIncomeRequiredOnCreate || undefined,
       alwaysShow: isAnnualIncomeRequiredOnCreate || undefined,
       // The bands belong to a family size, so an income chosen against the old one is no longer
       // an answer to this question.

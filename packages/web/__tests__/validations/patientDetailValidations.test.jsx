@@ -47,6 +47,17 @@ const REQUIRED_PATIENT = {
 
 const validate = (schema, values) => schema.validateSync({ ...REQUIRED_PATIENT, ...values });
 
+// Which fields a case fails on, rather than only that it failed: a requirement that lands on the
+// wrong field is the defect these cover.
+const errorPaths = (schema, values) => {
+  try {
+    schema.validateSync({ ...REQUIRED_PATIENT, ...values }, { abortEarly: false });
+    return [];
+  } catch (error) {
+    return error.inner.map(each => each.path);
+  }
+};
+
 describe('getPatientDetailsValidation', () => {
   let schema;
   beforeAll(() => {
@@ -150,6 +161,26 @@ describe('getPatientDetailsValidation', () => {
       expect(() =>
         validate(buildSchema({ requiredWhenCreatingFields: ['annualIncome'] }), {}),
       ).toThrow();
+    });
+
+    // Annual income stays disabled until a family size is chosen, so asking only for the income
+    // refuses the save against a field nobody can fill in, and the form has nothing to point at.
+    it('asks for the family size behind a mandatory annual income', () => {
+      expect(
+        errorPaths(buildSchema({ requiredWhenCreatingFields: ['annualIncome'] }), {}),
+      ).toContain('familySize');
+    });
+
+    it('asks for the mandatory annual income once a family size is given', () => {
+      expect(
+        errorPaths(buildSchema({ requiredWhenCreatingFields: ['annualIncome'] }), {
+          familySize: '3',
+        }),
+      ).toContain('annualIncome');
+    });
+
+    it('leaves the family size optional where the annual income is not mandatory', () => {
+      expect(errorPaths(buildSchema(), {})).not.toContain('familySize');
     });
 
     // The plan is matched by the id resolved from the configured code. Until the plans load, or

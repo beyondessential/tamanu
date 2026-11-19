@@ -17,8 +17,11 @@ import {
 } from '../utils/slidingFeeScale';
 
 const requiredWhenConfiguredMandatory = (getSetting, getTranslation, name, baseType) => {
+  // Several names mean the field is mandatory when any of them is, which is how a field that
+  // another one cannot be answered without inherits its requirement.
+  const names = Array.isArray(name) ? name : [name];
   return baseType.when([], {
-    is: () => !!getSetting(`fields.${name}.requiredPatientData`),
+    is: () => names.some(each => Boolean(getSetting(`fields.${each}.requiredPatientData`))),
     then: baseType.required(getTranslation('validation.required.inline', '*Required')),
     otherwise: baseType,
   });
@@ -66,7 +69,7 @@ export const getPatientDetailsValidation = (
     message,
     dependsOn,
     isRequired,
-    enabledBy,
+    { enabledBy, mandatoryWith } = {},
   ) => {
     const labelled = schema =>
       schema.translatedLabel(<TranslatedText stringId={stringId} fallback={fallback} />);
@@ -86,9 +89,8 @@ export const getPatientDetailsValidation = (
           ? requiredWhenConfiguredMandatory(
               getSetting,
               getTranslation,
-              field,
+              mandatoryWith ? [field, mandatoryWith] : field,
               labelled(schema),
-              fallback,
             )
           : labelled(schema),
     });
@@ -919,6 +921,10 @@ export const getPatientDetailsValidation = (
       ),
       'invoiceInsurancePlanId',
       isSlidingFeeScaleSelected,
+      // Annual income is disabled until a family size is chosen, so a deployment that makes the
+      // income mandatory makes the family size mandatory too. Without this the form fails on a
+      // field that cannot be filled in, and the save is refused with nothing to act on.
+      { mandatoryWith: 'annualIncome' },
     ),
     // The income bands belong to a family size, so annual income cannot be answered — and is
     // disabled on the form — until one is chosen. Asking for it before then would put a message
@@ -933,7 +939,7 @@ export const getPatientDetailsValidation = (
       ),
       ['invoiceInsurancePlanId', 'familySize'],
       (planIds, familySize) => isSlidingFeeScaleSelected(planIds) && Boolean(familySize),
-      'familySize',
+      { enabledBy: 'familySize' },
     ),
     payor1Id: requiredWhenConfiguredMandatory(
       getSetting,
