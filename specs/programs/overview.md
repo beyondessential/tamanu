@@ -20,6 +20,7 @@ Applies to programs, surveys, and form submissions.
 - Each form preview the AI form builder produces is checked against everything saving it into the selected program would check, without saving anything.
 - Problems the check finds go back to the builder to correct, a limited number of times, and the builder's reply describes each correction it made.
 - A preview that still has problems after that names them in the reply, so saving it never fails unannounced.
+- A preview the check could not run on says so in the reply, keeping any corrections already made.
 
 > [!NOTE]
 > A problem such as a patient data question reading a field that does not exist would otherwise surface only as a save error, after the user has approved the preview. Correcting it first keeps the conversation the place where the form gets fixed.

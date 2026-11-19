@@ -930,7 +930,7 @@ describe('Form Builder Admin', () => {
       );
     });
 
-    it('leaves the preview as generated when the check itself fails', async () => {
+    it('says when the preview could not be checked', async () => {
       reportReady();
       aiService.invokeStructured.mockResolvedValueOnce(unsaveableProgramDefinition);
       const findSurvey = vi
@@ -945,7 +945,9 @@ describe('Form Builder Admin', () => {
 
         expect(response).toHaveSucceeded();
         expect(aiService.invokeStructured).toHaveBeenCalledTimes(1);
-        expect(response.body.message).toBe('Your form is ready.');
+        expect(response.body.message).toBe(
+          'Your form is ready.\n\nThis preview could not be checked for saving, so saving it may fail.',
+        );
         expect(response.body.programDefinition.surveySheets[0].questions[1]).toMatchObject({
           type: 'PatientData',
           config: { column: 'displayId' },
@@ -974,7 +976,7 @@ describe('Form Builder Admin', () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.message).toBe(
-          'Your form is ready.\n\nChanged Hospital No to a free text question.',
+          'Your form is ready.\n\nChanged Hospital No to a free text question.\n\nThis preview could not be checked for saving, so saving it may fail.',
         );
         expect(response.body.programDefinition.surveySheets[0].questions[1].type).toBe(
           'FreeText',

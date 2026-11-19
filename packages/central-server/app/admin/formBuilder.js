@@ -447,6 +447,8 @@ const buildSaveCorrectionRequest = problems =>
     ...problems.map(problem => `- ${problem}`),
   ].join('\n');
 
+const UNCHECKED_PREVIEW_NOTE = 'This preview could not be checked for saving, so saving it may fail.';
+
 const describeUnsaveablePreview = problems =>
   ['This preview cannot be saved yet:', ...problems.map(problem => `- ${problem}`)].join('\n');
 
@@ -454,8 +456,8 @@ const describeUnsaveablePreview = problems =>
 // The preview schema only checks structure, so dry-run the save against the
 // program it will be saved to and hand any problems back to the model as a
 // tweak. Returns the notes to add to the reply: each correction's message, then
-// any problems left. The check is best-effort: a fault while checking keeps the
-// preview as corrected so far.
+// any problems left. A fault while checking keeps the preview as corrected so
+// far, and says it went unchecked.
 const correctUnsaveablePreview = async ({
   aiService,
   db,
@@ -471,8 +473,9 @@ const correctUnsaveablePreview = async ({
     programDefinition,
   }).catch(error => {
     log.warn({ error }, 'AI form builder could not check the preview against save validation');
-    return [];
+    return null;
   });
+  if (!problems) return { programDefinition, notes: [UNCHECKED_PREVIEW_NOTE] };
   if (problems.length === 0) return { programDefinition, notes: [] };
 
   const correction =
