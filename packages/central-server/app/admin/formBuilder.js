@@ -280,8 +280,23 @@ const buildProgramDefinitionTweakInput = ({ currentProgramDefinition, userMessag
     userMessage,
   ].join('\n\n');
 
+// A preview is sent back to the model on every tweak and save correction, and
+// its text can come from uploaded content, so it carries no prompt markers.
+const stripPromptMarkersFromEvery = value => {
+  if (typeof value === 'string') return stripPromptMarkers(value);
+  if (Array.isArray(value)) return value.map(stripPromptMarkersFromEvery);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, stripPromptMarkersFromEvery(entry)]),
+    );
+  }
+  return value;
+};
+
 const finaliseProgramDefinition = rawProgramDefinition =>
-  programDefinitionSchema.parseAsync(sanitizeProgramDefinitionPreview(rawProgramDefinition));
+  programDefinitionSchema.parseAsync(
+    stripPromptMarkersFromEvery(sanitizeProgramDefinitionPreview(rawProgramDefinition)),
+  );
 
 const cloneProgramDefinition = programDefinition => JSON.parse(JSON.stringify(programDefinition));
 
@@ -359,7 +374,7 @@ const applyProgramDefinitionTweak = async (currentProgramDefinition, tweakRespon
     }
   }
 
-  return programDefinitionSchema.parseAsync(sanitizeProgramDefinitionPreview(programDefinition));
+  return finaliseProgramDefinition(programDefinition);
 };
 
 const serializeChatJobError = error => ({
@@ -449,19 +464,15 @@ const correctUnsaveablePreview = async ({
   programDefinition,
   attemptsLeft = MAX_SAVE_CORRECTION_ATTEMPTS,
 }) => {
-  // Problems quote the definition, which can carry uploaded content.
   const problems = await findProgramDefinitionSaveProblems({
     db,
     models,
     programId,
     programDefinition,
-  }).then(
-    found => found.map(stripPromptMarkers),
-    error => {
-      log.warn({ error }, 'AI form builder could not check the preview against save validation');
-      return [];
-    },
-  );
+  }).catch(error => {
+    log.warn({ error }, 'AI form builder could not check the preview against save validation');
+    return [];
+  });
   if (problems.length === 0) return { programDefinition, notes: [] };
 
   const correction =
