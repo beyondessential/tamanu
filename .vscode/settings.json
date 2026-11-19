@@ -6,8 +6,9 @@
     "dhis2",
     "Formik",
     "ilike",
+    "RNFS",
     "singularize",
-    "tamanu",
+    "Tamanu",
     "upsert",
     "upserted"
   ],
