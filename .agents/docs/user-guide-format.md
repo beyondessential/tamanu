@@ -19,6 +19,7 @@ quickly and often on a ward. Assume no knowledge of Tamanu's internals.
   - _drags_ an item (not _click and drag_);
   - _selects_ or _deselects_ a checkbox (but a checkbox can be _unselected_);
   - _chooses_ an option (e.g. from a menu or when clicking a radio button);
+  - _expands_ or _collapses_ a details disclosure (not _show/hide_ or _open/close_)
   - _closes_ a window or tab; and
   - _dismisses_ an alert, dialog, popup, modal or toast.
   - NB:
