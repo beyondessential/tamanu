@@ -284,17 +284,28 @@ describe('Suggestions', () => {
 
   // Locations suggester has specialised functionality for determining location availability
   describe('Locations', () => {
+    // Suggestions come back a page at a time, sorted by name, among whatever locations earlier
+    // test files left in the database, so these share a prefix the test searches for.
+    const namePrefix = 'Availability check';
+    let freeLocation;
     let occupiedLocation;
     let reservedLocation;
     let unrestrictedLocation;
 
     beforeAll(async () => {
       const facility = await models.Facility.findOne({ order: [['createdAt', 'ASC']] });
-      const createLocation = maxOccupancy =>
-        models.Location.create(fake(models.Location, { facilityId: facility.id, maxOccupancy }));
-      occupiedLocation = await createLocation(1);
-      reservedLocation = await createLocation(1);
-      unrestrictedLocation = await createLocation(null);
+      const createLocation = (name, maxOccupancy) =>
+        models.Location.create(
+          fake(models.Location, {
+            name: `${namePrefix} ${name}`,
+            facilityId: facility.id,
+            maxOccupancy,
+          }),
+        );
+      freeLocation = await createLocation('free', 1);
+      occupiedLocation = await createLocation('occupied', 1);
+      reservedLocation = await createLocation('reserved', 1);
+      unrestrictedLocation = await createLocation('unrestricted', null);
 
       // An encounter requires a patient
       const patient = await models.Patient.create(
@@ -325,10 +336,13 @@ describe('Suggestions', () => {
     });
 
     it('should calculate location availability and return it with suggestion list', async () => {
-      const result = await userApp.get('/api/suggestions/location');
+      const result = await userApp.get('/api/suggestions/location').query({ q: namePrefix });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
+
+      const freeResult = body.find(x => x.id === freeLocation.id);
+      expect(freeResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
 
       const occupiedResult = body.find(x => x.id === occupiedLocation.id);
       expect(occupiedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.OCCUPIED);
@@ -341,13 +355,6 @@ describe('Suggestions', () => {
         'availability',
         LOCATION_AVAILABILITY_STATUS.AVAILABLE,
       );
-
-      const otherResults = body.filter(
-        x => ![occupiedLocation.id, reservedLocation.id, unrestrictedLocation.id].includes(x.id),
-      );
-      for (const location of otherResults) {
-        expect(location).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
-      }
     });
 
     it('should filter locations by location group', async () => {
