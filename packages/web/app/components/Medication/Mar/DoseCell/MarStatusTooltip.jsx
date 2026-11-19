@@ -12,6 +12,7 @@ import {
   VisuallyHidden,
 } from '@tamanu/ui-components';
 import { MarDoseSlot } from '../components';
+import { toPlainTime } from '../marTimeSlots';
 
 /**
  * Phrasing content only, since this text is also rendered inside `MarCellButton`, which cannot
@@ -61,8 +62,6 @@ export const hasMarStatusTooltip = ({
 const DoseWindow = styled(Span)`
   text-decoration: underline;
 `;
-
-const toPlainTime = time => (time === '24:00' ? '00:00' : time);
 
 const MarStatusTooltipContent = ({
   doseAmount,
