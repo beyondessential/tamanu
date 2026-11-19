@@ -100,7 +100,7 @@ Turning a verb off turns off only that verb.
     alt="The Edit tab of the Permissions screen filtered to Encounter, with each role's verb checkboxes outlined in red"
     width="731"
   />
-  <figcaption>Expand a noun to tick or untick each verb for each role.</figcaption>
+  <figcaption>Expand a noun to select or deselect each verb for each role.</figcaption>
 </figure>
 
 Viewing the matrix needs `read` for `Permission` and `list` for `Role`. Turning permissions on needs
@@ -1240,7 +1240,7 @@ The pharmacy note on a prescription.
 | Verb | What it grants |
 | --- | --- |
 | `write` | <ul><li>Edit an existing pharmacy note</li><li>Also requires `write` for `Medication`</li></ul> |
-| `create` | <ul><li>Add a pharmacy note where there is none. Without this permission the field is read only</li><li>Tick **Display pharmacy notes on MAR**</li><li>Also requires `write` for `Medication`</li></ul> |
+| `create` | <ul><li>Add a pharmacy note where there is none. Without this permission the field is read only</li><li>Select **Display pharmacy notes on MAR**</li><li>Also requires `write` for `Medication`</li></ul> |
 
 ### `MedicationDueTask`
 

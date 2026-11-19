@@ -10,7 +10,7 @@ system administrator gives you these.
 
 1. Open your site's Tamanu address in your web browser.
 
-   The **Log in** screen opens. If you ticked **Remember me** last time, the heading says
+   The **Log in** screen opens. If you selected **Remember me** last time, the heading says
    **Welcome back** and your email address is already filled in.
 
    <figure>
@@ -24,10 +24,10 @@ system administrator gives you these.
 
 2. Enter your email address in **Email** and your password in **Password**.
 
-3. Tick **Remember me** if you want Tamanu to fill in your email address next time you log in on this
+3. Select **Remember me** if you want Tamanu to fill in your email address next time you log in on this
    computer.
 
-   Leave it unticked to have Tamanu forget your email address.
+   Leave it deselected to have Tamanu forget your email address.
 
 4. Click **Log in**.
 
