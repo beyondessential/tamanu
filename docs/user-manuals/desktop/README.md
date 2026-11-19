@@ -13,11 +13,9 @@ still to be written.
 | # | Module | Guides |
 | --- | --- | --- |
 | 1 | [Accessing Tamanu Desktop](01-accessing-tamanu/) | 1.1 [Log in and out](01-accessing-tamanu/01-log-in-and-out.md), 1.2 [Reset your password](01-accessing-tamanu/02-reset-password.md), 1.3 [Change your language](01-accessing-tamanu/03-change-language.md) |
-| 2 | [Navigating Tamanu](02-navigating-tamanu/) | Not written yet |
-| 3 | [Clinician Dashboard](03-clinician-dashboard/) | 3.1 [Use your dashboard](03-clinician-dashboard/01-use-your-dashboard.md), 3.2 [Work through your upcoming tasks](03-clinician-dashboard/02-work-through-upcoming-tasks.md) |
 | 2 | [Navigating Tamanu](02-navigating-tamanu/) | 2.1 [Use the sidebar](02-navigating-tamanu/01-use-sidebar.md), 2.2 [Move around a patient's record](02-navigating-tamanu/02-move-around-patient-record.md), 2.3 [Shortcuts and tips](02-navigating-tamanu/03-shortcuts-and-tips.md) |
-| 3 | [Clinician Dashboard](03-clinician-dashboard/) | Not written yet |
-| 4 | [Patients](04-patients/) | Not written yet |
+| 3 | [Clinician Dashboard](03-clinician-dashboard/) | 3.1 [Use your dashboard](03-clinician-dashboard/01-use-your-dashboard.md), 3.2 [Work through your upcoming tasks](03-clinician-dashboard/02-work-through-upcoming-tasks.md) |
+| 4 | [Patients](04-patients/) | 4.1 [Find a patient](04-patients/01-find-patient.md), 4.2 [Register a new patient](04-patients/02-register-new-patient.md), 4.3 [Register a birth](04-patients/03-register-birth.md), 4.4 [View and edit a patient's details](04-patients/04-view-and-edit-details.md), 4.5 [Record a patient's history](04-patients/05-record-history.md), 4.6 [Print patient documents](04-patients/06-print-patient-documents.md), 4.7 [Record a patient's death](04-patients/07-record-death.md) |
 | 5 | [Scheduling](05-scheduling/) | Not written yet |
 | 6 | [Program Registries](06-program-registries/) | Not written yet |
 | 7 | [Immunisations](07-immunisations/) | Not written yet |
