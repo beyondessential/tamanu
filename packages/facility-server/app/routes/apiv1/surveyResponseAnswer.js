@@ -163,13 +163,16 @@ async function postSurveyResponseAnswer(req, isVital = false) {
   const dateDataElementId = isVital
     ? VITALS_DATA_ELEMENT_IDS.dateRecorded
     : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
-  const { encounterId, patientId } = body;
+  const { encounterId, patientId, chartInstanceResponseId } = body;
   if (!encounterId && !patientId) {
     throw new InvalidParameterError('Either encounterId or patientId is required.');
   }
   // Program registry charts span all of a patient's encounters
   const encounterWhereClause = encounterId ? { id: encounterId } : { patientId };
   const responseObject = await SurveyResponse.findAll({
+    where: chartInstanceResponseId
+      ? { 'metadata.chartInstanceResponseId': chartInstanceResponseId }
+      : {},
     include: [
       {
         required: true,
