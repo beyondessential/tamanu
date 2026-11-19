@@ -159,6 +159,7 @@ export * from './DebugLog';
 export * from './SyncDeviceTick';
 export * from './SyncLookupTick';
 export * from './SyncFacilityRun';
+export * from './ScheduledTaskState';
 
 export * from './AccessLog';
 export * from './BrowserTelemetrySpan';

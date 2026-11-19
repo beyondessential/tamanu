@@ -9,7 +9,7 @@ import { TAMANU_COLORS } from '../../constants/colors';
 const TextInputWithUnit = styled(TextInput)`
   .MuiInputBase-root {
     display: grid;
-    grid-template-columns: minmax(4ch, 8ch) auto;
+    grid-template-columns: minmax(${props => props.$minValueWidth}, 8ch) auto;
     padding: 12px;
   }
 
@@ -36,13 +36,26 @@ const UnitAdornment = styled(InputAdornment).attrs({ position: 'end' })`
  */
 const onWheel = event => void event.target.blur();
 
-export const NumberInput = ({ inputProps, InputProps, max, min, step, unit, ...props }) => {
+/**
+ * @param minValueWidth - With a unit, the narrowest the value may get beside it, as a CSS length.
+ */
+export const NumberInput = ({
+  inputProps,
+  InputProps,
+  max,
+  min,
+  step,
+  unit,
+  minValueWidth = '4ch',
+  ...props
+}) => {
   const Component = unit ? TextInputWithUnit : TextInput;
   const endAdornment = unit ? <UnitAdornment>{unit}</UnitAdornment> : null;
 
   return (
     <Component
       {...props}
+      $minValueWidth={minValueWidth}
       inputProps={{
         min,
         max,

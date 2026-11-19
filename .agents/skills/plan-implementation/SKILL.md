@@ -3,7 +3,7 @@ name: plan-implementation
 description: "Draft or refine the implementation checklist from specs and current code"
 label: "Plan implementation"
 category: build
-workhorse-version: 0.7.14
+workhorse-version: 0.7.15
 ---
 
 ## Your task: Plan implementation

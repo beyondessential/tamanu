@@ -23,6 +23,15 @@ export const INTERIM_LAB_REQUEST_STATUSES = [
   LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
 ];
 
+// The statuses an encounter's results printout covers. A request at any other status has produced
+// no results yet, has had them withdrawn, or — at To be verified — holds results the lab has not
+// yet stood behind. A single request prints from its own view at any of those statuses.
+export const ENCOUNTER_PRINTOUT_LAB_REQUEST_STATUSES = [
+  LAB_REQUEST_STATUSES.PUBLISHED,
+  LAB_REQUEST_STATUSES.VERIFIED,
+  LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+];
+
 export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: 'Reception pending',
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: 'Results pending',
