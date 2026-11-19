@@ -4,7 +4,9 @@ import {
   buildEncounterPeriod,
   buildInvoiceSections,
   isInvoiceSectioned,
+  isWithinPeriod,
   keepsRecordedDate,
+  pickerPeriodFor,
   resolveEncounterPeriod,
   resolveSectionPeriods,
   offersInvoiceWideInsurance,
@@ -393,5 +395,72 @@ describe('keepsRecordedDate', () => {
 
   it('bounds a row being added', () => {
     expect(keepsRecordedDate({ orderDate: '2026-03-02' })).toBe(false);
+  });
+});
+
+describe('isWithinPeriod', () => {
+  const period = { startDate: '2026-03-01', endDate: '2026-03-05' };
+
+  it('places a date inside its period', () => {
+    expect(isWithinPeriod('2026-03-03', period)).toBe(true);
+  });
+
+  it('counts both bounds as inside', () => {
+    expect(isWithinPeriod('2026-03-01', period)).toBe(true);
+    expect(isWithinPeriod('2026-03-05', period)).toBe(true);
+  });
+
+  it('places a date outside its period', () => {
+    expect(isWithinPeriod('2026-02-28', period)).toBe(false);
+    expect(isWithinPeriod('2026-03-06', period)).toBe(false);
+  });
+
+  it('reads a stored datetime by its date alone', () => {
+    expect(isWithinPeriod('2026-03-05 23:30:00', period)).toBe(true);
+  });
+
+  it('has nothing to place a date outside, with no period or no date', () => {
+    expect(isWithinPeriod('2026-03-06', null)).toBe(true);
+    expect(isWithinPeriod('2026-03-06', { startDate: '2026-03-01', endDate: null })).toBe(true);
+    expect(isWithinPeriod(null, period)).toBe(true);
+  });
+});
+
+describe('pickerPeriodFor', () => {
+  const period = { startDate: '2026-03-01', endDate: '2026-03-05' };
+
+  it('bounds a saved row still holding a date inside its period', () => {
+    expect(
+      pickerPeriodFor(
+        { isExistingItem: true, orderDate: '2026-03-02', originalOrderDate: '2026-03-02' },
+        period,
+      ),
+    ).toEqual(period);
+  });
+
+  it('leaves a saved row free where its recorded date already sits outside the period', () => {
+    expect(
+      pickerPeriodFor(
+        { isExistingItem: true, orderDate: '2026-02-20', originalOrderDate: '2026-02-20' },
+        period,
+      ),
+    ).toBeNull();
+  });
+
+  it('bounds a saved row once its date is edited, wherever it was', () => {
+    expect(
+      pickerPeriodFor(
+        { isExistingItem: true, orderDate: '2026-03-02', originalOrderDate: '2026-02-20' },
+        period,
+      ),
+    ).toEqual(period);
+  });
+
+  it('bounds a row being added', () => {
+    expect(pickerPeriodFor({ orderDate: '' }, period)).toEqual(period);
+  });
+
+  it('has no bounds to give where the section has no period', () => {
+    expect(pickerPeriodFor({ orderDate: '2026-03-02' }, null)).toBeNull();
   });
 });

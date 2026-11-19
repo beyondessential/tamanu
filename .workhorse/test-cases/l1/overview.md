@@ -65,6 +65,8 @@ fault. Every case assumes invoicing is on.
 - [ ] Invoice-wide actions sit in one overflow menu for the invoice, and a section header carries only the actions belonging to that section (verifies spec: INVGRP)
 - [ ] Each section header is marked with the colour its category carries in the encounter view, Outpatient taking the clinic colour (verifies spec: INVGRP)
 - [ ] A configured section that is not an encounter category carries the default colour rather than none (verifies spec: INVGRP)
+- [x] The header's colour runs the full height of the row's leading edge, on a white row, as the design has it
+- [ ] The header reads at the design's size and row height beside the rest of the table, at a width a clinician would use
 
 ## Insurance across sections
 
@@ -81,6 +83,10 @@ fault. Every case assumes invoicing is on.
 - [x] An item's coverage line names only the plans covering its own section (verifies spec: INVGRP)
 - [x] Picking a product on a row previews only the coverage that row's section will get, and a plan reaching it through two attachments is named once (verifies spec: INVGRP)
 - [x] The summary panel's Insurance coverage is the sum across every section (verifies spec: INVGRP)
+- [x] A split invoice's summary shows one coverage line per section, each naming its category in brackets (verifies spec: INVGRP)
+- [x] A section carrying no coverage still shows its line rather than being left out (verifies spec: INVGRP)
+- [x] Coverage on an item carrying no section keeps the plain unnamed line, so it is not dropped from the subtotal (verifies spec: INVGRP)
+- [x] An invoice with nothing to tell apart keeps its single unnamed coverage line (verifies spec: INVGRP)
 - [x] The patient is held to the whole of an uncovered section plus their share of a covered one (verifies spec: INVGRP)
 
 ## Adding and editing items
@@ -94,6 +100,8 @@ fault. Every case assumes invoicing is on.
 - [ ] The Edit invoice window divides items into the same sections, each opening with its header row (verifies spec: INVGRP)
 - [x] An item already dated outside its section's period is left at that date, and an unrelated edit elsewhere on the invoice still saves (verifies spec: INVGRP)
 - [x] Editing that item's date itself is held to the section's limits (verifies spec: INVGRP)
+- [x] A saved row in the Edit invoice window is bounded by its section before its date is touched, so the picker offers neither another section's dates nor a future one (verifies spec: INVGRP)
+- [x] A saved row whose recorded date already sits outside its section is the one row left unbounded, so its own date is not presented as out of range (verifies spec: INVGRP)
 - [x] A date typed outside the range shows an inline error naming the first and last allowed dates (verifies spec: INVGRP)
 - [x] The items cannot be saved while that error stands (verifies spec: INVGRP)
 - [x] In a section whose period is unknown, the picker offers the encounter's own dates rather than any date at all (verifies spec: INVGRP)

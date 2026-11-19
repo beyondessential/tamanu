@@ -58,6 +58,22 @@ const getItemCoverageTowardsTotal = (
 export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): Decimal =>
   sumOf(invoiceItems.map(item => getItemCoverageTowardsTotal(item, calculateInvoiceItem(item))));
 
+/**
+ * Each section's share of the invoice's insurance coverage, keyed by the section its items carry,
+ * with items carrying none under `null`. An item is counted under its own section, which is also
+ * where its coverage comes from, so the shares partition the coverage total exactly and the
+ * patient subtotal below them still follows from the lines above it.
+ */
+export const getCoverageTotalBySection = (invoice: Invoice): Map<string | null, number> => {
+  const totals = new Map<string | null, Decimal>();
+  for (const item of invoice.items || []) {
+    const sectionId = item.invoiceSectionId ?? null;
+    const coverage = getItemCoverageTowardsTotal(item, calculateInvoiceItem(item));
+    totals.set(sectionId, (totals.get(sectionId) ?? new Decimal(0)).plus(coverage));
+  }
+  return new Map([...totals].map(([sectionId, total]) => [sectionId, total.toNumber()]));
+};
+
 // Sequelize nests the attachment row under the through model's name
 const asAttachment = (
   attachment: Record<string, any>,

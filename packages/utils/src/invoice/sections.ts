@@ -273,3 +273,32 @@ export const keepsRecordedDate = (row: {
   orderDate?: string | null;
   originalOrderDate?: string | null;
 }): boolean => Boolean(row?.isExistingItem) && row?.orderDate === row?.originalOrderDate;
+
+/**
+ * Whether a date sits within a period. A date with no period to hold it to, or a period missing
+ * either bound, is within it: there is nothing to place it outside.
+ */
+export const isWithinPeriod = (
+  date: string | null | undefined,
+  period: DatePeriod | null | undefined,
+): boolean => {
+  if (!date || !period?.startDate || !period?.endDate) return true;
+  const day = date.slice(0, 10);
+  return day >= period.startDate && day <= period.endDate;
+};
+
+/**
+ * The dates a row's picker offers. Every row is held to its section's period, so a date the form
+ * would refuse to save is never offered in the first place. The one exception is a saved row
+ * still holding a recorded date that already sits outside that period, which bounding would
+ * present as out of range the moment the row is opened.
+ */
+export const pickerPeriodFor = (
+  row: {
+    isExistingItem?: boolean;
+    orderDate?: string | null;
+    originalOrderDate?: string | null;
+  },
+  period: DatePeriod | null | undefined,
+): DatePeriod | null =>
+  keepsRecordedDate(row) && !isWithinPeriod(row?.orderDate, period) ? null : (period ?? null);

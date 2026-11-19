@@ -9,7 +9,7 @@ import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoice
 import { usePatientAvailableInsurancePlansQuery } from '../../api/queries';
 import { SuggesterSelectField } from '../../components/Field';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { SectionName, SectionPeriod } from './InvoiceForm/SectionTitle';
+import { useSectionName } from './InvoiceForm/SectionTitle';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root,
@@ -42,6 +42,7 @@ export const InvoiceInsuranceModal = ({
   onSaved = () => {},
   onAddToPatient,
 }) => {
+  const sectionName = useSectionName();
   const patientId = invoice?.encounter?.patientId;
   // A plan is attached to one section of a split invoice, so the same plan can be on the invoice
   // more than once. Only the attachments covering this section are the window's business, and
@@ -191,15 +192,11 @@ export const InvoiceInsuranceModal = ({
       <ModalBody>
         <Typography>
           {section ? (
-            <>
-              <SectionName section={section} />
-              {section.startDate && (
-                <>
-                  {': '}
-                  <SectionPeriod section={section} />
-                </>
-              )}
-            </>
+            <TranslatedText
+              stringId="invoice.modal.insurancePlans.text.section"
+              fallback="Select or remove the insurance plans you would like to apply to the :section items on this patient invoice."
+              replacements={{ section: sectionName(section) }}
+            />
           ) : (
             <TranslatedText
               stringId="invoice.modal.insurancePlans.text"

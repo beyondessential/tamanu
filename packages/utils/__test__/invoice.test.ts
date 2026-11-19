@@ -21,6 +21,7 @@ import {
   getDistinctInsurancePlans,
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
   getInvoicePrintTotalsDisplay,
+  getCoverageTotalBySection,
 } from '../src';
 
 describe('Invoice Utils', () => {
@@ -223,6 +224,59 @@ describe('Invoice Utils', () => {
       };
       const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
       expect(getInvoiceItemCoveragePercentage(item, insurancePlanItem)).toEqual(50);
+    });
+  });
+
+  describe('getCoverageTotalBySection', () => {
+    const coveredItem = (invoiceSectionId: string | null, coverageValue: number) => ({
+      invoiceSectionId,
+      manualEntryPrice: 100,
+      quantity: 1,
+      insurancePlanItems: [{ id: 'plan-1', coverageValue }],
+      product: { insurable: true },
+    });
+
+    it('keys each item\'s coverage to the section the item carries', () => {
+      const invoice = {
+        items: [coveredItem('emergency', 50), coveredItem('inpatient', 20)],
+      } as any;
+      expect(getCoverageTotalBySection(invoice)).toEqual(
+        new Map([
+          ['emergency', 50],
+          ['inpatient', 20],
+        ]),
+      );
+    });
+
+    it('adds up the items a section holds', () => {
+      const invoice = {
+        items: [coveredItem('emergency', 50), coveredItem('emergency', 25)],
+      } as any;
+      expect(getCoverageTotalBySection(invoice).get('emergency')).toEqual(75);
+    });
+
+    it('files an item carrying no section under null', () => {
+      const invoice = { items: [coveredItem(null, 40)] } as any;
+      expect(getCoverageTotalBySection(invoice).get(null)).toEqual(40);
+    });
+
+    it('partitions the coverage total exactly, so the shares sum back to it', () => {
+      const items = [coveredItem('emergency', 50), coveredItem('inpatient', 20), coveredItem(null, 15)];
+      const shares = [...getCoverageTotalBySection({ items } as any).values()];
+      expect(shares.reduce((sum, share) => sum + share, 0)).toEqual(
+        getInsuranceCoverageTotalAmount(items).toNumber(),
+      );
+    });
+
+    it('holds an uninsurable item at nothing rather than leaving its section out', () => {
+      const invoice = {
+        items: [{ ...coveredItem('emergency', 50), product: { insurable: false } }],
+      } as any;
+      expect(getCoverageTotalBySection(invoice).get('emergency')).toEqual(0);
+    });
+
+    it('answers an invoice with no items with no sections', () => {
+      expect(getCoverageTotalBySection({ items: [] } as any).size).toEqual(0);
     });
   });
 

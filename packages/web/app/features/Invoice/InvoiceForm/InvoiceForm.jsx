@@ -16,7 +16,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import {
   isInvoiceEditable,
   isInvoiceSectioned,
-  keepsRecordedDate,
+  pickerPeriodFor,
   resolveEncounterPeriod,
   resolveSectionPeriods,
 } from '@tamanu/utils/invoice';
@@ -83,6 +83,16 @@ const AddButton = styled(TextButton).attrs({ startIcon: <Plus /> })`
   &:hover {
     color: ${Colors.primary};
     text-decoration: underline;
+  }
+`;
+
+const AddItemRow = styled.tr``;
+
+// The rule between groups is drawn under a group's own Add item rather than above the next
+// header, so the last group does not end in one.
+const SectionBody = styled.tbody`
+  &:not(:last-of-type) ${AddItemRow} {
+    border-block-end: 1px solid ${Colors.outline};
   }
 `;
 
@@ -315,13 +325,10 @@ export const InvoiceForm = ({
                         onUpdateApproval={updateItemApproval}
                         onUpdateInvoice={handleUpdateItem}
                         priceListId={invoice.priceList?.id}
-                        sectionPeriod={
-                          // A row keeping its recorded date is not bounded, so the picker does
-                          // not present that date as out of range when the row is opened.
-                          keepsRecordedDate(item)
-                            ? undefined
-                            : (sectionPeriods[item.invoiceSectionId] ?? encounterPeriod)
-                        }
+                        sectionPeriod={pickerPeriodFor(
+                          item,
+                          sectionPeriods[item.invoiceSectionId] ?? encounterPeriod,
+                        )}
                       />
                     );
 
@@ -360,7 +367,7 @@ export const InvoiceForm = ({
                           // nothing to show when it is empty.
                           if (!group.section && group.rows.length === 0) return null;
                           return (
-                            <tbody key={group.section?.invoiceSectionId ?? 'unlabelled'}>
+                            <SectionBody key={group.section?.invoiceSectionId ?? 'unlabelled'}>
                               {group.section && (
                                 <InvoiceSectionHeader
                                   section={group.section}
@@ -374,15 +381,15 @@ export const InvoiceForm = ({
                               )}
                               {group.rows.map(renderRow)}
                               {showAddItem && group.section && (
-                                <tr>
+                                <AddItemRow>
                                   <td colSpan={columnCount}>
                                     <AddButton onClick={() => handleAdd(group.section)}>
                                       {addItemLabel}
                                     </AddButton>
                                   </td>
-                                </tr>
+                                </AddItemRow>
                               )}
-                            </tbody>
+                            </SectionBody>
                           );
                         })
                       ) : (

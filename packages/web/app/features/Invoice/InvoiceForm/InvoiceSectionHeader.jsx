@@ -19,51 +19,52 @@ const SECTION_COLORS = {
 const OTHER_SECTION_COLOUR = Colors.primary;
 
 const HeaderRow = styled.tr`
-  background-color: ${Colors.background2};
-  border-block-end: 1px solid ${p => p.theme.palette.divider};
+  border-block-end: 1px solid ${Colors.outline};
 `;
 
-const HeaderCell = styled.td`
-  font-size: 14px;
+// The colour runs the full height of the row's leading edge as an inset shadow, so it needs no
+// element of its own and cannot fall short of a header that wraps. Doubled to outrank the table's
+// own padding and alignment, which are set on every th and td it holds.
+const HeaderCell = styled.th`
+  && {
+    padding-block: 6px;
+    text-align: start;
+    vertical-align: middle;
+    font-size: 12px;
+    font-weight: 400;
+    color: ${Colors.midText};
+    box-shadow: inset 3px 0 0 var(--encounter-type-colour);
+  }
+`;
+
+const Name = styled.span`
+  color: ${Colors.darkestText};
   font-weight: 500;
-`;
-
-const Marker = styled.span`
-  display: inline-block;
-  inline-size: 3px;
-  block-size: 14px;
-  border-radius: 2px;
-  margin-inline-end: 8px;
-  vertical-align: -2px;
-`;
-
-const Period = styled.span`
-  font-weight: 400;
-  color: ${p => p.theme.palette.text.tertiary};
-  margin-inline-start: 8px;
+  margin-inline-end: 12px;
 `;
 
 const HeaderContent = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
 `;
 
 export const InvoiceSectionHeader = ({ section, columnCount, onInsurance }) => (
   <HeaderRow>
-    <HeaderCell colSpan={columnCount}>
+    <HeaderCell
+      scope="rowgroup"
+      colSpan={columnCount}
+      style={{
+        '--encounter-type-colour': SECTION_COLORS[section.code] ?? OTHER_SECTION_COLOUR,
+      }}
+    >
       <HeaderContent>
         <span>
-          <Marker
-            style={{ backgroundColor: SECTION_COLORS[section.code] ?? OTHER_SECTION_COLOUR }}
-          />
-          <SectionName section={section} />
-          {section.startDate && (
-            <Period>
-              <SectionPeriod section={section} />
-            </Period>
-          )}
+          <Name>
+            <SectionName section={section} />
+          </Name>
+          <SectionPeriod section={section} />
         </span>
         {onInsurance && (
           <NoteModalActionBlocker>
