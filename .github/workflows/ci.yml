@@ -23,6 +23,11 @@ env:
     packages/*/node_modules
 
 jobs:
+  j4s:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          grep -m1 '^flags' /proc/cpuinfo | tr ' ' '\n' | grep -E '^(avx512f|avx512bw|avx512vbmi|bmi2)$'
   plan:
     name: Plan CI
     runs-on: ubuntu-latest
