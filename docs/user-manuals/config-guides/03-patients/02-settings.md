@@ -408,9 +408,6 @@ details reference data.
 > **Country Of Birth Id** and **Secondary Village Id** are offered in the list, but their search field
 > finds no values to choose from. Leave them out.
 
-The fields are chosen from a list from v2.62 onwards. Earlier deployments enter a list of field names
-in the JSON editor, such as `["passport", "nationalityId"]`.
-
 ## Age display
 
 Patient ages are shown in the unit that suits the patient's age, for example in days for a newborn.
@@ -425,7 +422,7 @@ Patient ages are shown in the unit that suits the patient's age, for example in 
 
 The setting reads as a sentence: **Show age in** a unit **until** an age, **then in** the next unit,
 ending with the unit used **onward**. Select **Add range** to add a step. The last step has no upper
-age. Before v2.62 the setting is edited as JSON in the JSON editor.
+age.
 
 ---
 

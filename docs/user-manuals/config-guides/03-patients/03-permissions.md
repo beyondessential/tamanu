@@ -21,11 +21,9 @@ lists the permissions each patient task needs. What every permission grants, on 
 | Open a patient's record and see their details, including custom patient fields | `read` for `Patient` |
 | Register a patient with **Add new patient**, including registering a birth | `create` for `Patient` |
 | Save changes on the patient's **Details** tab, including changing the display ID | `write` for `Patient` |
-| Mark a patient for sync, so their full record is kept at this facility | `read` for `Patient`, and `create` for `SyncPatient` (supported from v2.66 onwards) |
+| Mark a patient for sync, so their full record is kept at this facility | `read` for `Patient`, and `create` for `SyncPatient` |
 | See a patient's reminder contacts | `read` for `Patient` |
 | Add and remove reminder contacts | `write` for `Patient` |
-
-Before v2.66, marking a patient for sync needs only `read` for `Patient`.
 
 On mobile, registering patients and editing their details are switched on by settings rather than
 permissions. See [Tamanu Mobile](02-settings.md#tamanu-mobile).
