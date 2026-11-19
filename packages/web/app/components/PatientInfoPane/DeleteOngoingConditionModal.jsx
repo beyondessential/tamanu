@@ -1,17 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
+import { route } from '@tamanu/api-client';
 import { useApi } from '../../api';
+import { Colors } from '../../constants';
 import { ConfirmModal } from '../ConfirmModal';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { useTranslation } from '../../contexts/Translation';
-import { route } from '@tamanu/api-client';
 
-const SubText = styled.div`
+const Content = styled.p`
+  margin: 0;
+  padding: 72px 0;
+  color: ${Colors.darkestText};
+  font-size: 14px;
+  line-height: 18px;
   text-align: center;
-  padding: 65px 0 65px 0;
-  & > b {
-    font-weight: 500;
-  }
 `;
 
 export const DeleteOngoingConditionModal = ({
@@ -21,7 +22,6 @@ export const DeleteOngoingConditionModal = ({
   onDeleteSuccess,
 }) => {
   const api = useApi();
-  const { getTranslation } = useTranslation();
 
   const onSubmit = async () => {
     await api.delete(
@@ -33,8 +33,6 @@ export const DeleteOngoingConditionModal = ({
     onClose();
   };
 
-  const conditionName = conditionToDelete?.condition?.name || '';
-
   return (
     <ConfirmModal
       title={
@@ -44,23 +42,18 @@ export const DeleteOngoingConditionModal = ({
           data-testid="translatedtext-delete-condition-title"
         />
       }
-      subText={
-        <SubText
-          data-testid="subtext-delete-condition"
-          dangerouslySetInnerHTML={{
-            __html: getTranslation(
-              'conditions.modal.delete.description',
-              'Are you sure you would like to delete :conditionName? This action is irreversible.',
-              { replacements: { conditionName: `<b>${conditionName}</b>` } },
-            ),
-          }}
-        />
+      customContent={
+        <Content data-testid="subtext-delete-condition">
+          <TranslatedText
+            stringId="conditions.modal.delete.confirmation"
+            fallback="Are you sure you would like to delete this ongoing condition?"
+          />
+        </Content>
       }
       open={open}
       onCancel={onClose}
       onConfirm={onSubmit}
       data-testid="confirmmodal-delete-condition"
-      width="md"
       confirmButtonText={
         <TranslatedText
           stringId="general.action.delete"

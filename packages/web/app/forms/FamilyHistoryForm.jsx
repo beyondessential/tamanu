@@ -2,18 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import {
-  TextField,
-  Form,
-  FormGrid,
-  FormSubmitCancelRow,
-  useDateTime,
-} from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateField, Field } from '../components/Field';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
+import { InfoPaneFormActions } from '../components/PatientInfoPane/InfoPaneFormActions';
 
 export const FamilyHistoryForm = ({
   onCancel,
@@ -108,24 +103,9 @@ export const FamilyHistoryForm = ({
               minRows={2}
               data-testid="field-mgiu"
             />
-            <FormSubmitCancelRow
-              onConfirm={submitForm}
+            <InfoPaneFormActions
               onCancel={onCancel}
-              confirmText={
-                editedObject ? (
-                  <TranslatedText
-                    stringId="general.action.save"
-                    fallback="Save"
-                    data-testid="translatedtext-eru5"
-                  />
-                ) : (
-                  <TranslatedText
-                    stringId="general.action.add"
-                    fallback="Add"
-                    data-testid="translatedtext-wa8p"
-                  />
-                )
-              }
+              onSubmit={submitForm}
               data-testid="formsubmitcancelrow-rz1i"
             />
           </NoteModalActionBlocker>

@@ -1,8 +1,13 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
-import { TranslatedSex, TranslatedText, useTranslation, DateDisplay } from '@tamanu/ui-components';
-import { PatientInitialsIcon } from '../PatientInitialsIcon';
+import {
+  DateDisplay,
+  TableCellTag,
+  TranslatedSex,
+  TranslatedText,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
@@ -11,60 +16,62 @@ import { PATIENT_STATUS_COLORS, Colors } from '../../constants';
 const PatientButton = styled(Button)`
   display: block;
   width: 100%;
-  padding: 25px 35px 35px 25px;
+  padding: 0;
+  border-radius: 0;
   text-align: left;
+  text-transform: none;
 
   &:hover {
-    background: #f4f9ff;
+    background: ${Colors.veryLightBlue};
   }
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 16px 0;
+`;
+
 const NameHeader = styled(Typography)`
-  align-self: flex-start;
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${Colors.midText};
   font-size: 11px;
   line-height: 15px;
-  margin-bottom: 20px;
+  text-transform: uppercase;
 `;
 
 const NameText = styled(Typography)`
+  padding: 10px 16px;
+  color: ${Colors.darkestText};
   font-size: 24px;
   line-height: 32px;
   text-transform: capitalize;
 `;
 
-const NameContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
 const CoreInfoSection = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 3.5fr;
-  border-bottom: 1px solid ${Colors.softOutline};
-  border-top: 1px solid ${Colors.softOutline};
-  padding-left: 10px;
+  display: flex;
+  border-top: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const CoreInfoCellContainer = styled.div`
-  :first-of-type {
-    border-right: 1px solid ${Colors.softOutline};
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 18px;
+
+  &:first-of-type {
+    flex: 1;
   }
-
-  padding: 10px 15px;
 `;
 
-const CoreInfoLabel = styled(Typography)`
-  color: ${(props) => props.theme.palette.text.tertiary};
-  font-size: 14px;
-  line-height: 18px;
+const CoreInfoLabel = styled.span`
+  color: ${Colors.midText};
 `;
 
-const CoreInfoValue = styled(Typography)`
-  color: ${(props) => props.theme.palette.text.secondary};
-  font-size: 14px;
-  line-height: 18px;
+const CoreInfoValue = styled.span`
+  color: ${Colors.darkText};
   font-weight: 500;
   text-transform: capitalize;
 `;
@@ -76,52 +83,45 @@ const CoreInfoCell = ({ label, children, testId }) => (
   </CoreInfoCellContainer>
 );
 
-const HealthIdContainer = styled.div`
-  padding: 20px 10px 12px;
-`;
-
 const HealthId = styled.div`
-  background: ${(props) => (
-    props.isDeceased ? PATIENT_STATUS_COLORS.Deceased : props.theme.palette.primary.main
-  )};
-  color: ${Colors.white};
-  font-weight: 600;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  padding: 15px;
+  justify-content: space-between;
+  padding: 14px;
   border-radius: 3px;
-`;
-
-const HealthIdText = styled(Typography)`
-  font-weight: 500;
+  background: ${p => (p.$isDeceased ? PATIENT_STATUS_COLORS.Deceased : Colors.primary)};
+  color: ${Colors.white};
   font-size: 14px;
   line-height: 18px;
 `;
 
+const HealthIdValue = styled.span`
+  font-weight: 500;
+`;
+
 const AgeDisplay = styled.span`
   color: ${Colors.midText};
-  font-size: 14px;
   font-weight: 400;
   text-transform: none;
 `;
 
-const HealthIdDisplay = ({ displayId, isDeceased }) => (
-  <HealthIdContainer data-testid="healthidcontainer-gdlx">
-    <HealthId isDeceased={isDeceased} data-testid="healthid-6qrz">
-      <HealthIdText data-testid="healthidtext-v925">
-        <TranslatedText
-          stringId="general.localisedField.displayId.label"
-          fallback="National Health Number"
-          data-testid="translatedtext-spb3"
-        />
-      </HealthIdText>
-      <HealthIdText data-test-class="display-id-label" data-testid="healthidtext-fqvn">
-        {displayId}
-      </HealthIdText>
-    </HealthId>
-  </HealthIdContainer>
+const DeceasedTag = styled(TableCellTag)`
+  text-transform: none;
+`;
+
+export const HealthIdDisplay = ({ displayId, isDeceased }) => (
+  <HealthId $isDeceased={isDeceased} data-testid="healthid-6qrz">
+    <span data-testid="healthidtext-v925">
+      <TranslatedText
+        stringId="general.localisedField.displayId.label"
+        fallback="National Health Number"
+        data-testid="translatedtext-spb3"
+      />
+    </span>
+    <HealthIdValue data-test-class="display-id-label" data-testid="healthidtext-fqvn">
+      {displayId}
+    </HealthIdValue>
+  </HealthId>
 );
 
 export const CoreInfoDisplay = memo(({ patient }) => {
@@ -129,31 +129,36 @@ export const CoreInfoDisplay = memo(({ patient }) => {
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
   const ageDisplayFormat = getSetting('ageDisplayFormat');
-  const ageText = patient.dateOfDeath
+  const isDeceased = Boolean(patient.dateOfDeath);
+  const ageText = isDeceased
     ? getTranslation('patient.detailsSidebar.deceased', 'deceased')
     : getDisplayAge(patient.dateOfBirth, ageDisplayFormat);
 
   return (
     <>
       <PatientButton onClick={() => navigateToPatient(patient.id)} data-testid="patientbutton-7qal">
-        <NameHeader data-testid="nameheader-22n1">
-          <TranslatedText
-            stringId="patient.detailsSidebar.title"
-            fallback="Patient details"
-            data-testid="translatedtext-gzkw"
-          />
-        </NameHeader>
-        <NameContainer data-testid="namecontainer-047h">
-          <div>
-            <NameText data-test-id="core-info-patient-first-name" data-testid="nametext-ns8a">
-              {patient.firstName}
-            </NameText>
-            <NameText data-test-id="core-info-patient-last-name" data-testid="nametext-ttwn">
-              {patient.lastName}
-            </NameText>
-          </div>
-          <PatientInitialsIcon patient={patient} data-testid="patientinitialsicon-wt16" />
-        </NameContainer>
+        <TitleRow>
+          <NameHeader data-testid="nameheader-22n1">
+            <TranslatedText
+              stringId="patient.detailsSidebar.title"
+              fallback="Patient details"
+              data-testid="translatedtext-gzkw"
+            />
+          </NameHeader>
+          {isDeceased && (
+            <DeceasedTag $color={Colors.midText} data-testid="deceasedtag-sidebar">
+              <TranslatedText stringId="death.deceased.label" fallback="Deceased" />
+            </DeceasedTag>
+          )}
+        </TitleRow>
+        <NameText data-testid="namecontainer-047h">
+          <span data-test-id="core-info-patient-first-name" data-testid="nametext-ns8a">
+            {patient.firstName}
+          </span>{' '}
+          <span data-test-id="core-info-patient-last-name" data-testid="nametext-ttwn">
+            {patient.lastName}
+          </span>
+        </NameText>
       </PatientButton>
       <CoreInfoSection data-testid="coreinfosection-ri8t">
         <CoreInfoCell
@@ -184,11 +189,6 @@ export const CoreInfoDisplay = memo(({ patient }) => {
           <AgeDisplay data-testid="agedisplay-gpl9">{` (${ageText})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>
-      <HealthIdDisplay
-        displayId={patient.displayId}
-        isDeceased={Boolean(patient.dateOfDeath)}
-        data-testid="healthiddisplay-su8y"
-      />
     </>
   );
 });
