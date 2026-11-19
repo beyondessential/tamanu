@@ -902,6 +902,34 @@ describe('Form Builder Admin', () => {
       );
     });
 
+    it('names the question whose code clashes with an earlier one', async () => {
+      reportReady();
+      aiService.invokeStructured
+        .mockResolvedValueOnce({
+          ...programDefinition,
+          surveySheets: [
+            {
+              surveyName: 'Referral form',
+              questions: [
+                ...programDefinition.surveySheets[0].questions,
+                { code: 'Referral-001', name: 'Referral date', text: 'Date', type: 'Date' },
+              ],
+            },
+          ],
+        })
+        .mockRejectedValueOnce(new Error('No tool call'));
+
+      const response = await app.post('/v1/admin/form-builder/chat').send({
+        message: 'Build a referral form with the referral date',
+        programId,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.message).toBe(
+        'Your form is ready.\n\nThis preview cannot be saved yet:\n- Question "Referral-001" in survey "Referral form": Question code is not distinct from "referral001" once case and punctuation are ignored',
+      );
+    });
+
     it('leaves the preview as generated when the check itself fails', async () => {
       reportReady();
       aiService.invokeStructured.mockResolvedValueOnce(unsaveableProgramDefinition);

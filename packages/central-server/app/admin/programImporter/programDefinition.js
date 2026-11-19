@@ -9,7 +9,7 @@ import {
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
-import { DataImportError, DryRun } from '../errors';
+import { DataImportError, DryRun, ValidationError } from '../errors';
 import { importRows } from '../importer/importRows';
 import { idify } from './idify';
 import {
@@ -292,11 +292,17 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
       return [originalQuestionCode, questionCode];
     }),
   );
+  // A code shared by two questions can't be read back to either; the clash is
+  // reported as a problem of its own.
+  const definitionCodeEntries = surveySheet.questions.map(question => [
+    questionCodeMap.get(createCode(question.code)),
+    question.code,
+  ]);
   const definitionCodesByQuestionCode = new Map(
-    surveySheet.questions.map(question => [
-      questionCodeMap.get(createCode(question.code)),
-      question.code,
-    ]),
+    definitionCodeEntries.filter(
+      ([questionCode]) =>
+        definitionCodeEntries.filter(([otherCode]) => otherCode === questionCode).length === 1,
+    ),
   );
   const sortedQuestionCodeEntries = [...questionCodeMap.entries()].sort(
     ([oldCodeA], [oldCodeB]) => oldCodeB.length - oldCodeA.length,
@@ -343,6 +349,7 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
       {
         model: 'ProgramDataElement',
         sheetRow: questionIndex,
+        definitionCode: question.code,
         values: {
           id: dataElementId,
           code: questionCode,
@@ -380,6 +387,24 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
   return { definitionCodesByQuestionCode, rows, surveyId, surveyInfo: rows[0].values };
 };
 
+// A question's code is idified into its ids, so two codes that idify alike
+// would be saved as one question.
+const ensureQuestionCodesDistinct = (surveyInfo, rows) => {
+  const dataElementRows = rows.filter(({ model }) => model === 'ProgramDataElement');
+  for (const [index, row] of dataElementRows.entries()) {
+    const earlierRow = dataElementRows
+      .slice(0, index)
+      .find(({ values }) => values.code === row.values.code);
+    if (earlierRow) {
+      throw new ValidationError(
+        surveyInfo.name,
+        row.sheetRow,
+        `Question code is not distinct from "${earlierRow.definitionCode}" once case and punctuation are ignored`,
+      );
+    }
+  }
+};
+
 const validateSurvey = async ({ context, rows, surveyInfo }) => {
   if (surveyInfo.surveyType === SURVEY_TYPES.VITALS) {
     await validateVitalsSurvey(context, surveyInfo);
@@ -389,6 +414,7 @@ const validateSurvey = async ({ context, rows, surveyInfo }) => {
   }
 
   ensureRequiredQuestionsPresent(surveyInfo, rows);
+  ensureQuestionCodesDistinct(surveyInfo, rows);
   return validateProgramDataElementRecords(rows, {
     context,
     sheetName: surveyInfo.name,
@@ -476,9 +502,7 @@ const describeSaveError = (error, { definitionCodesByQuestionCode, rows, surveyI
   const toDefinitionCodes = text =>
     text.replace(/\w+/g, word => definitionCodesByQuestionCode.get(word) ?? word);
   const describe = (row, message) => {
-    const subject = row
-      ? `Question "${definitionCodesByQuestionCode.get(row.values.code)}" in survey`
-      : 'Survey';
+    const subject = row ? `Question "${row.definitionCode}" in survey` : 'Survey';
     return `${subject} "${surveyInfo.name}": ${toDefinitionCodes(message)}`;
   };
 
