@@ -175,7 +175,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
   async processReport(reportId) {
     const {
-      store: { models, sequelize },
+      store: { models },
     } = this.context;
 
     const report = await models.ReportDefinition.findByPk(reportId, {
@@ -210,7 +210,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const latestVersion = report.versions[0];
     const advancedConfig = latestVersion.getAdvancedConfig();
 
-    const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
+    const reportData = await latestVersion.dataGenerator(this.context, {}); // We don't support parameters in this task
     const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, advancedConfig.dhis2DataSet);
 
     if (dhis2DataValueSets.length === 0) {

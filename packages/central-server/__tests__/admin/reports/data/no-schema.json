@@ -1,0 +1,9 @@
+{
+    "query": "select 1",
+    "queryOptions": {
+        "defaultDateRange": "allTime",
+        "parameters": []
+    },
+    "status": "published",
+    "notes": "Report from before reports named a connection"
+}

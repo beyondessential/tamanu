@@ -154,6 +154,19 @@ describe('reportRoutes', () => {
       expect(versions).toHaveLength(1);
     });
 
+    it('should refuse a report whose query does not plan, and save nothing', async () => {
+      const name = 'Report with an unplannable query';
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...definition } = getMockReportVersion(
+        1,
+        'some random non sql query',
+      );
+      const res = await adminApp.post('/api/admin/reports').send({ name, dbSchema, ...definition });
+      expect(res).toHaveRequestError();
+      expect(res.body.error.message).toMatch(/Invalid query/);
+      expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
+    });
+
     it('should not return unnecessary metadata', async () => {
       // eslint-disable-next-line no-unused-vars
       const { versionNumber, ...definition } = getMockReportVersion(
@@ -195,6 +208,18 @@ describe('reportRoutes', () => {
       expect(versions).toHaveLength(1);
       expect(versions[0].advancedConfig).toEqual({ dhis2DataSet: 'test-dataset-id' });
     });
+  });
+
+  it('POST /reports should refuse a report with an unknown reporting schema', async () => {
+    const name = 'Report with an unknown schema';
+    // eslint-disable-next-line no-unused-vars
+    const { versionNumber, ...definition } = getMockReportVersion(1, 'select 1');
+    const res = await adminApp
+      .post('/api/admin/reports')
+      .send({ ...definition, name, dbSchema: 'not-a-schema' });
+    expect(res).toHaveRequestError();
+    expect(res.body.error.message).toMatch(/Unknown reporting schema/);
+    expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
   });
 
   describe('POST /reports/:id/versions', () => {
@@ -254,6 +279,99 @@ describe('reportRoutes', () => {
         ]),
       );
     });
+
+    it("should check a version against its report's schema, not the one in the request", async () => {
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...newVersion } = getMockReportVersion(1, 'select 1');
+      const res = await adminApp
+        .post(`/api/admin/reports/${testReport.id}/versions`)
+        .send({ ...newVersion, dbSchema: 'not-a-schema' });
+      expect(res).toHaveSucceeded();
+    });
+
+    it('should refuse a version whose query does not plan, and save nothing', async () => {
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...newVersion } = getMockReportVersion(1, 'some random non sql query');
+      const res = await adminApp
+        .post(`/api/admin/reports/${testReport.id}/versions`)
+        .send(newVersion);
+      expect(res).toHaveRequestError();
+      expect(res.body.error.message).toMatch(/Invalid query/);
+      expect(
+        await models.ReportDefinitionVersion.count({
+          where: { reportDefinitionId: testReport.id },
+        }),
+      ).toBe(0);
+    });
+
+    it('should refuse a version for a report that does not exist', async () => {
+      const newVersion = getMockReportVersion(1, 'select 1');
+      delete newVersion.versionNumber;
+      const res = await adminApp
+        .post('/api/admin/reports/00000000-0000-0000-0000-000000000000/versions')
+        .send(newVersion);
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe('raw schema permission', () => {
+    let reportAuthorApp;
+    beforeAll(async () => {
+      reportAuthorApp = await baseApp.asNewRole([
+        ['create', 'ReportDefinition'],
+        ['create', 'ReportDefinitionVersion'],
+      ]);
+    });
+
+    const getNewReport = name => {
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, reportDefinitionId, userId, ...definition } = getMockReportVersion(
+        1,
+        'select 1',
+      );
+      return { name, ...definition };
+    };
+
+    it('should refuse a raw report without permission to write the schema', async () => {
+      const name = 'Raw report without schema permission';
+      const res = await reportAuthorApp
+        .post('/api/admin/reports')
+        .send({ ...getNewReport(name), dbSchema: REPORT_DB_CONNECTIONS.RAW });
+      expect(res).toHaveRequestError();
+      expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
+    });
+
+    it('should create a reporting report without permission to write the schema', async () => {
+      const res = await reportAuthorApp
+        .post('/api/admin/reports')
+        .send(getNewReport('Reporting report without schema permission'));
+      expect(res).toHaveSucceeded();
+    });
+
+    it('should refuse importing a raw report without permission to write the schema', async () => {
+      const name = 'Raw report imported without schema permission';
+      const res = await reportAuthorApp
+        .post(`/api/admin/reports/import`)
+        .attach('file', path.join(__dirname, '/data/without-version-number.json'))
+        .field('jsonData', JSON.stringify({ name }));
+      expect(res).toHaveRequestError();
+      expect(res.body.error.message).toMatch(/permission to use the raw reporting schema/);
+      expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
+    });
+
+    it('should refuse a version of a raw report without permission to write the schema', async () => {
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...newVersion } = getMockReportVersion(1, 'select 1');
+      const res = await reportAuthorApp
+        .post(`/api/admin/reports/${testReport.id}/versions`)
+        .send({ ...newVersion, dbSchema: REPORT_DB_CONNECTIONS.REPORTING });
+      expect(res).toHaveRequestError();
+      expect(
+        await models.ReportDefinitionVersion.count({
+          where: { reportDefinitionId: testReport.id },
+        }),
+      ).toBe(0);
+    });
   });
 
   describe('GET /reports/:id/versions/:versionId/export/:format', () => {
@@ -297,6 +415,22 @@ describe('reportRoutes', () => {
         .post(`/api/admin/reports/import`)
         .attach('file', file)
         .field('jsonData', JSON.stringify(jsonData));
+
+    it('should import a report whose file names no schema', async () => {
+      const name = 'Report Import No Schema';
+      const res = await importReport(path.join(__dirname, '/data/no-schema.json'), { name });
+      expect(res).toHaveSucceeded();
+      const report = await models.ReportDefinition.findOne({ where: { name } });
+      expect(report.dbSchema).toBe(REPORT_DB_CONNECTIONS.REPORTING);
+    });
+
+    it('should refuse a report on an unknown reporting schema', async () => {
+      const name = 'Report Import Unknown Schema';
+      const res = await importReport(path.join(__dirname, '/data/unknown-schema.json'), { name });
+      expect(res).toHaveRequestError();
+      expect(res.body.error.message).toMatch(/Unknown reporting schema/);
+      expect(await models.ReportDefinition.count({ where: { name } })).toBe(0);
+    });
 
     it('should refuse a file path sent in a JSON body and leave the file in place', async () => {
       const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'report-import-'));
@@ -477,61 +611,122 @@ describe('reportRoutes', () => {
       });
     });
     describe('verifyQuery', () => {
-      it('should return true if query is valid', async () => {
-        const query = 'select * from patients limit 1';
+      let reportSchemaStores;
+      beforeAll(async () => {
+        reportSchemaStores = await initReporting(ctx.store);
+      });
+
+      const verify = (query, { parameters = [], dbSchema = REPORT_DB_CONNECTIONS.RAW } = {}) =>
+        verifyQuery({ query, parameters, dbSchema, reportSchemaStores });
+
+      it('verifies a valid read query and returns its plan', async () => {
+        await expect(verify('select * from patients limit 1')).resolves.toEqual(
+          expect.arrayContaining([expect.stringContaining('patients')]),
+        );
+      });
+
+      it('verifies a valid query with parameters', async () => {
         await expect(
-          verifyQuery(query, { parameters: [] }, { store: ctx.store }),
+          verify('select * from patients where id = :test limit 1', {
+            parameters: [{ name: 'test' }],
+          }),
         ).resolves.not.toThrow();
       });
-      it('should return true if query is valid with paramDefinition', async () => {
-        const query = 'select * from patients where id = :test limit 1';
-        await expect(
-          verifyQuery(
-            query,
-            {
-              parameters: [
-                {
-                  name: 'test',
-                },
-              ],
+
+      it('rejects a second statement even when it is harmless', async () => {
+        // Pins the single-statement rule on its own: the read-only transaction would let this through.
+        await expect(verify('select 1; select 2')).rejects.toThrow(/multiple commands/);
+      });
+
+      it('rejects an invalid query', async () => {
+        await expect(verify('some random non sql query')).rejects.toThrow(/Invalid query/);
+      });
+
+      it.each([undefined, null, 'public', 'not-a-schema'])(
+        'rejects a query with no configured reporting schema (%s)',
+        async dbSchema => {
+          await expect(
+            verifyQuery({ query: 'select 1', dbSchema, reportSchemaStores }),
+          ).rejects.toThrow(/Unknown reporting schema/);
+        },
+      );
+
+      it.each([
+        [
+          'a server shutdown',
+          Object.assign(new Error('terminating connection'), { severity: 'FATAL', code: '57P01' }),
+        ],
+        [
+          'an unreachable server',
+          Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' }),
+        ],
+        [
+          'a reporting role with the wrong password',
+          Object.assign(new Error('password authentication failed'), {
+            severity: 'FATAL',
+            code: '28P01',
+          }),
+        ],
+        [
+          'a reporting connection naming a database that does not exist',
+          Object.assign(new Error('database "nope" does not exist'), {
+            severity: 'FATAL',
+            code: '3D000',
+          }),
+        ],
+      ])('passes through %s rather than blaming the query', async (_, connectionError) => {
+        const unreachableStores = {
+          [REPORT_DB_CONNECTIONS.RAW]: {
+            sequelize: {
+              dialect: ctx.store.sequelize.dialect,
+              transaction: async () => {
+                throw connectionError;
+              },
             },
-            { store: ctx.store },
-          ),
-        ).resolves.not.toThrow();
-      });
-      it('should return false if query is invalid', async () => {
-        const query = 'some random non sql query';
-        await expect(verifyQuery(query, [], ctx.store)).rejects.toThrow();
+          },
+        };
+        const error = await verifyQuery({
+          query: 'select 1',
+          dbSchema: REPORT_DB_CONNECTIONS.RAW,
+          reportSchemaStores: unreachableStores,
+        }).catch(err => err);
+        expect(error).toBe(connectionError);
       });
 
-      describe('on a reporting connection', () => {
-        let reportSchemaStores;
+      it('rejects a query when the reporting schemas are unavailable', async () => {
+        await expect(
+          verifyQuery({ query: 'select 1', dbSchema: REPORT_DB_CONNECTIONS.REPORTING }),
+        ).rejects.toThrow(/Unknown reporting schema/);
+      });
+
+      describe('never executes the query', () => {
+        const runOnMainStore = async sql => ctx.store.sequelize.query(sql);
         beforeAll(async () => {
-          reportSchemaStores = await initReporting(ctx.store);
+          await runOnMainStore('CREATE TABLE IF NOT EXISTS verify_query_canary (id int)');
+          await runOnMainStore('GRANT SELECT, INSERT ON verify_query_canary TO PUBLIC');
+        });
+        afterAll(async () => {
+          await runOnMainStore('DROP TABLE IF EXISTS verify_query_canary');
+        });
+        const canaryRowCount = async () => {
+          const [[{ count }]] = await ctx.store.sequelize.query(
+            'SELECT count(*)::int AS count FROM verify_query_canary',
+          );
+          return count;
+        };
+
+        it('rejects a trailing statement', async () => {
+          await expect(
+            verify('select 1; insert into verify_query_canary values (1)'),
+          ).rejects.toThrow(/Invalid query/);
+          expect(await canaryRowCount()).toBe(0);
         });
 
-        it('verifies a valid read query', async () => {
+        it('rejects ANALYZE smuggled into the EXPLAIN', async () => {
           await expect(
-            verifyQuery(
-              'select * from patients limit 1',
-              { parameters: [] },
-              { store: ctx.store, reportSchemaStores },
-              REPORT_DB_CONNECTIONS.RAW,
-            ),
-          ).resolves.not.toThrow();
-        });
-
-        it('rejects a write even via a trailing statement (unprivileged role)', async () => {
-          // EXPLAIN plans only the first statement; the trailing write runs as the
-          // unprivileged raw role and is rejected.
-          await expect(
-            verifyQuery(
-              'select 1; delete from patients',
-              { parameters: [] },
-              { store: ctx.store, reportSchemaStores },
-              REPORT_DB_CONNECTIONS.RAW,
-            ),
-          ).rejects.toThrow(/permission denied/);
+            verify('analyze insert into verify_query_canary values (1)'),
+          ).rejects.toThrow(/Invalid query/);
+          expect(await canaryRowCount()).toBe(0);
         });
       });
     });

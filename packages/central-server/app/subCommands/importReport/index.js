@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { promises as fs } from 'fs';
+import { initReporting } from '@tamanu/database/services/reporting';
 import { initDatabase } from '../../database';
 import * as importUtils from './utils';
 import * as importActions from './actions';
@@ -13,9 +14,30 @@ async function importReport(options) {
   }
 
   const store = await initDatabase({ testMode: false });
-  const definition = await importUtils.findOrCreateDefinition(overriddenName, store);
+  // Report queries are only ever checked on the reporting roles' connections, so an import cannot
+  // go ahead without them. Setting them up needs the app's db role to manage roles, which an
+  // under-provisioned database refuses, so say that rather than leaving a role DDL stack trace.
+  let reportSchemaStores;
+  try {
+    reportSchemaStores = await initReporting(store);
+  } catch (error) {
+    throw new Error(
+      `Reporting schemas could not be initialised, so the report's query cannot be checked; check the database grants: ${error.message}`,
+    );
+  }
+  const definition = await importUtils.findOrCreateDefinition(
+    overriddenName,
+    versionData.dbSchema,
+    store,
+  );
   const versions = await definition.getVersions();
-  await importActions.createVersion(versionData, definition, versions, store, options.verbose);
+  await importActions.createVersion(
+    versionData,
+    definition,
+    versions,
+    { store, reportSchemaStores },
+    options.verbose,
+  );
   process.exit(0);
 }
 
