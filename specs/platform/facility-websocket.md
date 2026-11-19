@@ -11,7 +11,6 @@ Applies to the socket connections the web app opens to the facility server that 
 - A connection is accepted when its handshake carries a valid access token issued by the facility server, the same token the web app uses for the facility server's HTTP API.
 - A connection with no token, an invalid token, an expired token, or a token for a user who is no longer active is refused.
 - The facility server ends a connection when the token it was accepted with expires. The web app reconnects with a current token.
-- A connection that is recovered after a brief disconnection presents a valid token again.
 
 > [!NOTE]
 > These are the same rules the [central server applies](central-websocket.md#connecting) to its own connections, against the facility server's tokens.

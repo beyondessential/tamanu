@@ -9,8 +9,6 @@ Scenarios for the facility server's socket connections: who may connect, who rec
 - [x] A connection with an expired token is refused (verifies spec: FWS)
 - [x] A connection with a token for a user who is no longer active is refused (verifies spec: FWS)
 - [x] A connection with a valid facility server token is accepted (verifies spec: FWS)
-- [x] A recovered connection with a token that is not valid is refused (verifies spec: FWS)
-- [x] A connection recovered with a different user's token no longer receives the previous user's events (verifies spec: FWS)
 - [ ] Signed in to the web app on a facility server, the dashboard's task list, today's appointments and bookings, and the notifications bell still update live without a page reload (verifies spec: FWS)
 - [ ] Left signed in past the token's lifetime with activity, the web app keeps receiving live updates after the connection is ended and re-established (verifies spec: FWS)
 

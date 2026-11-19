@@ -33,8 +33,6 @@ export const defineWebsocketService = injector => {
 
   const socketServer = new Server(injector.httpServer, {
     path: WS_PATH,
-    // A recovered connection runs the authentication middleware again, so it needs a valid token
-    connectionStateRecovery: { skipMiddlewares: false, maxDisconnectionDuration: 120000 },
     // WebSocket upgrades bypass the Express middleware stack, so enforce security.requireHttps here.
     allowRequest: buildWebsocketHttpsGuard({
       getSettings: () => settingsByFacility,
@@ -49,11 +47,6 @@ export const defineWebsocketService = injector => {
   // Events about one user or one facility go to its room, so only the connections they concern
   // receive them. The facility is the one named in the connection's token.
   socketServer.on('connection', socket => {
-    // A recovered connection gets back the rooms it had, which were for the token it held then
-    for (const room of socket.rooms) {
-      if (room !== socket.id) socket.leave(room);
-    }
-
     const { user, facility } = socket.data;
     socket.join(userRoom(user.id));
     if (facility) {

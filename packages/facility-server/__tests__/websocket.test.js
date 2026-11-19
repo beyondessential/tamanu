@@ -75,8 +75,7 @@ describe('Websocket', () => {
     await Promise.all(delivered);
   };
 
-  // An event sent to a room carries a string offset for connection state recovery, and nothing else
-  const expectNoRecord = args => expect(args.every(arg => typeof arg === 'string')).toBe(true);
+  const expectNoRecord = args => expect(args).toEqual([]);
 
   const createUser = () => models.User.create(fake(models.User));
 
@@ -152,56 +151,6 @@ describe('Websocket', () => {
     it('accepts a connection with a valid token', async () => {
       const socket = await connectAs(await createUser());
       expect(socket.connected).toBe(true);
-    });
-  });
-
-  describe('recovering a connection', () => {
-    /** Connects with socket.io's own reconnection on, presenting whatever token is current. */
-    const connectRecoverable = async getToken => {
-      const socket = io(url, {
-        path: WS_PATH,
-        transports: ['websocket'],
-        reconnectionDelay: 100,
-        auth: sendToken => sendToken({ token: getToken() }),
-      });
-      sockets.push(socket);
-      recordReceivedEvents(socket);
-      await connected(socket);
-      // A connection can only be recovered from the last event it received
-      await afterEarlierDeliveries(socket);
-      return socket;
-    };
-
-    // Ends the connection without the client disconnecting, which it then recovers
-    const dropConnection = socket => socket.io.engine.close();
-
-    it('refuses to recover a connection without a valid token', async () => {
-      let token = await buildAccessToken(await createUser());
-      const socket = await connectRecoverable(() => token);
-
-      token = 'not-a-token';
-      dropConnection(socket);
-
-      expect(await connectionError(socket)).toBe('Unauthorised');
-    });
-
-    it('puts a recovered connection in the rooms of the token it presents', async () => {
-      const previousUser = await createUser();
-      let token = await buildAccessToken(previousUser, { facilityId });
-      const socket = await connectRecoverable(() => token);
-      const previousUserSocket = await connectAs(previousUser, { facilityId });
-
-      token = await buildAccessToken(await createUser());
-      dropConnection(socket);
-      await connected(socket);
-      expect(socket.recovered).toBe(true);
-
-      const eventName = `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${previousUser.id}`;
-      const notified = nextEvent(previousUserSocket, eventName);
-      await createTask({ designatedUser: previousUser });
-      await notified;
-      await afterEarlierDeliveries(socket);
-      expect(socket.received).not.toContain(eventName);
     });
   });
 
