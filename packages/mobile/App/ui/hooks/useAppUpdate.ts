@@ -12,6 +12,7 @@ import {
 } from '~/types/Updater';
 import {
   buildPackageUrl,
+  downloadProportion,
   hasEnoughSpace,
   retryDelay,
   shouldOfferManualFallback,
@@ -90,6 +91,8 @@ export const useAppUpdate = (): AppUpdateState => {
   // corrected, a newer release, or this version accepted after all. The update starts again from
   // the new address, and begin discards whatever was fetched for the old one. An install already
   // handed to Android is left to finish.
+  // The percentage last shown, so repeat events for the same one are dropped
+  const shownPercent = useRef<number | null>(null);
   const previousPackageUrl = useRef(packageUrl);
   useEffect(() => {
     const previous = previousPackageUrl.current;
@@ -98,6 +101,7 @@ export const useAppUpdate = (): AppUpdateState => {
     if (currentStage.current === UPDATE_STAGE.INSTALLING) return;
 
     setProgress(NO_PROGRESS);
+    shownPercent.current = null;
     setBlocker(null);
     setFailedAttempts(0);
     setStage(UPDATE_STAGE.CHECKING);
@@ -109,6 +113,13 @@ export const useAppUpdate = (): AppUpdateState => {
   // Download progress reported by the native downloader, for the percentage on the banner and Sync tab
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener(PROGRESS_EVENT, (next: UpdateProgress) => {
+      // Only the whole percentage is ever shown, so an event that would not change it is dropped.
+      // Keeping them all would re-render every consumer of the update several times a second for
+      // the length of the download, on the low-end tablets this is for.
+      const proportion = downloadProportion(next.downloadedBytes, next.totalBytes);
+      const percent = proportion === null ? null : Math.round(proportion * 100);
+      if (percent === shownPercent.current) return;
+      shownPercent.current = percent;
       setProgress(next);
     });
     return () => subscription.remove();
