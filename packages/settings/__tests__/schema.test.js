@@ -573,6 +573,11 @@ describe('Exposed keys', () => {
       expect(scopedKeys).not.toContain('patientDisplayIdPattern');
     });
 
+    it('should send facilities the streaming flag at login', () => {
+      const scopedKeys = getKeysByFlag('exposedToWeb', [centralSettings, globalSettings]);
+      expect(scopedKeys).toContain('sync.streaming.enabled');
+    });
+
     it('should include nested paths', () => {
       expect(keys).toContain('security.mobile');
     });

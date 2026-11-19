@@ -11,6 +11,7 @@ import {
   getSyncConfig,
   getServerFacilityIds,
   isServerConfigured,
+  isSetUpInDatabase,
 } from '../app/serverConfig';
 
 // In-memory stand-ins for the models the resolver reads: LocalSystemFact (host,
@@ -151,5 +152,39 @@ describe('serverConfig', () => {
     expect(sync.password).toBeTruthy();
     expect(getServerFacilityIds()?.length).toBeGreaterThan(0);
     expect(isServerConfigured()).toBe(true);
+  });
+
+  describe('isSetUpInDatabase', () => {
+    const setUp = facts => isSetUpInDatabase(makeModels({ facts }).models);
+
+    it('is true once the wizard has recorded the sync email and facilities', async () => {
+      expect(
+        await setUp({
+          [FACT_SYNC_EMAIL]: 'sync.device@sync.tamanu',
+          [FACT_FACILITY_IDS]: JSON.stringify(['fac-a']),
+        }),
+      ).toBe(true);
+    });
+
+    it('is false for a sync email recorded without facilities', async () => {
+      expect(await setUp({ [FACT_SYNC_EMAIL]: 'admin@x.io' })).toBe(false);
+    });
+
+    it('is false for facilities that cannot be parsed', async () => {
+      expect(await setUp({ [FACT_SYNC_EMAIL]: 'admin@x.io', [FACT_FACILITY_IDS]: '[fac-a' })).toBe(
+        false,
+      );
+    });
+
+    it('rejects when the database cannot be read', async () => {
+      const models = {
+        LocalSystemFact: {
+          get: async () => {
+            throw new Error('connection refused');
+          },
+        },
+      };
+      await expect(isSetUpInDatabase(models)).rejects.toThrow('connection refused');
+    });
   });
 });

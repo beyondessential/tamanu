@@ -57,6 +57,12 @@ lints.md
 # IDEs
 .idea
 
+# Claude Code config dir, when an agent session points it at the worktree
+/.claude.json
+/policy-limits.json
+/remote-settings.json
+/backups/
+
 # Output
 /packages/central-server/tamanu-reports/
 

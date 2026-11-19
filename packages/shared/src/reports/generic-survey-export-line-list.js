@@ -17,6 +17,7 @@ const COMMON_FIELDS = /** @type {const} */ ([
   'Age',
   'Sex',
   'Village',
+  'Submission ID',
   'Submission Time',
 ]);
 
@@ -62,6 +63,7 @@ select
   p.sex "Sex",
   p.display_id "Patient ID",
   vil."name" as "Village",
+  sr.id "Submission ID",
   to_char(sr.end_time::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
   s.name,
   answers
