@@ -436,6 +436,12 @@ describe('reportRoutes', () => {
           'test <report> ?weird filename',
           `test-report-weird-filename-v123.${REPORT_VERSION_EXPORT_FORMATS.JSON}`,
         ],
+        [
+          REPORT_VERSION_EXPORT_FORMATS.SQL,
+          2,
+          ' ../.test report',
+          `test-report-v2.${REPORT_VERSION_EXPORT_FORMATS.SQL}`,
+        ],
       ];
       it.each(tests)('should sanitize filename', (format, versionNum, filename, expected) => {
         expect(sanitizeFilename(filename, versionNum, format)).toBe(expected);

@@ -10,7 +10,12 @@ import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-import { createZippedSpreadsheet, removeFile, writeToSpreadsheet } from '../utils/files';
+import {
+  createZippedSpreadsheet,
+  removeZippedSpreadsheet,
+  toSafeFileName,
+  writeToSpreadsheet,
+} from '../utils/files';
 import { getLocalisation } from '../localisation';
 import { getDefaultFromAddress } from '../services/mailConfig';
 
@@ -231,7 +236,7 @@ export class ReportRunner {
 
     const date = formatDate(new Date(), 'ddMMyyyy');
 
-    const dashedName = `${reportName}-${country.name}`
+    const dashedName = toSafeFileName(`${reportName}-${country.name}`)
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
@@ -278,7 +283,7 @@ export class ReportRunner {
         throw new Error(`ReportRunner - Mailgun error: ${result.error}`);
       }
     } finally {
-      if (zipFile) await removeFile(zipFile);
+      if (zipFile) await removeZippedSpreadsheet(zipFile);
     }
   }
 
@@ -340,7 +345,7 @@ export class ReportRunner {
         zipFile,
       });
     } finally {
-      if (zipFile) await removeFile(zipFile);
+      if (zipFile) await removeZippedSpreadsheet(zipFile);
     }
   }
 }

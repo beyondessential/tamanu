@@ -5,6 +5,17 @@ import JSZip from 'jszip';
 
 import { tmpdir } from '@tamanu/shared/utils';
 
+/**
+ * Makes a string usable as a single file name inside a known folder: removes path separators,
+ * characters that are invalid in file names on common platforms, control characters (including
+ * null bytes), and leading and trailing dots and whitespace, so the result can never name a
+ * parent folder or a hidden file.
+ */
+export function toSafeFileName(name) {
+  // eslint-disable-next-line no-control-regex
+  return name.replace(/[/\\:*?"<>|\x00-\x1f\x7f]/g, '').replace(/^[\s.]+|[\s.]+$/g, '');
+}
+
 export function removeFile(filePath) {
   return new Promise(resolve => {
     fs.unlink(filePath, err => {
@@ -57,8 +68,12 @@ export async function createZipFromFile(fileName, filePath, zipFilePath) {
 }
 
 // Dev note: if you find yourself adding new arguments to this function, it's time to refactor it to take an options object
+/**
+ * Writes the spreadsheet zip into a folder of its own, so runs that share a report name never
+ * overwrite each other's file. Remove it with {@link removeZippedSpreadsheet}.
+ */
 export async function createZippedSpreadsheet(reportName, data, bookType = 'xlsx') {
-  const folder = await tmpdir();
+  const folder = await fs.promises.mkdtemp(path.join(await tmpdir(), 'tamanu-report-'));
   const excelFileName = `${reportName}.${bookType}`;
   const excelFilePath = path.join(folder, excelFileName);
   const zipFilePath = path.join(folder, `${reportName}.zip`);
@@ -66,4 +81,8 @@ export async function createZippedSpreadsheet(reportName, data, bookType = 'xlsx
   await createZipFromFile(excelFileName, excelFilePath, zipFilePath);
   await removeFile(excelFilePath);
   return zipFilePath;
+}
+
+export async function removeZippedSpreadsheet(zipFilePath) {
+  await fs.promises.rm(path.dirname(zipFilePath), { recursive: true, force: true });
 }
