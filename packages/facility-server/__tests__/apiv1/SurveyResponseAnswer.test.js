@@ -568,6 +568,39 @@ describe('SurveyResponseAnswer', () => {
         expect(createdAnswer).toBeTruthy();
       });
 
+      it('should create a survey response answer scoped by patient', async () => {
+        const response = await createNewVitalsSurveyResponse();
+        const encounter = await response.getEncounter();
+        const answers = await response.getAnswers();
+        const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
+        const result = await app.post('/api/surveyResponseAnswer/vital').send({
+          reasonForChange: 'patient-scoped',
+          newValue: chance.integer({ min: 0, max: 100 }),
+          date: getCurrentDateTimeString(),
+          recordedDate: dateAnswer.body,
+          dataElementId: extraDataElement.id,
+          patientId: encounter.patientId,
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.responseId).toBe(response.id);
+      });
+
+      it('should reject a create with neither encounterId nor patientId', async () => {
+        const response = await createNewVitalsSurveyResponse();
+        const answers = await response.getAnswers();
+        const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
+        const result = await app.post('/api/surveyResponseAnswer/vital').send({
+          reasonForChange: 'no-scope',
+          newValue: chance.integer({ min: 0, max: 100 }),
+          date: getCurrentDateTimeString(),
+          recordedDate: dateAnswer.body,
+          dataElementId: extraDataElement.id,
+          facilityId,
+        });
+        expect(result).toHaveRequestError();
+      });
+
       it('should create a log', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
