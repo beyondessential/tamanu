@@ -532,17 +532,20 @@ const resolveFormBuilderSession = async (aiService, sessionId) =>
     ? sessionId
     : aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
 
+// The payload is the client's request, kept apart from what the server supplies.
 const processChatRequest = async ({
   aiService,
   db,
   models,
-  programId,
-  sessionId: existingSessionId,
-  message,
-  file,
-  fileName,
-  fileContentType,
-  programDefinition: currentProgramDefinition,
+  payload: {
+    programId,
+    sessionId: existingSessionId,
+    message,
+    file,
+    fileName,
+    fileContentType,
+    programDefinition: currentProgramDefinition,
+  },
 }) => {
   try {
     // The form builder only creates new forms; it can't update an existing
@@ -682,8 +685,7 @@ const startChatJob = async ({ aiService, db, models, userId, payload }) => {
     expiresAt: jobExpiry(),
   });
 
-  // The payload comes from the client, so it must not override what the server supplies.
-  processChatRequest({ ...payload, aiService, db, models })
+  processChatRequest({ aiService, db, models, payload })
     .then(
       result =>
         FormBuilderChatJob.update(
@@ -751,10 +753,10 @@ formBuilderRouter.post(
 
     res.send(
       await processChatRequest({
-        ...payload,
         aiService: req.aiService,
         db: req.db,
         models: req.models,
+        payload,
       }),
     );
   }),
