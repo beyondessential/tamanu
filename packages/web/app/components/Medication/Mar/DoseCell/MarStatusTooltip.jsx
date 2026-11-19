@@ -59,7 +59,7 @@ export const hasMarStatusTooltip = ({
   return !(isPast && isPrn);
 };
 
-const DoseWindow = styled(Span)`
+const UnderlinedLine = styled(Span)`
   text-decoration: underline;
 `;
 
@@ -164,13 +164,13 @@ const MarStatusTooltipContent = ({
         <>
           {doseWindow && (
             <>
-              <DoseWindow>
+              <UnderlinedLine>
                 <PlainTimeDisplay time={toPlainTime(doseWindow.startTime)} />
                 &ndash;
                 <PlainTimeDisplay time={toPlainTime(doseWindow.endTime)} />
-              </DoseWindow>
+              </UnderlinedLine>
               {!isVariableDose && (
-                <Span>
+                <UnderlinedLine>
                   {doseAmount}
                   {dosingUnit && (
                     <>
@@ -178,7 +178,7 @@ const MarStatusTooltipContent = ({
                       <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
                     </>
                   )}
-                </Span>
+                </UnderlinedLine>
               )}
             </>
           )}
