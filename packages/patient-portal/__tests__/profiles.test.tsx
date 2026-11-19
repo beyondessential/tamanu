@@ -46,6 +46,8 @@ describe('Select profile', () => {
     expect(await screen.findByText('Dashboard')).toBeTruthy();
     expect(resolveEndpoint(api.post.mock.calls[0][0])).toBe('profiles/portal-tui/select');
     expect(api.setToken).toHaveBeenCalledWith('tui-token');
+    const profileFetches = api.get.mock.calls.filter(([e]) => resolveEndpoint(e) === 'profiles');
+    expect(profileFetches).toHaveLength(1);
   });
 
   it('says so when the profile chosen cannot be opened', async () => {

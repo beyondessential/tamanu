@@ -15,8 +15,8 @@ export const useSelectProfile = () => {
       await api.setToken(token);
     },
     onSuccess: async () => {
-      // Everything cached belongs to the previous patient
-      await queryClient.resetQueries();
+      // Everything cached but the email's profile list belongs to the previous patient
+      await queryClient.resetQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'profiles' });
       navigate('/');
     },
     onError: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
