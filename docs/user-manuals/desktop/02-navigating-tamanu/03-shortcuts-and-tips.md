@@ -64,7 +64,7 @@ kind of field or screen it describes.
   too.
 - **Move a booking.** On **Location bookings** in **Daily** view, drag a booking up or down to move
   it to another time in the same location.
-- **Book several time slots.** When booking a location, select the first time slot, then the last.
+- **Book several time slots.** When booking a location, choose the first time slot, then the last.
   Tamanu books every slot between them.
 - **See a booking in full.** Point at a booking or appointment to see its full time and patient
   name, which may be cut short on the calendar.
