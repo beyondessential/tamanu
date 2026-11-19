@@ -12,12 +12,12 @@ quickly and often on a ward. Assume no knowledge of Tamanu's internals.
 - **Say when an action depends on setup.** Where a site can switch an action off, or an account may
   lack the permission, say so, and tell the reader to contact their system administrator if they
   believe they should be able to carry it out
-- **Name on-screen words exactly**, in bold, without quotation marks: buttons, fields, tabs and screens
-- **Match the verb to the control.** Unless context demands otherwise:
-  - buttons and links are _clicked_ on desktop, and _tapped_ on mobile;
-  - dropdown/pulldown options are _selected_;
+- **Name on-screen words exactly**, in bold, without quotation marks: buttons, fields, tabs and
+  screens
+- **Match the verb to the control.** Unless context demands otherwise, a user:
+  - buttons and links are _clicked_ (not _clicked on_) on desktop, and _tapped_ (not _tapped on_) on mobile;
   - checkboxes are _checked_;
-  - menu options and radio options are _chosen_;
+  - dropdown/pulldown, menu and radio options are _chosen_;
   - windows and tabs are _closed_;
   - alerts, dialogs and modals are _dismissed_.
 - **Write plainly.** Short sentences in the active voice, addressing the reader as "you", one
