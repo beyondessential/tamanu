@@ -821,6 +821,31 @@ describe('Form Builder Admin', () => {
       );
     });
 
+    it('leaves the preview as generated when the check itself fails', async () => {
+      reportReady();
+      aiService.invokeStructured.mockResolvedValueOnce(unsaveableProgramDefinition);
+      const findSurvey = vi
+        .spyOn(models.Survey, 'findOne')
+        .mockRejectedValueOnce(new Error('Connection terminated'));
+
+      try {
+        const response = await app.post('/v1/admin/form-builder/chat').send({
+          message: 'Build a referral form with the hospital number',
+          programId,
+        });
+
+        expect(response).toHaveSucceeded();
+        expect(aiService.invokeStructured).toHaveBeenCalledTimes(1);
+        expect(response.body.message).toBe('Your form is ready.');
+        expect(response.body.programDefinition.surveySheets[0].questions[1]).toMatchObject({
+          type: 'PatientData',
+          config: { column: 'displayId' },
+        });
+      } finally {
+        findSurvey.mockRestore();
+      }
+    });
+
     it('refuses a program that does not exist', async () => {
       const response = await app.post('/v1/admin/form-builder/chat').send({
         message: 'Build a referral form',

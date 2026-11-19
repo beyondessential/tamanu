@@ -507,6 +507,8 @@ export const findProgramDefinitionSaveProblems = async ({
             surveySheet,
           });
         } catch (error) {
+          // Anything but an import error is a fault no change to the definition fixes.
+          if (!(error instanceof DataImportError)) throw error;
           context.errors.push(error);
         }
 
