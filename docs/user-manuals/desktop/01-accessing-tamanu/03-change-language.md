@@ -4,8 +4,9 @@ the sidebar once you have logged in. Tamanu remembers your choice in this web br
 # Before you start
 
 You can change language only if your site has set Tamanu up in more than one language. If you cannot
-see **Language** on the **Log in** screen, or **Change language** in the sidebar menu, your site uses a
-single language. Contact your system administrator if you believe you should be able to change it.
+see **Language** on the **Log in** screen, or **Change language** in the sidebar menu, your site
+uses a single language. Contact your system administrator if you believe you should be able to
+change it.
 
 # On the Log in screen
 

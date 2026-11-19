@@ -3,8 +3,8 @@ Start from your web browser.
 
 # Before you start
 
-You need your site's Tamanu address, and the email address and password for your Tamanu account. Your
-system administrator gives you these.
+You need your site's Tamanu address, and the email address and password for your Tamanu account.
+Your system administrator gives you these.
 
 # Log in
 
@@ -24,8 +24,8 @@ system administrator gives you these.
 
 2. Enter your email address in **Email** and your password in **Password**.
 
-3. Select **Remember me** if you want Tamanu to fill in your email address next time you log in on this
-   computer.
+3. Select **Remember me** if you want Tamanu to fill in your email address next time you log in on
+   this computer.
 
    Leave it unselected to have Tamanu forget your email address.
 

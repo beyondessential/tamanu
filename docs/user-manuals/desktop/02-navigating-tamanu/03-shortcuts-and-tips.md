@@ -16,8 +16,8 @@ kind of field or screen it describes.
 # Searching
 
 - **Search with part of a name or number.** The **NHN**, **First name** and **Last name** search
-  fields find what you type anywhere in the value, in capitals or not. Typing `toni` in **Last name**
-  finds Antonini.
+  fields find what you type anywhere in the value, in capitals or not. Typing `toni` in **Last
+  name** finds Antonini.
 - **Press Enter to search.** Press Enter in a search field instead of clicking **Search**.
 - **Show more filters.** Click the double arrow beside **Search** to open **Advanced search**, which
   has extra filters such as **Include deceased patients**. Click it again to hide them.
@@ -55,8 +55,8 @@ kind of field or screen it describes.
 # Scheduling
 
 - **Move between days with the arrow keys.** On **Outpatient appointments**, and **Location
-  bookings** in **Daily** view, click a day in the strip of days, then press the left or right
-  arrow key to move a day at a time.
+  bookings** in **Daily** view, click a day in the strip of days, then press the left or right arrow
+  key to move a day at a time.
 - **Jump to a month.** Type a month and year, such as `March 2027`, in the month box above the
   calendar and press Enter.
 - **Book from the calendar.** On **Location bookings**, click an empty space in the calendar to
@@ -73,8 +73,8 @@ kind of field or screen it describes.
 
 - **Saved to your account:** your encounter tab order, the chart you last chose on the **Charts**
   tab, and which measures you chose to show together in a graph.
-- **Saved for each facility:** your filters on **Location bookings**, **Outpatient appointments** and
-  the **Dashboard**'s **Upcoming tasks**.
+- **Saved for each facility:** your filters on **Location bookings**, **Outpatient appointments**
+  and the **Dashboard**'s **Upcoming tasks**.
 - **Kept until you log out:** the search terms on the patient, lab, imaging and medication lists,
   while you move around Tamanu. Reloading the page clears them too.
 - **Reset each time:** the number of rows a table shows, the order you sort it in, and whether the

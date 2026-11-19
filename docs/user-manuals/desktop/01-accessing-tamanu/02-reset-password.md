@@ -9,8 +9,8 @@ You need access to the email inbox for your Tamanu account, because Tamanu sends
 
 1. Click **Forgot password?** under the **Log in** button.
 
-   The **Forgot password** screen opens. If you selected **Remember me** when you last logged in, your
-   email address is already filled in.
+   The **Forgot password** screen opens. If you selected **Remember me** when you last logged in,
+   your email address is already filled in.
 
    <figure>
      <img
