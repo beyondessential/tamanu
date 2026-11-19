@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_program_registries_from_sync_lookup
+              - flag_program_registries_for_lookup_rebuild
               - record_program_registries_changelog
               - set_program_registries_updated_at
               - set_program_registries_updated_at_sync_tick
@@ -77,5 +78,10 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in program_registries."
+            data_tests:
+              - not_null
+          - name: mandatory_condition_enabled
+            data_type: boolean
+            description: "{{ doc('program_registries__mandatory_condition_enabled') }}"
             data_tests:
               - not_null

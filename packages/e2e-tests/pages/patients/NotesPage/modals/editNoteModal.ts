@@ -10,7 +10,7 @@ export class EditNoteModal extends BaseNoteModal {
   // Helper method to edit a note
   async editNote(updatedContent: string): Promise<string> {
     await this.waitForModalToLoad();
-    await this.noteContentTextarea.fill(updatedContent);
+    await this.noteContentInput.fill(updatedContent);
     const secondDateTime = normalizeToIsoDateTimeMinute(await this.dateTimeInput.inputValue());
     await this.confirmButton.click();
     await this.waitForModalToClose();

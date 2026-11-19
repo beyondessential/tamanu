@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
+import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings/cache';
 import { getSettingSecret } from '@tamanu/shared/utils/crypto';
 
@@ -13,22 +15,38 @@ vi.mock('@tamanu/shared/utils/crypto', async () => {
   };
 });
 
-const PROMPT_SETTINGS = {
-  'formBuilder.prompts': {
-    interpretFormImage: 'interpret',
-    processMessage: 'process',
-    buildSurveyDefinition: 'build',
-    tweakSurveyDefinition: 'tweak',
-  },
-  patientSummary: { prompts: 'patient summary' },
-  encounterSummary: { prompts: 'encounter summary' },
+const FORM_BUILDER_PROMPTS = {
+  interpretFormImage: 'interpret',
+  processMessage: 'process',
+  buildSurveyDefinition: 'build',
+  tweakSurveyDefinition: 'tweak',
 };
 
-const settingsWith = ai => ({
-  get: async path => (path === 'ai' ? ai : PROMPT_SETTINGS[path]),
+const experimentalAiWith = overrides => ({
+  enabled: true,
+  model: 'claude-opus-5',
+  patientSummary: { enabled: true, prompts: 'patient summary' },
+  encounterSummary: { enabled: true, prompts: 'encounter summary' },
+  ...overrides,
 });
 
-const initWith = ai => AIService.init({ settings: settingsWith(ai), models: {} });
+const formBuilderWith = overrides => ({
+  enabled: true,
+  model: 'claude-opus-5',
+  fastModel: '',
+  prompts: FORM_BUILDER_PROMPTS,
+  ...overrides,
+});
+
+const settingsWith = ({ experimentalAi = {}, formBuilder = {} } = {}) => {
+  const values = {
+    experimentalAi: experimentalAiWith(experimentalAi),
+    formBuilder: formBuilderWith(formBuilder),
+  };
+  return { get: async path => values[path] };
+};
+
+const initWith = config => AIService.init({ settings: settingsWith(config), models: {} });
 
 describe('AIService.init', () => {
   beforeEach(() => {
@@ -36,32 +54,132 @@ describe('AIService.init', () => {
     getSettingSecret.mockResolvedValue('sk-test');
   });
 
-  it('builds the configured model', async () => {
-    const service = await initWith({ enabled: true, anthropicModel: 'claude-opus-5' });
-    expect(service.chatModel.model).toBe('claude-opus-5');
-  });
-
-  it('picks up a changed model without a restart', async () => {
-    const before = await initWith({ enabled: true, anthropicModel: 'claude-opus-5' });
-    const after = await initWith({ enabled: true, anthropicModel: 'claude-haiku-4-5' });
-    expect(before.chatModel.model).toBe('claude-opus-5');
-    expect(after.chatModel.model).toBe('claude-haiku-4-5');
+  it('builds each feature with its own model', async () => {
+    const service = await initWith({
+      experimentalAi: { model: 'claude-sonnet-5' },
+      formBuilder: { model: 'claude-opus-5', fastModel: 'claude-haiku-5' },
+    });
+    expect(service.getModelForContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY).model).toBe(
+      'claude-sonnet-5',
+    );
+    expect(service.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER).model).toBe('claude-opus-5');
+    expect(service.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER_BUILD).model).toBe(
+      'claude-haiku-5',
+    );
   });
 
   it('picks up a changed API key without a restart', async () => {
     getSettingSecret.mockResolvedValue('sk-second');
-    const service = await initWith({ enabled: true, anthropicModel: 'claude-opus-5' });
-    expect(service.chatModel.apiKey).toBe('sk-second');
+    const service = await initWith();
+    expect(service.summaryModel.apiKey).toBe('sk-second');
   });
 
-  it('falls back to the main model when no fast model is configured', async () => {
-    const service = await initWith({ enabled: true, anthropicModel: 'claude-opus-5' });
-    expect(service.fastChatModel).toBe(service.chatModel);
+  it('falls back to the form builder model when no fast model is configured', async () => {
+    const service = await initWith();
+    expect(service.formBuilderFastModel).toBe(service.formBuilderModel);
   });
 
-  it('is torn down when the feature is disabled or the model is cleared', async () => {
-    expect(await initWith({ enabled: false, anthropicModel: 'claude-opus-5' })).toBeNull();
-    expect(await initWith({ enabled: true, anthropicModel: '' })).toBeNull();
+  it('leaves the form builder running when Experimental AI is off', async () => {
+    const service = await initWith({ experimentalAi: { enabled: false } });
+    expect(service.hasContext(AI_CONTEXT_NAMES.FORM_BUILDER)).toBe(true);
+    expect(service.hasContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY)).toBe(false);
+    expect(service.hasContext(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY)).toBe(false);
+  });
+
+  it('leaves the summaries running when the form builder is off', async () => {
+    const service = await initWith({ formBuilder: { enabled: false } });
+    expect(service.hasContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY)).toBe(true);
+    expect(service.hasContext(AI_CONTEXT_NAMES.FORM_BUILDER)).toBe(false);
+  });
+
+  it('needs both switches on for a summary', async () => {
+    const service = await initWith({
+      experimentalAi: { patientSummary: { enabled: false, prompts: 'patient summary' } },
+    });
+    expect(service.hasContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY)).toBe(false);
+    expect(service.hasContext(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY)).toBe(true);
+  });
+
+  it('is torn down when both features are disabled or have no model', async () => {
+    expect(
+      await initWith({ experimentalAi: { enabled: false }, formBuilder: { enabled: false } }),
+    ).toBeNull();
+    expect(
+      await initWith({ experimentalAi: { model: '' }, formBuilder: { model: '' } }),
+    ).toBeNull();
+  });
+
+  it('is torn down without an API key', async () => {
+    getSettingSecret.mockResolvedValue(undefined);
+    expect(await initWith()).toBeNull();
+  });
+});
+
+describe('AIService.invokeStructured', () => {
+  const schema = z.object({ answer: z.string() });
+
+  const serviceWith = chatModel => {
+    const service = Object.create(AIService.prototype);
+    service.contexts = new Map([[AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'system prompt']]);
+    service.summaryModel = chatModel;
+    return service;
+  };
+
+  const modelReturning = toolCalls => {
+    const invoke = vi.fn().mockResolvedValue({ tool_calls: toolCalls });
+    const bindTools = vi.fn().mockReturnValue({ invoke });
+    return { model: { bindTools }, bindTools, invoke };
+  };
+
+  it('binds the tool without forcing tool_choice', async () => {
+    const { model, bindTools } = modelReturning([{ name: 'extract', args: { answer: 'yes' } }]);
+
+    await serviceWith(model).invokeStructured(AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'ask', schema);
+
+    expect(bindTools).toHaveBeenCalledTimes(1);
+    const [tools, options] = bindTools.mock.calls[0];
+    expect(tools).toHaveLength(1);
+    expect(tools[0].name).toBe('extract');
+    expect(tools[0].input_schema).toMatchObject({ type: 'object' });
+    expect(options?.tool_choice).toBeUndefined();
+  });
+
+  it('parses the tool call against the schema', async () => {
+    const { model } = modelReturning([{ name: 'summary', args: { answer: 'yes' } }]);
+
+    const result = await serviceWith(model).invokeStructured(
+      AI_CONTEXT_NAMES.PATIENT_SUMMARY,
+      'ask',
+      schema,
+      { name: 'summary' },
+    );
+
+    expect(result).toEqual({ answer: 'yes' });
+  });
+
+  it('throws when the model answers without calling the tool', async () => {
+    const { model } = modelReturning([]);
+
+    await expect(
+      serviceWith(model).invokeStructured(AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'ask', schema),
+    ).rejects.toThrow(/expected the model to call "extract"/);
+  });
+
+  it('names the tools it did get, without quoting the model text', async () => {
+    const { model } = modelReturning([{ name: 'something_else', args: {} }]);
+    model.bindTools().invoke.mockResolvedValue({
+      tool_calls: [{ name: 'something_else', args: {} }],
+      content: 'patient Jane Doe presented with',
+      response_metadata: { stop_reason: 'end_turn' },
+    });
+
+    const error = await serviceWith(model)
+      .invokeStructured(AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'ask', schema)
+      .catch(caught => caught);
+
+    expect(error.message).toContain('something_else');
+    expect(error.message).toContain('end_turn');
+    expect(error.message).not.toContain('Jane Doe');
   });
 });
 
@@ -83,14 +201,13 @@ describe('ApplicationContext.refreshAiService', () => {
 
     const context = contextFor({
       get: async path => {
-        if (path !== 'ai') return PROMPT_SETTINGS[path];
         order.push('read');
-        return { enabled: true, anthropicModel: 'claude-opus-5' };
+        return { experimentalAi: experimentalAiWith(), formBuilder: formBuilderWith() }[path];
       },
     });
     await context.refreshAiService();
 
-    expect(order).toEqual(['reset', 'read']);
+    expect(order).toEqual(['reset', 'read', 'read']);
     reset.mockRestore();
   });
 
@@ -103,20 +220,70 @@ describe('ApplicationContext.refreshAiService', () => {
     let isFirstRead = true;
     const context = contextFor({
       get: async path => {
-        if (path !== 'ai') return PROMPT_SETTINGS[path];
+        if (path === 'formBuilder') return formBuilderWith({ enabled: false });
         if (isFirstRead) {
           isFirstRead = false;
           await new Promise(resolve => {
             setTimeout(resolve, 50);
           });
-          return { enabled: true, anthropicModel: 'claude-stale' };
+          return experimentalAiWith({ model: 'claude-stale' });
         }
-        return { enabled: true, anthropicModel: 'claude-fresh' };
+        return experimentalAiWith({ model: 'claude-fresh' });
       },
     });
 
     await Promise.all([context.refreshAiService(), context.refreshAiService()]);
 
-    expect(context.aiService.chatModel.model).toBe('claude-fresh');
+    expect(context.aiService.summaryModel.model).toBe('claude-fresh');
+  });
+});
+
+describe('AIService structured responses', () => {
+  const responseSchema = z.object({ answer: z.string() });
+
+  const serviceWithModel = (...responses) => {
+    const invoke = vi.fn();
+    responses.forEach(response => invoke.mockResolvedValueOnce(response));
+    const model = { bindTools: vi.fn(() => ({ invoke })) };
+    const service = new AIService();
+    service.formBuilderModel = model;
+    service.formBuilderFastModel = model;
+    service.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'tweak');
+    return { service, model, invoke };
+  };
+
+  const invokeTweak = service =>
+    service.invokeStructured(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'question', responseSchema, {
+      name: 'respond',
+    });
+
+  it('offers the response tool without forcing it', async () => {
+    const { service, model } = serviceWithModel({
+      tool_calls: [{ name: 'respond', args: { answer: 'yes' } }],
+    });
+
+    expect(await invokeTweak(service)).toEqual({ answer: 'yes' });
+    const [tools, options] = model.bindTools.mock.calls[0];
+    expect(tools[0].name).toBe('respond');
+    expect(options?.tool_choice).toBeUndefined();
+  });
+
+  it('asks again when the model first answers without calling the tool', async () => {
+    const { service, invoke } = serviceWithModel(
+      { content: 'Sure, here you go.', tool_calls: [] },
+      { tool_calls: [{ name: 'respond', args: { answer: 'yes' } }] },
+    );
+
+    expect(await invokeTweak(service)).toEqual({ answer: 'yes' });
+    expect(invoke).toHaveBeenCalledTimes(2);
+    const retryMessages = invoke.mock.calls[1][0];
+    expect(retryMessages).toHaveLength(3);
+    expect(retryMessages.at(-1).content).toBe('Respond by calling the respond tool.');
+  });
+
+  it('fails when the model still answers without calling the tool', async () => {
+    const { service } = serviceWithModel({ tool_calls: [] }, { tool_calls: [] });
+
+    await expect(invokeTweak(service)).rejects.toThrow(/expected the model to call "respond"/);
   });
 });

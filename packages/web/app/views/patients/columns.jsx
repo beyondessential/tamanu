@@ -9,6 +9,7 @@ import {
 } from '../../components';
 import { getPatientStatus } from '../../utils/getPatientStatus';
 import { ThemedTooltip } from '../../components/Tooltip';
+import { LocationGroupCell } from '../../components/LocationCell';
 
 const DateCell = React.memo(({ value }) => (
   <DateDisplay date={value} data-testid="datedisplay-bd7t" />
@@ -145,6 +146,18 @@ export const village = {
       data-testid="translatedreferencedata-goo9"
     />
   ),
+};
+
+export const locationGroup = {
+  key: 'locationGroupName',
+  title: (
+    <TranslatedText
+      stringId="general.area.label"
+      fallback="Area"
+      data-testid="translatedtext-28c6"
+    />
+  ),
+  accessor: LocationGroupCell,
 };
 
 export const department = {

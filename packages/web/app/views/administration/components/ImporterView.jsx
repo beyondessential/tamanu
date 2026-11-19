@@ -17,6 +17,7 @@ import {
 import { useApi } from '../../../api';
 import { Field } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
+import { ConfirmModal } from '../../../components/ConfirmModal';
 import { Table } from '../../../components/Table';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -88,8 +89,10 @@ const ImportForm = ({
   dataTypes,
   dataTypesSelectable,
   ImportButton = FormSubmitButton,
+  importWarning,
 }) => {
   const { values } = useFormikContext();
+  const [pendingImport, setPendingImport] = useState(null);
   const ContentContainer = dataTypesSelectable ? ContentColumn : ContentRow;
   const buttonRowAlignment = dataTypesSelectable ? 'left' : 'right';
   return (
@@ -140,7 +143,14 @@ const ImportForm = ({
         </ImportButton>
         <ImportButton
           disabled={!values.file}
-          onSubmit={(event, extraFormData) => submitForm(event, extraFormData)}
+          onSubmit={(event, extraFormData) => {
+            if (importWarning) {
+              event.preventDefault();
+              setPendingImport({ extraFormData });
+              return;
+            }
+            submitForm(event, extraFormData);
+          }}
           data-testid="importbutton-o5nh"
         >
           <TranslatedText
@@ -150,6 +160,26 @@ const ImportForm = ({
           />
         </ImportButton>
       </StyledButtonRow>
+      {importWarning && (
+        <ConfirmModal
+          open={Boolean(pendingImport)}
+          title={importWarning.title}
+          subText={importWarning.subText}
+          confirmButtonText={
+            <TranslatedText
+              stringId="general.action.import"
+              fallback="Import"
+              data-testid="translatedtext-import-warning-confirm"
+            />
+          }
+          onCancel={() => setPendingImport(null)}
+          onConfirm={event => {
+            setPendingImport(null);
+            submitForm(event, pendingImport.extraFormData);
+          }}
+          data-testid="confirmmodal-import-warning"
+        />
+      )}
     </ContentContainer>
   );
 };
@@ -213,7 +243,7 @@ const OutcomeDisplay = ({ result }) => {
 };
 
 export const ImporterView = memo(
-  ({ endpoint, dataTypes, dataTypesSelectable, setIsLoading, ImportButton }) => {
+  ({ endpoint, dataTypes, dataTypesSelectable, setIsLoading, ImportButton, importWarning }) => {
     const [resetKey, setResetKey] = useState(Math.random());
     const [result, setResult] = useState(null);
 
@@ -250,11 +280,12 @@ export const ImporterView = memo(
           dataTypes={dataTypes}
           dataTypesSelectable={dataTypesSelectable}
           ImportButton={ImportButton}
+          importWarning={importWarning}
           {...props}
           data-testid="importform-ynzi"
         />
       ),
-      [dataTypes, dataTypesSelectable, ImportButton],
+      [dataTypes, dataTypesSelectable, ImportButton, importWarning],
     );
 
     const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);

@@ -10,7 +10,8 @@ import { TableRefreshButton } from './TableRefreshButton';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { useSettings } from '../../contexts/Settings';
-import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
+import { usePageSizePreference } from './usePageSizePreference';
+import { useSortPreference } from './useSortPreference';
 
 const DEFAULT_SORT = /** @type {const} */ ({ order: 'asc', orderBy: undefined });
 
@@ -40,14 +41,21 @@ export const DataFetchingTable = memo(
     autoRefresh,
     lazyLoading = false,
     hasPermission = true,
-    defaultRowsPerPage = ROWS_PER_PAGE_OPTIONS[0],
+    // Applies only to a table without a pageSizePreferenceKey (see usePageSizePreference)
+    defaultRowsPerPage,
+    pageSizePreferenceKey,
     'data-testid': dataTestId,
     ...props
   }) => {
     const { getCurrentDateTime } = useDateTime();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
-    const [sorting, setSorting] = useState(initialSort);
+    const { rowsPerPage, rowsPerPageOptions, onChangeRowsPerPage, isPageSizeReady } =
+      usePageSizePreference({ preferenceKey: pageSizePreferenceKey, defaultRowsPerPage });
+    const { sorting, onChangeSorting } = useSortPreference({
+      pageSizePreferenceKey,
+      columns: props.columns,
+      initialSort,
+    });
     const [fetchState, setFetchState] = useState(() => initialiseFetchState(getCurrentDateTime()));
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -71,20 +79,20 @@ export const DataFetchingTable = memo(
     }, []);
 
     const manualRefresh = useCallback(() => {
-      setSorting(initialSort);
+      onChangeSorting(initialSort);
       setPage(0);
       refreshTable();
-    }, [initialSort, refreshTable]);
+    }, [initialSort, onChangeSorting, refreshTable]);
 
     const handleChangeOrderBy = useCallback(
       columnKey => {
         const { order, orderBy } = sorting;
         const isDesc = orderBy === columnKey && order === 'desc';
         const newSorting = { order: isDesc ? 'asc' : 'desc', orderBy: columnKey };
-        setSorting(newSorting);
+        onChangeSorting(newSorting);
         setPage(0);
       },
-      [sorting],
+      [sorting, onChangeSorting],
     );
 
     // A route() descriptor is a fresh object each render, so key the fetch effect
@@ -219,6 +227,9 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       if (!hasPermission) return;
+      // spec: TPAGE#remembered-page-size
+      // Wait for a remembered page size, so the table loads once at that size rather than twice
+      if (!isPageSizeReady) return;
 
       // Guards against a slower earlier request resolving after a newer one (eg
       // when filters change while a fetch is still in flight) and clobbering the
@@ -289,6 +300,7 @@ export const DataFetchingTable = memo(
       onDataFetched,
       disablePagination,
       hasPermission,
+      isPageSizeReady,
     ]);
 
     useEffect(() => {
@@ -349,11 +361,11 @@ export const DataFetchingTable = memo(
           page={disablePagination ? null : page}
           count={count}
           onChangePage={setPage}
-          onChangeRowsPerPage={setRowsPerPage}
+          onChangeRowsPerPage={onChangeRowsPerPage}
           onChangeOrderBy={handleChangeOrderBy}
           order={order}
           orderBy={orderBy}
-          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          rowsPerPageOptions={rowsPerPageOptions}
           refreshTable={refreshTable}
           rowStyle={row => {
             const rowStyle = [];

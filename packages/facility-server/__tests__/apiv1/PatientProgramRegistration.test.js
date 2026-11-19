@@ -198,6 +198,25 @@ describe('PatientProgramRegistration', () => {
         programRegistryConditionId: programRegistryCondition.id,
       });
     });
+
+    it('creates a registration with a currently in facility', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const programRegistry = await createProgramRegistry({ currentlyAtType: 'facility' });
+      const currentFacility = await models.Facility.create(fake(models.Facility));
+
+      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
+        programRegistryId: programRegistry.id,
+        clinicianId: app.user.id,
+        registeringFacilityId: facilityId,
+        facilityId: currentFacility.id,
+      });
+
+      expect(result).toHaveSucceeded();
+      const createdRegistration = await models.PatientProgramRegistration.findOne({
+        where: { id: result.body.id },
+      });
+      expect(createdRegistration.facilityId).toBe(currentFacility.id);
+    });
   });
 
   describe('Updating program registrations', () => {
@@ -440,6 +459,23 @@ describe('PatientProgramRegistration', () => {
         where: { patientProgramRegistrationId: registration.id },
       });
       expect(updatedConditions.length).toBe(2);
+    });
+
+    it('sets and clears the currently in village', async () => {
+      const village = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: 'village' }),
+      );
+      const url = `/api/patient/programRegistration/${registration.id}`;
+
+      const setResult = await app.put(url).send({ villageId: village.id });
+      expect(setResult).toHaveSucceeded();
+      await registration.reload();
+      expect(registration.villageId).toBe(village.id);
+
+      const clearResult = await app.put(url).send({ villageId: null });
+      expect(clearResult).toHaveSucceeded();
+      await registration.reload();
+      expect(registration.villageId).toBeNull();
     });
   });
 

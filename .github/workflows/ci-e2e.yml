@@ -99,16 +99,17 @@ jobs:
             --workspace=@tamanu/facility-server \
             --workspace=@tamanu/web-frontend
 
-      - name: Build web-frontend
-        run: npm run build --workspace=@tamanu/web-frontend
-      - name: Bundle default translations
-        # The migrate's upgrade step reads this; generate it from source before the servers migrate.
-        run: npm run package-default-translations --workspace @tamanu/upgrade
+      - parallel:
+          - name: Build web-frontend
+            run: npm run build --workspace=@tamanu/web-frontend
+          - name: Bundle default translations
+            # The migrate's upgrade step reads this; generate it from source before the servers migrate.
+            run: npm run package-default-translations --workspace @tamanu/upgrade
+          - name: Setup postgres dbs
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh 18
+              .github/scripts/e2e-test-setup.sh setup-postgres
 
-      - name: Setup postgres dbs
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh 18
-          .github/scripts/e2e-test-setup.sh setup-postgres
       - name: Setup central server
         run: .github/scripts/e2e-test-setup.sh setup-central
       - name: Setup facility server
@@ -120,22 +121,23 @@ jobs:
           mkdir -p e2e-prepared-db
           pg_dump -Fc -d central -f e2e-prepared-db/central.dump
           pg_dump -Fc -d facility -f e2e-prepared-db/facility.dump
-      - name: Upload built server artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-built-artifacts
-          path: |
-            packages/*/dist
-            packages/central-server/config/local.json5
-            packages/central-server/provisioning.json5
-            packages/facility-server/config/local.json5
-          retention-days: 1
-      - name: Upload prepared database snapshot
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-db-snapshot
-          path: e2e-prepared-db
-          retention-days: 1
+      - parallel:
+          - name: Upload built server artifacts
+            uses: actions/upload-artifact@v7
+            with:
+              name: e2e-built-artifacts
+              path: |
+                packages/*/dist
+                packages/central-server/config/local.json5
+                packages/central-server/provisioning.json5
+                packages/facility-server/config/local.json5
+              retention-days: 1
+          - name: Upload prepared database snapshot
+            uses: actions/upload-artifact@v7
+            with:
+              name: e2e-db-snapshot
+              path: e2e-prepared-db
+              retention-days: 1
 
   e2e:
     needs: e2e_prepare
@@ -166,38 +168,43 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - name: Download built server artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: e2e-built-artifacts
-          path: packages
-      - name: Download prepared database snapshot
-        uses: actions/download-artifact@v8
-        with:
-          name: e2e-db-snapshot
-          path: e2e-prepared-db
+      - parallel:
+          - name: Download built server artifacts
+            uses: actions/download-artifact@v8
+            with:
+              name: e2e-built-artifacts
+              path: packages
+          - name: Download prepared database snapshot
+            uses: actions/download-artifact@v8
+            with:
+              name: e2e-db-snapshot
+              path: e2e-prepared-db
 
-      - name: Install dependencies
-        run: |
-          npm install \
-            --include-workspace-root \
-            --workspace=@tamanu/central-server \
-            --workspace=@tamanu/e2e-tests \
-            --workspace=@tamanu/facility-server \
-            --workspace=@tamanu/web-frontend
+      - parallel:
+          - name: Install dependencies
+            run: |
+              npm install \
+                --include-workspace-root \
+                --workspace=@tamanu/central-server \
+                --workspace=@tamanu/e2e-tests \
+                --workspace=@tamanu/facility-server \
+                --workspace=@tamanu/web-frontend
+          - name: Setup postgres dbs
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh 18
+              createuser --superuser tamanu
+              psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+              createdb -O tamanu central
+              createdb -O tamanu facility
+              pg_restore --clean --if-exists --no-owner --no-privileges -d central e2e-prepared-db/central.dump
+              pg_restore --clean --if-exists --no-owner --no-privileges -d facility e2e-prepared-db/facility.dump
 
-      - name: Setup postgres dbs
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh 18
-          createuser --superuser tamanu
-          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
-          createdb -O tamanu central
-          createdb -O tamanu facility
-          pg_restore --clean --if-exists --no-owner --no-privileges -d central e2e-prepared-db/central.dump
-          pg_restore --clean --if-exists --no-owner --no-privileges -d facility e2e-prepared-db/facility.dump
-
+      # Overlap server startup with Playwright browser install — servers are
+      # already detached via nohup; this only waits on their health checks.
       - name: Start servers
+        id: start-servers
         run: .github/scripts/e2e-test-setup.sh start-servers-no-sync
+        background: true
       - name: Restore Playwright browser cache
         id: playwright-cache
         uses: actions/cache/restore@v5
@@ -216,6 +223,7 @@ jobs:
         with:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
           path: ~/.cache/ms-playwright
+      - wait: start-servers
       - name: Run Playwright tests
         run: npx playwright test --shard=${{ matrix.shard }}
         working-directory: packages/e2e-tests
@@ -224,27 +232,32 @@ jobs:
           # source (which uses extensionless directory exports Node's ESM resolver alone
           # cannot complete). Keeps the heap size from the workflow-level NODE_OPTIONS.
           NODE_OPTIONS: --import tsx --max-old-space-size=6144
-      - name: Upload blob report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: blob-report-${{ strategy.job-index }}
-          path: packages/e2e-tests/blob-report/
-          retention-days: 7
-      # The servers run detached with their stdout/stderr redirected to these files
-      # (see .github/scripts/e2e-test-setup.sh). They carry the http + verbose-SQL logs
-      # we need to see what the backend was doing while tests timed out, but were never
-      # uploaded — so failures could only be diagnosed from the front end. Keep them.
-      - name: Upload server logs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: server-logs-${{ strategy.job-index }}
-          path: |
-            central-server.out
-            facility-server.out
-          retention-days: 7
-          if-no-files-found: warn
+      # Upload diagnostics even when tests fail. if: always() goes on each member of the
+      # group, not the group itself: a step carrying if is parsed as an ordinary step, so
+      # parallel alongside it is rejected. parallel expands each member into a background
+      # step, and each still applies its own if.
+      - parallel:
+          - name: Upload blob report
+            if: always()
+            uses: actions/upload-artifact@v7
+            with:
+              name: blob-report-${{ strategy.job-index }}
+              path: packages/e2e-tests/blob-report/
+              retention-days: 7
+          # The servers run detached with their stdout/stderr redirected to these files
+          # (see .github/scripts/e2e-test-setup.sh). They carry the http + verbose-SQL logs
+          # we need to see what the backend was doing while tests timed out, but were never
+          # uploaded — so failures could only be diagnosed from the front end. Keep them.
+          - name: Upload server logs
+            if: always()
+            uses: actions/upload-artifact@v7
+            with:
+              name: server-logs-${{ strategy.job-index }}
+              path: |
+                central-server.out
+                facility-server.out
+              retention-days: 7
+              if-no-files-found: warn
 
   e2e_failure_report:
     name: E2E Failure Report
@@ -263,13 +276,14 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm install --include-workspace-root --workspace=@tamanu/e2e-tests
-      - name: Download blob reports
-        uses: actions/download-artifact@v8
-        with:
-          pattern: blob-report-*
-          path: packages/e2e-tests/all-blob-reports
-          merge-multiple: true
+      - parallel:
+          - run: npm install --include-workspace-root --workspace=@tamanu/e2e-tests
+          - name: Download blob reports
+            uses: actions/download-artifact@v8
+            with:
+              pattern: blob-report-*
+              path: packages/e2e-tests/all-blob-reports
+              merge-multiple: true
       - name: Merge Playwright reports
         run: npx playwright merge-reports --reporter html ./all-blob-reports
         working-directory: packages/e2e-tests

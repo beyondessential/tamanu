@@ -22,7 +22,7 @@ import {
   ICAO_DOCUMENT_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   INJECTION_SITE_VALUES,
-  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_ITEMS_DISCOUNT_TYPES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
@@ -400,6 +400,24 @@ export const fakeDateString = () => toDateString(fakeDate());
 export const fakeInt = () => chance.integer({ min: 0, max: 10 });
 export const fakeFloat = () => chance.floating({ min: 0, max: 1000, fixed: 2 });
 export const fakeBool = () => chance.bool();
+
+/**
+ * `features.hideOtherSex` defaults to true, and a patient stored as "other" while it is hidden
+ * renders with a blank sex field that fails validation on save. So only generate "other" when the
+ * caller has checked that the deployment shows it.
+ */
+export const fakeSex = ({ isOtherSexAllowed = false } = {}) =>
+  chance.pickone(
+    isOtherSexAllowed ? Object.values(SEX_VALUES) : [SEX_VALUES.MALE, SEX_VALUES.FEMALE],
+  );
+
+export const fakeDateOfBirth = () =>
+  toDateString(
+    chance.birthday({
+      type: chance.weighted(['child', 'teen', 'adult', 'senior'], [20, 10, 55, 15]),
+    }) as Date,
+  );
+
 const SAFE_EMAIL_DOMAIN = 'example.com';
 
 const FIELD_HANDLERS = {
@@ -590,8 +608,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     referenceRangeMax: null,
     referenceRangeText: null,
   }),
-  Patient: () => {
-    const sex = chance.pickone(Object.values(SEX_VALUES));
+  Patient: ({ sex = fakeSex() }) => {
     const nameGender: 'male' | 'female' =
       sex === 'male' || sex === 'female' ? sex : chance.pickone(['male', 'female']);
     return {
@@ -604,11 +621,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       middleName: chance.first({ gender: nameGender }),
       lastName: chance.last(),
       culturalName: chance.first({ gender: nameGender }),
-      dateOfBirth: toDateString(
-        chance.birthday({
-          type: chance.weighted(['child', 'teen', 'adult', 'senior'], [20, 10, 55, 15]),
-        }) as Date,
-      ),
+      dateOfBirth: fakeDateOfBirth(),
       dateOfDeath: null,
       email: chance.email({ domain: SAFE_EMAIL_DOMAIN }),
     };
@@ -779,7 +792,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Invoice: () => ({
     status: chance.pickone(Object.values(INVOICE_STATUSES)),
     patientPaymentStatus: chance.pickone(Object.values(INVOICE_PATIENT_PAYMENT_STATUSES)),
-    insurerPaymentStatus: chance.pickone(Object.values(INVOICE_INSURER_PAYMENT_STATUSES)),
+    insurancePlanPaymentStatus: chance.pickone(Object.values(INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES)),
     displayId: `INV${chance.natural({ min: 100000, max: 999999 })}`,
   }),
   InvoiceDiscount: () => ({
@@ -789,8 +802,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
   InvoiceInsurancePlan: () => ({
     availableFacilities: null,
   }),
-  InvoiceInsurerPayment: () => ({
-    status: chance.pickone(Object.values(INVOICE_INSURER_PAYMENT_STATUSES)),
+  InvoiceInsurancePlanPayment: () => ({
+    status: chance.pickone(Object.values(INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES)),
     reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
   }),
   InvoicePatientPayment: () => ({

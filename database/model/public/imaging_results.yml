@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_imaging_results_from_sync_lookup
+              - flag_imaging_results_for_lookup_rebuild
               - record_imaging_results_changelog
               - set_imaging_results_updated_at
               - set_imaging_results_updated_at_sync_tick

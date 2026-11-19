@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_roles_from_sync_lookup
+              - flag_roles_for_lookup_rebuild
               - record_roles_changelog
               - set_roles_updated_at
               - set_roles_updated_at_sync_tick

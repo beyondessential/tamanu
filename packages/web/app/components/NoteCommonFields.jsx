@@ -12,7 +12,6 @@ import {
   Field,
   FormGrid,
   SelectField,
-  TextField,
   TranslatedReferenceData,
   TranslatedText,
   useSettings,
@@ -20,6 +19,7 @@ import {
 } from '@tamanu/ui-components';
 import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
 import { InfoCard, InfoCardItem } from './InfoCard';
+import { NoteContentEditor } from './NoteContentEditor/NoteContentEditor';
 
 const StyledInfoCard = styled(InfoCard)`
   border-radius: 0;
@@ -118,9 +118,6 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   );
 };
 
-/* Very sensitive styling below, results in the text field being growable / shrinkable,
-and deals with in-field scrolling at small heights */
-
 const NoteContentBox = styled.div`
   flex: 1;
   display: flex;
@@ -129,39 +126,9 @@ const NoteContentBox = styled.div`
   margin-top: 1.2rem;
 `;
 
-const StyledField = styled(Field)`
-  &.MuiTextField-root {
-    min-height: ${props => `${props.$minHeight}px`};
-    padding-bottom: 12px;
-  }
-`;
-
-const fieldWrapperSx = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-};
-
-const inputContainerSx = {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-  alignItems: 'start',
-  flex: 1,
-};
-
-const textareaSx = {
-  flex: 1,
-  minHeight: 0,
-  overflow: 'auto',
-  width: '100%',
-  boxSizing: 'border-box',
-};
-
 export const NoteContentField = ({
   label = <TranslatedText stringId="note.edit.label" fallback="Edit note" />,
   onChange,
-  size,
   isEditMode = false,
   isTreatmentPlanNote = false,
 }) => {
@@ -169,23 +136,14 @@ export const NoteContentField = ({
 
   return (
     <NoteContentBox>
-      <StyledField
-        $minHeight={minHeight}
+      <Field
         name="content"
         label={label}
         required
-        component={TextField}
-        multiline
+        component={NoteContentEditor}
         onChange={onChange}
-        style={fieldWrapperSx}
-        InputProps={{
-          style: inputContainerSx,
-        }}
-        inputProps={{
-          style: textareaSx,
-        }}
+        minHeight={minHeight}
         data-testid="field-wxzr"
-        size={size}
       />
     </NoteContentBox>
   );

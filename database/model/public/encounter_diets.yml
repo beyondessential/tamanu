@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_encounter_diets_from_sync_lookup
+              - flag_encounter_diets_for_lookup_rebuild
               - record_encounter_diets_changelog
               - set_encounter_diets_updated_at
               - set_encounter_diets_updated_at_sync_tick

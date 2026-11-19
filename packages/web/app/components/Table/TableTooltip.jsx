@@ -3,11 +3,22 @@ import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Colors } from '../../constants';
 
-export const TableTooltip = styled(({ className, children, placement = 'top', ...props }) => (
+// The text is clamped rather than the tooltip, so hiding the overflow does not also clip the arrow,
+// which sits outside the tooltip's box. Unclipped, text past the clamp spills over the hovered
+// cell, catching the pointer and closing the tooltip in a loop.
+const TooltipText = styled.div`
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+export const TableTooltip = styled(({ className, children, placement = 'top', title, ...props }) => (
   <Tooltip
     classes={{ popper: className }}
     arrow
     placement={placement}
+    title={title ? <TooltipText>{title}</TooltipText> : title}
     {...props}
     data-testid="tooltip-5on2"
   >
@@ -27,9 +38,6 @@ export const TableTooltip = styled(({ className, children, placement = 'top', ..
     padding: 0.375rem 0.5rem;
     cursor: pointer;
     max-width: 500px;
-    display: -webkit-box;
-    -webkit-line-clamp: 10;
-    -webkit-box-orient: vertical;
     text-align: center;
     & .MuiTooltip-arrow {
       color: ${Colors.primaryDark};

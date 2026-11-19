@@ -12,7 +12,7 @@ import {
 import { extractDefaults } from '../src/schema/utils';
 import * as yup from 'yup';
 import { fail } from 'assert';
-import { VACCINE_STATUS } from '@tamanu/constants';
+import { INVOICE_PRINT_LAYOUTS, VACCINE_STATUS } from '@tamanu/constants';
 
 describe('Schemas', () => {
   describe('Extracting settings from schema', () => {
@@ -434,6 +434,29 @@ describe('Schemas', () => {
         );
       });
     });
+
+    describe('Invoice print layout', () => {
+      const printLayout = value =>
+        validateSettings({ settings: { invoicing: { printLayout: value } }, scope: 'facility' });
+
+      it('defaults to A4', () => {
+        expect(facilityDefaults.invoicing.printLayout).toBe(INVOICE_PRINT_LAYOUTS.A4);
+      });
+
+      it.each(Object.values(INVOICE_PRINT_LAYOUTS))('accepts %s', async value => {
+        await expect(printLayout(value)).resolves.not.toThrow();
+      });
+
+      it('rejects any other layout', async () => {
+        await expect(printLayout('letter')).rejects.toThrow(yup.ValidationError);
+      });
+
+      it('is sent to the web', () => {
+        expect(getKeysByFlag('exposedToWeb', [facilitySettings])).toContain(
+          'invoicing.printLayout',
+        );
+      });
+    });
   });
 
   describe('Edge cases', () => {
@@ -548,6 +571,11 @@ describe('Exposed keys', () => {
       expect(scopedKeys).toContain('mobileSync');
       expect(scopedKeys).toContain('features');
       expect(scopedKeys).not.toContain('patientDisplayIdPattern');
+    });
+
+    it('should send facilities the streaming flag at login', () => {
+      const scopedKeys = getKeysByFlag('exposedToWeb', [centralSettings, globalSettings]);
+      expect(scopedKeys).toContain('sync.streaming.enabled');
     });
 
     it('should include nested paths', () => {

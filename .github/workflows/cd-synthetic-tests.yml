@@ -3,15 +3,6 @@ name: CD Synthetic Tests
 on:
   push:
     branches: ['main', 'release/**']
-    paths:
-      - 'packages/synthetic-tests/**'
-      - 'packages/api-client/**'
-      - 'packages/fake-data/**'
-      - 'packages/constants/**'
-      - 'packages/shared/**'
-      - 'packages/utils/**'
-      - 'packages/errors/**'
-      - 'packages/settings/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

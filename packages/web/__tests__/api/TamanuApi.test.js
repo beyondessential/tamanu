@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { TamanuApi as ApiClient } from '@tamanu/api-client';
+import { TamanuApi as ApiClient, route } from '@tamanu/api-client';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { TamanuApi } from '../../app/api/TamanuApi';
 
@@ -56,6 +56,34 @@ describe('TamanuApi error toast relegation', () => {
 
     expect(notifyError).toHaveBeenCalledTimes(1);
     expect(systemErrorHandler).not.toHaveBeenCalled();
+  });
+
+  it('records the resolved path of a route() endpoint in a system error', async () => {
+    rejectWith({ type: ERROR_TYPE.DATABASE, title: 'boom' });
+
+    await expect(
+      api.get(route('patient/:patientId', { patientId: '123' }), {}, { showUnknownErrorToast: true }),
+    ).rejects.toBeTruthy();
+
+    expect(systemErrorHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'patient/123: boom' }),
+    );
+  });
+
+  it('shows the resolved path of a route() endpoint in an admin panel toast', async () => {
+    window.history.pushState({}, '', '/admin/roles');
+    rejectWith({ type: ERROR_TYPE.DATABASE, title: 'boom' });
+
+    await expect(
+      api.get(route('admin/role/:roleId', { roleId: 'abc' }), {}, { showUnknownErrorToast: true }),
+    ).rejects.toBeTruthy();
+
+    const [toastContent] = notifyError.mock.calls[0];
+    expect(toastContent).toContainEqual(
+      expect.objectContaining({
+        props: expect.objectContaining({ replacements: { path: 'admin/role/abc' } }),
+      }),
+    );
   });
 
   it('relegates a server-kind error on facility admin, since it is part of the regular clinical client', async () => {

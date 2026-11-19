@@ -12,7 +12,19 @@ quickly and often on a ward. Assume no knowledge of Tamanu's internals.
 - **Say when an action depends on setup.** Where a site can switch an action off, or an account may
   lack the permission, say so, and tell the reader to contact their system administrator if they
   believe they should be able to carry it out
-- **Name on-screen words exactly**, in bold, without quotation marks: buttons, fields, tabs and screens
+- **Name on-screen words exactly**, in bold, without quotation marks: buttons, fields, tabs and
+  screens
+- **Match the verb to the control.** Unless context demands otherwise, a user:
+  - _clicks_ a button or link on desktop (not _clicks on_), and _taps_ a button or link on mobile (not _taps on_);
+  - _drags_ an item (not _click and drag_);
+  - _selects_ or _deselects_ a checkbox (but a checkbox can be _unselected_);
+  - _chooses_ an option (e.g. from a menu or when clicking a radio button);
+  - _expands_ or _collapses_ a details disclosure (not _show/hide_ or _open/close_)
+  - _closes_ a window or tab; and
+  - _dismisses_ an alert, dialog, popup, modal or toast.
+  - NB:
+    - A window refers to the desktop browser or web app window. No UI element within Tamanu is considered a window.
+    - _Dialog_ refers to the UI element; _dialogue_ refers to spoken word.
 - **Write plainly.** Short sentences in the active voice, addressing the reader as "you", one
   instruction to a sentence, and no technical or developer terms
 - **Assume nothing the reader hasn't been told**, starting from the place in the product the guide
@@ -62,7 +74,7 @@ action achieves and where in the product the reader starts. Then, only if there 
 
 Guides are markdown. Stick to the standard set of structure and formatting options, apart from the
 image blocks below. Markdown carries no styling, so **never rely on styling to carry meaning**: an
-image's border and outlines are drawn into the image itself.
+image's red outlines are drawn into the image itself.
 
 ## Screenshots
 
@@ -70,7 +82,7 @@ Screenshots follow one convention across Tamanu's user guides and configuration 
 shots everywhere are found by one search.
 
 - **A shot not yet captured is a placeholder**: a bold `[Screenshot: ...]` on its own line, describing
-  what the shot must show, e.g. `**[Screenshot: the Record vitals window]**`
+  what the shot must show, e.g. `**[Screenshot: the Record vitals dialog]**`
 - **Place a screenshot where a visual helps**, typically on reaching a new screen or where words
   describe a step poorly, rather than at a fixed rate
 - **Capturing replaces the placeholder with the image**, so a guide holds one or the other, never both
@@ -79,20 +91,21 @@ shots everywhere are found by one search.
 - **Crop to the part of the screen the step is about**, so the words it names are readable. A shot of a
   dialog or form window is that window alone
 - **Capture at twice screen resolution**, so text stays sharp when shown smaller
-- **Every image has a thin black border**, drawn into the image itself
-- **Outline in red the control the step asks the reader to select**, drawn into the image. Which
-  controls are outlined is the author's call, so ask
-- **Show each image centred and smaller than the text column**, at a `width` of about 0.31 times its
-  pixel width
+- **Outline in red the control the step asks the reader to use**, with clear space between the
+  outline and the image's edge. Which controls are outlined is the author's call, so ask
 - **Every image has alt text** describing what the shot shows, including any red outline
-- **Every image has a caption** in small text beneath it: one short sentence describing what the image
+- **Every image has a caption**: one short sentence describing what the image
   shows or the action it illustrates, with Tamanu front-end text word for word in bold
 
 ```html
-<p align="center">
-  <img src="images/record-vitals-vitals-tab.png" alt="The encounter's Vitals tab, with the Record vitals button outlined in red" width="479"><br>
-  <sub>Select <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</sub>
-</p>
+<figure>
+  <img
+    src="images/record-vitals-vitals-tab.png"
+    alt="The encounter's Vitals tab, with the Record vitals button outlined in red"
+    width="479"
+  />
+  <figcaption>Click <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</figcaption>
+</figure>
 ```
 
 Screenshots are published, so they are taken against demonstration or test data and never show a real

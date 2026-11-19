@@ -4,6 +4,7 @@ import { addMinutes, subHours } from 'date-fns';
 import {
   ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_PATIENT_STATUSES,
+  MAX_ROWS_PER_PAGE,
   PATIENT_STATUSES,
 } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
@@ -22,7 +23,11 @@ describe('Recently discharged patients', () => {
   let models;
   let baseApp;
   let app;
+  let area;
+  let otherArea;
   let location;
+  let otherAreaLocation;
+  let locationWithoutArea;
   let otherFacilityLocation;
   let department;
   let otherDepartment;
@@ -75,7 +80,17 @@ describe('Recently discharged patients', () => {
 
     await models.Facility.upsert({ id: facilityId, name: facilityId, code: facilityId });
     const otherFacility = await models.Facility.create(fake(models.Facility));
-    location = await models.Location.create(fake(models.Location, { facilityId }));
+    area = await models.LocationGroup.create(fake(models.LocationGroup, { facilityId }));
+    otherArea = await models.LocationGroup.create(fake(models.LocationGroup, { facilityId }));
+    location = await models.Location.create(
+      fake(models.Location, { facilityId, locationGroupId: area.id }),
+    );
+    otherAreaLocation = await models.Location.create(
+      fake(models.Location, { facilityId, locationGroupId: otherArea.id }),
+    );
+    locationWithoutArea = await models.Location.create(
+      fake(models.Location, { facilityId, locationGroupId: null }),
+    );
     otherFacilityLocation = await models.Location.create(
       fake(models.Location, { facilityId: otherFacility.id }),
     );
@@ -109,10 +124,53 @@ describe('Recently discharged patients', () => {
           sex: patient.sex,
           patientStatus: PATIENT_STATUSES.INPATIENT,
           dischargeDate: encounter.endDate,
+          locationGroupId: area.id,
+          locationGroupName: area.name,
           departmentId: department.id,
           departmentName: department.name,
           clinician: discharger.displayName,
         }),
+      ]);
+    });
+
+    it('shows the area the patient was discharged from, after a move during their stay', async () => {
+      const patient = await createPatient();
+      const encounter = await models.Encounter.create(
+        await createDummyEncounter(models, {
+          current: true,
+          patientId: patient.id,
+          encounterType: ENCOUNTER_TYPES.ADMISSION,
+          startDate: hoursAgo(5),
+          locationId: otherAreaLocation.id,
+          departmentId: department.id,
+          examinerId: discharger.id,
+        }),
+      );
+      await encounter.update({ locationId: location.id });
+      await encounter.update({
+        endDate: hoursAgo(1),
+        discharge: { dischargerId: discharger.id },
+      });
+
+      const rows = await fetchRowsFor([patient]);
+
+      expect(rows).toEqual([
+        expect.objectContaining({
+          id: patient.id,
+          locationGroupId: area.id,
+          locationGroupName: area.name,
+        }),
+      ]);
+    });
+
+    it('lists a discharge from a location with no area, with no area', async () => {
+      const patient = await createPatient();
+      await createDischargedEncounter(patient, { locationId: locationWithoutArea.id });
+
+      const rows = await fetchRowsFor([patient]);
+
+      expect(rows).toEqual([
+        expect.objectContaining({ id: patient.id, locationGroupId: null, locationGroupName: null }),
       ]);
     });
 
@@ -222,10 +280,28 @@ describe('Recently discharged patients', () => {
 
     it('caps the page size, and falls back to defaults for invalid paging values', async () => {
       const lastName = 'Rdp-page-size';
-      for (let i = 0; i < 51; i++) {
-        const patient = await createPatient({ lastName });
-        await createDischargedEncounter(patient);
-      }
+      // One more patient than the largest page, inserted in bulk as one at a time is slow
+      const patients = await models.Patient.bulkCreate(
+        Array.from({ length: MAX_ROWS_PER_PAGE + 1 }, () =>
+          createDummyPatient(models, { lastName }),
+        ),
+        { returning: true },
+      );
+      const encounterValues = await createDummyEncounter(models, {
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        startDate: hoursAgo(3),
+        endDate: hoursAgo(1),
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: discharger.id,
+      });
+      const encounters = await models.Encounter.bulkCreate(
+        patients.map(patient => ({ ...encounterValues, patientId: patient.id })),
+        { returning: true },
+      );
+      await models.Discharge.bulkCreate(
+        encounters.map(encounter => ({ encounterId: encounter.id, dischargerId: discharger.id })),
+      );
 
       const oversizedPage = await app
         .get('/api/recentlyDischargedPatients')
@@ -235,8 +311,8 @@ describe('Recently discharged patients', () => {
         .query({ lastName, rowsPerPage: 'many', page: -1 });
 
       expect(oversizedPage).toHaveSucceeded();
-      expect(oversizedPage.body).toMatchObject({ count: 51 });
-      expect(oversizedPage.body.data).toHaveLength(50);
+      expect(oversizedPage.body).toMatchObject({ count: MAX_ROWS_PER_PAGE + 1 });
+      expect(oversizedPage.body.data).toHaveLength(MAX_ROWS_PER_PAGE);
       expect(invalidPaging).toHaveSucceeded();
       expect(invalidPaging.body.data).toHaveLength(10);
     });
@@ -295,19 +371,28 @@ describe('Recently discharged patients', () => {
       }
     });
 
-    it('filters by encounter type, department, and discharging clinician', async () => {
+    it('filters by encounter type, area, department, and discharging clinician', async () => {
       const matching = await createPatient();
       const otherStatus = await createPatient();
+      const otherAreaPatient = await createPatient();
       const otherDepartmentPatient = await createPatient();
       const otherClinicianPatient = await createPatient();
       await createDischargedEncounter(matching);
       await createDischargedEncounter(otherStatus, { encounterType: ENCOUNTER_TYPES.CLINIC });
+      await createDischargedEncounter(otherAreaPatient, { locationId: otherAreaLocation.id });
       await createDischargedEncounter(otherDepartmentPatient, { departmentId: otherDepartment.id });
       await createDischargedEncounter(otherClinicianPatient, { dischargerId: otherDischarger.id });
-      const patients = [matching, otherStatus, otherDepartmentPatient, otherClinicianPatient];
+      const patients = [
+        matching,
+        otherStatus,
+        otherAreaPatient,
+        otherDepartmentPatient,
+        otherClinicianPatient,
+      ];
 
       const rows = await fetchRowsFor(patients, {
         patientStatus: PATIENT_STATUSES.INPATIENT,
+        locationGroupId: area.id,
         departmentId: department.id,
         dischargingClinicianId: discharger.id,
       });
@@ -319,16 +404,23 @@ describe('Recently discharged patients', () => {
       const patient = await createPatient();
       const olderMatchingEncounter = await createDischargedEncounter(patient, {
         hoursSinceDischarge: 10,
+        locationId: otherAreaLocation.id,
+        departmentId: otherDepartment.id,
+      });
+      await createDischargedEncounter(patient, {
+        hoursSinceDischarge: 8,
         departmentId: otherDepartment.id,
       });
       await createDischargedEncounter(patient, {
         hoursSinceDischarge: 6,
+        locationId: otherAreaLocation.id,
         departmentId: otherDepartment.id,
         encounterType: ENCOUNTER_TYPES.CLINIC,
       });
       await createDischargedEncounter(patient, { hoursSinceDischarge: 2 });
 
       const rows = await fetchRowsFor([patient], {
+        locationGroupId: otherArea.id,
         departmentId: otherDepartment.id,
         patientStatus: PATIENT_STATUSES.INPATIENT,
       });
@@ -336,6 +428,7 @@ describe('Recently discharged patients', () => {
       expect(rows).toEqual([
         expect.objectContaining({
           id: patient.id,
+          locationGroupId: otherArea.id,
           departmentId: otherDepartment.id,
           patientStatus: PATIENT_STATUSES.INPATIENT,
           dischargeDate: olderMatchingEncounter.endDate,
@@ -388,6 +481,38 @@ describe('Recently discharged patients', () => {
         PATIENT_STATUSES.INPATIENT,
         PATIENT_STATUSES.OUTPATIENT,
         PATIENT_STATUSES.OUTPATIENT,
+      ]);
+    });
+
+    it('sorts by area ignoring case, with discharges from locations with no area last', async () => {
+      const createLocationInArea = async areaName => {
+        const sortArea = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId, name: areaName }),
+        );
+        return models.Location.create(
+          fake(models.Location, { facilityId, locationGroupId: sortArea.id }),
+        );
+      };
+      const dischargeLocations = [
+        await createLocationInArea('Rdp sort ward b'),
+        locationWithoutArea,
+        await createLocationInArea('Rdp sort ward A'),
+        await createLocationInArea('Rdp sort ward C'),
+      ];
+      const patients = [];
+      for (const dischargeLocation of dischargeLocations) {
+        const patient = await createPatient();
+        await createDischargedEncounter(patient, { locationId: dischargeLocation.id });
+        patients.push(patient);
+      }
+
+      const rows = await fetchRowsFor(patients, { orderBy: 'locationGroupName', order: 'asc' });
+
+      expect(rows.map(row => row.locationGroupName)).toEqual([
+        'Rdp sort ward A',
+        'Rdp sort ward b',
+        'Rdp sort ward C',
+        null,
       ]);
     });
   });

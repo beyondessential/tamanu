@@ -13,6 +13,7 @@ sources:
           meta:
             triggers:
               - delete_vitals_from_sync_lookup
+              - flag_vitals_for_lookup_rebuild
               - record_vitals_changelog
               - set_vitals_updated_at
               - set_vitals_updated_at_sync_tick

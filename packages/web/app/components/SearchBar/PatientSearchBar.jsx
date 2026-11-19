@@ -1,6 +1,6 @@
 import React from 'react';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
-import { AutocompleteField, LocalisedField, SearchField } from '../Field';
+import { AutocompleteField, LocalisedField, QRCodeSearchField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -84,7 +84,7 @@ export const PatientSearchBar = React.memo(
         data-testid="customisablesearchbarwithpermissioncheck-eqrd"
       >
         <LocalisedField
-          component={SearchField}
+          component={QRCodeSearchField}
           name="displayId"
           label={
             <TranslatedText

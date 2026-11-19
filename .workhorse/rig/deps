@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+. "$RIG_RECIPE_DIR/lib.sh"
+cd "$RIG_SOURCE"
+npm ci --no-audit --no-fund --include-workspace-root \
+  --workspace=@tamanu/central-server \
+  --workspace=@tamanu/facility-server \
+  --workspace=@tamanu/web-frontend
+# rig.json links every package's node_modules, and npm makes one only where hoisting needed it.
+node -e 'for (const p of require(process.argv[1]).deps.link) require("node:fs").mkdirSync(p, { recursive: true })' "$RIG_RECIPE_DIR/rig.json"

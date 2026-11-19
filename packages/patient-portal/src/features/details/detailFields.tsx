@@ -14,7 +14,7 @@ type Patient = PatientWithAdditionalData;
 export type DetailInput =
   | { kind: 'text' | 'phone' | 'email' }
   | { kind: 'title' }
-  | { kind: 'referenceData'; type: string; relation: 'ethnicity' | 'insurer' | 'occupation' };
+  | { kind: 'referenceData'; type: string; relation: 'ethnicity' | 'occupation' };
 
 export interface DetailField {
   /** The field's name in the field settings, and the key the portal saves it under */
@@ -36,7 +36,7 @@ const fieldLabel = (name: string, fallback: string) => (
 
 const referenceDataDetail = (
   name: string,
-  relation: 'ethnicity' | 'insurer' | 'occupation',
+  relation: 'ethnicity' | 'occupation',
   type: string,
   fallback: string,
 ): DetailField => ({
@@ -157,7 +157,6 @@ export const DETAIL_GROUPS: DetailGroup[] = [
     key: 'insurance',
     title: <TranslatedText stringId="patientPortal.details.insurance" fallback="Insurance" />,
     fields: [
-      referenceDataDetail('insurerId', 'insurer', REFERENCE_TYPES.INSURER, 'Health insurer'),
       textDetail('insurerPolicyNumber', 'Policy number'),
     ],
   },

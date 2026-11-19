@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_reference_data_from_sync_lookup
+              - flag_reference_data_for_lookup_rebuild
               - record_reference_data_changelog
               - set_reference_data_updated_at
               - set_reference_data_updated_at_sync_tick

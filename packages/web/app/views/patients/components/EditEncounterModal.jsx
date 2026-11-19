@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
@@ -21,15 +22,41 @@ import {
   ModalFormActionRow,
   RadioField,
   SuggesterSelectField,
+  useLocalisedSchema,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useQueryClient } from '@tanstack/react-query';
 import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
+import { ENCOUNTER_QUERY_KEY } from '../../../api/queries/useEncounterQuery';
+import { useTranslation } from '../../../contexts/Translation';
+import { emptyToNull } from '../../../utils/validation';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { route } from '@tamanu/api-client';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
+`;
+
+const PatientTypeField = props => (
+  <LocalisedField
+    name="patientBillingTypeId"
+    label={
+      <TranslatedText
+        stringId="general.localisedField.patientBillingTypeId.label"
+        fallback="Patient type"
+        data-testid="translatedtext-67v8"
+      />
+    }
+    endpoint="patientBillingType"
+    component={SuggesterSelectField}
+    data-testid="localisedfield-amji"
+    {...props}
+  />
+);
+
+const FirstColumnPatientTypeField = styled(PatientTypeField)`
+  grid-column-start: 1;
 `;
 
 const HospitalAdmissionFields = () => {
@@ -61,19 +88,7 @@ const HospitalAdmissionFields = () => {
         }
         data-testid="field-discharge-date"
       />
-      <LocalisedField
-        name="patientBillingTypeId"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.patientBillingTypeId.label"
-            fallback="Patient type"
-            data-testid="translatedtext-67v8"
-          />
-        }
-        endpoint="patientBillingType"
-        component={SuggesterSelectField}
-        data-testid="localisedfield-amji"
-      />
+      <PatientTypeField />
       <Field
         name="referralSourceId"
         component={DynamicSelectField}
@@ -110,10 +125,6 @@ const HospitalAdmissionFields = () => {
   );
 };
 
-const PatientTypeField = styled(LocalisedField)`
-  grid-column-start: 1;
-`;
-
 const ClinicFields = () => {
   const referralSourceSuggester = useSuggester('referralSource');
 
@@ -132,19 +143,7 @@ const ClinicFields = () => {
         saveDateAsString
         data-testid="field-check-in-time"
       />
-      <PatientTypeField
-        name="patientBillingTypeId"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.patientBillingTypeId.label"
-            fallback="Patient type"
-            data-testid="translatedtext-67v8"
-          />
-        }
-        endpoint="patientBillingType"
-        component={SuggesterSelectField}
-        data-testid="localisedfield-amji"
-      />
+      <FirstColumnPatientTypeField />
       <Field
         name="referralSourceId"
         component={DynamicSelectField}
@@ -173,6 +172,7 @@ const ClinicFields = () => {
 
 const TriageFields = () => {
   const { getSetting } = useSettings();
+  const { getCurrentDateTime } = useDateTime();
   const triageCategories = getSetting('triageCategories');
   const triageReasonSuggester = useSuggester('triageReason');
   const secondaryTriageReasonSuggester = useSuggester('triageReason');
@@ -185,6 +185,7 @@ const TriageFields = () => {
         label={
           <TranslatedText stringId="triage.arrivalDateTime.label" fallback="Arrival date & time" />
         }
+        max={getCurrentDateTime()}
         saveDateAsString
         data-testid="field-admission-time"
       />
@@ -195,6 +196,7 @@ const TriageFields = () => {
           <TranslatedText stringId="triage.triageDateTime.label" fallback="Triage date & time" />
         }
         required
+        max={getCurrentDateTime()}
         saveDateAsString
         data-testid="field-admission-time"
       />
@@ -211,6 +213,7 @@ const TriageFields = () => {
         endpoint="arrivalMode"
         data-testid="localisedfield-hjex"
       />
+      <PatientTypeField />
       <Field
         name="score"
         label={
@@ -317,6 +320,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
         secondaryComplaintId,
         arrivalTime,
         arrivalModeId,
+        patientBillingTypeId,
         score,
       };
     default:
@@ -326,8 +330,46 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
   const { getCurrentDateTime } = useDateTime();
+  const { getTranslation } = useTranslation();
+  const { getLocalisedSchema } = useLocalisedSchema();
+
+  const isEmergency = isEmergencyPatient(encounter.encounterType);
+
+  const encounterValidationSchema = yup.object().shape({
+    patientBillingTypeId: getLocalisedSchema({ name: 'patientBillingTypeId' }).nullable(),
+  });
+
+  // Arrival time is optional and is null when none was recorded, and either field can be '' mid-edit
+  // when the user clears it, so both are nullable with an empty-string transform. The triage date
+  // (startDate) stays required; neither may be in the future.
+  const triageValidationSchema = encounterValidationSchema.shape({
+    arrivalTime: yup
+      .date()
+      .nullable()
+      .transform(emptyToNull)
+      .max(
+        getCurrentDateTime(),
+        getTranslation(
+          'validation.rule.arrivalTimeNotInFuture',
+          'Arrival time cannot be in the future',
+        ),
+      ),
+    startDate: yup
+      .date()
+      .nullable()
+      .transform(emptyToNull)
+      .required()
+      .max(
+        getCurrentDateTime(),
+        getTranslation(
+          'validation.rule.triageTimeNotInFuture',
+          'Triage time cannot be in the future',
+        ),
+      ),
+  });
 
   const triage = encounter.triages?.[0];
 
@@ -335,23 +377,40 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     startDate,
     arrivalTime,
     arrivalModeId,
+    patientBillingTypeId,
     score,
     chiefComplaintId,
     secondaryComplaintId,
   }) => {
-    await api.put(route('triage/:triageId', { triageId: triage?.id }), {
-      submittedTime: getCurrentDateTime(),
-      encounterId: encounter.id,
-      arrivalTime,
-      triageTime: startDate,
-      arrivalModeId,
-      score,
-      chiefComplaintId,
-      secondaryComplaintId,
-    });
+    const submittedTime = getCurrentDateTime();
+    // These are separate writes with no shared transaction, so refresh the encounter whatever
+    // happens: if a later write fails, the view still shows what was saved before it.
+    try {
+      // Patient type lives on the encounter rather than the triage, and is saved apart from the
+      // start date below so the change still gets its system note. It goes first because it is the
+      // write most likely to be refused, and a refusal then leaves nothing half-saved.
+      if ((patientBillingTypeId ?? null) !== (encounter.patientBillingTypeId ?? null)) {
+        // A cleared select gives undefined, which would drop out of the request body and leave the
+        // old patient type in place, so send null to clear it.
+        await updateEncounter({ submittedTime, patientBillingTypeId: patientBillingTypeId ?? null });
+      }
 
-    // Keep the encounter start date in sync with the triage start date when using this form
-    await updateEncounter({ startDate, skipSystemNotes: true });
+      await api.put(route('triage/:triageId', { triageId: triage?.id }), {
+        submittedTime,
+        encounterId: encounter.id,
+        arrivalTime,
+        triageTime: startDate,
+        arrivalModeId,
+        score,
+        chiefComplaintId,
+        secondaryComplaintId,
+      });
+
+      // Keep the encounter start date in sync with the triage start date when using this form
+      await updateEncounter({ startDate, skipSystemNotes: true });
+    } finally {
+      await queryClient.invalidateQueries([ENCOUNTER_QUERY_KEY, encounter.id], { exact: true });
+    }
     onClose();
   };
 
@@ -367,7 +426,8 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       submittedTime: getCurrentDateTime(),
       startDate,
       referralSourceId,
-      patientBillingTypeId,
+      // A cleared select gives undefined, which would drop out of the request body
+      patientBillingTypeId: patientBillingTypeId ?? null,
       dietIds,
       reasonForEncounter,
       estimatedEndDate,
@@ -386,9 +446,8 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={
-          isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm
-        }
+        validationSchema={isEmergency ? triageValidationSchema : encounterValidationSchema}
+        onSubmit={isEmergency ? onSubmitTriageForm : onSubmitEncounterForm}
         render={({ submitForm }) => (
           <>
             <StyledFormGrid>

@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+[ -n "${RIG_DATABASE_URL:-}" ] || exit 0
+. "$RIG_RECIPE_DIR/lib.sh"
+admin_sql "DROP DATABASE IF EXISTS $(facility_db 1) WITH (FORCE)" "DROP DATABASE IF EXISTS $(facility_db 2) WITH (FORCE)"

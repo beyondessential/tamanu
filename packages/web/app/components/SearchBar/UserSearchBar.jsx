@@ -6,7 +6,7 @@ import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useSuggester } from '../../api';
 
-const ADVANCED_FIELDS = ['designation', 'includeDeactivated'];
+const ADVANCED_FIELDS = ['designation', 'facilityId', 'includeDeactivated'];
 
 const CheckboxContainer = styled.div`
   display: flex;
@@ -22,6 +22,7 @@ export const UserSearchBar = React.memo(({ onSearch, searchParameters }) => {
 
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
+  const facilitySuggester = useSuggester('facility');
 
   return (
     <CustomisableSearchBarWithPermissionCheck
@@ -46,6 +47,19 @@ export const UserSearchBar = React.memo(({ onSearch, searchParameters }) => {
             }
             data-testid="field-designation-search"
             suggester={designationSuggester}
+          />
+          <Field
+            component={AutocompleteField}
+            name="facilityId"
+            label={
+              <TranslatedText
+                stringId="general.facility.label"
+                fallback="Facility"
+                data-testid="translatedtext-facility-search"
+              />
+            }
+            data-testid="field-facility-search"
+            suggester={facilitySuggester}
           />
           <CheckboxContainer data-testid="checkbox-container-include-deactivated">
             <Field

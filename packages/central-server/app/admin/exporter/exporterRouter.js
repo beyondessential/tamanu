@@ -1,7 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { upperFirst } from 'es-toolkit/compat';
-import { IMPORTABLE_PERMISSION_NOUN_OVERRIDES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { getImportablePermissionNoun } from '@tamanu/constants';
 
 import { exporter, validateFileSize } from './exporter';
 import { exportProgram } from '../programExporter/exportProgram';
@@ -15,17 +14,7 @@ exporterRouter.get(
     const { includedDataTypes, ...otherOptions } = query;
 
     for (const dataType of Object.values(includedDataTypes)) {
-      // When it is ReferenceData, check if user has permission to list ReferenceData
-      if (REFERENCE_TYPE_VALUES.includes(dataType)) {
-        req.checkPermission('list', 'ReferenceData');
-        continue;
-      }
-
-      // Otherwise, if it is other types (eg: patient, lab_test_types,... ones that have their own models)
-      // check the permission against the models
-      const nonReferenceDataModelName =
-        IMPORTABLE_PERMISSION_NOUN_OVERRIDES[dataType] ?? upperFirst(dataType);
-      req.checkPermission('list', nonReferenceDataModelName);
+      req.checkPermission('list', getImportablePermissionNoun(dataType));
     }
 
     const filename = await exporter(store, includedDataTypes, otherOptions);

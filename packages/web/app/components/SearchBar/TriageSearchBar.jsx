@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useFormikContext } from 'formik';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
-import { AutocompleteField, Field, SearchField, SelectField } from '../Field';
+import { AutocompleteField, Field, QRCodeSearchField, SearchField, SelectField } from '../Field';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -140,7 +140,7 @@ export const TriageSearchBar = React.memo(({ onSearch, searchParameters }) => {
             data-testid="translatedtext-display-id"
           />
         }
-        component={SearchField}
+        component={QRCodeSearchField}
         data-testid="field-display-id"
       />
       <Field

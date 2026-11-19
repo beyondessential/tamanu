@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 import { format } from 'date-fns';
 
+import { IMAGING_TYPES, TABLE_SORT_PREFERENCE_KEYS } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 
 import { constructFacilityUrl } from './navigation';
@@ -26,6 +27,29 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   const user = await api.get(userUrl);
   return user.json();
 };
+
+// Saves one of the logged-in user's preferences for one facility, or with no facility so it applies
+// everywhere. A facility's value overrides the no-facility one at that facility.
+export const setUserPreferenceViaApi = async (
+  api: APIRequestContext,
+  key: string,
+  value: unknown,
+  facilityId?: string,
+) => {
+  const url = constructFacilityUrl('/api/user/userPreferences');
+  const response = await api.post(url, { data: { facilityId, key, value } });
+  if (!response.ok()) {
+    throw new Error(`Failed to set user preference: ${response.status()} ${await response.text()}`);
+  }
+};
+
+// Puts a table that remembers its sort back to its default sort at the facility
+export const resetTableSortViaApi = (
+  api: APIRequestContext,
+  pageSizePreferenceKey: string,
+  facilityId: string,
+) =>
+  setUserPreferenceViaApi(api, TABLE_SORT_PREFERENCE_KEYS[pageSizePreferenceKey], {}, facilityId);
 
 export const getCurrentEncounterViaApi = async (api: APIRequestContext, patientId: string) => {
   const encounterUrl = constructFacilityUrl(`/api/patient/${patientId}/currentEncounter`);
@@ -363,6 +387,7 @@ export const createEncounterPrescriptionViaApi = async (
     route: string;
     doseAmount: number;
     frequency: string;
+    date: string;
   }> = {},
 ) => {
   const user = await getUser(api);
@@ -389,6 +414,22 @@ export const createEncounterPrescriptionViaApi = async (
   if (!response.ok()) {
     const errorText = await response.text();
     throw new Error(`Failed to create prescription: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+export const discontinuePrescriptionViaApi = async (
+  api: APIRequestContext,
+  prescriptionId: string,
+) => {
+  const user = await getUser(api);
+  const url = constructFacilityUrl(`/api/medication/${prescriptionId}/discontinue`);
+  const response = await api.post(url, { data: { discontinuingClinicianId: user.id } });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to discontinue prescription: ${response.status()} ${errorText}`);
   }
 
   return response.json();
@@ -442,6 +483,7 @@ export const createPharmacyOrderViaApi = async (
   page: Page,
   encounterId: string,
   prescriptionId: string,
+  { isDischargePrescription = false }: { isDischargePrescription?: boolean } = {},
 ) => {
   const user = await getUser(api);
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
@@ -451,7 +493,7 @@ export const createPharmacyOrderViaApi = async (
     data: {
       orderingClinicianId: user.id,
       comments: '',
-      isDischargePrescription: false,
+      isDischargePrescription,
       facilityId,
       pharmacyOrderPrescriptions: [{ prescriptionId, quantity: 1, repeats: 0 }],
     },
@@ -463,6 +505,31 @@ export const createPharmacyOrderViaApi = async (
   }
 
   return response.json();
+};
+
+// Returns the id of the patient's active medication request (a pharmacy order line), as the
+// pharmacy's active requests list shows it. Assumes the patient has exactly one.
+export const getMedicationRequestIdViaApi = async (
+  api: APIRequestContext,
+  page: Page,
+  patientDisplayId: string,
+): Promise<string> => {
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
+  const url = constructFacilityUrl(
+    `/api/medication/medication-requests?facilityId=${facilityId}&displayId=${patientDisplayId}`,
+  );
+  const response = await api.get(url);
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch medication requests: ${response.status()} ${errorText}`);
+  }
+
+  const { data } = await response.json();
+  if (data.length !== 1) {
+    throw new Error(`Expected one medication request for the patient, found ${data.length}`);
+  }
+  return data[0].id;
 };
 
 // Creates one vitals survey response (a "reading") at a given recorded date/time, so tests can
@@ -547,6 +614,24 @@ export const recordPatientDeathViaApi = async (
     console.error('Response status:', response.status());
     console.error('Response text:', responseText);
     throw new Error(`Failed to record patient death: ${response.statusText()} - ${responseText}`);
+  }
+
+  return response.json();
+};
+
+export const createImagingRequestViaApi = async (
+  api: APIRequestContext,
+  encounterId: string,
+  status: string,
+) => {
+  const user = await getUser(api);
+  const url = constructFacilityUrl('/api/imagingRequest');
+  const response = await api.post(url, {
+    data: { encounterId, requestedById: user.id, imagingType: IMAGING_TYPES.X_RAY, status },
+  });
+
+  if (!response.ok()) {
+    throw new Error(`Failed to create imaging request: ${response.status()} ${await response.text()}`);
   }
 
   return response.json();

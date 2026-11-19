@@ -66,3 +66,10 @@ export const FACT_REPORTING_SECRET_ROTATED_AT = 'reportingSecretRotatedAt';
 
 // Materialised views
 export const FACT_MV_UPCOMING_VACCINATIONS = `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`;
+
+// spec: SLPWK#going-to-sleep
+/**
+ * Expiry of the supervisor's hold on scheduled tasks; null or past means no hold. The row is kept
+ * once created, so tasks and the supervisor can lock it against each other.
+ */
+export const FACT_SCHEDULED_TASK_HOLD_UNTIL = 'scheduledTaskHoldUntil';

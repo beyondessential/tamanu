@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { expandRoute, isRouteDescriptor, route } from '../src/route';
+import { expandRoute, extendRoute, isRouteDescriptor, route } from '../src/route';
 
 describe('route', () => {
   it('bundles the template verbatim with its params', () => {
@@ -13,6 +13,23 @@ describe('route', () => {
     expect(isRouteDescriptor('patient/:patientId/allergies')).toBe(false);
     expect(isRouteDescriptor({ template: 'x', params: {} })).toBe(false);
     expect(isRouteDescriptor(null)).toBe(false);
+  });
+});
+
+describe('extendRoute', () => {
+  it('appends to a descriptor, keeping its template and params', () => {
+    const base = route('encounter/:encounterId/programResponses', { encounterId: 'abc' });
+    const descriptor = extendRoute(base, ':surveyResponseId', { surveyResponseId: 'def' });
+    expect(isRouteDescriptor(descriptor)).toBe(true);
+    expect(descriptor.template).toBe('encounter/:encounterId/programResponses/:surveyResponseId');
+    expect(descriptor.params).toEqual({ encounterId: 'abc', surveyResponseId: 'def' });
+    expect(expandRoute(descriptor)).toBe('encounter/abc/programResponses/def');
+  });
+
+  it('appends to a plain string endpoint', () => {
+    const descriptor = extendRoute('patient/abc/referrals', ':referralId', { referralId: 'def' });
+    expect(descriptor.template).toBe('patient/abc/referrals/:referralId');
+    expect(expandRoute(descriptor)).toBe('patient/abc/referrals/def');
   });
 });
 

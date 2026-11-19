@@ -1,10 +1,10 @@
 import Decimal from 'decimal.js';
 import { customAlphabet } from 'nanoid';
 import {
-  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
-import { getInvoiceSummary } from './invoice';
+import { getCoverageAmountPerInsurancePlan, getInvoiceSummary } from './invoice';
 import { formatDisplayPrice, round } from './display';
 import type { Invoice, Payment } from './types';
 
@@ -26,11 +26,11 @@ export const getInvoicePatientPaymentStatus = (paidAmount: number, owingAmount: 
   return INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL;
 };
 
-export const getInvoiceInsurerPaymentStatus = (
+export const getInvoiceInsurancePlanPaymentStatus = (
   paidAmount: number | null | undefined,
   owingAmount: number,
 ): string => {
-  if (paidAmount == null) return INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
+  if (paidAmount == null) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.UNPAID;
 
   const roundedPaidAmount = round(paidAmount, 2);
   const roundedOwingAmount = round(owingAmount, 2);
@@ -38,9 +38,9 @@ export const getInvoiceInsurerPaymentStatus = (
   if (roundedPaidAmount > roundedOwingAmount)
     throw new Error('Paid amount cannot be greater than owing amount');
 
-  if (roundedPaidAmount === 0) return INVOICE_INSURER_PAYMENT_STATUSES.REJECTED;
-  if (roundedPaidAmount === roundedOwingAmount) return INVOICE_INSURER_PAYMENT_STATUSES.PAID;
-  return INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL;
+  if (roundedPaidAmount === 0) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED;
+  if (roundedPaidAmount === roundedOwingAmount) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID;
+  return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PARTIAL;
 };
 
 type PaymentWithRemainingBalance = Payment & {
@@ -87,14 +87,14 @@ export const getPatientPaymentsWithRemainingBalanceDisplay = (
   return formatPaymentsWithRemainingBalanceDisplay(getPatientPaymentsWithRemainingBalance(invoice));
 };
 
-export const getInsurerPaymentsWithRemainingBalance = (
+export const getInsurancePlanPaymentsWithRemainingBalance = (
   invoice: Invoice,
 ): Array<PaymentWithRemainingBalance> => {
   const payments = invoice.payments || [];
-  const insurerPayments = payments.filter(payment => payment?.insurerPayment?.id);
+  const insurancePlanPayments = payments.filter(payment => payment?.insurancePlanPayment?.id);
   let { insuranceCoverageTotal } = getInvoiceSummary(invoice);
 
-  return insurerPayments?.map(payment => {
+  return insurancePlanPayments?.map(payment => {
     const isRefundRelated = Boolean(payment?.refundPayment?.id ?? payment?.originalPayment?.id);
     if (!isRefundRelated) {
       insuranceCoverageTotal = new Decimal(insuranceCoverageTotal).minus(payment.amount).toNumber();
@@ -106,41 +106,44 @@ export const getInsurerPaymentsWithRemainingBalance = (
   });
 };
 
-export const getInsurerPaymentsWithRemainingBalanceDisplay = (
+export const getInsurancePlanPaymentsWithRemainingBalanceDisplay = (
   invoice: Invoice,
 ): Array<PaymentWithDisplayAmounts> => {
-  return formatPaymentsWithRemainingBalanceDisplay(getInsurerPaymentsWithRemainingBalance(invoice));
+  return formatPaymentsWithRemainingBalanceDisplay(getInsurancePlanPaymentsWithRemainingBalance(invoice));
 };
 
-export const getSpecificInsurerPaymentRemainingBalance = (
-  insurers: Array<{ insurerId: string; percentage?: number }>,
-  payments: Payment[],
-  insurerId: string,
-  total: number,
+/**
+ * What one insurance plan still owes on an invoice. Coverage comes from the invoice's items, the
+ * same basis the invoice screen and the printout show, so a plan that covers nothing on this
+ * invoice owes nothing and can take no payment.
+ */
+export const getInsurancePlanPaymentBalance = (
+  invoice: Invoice,
+  invoiceInsurancePlanId: string,
 ): {
-  insurerDiscountTotal: number;
-  insurerPaymentsTotal: number;
-  insurerPaymentRemainingBalance: number;
+  planCoverageTotal: number;
+  planPaymentsTotal: number;
+  planPaymentRemainingBalance: number;
 } => {
-  const insurersDiscountPercentage = insurers
-    .filter(insurer => insurer.insurerId === insurerId)
-    .reduce((sum, insurer) => sum.plus(insurer?.percentage || 0), new Decimal(0))
-    .toNumber();
+  const planCoverageTotal =
+    getCoverageAmountPerInsurancePlan(invoice)
+      .get(invoiceInsurancePlanId)
+      ?.toNumber() ?? 0;
 
-  const insurerDiscountTotal = new Decimal(total).times(insurersDiscountPercentage).toNumber();
-
-  const insurerPaymentsTotal = payments
+  const planPaymentsTotal = (invoice.payments || [])
     .filter(
-      payment => payment?.insurerPayment?.id && payment.insurerPayment.insurerId === insurerId,
+      payment =>
+        payment?.insurancePlanPayment?.id &&
+        payment.insurancePlanPayment.invoiceInsurancePlanId === invoiceInsurancePlanId,
     )
+    .filter(payment => !payment?.refundPayment?.id) // refunded payments are not included in the total
+    .filter(payment => !payment?.originalPayment?.id) // refund payments are not included in the total
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();
 
   return {
-    insurerDiscountTotal,
-    insurerPaymentsTotal,
-    insurerPaymentRemainingBalance: new Decimal(insurerDiscountTotal)
-      .minus(insurerPaymentsTotal)
-      .toNumber(),
+    planCoverageTotal,
+    planPaymentsTotal,
+    planPaymentRemainingBalance: new Decimal(planCoverageTotal).minus(planPaymentsTotal).toNumber(),
   };
 };

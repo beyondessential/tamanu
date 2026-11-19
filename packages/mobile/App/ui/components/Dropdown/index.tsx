@@ -34,6 +34,7 @@ export interface DropdownProps extends Omit<BaseInputProps, 'label'> {
   fixedHeight?: boolean;
   searchPlaceholderText?: string;
   selectPlaceholderText?: string;
+  /** For `multiselect`, a string value is a JSON-encoded array of selected values */
   value?: string | string[];
   // Note the disabled prop is only known to work with
   // - single
@@ -103,9 +104,11 @@ export const Dropdown = React.memo(
     required = false,
     clearable = true,
   }: DropdownProps) => {
-    const selectedItems = (() => {
+    const selectedItems: string[] = (() => {
       if (!value) return [];
-      return Array.isArray(value) ? value : [value];
+      if (Array.isArray(value)) return value;
+      // A multiselect string value is the JSON array this component emitted in `onChange`
+      return multiselect ? JSON.parse(value) : [value];
     })();
 
     const componentRef = useRef(null);
@@ -148,7 +151,7 @@ export const Dropdown = React.memo(
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
           tagTextColor={theme.colors.PRIMARY_MAIN}
-          textColor={value?.length ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
+          textColor={selectedItems.length ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
           selectedItemTextColor={theme.colors.PRIMARY_MAIN}
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
           itemTextColor={theme.colors.TEXT_SUPER_DARK}

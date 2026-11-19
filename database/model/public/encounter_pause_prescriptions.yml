@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_encounter_pause_prescriptions_from_sync_lookup
+              - flag_encounter_pause_prescriptions_for_lookup_rebuild
               - record_encounter_pause_prescriptions_changelog
               - set_encounter_pause_prescriptions_updated_at
               - set_encounter_pause_prescriptions_updated_at_sync_tick

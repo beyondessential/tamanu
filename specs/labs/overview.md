@@ -4,4 +4,4 @@ id: LABS
 
 # Labs
 
-Laboratory requests, panels, specimens, and results.
+Applies to laboratory requests, panels, specimens, and results.

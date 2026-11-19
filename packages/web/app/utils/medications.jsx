@@ -10,6 +10,8 @@ import {
   DRUG_UNIT_PLURAL_LABELS,
   DRUG_UNIT_VERBS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
+  PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
 import {
   getDateFromTimeString,
@@ -31,6 +33,18 @@ import { TranslatedEnum } from '../components';
 import { useSuggester } from '../api';
 import { STOCK_STATUS_COLORS } from '../constants';
 import { singularize } from './utils';
+
+// spec: DSPDET
+export const PharmacyPrescriptionTypeLabel = ({ isDischargePrescription }) => (
+  <TranslatedEnum
+    value={
+      isDischargePrescription
+        ? PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT
+        : PHARMACY_PRESCRIPTION_TYPES.INPATIENT
+    }
+    enumValues={PHARMACY_PRESCRIPTION_TYPE_LABELS}
+  />
+);
 
 // `presetName` (not `name`) is carried through so it survives AutocompleteInput's
 // change event — which overwrites a `name` key with its own form-field name prop.

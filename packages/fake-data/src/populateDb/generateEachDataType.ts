@@ -104,7 +104,6 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
     createMedication({
       models,
       encounterId: encounter.id,
-      patientId: patient.id,
       referenceDataId: referenceData.id,
     }),
     createAccessLog({

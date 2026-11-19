@@ -37,8 +37,11 @@ const TableContainer = styled.div`
     }
 
     th {
+      // table-layout is fixed, so these widths are the whole story: whatever they do not claim is
+      // all the method column gets. Date and receipt number are sized to their content with room
+      // to spare, leaving the method heading enough not to collide with the next column.
       &:nth-child(1) {
-        width: 100px;
+        width: 80px;
       }
 
       &:nth-child(2) {
@@ -50,7 +53,7 @@ const TableContainer = styled.div`
       }
 
       &:nth-child(4) {
-        width: 100px;
+        width: 80px;
       }
 
       &:nth-child(5) {

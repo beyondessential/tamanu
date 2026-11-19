@@ -28,6 +28,7 @@ import {
   RadioField,
   SuggesterSelectField,
   TranslatedEnum,
+  useLocalisedSchema,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
@@ -229,6 +230,7 @@ const getFormProps = ({
   enablePatientMoveActions,
   isAdmittingToHospital,
   getCurrentDateTime,
+  getLocalisedSchema,
 }) => {
   const validationObject = {
     examinerId: yup.string().required(),
@@ -263,13 +265,16 @@ const getFormProps = ({
   if (isAdmittingToHospital) {
     validationObject.startDate = yup.string().required();
     validationObject.estimatedEndDate = yup.string().nullable();
-    validationObject.patientBillingTypeId = yup.string().nullable();
+    validationObject.patientBillingTypeId = getLocalisedSchema({
+      name: 'patientBillingTypeId',
+    }).nullable();
     validationObject.dietIds = yup
       .array()
       .of(yup.string())
       .nullable();
 
     initialValues.startDate = getCurrentDateTime();
+    initialValues.patientBillingTypeId = encounter.patientBillingTypeId;
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -369,6 +374,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
   const { getSetting } = useSettings();
   const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
   const { getCurrentDateTime } = useDateTime();
+  const { getLocalisedSchema } = useLocalisedSchema();
 
   const clinicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
@@ -407,6 +413,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     enablePatientMoveActions,
     isAdmittingToHospital,
     getCurrentDateTime,
+    getLocalisedSchema,
   });
 
   return (

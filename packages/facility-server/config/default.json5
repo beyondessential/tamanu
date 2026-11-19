@@ -111,12 +111,6 @@
       "enabled": false,
       "schedule": "48 1 * * *" // once a day (better in off hours)
     },
-    "sendStatusToMetaServer": {
-      "enabled": true,
-      // every minute
-      "schedule": "* * * * *",
-      jitterTime: "30s",
-    },
     "timeSync": {
       "enabled": false,
       // every hour

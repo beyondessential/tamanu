@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { WS_EVENTS } from '@tamanu/constants';
+import { WS_EVENTS, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 import {
   ContentPane,
@@ -156,6 +156,7 @@ export const ImmunisationsView = () => {
         />
         <SearchTableWithPermissionCheck
           endpoint="upcomingVaccinations"
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.IMMUNISATION_REGISTER}
           verb="list"
           noun="PatientVaccine"
           columns={COLUMNS}

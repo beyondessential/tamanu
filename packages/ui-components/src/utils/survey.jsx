@@ -11,6 +11,7 @@ import {
 } from '@tamanu/constants';
 import { estimateCompressedSize } from '@tamanu/shared/utils/signature';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import { getInvalidConditionQuestionCodes } from '@tamanu/utils/programRegistryConditions';
 import { ageInMonths, ageInWeeks, ageInYears, isValidSurveyTimeBody } from '@tamanu/utils/dateTime';
 import { convertToBase64 } from '@tamanu/utils/encodings';
 import { TranslatedText } from '../components/Translation';
@@ -269,6 +270,31 @@ const signatureSchema = yup
     return this.createError({ message: SIGNATURE_TOO_COMPLEX_STRING_ID });
   });
 
+const getValuesByCode = (valuesByDataElementId, components) =>
+  Object.fromEntries(
+    components.map(({ dataElement }) => [dataElement.code, valuesByDataElementId[dataElement.id]]),
+  );
+
+const getProgramRegistryConditionSchema = ({
+  code,
+  components,
+  isConditionRequired,
+  requiredMessage,
+}) =>
+  yup
+    .string()
+    .nullable()
+    .test('program-registry-condition', requiredMessage, (_value, context) => {
+      const values = context.parent;
+      const invalidCodes = getInvalidConditionQuestionCodes(
+        components,
+        getValuesByCode(values, components),
+        component => checkVisibility(component, values, components),
+        isConditionRequired,
+      );
+      return !invalidCodes.includes(code);
+    });
+
 /**
  * @param {object} [options]
  * @param {string} [options.requiredMessage] Shown for unanswered mandatory questions, in place of
@@ -278,7 +304,7 @@ export const getValidationSchema = (
   surveyData,
   getTranslation,
   valuesToCheckMandatory = {},
-  { requiredMessage } = {},
+  { isConditionRequired = false, requiredMessage } = {},
 ) => {
   if (!surveyData) return {};
   const { components } = surveyData;
@@ -356,6 +382,15 @@ export const getValidationSchema = (
               ),
               value => value == null || value === '' || isValidSurveyTimeBody(value),
             );
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION:
+          valueSchema = getProgramRegistryConditionSchema({
+            code: dataElement.code,
+            components,
+            isConditionRequired,
+            requiredMessage:
+              requiredMessage ?? getTranslation('validation.required.inline', '*Required'),
+          });
           break;
         default:
           valueSchema = yup.mixed();

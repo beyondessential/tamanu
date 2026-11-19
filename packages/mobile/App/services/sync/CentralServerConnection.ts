@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosHeaders, type AxiosRequestConfig } from 'axios';
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -32,7 +32,25 @@ interface RefreshResponse {
 
 const API_PREFIX = 'api';
 
+/**
+ * Central answered `503 Service Unavailable` with a `Retry-After` header, as it does while it is
+ * waking from sleep.
+ * spec: SYNCHK#while-central-wakes
+ */
+export class CentralWakingError extends Error {
+  constructor() {
+    super('Central server is waking up and not ready yet');
+    this.name = 'CentralWakingError';
+  }
+}
+
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
+  // a bare 503 (overloaded central, empty proxy) falls through as an ordinary failure
+  const retryAfter = (err.response?.headers as AxiosHeaders | undefined)?.get('retry-after');
+  if (err.response?.status === 503 && typeof retryAfter === 'string' && retryAfter.trim()) {
+    return new CentralWakingError();
+  }
+
   const problemJson = err.response?.data || {};
   const problem = Problem.fromJSON(problemJson);
 
@@ -221,7 +239,12 @@ export class CentralServerConnection {
         deviceId: this.deviceId,
         isMobile: true,
       },
-    )) as { sessionId?: string; status?: string };
+    ).catch((error: unknown) => {
+      // a waking central, whether it answers the session start or the token refresh before it,
+      // cannot start a session yet, so wait in line as a queued sync does
+      if (error instanceof CentralWakingError) return { status: 'centralWaking' };
+      throw error;
+    })) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
       // we're waiting in a queue

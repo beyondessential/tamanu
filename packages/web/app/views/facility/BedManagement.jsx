@@ -18,6 +18,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { columns } from './bedManagementColumns';
 import { route } from '@tamanu/api-client';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -372,6 +373,7 @@ export const BedManagement = () => {
           rowStyle={rowStyle}
           fetchOptions={{ ...searchParameters, facilityId }}
           endpoint="patient/locations/bedManagement"
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.BED_MANAGEMENT}
           data-testid="searchtable-ir2h"
         />
       </ContentPane>

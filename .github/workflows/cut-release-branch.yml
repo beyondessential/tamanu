@@ -205,3 +205,128 @@ jobs:
       version: ${{ needs.run.outputs.version }}
       image: ${{ needs.build-seed-image.outputs.image }}
       git_sha: ${{ needs.build-seed-image.outputs.git_sha }}
+
+  # Refreshes main's lockfile to the newest versions the declared ranges allow,
+  # after the cut so it's used through the next cycle and regression-tested at
+  # the next cut. .npmrc's min-release-age holds back versions too new to trust.
+  # This resolves and installs packages nobody has used here yet, so it runs
+  # without the release PAT; push-lockfile commits its result.
+  #
+  # --legacy-peer-deps gets past a known peer conflict in mobile; it drops
+  # implicitly installed peers, which CI's lockfile-peers job keeps out of main
+  # and the check below guards. `npm update` doesn't run the root prepare
+  # script, so `npm install` follows to apply patch-package's patches.
+  # A failed refresh only warns: the version bump has already landed.
+  refresh-lockfile:
+    needs: [run]
+    name: Refresh dependencies within declared ranges
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      base: ${{ steps.refresh.outputs.base }}
+      refreshed: ${{ steps.refresh.outputs.refreshed }}
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: main
+        persist-credentials: false
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version-file: '.node-version'
+
+    # As in CI's test-package-lock: the npm bundled with Node follows the
+    # release series, so pin the npm that writes the lockfile to packageManager.
+    - name: Install the npm from packageManager
+      run: npm install -g "$(jq -r .packageManager package.json)"
+
+    - name: Refresh the lockfile
+      id: refresh
+      run: |
+        set -x
+        echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        cp package-lock.json "$RUNNER_TEMP/package-lock.before.json"
+
+        refresh() {
+          npm update --legacy-peer-deps \
+            && npm install \
+            && node scripts/check-lockfile-peers.mjs --baseline "$RUNNER_TEMP/package-lock.before.json" \
+            && git diff --quiet -- . ':!package-lock.json'
+        }
+
+        if ! refresh; then
+          echo "::warning::Dependency refresh failed and was discarded; see this step's log. The version bump is unaffected."
+        elif git diff --quiet package-lock.json; then
+          echo "Lockfile already up to date"
+        else
+          echo "refreshed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - uses: actions/upload-artifact@v7
+      if: steps.refresh.outputs.refreshed == 'true'
+      with:
+        name: refreshed-lockfile
+        path: package-lock.json
+        retention-days: 1
+
+  # Commits the refreshed lockfile onto main as its own commit, so it can be
+  # reverted on its own. A refresh resolved against dependency files that have
+  # since changed on main is dropped rather than merged, as nothing re-resolves
+  # the combination.
+  push-lockfile:
+    needs: [refresh-lockfile]
+    if: needs.refresh-lockfile.outputs.refreshed == 'true'
+    name: Push refreshed dependencies to main
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: main
+        token: ${{ secrets.TAMANU_RELEASE_PAT }}
+
+    - name: Set up committer info
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version-file: '.node-version'
+
+    - uses: actions/download-artifact@v8
+      with:
+        name: refreshed-lockfile
+        path: ${{ runner.temp }}/refreshed
+
+    - name: Commit and push
+      env:
+        BASE_SHA: ${{ needs.refresh-lockfile.outputs.base }}
+      run: |
+        set -ex
+        git fetch --depth=1 origin "$BASE_SHA"
+
+        for attempt in $(seq 1 5); do
+          git fetch --depth=1 origin main
+          git reset --hard FETCH_HEAD
+
+          if ! git diff --quiet "$BASE_SHA" HEAD -- package-lock.json package.json 'packages/*/package.json' .npmrc patches; then
+            echo "::warning::Dependency files changed on main since the refresh resolved, so it was dropped."
+            exit 0
+          fi
+
+          git show HEAD:package-lock.json > "$RUNNER_TEMP/package-lock.before.json"
+          cp "$RUNNER_TEMP/refreshed/package-lock.json" package-lock.json
+          node scripts/check-lockfile-peers.mjs --baseline "$RUNNER_TEMP/package-lock.before.json"
+          git commit -m "chore: Refresh dependencies within declared ranges" package-lock.json
+
+          if git push origin HEAD:main; then
+            exit 0
+          fi
+          echo "Push rejected (attempt $attempt/5), retrying on the new main"
+        done
+
+        echo "::error::Could not push the refreshed lockfile after 5 attempts. The version bump has landed; only the refresh is lost."
+        exit 1

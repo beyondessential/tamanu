@@ -3,6 +3,7 @@ export * from './AppIntro2';
 export * from './AppIntro3';
 export * from './Cross';
 export * from './Search';
+export * from './QRCode';
 export * from './ScheduledVaccine';
 export * from './GreenTick';
 export * from './Error';

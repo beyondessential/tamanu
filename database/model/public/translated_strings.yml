@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_translated_strings_from_sync_lookup
+              - flag_translated_strings_for_lookup_rebuild
               - record_translated_strings_changelog
               - set_translated_strings_updated_at
               - set_translated_strings_updated_at_sync_tick

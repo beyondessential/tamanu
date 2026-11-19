@@ -266,7 +266,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     <TranslatedText stringId="medication.allergies.label" fallback="Allergies" />
                     :{' '}
                   </StyledText>
-                  {patientAllergies !== undefined ? (
+                  {patientAllergies?.length ? (
                     <StyledText color={theme.colors.MAIN_SUPER_DARK} fontWeight={500}>
                       {patientAllergies
                         .map(({ allergy }) =>

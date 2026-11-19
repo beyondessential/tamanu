@@ -178,10 +178,6 @@ is used to implement per-field "last edit wins" instead.
 Reference to patient primary health center ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
-{% docs patient_additional_data__insurer_id %}
-Reference to patient insurer ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
-{% enddocs %}
-
 {% docs patient_additional_data__insurer_policy_number %}
 Policy number of patient insurance.
 {% enddocs %}

@@ -180,6 +180,7 @@ export async function exportProgram(context, programId) {
       ['currentlyAtType', programRegistry?.currentlyAtType],
       ['lossToFollowUpEnabled', programRegistry?.lossToFollowUpEnabled],
       ['lossToFollowUpThresholdDays', programRegistry?.lossToFollowUpThresholdDays],
+      ['mandatoryConditionEnabled', programRegistry?.mandatoryConditionEnabled],
       [],
       ['code', 'name', 'color', 'visibilityStatus'],
     ],

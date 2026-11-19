@@ -7,7 +7,9 @@ import { PatientContact } from '~/models/PatientContact';
 import type { IPatientContact } from '~/types';
 import { withPatient } from '../containers/Patient';
 import { patientKeys } from '../hooks/queries/queryKeys';
+import { useBackend } from '../hooks';
 import { useSocket } from '../hooks/useSocket';
+import { wakeCentral } from '../helpers/wakeCentral';
 import type { BaseAppProps } from '../interfaces/BaseAppProps';
 
 interface ReminderContactData {
@@ -44,6 +46,7 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
 
 const Provider = ({ children, selectedPatient }: BaseAppProps & { children: ReactNode }) => {
   const { socket } = useSocket();
+  const { centralServer } = useBackend();
   const queryClient = useQueryClient();
   const [pendingContactList, setPendingContactList] = useState<string[]>([]);
   const { data: reminderContactList = [], isPending: isLoading } = useQuery({
@@ -93,7 +96,8 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
 
   const afterAddContact = (contact: IPatientContact, addedNew?: boolean) => {
     if (addedNew) {
-      socket.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, contact);
+      // Nothing here waits on central, which may take a while to wake
+      wakeCentral(centralServer).then(() => socket.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, contact));
     }
     setTimeout(() => {
       setPendingContactList(prev => prev.filter(id => id !== contact.id));

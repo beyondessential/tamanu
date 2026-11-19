@@ -9,6 +9,10 @@ export interface Product {
     price?: number;
     isFixedPrice?: boolean;
   };
+  invoiceInsurancePlanItems?: Array<{
+    invoiceInsurancePlanId: string;
+    coverageValue?: number;
+  }>;
 }
 
 export interface InvoiceDiscount {
@@ -29,7 +33,16 @@ export interface InsurancePlanItem {
   id: string;
   name?: string;
   code?: string;
+  label?: string;
   coverageValue?: number;
+}
+
+/** An insurance plan attached to an invoice. */
+export interface InsurancePlan {
+  id: string;
+  name?: string;
+  code?: string;
+  defaultCoverage?: number;
 }
 
 export interface FinalisedInsurance {
@@ -53,18 +66,18 @@ export interface PatientPayment {
   id: string;
 }
 
-export interface InsurerPayment {
+export interface InsurancePlanPayment {
   id: string;
-  insurerId?: string;
+  invoiceInsurancePlanId?: string;
 }
 
 export interface Payment {
   id?: string;
   amount: number | Decimal;
   patientPayment?: PatientPayment;
-  insurerPayment?: InsurerPayment;
-  refundPayment?: InsurerPayment;
-  originalPayment?: InsurerPayment;
+  insurancePlanPayment?: InsurancePlanPayment;
+  refundPayment?: InsurancePlanPayment;
+  originalPayment?: InsurancePlanPayment;
 }
 
 export interface Invoice {
@@ -72,7 +85,7 @@ export interface Invoice {
   status?: string;
   items?: InvoiceItem[];
   payments?: Payment[];
-  insurancePlans?: InsurancePlanItem[];
+  insurancePlans?: InsurancePlan[];
   discount?: InvoiceDiscount;
 }
 
@@ -85,8 +98,8 @@ export interface InvoiceSummary {
   itemAdjustmentsTotal: number;
   patientSubtotal: number;
   patientPaymentsTotal: number;
-  insurerPaymentsTotal: number;
+  insurancePlanPaymentsTotal: number;
   paymentsTotal: number;
   patientPaymentRemainingBalance: number;
-  insurerPaymentRemainingBalance: number;
+  insurancePlanPaymentRemainingBalance: number;
 }

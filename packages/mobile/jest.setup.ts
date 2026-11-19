@@ -17,6 +17,13 @@ LogBox.ignoreLogs([
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
 
+// the package ships untranspiled ESM and resolves its native module on import, so it can't load
+// under jest. It is imported by the sync manager, which most suites pull in through the models
+jest.mock('@sayem314/react-native-keep-awake', () => ({
+  activateKeepAwake: jest.fn(),
+  deactivateKeepAwake: jest.fn(),
+}));
+
 jest.mock('react-native-keychain', () => ({
   setGenericPassword: jest.fn(() => Promise.resolve()),
   getGenericPassword: jest.fn(() => Promise.resolve(false)),

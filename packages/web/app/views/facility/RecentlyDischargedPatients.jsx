@@ -1,5 +1,5 @@
 import React from 'react';
-import { PATIENT_STATUS_LABELS } from '@tamanu/constants';
+import { PATIENT_STATUS_LABELS, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import {
   ContentPane,
   DateDisplay,
@@ -21,6 +21,7 @@ import {
   displayId,
   firstName,
   lastName,
+  locationGroup,
   sex,
 } from '../patients/columns';
 
@@ -58,6 +59,7 @@ const COLUMNS = [
       />
     ),
   },
+  locationGroup,
   department,
   {
     ...clinician,
@@ -124,6 +126,7 @@ export const RecentlyDischargedPatients = () => {
           verb="list"
           noun="Patient"
           endpoint="recentlyDischargedPatients"
+          pageSizePreferenceKey={TABLE_PAGE_SIZE_PREFERENCE_KEYS.RECENTLY_DISCHARGED}
           columns={COLUMNS}
           initialSort={INITIAL_SORT}
           fetchOptions={{ ...searchParameters }}
