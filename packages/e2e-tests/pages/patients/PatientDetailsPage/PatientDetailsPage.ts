@@ -639,7 +639,8 @@ export class PatientDetailsPage extends BasePatientPage {
   async resolveOngoingCondition(clinicianName: string, note: string) {
     await this.markConditionResolvedButton.click();
     await this.resolvedClinician.click();
-    await this.page.getByRole('menuitem', { name: clinicianName }).click();
+    await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
+    await expect(this.resolvedClinician).toHaveValue(clinicianName);
     await this.resolvedNote.fill(note);
     await this.clickAddButtonToConfirm(this.resolveConditionSubmitButton);
   }
