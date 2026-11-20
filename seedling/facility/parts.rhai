@@ -27,14 +27,14 @@ configure_server.call(app.deployment("api"))
     .tcp(3000, api_http.port(3001));
 
 configure_server.call(app.deployment("sync"))
-    .description("Sync with the central server")
+    .description("Sync")
     .scale(1)
     .on_update(OnUpdate.Replace)
     .arg(["startSync"])
     .tcp(3000, sync_http.port(3004));
 
 configure_server.call(app.deployment("tasks"))
-    .description("Background tasks")
+    .description("Tasks")
     .on_update(OnUpdate.Replace)
     .arg(["startTasks"]);
 

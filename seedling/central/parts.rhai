@@ -28,17 +28,17 @@ configure_server.call(app.deployment("api"))
     .tcp(3000, api_http.port(3001));
 
 configure_server.call(app.deployment("tasks"))
-    .description("Background tasks")
+    .description("Tasks")
     .on_update(OnUpdate.Replace)
     .arg(["startTasks"]);
 
 configure_server.call(app.deployment("fhir-refresh"))
-    .description("FHIR materialisation worker")
+    .description("FHIR refresh worker")
     .on_update(OnUpdate.Replace)
     .arg(["startFhirWorker", "--topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream"]);
 
 configure_server.call(app.deployment("fhir-resolve"))
-    .description("FHIR reference resolver")
+    .description("FHIR resolver worker")
     .on_update(OnUpdate.Replace)
     .arg(["startFhirWorker", "--topics=fhir.resolver"]);
 

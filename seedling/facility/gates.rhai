@@ -6,7 +6,7 @@
 
 // spec: SDDEF#readiness-check
 let readiness_check = configure_server.call(app.job("readiness-check"))
-    .description("Check the database URL connects and the crypto key decrypts the stored secrets")
+    .description("Readiness check")
     .arg(["checkReadiness"])
     .deadline(60);
 
@@ -30,7 +30,7 @@ let announce = app.gate("announce")
 
 // spec: SDUPG#checking-the-migrations
 let migrations_check = configure_server.call(app.job("migrations-check"))
-    .description("Check the database has no migrations pending for this release")
+    .description("Pending migrations check")
     .arg(["just-migrate", "list", "--pending", "--check"])
     .deadline(120);
 
@@ -41,7 +41,7 @@ let upgrade = app.gate("upgrade")
     .check(migrations_check)
     .run(|rt| {
         rt.start(configure_server.call(app.job())
-            .description("Run this release's migrations and upgrade steps")
+            .description("Upgrade")
             .arg(["upgrade"])
         ).terminated_eventually().ensure_success();
     });

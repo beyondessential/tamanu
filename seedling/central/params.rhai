@@ -3,7 +3,7 @@
 
 let version = app.param("version")
     .required(true)
-    .description("Tamanu build to run, by its image tag")
+    .description("Tamanu image tag")
     .validate(|v, all| {
         if published == () || v == published.tag { return; }
         let wanted = minor_of.call(published.release);
@@ -19,7 +19,7 @@ if published != () {
 let database_url = app.param("database-url")
     .kind("password")
     .required(true)
-    .description("PostgreSQL connection URL, including the password of the server's role")
+    .description("PostgreSQL URL, including the password")
     .validate(|v, all| {
         if !v.starts_with("postgres://") && !v.starts_with("postgresql://") {
             throw "must be a postgres:// or postgresql:// URL";
@@ -30,30 +30,30 @@ let crypto_key = app.param("crypto-key")
     .kind("random")
     .secret(true)
     .required(true)
-    .description("Key the server encrypts its stored secrets with; generate one for a new server, or enter an existing deployment's")
+    .description("Crypto key")
     .validate(|v, all| hex_secret.call(v));
 
 let auth_secret = app.param("auth-secret")
     .kind("random")
     .secret(true)
     .required(true)
-    .description("Signing secret for login tokens");
+    .description("Auth secret");
 
 let refresh_secret = app.param("auth-refresh-secret")
     .kind("random")
     .secret(true)
     .required(true)
-    .description("Signing secret for refresh tokens");
+    .description("Refresh token secret");
 
 let canonical_url = app.param("canonical-url")
     .required(true)
-    .description("URL the server is reached at, such as https://tamanu.example.org")
+    .description("Canonical URL")
     .validate(|v, all| { parse_origin.call(v); });
 
 let timezone = app.param("timezone")
     .required(false)
     .default_value("UTC")
-    .description("Primary timezone, as an IANA name such as Pacific/Auckland; a facility server's must match its central server's");
+    .description("Primary timezone");
 
 // A parameter can be unset while the definition is first registered, so nothing
 // below throws on an unset one.

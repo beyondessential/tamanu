@@ -26,10 +26,10 @@ let frontend_http = app.service("frontend-http");
 let portal_http = app.service("portal-http");
 
 let supervisor_state = app.volume("supervisor-state")
-    .description("The supervisor's durable state");
+    .description("Supervisor state");
 
 let supervisor = app.deployment("supervisor")
-    .description("Routes requests to the parts, and answers while they are upgrading")
+    .description("Supervisor")
     .image(image.call("supervisor"))
     .scale(1)
     .env("SUPERVISOR_LISTEN", ":8080")
