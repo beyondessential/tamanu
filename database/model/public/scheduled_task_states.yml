@@ -1,0 +1,50 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: scheduled_task_states
+        description: "{{ doc('table__scheduled_task_states') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in scheduled_task_states."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in scheduled_task_states."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in scheduled_task_states."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in scheduled_task_states."
+          - name: name
+            data_type: text
+            description: "{{ doc('scheduled_task_states__name') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: running_since
+            data_type: timestamp with time zone
+            description: "{{ doc('scheduled_task_states__running_since') }}"
+          - name: last_started_at
+            data_type: timestamp with time zone
+            description: "{{ doc('scheduled_task_states__last_started_at') }}"
+          - name: last_finished_at
+            data_type: timestamp with time zone
+            description: "{{ doc('scheduled_task_states__last_finished_at') }}"
