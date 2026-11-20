@@ -74,14 +74,14 @@ export class PatientCommunication extends Model {
     const { attachment: _attachment, ...sanitized } = values;
 
     const isEmailChannel = EMAIL_CHANNELS.includes(sanitized.channel);
-    if (!isEmailChannel || !sanitized.destination || isEmailAddress(sanitized.destination)) {
-      return sanitized;
+    if (isEmailChannel && sanitized.destination && !isEmailAddress(sanitized.destination)) {
+      return {
+        ...sanitized,
+        status: COMMUNICATION_STATUSES.BAD_FORMAT,
+        error: 'Invalid destination address',
+      };
     }
-    return {
-      ...sanitized,
-      status: COMMUNICATION_STATUSES.BAD_FORMAT,
-      error: 'Invalid destination address',
-    };
+    return sanitized;
   }
 
   static getBaseQueryPendingMessage(

@@ -156,7 +156,7 @@ export class ReportRequest extends Model {
     const { models } = this.sequelize!;
     const requests = changes.map(({ data }) => data as PushedReportRequest);
 
-    const userIds = [...new Set(requests.map(r => r.requestedByUserId).filter(Boolean))];
+    const userIds = [...new Set(requests.map(r => r.requestedByUserId))].filter(Boolean);
     const reportIds = [...new Set(requests.map(getReportIdOf).filter(Boolean))];
     const session = sessionId ? await models.SyncSession!.findByPk(sessionId) : null;
     const sessionFacilityIds: string[] = session?.get('parameters')?.facilityIds ?? [];

@@ -61,8 +61,8 @@ export class BaseCommunicationProcessor extends ScheduledTask {
       email: toAddress ? maskEmail(toAddress) : null,
     });
 
-    // The patient's own address is used as entered, and a queued record may predate the
-    // destination being checked when it was pushed, so the address is checked again here.
+    // Validate the address before sending: the patient's own email is stored as entered, and a
+    // record queued before sync validated destinations may carry an invalid one.
     if (toAddress && !isEmailAddress(toAddress)) {
       return this.handleEmailResult(email, emailPlain, {
         status: COMMUNICATION_STATUSES.BAD_FORMAT,
