@@ -38,3 +38,6 @@ let supervisor = app.deployment("supervisor")
     .mount(frontend_http.port(3002))
     .mount(sync_http.port(3004))
     .http(8080, public_svc.route("/"));
+if database_socket != () {
+    supervisor.mount(database_socket, database_socket_volume);
+}

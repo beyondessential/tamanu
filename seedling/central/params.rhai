@@ -26,6 +26,15 @@ let database_url = app.param("database-url")
         }
     });
 
+// Seedling faults an app whose external volume is unmapped, so the socket's
+// volume is declared only when the URL connects through a socket.
+let database_socket = if database_url.is_set() { socket_dir.call(database_url.value()) } else { () };
+let database_socket_volume = if database_socket != () {
+    app.external_volume("database-socket").description("PostgreSQL socket directory")
+} else {
+    ()
+};
+
 let crypto_key = app.param("crypto-key")
     .kind("random")
     .secret(true)

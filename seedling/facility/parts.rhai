@@ -11,6 +11,9 @@ let configure_server = |c| {
         .env("LOG_CONSOLE_LEVEL", "http")
         .env("MIGRATE_ON_STARTUP", "false")
         .env("SYNC_API_URL", "http://localmount:3004");
+    if database_socket != () {
+        c.mount(database_socket, database_socket_volume);
+    }
     if canonical_url.is_set() {
         c.env("CANONICAL_HOST_NAME", canonical_url.value());
     }

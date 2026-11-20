@@ -43,6 +43,9 @@ let supervisor = app.deployment("supervisor")
     .mount(api_http.port(3001))
     .mount(frontend_http.port(3002))
     .http(8080, public_svc.route("/"));
+if database_socket != () {
+    supervisor.mount(database_socket, database_socket_volume);
+}
 if portal != () {
     supervisor
         .env("SUPERVISOR_PORTAL_URL", "http://localmount:3003")

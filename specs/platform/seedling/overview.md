@@ -14,6 +14,7 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 - [Gate](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/language/gate.md): a named step a definition declares, which Seedling runs whenever the value it is keyed on changes, retries until it succeeds, and holds back the parts ordered after it until then.
 - [Ingress](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/language/ingress.md): the entry point by which Seedling carries traffic for a hostname to an app, terminating TLS where it is declared to.
 - [Site volume](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/overview.md#site-volume): storage on the Seedling host that an operator manages and names to an app.
+- [External volume](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/overview.md#external-volume): a volume an app declares by name, which the operator maps to storage on the host, such as a directory another app exports.
 
 ## Definitions
 
@@ -35,6 +36,7 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 ## Database
 
 - A definition connects to a PostgreSQL database the operator provides, named by a database URL parameter.
+- A database URL whose host is a socket directory connects through the database's socket. The definition then takes the directory as an external volume the operator maps, so the database can authenticate the server's role without a password.
 - The database is the only thing outside the definition that the server depends on.
 
 ## Parameters
