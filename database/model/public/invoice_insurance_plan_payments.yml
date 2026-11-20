@@ -76,3 +76,6 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_insurance_plan_payments."
             data_tests:
               - not_null
+          - name: invoice_section_id
+            data_type: character varying(255)
+            description: "{{ doc('invoice_insurance_plan_payments__invoice_section_id') }}"

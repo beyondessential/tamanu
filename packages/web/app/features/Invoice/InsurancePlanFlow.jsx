@@ -38,6 +38,7 @@ const STEPS = {
 export const InsurancePlanFlow = ({
   invoice,
   open,
+  section,
   entry = INSURANCE_PLAN_ENTRY.PICKER,
   onClose,
   onApplied = () => {},
@@ -77,7 +78,12 @@ export const InsurancePlanFlow = ({
       ? STEPS.PATIENT_DETAILS
       : STEPS.PICKER;
   };
-  const currentStep = step ?? chooseFirstStep();
+  // Latch the first window once it is chosen. The picker reads the same plans query, and mounting
+  // it refetches them; left unlatched, that refetch would send the flow back to loading, unmount
+  // the picker, and remount it into another refetch, over and over.
+  const firstStep = open && step === null ? chooseFirstStep() : null;
+  if (firstStep) setStep(firstStep);
+  const currentStep = step ?? firstStep;
 
   // Read the plans back rather than the render's copy: the save that just landed is what may have
   // added one, so the question being asked is whether it did.
@@ -123,6 +129,7 @@ export const InsurancePlanFlow = ({
         <InvoiceInsuranceModal
           open
           invoice={invoice}
+          section={section}
           onClose={onClose}
           onSaved={onApplied}
           onAddToPatient={canRecordPlanOnPatient ? () => setStep(STEPS.PATIENT_DETAILS) : undefined}

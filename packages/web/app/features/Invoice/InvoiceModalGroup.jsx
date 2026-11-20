@@ -11,7 +11,12 @@ import { INVOICE_FORM_TYPE } from './constants.js';
 import { INSURANCE_PLAN_ENTRY, InsurancePlanFlow } from './InsurancePlanFlow';
 import { useInvoicePatientDetailsAccess } from './useInvoicePatientDetailsAccess';
 
-export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceModal }) => {
+export const InvoiceModalGroup = ({
+  invoice,
+  invoiceModalType,
+  section,
+  setOpenInvoiceModal,
+}) => {
   const { isPatientDetailsEditable } = useInvoicePatientDetailsAccess(invoice);
 
   const handleCloseInvoiceModal = () => setOpenInvoiceModal(null);
@@ -31,6 +36,7 @@ export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceMod
         <InsurancePlanFlow
           invoice={invoice}
           open
+          section={section}
           entry={INSURANCE_PLAN_ENTRY.PICKER}
           onClose={handleCloseInvoiceModal}
           onApplied={handleCloseInvoiceModal}
@@ -85,6 +91,7 @@ export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceMod
           invoiceFormType={INVOICE_FORM_TYPE.ADD_ITEMS}
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
+          section={section}
           data-testid="addinvoiceitemsmodal-x7zy"
         />
       )}

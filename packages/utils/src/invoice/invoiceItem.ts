@@ -72,6 +72,8 @@ export const hasItemAdjustment = (item: InvoiceItem): boolean => {
 
 export interface InvoiceItemPlanCoverage {
   insurancePlanId: string;
+  /** The attachment this coverage comes from, where the invoice was loaded with its plan rows */
+  attachmentId?: string;
   /** The coverage percentage applied: the finalised snapshot where there is one, else the plan's */
   percentage: number;
   /** This plan's share of the line, before the line's coverage is capped */
@@ -104,6 +106,7 @@ export const getInvoiceItemPlanCoverages = (
   }
   return item.insurancePlanItems.map(insurancePlanItem => ({
     insurancePlanId: insurancePlanItem.id,
+    attachmentId: insurancePlanItem.attachmentId,
     percentage: getInvoiceItemCoveragePercentage(item, insurancePlanItem),
     coverage: getItemSingleInsuranceCoverageAmount(discountedPrice, item, insurancePlanItem),
   }));
@@ -179,8 +182,17 @@ export const getInvoiceItemNetCost = (item: InvoiceItem): number =>
   calculateInvoiceItem(item).netCost;
 
 /**
+ * Whether an attachment's coverage reaches an item. An attachment naming a section covers that
+ * section's items alone; one naming none covers the whole invoice, including items that fall in
+ * no section.
+ */
+const planCoversItem = (plan: InsurancePlan, item: InvoiceItem): boolean =>
+  !plan.invoiceSectionId || plan.invoiceSectionId === item.invoiceSectionId;
+
+/**
  * The invoice's insurance plans as they apply to one item: a plan with no item of its own for
- * this product falls back to its default coverage. An uninsurable product is covered by nothing.
+ * this product falls back to its default coverage. An uninsurable product is covered by nothing,
+ * and so is an item outside the section an attachment covers.
  *
  * Invoice items carry no plan rows themselves, so anything reading per-item coverage has to build
  * this first.
@@ -197,13 +209,16 @@ export const getInsurancePlanItemsForInvoiceItem = (
       planItem.coverageValue,
     ]),
   );
-  return insurancePlans.map(({ id, code, name, defaultCoverage }) => ({
-    id,
-    code,
-    name,
-    label: name ?? code,
-    coverageValue: coverageByPlanId.get(id) ?? defaultCoverage,
-  }));
+  return insurancePlans
+    .filter(plan => planCoversItem(plan, item))
+    .map(({ id, attachmentId, code, name, defaultCoverage }) => ({
+      id,
+      attachmentId,
+      code,
+      name,
+      label: name ?? code,
+      coverageValue: coverageByPlanId.get(id) ?? defaultCoverage,
+    }));
 };
 
 /**

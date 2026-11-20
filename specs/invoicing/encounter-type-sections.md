@@ -25,6 +25,7 @@ Splitting an invoice into sections is a display rule read from the setting as it
 - The day a patient moves falls within both the ending section's period and the starting section's, because an item carries a date and not a time.
 - Vaccination and form response encounters are never divided into sections.
 - An item added automatically is recorded against the section for the category the encounter is in when the item is added, so the emergency fee sits in the Emergency section and bed fees in the Inpatient section, as [encounter fees](encounter-fees.md) sets out.
+- A bed fee is one line per location, carrying the nights spent there, so a single line never spans two sections.
 - An item added manually is recorded against the section it was added from.
 - Changing an item's date never moves it to another section. An item is moved between sections by deleting it and adding it again from the other section.
 - An item whose date falls outside its section's period, because the admission time was corrected after the item was added, stays in its section and is listed at the date it holds.
@@ -38,16 +39,45 @@ Splitting an invoice into sections is a display rule read from the setting as it
 - The date range of a period that is still running reads as its start date followed by "Current".
 - A section whose period is unknown shows its name alone, and is listed after the sections with periods and above the unlabelled section.
 - Each section header is marked with the colour its category's encounter types carry in the encounter view, Outpatient carrying the clinic colour. A section that is not an encounter category carries a default colour.
-- Invoice-wide actions sit in a single overflow menu for the invoice; a section header carries no actions of its own.
+- Invoice-wide actions sit in a single overflow menu for the invoice. A section header carries only the actions belonging to that section.
 - Each section ends with its own Add item action. A section whose period holds no items shows its header and that action alone.
 - Invoice totals cover every section.
 - The invoice summary covers the whole invoice, sections included.
+- The summary reads its insurance coverage a section at a time, one line per section, each reading "Insurance coverage" followed by the section's name in brackets, for example "Insurance coverage (Emergency)". A section no plan covers still shows its line, and coverage carried by items outside the listed sections shows as a plain line below them.
+
+> [!NOTE]
+> The per-section coverage lines account for the whole of the invoice's coverage between them, so the patient's subtotal below them still follows from the lines above it.
 
 > [!NOTE]
 > An item has no section when the one it was recorded against is unavailable to the facility. Listing those items last keeps them on the invoice and in the totals rather than hiding them.
 
 > [!NOTE]
 > A section an item names is shown even when its period is unknown, because the item already carries which part of the stay it belongs to. Withholding the section until its dates are known would lose that, and the dates are the lesser half of what the header says.
+
+## Insurance across sections
+
+- An insurance plan is attached to a section rather than to the whole invoice, so a payer covering one part of a stay does not cover the rest of it.
+- A plan attached without naming a section covers every item on the invoice.
+- One plan covers several sections by being attached to each of them.
+- A plan covers either the whole invoice or sections of it, never both, so its coverage cannot be counted twice against the same item.
+- A plan's coverage applies only to the items in the section it is attached to.
+- Each section header carries its own Insurance plan action, so the section a plan covers is the one it was attached from, and a cashier never names it separately.
+- An invoice with no sections offers the action once for the invoice. A split invoice offers it on its section headers, and keeps the invoice-level one only while it still holds a plan covering the whole invoice.
+- The action works on the plans covering the section it was opened from, names that section, and leaves the plans on the invoice's other sections as they are.
+- The coverage line for a plan sits with the section it covers.
+- The coverage offered while a charge is being added is the coverage its section will get once saved.
+- A payment records the section it settles, so a plan covering two sections carries a balance for each.
+- A section with no plan attached is settled by the patient.
+- Patient payments and the invoice's payment status cover the whole invoice, sections included.
+
+> [!NOTE]
+> A plan is attached to a section rather than to each item because a section is what a payer actually covers. "NHI covers the inpatient part of this stay" still holds when a new charge arrives, where a list of covered items would have to be revisited every time one is added.
+
+> [!NOTE]
+> A payment names its section as well as its plan, because the plan alone cannot say which part of the invoice a payment settles once one plan covers two sections.
+
+> [!NOTE]
+> An invoice can gain its first section after a plan was attached to the whole of it, so withholding the invoice-level action from every split invoice would leave that plan covering everything with no way to reach it.
 
 ## Adding and editing items
 

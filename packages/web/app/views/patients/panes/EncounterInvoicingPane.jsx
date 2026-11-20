@@ -6,7 +6,11 @@ import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@mui/icons-material/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { isInvoiceEditable } from '@tamanu/utils/invoice';
+import {
+  isInvoiceEditable,
+  isInvoiceSectioned,
+  offersInvoiceWideInsurance,
+} from '@tamanu/utils/invoice';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
@@ -204,6 +208,26 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
     hidden: !canViewPatientDetails,
   });
 
+  // A split invoice attaches its plans from each section's own header instead. The rule lives
+  // beside the sectioning it depends on, so the view does not carry its own idea of it.
+  const offersInvoiceInsurance =
+    isInProgress &&
+    canWriteInvoice &&
+    isInsurancePlanFieldShown &&
+    offersInvoiceWideInsurance(invoice);
+  const isSectioned = isInvoiceSectioned(invoice.sections, invoice.items);
+
+  // On a split invoice the action belongs to the whole invoice while every section header carries
+  // one of its own, so it sits in the invoice's menu rather than beside them as a button nothing
+  // tells apart from theirs.
+  if (isSectioned) {
+    ACTIONS.push({
+      label: <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />,
+      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE),
+      hidden: !offersInvoiceInsurance,
+    });
+  }
+
   const hasVisibleActions = ACTIONS.some(action => !action.hidden);
 
   return (
@@ -221,7 +245,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
           <TranslatedText stringId="general.action.print" fallback="Print" />
         </PrintButton>
       )}
-      {isInProgress && canWriteInvoice && isInsurancePlanFieldShown && (
+      {!isSectioned && offersInvoiceInsurance && (
         <NoteModalActionBlocker>
           <Button
             onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
@@ -250,6 +274,8 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
   const { getCurrentDateTime } = useDateTime();
   const { ability } = useAuth();
   const [invoiceModalType, setInvoiceModalType] = useState(null);
+  // The section an Add item or Insurance plan was pressed in, so the window opens against it.
+  const [activeSection, setActiveSection] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
 
@@ -317,6 +343,14 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
             invoice={invoice}
             setInvoiceModalType={setInvoiceModalType}
             invoiceFormType={INVOICE_FORM_TYPE.READ_ONLY}
+            onAddItemsForSection={section => {
+              setActiveSection(section);
+              setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+            }}
+            onInsuranceForSection={section => {
+              setActiveSection(section);
+              setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE);
+            }}
           />
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />
@@ -328,7 +362,11 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
       <InvoiceModalGroup
         invoiceModalType={invoiceModalType}
         invoice={invoice}
-        setOpenInvoiceModal={setInvoiceModalType}
+        section={activeSection}
+        setOpenInvoiceModal={modalType => {
+          setInvoiceModalType(modalType);
+          if (!modalType) setActiveSection(null);
+        }}
       />
     </>
   );

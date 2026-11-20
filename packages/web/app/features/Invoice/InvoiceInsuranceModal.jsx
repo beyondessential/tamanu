@@ -9,6 +9,7 @@ import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoice
 import { usePatientAvailableInsurancePlansQuery } from '../../api/queries';
 import { SuggesterSelectField } from '../../components/Field';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { useSectionName } from './InvoiceForm/SectionTitle';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root,
@@ -27,19 +28,30 @@ const ModalBody = styled.div`
 `;
 
 /**
- * The invoice's insurance plan picker. `onSaved` is given the plans that were applied, so a caller
- * that opened the picker part-way through another action — recording a payment — can decide whether
- * to carry on. `onAddToPatient`, where offered, opens the patient's details to record a plan first.
+ * The invoice's insurance plan picker. `section` scopes it to one section of a split invoice, and
+ * its absence to the invoice as a whole. `onSaved` is given the plans that were applied, so a
+ * caller that opened the picker part-way through another action — recording a payment — can decide
+ * whether to carry on. `onAddToPatient`, where offered, opens the patient's details to record a
+ * plan first.
  */
 export const InvoiceInsuranceModal = ({
   open,
   onClose,
   invoice,
+  section,
   onSaved = () => {},
   onAddToPatient,
 }) => {
+  const sectionName = useSectionName();
   const patientId = invoice?.encounter?.patientId;
-  const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
+  // A plan is attached to one section of a split invoice, so the same plan can be on the invoice
+  // more than once. Only the attachments covering this section are the window's business, and
+  // without a section only those covering the whole invoice are.
+  const invoiceSectionId = section?.invoiceSectionId ?? null;
+  const defaultValues =
+    invoice?.insurancePlans
+      ?.filter(plan => (plan.invoiceSectionId ?? null) === invoiceSectionId)
+      .map(({ id }) => id) || [];
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId, patientId);
   // The patient's plans that this facility can actually bill against: a patient whose only plans
@@ -57,7 +69,7 @@ export const InvoiceInsuranceModal = ({
   };
 
   const onConfirm = async () => {
-    const data = { invoiceInsurancePlanIds: selectedPlans };
+    const data = { invoiceInsurancePlanIds: selectedPlans, invoiceSectionId };
     mutate(data, {
       onSuccess: () => {
         onClose();
@@ -179,10 +191,18 @@ export const InvoiceInsuranceModal = ({
     >
       <ModalBody>
         <Typography>
-          <TranslatedText
-            stringId="invoice.modal.insurancePlans.text"
-            fallback="Select or remove the insurance plans you would like to apply to this patient invoice below."
-          />
+          {section ? (
+            <TranslatedText
+              stringId="invoice.modal.insurancePlans.text.section"
+              fallback="Select or remove the insurance plans you would like to apply to the :section items on this patient invoice."
+              replacements={{ section: sectionName(section) }}
+            />
+          ) : (
+            <TranslatedText
+              stringId="invoice.modal.insurancePlans.text"
+              fallback="Select or remove the insurance plans you would like to apply to this patient invoice below."
+            />
+          )}
         </Typography>
         <SuggesterSelectField
           label={

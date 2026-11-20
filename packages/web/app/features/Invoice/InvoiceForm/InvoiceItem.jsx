@@ -87,6 +87,7 @@ const useInvoiceItemPrice = ({
 const useInvoiceItemInsurance = ({
   encounterId,
   productId,
+  invoiceSectionId,
   existingPrice,
   index,
   formArrayMethods,
@@ -96,6 +97,7 @@ const useInvoiceItemInsurance = ({
   useInvoiceInsurancePlanItemsQuery({
     encounterId,
     productId,
+    invoiceSectionId,
     enabled: Boolean(productId) && !existingPrice,
     onSuccess: data => {
       if (!data || data.length === 0) return;
@@ -122,6 +124,7 @@ export const InvoiceItemRow = ({
   isCancelled,
   canWriteInvoice,
   cellWidths,
+  sectionPeriod,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
@@ -164,6 +167,8 @@ export const InvoiceItemRow = ({
   useInvoiceItemInsurance({
     encounterId,
     productId,
+    // The row's own section, so the preview promises only the coverage it will be saved with.
+    invoiceSectionId: item.invoiceSectionId,
     existingPrice: priceListPrice || item.manualEntryPrice,
     index,
     formArrayMethods,
@@ -192,7 +197,13 @@ export const InvoiceItemRow = ({
           )}
         </td>
       )}
-      <DateCell index={index} item={item} isEditing={isEditing} cellWidths={cellWidths} />
+      <DateCell
+        index={index}
+        item={item}
+        isEditing={isEditing}
+        cellWidths={cellWidths}
+        sectionPeriod={sectionPeriod}
+      />
       <DetailsCell
         cellWidths={cellWidths}
         index={index}

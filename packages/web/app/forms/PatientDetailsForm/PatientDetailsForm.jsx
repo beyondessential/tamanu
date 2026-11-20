@@ -74,9 +74,12 @@ function stripPatientData(patient, additionalData, birthData) {
 /**
  * Reports the form's actions and state out to a caller that owns the buttons itself. Rendered
  * inside the form so it can read formik, and renders nothing of its own.
+ *
+ * `submitForm` must be the Form's own handler rather than formik's: only that one marks the
+ * submit as attempted, which is what lets fields show their validation messages.
  */
-const FormActionsBridge = ({ actionsRef, onStateChange }) => {
-  const { dirty, isSubmitting, resetForm, submitForm, values } = useFormikContext();
+const FormActionsBridge = ({ actionsRef, onStateChange, submitForm }) => {
+  const { dirty, isSubmitting, resetForm, values } = useFormikContext();
 
   // Written after the render commits, not during it: a render React discards or replays would
   // otherwise leave the ref holding a closure from a render that never happened.
@@ -174,7 +177,7 @@ export const PatientDetailsForm = ({
 
   return (
     <Form
-      render={({ values = {} }) => (
+      render={({ values = {}, submitForm }) => (
         <>
           <PrimaryDetails
             registeredBirthPlace={values.registeredBirthPlace}
@@ -208,7 +211,11 @@ export const PatientDetailsForm = ({
               </NoteModalActionBlocker>
             </ButtonRow>
           )}
-          <FormActionsBridge actionsRef={formActionsRef} onStateChange={onFormStateChange} />
+          <FormActionsBridge
+            actionsRef={formActionsRef}
+            onStateChange={onFormStateChange}
+            submitForm={submitForm}
+          />
         </>
       )}
       initialValues={{

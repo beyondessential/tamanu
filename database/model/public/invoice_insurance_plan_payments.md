@@ -23,3 +23,7 @@ One of:
 {% docs invoice_insurance_plan_payments__reason %}
 The reason for the payment. Generally this is used for rejections.
 {% enddocs %}
+
+{% docs invoice_insurance_plan_payments__invoice_section_id %}
+The section of a split invoice this payment settles, matching the section the paying plan is attached to. Null where the plan covers the whole invoice.
+{% enddocs %}

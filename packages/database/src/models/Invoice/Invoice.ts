@@ -103,16 +103,13 @@ export class Invoice extends Model {
       as: 'discount',
     });
 
+    // The one association onto the attachment table. Reaching the plans through a belongsToMany
+    // keys them by the plan, so an invoice holding one plan against two sections loads it once
+    // and the second section's coverage goes missing; there is deliberately no such association
+    // to reach for.
     this.hasMany(models.InvoicesInvoiceInsurancePlan, {
       foreignKey: 'invoiceId',
-      as: 'invoiceInsurancePlans',
-    });
-
-    this.belongsToMany(models.InvoiceInsurancePlan, {
-      through: models.InvoicesInvoiceInsurancePlan,
-      foreignKey: 'invoiceId',
-      otherKey: 'invoiceInsurancePlanId',
-      as: 'insurancePlans',
+      as: 'insurancePlanAttachments',
     });
 
     this.hasMany(models.InvoiceItem, {
@@ -176,8 +173,10 @@ export class Invoice extends Model {
           : {}),
       },
       {
-        model: models.InvoiceInsurancePlan,
-        as: 'insurancePlans',
+        model: models.InvoicesInvoiceInsurancePlan,
+        as: 'insurancePlanAttachments',
+        required: false,
+        include: [{ model: models.InvoiceInsurancePlan, as: 'invoiceInsurancePlan' }],
       },
     ];
   }

@@ -114,9 +114,24 @@ const DiscountSection = ({ price, discountReason, discountedPrice }) => {
   );
 };
 
+// The field is inset from the column's leading edge rather than overhanging its trailing one, and
+// its value is right-aligned so the Cost column reads against its header and the Net cost beside
+// it whether the row carries a price or a field to type one into.
 const StyledField = styled(Field)`
   .MuiFormControl-root.MuiTextField-root {
-    margin-left: 12px;
+    margin-inline-start: 12px;
+    inline-size: calc(100% - 12px);
+  }
+  input {
+    text-align: end;
+    // The spinners would sit over the figure now that it is right-aligned, and step a price by
+    // whole units besides. Suppressed on the control rather than the type, so it stays a number
+    // field: its keyboard stepping, its numeric keypad on touch and its validation are unchanged.
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   }
 `;
 
