@@ -1,5 +1,11 @@
 import { test, expect } from '../../fixtures/baseFixture';
-import { fillMuiDateField, fillMuiDateTimeField, normalizeToIsoDate } from '@utils/testHelper';
+import {
+  convertDateFormat,
+  fillMuiDateField,
+  fillMuiDateTimeField,
+  normalizeToIsoDate,
+} from '@utils/testHelper';
+import { recordPatientDeathViaApi } from '../../utils/apiHelpers';
 
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, newPatient }) => {
@@ -86,6 +92,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('[AT-0100]Mark ongoing condition as resolved', async ({ patientDetailsPage }) => {
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     await patientDetailsPage.addNewOngoingConditionWithAllFields(
       'Pain in hand',
       '2024-08-14',
@@ -103,10 +110,23 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.itemDetailsValue('note')).toHaveText(
       'This is to test resolving a note',
     );
+    await expect(patientDetailsPage.itemDetailsValue('resolutionDate')).toHaveText(
+      convertDateFormat(currentBrowserDate),
+    );
     await expect(patientDetailsPage.itemDetailsValue('resolutionClinician')).toHaveText(
       'Initial Admin',
     );
     await expect(patientDetailsPage.itemDetailsValue('resolutionNote')).toHaveText('Resolved note');
+  });
+
+  test('Deceased patient shows the Deceased tag', async ({ patientDetailsPage, newPatient, api }) => {
+    await expect(patientDetailsPage.deceasedTag).toBeHidden();
+
+    await recordPatientDeathViaApi(api, patientDetailsPage.page, newPatient.id);
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
+
+    await expect(patientDetailsPage.deceasedTag).toHaveText('Deceased');
   });
 
   test('[T-0042][AT-0101]Add allergy with just the required fields', async ({ patientDetailsPage }) => {
