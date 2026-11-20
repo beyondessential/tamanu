@@ -13,7 +13,8 @@ Applies to the setup wizard a facility server serves in place of the login scree
 - The wizard is only available to requests from local or private network addresses.
 - The wizard refuses to run on a server that is already configured.
 - The credentials entered must belong to a central administrator with full access. Central uses them to mint a dedicated sync user for this server, and the server does not store them.
-- If central cannot be reached, rejects the credentials, or cannot mint the sync user, the wizard reports it and the server stays unconfigured.
+- The wizard then logs in to central as the minted sync user, to confirm its credentials work.
+- If central cannot be reached, rejects the administrator's credentials, cannot mint the sync user, or refuses the sync user's login, the wizard reports it and the server stays unconfigured.
 - The server's configuration (central address, sync credentials, and facilities) is saved in one transaction.
 - Once setup succeeds, the wizard gives way to the setting-up screen.
 
