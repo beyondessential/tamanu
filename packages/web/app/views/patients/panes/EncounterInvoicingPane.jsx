@@ -6,7 +6,11 @@ import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@mui/icons-material/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { isInvoiceEditable, offersInvoiceWideInsurance } from '@tamanu/utils/invoice';
+import {
+  isInvoiceEditable,
+  isInvoiceSectioned,
+  offersInvoiceWideInsurance,
+} from '@tamanu/utils/invoice';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
@@ -204,10 +208,27 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
     hidden: !canViewPatientDetails,
   });
 
-  const hasVisibleActions = ACTIONS.some(action => !action.hidden);
   // A split invoice attaches its plans from each section's own header instead. The rule lives
   // beside the sectioning it depends on, so the view does not carry its own idea of it.
-  const offersInvoiceInsurance = offersInvoiceWideInsurance(invoice);
+  const offersInvoiceInsurance =
+    isInProgress &&
+    canWriteInvoice &&
+    isInsurancePlanFieldShown &&
+    offersInvoiceWideInsurance(invoice);
+  const isSectioned = isInvoiceSectioned(invoice.sections, invoice.items);
+
+  // On a split invoice the action belongs to the whole invoice while every section header carries
+  // one of its own, so it sits in the invoice's menu rather than beside them as a button nothing
+  // tells apart from theirs.
+  if (isSectioned) {
+    ACTIONS.push({
+      label: <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />,
+      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE),
+      hidden: !offersInvoiceInsurance,
+    });
+  }
+
+  const hasVisibleActions = ACTIONS.some(action => !action.hidden);
 
   return (
     <ActionsPane data-testid="actionspane-l9ey">
@@ -224,7 +245,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
           <TranslatedText stringId="general.action.print" fallback="Print" />
         </PrintButton>
       )}
-      {isInProgress && canWriteInvoice && isInsurancePlanFieldShown && offersInvoiceInsurance && (
+      {!isSectioned && offersInvoiceInsurance && (
         <NoteModalActionBlocker>
           <Button
             onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
