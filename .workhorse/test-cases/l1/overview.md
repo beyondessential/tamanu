@@ -124,6 +124,8 @@ fault. Every case assumes invoicing is on.
 
 - [ ] The sectioned invoice fits the invoice pane at 1440px without scrolling sideways
 - [ ] An item's price breakdown does not widen the Cost column once section headers are present
+- [x] In the Add items and Edit invoice windows the Cost column reads right-aligned under its header, whether a row shows a saved price or a field to type one into
+- [ ] Hovering a cost field, which brings up the browser's number spinners, does not make the figure jump far enough to read as a glitch
 - [ ] An invoice with many sections and many items scrolls without the headers losing their items
 - [ ] An upgraded deployment's existing invoice items carry no section and are listed at the foot (verifies spec: INVGRP)
 - [ ] Reading an invoice does not read the changelog more than once per encounter
