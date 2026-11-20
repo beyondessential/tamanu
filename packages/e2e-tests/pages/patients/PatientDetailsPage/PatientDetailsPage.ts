@@ -39,6 +39,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly invoicingTab: Locator;
   readonly healthIdText: Locator;
   readonly deceasedTag: Locator;
+  readonly ongoingConditionsSection: Locator;
   patientVaccinePane?: PatientVaccinePane;
   invoicePane?: InvoicePane;
   patientProcedurePane?: ProcedurePane;
@@ -154,6 +155,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.deceasedTag = this.page.getByTestId('deceasedtag-sidebar');
+    this.ongoingConditionsSection = this.page.getByTestId('infopanelist-conditions');
     this.initiateNewOngoingConditionAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')

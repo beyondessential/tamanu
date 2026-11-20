@@ -92,7 +92,6 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('[AT-0100]Mark ongoing condition as resolved', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     await patientDetailsPage.addNewOngoingConditionWithAllFields(
       'Pain in hand',
       '2024-08-14',
@@ -102,6 +101,7 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.firstListItem.click();
 
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     await patientDetailsPage.resolveOngoingCondition('Initial Admin', 'Resolved note');
 
     await expect(patientDetailsPage.firstListItem).toContainText('Pain in hand');
@@ -119,14 +119,19 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.itemDetailsValue('resolutionNote')).toHaveText('Resolved note');
   });
 
-  test('Deceased patient shows the Deceased tag', async ({ patientDetailsPage, newPatient, api }) => {
+  test('Deceased patient shows the Deceased tag and no Add', async ({ patientDetailsPage, newPatient, api }) => {
+    const ongoingConditionsAddButton =
+      patientDetailsPage.ongoingConditionsSection.getByTestId('addbutton-b0ln');
     await expect(patientDetailsPage.deceasedTag).toBeHidden();
+    await expect(ongoingConditionsAddButton).toHaveCount(1);
 
     await recordPatientDeathViaApi(api, patientDetailsPage.page, newPatient.id);
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
 
     await expect(patientDetailsPage.deceasedTag).toHaveText('Deceased');
+    await expect(patientDetailsPage.ongoingConditionsSection).toBeVisible();
+    await expect(ongoingConditionsAddButton).toHaveCount(0);
   });
 
   test('[T-0042][AT-0101]Add allergy with just the required fields', async ({ patientDetailsPage }) => {
