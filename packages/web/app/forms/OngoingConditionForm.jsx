@@ -148,26 +148,26 @@ export const OngoingConditionForm = ({
           component={TextField}
           data-testid="field-e52k"
         />
+        {(!editedObject || editedObject.resolved) && (
+          <Field
+            name="resolved"
+            label={
+              <TranslatedText
+                stringId="conditions.resolved.label"
+                fallback="Resolved"
+                data-testid="translatedtext-5d9a"
+              />
+            }
+            component={CheckField}
+            data-testid="field-c7nr"
+          />
+        )}
         {!editedObject && (
-          <>
-            <Field
-              name="resolved"
-              label={
-                <TranslatedText
-                  stringId="conditions.resolved.label"
-                  fallback="Resolved"
-                  data-testid="translatedtext-5d9a"
-                />
-              }
-              component={CheckField}
-              data-testid="field-c7nr"
-            />
-            <Collapse in={values.resolved} data-testid="collapse-pybu">
-              <FormGrid columns={1} nested data-testid="formgrid-to6o">
-                <ResolutionFields practitionerSuggester={practitionerSuggester} />
-              </FormGrid>
-            </Collapse>
-          </>
+          <Collapse in={values.resolved} data-testid="collapse-pybu">
+            <FormGrid columns={1} nested data-testid="formgrid-to6o">
+              <ResolutionFields practitionerSuggester={practitionerSuggester} />
+            </FormGrid>
+          </Collapse>
         )}
         <InfoPaneFormActions
           onCancel={onCancel}
@@ -186,13 +186,13 @@ export const OngoingConditionForm = ({
   );
 
   const onDataSubmit = async data => {
-    const fields = { ...data };
-
-    if (!fields.resolved) {
-      RESOLUTION_FIELD_NAMES.forEach(name => delete fields[name]);
+    if (!editedObject && data.resolved) {
+      await onSubmit(data);
+      return;
     }
-
-    await onSubmit(fields);
+    const fields = omit(data, RESOLUTION_FIELD_NAMES);
+    const isUnresolving = Boolean(editedObject?.resolved) && !data.resolved;
+    await onSubmit(isUnresolving ? { ...fields, resolved: false } : fields);
   };
 
   const getInitialValues = () => {
@@ -202,6 +202,7 @@ export const OngoingConditionForm = ({
       return {
         ...omit(editedObject, RESOLUTION_FIELD_NAMES),
         recordedDate: trimToDate(editedObject.recordedDate),
+        resolved: Boolean(editedObject.resolved),
       };
     }
     return {
@@ -231,7 +232,7 @@ export const OngoingConditionForm = ({
 
         resolved: yup.boolean(),
         resolutionDate: resolutionDateSchema.when('resolved', {
-          is: true,
+          is: resolved => !editedObject && resolved,
           then: schema => schema.required(),
         }),
         resolutionPractitionerId: yup.string(),

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PATIENT_ISSUE_LABELS } from '@tamanu/constants';
 import { DateDisplay, TranslatedEnum } from '@tamanu/ui-components';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -65,8 +65,14 @@ const resolutionFields = ({ resolutionDate, resolutionPractitionerId, resolution
   },
 ];
 
-export const OngoingConditionDetails = ({ item, onEdit, readonly }) => {
-  const [isResolving, setResolving] = useState(false);
+export const OngoingConditionDetails = ({
+  item,
+  onEdit,
+  readonly,
+  isResolving,
+  onResolve,
+  onCloseResolve,
+}) => {
   const fields = [
     recordedDateField(item),
     notesField(item),
@@ -83,7 +89,7 @@ export const OngoingConditionDetails = ({ item, onEdit, readonly }) => {
         canResolve && (
           <InfoPaneTextLink
             type="button"
-            onClick={() => setResolving(true)}
+            onClick={onResolve}
             data-testid="mark-condition-resolved-button"
           >
             <TranslatedText
@@ -101,7 +107,7 @@ export const OngoingConditionDetails = ({ item, onEdit, readonly }) => {
             endpoint="ongoingCondition"
             item={item}
             id={PANE_SECTION_IDS.CONDITIONS}
-            onClose={() => setResolving(false)}
+            onClose={onCloseResolve}
           />
         </InfoPaneFormContainer>
       )}

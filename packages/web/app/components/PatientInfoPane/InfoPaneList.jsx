@@ -104,8 +104,13 @@ export const InfoPaneList = ({
   ListItemComponent,
   overrideContentPadding,
 }) => {
-  const [paneState, setPaneState] = useState({ adding: false, editKey: null, expandedKey: null });
-  const { adding, editKey, expandedKey } = paneState;
+  const [paneState, setPaneState] = useState({
+    adding: false,
+    editKey: null,
+    expandedKey: null,
+    resolvingKey: null,
+  });
+  const { adding, editKey, expandedKey, resolvingKey } = paneState;
   const api = useApi();
   const { data, error } = useQuery(
     [`infoPaneListItem-${paneId}`, patient.id],
@@ -137,6 +142,14 @@ export const InfoPaneList = ({
     () => setPaneState(state => ({ ...state, adding: false, editKey: null })),
     [],
   );
+  const handleResolve = useCallback(
+    id => setPaneState(state => ({ ...state, resolvingKey: id })),
+    [],
+  );
+  const handleCloseResolve = useCallback(
+    () => setPaneState(state => ({ ...state, resolvingKey: null })),
+    [],
+  );
 
   const EditForm = CustomEditForm || InfoPaneAddEditForm;
 
@@ -164,7 +177,7 @@ export const InfoPaneList = ({
               <InfoPaneListItem
                 name={getName(item)}
                 tag={getTag(item)}
-                expanded={expandedKey === id}
+                expanded={expandedKey === id || resolvingKey === id}
                 onToggle={() => handleToggleExpanded(id)}
                 data-testid={`listitem-adip-${index}`}
               >
@@ -172,6 +185,9 @@ export const InfoPaneList = ({
                   item={item}
                   readonly={readonly}
                   onEdit={readonly ? null : () => handleEdit(id)}
+                  isResolving={resolvingKey === id}
+                  onResolve={() => handleResolve(id)}
+                  onCloseResolve={handleCloseResolve}
                 />
               </InfoPaneListItem>
             </Collapse>

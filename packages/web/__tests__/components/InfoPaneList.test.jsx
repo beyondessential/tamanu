@@ -137,6 +137,51 @@ describe('InfoPaneList', () => {
     expect(payload).not.toHaveProperty('resolutionDate');
   });
 
+  it('un-resolves a resolved condition when Resolved is unticked in its edit form', async () => {
+    put.mockClear();
+    renderConditions();
+    fireEvent.click(await screen.findByTestId('listitem-adip-1'));
+    fireEvent.click(screen.getByTestId('infopaneitemdetails-edit'));
+
+    const resolvedCheckbox = screen.getByRole('checkbox');
+    expect(resolvedCheckbox.checked).toBe(true);
+    fireEvent.click(resolvedCheckbox);
+    fireEvent.click(screen.getByTestId('formsubmitcancelrow-2r80-confirmButton'));
+
+    await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
+    const [, payload] = put.mock.calls[0];
+    expect(payload.resolved).toBe(false);
+    expect(payload).not.toHaveProperty('resolutionDate');
+    expect(payload).not.toHaveProperty('resolutionPractitionerId');
+    expect(payload).not.toHaveProperty('resolutionNote');
+  });
+
+  it('offers no Resolved checkbox when editing an unresolved condition', async () => {
+    renderConditions();
+    fireEvent.click(await screen.findByTestId('listitem-adip-0'));
+    fireEvent.click(screen.getByTestId('infopaneitemdetails-edit'));
+
+    expect(await screen.findByTestId('formsubmitcancelrow-2r80-confirmButton')).toBeTruthy();
+    expect(screen.queryByRole('checkbox')).toBeNull();
+  });
+
+  it('keeps a row open while its resolve form is open', async () => {
+    renderConditions();
+    const unresolvedRow = await screen.findByTestId('listitem-adip-0');
+    fireEvent.click(unresolvedRow);
+    fireEvent.click(screen.getByTestId('mark-condition-resolved-button'));
+
+    fireEvent.click(unresolvedRow);
+    fireEvent.click(screen.getByTestId('listitem-adip-1'));
+
+    expect(unresolvedRow.getAttribute('aria-expanded')).toBe('true');
+
+    fireEvent.click(screen.getByTestId('formsubmitcancelrow-resolvecondition-cancelButton'));
+    await waitFor(() =>
+      expect(screen.queryByTestId('formsubmitcancelrow-resolvecondition')).toBeNull(),
+    );
+  });
+
   it('shows details read-only for a deceased patient', async () => {
     renderConditions({ readonly: true });
 
