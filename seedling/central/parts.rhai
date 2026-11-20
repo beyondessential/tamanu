@@ -5,7 +5,7 @@ let configure_server = |c| {
         .env("CRYPTO_KEY", crypto_key.value())
         .env("AUTH_SECRET", auth_secret.value())
         .env("AUTH_REFRESH_TOKEN_SECRET", refresh_secret.value())
-        .env("PROXY_TRUSTED", SUPERVISOR_PROXIES)
+        .env("PROXY_TRUSTED", TRUSTED_PROXIES)
         .env("PORT", "3000")
         .env("DISK_PATH", "/")
         .env("LOG_CONSOLE_LEVEL", "http")
