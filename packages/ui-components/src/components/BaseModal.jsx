@@ -19,7 +19,8 @@ export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
 export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
 export const MODAL_TRANSITION_DURATION = 300;
 
-const MODAL_HEADER_PADDING_BLOCK = 14;
+export const MODAL_HEADER_PADDING_BLOCK = 14;
+export const MODAL_HEADER_PADDING_INLINE_END = 14;
 const MODAL_CLOSE_BUTTON_SIZE = 40;
 
 /** Pixel max-widths for each `width` prop value. `md` is intentionally below MUI's default. */
@@ -94,7 +95,7 @@ const Header = styled.header`
   // own corner button instead of taking cornerExitButton sits shorter than every other modal.
   min-block-size: ${MODAL_CLOSE_BUTTON_SIZE + 2 * MODAL_HEADER_PADDING_BLOCK}px;
   padding-block: ${MODAL_HEADER_PADDING_BLOCK}px;
-  padding-inline: 32px 14px;
+  padding-inline: ${MODAL_PADDING_LEFT_AND_RIGHT}px ${MODAL_HEADER_PADDING_INLINE_END}px;
 
   // Holds the title and the close/print icon buttons (Actions), neither of which
   // has a MuiDialogTitle-root/MuiDialogActions-root class, so the print rule on

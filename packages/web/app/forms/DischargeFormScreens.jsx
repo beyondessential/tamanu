@@ -9,6 +9,8 @@ import {
   ConditionalTooltip,
   FormConfirmCancelBackRow,
   FormSubmitButton,
+  MODAL_HEADER_PADDING_BLOCK,
+  MODAL_HEADER_PADDING_INLINE_END,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
   TranslatedReferenceData,
@@ -33,8 +35,8 @@ export const Divider = styled(BaseDivider)`
 // own button sits.
 const CornerCloseButton = styled(CloseButton)`
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: ${MODAL_HEADER_PADDING_BLOCK}px;
+  right: ${MODAL_HEADER_PADDING_INLINE_END}px;
 `;
 
 const ConfirmContent = styled.div`
