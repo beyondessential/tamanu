@@ -17,7 +17,7 @@ Applies to what a central or facility server checks of its database when it star
 - A server can be moved to any older release, within its minor version or across minor versions, and nothing refuses the move.
 - The older release runs against the database as the newer release left it, with the newer release's migrations still in place.
 - Whether the older release works there depends on whether the migrations it does not carry are backward compatible with it.
-- An operator who would rather not leave them in place reverts them with the newer release before moving, since the older release does not carry them and cannot revert them. Reverting a migration that cannot restore what it changed loses that data.
+- An operator who would rather not leave them in place reverts them with the newer release before moving, since the older release does not carry them and cannot revert them. Reverting a migration that cannot restore what it changed loses that data, and its [marker](#migration-markers) says so.
 - Moving forward again to a release whose migrations have already run does not run them again. Data the older release wrote in the meantime has not been through what those migrations did to existing rows.
 - Whether to move to an older release, and how, is the operator's decision.
 
@@ -28,13 +28,17 @@ Applies to what a central or facility server checks of its database when it star
 
 - Migrations are written to stay backward compatible with earlier releases where they can, so that an earlier release keeps working against the database they leave.
 - A migration that cannot stay backward compatible, because the change it makes needs to break it, is still made.
+
+> [!NOTE]
+> Backward compatibility is best effort, not a guarantee at any level, including between patch releases of one minor. Keeping to it most of the time is what makes moving back a workable option.
+
+## Migration markers
+
 - A migration that breaks backward compatibility carries a `// BACKWARD INCOMPATIBLE:` comment in its `up` function, followed by what an earlier release trips on, so an operator can find the breaking migrations between two releases by searching for it.
 - A migration whose `down` function cannot restore what its `up` changed carries a `// DESTRUCTIVE:` comment there, followed by what is not restored, so an operator can tell which reverts lose data.
 
 > [!NOTE]
-> Backward compatibility is best effort, not a guarantee at any level, including between patch releases of one minor. Keeping to it most of the time is what makes moving back a workable option.
->
-> The marker is a first pass, not a verdict. It is written by hand, so a marked migration may turn out harmless to the release in question, and an unmarked one may still break it. It narrows what an operator reads before moving back; it does not decide for them.
+> The markers are a first pass, not a verdict. They are written by hand, so a marked migration may turn out harmless to the release in question, and an unmarked one may still break it or lose data. They narrow what an operator reads before moving back; they do not decide for them.
 
 ## Release compatibility across servers
 
