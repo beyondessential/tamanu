@@ -19,3 +19,24 @@ Each definition declares its gates in this order, which is also the order Seedli
 `announce` splits from `upgrade` because Seedling stops a gate's exclusive selection before its body runs: a single gate could tell the supervisor only after the parts had already gone.
 
 The Retry upgrade action is gone: Seedling retries a failed gate on its own, and an operator runs a gate at once through `/apps/gates/run`.
+
+## First draft
+
+`seedling/central/app.seed.rhai` and `seedling/facility/app.seed.rhai` are a first draft, written to read rather than run. Each bundle is a single script with no `seedling.toml` yet. The two duplicate their helpers, parameters and gates, because a bundle can only read files beneath its own root.
+
+### What the draft assumes that doesn't exist yet
+
+Tamanu:
+- **A `CRYPTO_KEY` environment variable** holding the key as 64 hex digits, read in place of `CRYPTO_KEY_FILE`. Today the key is read from a file holding 32 raw bytes (`readKeyFile` in `packages/shared/src/utils/crypto.js`), and Seedling's declared writes take a string, not raw bytes. The Seedling `random` kind generates a 64-hex-digit value, which is the reason for the hex form.
+- **A `checkReadiness` subcommand** on both servers. It connects with `DATABASE_URL`, decrypts every stored secret with the key, exits non-zero naming which check failed, and never prints the password.
+- **A `SYNC_API_URL` environment variable** on the facility, so the API reaches the sync part. Today the address is in config only (`sync.syncApiConnection`).
+- **A `PATIENT_PORTAL_URL` environment variable** on central. Today it is in config only (`patientPortal.portalUrl`).
+- **A `published-version` file**, written into each bundle when it is published: the image tag on the first line, the Tamanu version it carries on the second. The version parameter's default and the minor check read it.
+
+Supervisor (#L13):
+- **A `tamanu-supervisor` image,** published beside the others under the same tags.
+- **Its configuration** as the `SUPERVISOR_*` environment variables, with the names made up for the draft.
+- **A `tamanu-supervisor upgrade-started` command,** run inside its container, that marks an upgrade in progress.
+
+Seedling:
+- **The trusted-proxy lists,** both set to `uniquelocal` as a placeholder. The real values depend on the addresses requests arrive from, through Seedling's proxy and through the service mounts.
