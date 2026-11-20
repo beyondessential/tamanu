@@ -5,13 +5,28 @@ import * as z from 'zod';
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
 import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
-import { completeSyncSession } from '@tamanu/database/sync';
+import {
+  completeSyncSession,
+  decodeSnapshotCursor,
+  encodeSnapshotCursor,
+} from '@tamanu/database/sync';
 import { DEVICE_SCOPES } from '@tamanu/constants';
 
 import { buildFacilityBootstrap } from './buildFacilityBootstrap';
 import { CentralSyncManager } from './CentralSyncManager';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
+
+const waitForDrainOrClose = res =>
+  new Promise(resolve => {
+    const done = () => {
+      res.off('drain', done);
+      res.off('close', done);
+      resolve();
+    };
+    res.on('drain', done);
+    res.on('close', done);
+  });
 
 // Whether the requesting user may sync each of these facilities, for anything that serves a
 // facility's share of central.
@@ -204,7 +219,7 @@ export const buildSyncRoutes = ctx => {
 
       startStream(res);
 
-      const interval = await ctx.settings.get('sync.databasePollInterval');
+      const interval = await ctx.settings.get('sync.streaming.databasePollInterval');
       while (!(await syncManager.checkSessionReady(sessionId))) {
         res.write(StreamMessage.sessionWaiting());
         await sleepAsync(interval);
@@ -263,7 +278,7 @@ export const buildSyncRoutes = ctx => {
 
       startStream(res);
 
-      const interval = await ctx.settings.get('sync.databasePollInterval');
+      const interval = await ctx.settings.get('sync.streaming.databasePollInterval');
       while (!(await syncManager.checkPullReady(sessionId))) {
         res.write(StreamMessage.pullWaiting());
         await sleepAsync(interval);
@@ -314,28 +329,33 @@ export const buildSyncRoutes = ctx => {
         throw new Error('Session not ready');
       }
 
+      // once the stream starts, a bad cursor can only surface as a broken 200
+      decodeSnapshotCursor(fromId);
+
       startStream(res);
 
-      let startId = fromId ? parseInt(fromId, 10) : 0;
-      const limit = await ctx.settings.get('sync.databasePollBatchSize');
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        // TODO: change this to a cursor
+      let cursor = fromId;
+      const limit = await ctx.settings.get('sync.streaming.databasePollBatchSize');
+      while (!res.destroyed) {
         const changes = await syncManager.getOutgoingChanges(sessionId, {
-          fromId: startId,
+          fromId: cursor,
           limit,
         });
         if (changes.length === 0) {
           break;
         }
-        startId = changes[changes.length - 1].id;
+        cursor = encodeSnapshotCursor(changes[changes.length - 1]);
 
         log.info(`STREAM /pull : returning ${changes.length} changes`);
         for (const change of changes) {
           res.write(StreamMessage.pullChange(change));
         }
+        if (res.writableNeedDrain) {
+          await waitForDrainOrClose(res);
+        }
       }
 
+      if (res.destroyed) return;
       res.write(StreamMessage.end());
       res.end();
     }),

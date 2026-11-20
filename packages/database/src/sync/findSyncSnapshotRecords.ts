@@ -5,6 +5,7 @@ import { QueryTypes, Sequelize } from 'sequelize';
 import { getSnapshotTableName } from './manageSnapshotTable';
 import { getModelsForPull } from './getModelsForDirection';
 import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
+import { decodeSnapshotCursor } from './snapshotCursor';
 
 import type {
   RecordType,
@@ -66,7 +67,7 @@ export const findSyncSnapshotRecordsOrderByDependency = async (
   const modelsForPull = getModelsForPull(models);
   const sortedModels = sortInDependencyOrder(modelsForPull as Models);
 
-  const { sortOrder: lastRecordTypeOrder, id: lastId } = fromId ? JSON.parse(atob(fromId)) : {};
+  const { sortOrder: lastRecordTypeOrder, id: lastId } = decodeSnapshotCursor(fromId);
 
   const records = await sequelize.query(
     `
@@ -77,7 +78,7 @@ export const findSyncSnapshotRecordsOrderByDependency = async (
       SELECT * FROM ${tableName}
       JOIN priority ON ${tableName}.record_type = priority.record_type
       WHERE true
-      ${lastRecordTypeOrder && lastId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
+      ${fromId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
       AND direction = :direction
       ${additionalWhere ? `AND ${additionalWhere}` : ''}
       ORDER BY priority.sort_order, id
