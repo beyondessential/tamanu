@@ -4,7 +4,7 @@ app.on_action("provision", |rt, param| {
     if file.starts_with("/") || file.contains("..") {
         throw "file must be a path within the site volume";
     }
-    rt.start(configure_server.call(app.job())
+    rt.start(configure.call(app.job())
         .description("Provision")
         .mount("/provisioning", app.external_volume(param["site_volume"]))
         .workdir("/provisioning")
@@ -28,5 +28,5 @@ app.on_action("provision", |rt, param| {
 });
 
 app.on_shell("node", |_rt, shell, _param| {
-    shell.attach(configure_server.call(app.job()).arg(["shell"]));
+    shell.attach(configure.call(app.job()).arg(["shell"]));
 }, #{ description: "Tamanu shell" });

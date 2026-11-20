@@ -5,7 +5,7 @@
 // once.
 
 // spec: SDDEF#readiness-check
-let readiness_check = configure_server.call(app.job("readiness-check"))
+let readiness_check = configure.call(app.job("readiness-check"))
     .description("Readiness check")
     .arg(["checkReadiness"])
     .deadline(60);
@@ -29,7 +29,7 @@ let announce = app.gate("announce")
     });
 
 // spec: SDUPG#checking-the-migrations
-let migrations_check = configure_server.call(app.job("migrations-check"))
+let migrations_check = configure.call(app.job("migrations-check"))
     .description("Pending migrations check")
     .arg(["just-migrate", "list", "--pending", "--check"])
     .deadline(120);
@@ -40,7 +40,7 @@ let upgrade = app.gate("upgrade")
     .exclusive(app.select(#{ types: [ResourceType.Deployment], names: parts }))
     .check(migrations_check)
     .run(|rt| {
-        rt.start(configure_server.call(app.job())
+        rt.start(configure.call(app.job())
             .description("Upgrade")
             .arg(["upgrade"])
         ).terminated_eventually().ensure_success();

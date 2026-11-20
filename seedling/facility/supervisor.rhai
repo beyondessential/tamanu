@@ -1,8 +1,9 @@
 // spec: SDDEF#what-a-definition-runs
 // Seedling's proxy and every pod connect from the host's IPv6 unique local
 // prefix, and a service mount translates only the destination, so the parts
-// see the supervisor's own address. Both hops are trusted by one range.
-const TRUSTED_PROXIES = "uniquelocal";
+// see the supervisor's own address. Both hops are trusted by one range, as a
+// CIDR the supervisor and Express both read.
+const TRUSTED_PROXIES = "fc00::/7";
 
 let public_svc = app.service("public").exported().http(80);
 if canonical != () {
@@ -12,32 +13,19 @@ if canonical != () {
     }
 }
 
-// The supervisor reaches each part at `localmount`, on a port of its own. The
-// API reaches the sync part the same way.
+// The supervisor reaches the API at `localmount`, and the API reaches the sync
+// part the same way.
 let api_http = app.service("api-http");
-let frontend_http = app.service("frontend-http");
 let sync_http = app.service("sync-http");
 
-let supervisor_state = app.volume("supervisor-state")
-    .description("Supervisor state");
-
+// spec: SUPV#configuration
 let supervisor = app.deployment("supervisor")
     .description("Supervisor")
-    .image(image.call("supervisor"))
+    .image(image.call("frontend"))
     .scale(1)
-    .env("SUPERVISOR_LISTEN", ":8080")
-    .env("SUPERVISOR_STATE_DIR", "/state")
-    .env("SUPERVISOR_API_URL", "http://localmount:3001")
-    .env("SUPERVISOR_WEB_URL", "http://localmount:3002")
-    .env("SUPERVISOR_SYNC_URL", "http://localmount:3004")
-    .env("PROXY_TRUSTED", TRUSTED_PROXIES)
-    .env("DATABASE_URL", database_url.value())
-    .env("CRYPTO_KEY", crypto_key.value())
-    .mount("/state", supervisor_state)
+    .arg(["supervisor"])
+    .env("TAMANU_SUPERVISOR_ROLE", "facility")
+    .env("TAMANU_SUPERVISOR_API_UPSTREAMS", "localmount:3001")
+    .env("TAMANU_SUPERVISOR_TRUSTED_PROXIES", TRUSTED_PROXIES)
     .mount(api_http.port(3001))
-    .mount(frontend_http.port(3002))
-    .mount(sync_http.port(3004))
     .http(8080, public_svc.route("/"));
-if database_socket != () {
-    supervisor.mount(database_socket, database_socket_volume);
-}

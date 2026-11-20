@@ -37,9 +37,7 @@ Tamanu:
 - **A `PATIENT_PORTAL_URL` environment variable** on central. Today it is in config only (`patientPortal.portalUrl`).
 - **A `published-version` file**, written into each bundle when it is published: the image tag on the first line, the Tamanu version it carries on the second. The version parameter's default and the minor check read it.
 
-Supervisor (#L13):
-- **A `tamanu-supervisor` image,** published beside the others under the same tags.
-- **Its configuration** as the `SUPERVISOR_*` environment variables, with the names made up for the draft.
-- **A `tamanu-supervisor upgrade-started` command,** run inside its container, that marks an upgrade in progress.
+Supervisor (#L13): the draft follows the supervisor on the `workhorse/l13-5` branch. It runs from the frontend image with the `supervisor` command, configured by `TAMANU_SUPERVISOR_*` variables. It serves the web app and the portal itself, and has no database connection and no storage. One assumption doesn't hold there:
+- **A `tamanu-supervisor upgrade-started` command,** which the `announce` gate runs. On L13 the supervisor learns of an upgrade only from an actuator's `upgrading` state, and the definitions configure no actuator.
 
 Trusted proxies: both hops trust Express's `uniquelocal` range. Seedling's pods are IPv6 only, within the host's unique local `/48`. The proxy connects to the supervisor from its own address in that prefix, and a service mount rewrites only the destination, so the parts see the supervisor's own pod address.

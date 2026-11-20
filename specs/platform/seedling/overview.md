@@ -25,11 +25,10 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 
 ## What a definition runs
 
-- A central definition runs the API, the background tasks, the FHIR workers and the web app, and the patient portal when its URL is set.
-- A facility definition runs the API, sync, the background tasks, the FHIR worker and the web app.
-- Each part runs from the image of the version the definition is set to, with Tamanu's [supervisor](../supervisor/overview.md) in front of them.
+- A central definition runs the API, the background tasks and the FHIR workers.
+- A facility definition runs the API, sync, the background tasks and the FHIR worker.
+- Each part runs from the image of the version the definition is set to, with Tamanu's [supervisor](../supervisor/overview.md) in front of them. The supervisor serves the web app, and on central the patient portal when its URL is set.
 - The definition configures the supervisor with no actuator, so the server never sleeps and the supervisor only routes.
-- The definition gives the supervisor durable storage for its state.
 - Seedling's ingress carries the server's traffic to the supervisor. The definition sets the supervisor's trusted proxies to Seedling's, and the parts' trusted proxies to the supervisor.
 - The definition sets every environment variable that is a property of how it runs the server, so the operator never sets them: ports, the disk-space path, the trusted-proxy lists, console logging, which is on, and migrations at startup, which are off.
 
@@ -45,7 +44,7 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 - An operator installing a new server can generate the crypto key and authentication secrets, or enter an existing deployment's.
 - Both definitions take the server's canonical URL, which is required, and the server's primary timezone, which defaults to UTC.
 - The definition sets the server's canonical host name from its canonical URL.
-- Central also takes an optional patient portal URL. Setting it runs the patient portal, served at that URL.
+- Central also takes an optional patient portal URL. Setting it serves the patient portal at that URL.
 
 ### Canonical URLs
 
@@ -55,7 +54,7 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 ### Changing a parameter
 
 - Changing the database URL, crypto key, authentication secrets, canonical URL or primary timezone of an installed server restarts the parts that use it, with the new value.
-- Setting the patient portal URL on an installed central server starts the patient portal and its ingress. Unsetting it stops them.
+- Setting the patient portal URL on an installed central server has the supervisor serve the patient portal, through an ingress of its own. Unsetting it removes both.
 - Changing the primary timezone leaves the datetimes already stored as they are, read in the new timezone.
 - A facility server's primary timezone matches its central server's.
 

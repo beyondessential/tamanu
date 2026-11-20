@@ -1,4 +1,4 @@
-let configure_server = |c| {
+let configure = |c| {
     c.image(image.call("facility"))
         .env("TZ", timezone.value())
         .env("DATABASE_URL", database_url.value())
@@ -22,34 +22,28 @@ let configure_server = |c| {
 
 let api_max_replicas = if AVAILABLE_THREADS / 2 < 1 { 1 } else { AVAILABLE_THREADS / 2 };
 
-configure_server.call(app.deployment("api"))
+configure.call(app.deployment("api"))
     .description("API")
     .scale(1..=api_max_replicas)
     .arg(["startApi"])
     .mount(sync_http.port(3004))
     .tcp(3000, api_http.port(3001));
 
-configure_server.call(app.deployment("sync"))
+configure.call(app.deployment("sync"))
     .description("Sync")
     .scale(1)
     .on_update(OnUpdate.Replace)
     .arg(["startSync"])
     .tcp(3000, sync_http.port(3004));
 
-configure_server.call(app.deployment("tasks"))
+configure.call(app.deployment("tasks"))
     .description("Tasks")
     .on_update(OnUpdate.Replace)
     .arg(["startTasks"]);
 
-configure_server.call(app.deployment("fhir"))
+configure.call(app.deployment("fhir"))
     .description("FHIR worker")
     .on_update(OnUpdate.Replace)
     .arg(["startFhirWorker"]);
 
-app.deployment("frontend")
-    .description("Web app")
-    .image(image.call("frontend"))
-    .scale(1)
-    .tcp(3000, frontend_http.port(3002));
-
-let parts = ["api", "sync", "tasks", "fhir", "frontend"];
+let parts = ["api", "sync", "tasks", "fhir"];
