@@ -11,6 +11,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
 import { MarCellButton } from './components';
 import { compareMarMedications } from './marOrder';
+import { toPlainTime } from './marTimeSlots';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const Table = styled.table`
@@ -177,7 +178,7 @@ function HeadingRow({ children, selectedDate, ...props }) {
 // Convert time string to locale-specific time string no timezone conversion is applied
 const formatSlotTime = (timeStr, locale) =>
   Intl.DateTimeFormat(locale, { hour: 'numeric', hour12: true }).format(
-    new Date(`2000-01-01T${timeStr === '24:00' ? '00:00' : timeStr}:00`),
+    new Date(`2000-01-01T${toPlainTime(timeStr)}:00`),
   );
 
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {

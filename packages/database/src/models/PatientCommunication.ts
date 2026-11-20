@@ -2,13 +2,21 @@ import { DataTypes, Op, type FindOptions } from 'sequelize';
 import {
   COMMUNICATION_STATUSES,
   COMMUNICATION_STATUSES_VALUES,
+  PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_CHANNELS_VALUES,
   PATIENT_COMMUNICATION_TYPES_VALUES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
+import { isEmailAddress } from '@tamanu/utils/isEmailAddress';
 
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
+import type { ModelSanitizeArgs } from '../types/sync';
+
+const EMAIL_CHANNELS: string[] = [
+  PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+  PATIENT_COMMUNICATION_CHANNELS.PORTAL_EMAIL,
+];
 
 export class PatientCommunication extends Model {
   declare id: string;
@@ -55,6 +63,25 @@ export class PatientCommunication extends Model {
       foreignKey: 'patientId',
       as: 'patient',
     });
+  }
+
+  /**
+   * Attachments are files on central's own disk, which only central's tasks create. A facility
+   * never sets one, so none is accepted from a push. A destination on an email channel that is not
+   * an email address is stored as bad format, which the processors leave unsent.
+   */
+  static sanitizeForCentralServer(values: ModelSanitizeArgs) {
+    const { attachment: _attachment, ...sanitized } = values;
+
+    const isEmailChannel = EMAIL_CHANNELS.includes(sanitized.channel);
+    if (!isEmailChannel || !sanitized.destination || isEmailAddress(sanitized.destination)) {
+      return sanitized;
+    }
+    return {
+      ...sanitized,
+      status: COMMUNICATION_STATUSES.BAD_FORMAT,
+      error: 'Invalid destination address',
+    };
   }
 
   static getBaseQueryPendingMessage(

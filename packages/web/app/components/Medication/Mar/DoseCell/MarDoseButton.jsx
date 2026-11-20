@@ -21,6 +21,7 @@ export function MarDoseButton({
   selectedDate,
   timeSlot,
   parentTimeSlot,
+  dosesPerSlot,
   marInfo,
   nextMarInfo,
   medication,
@@ -58,7 +59,7 @@ export function MarDoseButton({
   });
 
   const { dueAt, reasonNotGiven, status } = marInfo || {};
-  const { dosingUnit, endDate, isPrn, startDate } = medication || {};
+  const { doseAmount, dosingUnit, endDate, isPrn, isVariableDose, startDate } = medication || {};
 
   const { storedDateTimeToEpochMilliseconds } = useDateTime();
   const isDueBeforePrescriptionStart = getIsDueBeforePrescriptionStart({
@@ -133,6 +134,8 @@ export function MarDoseButton({
   };
 
   const marStatus = {
+    doseAmount,
+    doseWindow: dosesPerSlot > 1 ? timeSlot : null,
     dosingUnit,
     dueAt,
     endDate,
@@ -145,6 +148,7 @@ export function MarDoseButton({
     isPast,
     isPaused,
     isPrn,
+    isVariableDose,
     marDoses,
     marInfo,
     reasonNotGiven,
