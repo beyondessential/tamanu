@@ -33,8 +33,8 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 - A definition's **upgrade** [gate](overview.md#borrowed-terms) is keyed on the version, so changing the version upgrades the server, whether an operator sets it or a definition update moves its default.
 - The new release's images are pulled before anything is stopped. A failed pull leaves the server running its current version, untouched, and the upgrade is retried.
-- Once the images are present, the definition tells the supervisor that an upgrade has started, and stops every part of the server but the supervisor.
-- While the parts are stopped, the supervisor answers requests with its [upgrading response](../supervisor/overview.md#upgrades).
+- Once the images are present, every part of the server but the supervisor is stopped.
+- While the parts are stopped, the supervisor goes on serving the web app, and answers requests for the parts with Tamanu's error pages.
 - The new release's migrations then run against the database.
 - When the migrations succeed, the new release's parts are started. Once they are ready, the supervisor is replaced with the new release's, which serves normally.
 
@@ -58,7 +58,6 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 - When the new release's migrations fail, the server's parts stay stopped and the upgrade fails, with a fault that carries the migration's error.
 - The parts stay stopped through retries and restarts of the host, until an upgrade succeeds.
-- The supervisor goes on answering with its upgrading response.
 - The previous release is not started again automatically. An operator restores the database, fixes forward by setting a release whose migrations succeed, or moves back to the previous release, which runs as [moving to an older release](#moving-to-an-older-release) does.
 
 > [!NOTE]

@@ -14,29 +14,16 @@ let readiness = app.gate("readiness")
     .key([database_url.value(), crypto_key.value()])
     .check(readiness_check, #{ interval: 300 });
 
-// spec: SDUPG#the-upgrade
-// The images are pulled before the supervisor is told, so a failed pull leaves
-// it serving the running release.
-let announce = app.gate("announce")
-    .key(version.value())
-    .after(readiness)
-    .run(|rt, last| {
-        rt.warm_images(app).ready();
-        // A new server has no supervisor to tell yet.
-        if type_of(last) != "()" {
-            rt.exec(supervisor, ["tamanu-supervisor", "upgrade-started"]).ensure_success();
-        }
-    });
-
 // spec: SDUPG#checking-the-migrations
 let migrations_check = configure.call(app.job("migrations-check"))
     .description("Pending migrations check")
     .arg(["just-migrate", "list", "--pending", "--check"])
     .deadline(120);
 
+// spec: SDUPG#the-upgrade
 let upgrade = app.gate("upgrade")
     .key(version.value())
-    .after(announce)
+    .after(readiness)
     .exclusive(app.select(#{ types: [ResourceType.Deployment], names: parts }))
     .check(migrations_check)
     .run(|rt| {
