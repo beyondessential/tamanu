@@ -1,0 +1,9 @@
+script = [
+    "helpers.rhai",
+    "params.rhai",
+    "facility.rhai",
+    "front-door.rhai",
+    "parts.rhai",
+    "gates.rhai",
+    "actions.rhai",
+]

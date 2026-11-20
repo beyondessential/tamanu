@@ -22,7 +22,9 @@ The Retry upgrade action is gone: Seedling retries a failed gate on its own, and
 
 ## First draft
 
-`seedling/central/app.seed.rhai` and `seedling/facility/app.seed.rhai` are a first draft, written to read rather than run. Each bundle is a single script with no `seedling.toml` yet. The two duplicate their helpers, parameters and gates, because a bundle can only read files beneath its own root.
+`seedling/central/` and `seedling/facility/` are a first draft, written to read rather than run. Each bundle's `seedling.toml` lists its script files in order, and Seedling joins them into one script.
+
+`helpers.rhai`, `params.rhai` and `gates.rhai` are shared by both bundles, as identical copies. A bundle can only read files beneath its own root, and the Seedling CLI refuses symlinks, so the files can't be shared any other way for now. `scripts/check-seedling-bundles.mjs`, which a workflow runs on every PR that touches `seedling/`, keeps the copies identical. Seedling/S6 looks at sharing code between bundles on Seedling's side.
 
 ### What the draft assumes that doesn't exist yet
 

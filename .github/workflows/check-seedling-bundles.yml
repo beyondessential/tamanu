@@ -1,0 +1,33 @@
+name: Check Seedling bundles
+
+on:
+  workflow_dispatch:
+  merge_group:
+  pull_request:
+    paths:
+      - 'seedling/**'
+      - 'scripts/check-seedling-bundles.mjs'
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check Seedling bundles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+
+      - name: Check the shared script files match across bundles
+        run: node scripts/check-seedling-bundles.mjs

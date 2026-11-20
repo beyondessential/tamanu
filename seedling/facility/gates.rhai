@@ -1,0 +1,64 @@
+// Shared by every bundle in seedling/, as identical copies that
+// scripts/check-seedling-bundles.mjs keeps in step.
+
+// Gates are declared in the order Seedling runs them when several are due at
+// once.
+
+// spec: SDDEF#readiness-check
+let readiness_check = configure_server.call(app.job("readiness-check"))
+    .description("Check the database URL connects and the crypto key decrypts the stored secrets")
+    .arg(["checkReadiness"])
+    .deadline(60);
+
+let readiness = app.gate("readiness")
+    .key([database_url.value(), crypto_key.value()])
+    .check(readiness_check, #{ interval: 300 });
+
+// spec: SDUPG#the-upgrade
+// The images are pulled before the supervisor is told, so a failed pull leaves
+// it serving the running release.
+let announce = app.gate("announce")
+    .key(version.value())
+    .after(readiness)
+    .run(|rt, last| {
+        rt.warm_images(app).ready();
+        // A new server has no supervisor to tell yet.
+        if type_of(last) != "()" {
+            rt.exec(supervisor, ["tamanu-supervisor", "upgrade-started"]).ensure_success();
+        }
+    });
+
+// spec: SDUPG#checking-the-migrations
+let migrations_check = configure_server.call(app.job("migrations-check"))
+    .description("Check the database has no migrations pending for this release")
+    .arg(["just-migrate", "list", "--pending", "--check"])
+    .deadline(120);
+
+let upgrade = app.gate("upgrade")
+    .key(version.value())
+    .after(announce)
+    .exclusive(app.select(#{ types: [ResourceType.Deployment], names: parts }))
+    .check(migrations_check)
+    .run(|rt| {
+        rt.start(configure_server.call(app.job())
+            .description("Run this release's migrations and upgrade steps")
+            .arg(["upgrade"])
+        ).terminated_eventually().ensure_success();
+    });
+
+for name in parts {
+    app.deployment(name).after([readiness, upgrade]);
+}
+supervisor.after([readiness, upgrade]);
+for name in parts {
+    supervisor.after(app.deployment(name));
+}
+
+// spec: SDDEF#ingress
+let https_hosts = [];
+for origin in origins {
+    if origin != () && origin.scheme == "https" { https_hosts.push(origin.host); }
+}
+app.gate("certificates")
+    .key(https_hosts)
+    .run(|rt| { rt.warm_certs(app).ready(); });
