@@ -1,4 +1,5 @@
 import config from 'config';
+import { keyBy, partition } from 'es-toolkit';
 import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 
@@ -43,28 +44,31 @@ export const saveChangesForModel = async (
     return sanitized;
   };
 
-  // split changes into creates and updates; soft deletes and restores ride along on the update
-  const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
-  const idsForIncomingRecords = incomingRecords.map(r => r.id);
-  // add all records that already exist in the db to the list to be updated
-  // even if they are being deleted or restored, we should also run an update query to keep the data in sync
+  /**
+   * Only for the lookups below, which need an ID to key on. Changes without one are not dropped:
+   * they can’t match an existing record, so they are still written as creates from `changes`.
+   */
+  const changesWithId = changes.filter(change => change.data.id);
+
+  const idsForIncomingRecords = changesWithId.map(c => c.data.id);
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
-  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
-  // follow the same pattern for incoming records
-  // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
-  const idToIncomingRecord = Object.fromEntries(
-    changes.filter(c => c.data.id).map(e => [e.data.id, e]),
-  );
-  const idsForUpdate = new Set();
+  const idToExistingRecord = keyBy(existingRecords, record => record.id);
+  /**
+   * Follow the same pattern for incoming records
+   * @see https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
+   */
+  const idToIncomingRecord = keyBy(changesWithId, change => change.data.id);
+  /** Own-property check, so an ID like `constructor` doesn’t match an inherited member */
+  const isExistingRecord = (id: SyncSnapshotData['id']) => Object.hasOwn(idToExistingRecord, id);
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  existingRecords.forEach(existing => {
+  for (const existing of existingRecords) {
     // compares incoming and existing records by id
+    // (Technically an unsafe access; `existing.id` may match an inherited member.)
     const incoming = idToIncomingRecord[existing.id];
-    idsForUpdate.add(existing.id);
 
     // Restores only originate from central server
     if (isCentralServer === false && existing.deletedAt && !incoming?.isDeleted) {
@@ -73,18 +77,16 @@ export const saveChangesForModel = async (
     if (!existing.deletedAt && incoming?.isDeleted) {
       idsForDelete.add(existing.id);
     }
-    if (existing.deletedAt && incoming?.isDeleted) {
-      // don't do anything related to deletion if incoming record
-      // is deleted and existing record is already deleted
-    }
-  });
+
+    // If incoming is deleted AND existing is already deleted, nothing to do
+  }
 
   /**
    * A new record is inserted immediately soft-deleted if any copy of it in the payload is deleted .
    * (The same record can turn up more than once, see {@link saveCreates}.)
    */
   for (const c of changes) {
-    if (c.isDeleted && idToExistingRecord[c.data.id] === undefined) {
+    if (c.isDeleted && !isExistingRecord(c.data.id)) {
       idsForDelete.add(c.data.id);
     }
   }
@@ -104,12 +106,16 @@ export const saveChangesForModel = async (
     const deletedAt = getDeletedAt(data.id);
     return deletedAt === undefined ? sanitized : { ...sanitized, deletedAt };
   };
-  const recordsForCreate = changes
-    .filter(c => idToExistingRecord[c.data.id] === undefined)
-    .map(c => toRecordToWrite(c.data));
-  const recordsForUpdate = changes
-    .filter(c => idsForUpdate.has(c.data.id))
-    .map(c => toRecordToWrite(c.data));
+
+  /**
+   * - Soft deletes and restores are considered updates.
+   * - All records that already exist in the DB are updated. Even if they are being deleted or
+   *   restored, we should also run an update query to keep the data in sync.
+   */
+  const [recordsForUpdate, recordsForCreate] = partition(
+    changes.map(({ data }) => toRecordToWrite(data)),
+    record => isExistingRecord(record.id),
+  );
 
   // run each import process
   log.debug('Sync: saveIncomingChanges: Creating new records', { count: recordsForCreate.length });
@@ -159,7 +165,7 @@ const saveChangesForModelInBatches = async (
       persistedCacheBatchSize,
       recordType,
     );
-    fromId = batchRecords[batchRecords.length - 1]?.id;
+    fromId = batchRecords.at(-1)?.id;
 
     try {
       log.info('Sync: Persisting cache to table', {
