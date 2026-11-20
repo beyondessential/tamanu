@@ -65,6 +65,8 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 - An `https` URL gets an ingress that terminates TLS for its hostname, and plain HTTP to that hostname on port 80 is redirected to it.
 - An `http` URL gets a plain ingress, with no TLS.
 - The patient portal's ingress carries its API requests to the server as well as the portal itself.
+- A definition's **certificates** gate obtains the certificate of each `https` ingress when the server is installed and whenever one of its URLs changes, ahead of the first request.
+- The server starts without waiting for its certificates. A certificate that cannot be obtained leaves the server with a fault naming its hostname, and is retried.
 
 ## Configuration
 
@@ -76,6 +78,10 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 - No part of the server, the supervisor included, starts until the readiness check passes.
 - A failed check leaves the server with a fault naming which check failed, and is retried until it passes.
 - Changing the database URL or crypto key runs the readiness check again. The parts go on running with the previous value until it passes, then restart with the new one.
+- The readiness check also runs periodically while the server runs. A failed check leaves the parts already running as they are, with the same fault, and a part that is not running waits for the check to pass before it starts.
+
+> [!NOTE]
+> A part restarting during a database outage, such as after the host reboots, waits for the database rather than failing against it, and the fault says why the server is down.
 
 ## First run
 
