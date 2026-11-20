@@ -1,7 +1,8 @@
 // Tamanu central server.
 // spec: SDDEF, SDUPG
 //
-// Gates are declared in the order Seedling runs them when several are due at once.
+// Gates are declared in the order Seedling runs them when several are due at
+// once.
 
 app.description(`
 Tamanu central server: where all the data lives, and the core of the Tamanu system.
@@ -11,8 +12,9 @@ app.canopy_type("tamanu-central");
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
 // spec: SDPUB#published-version
-// Publishing writes `published-version` beside this script, with the build's image tag on its first line and the Tamanu version the build carries on its second.
-// A definition run from the repository has no such file.
+// Publishing writes `published-version` beside this script, with the build's
+// image tag on its first line and the Tamanu version the build carries on its
+// second. A definition run from the repository has no such file.
 let published = try {
     let lines = app.file("published-version").text().split("\n");
     let tag = lines[0];
@@ -24,7 +26,8 @@ let published = try {
     ()
 };
 
-// The minor of a release tag, such as "2.71" for "v2.71.3", or () for a tag that names no release.
+// The minor of a release tag, such as "2.71" for "v2.71.3", or () for a tag
+// that names no release.
 let minor_of = |release| {
     let bare = if release.starts_with("v") { release.sub_string(1) } else { release };
     let parts = bare.split(".");
@@ -39,7 +42,8 @@ let minor_of = |release| {
 };
 
 // spec: SDDEF#canonical-urls
-// A single trailing slash is accepted as the root path, since a URL copied from a browser carries one.
+// A single trailing slash is accepted as the root path, since a URL copied from
+// a browser carries one.
 let parse_origin = |url| {
     let scheme = if url.starts_with("https://") {
         "https"
@@ -137,7 +141,8 @@ let portal_url = app.param("patient-portal-url")
     .description("URL the patient portal is reached at; setting it runs the patient portal")
     .validate(|v, all| { parse_origin.call(v); });
 
-// A parameter can be unset while the definition is first registered, so nothing below throws on an unset one.
+// A parameter can be unset while the definition is first registered, so nothing
+// below throws on an unset one.
 let canonical = if canonical_url.is_set() { parse_origin.call(canonical_url.value()) } else { () };
 let portal = if portal_url.is_set() { parse_origin.call(portal_url.value()) } else { () };
 
@@ -148,7 +153,8 @@ let image = |name| `ghcr.io/beyondessential/tamanu-${name}:${version.value()}`;
 // ── Front door ────────────────────────────────────────────────────────────────
 
 // spec: SDDEF#what-a-definition-runs
-// Both lists are placeholders until the addresses that Seedling's proxy and service mounts connect from are known.
+// Both lists are placeholders until the addresses that Seedling's proxy and
+// service mounts connect from are known.
 const SEEDLING_PROXIES = "uniquelocal";
 const SUPERVISOR_PROXIES = "uniquelocal";
 
@@ -274,7 +280,8 @@ let readiness = app.gate("readiness")
     .check(readiness_check, #{ interval: 300 });
 
 // spec: SDUPG#the-upgrade
-// The images are pulled before the supervisor is told, so a failed pull leaves it serving the running release.
+// The images are pulled before the supervisor is told, so a failed pull leaves
+// it serving the running release.
 let announce = app.gate("announce")
     .key(version.value())
     .after(readiness)
