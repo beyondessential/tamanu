@@ -2,7 +2,7 @@ script = [
     "helpers.rhai",
     "params.rhai",
     "facility.rhai",
-    "front-door.rhai",
+    "supervisor.rhai",
     "parts.rhai",
     "gates.rhai",
     "actions.rhai",

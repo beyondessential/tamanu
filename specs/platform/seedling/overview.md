@@ -26,7 +26,7 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 
 - A central definition runs the API, the background tasks, the FHIR workers and the web app, and the patient portal when its URL is set.
 - A facility definition runs the API, sync, the background tasks, the FHIR worker and the web app.
-- Each part runs from the image of the version the definition is set to, with Tamanu's [supervisor](../supervisor/overview.md) in front of them as the server's front door.
+- Each part runs from the image of the version the definition is set to, with Tamanu's [supervisor](../supervisor/overview.md) in front of them.
 - The definition configures the supervisor with no actuator, so the server never sleeps and the supervisor only routes.
 - The definition gives the supervisor durable storage for its state.
 - Seedling's ingress carries the server's traffic to the supervisor. The definition sets the supervisor's trusted proxies to Seedling's, and the parts' trusted proxies to the supervisor.
