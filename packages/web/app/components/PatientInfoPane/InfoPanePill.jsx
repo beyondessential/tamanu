@@ -5,7 +5,7 @@ import { Colors } from '../../constants';
 
 const PILL_GREY = '#EDEDED';
 
-export const InfoPanePill = styled(FormFieldTag)`
+export const InfoPanePill = styled(FormFieldTag).attrs({ as: 'span' })`
   box-sizing: border-box;
   flex-shrink: 0;
   height: 28px;
