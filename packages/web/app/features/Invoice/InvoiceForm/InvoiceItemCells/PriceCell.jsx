@@ -124,6 +124,14 @@ const StyledField = styled(Field)`
   }
   input {
     text-align: end;
+    // The spinners would sit over the figure now that it is right-aligned, and step a price by
+    // whole units besides. Suppressed on the control rather than the type, so it stays a number
+    // field: its keyboard stepping, its numeric keypad on touch and its validation are unchanged.
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   }
 `;
 
