@@ -55,7 +55,8 @@ const parseEmailRecipients = (recipients: unknown): string[] | null => {
       : (parsed as { email?: unknown })?.email;
 
   if (!Array.isArray(emails) || emails.length === 0) return null;
-  return emails.every(isEmailAddress) ? emails : null;
+  if (!emails.every(isEmailAddress)) return null;
+  return emails;
 };
 
 const filterAsync = async <T>(items: T[], predicate: (item: T) => Promise<boolean>) => {
