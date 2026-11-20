@@ -28,7 +28,8 @@ Applies to what a central or facility server checks of its database when it star
 
 - Migrations are written to stay backward compatible with earlier releases where they can, so that an earlier release keeps working against the database they leave.
 - A migration that cannot stay backward compatible, because the change it makes needs to break it, is still made.
-- A migration that breaks backward compatibility is marked as doing so in its source, with what an earlier release trips on, so an operator can find the breaking migrations between two releases by searching for the marker.
+- A migration that breaks backward compatibility carries a `// BACKWARD INCOMPATIBLE:` comment in its `up` function, followed by what an earlier release trips on, so an operator can find the breaking migrations between two releases by searching for it.
+- A migration whose `down` function cannot restore what its `up` changed carries a `// DESTRUCTIVE:` comment there, followed by what is not restored, so an operator can tell which reverts lose data.
 
 > [!NOTE]
 > Backward compatibility is best effort, not a guarantee at any level, including between patch releases of one minor. Keeping to it most of the time is what makes moving back a workable option.
