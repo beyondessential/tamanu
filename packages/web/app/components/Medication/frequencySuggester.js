@@ -8,15 +8,13 @@ export class FrequencySuggester {
       return null;
     }
     // Find the suggestion object that matches the given value (ID)
-    const selectedSuggestion = this.suggestions.find(
-      suggestion => suggestion.value === value,
-    );
+    const selectedSuggestion = this.suggestions.find(suggestion => suggestion.value === value);
     return selectedSuggestion || null;
   };
 
   fetchSuggestions = async search => {
     const searchLower = search.toLowerCase();
-  
+
     const getMatchType = (label, synonyms) => {
       if (label.toLowerCase().startsWith(searchLower)) {
         return 1; // Primary search string begins with search term
@@ -31,11 +29,11 @@ export class FrequencySuggester {
       }
       return 4; // No match
     };
-  
+
     return this.suggestions
       .map(suggestion => ({
         ...suggestion,
-        matchType: getMatchType(suggestion.label, suggestion.synonyms)
+        matchType: getMatchType(suggestion.label, suggestion.synonyms),
       }))
       .filter(suggestion => suggestion.matchType < 4) // Remove non-matches
       .sort((a, b) => {
