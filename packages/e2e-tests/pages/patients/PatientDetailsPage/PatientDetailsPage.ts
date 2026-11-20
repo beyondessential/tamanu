@@ -269,9 +269,8 @@ export class PatientDetailsPage extends BasePatientPage {
       'formsubmitcancelrow-resolvecondition-confirmButton',
     );
     this.resolvedClinician = this.page
-      .getByRole('combobox')
-      .filter({ hasText: 'Clinician confirming' })
-      .locator('input');
+      .getByTestId('formgrid-resolvecondition')
+      .getByTestId('field-izs0-input');
     this.resolvedNote = this.page.getByTestId('field-4g2s-input').first();
     this.savedFamilyHistoryName = this.page
       .getByTestId('collapse-0a33')
@@ -638,9 +637,8 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async resolveOngoingCondition(clinicianName: string, note: string) {
     await this.markConditionResolvedButton.click();
-    await this.resolvedClinician.click();
-    await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
-    await expect(this.resolvedClinician).toHaveValue(clinicianName);
+    await searchAndSelectAutocompleteOption(this.page, this.resolvedClinician, clinicianName);
+    await expect(this.resolvedClinician.locator('input')).toHaveValue(clinicianName);
     await this.resolvedNote.fill(note);
     await this.clickAddButtonToConfirm(this.resolveConditionSubmitButton);
   }

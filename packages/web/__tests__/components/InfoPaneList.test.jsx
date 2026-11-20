@@ -26,13 +26,17 @@ const CONDITIONS = [
   },
 ];
 
-const { put } = vi.hoisted(() => ({ put: vi.fn(async () => ({})) }));
+const { put, del } = vi.hoisted(() => ({
+  put: vi.fn(async () => ({})),
+  del: vi.fn(async () => ({})),
+}));
 
 vi.mock('../../app/api', () => ({
   useApi: () => ({
     get: async endpoint =>
       String(endpoint).startsWith('suggestions/') ? { name: 'A Clinician' } : { data: CONDITIONS },
     put,
+    delete: del,
   }),
 }));
 vi.mock('../../app/contexts/Patient', () => ({
@@ -195,5 +199,27 @@ describe('InfoPaneList', () => {
     expect(screen.queryByTestId('infopaneitemdetails-edit')).toBeNull();
     expect(screen.queryByTestId('mark-condition-resolved-button')).toBeNull();
     expect(screen.queryByTestId('addbutton-b0ln')).toBeNull();
+  });
+
+  it('deletes a condition only once the delete is confirmed', async () => {
+    renderConditions();
+    fireEvent.click(await screen.findByTestId('listitem-adip-0'));
+    fireEvent.click(screen.getByTestId('infopaneitemdetails-edit'));
+
+    fireEvent.click(screen.getByTestId('formsubmitcancelrow-2r80-deleteButton'));
+    expect(await screen.findByTestId('subtext-delete-condition')).toBeTruthy();
+    fireEvent.click(screen.getByTestId('outlinedbutton-p957'));
+    await waitFor(() => expect(screen.queryByTestId('subtext-delete-condition')).toBeNull());
+    expect(del).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId('formsubmitcancelrow-2r80-deleteButton'));
+    fireEvent.click(await screen.findByTestId('confirmbutton-y3tb'));
+
+    await waitFor(() => expect(del).toHaveBeenCalledTimes(1));
+    expect(del.mock.calls[0][0]).toMatchObject({
+      template: 'ongoingCondition/:conditionToDeleteId',
+      params: { conditionToDeleteId: 'condition-1' },
+    });
+    await waitFor(() => expect(screen.queryByTestId('collapse-0a33')).toBeNull());
   });
 });
