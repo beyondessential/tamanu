@@ -30,10 +30,10 @@ Two things to know while testing:
       custom patient field groups (verifies spec: PDET)
 - [x] Patient type is shown in Billing information rather than Personal information, and
       saves and reads back from there (verifies spec: PDET)
-- [ ] Billing information holds, in order: insurance plan, patient type, family size, annual
+- [x] Billing information holds, in order: insurance plan, patient type, family size, annual
       income, Payor 1, Payor 1 reference number, Payor 2, Payor 2 reference number, insurance
       policy number (verifies spec: PDET)
-- [ ] Family size sits beside annual income, and each payor beside its reference number, both
+- [x] Family size sits beside annual income, and each payor beside its reference number, both
       with the insurance policy number shown and with it switched off (verifies spec: PDET)
 - [x] Identification information ends with adoption number then marriage licence
       (verifies spec: PDET)
@@ -88,12 +88,12 @@ Two things to know while testing:
       patient form (verifies spec: PDET)
 - [x] Adoption number and marriage licence set as required when creating appear there too
       (verifies spec: PDET)
-- [ ] Choosing the sliding fee scale plan on the new patient form marks family size and
+- [x] Choosing the sliding fee scale plan on the new patient form marks family size and
       annual income required in Billing information, with the same messages, and removing it
       lifts the requirement (verifies spec: PDET)
 - [x] Neither field appears a second time outside Billing information when the plan is chosen,
       on either form (verifies spec: PDET)
-- [ ] With annual income required when creating a patient, it and family size are collected
+- [x] With annual income required when creating a patient, it and family size are collected
       with the other required details, and appear once (verifies spec: PDET)
 
 ## Invoice discount assessment
@@ -135,3 +135,12 @@ Two things to know while testing:
       patient additional data without error
 - [x] Mobile, which carries neither the new columns nor insurer_id, can still push a patient
       additional data edit without clearing the billing fields on central
+
+## Not yet covered
+
+Scenarios the automated pass against the L1 preview could not reach. Each is still coverage this
+card owes.
+
+- [ ] A deceased patient is not offered as a payor. The preview carries 73 patients and none has a date of death, so there is nothing for the filter to exclude.
+- [ ] A save blocked by validation inside the invoice's patient details modal keeps the modal open and brings the first field with a message into view. Verifies spec: INVOICING
+- [ ] The patient portal's details and edit screens show Policy number and no health insurer, checked on the running portal rather than in the field list. Needs a patient registered for portal access against a reachable inbox. Verifies spec: PPDET
