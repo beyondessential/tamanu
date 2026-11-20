@@ -36,7 +36,6 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 
 - A definition connects to a PostgreSQL database the operator provides, named by a database URL parameter.
 - The database is the only thing outside the definition that the server depends on.
-- The database authenticates the server's role by the password the database URL carries.
 
 ## Parameters
 

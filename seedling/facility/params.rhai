@@ -19,7 +19,7 @@ if published != () {
 let database_url = app.param("database-url")
     .kind("password")
     .required(true)
-    .description("PostgreSQL URL, including the password")
+    .description("PostgreSQL URL")
     .validate(|v, all| {
         if !v.starts_with("postgres://") && !v.starts_with("postgresql://") {
             throw "must be a postgres:// or postgresql:// URL";
