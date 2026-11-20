@@ -32,13 +32,25 @@ export const useKioskAppointmentQuery = appointmentId => {
   );
 };
 
-/** Takes a function that builds the responses, so a failure building them fails the check-in. */
+/**
+ * Submits one finished form, which can't be changed from the kiosk afterwards. Takes a function
+ * that builds the response, so a failure building it fails the submission.
+ */
+export const useKioskSubmitFormMutation = appointmentId => {
+  const api = useApi();
+  return useMutation(async ({ surveyId, buildResponse }) => {
+    const response = await buildResponse();
+    return api.post(
+      route('kiosk/appointments/:appointmentId/forms/:surveyId', { appointmentId, surveyId }),
+      response,
+    );
+  });
+};
+
+/** Marks the appointment Arrived, once every form has been submitted. */
 export const useKioskCheckInMutation = appointmentId => {
   const api = useApi();
-  return useMutation(async buildResponses => {
-    const responses = await buildResponses();
-    return api.post(route('kiosk/appointments/:appointmentId/checkIn', { appointmentId }), {
-      responses,
-    });
-  });
+  return useMutation(() =>
+    api.post(route('kiosk/appointments/:appointmentId/checkIn', { appointmentId })),
+  );
 };

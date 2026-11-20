@@ -22,7 +22,7 @@ import {
   TextQuestion,
 } from './questions/TextQuestions';
 
-const InstructionBox = styled.div`
+export const InstructionBox = styled.div`
   display: flex;
   gap: ${formScaled(14)};
   padding: ${formScaled(18)} ${formScaled(20)};
