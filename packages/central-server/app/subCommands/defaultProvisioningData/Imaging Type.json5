@@ -20,6 +20,12 @@
       "visibilityStatus": "current"
     },
     {
+      "id": "imagingType-cArm",
+      "code": "cArm",
+      "name": "C-arm",
+      "visibilityStatus": "current"
+    },
+    {
       "id": "imagingType-ctScan",
       "code": "ctScan",
       "name": "CT Scan",
