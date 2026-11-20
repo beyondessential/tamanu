@@ -4,5 +4,17 @@
 
 - **Supervisor specs (L13):** the Seedling definitions specs assume the supervisor specs return to `main` before this card merges, carrying the upgrading response in `specs/platform/supervisor/overview.md#upgrades`. Whether the platform's "upgrade finished" signal stays is filed on L13.
 - **T16:** a facility server stops when its primary timezone differs from central's. That check is what lets both definitions keep the timezone as an ordinary parameter defaulting to UTC, and it carries the sync and facility setup spec changes.
-- **seedling/H6:** a definition update that moves the version parameter's default runs no change handler, so re-fetching a newer definition with the version at its default would start the new release on an unmigrated database. The upgrades spec's "changing the version upgrades the server" relies on H6 for that path.
-- **seedling/J6:** a failed operation returns the app to its current generation's graph. The upgrades spec's "parts stay stopped" after a failed migration, and "a failed pull leaves the server untouched", both rely on J6.
+- **Seedling gates (seedling/H6, landed):** the readiness check and the upgrade are built on gates. Gates replaced change handlers and the install action, so neither definition declares an `on_change` handler or an install action. Seedling/J6 was cancelled because gate holds already give it what it was for.
+
+## Gates
+
+Each definition declares its gates in this order, which is also the order Seedling runs them when several are due at once.
+
+- **`readiness`:** keyed on the database URL and crypto key. No body, and a check Job that connects with the database URL and decrypts the stored secrets with the crypto key. Every Deployment, the supervisor included, is ordered after it, so a changed URL or key makes them stale but they keep running on the old value until the check passes. Seedling stores only a digest of the key, but the check Job's error output is shown on the fault, so it must not print the URL's password.
+- **`announce`:** keyed on the version, ordered after `readiness`, no exclusive selection. Its body pulls the new release's images with `rt.warm_images`, then tells the supervisor an upgrade has started. Pulling first keeps a failed pull from leaving the supervisor showing its upgrading response over a server still running the old release. With `last` unit (a new install) there is no supervisor yet, so the body skips the notice.
+- **`upgrade`:** keyed on the version, ordered after `announce`, with every Deployment but the supervisor as its exclusive selection. Its body runs the new release's `upgrade` subcommand in a Job from the new server image. Its check runs `just-migrate list --pending --check`, which exits non-zero when migrations are pending.
+- The parts are ordered after `upgrade`, and the supervisor after `upgrade` and the parts, so Seedling replaces the supervisor only once the new parts are ready, and leaves the old one serving its upgrading response while `upgrade` keeps failing.
+
+`announce` splits from `upgrade` because Seedling stops a gate's exclusive selection before its body runs: a single gate could tell the supervisor only after the parts had already gone.
+
+The Retry upgrade action is gone: Seedling retries a failed gate on its own, and an operator runs a gate at once through `/apps/gates/run`.

@@ -11,6 +11,7 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 - [Definition bundle](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/overview.md#definition-bundle): the set of files that defines a Seedling app, and that Seedling installs and runs.
 - [Parameter](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/language/parameter.md): a named value an operator sets on an installed app, which its definition reads.
 - [Action](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/overview.md#action): a named operation a definition offers, which an operator invokes.
+- [Gate](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/language/gate.md): a named step a definition declares, which Seedling runs whenever the value it is keyed on changes, retries until it succeeds, and holds back the parts ordered after it until then.
 - [Ingress](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/language/ingress.md): the entry point by which Seedling carries traffic for a hostname to an app, terminating TLS where it is declared to.
 - [Site volume](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/overview.md#site-volume): storage on the Seedling host that an operator manages and names to an app.
 
@@ -71,12 +72,14 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 
 ## Readiness check
 
-- Installing a server checks, before anything is started, that the database URL connects and that the crypto key decrypts any secrets the database already holds.
-- A failed check fails the install, naming which check failed, and leaves nothing running.
+- A definition's **readiness** [gate](#borrowed-terms) checks that the database URL connects and that the crypto key decrypts any secrets the database already holds.
+- No part of the server, the supervisor included, starts until the readiness check passes.
+- A failed check leaves the server with a fault naming which check failed, and is retried until it passes.
+- Changing the database URL or crypto key runs the readiness check again. The parts go on running with the previous value until it passes, then restart with the new one.
 
 ## First run
 
-- Installing a server migrates its database to the definition's version and starts the server.
+- Installing a server runs its readiness check, migrates its database to the definition's version, and starts the server.
 - A central definition offers a **Provision** action, which provisions a newly installed central server from a provisioning file, and the files it refers to, on a site volume the operator names.
 - Provision refuses a server that already holds the provisioning file's administrator users, and leaves it unchanged.
 - A newly installed facility server is connected to its central server through its [setup wizard](../facility-setup.md#setup-wizard), which also sets the facilities it serves.

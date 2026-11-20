@@ -31,8 +31,8 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 ## The upgrade
 
-- Changing the version upgrades the server in a single operation.
-- The new release's images are pulled before anything is stopped. A failed pull leaves the server running its current version, untouched.
+- A definition's **upgrade** [gate](overview.md#borrowed-terms) is keyed on the version, so changing the version upgrades the server, whether an operator sets it or a definition update moves its default.
+- The new release's images are pulled before anything is stopped. A failed pull leaves the server running its current version, untouched, and the upgrade is retried.
 - Once the images are present, the definition tells the supervisor that an upgrade has started, and stops every part of the server but the supervisor.
 - While the parts are stopped, the supervisor answers requests with its [upgrading response](../supervisor/overview.md#upgrades).
 - The new release's migrations then run against the database.
@@ -45,12 +45,19 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 ### Retrying an upgrade
 
-- A definition offers a **Retry upgrade** action, which runs the upgrade to the version already set.
-- Retrying an upgrade that failed starts again from pulling the images, and steps already done are done again without harm.
+- A failed upgrade is retried automatically, at growing intervals.
+- An operator retries it at once by running the upgrade gate, and stops the retries by cancelling a run, until they run the gate again or change the version.
+- A retry starts again from pulling the images, and steps already done are done again without harm.
+
+### Checking the migrations
+
+- The upgrade checks that the database has no migrations pending for the version set: after migrating, and before starting a part that is not running.
+- A check that finds migrations pending runs the upgrade again before the parts start, so a database restored from a backup taken before an upgrade is migrated again.
 
 ## When migrations fail
 
-- When the new release's migrations fail, the server's parts stay stopped and the operation fails, with a fault that carries the migration's error.
+- When the new release's migrations fail, the server's parts stay stopped and the upgrade fails, with a fault that carries the migration's error.
+- The parts stay stopped through retries and restarts of the host, until an upgrade succeeds.
 - The supervisor goes on answering with its upgrading response.
 - The previous release is not started again automatically. An operator restores the database, fixes forward by setting a release whose migrations succeed, or moves back to the previous release, which runs as [moving to an older release](#moving-to-an-older-release) does.
 
