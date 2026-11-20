@@ -10,6 +10,7 @@ discharge modal looks right and confirming the modals and forms either side of i
 - [ ] The header is the same height as a modal with a corner close button (open any other modal beside it to compare).
 - [ ] The modal's close icon sits wholly inside the header, vertically centred, and in the same place as another modal's close button.
 - [ ] Leave the form with edits in hand: the unsaved-changes screen's close icon sits in that same place.
+- [ ] A screen reader announces the modal's close icon as "Close", on both the form screen and the unsaved-changes screen.
 
 ## Other users of the shared components
 

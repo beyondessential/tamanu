@@ -19,8 +19,8 @@ export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
 export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
 export const MODAL_TRANSITION_DURATION = 300;
 
-/** The 40px close icon button plus the header's own padding-block. */
-const MODAL_HEADER_MIN_HEIGHT = 68;
+const MODAL_HEADER_PADDING_BLOCK = 14;
+const MODAL_CLOSE_BUTTON_SIZE = 40;
 
 /** Pixel max-widths for each `width` prop value. `md` is intentionally below MUI's default. */
 export const MODAL_MAX_WIDTHS = {
@@ -92,8 +92,8 @@ const Header = styled.header`
   flex-wrap: wrap;
   // Without this the header's height is whatever its tallest child is, so a modal that draws its
   // own corner button instead of taking cornerExitButton sits shorter than every other modal.
-  min-block-size: ${MODAL_HEADER_MIN_HEIGHT}px;
-  padding-block: 14px;
+  min-block-size: ${MODAL_CLOSE_BUTTON_SIZE + 2 * MODAL_HEADER_PADDING_BLOCK}px;
+  padding-block: ${MODAL_HEADER_PADDING_BLOCK}px;
   padding-inline: 32px 14px;
 
   // Holds the title and the close/print icon buttons (Actions), neither of which
@@ -124,7 +124,7 @@ const Actions = styled.div.attrs({ 'data-testid': 'actions-okdu' })`
   margin-inline-start: auto;
 `;
 
-function CloseButton(props) {
+export function CloseButton(props) {
   return (
     <IconButton data-testid="iconbutton-eull" {...props}>
       <CloseIcon />
