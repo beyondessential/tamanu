@@ -192,7 +192,17 @@ export const OngoingConditionForm = ({
     }
     const fields = omit(data, RESOLUTION_FIELD_NAMES);
     const isUnresolving = Boolean(editedObject?.resolved) && !data.resolved;
-    await onSubmit(isUnresolving ? { ...fields, resolved: false } : fields);
+    await onSubmit(
+      isUnresolving
+        ? {
+            ...fields,
+            resolved: false,
+            resolutionDate: null,
+            resolutionPractitionerId: null,
+            resolutionNote: null,
+          }
+        : fields,
+    );
   };
 
   const getInitialValues = () => {

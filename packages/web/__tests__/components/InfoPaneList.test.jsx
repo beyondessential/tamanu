@@ -135,6 +135,8 @@ describe('InfoPaneList', () => {
     expect(JSON.stringify(endpoint)).toContain('condition-2');
     expect(payload).not.toHaveProperty('resolved');
     expect(payload).not.toHaveProperty('resolutionDate');
+    expect(payload).not.toHaveProperty('resolutionPractitionerId');
+    expect(payload).not.toHaveProperty('resolutionNote');
   });
 
   it('un-resolves a resolved condition when Resolved is unticked in its edit form', async () => {
@@ -150,10 +152,12 @@ describe('InfoPaneList', () => {
 
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
     const [, payload] = put.mock.calls[0];
-    expect(payload.resolved).toBe(false);
-    expect(payload).not.toHaveProperty('resolutionDate');
-    expect(payload).not.toHaveProperty('resolutionPractitionerId');
-    expect(payload).not.toHaveProperty('resolutionNote');
+    expect(payload).toMatchObject({
+      resolved: false,
+      resolutionDate: null,
+      resolutionPractitionerId: null,
+      resolutionNote: null,
+    });
   });
 
   it('offers no Resolved checkbox when editing an unresolved condition', async () => {
