@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import {
   DateDisplay,
+  PlainTimeDisplay,
   ThemedTooltip,
   TranslatedEnum,
   TranslatedText,
@@ -11,6 +12,7 @@ import {
   VisuallyHidden,
 } from '@tamanu/ui-components';
 import { MarDoseSlot } from '../components';
+import { toPlainTime } from '../marTimeSlots';
 
 /**
  * Phrasing content only, since this text is also rendered inside `MarCellButton`, which cannot
@@ -57,7 +59,13 @@ export const hasMarStatusTooltip = ({
   return !(isPast && isPrn);
 };
 
+const UnderlinedLine = styled(Span)`
+  text-decoration: underline;
+`;
+
 const MarStatusTooltipContent = ({
+  doseAmount,
+  doseWindow,
   dosingUnit,
   dueAt,
   endDate,
@@ -68,7 +76,7 @@ const MarStatusTooltipContent = ({
   isNotDue,
   isPast,
   isPaused,
-  isPrn,
+  isVariableDose,
   marDoses,
   marInfo,
   reasonNotGiven,
@@ -152,32 +160,64 @@ const MarStatusTooltipContent = ({
         </>
       );
     default:
-      if (isNotDue) {
-        return (
-          <TranslatedText
-            stringId="medication.mar.future.tooltip"
-            fallback="Cannot record future dose. Due at :dueAt."
-            replacements={{ dueAt: formatTime(dueAt) }}
-          />
-        );
-      }
-      if (isPast) {
-        return isPrn ? null : (
-          <TranslatedText
-            stringId="medication.mar.missed.tooltip"
-            fallback="Missed. Due at :dueAt."
-            replacements={{ dueAt: formatTime(dueAt) }}
-          />
-        );
-      }
       return (
-        <TranslatedText
-          stringId="medication.mar.dueAt.tooltip"
-          fallback="Due at :dueAt."
-          replacements={{ dueAt: formatTime(dueAt) }}
-        />
+        <>
+          {doseWindow && (
+            <>
+              <UnderlinedLine>
+                <PlainTimeDisplay time={toPlainTime(doseWindow.startTime)} />
+                &ndash;
+                <PlainTimeDisplay time={toPlainTime(doseWindow.endTime)} />
+              </UnderlinedLine>
+              {!isVariableDose && (
+                <UnderlinedLine>
+                  {doseAmount}
+                  {dosingUnit && (
+                    <>
+                      &nbsp;
+                      <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                    </>
+                  )}
+                </UnderlinedLine>
+              )}
+            </>
+          )}
+          <Span>
+            <UnrecordedDoseStatus dueAt={dueAt} isNotDue={isNotDue} isPast={isPast} />
+          </Span>
+        </>
       );
   }
+};
+
+const UnrecordedDoseStatus = ({ dueAt, isNotDue, isPast }) => {
+  const { formatTime } = useDateTime();
+
+  if (isNotDue) {
+    return (
+      <TranslatedText
+        stringId="medication.mar.future.tooltip"
+        fallback="Cannot record future dose. Due at :dueAt."
+        replacements={{ dueAt: formatTime(dueAt) }}
+      />
+    );
+  }
+  if (isPast) {
+    return (
+      <TranslatedText
+        stringId="medication.mar.missed.tooltip"
+        fallback="Missed. Due at :dueAt."
+        replacements={{ dueAt: formatTime(dueAt) }}
+      />
+    );
+  }
+  return (
+    <TranslatedText
+      stringId="medication.mar.dueAt.tooltip"
+      fallback="Due at :dueAt."
+      replacements={{ dueAt: formatTime(dueAt) }}
+    />
+  );
 };
 
 export const MarStatusLabel = props =>
@@ -189,12 +229,19 @@ export const MarStatusLabel = props =>
     </VisuallyHidden>
   ) : null;
 
+const DoseWindowTooltip = styled(ThemedTooltip)`
+  && .MuiTooltip-tooltip {
+    padding: 0.5rem 1rem;
+  }
+`;
+
 export const MarStatusTooltip = ({ children, ...tooltipProps }) => {
   const slot = <MarDoseSlot>{children}</MarDoseSlot>;
   if (!hasMarStatusTooltip(tooltipProps)) return slot;
 
+  const Tooltip = tooltipProps.doseWindow ? DoseWindowTooltip : ThemedTooltip;
   return (
-    <ThemedTooltip
+    <Tooltip
       title={
         <TooltipText>
           <MarStatusTooltipContent {...tooltipProps} />
@@ -203,6 +250,6 @@ export const MarStatusTooltip = ({ children, ...tooltipProps }) => {
       PopperProps={popperProps}
     >
       {slot}
-    </ThemedTooltip>
+    </Tooltip>
   );
 };
