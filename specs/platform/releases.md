@@ -28,9 +28,12 @@ Applies to what a central or facility server checks of its database when it star
 
 - Migrations are written to stay backward compatible with earlier releases where they can, so that an earlier release keeps working against the database they leave.
 - A migration that cannot stay backward compatible, because the change it makes needs to break it, is still made.
+- A migration that breaks backward compatibility is marked as doing so in its source, with what an earlier release trips on, so an operator can find the breaking migrations between two releases by searching for the marker.
 
 > [!NOTE]
 > Backward compatibility is best effort, not a guarantee at any level, including between patch releases of one minor. Keeping to it most of the time is what makes moving back a workable option.
+>
+> The marker is a first pass, not a verdict. It is written by hand, so a marked migration may turn out harmless to the release in question, and an unmarked one may still break it. It narrows what an operator reads before moving back; it does not decide for them.
 
 ## Release compatibility across servers
 
