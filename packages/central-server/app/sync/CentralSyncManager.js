@@ -6,6 +6,7 @@ import { isNil } from 'es-toolkit/compat';
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
+import { GoneError, NotFoundError } from '@tamanu/errors';
 import {
   adjustDataPostSyncPush,
   bumpSyncTickForRepull,
@@ -189,7 +190,7 @@ export class CentralSyncManager {
       const syncLookupUpToTick =
         await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
       if (this.constructor.config.sync.lookupTable.enabled && isNil(syncLookupUpToTick)) {
-        throw new Error(`Sync lookup table has not yet built. Cannot initiate sync.`);
+        throw new Error('Sync lookup table has not yet built. Cannot initiate sync.');
       }
 
       await createSnapshotTable(this.store.sequelize, syncSession.id);
@@ -210,11 +211,12 @@ export class CentralSyncManager {
   }
 
   async sessionExists(sessionId) {
-    const session = await this.store.sequelize.models.SyncSession.findOne({
-      where: { id: sessionId },
-    });
-
-    return Boolean(session);
+    /** @type {[{ exists: boolean }]} */
+    const [{ exists }] = await this.store.sequelize.query(
+      'SELECT EXISTS (SELECT 1 FROM sync_sessions WHERE id = :sessionId AND deleted_at IS NULL) AS "exists"',
+      { replacements: { sessionId }, type: QueryTypes.SELECT },
+    );
+    return exists;
   }
 
   async connectToSession(sessionId) {
@@ -223,7 +225,7 @@ export class CentralSyncManager {
     });
 
     if (!session) {
-      throw new Error(`Sync session '${sessionId}' not found`);
+      throw new NotFoundError(`Sync session '${sessionId}' not found`);
     }
 
     const { syncSessionTimeoutMs } = this.constructor.config.sync;
@@ -239,7 +241,7 @@ export class CentralSyncManager {
       throw new Error(errorMessageFromSession(session));
     }
     if (session.completedAt) {
-      throw new Error(`Sync session '${sessionId}' is already completed`);
+      throw new GoneError(`Sync session '${sessionId}' is already completed`);
     }
     await session.update({ lastConnectionTime: Date.now() });
 
@@ -517,6 +519,7 @@ export class CentralSyncManager {
       );
 
       // query settings table and return true if any facility has set syncAllLabRequests to true
+      /** @type {[{ syncAllLabRequests: boolean }]} */
       const [{ syncAllLabRequests }] = await sequelize.query(
         `
         SELECT EXISTS (

@@ -7,6 +7,7 @@ import {
   ClientIncompatibleError,
   EditConflictError,
   ForbiddenError,
+  GoneError,
   NotFoundError,
   RemoteUnreachableError,
   UnknownError,
@@ -81,6 +82,9 @@ function convertLegacyError(error: LegacyError, response: Response): Problem {
       break;
     case 409:
       ErrorClass = EditConflictError;
+      break;
+    case 410:
+      ErrorClass = GoneError;
       break;
     default:
       ErrorClass = UnknownError;
