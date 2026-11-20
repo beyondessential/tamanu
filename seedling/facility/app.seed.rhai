@@ -1,15 +1,7 @@
-// Tamanu facility server, as specified in specs/platform/seedling/.
+// Tamanu facility server.
+// spec: SDDEF, SDUPG
 //
-// Parts: the API, sync, background tasks, the FHIR worker and the web app, all
-// behind Tamanu's supervisor. Seedling's ingress reaches the supervisor, and the
-// supervisor reaches each part through a service it mounts at `localmount`. The
-// facility is connected to its central server through its setup wizard.
-//
-// Gates, in the order Seedling runs them when several are due at once:
-//   - `readiness` checks the database URL and crypto key before anything starts
-//   - `announce` pulls a new release's images, then tells the supervisor
-//   - `upgrade` stops the parts and runs the new release's migrations
-//   - `certificates` obtains the TLS certificate ahead of the first request
+// Gates are declared in the order Seedling runs them when several are due at once.
 
 app.description(`
 Tamanu facility server: serves a facility's staff, and syncs with its central server.
@@ -18,8 +10,8 @@ app.canopy_type("tamanu-facility");
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
-// The release a published definition was built with, written beside this script
-// at publish time as two lines: the image tag, then the Tamanu version it carries.
+// spec: SDPUB#published-version
+// Publishing writes `published-version` beside this script, with the build's image tag on its first line and the Tamanu version the build carries on its second.
 // A definition run from the repository has no such file.
 let published = try {
     let lines = app.file("published-version").text().split("\n");
@@ -32,7 +24,7 @@ let published = try {
     ()
 };
 
-// "v2.71.3" or "2.71.3" → "2.71"; anything that is not a release → ()
+// The minor of a release tag, such as "2.71" for "v2.71.3", or () for a tag that names no release.
 let minor_of = |release| {
     let bare = if release.starts_with("v") { release.sub_string(1) } else { release };
     let parts = bare.split(".");
@@ -46,8 +38,8 @@ let minor_of = |release| {
     `${parts[0]}.${parts[1]}`
 };
 
-// An origin: http or https, a hostname, and an optional port. Anything else is
-// refused, naming what it carries. A single trailing slash is the root path.
+// spec: SDDEF#canonical-urls
+// A single trailing slash is accepted as the root path, since a URL copied from a browser carries one.
 let parse_origin = |url| {
     let scheme = if url.starts_with("https://") {
         "https"
@@ -140,8 +132,7 @@ let timezone = app.param("timezone")
     .default_value("UTC")
     .description("Primary timezone, as an IANA name such as Pacific/Auckland; must match the central server's");
 
-// Parameters may be unset while the definition is first registered, so nothing
-// below throws on an unset one.
+// A parameter can be unset while the definition is first registered, so nothing below throws on an unset one.
 let canonical = if canonical_url.is_set() { parse_origin.call(canonical_url.value()) } else { () };
 
 // ── Images ────────────────────────────────────────────────────────────────────
@@ -150,8 +141,8 @@ let image = |name| `ghcr.io/beyondessential/tamanu-${name}:${version.value()}`;
 
 // ── Front door ────────────────────────────────────────────────────────────────
 
-// Where the trusted-proxy lists point: Seedling's proxy for the supervisor, and
-// the supervisor for the parts.
+// spec: SDDEF#what-a-definition-runs
+// Both lists are placeholders until the addresses that Seedling's proxy and service mounts connect from are known.
 const SEEDLING_PROXIES = "uniquelocal";
 const SUPERVISOR_PROXIES = "uniquelocal";
 
@@ -163,8 +154,8 @@ if canonical != () {
     }
 }
 
-// Each part the supervisor routes to is reached on a port of its own. The API
-// reaches the sync part the same way.
+// The supervisor reaches each part at `localmount`, on a port of its own.
+// The API reaches the sync part the same way.
 let api_http = app.service("api-http");
 let frontend_http = app.service("frontend-http");
 let sync_http = app.service("sync-http");
@@ -247,6 +238,7 @@ let parts = ["api", "sync", "tasks", "fhir", "frontend"];
 
 // ── Gates ─────────────────────────────────────────────────────────────────────
 
+// spec: SDDEF#readiness-check
 let readiness_check = configure_server.call(app.job("readiness-check"))
     .description("Check the database URL connects and the crypto key decrypts the stored secrets")
     .arg(["checkReadiness"])
@@ -256,8 +248,8 @@ let readiness = app.gate("readiness")
     .key([database_url.value(), crypto_key.value()])
     .check(readiness_check, #{ interval: 300 });
 
-// Pulling first means a failed pull leaves the supervisor serving the release
-// that is still running, rather than its upgrading response.
+// spec: SDUPG#the-upgrade
+// The images are pulled before the supervisor is told, so a failed pull leaves it serving the running release.
 let announce = app.gate("announce")
     .key(version.value())
     .after(readiness)
@@ -269,6 +261,7 @@ let announce = app.gate("announce")
         }
     });
 
+// spec: SDUPG#checking-the-migrations
 let migrations_check = configure_server.call(app.job("migrations-check"))
     .description("Check the database has no migrations pending for this release")
     .arg(["just-migrate", "list", "--pending", "--check"])
@@ -294,6 +287,7 @@ for name in parts {
     supervisor.after(app.deployment(name));
 }
 
+// spec: SDDEF#ingress
 let https_hosts = [];
 if canonical != () && canonical.scheme == "https" { https_hosts.push(canonical.host); }
 app.gate("certificates")
