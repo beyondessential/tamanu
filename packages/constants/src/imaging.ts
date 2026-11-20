@@ -2,6 +2,7 @@ import { IMAGING_REQUEST_STATUS_TYPES } from './statuses.js';
 
 export const IMAGING_AREA_TYPES = {
   ANGIOGRAM_IMAGING_AREA: 'angiogramImagingArea',
+  C_ARM_IMAGING_AREA: 'cArmImagingArea',
   COLONOSCOPY_IMAGING_AREA: 'colonoscopyImagingArea',
   CT_SCAN_IMAGING_AREA: 'ctScanImagingArea',
   ECG_IMAGING_AREA: 'ecgImagingArea',
@@ -23,6 +24,7 @@ export const IMAGING_AREA_TYPES = {
 
 export const IMAGING_TYPES = {
   ANGIOGRAM: 'angiogram',
+  C_ARM: 'cArm',
   COLONOSCOPY: 'colonoscopy',
   CT_SCAN: 'ctScan',
   ECG: 'ecg',
@@ -63,6 +65,7 @@ export const AREA_TYPE_TO_IMAGING_TYPE = {
   [IMAGING_AREA_TYPES.COLONOSCOPY_IMAGING_AREA]: IMAGING_TYPES.COLONOSCOPY,
   [IMAGING_AREA_TYPES.VASCULAR_STUDY_IMAGING_AREA]: IMAGING_TYPES.VASCULAR_STUDY,
   [IMAGING_AREA_TYPES.STRESS_TEST_IMAGING_AREA]: IMAGING_TYPES.STRESS_TEST,
+  [IMAGING_AREA_TYPES.C_ARM_IMAGING_AREA]: IMAGING_TYPES.C_ARM,
 };
 
 // These are the status groupings for the versions of imaging request table that filter by different statuses
