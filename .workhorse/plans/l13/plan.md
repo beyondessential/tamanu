@@ -35,6 +35,7 @@ Dropped with the earlier design: the changes-pending check and its tick, central
 ## Explicitly rejected
 
 - Stopping mobile's periodic sync while the app is idle. An app not in use is backgrounded, and there is no sync in the background, so it already stops syncing.
+- Replacing the TLS-terminating Caddy on bare-metal Linux and Windows servers with the supervisor, or giving the supervisor TLS of any kind.
 
 ## Order of work
 
@@ -179,9 +180,10 @@ Order of work, replacing the Go module on this card's branch (#11712), which has
 - [ ] Remove the Go module, its CI job and `entrypoint.sh`; README, the spec line naming Caddy, and this plan's decisions
 - [ ] Measure idle and loaded memory against the Caddy build and record it here
 
+- The Caddy that fronts bare-metal Linux and Windows servers stays: it terminates TLS and holds the hostnames, which the supervisor never does. It is the platform's side of the boundary there, as infra's ingress is on Kubernetes.
+
 Open:
 
-- Whether the Caddy that fronts bare-metal Linux and Windows servers (TLS, hostnames, managed outside this repository) is also meant to be replaced. Proposed: no, it is the platform's side of the boundary, as infra's ingress is on Kubernetes.
 - Whether any deployment overrides the frontend image's command or mounts its own Caddyfile: those break when Caddy goes. A question for infra.
 
 ### Later
