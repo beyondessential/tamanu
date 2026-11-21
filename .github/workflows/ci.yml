@@ -403,6 +403,7 @@ jobs:
       run:
         working-directory: packages/supervisor
     env:
+      CARGO_AUDIT_VERSION: 0.23.0
       SUPERVISOR_CACHE_PATHS: |
         ~/.cargo/bin/cargo-audit
         ~/.cargo/registry/index
@@ -418,20 +419,20 @@ jobs:
       - uses: actions/cache/restore@v5
         with:
           path: ${{ env.SUPERVISOR_CACHE_PATHS }}
-          key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
-          restore-keys: supervisor-${{ runner.os }}-
+          key: supervisor-${{ runner.os }}-audit-${{ env.CARGO_AUDIT_VERSION }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
+          restore-keys: supervisor-${{ runner.os }}-audit-${{ env.CARGO_AUDIT_VERSION }}-
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked
       - name: Check dependencies against the RustSec advisories
         run: |
-          command -v cargo-audit || cargo install --locked cargo-audit@0.23.0
+          command -v cargo-audit || cargo install --locked "cargo-audit@$CARGO_AUDIT_VERSION"
           cargo audit
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/cache/save@v5
         with:
           path: ${{ env.SUPERVISOR_CACHE_PATHS }}
-          key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
+          key: supervisor-${{ runner.os }}-audit-${{ env.CARGO_AUDIT_VERSION }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
 
   typos:
     name: Spellcheck
