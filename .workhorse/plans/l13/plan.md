@@ -49,7 +49,7 @@ Dropped with the earlier design: the changes-pending check and its tick, central
   - [x] PR 4a (#11700, merged): server side. Scheduled task run state, the task hold, and the `/api/supervisor` routes on central and facility. No specs: nothing is observable without the supervisor, and SUPV and SLPWK land with PR 4b
   - [x] PR 4b (#11712): the supervisor as a Caddy build, the actuator contract, and sleep and wake. Built and through nine review rounds, then replaced by the Rust supervisor in four layers, each its own PR, landed in order ([Layers](#layers)):
     - [ ] Layer A: frontend mode (#11712), where this card stops
-  - Everything after layer A is a card of its own, listed in the [card breakdown](../../breakdowns/l13/breakdown.md): the router, process control, sleep and wake, scheduled tasks, health and packaging, the mobile waiting message, the web app showing waking itself, h2c to the api, and retiring the old layout. This plan's decisions are kept for them on `archive/l13-supervisor-plan`
+  - Everything after layer A is a card of its own, listed in the [card breakdown](../../breakdowns/l13/breakdown.md): the router, process control, sleep and wake, scheduled tasks, health and packaging, the mobile waiting message, the web app showing waking itself, h2c to the api, and retiring the old layout. Each card's description carries the decisions and behaviour it needs
 
 ### PR 4: the supervisor (SUPV, SLPWK)
 
