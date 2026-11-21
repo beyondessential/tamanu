@@ -20,12 +20,23 @@ use crate::config::Bind;
 const BACKLOG: i32 = 1024;
 
 /// Binds a listener. A port on every address takes IPv6 and IPv4 on one socket, or IPv4 alone
-/// where IPv6 is switched off.
+/// where IPv6 is switched off. A port already taken, or one the process may not bind, is an error
+/// on either.
 pub fn bind(bind: Bind) -> io::Result<TcpListener> {
 	match bind {
 		Bind::Addr(addr) => listen(addr, false),
-		Bind::Any(port) => listen((Ipv6Addr::UNSPECIFIED, port).into(), true)
-			.or_else(|_| listen((Ipv4Addr::UNSPECIFIED, port).into(), false)),
+		Bind::Any(port) => match listen((Ipv6Addr::UNSPECIFIED, port).into(), true) {
+			Err(error)
+				if !matches!(
+					error.kind(),
+					io::ErrorKind::AddrInUse | io::ErrorKind::PermissionDenied
+				) =>
+			{
+				tracing::warn!(%error, port, "IPv6 unavailable; listening on IPv4 alone");
+				listen((Ipv4Addr::UNSPECIFIED, port).into(), false)
+			}
+			bound => bound,
+		},
 	}
 }
 
@@ -170,6 +181,14 @@ mod tests {
 			got += server.read(&mut [0; 8]).await.unwrap();
 		}
 		writer.await.unwrap();
+	}
+
+	#[tokio::test]
+	async fn a_taken_port_is_an_error_rather_than_ipv4_alone() {
+		let taken = bind(Bind::Any(0)).unwrap();
+		let port = taken.local_addr().unwrap().port();
+		let error = bind(Bind::Any(port)).unwrap_err();
+		assert_eq!(error.kind(), io::ErrorKind::AddrInUse);
 	}
 
 	#[tokio::test]
