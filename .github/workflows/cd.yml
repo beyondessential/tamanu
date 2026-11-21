@@ -379,8 +379,8 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
-  # Frontend Windows images (web / patient-portal): built dist plus the Windows
-  # Caddy binary and Caddyfile, self-contained like the linux frontend container.
+  # Frontend Windows images (web / patient-portal): built dist plus the
+  # supervisor, self-contained like the linux frontend container.
   windows-image-frontend:
     needs:
       - config
@@ -414,29 +414,25 @@ jobs:
         shell: bash
         run: bash scripts/docker-build.sh '${{ matrix.package.path }}'
 
-      - name: Assemble layer (dist + Windows Caddy)
+      - name: Build supervisor
         shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: packages/supervisor
+        run: cargo build --release --locked
+
+      - name: Assemble layer (dist + supervisor)
+        shell: bash
         run: |
           set -euxo pipefail
           rm -rf layer
-          mkdir -p layer/Files/app layer/Files/caddy
+          mkdir -p layer/Files/app layer/Files/supervisor
           cp -r "packages/${{ matrix.package.path }}/dist/." layer/Files/app
-
-          # authenticated: unauthenticated api.github.com is rate-limited per
-          # runner IP, which is shared. No xtrace around the token.
-          set +x
-          caddy_version="$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
-          set -x
-          curl -fsSL -o caddy.zip \
-            "https://github.com/caddyserver/caddy/releases/download/v${caddy_version}/caddy_${caddy_version}_windows_amd64.zip"
-          unzip -o caddy.zip caddy.exe -d layer/Files/caddy
-          rm caddy.zip
-
-          # same web root as the linux container, spelled as a Windows path
-          sed -E 's|root \* /app|root * C:/app|' \
-            "packages/${{ matrix.package.path }}/Caddyfile.docker" > layer/Files/caddy/Caddyfile
+          # the built web app lacks Tamanu's error pages, so they go beside it,
+          # as in the Linux image
+          if [ -d "packages/${{ matrix.package.path }}/resources/errors" ]; then
+            mkdir -p layer/Files/app/resources
+            cp -r "packages/${{ matrix.package.path }}/resources/errors" layer/Files/app/resources/
+          fi
+          cp packages/supervisor/target/release/tamanu-supervisor.exe layer/Files/supervisor/
 
       - name: Pack Windows image
         uses: ./.github/actions/windows-image-pack

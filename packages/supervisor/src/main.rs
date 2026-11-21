@@ -73,7 +73,8 @@ async fn run(config: Frontend) -> std::io::Result<()> {
 	Ok(())
 }
 
-/// Cancelled on the first stop signal: `SIGTERM` or `SIGINT`, or Ctrl-C on Windows.
+/// Cancelled on the first stop signal: `SIGTERM` or `SIGINT`, or on Windows the console's Ctrl-C
+/// or Ctrl-Break, which the Windows runtime sends to stop a frontend.
 fn stop_signal() -> CancellationToken {
 	let token = CancellationToken::new();
 	let stop = token.clone();
@@ -87,8 +88,14 @@ fn stop_signal() -> CancellationToken {
 				_ = tokio::signal::ctrl_c() => {}
 			}
 		}
-		#[cfg(not(unix))]
-		let _ = tokio::signal::ctrl_c().await;
+		#[cfg(windows)]
+		{
+			let mut ctrl_break = tokio::signal::windows::ctrl_break().expect("listening for Ctrl-Break");
+			tokio::select! {
+				_ = ctrl_break.recv() => {}
+				_ = tokio::signal::ctrl_c() => {}
+			}
+		}
 		tracing::info!("stopping");
 		stop.cancel();
 	});

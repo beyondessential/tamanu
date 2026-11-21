@@ -103,24 +103,40 @@ node --import tsx ../scripts/src/scrubSeedSecrets.mts\
 "]
 
 
+## Build the supervisor, which serves the frontend images. Its dependencies are compiled in a
+## layer of their own, so a change to its code alone does not rebuild them.
+FROM rust:1.98.1-alpine AS build-supervisor
+RUN apk add --no-cache musl-dev
+WORKDIR /src
+COPY packages/supervisor/Cargo.toml packages/supervisor/Cargo.lock ./
+RUN mkdir src && echo 'fn main() {}' > src/main.rs && touch src/lib.rs \
+  && cargo build --release --locked \
+  && rm -rf src
+COPY packages/supervisor/src/ src/
+RUN touch src/main.rs src/lib.rs \
+  && cargo build --release --locked \
+  && cp target/release/tamanu-supervisor /tamanu-supervisor
+
 ## Build the frontend packages (web or patient-portal)
 FROM build-base AS build-frontend-base
 ARG PACKAGE_PATH
 COPY packages/ packages/
 RUN DOCKER_BUILD=1 scripts/docker-build.sh ${PACKAGE_PATH}
 
-## Minimal image to serve frontend packages
+## Minimal image to serve frontend packages: the supervisor serves the built frontend at /app.
 FROM alpine AS frontend-base
 ARG PACKAGE_PATH
-WORKDIR /app
-ENTRYPOINT ["/usr/bin/caddy"]
-CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
-COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
-COPY packages/${PACKAGE_PATH}/Caddyfile.docker /etc/caddy/Caddyfile
-COPY --from=build-frontend-base /app/packages/${PACKAGE_PATH}/dist/ .
+RUN adduser -D -H -u 10001 tamanu
+COPY --from=build-supervisor /tamanu-supervisor /usr/bin/tamanu-supervisor
+COPY --from=build-frontend-base /app/packages/${PACKAGE_PATH}/dist/ /app/
+USER tamanu
+EXPOSE 3000
+ENTRYPOINT ["/usr/bin/tamanu-supervisor"]
 
-## Specific targets for each frontend
+## Specific targets for each frontend. The web app's build lacks Tamanu's error pages, so they
+## are copied in beside it.
 FROM frontend-base AS frontend
+COPY packages/web/resources/errors/ /app/resources/errors/
 
 FROM frontend-base AS patient-portal
 

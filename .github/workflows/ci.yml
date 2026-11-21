@@ -34,6 +34,7 @@ jobs:
       run-mobile: ${{ steps.plan.outputs.run-mobile }}
       run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
       run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
+      run-supervisor: ${{ steps.plan.outputs.run-supervisor }}
       allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
     steps:
       - uses: actions/checkout@v6
@@ -393,6 +394,36 @@ jobs:
       - run: npm install --include-workspace-root --workspace=scripts
       - run: npm run dbt-check-todos
 
+  test-supervisor:
+    needs: plan
+    if: needs.plan.outputs.run-supervisor == 'true'
+    name: Test supervisor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/supervisor
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      # rust-toolchain.toml picks the toolchain, which rustup installs on first use
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/bin/cargo-audit
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            packages/supervisor/target
+          key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
+          restore-keys: supervisor-${{ runner.os }}-
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked
+      - name: Check dependencies against the RustSec advisories
+        run: |
+          command -v cargo-audit || cargo install --locked cargo-audit@0.23.0
+          cargo audit
+
   typos:
     name: Spellcheck
     runs-on: ubuntu-latest
@@ -420,6 +451,7 @@ jobs:
       - lockfile-peers
       - dbt-model
       - dbt-todos
+      - test-supervisor
       - typos
     runs-on: ubuntu-latest
     steps:
