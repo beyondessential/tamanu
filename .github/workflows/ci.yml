@@ -411,8 +411,12 @@ jobs:
         working-directory: packages/supervisor
     env:
       CARGO_AUDIT_VERSION: 0.23.0
-      SUPERVISOR_CACHE_PATHS: |
-        ~/.cargo/bin/cargo-audit
+      # The caches are saved only from pushes to main, so what a run restores and
+      # executes was always built from main's own code, never a branch's. They are
+      # restored by exact key only, so a new lockfile or toolchain starts a clean
+      # target directory rather than carrying every earlier build forward.
+      BUILD_CACHE_KEY: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
+      BUILD_CACHE_PATHS: |
         ~/.cargo/registry/index
         ~/.cargo/registry/cache
         packages/supervisor/target
@@ -421,14 +425,14 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.ref }}
       # rust-toolchain.toml picks the toolchain, which rustup installs on first use.
-      # The cache is saved only from pushes to main, so what a run restores and
-      # executes was always built from main's own code, never a branch's. It is
-      # restored by exact key only, so a new lockfile or toolchain starts a clean
-      # target directory rather than carrying every earlier build forward.
       - uses: actions/cache/restore@v5
         with:
-          path: ${{ env.SUPERVISOR_CACHE_PATHS }}
-          key: supervisor-${{ runner.os }}-audit-${{ env.CARGO_AUDIT_VERSION }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
+          path: ~/.cargo/bin/cargo-audit
+          key: supervisor-${{ runner.os }}-cargo-audit-${{ env.CARGO_AUDIT_VERSION }}
+      - uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.BUILD_CACHE_PATHS }}
+          key: ${{ env.BUILD_CACHE_KEY }}
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked
@@ -439,8 +443,13 @@ jobs:
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/cache/save@v5
         with:
-          path: ${{ env.SUPERVISOR_CACHE_PATHS }}
-          key: supervisor-${{ runner.os }}-audit-${{ env.CARGO_AUDIT_VERSION }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
+          path: ~/.cargo/bin/cargo-audit
+          key: supervisor-${{ runner.os }}-cargo-audit-${{ env.CARGO_AUDIT_VERSION }}
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.BUILD_CACHE_PATHS }}
+          key: ${{ env.BUILD_CACHE_KEY }}
 
   typos:
     name: Spellcheck
