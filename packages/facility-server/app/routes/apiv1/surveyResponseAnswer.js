@@ -148,7 +148,8 @@ async function postSurveyResponseAnswer(req, isVital = false) {
     user,
     body,
   } = req;
-  const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
+  const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement, Encounter } =
+    models;
 
   // Ensure data element exists and it's not a calculated question
   const dataElement = await ProgramDataElement.findOne({ where: { id: body.dataElementId } });
@@ -162,11 +163,23 @@ async function postSurveyResponseAnswer(req, isVital = false) {
   const dateDataElementId = isVital
     ? VITALS_DATA_ELEMENT_IDS.dateRecorded
     : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
+  const { encounterId, patientId, chartInstanceResponseId } = body;
+  if (!encounterId && !patientId) {
+    throw new InvalidParameterError('Either encounterId or patientId is required.');
+  }
+  // Program registry charts span all of a patient's encounters
+  const encounterWhereClause = encounterId ? { id: encounterId } : { patientId };
   const responseObject = await SurveyResponse.findAll({
-    where: {
-      encounterId: body.encounterId,
-    },
+    where: chartInstanceResponseId
+      ? { 'metadata.chartInstanceResponseId': chartInstanceResponseId }
+      : {},
     include: [
+      {
+        required: true,
+        model: Encounter,
+        as: 'encounter',
+        where: encounterWhereClause,
+      },
       {
         required: true,
         model: Survey,
