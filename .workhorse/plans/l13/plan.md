@@ -48,13 +48,8 @@ Dropped with the earlier design: the changes-pending check and its tick, central
 - [ ] **Supervisor phases**, outside the sync code-owned paths, each started once the one before is approved, and each landing the specs for what it builds:
   - [x] PR 4a (#11700, merged): server side. Scheduled task run state, the task hold, and the `/api/supervisor` routes on central and facility. No specs: nothing is observable without the supervisor, and SUPV and SLPWK land with PR 4b
   - [x] PR 4b (#11712): the supervisor as a Caddy build, the actuator contract, and sleep and wake. Built and through nine review rounds, then replaced by the Rust supervisor in four layers, each its own PR, landed in order ([Layers](#layers)):
-    - [ ] Layer A: frontend mode (#11712)
-    - [ ] Layer B: the supervisor as a router, bringing back SUPV
-    - [ ] Layer C: process control
-    - [ ] Layer D: sleep, bringing back SLPWK (without its scheduled tasks section)
-  - PR 5: scheduled tasks, with SLPWK's scheduled tasks section
-  - PR 6: health, packaging and docs
-  - [ ] Mobile waiting message: its own small PR, branch `feat/L13/mobile-waking-central-message`; held until product confirms the wording
+    - [ ] Layer A: frontend mode (#11712), where this card stops
+  - Everything after layer A is a card of its own, listed in the [card breakdown](../../breakdowns/l13/breakdown.md): the router, process control, sleep and wake, scheduled tasks, health and packaging, the mobile waiting message, the web app showing waking itself, h2c to the api, and retiring the old layout. This plan's decisions are kept for them on `archive/l13-supervisor-plan`
 
 ### PR 4: the supervisor (SUPV, SLPWK)
 
@@ -261,7 +256,7 @@ Notes:
 - CPU is the process's on-CPU time from `/proc/<pid>/task/*/schedstat` across each load run, divided by its requests; single runs on a shared machine, so differences under about 20% are noise. The Rust sketch writes an access line for every file in both modes, which the Go supervisor does not in supervisor mode, and checks whether each path is a file before routing it; both show in its file and web app route figures.
 - The first Rust run served 780 rps: accepted connections need `TCP_NODELAY`, or responses wait on delayed acknowledgements.
 
-Layer A, on #11712, which the Go version leaves for the archive since none of it reached main; B goes on the card's next branch once A merges:
+Layer A, on #11712, which the Go version leaves for the archive since none of it reached main; the later layers are cards of their own:
 
 - [x] Archive the Go version as `archive/l13-supervisor-go`
 - [x] Clear the branch back to main but the plan: the Go module and its CI job, the sketch, the actuator contract, `waking.html`, SLPWK (back with D) and the frontend image changes, each returning with the layer that needs it
@@ -279,42 +274,3 @@ Layer A notes:
 - Checked against main's Caddy over a built web app, path by path. Same status, encoding and body throughout, but: `/env.js` is JSON; the index carries an ETag and no-cache on every path that answers with it (Caddy left `/index.html` and the app's routes without `Cache-Control`, so browsers cached the index by heuristic); a directory path such as `/assets` gets the index where Caddy answered an empty `404`; text types name `charset=utf-8` as Caddy did, JSON included.
 - Measured on the synthetic root (frontend mode): 5.5 MB idle and 12.4 MB at peak against Caddy's 53 and 78 MB; web app routes 47,100 rps at 121 µs a request against 43,100 at 162 µs, now that the index is held in memory; small files 37,900 rps at 156 µs; the 1 MB file 409 µs against 471.
 - A `BIND_ADDRESS` of `host:port` made main's Caddy also listen on port 80 for HTTPS redirects, since Caddy treats a site address with a host as wanting automatic HTTPS. Only `:port` worked as documented; the supervisor takes both.
-
-Layer B, on the card's next branch, after A:
-
-- [ ] Proxy: instance pool, least connections, connect retries, client address, the request smuggling hardening, websockets, compression, rate limits
-- [ ] Enforce the content security policy: run Postgres, central, a facility server and both apps locally behind the supervisor, walk the main flows of each app with Playwright, collect every report, adjust the policy (the portal's string evaluation first), then send it as `Content-Security-Policy`
-- [ ] Routes for each role and the portal's address, with path normalisation and the refusal of `/api/supervisor`
-- [ ] helmet's set on the api's responses where the api sent none
-- [ ] Actuator client reading `GET /v1/state` for upgrades, a fake actuator, the upgrading response, the status server
-- [ ] In-process smoke tests with the path-to-behaviour table
-- [ ] SUPV without its sleep and actuator-control parts; the actuator contract cut down to B's read
-- [ ] Remove the Go module, its CI job and `entrypoint.sh`; README
-- [ ] Tell infra (Y3) and V14: the contract file, the plain-HTTP actuator address, and `appProtocol: kubernetes.io/h2c` for Envoy's hop
-
-Layers C and D: planned once B is in review.
-
-### Later
-
-- [ ] The web app shows waking itself (reads `Retry-After` on a `503`), so a page can load straight into a sleeping server instead of the waking page
-- [ ] Once the api serves cleartext HTTP/2 (#Y17), the supervisor speaks it to the api, HTTP/1.1 kept for websockets
-- [ ] Remove helmet from central's api and the facility's api and sync process once every deployment, bare-metal included, runs behind the supervisor
-
-### Scheduled tasks (SLPWK#scheduled-tasks)
-
-- [ ] A can-sleep declaration on `ScheduledTask`, set on every task in `packages/central-server/app/tasks/` and `packages/facility-server/app/tasks/`; tasks that cannot sleep expose their next due time (cron next fire, or from the database for `ReportRequestScheduler`)
-- [ ] Last-ran bookkeeping per task and one catch-up run on start for a due time that passed while asleep; the bed fee charger must not drop days
-- [ ] Reuse the task run state from PR 4 for last-ran bookkeeping
-- [ ] Timed wake: database and tasks (plus api on central; plus the final sync on a facility); ends once due tasks have run and the queues they fed are empty
-- [ ] Tests: catch-up runs once; bed fees across a sleep; a timed wake ends with empty queues
-
-### Mobile
-
-- [ ] While a sync waits in line behind a waking central, the sync screen says it is waiting for central to wake up, in place of "Sync in queue". `MobileSyncManager` is under the sync code-owned paths, so this goes in a small PR of its own
-
-### Health, packaging and docs
-
-- [ ] A sleeping server reads as healthy: the supervisor's status says asleep; Canopy's stale-sync check reads it (outside this repo)
-- [ ] Linux and Windows supervisor binaries in the server bundles (`cd-package-servers.yml`); the supervisor image is already published as the frontend image
-- [ ] Support pack: `docs/runbooks/sync-facility-stale.md` and `docs/healthchecks.md` for sleeping servers
-- [ ] Hand infra (Y3) the image name, config keys and the contract file
