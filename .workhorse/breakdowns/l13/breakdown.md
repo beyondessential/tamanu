@@ -6,7 +6,7 @@ base: default
 
 L13 stops at the supervisor's first layer, #11712: `packages/supervisor`, a Rust server that replaces Caddy in the frontend and patient portal images and does nothing else yet. The cards below carry it the rest of the way, landing in order where one builds on another. Every layer leaves existing deployments working unchanged: a deployment moves onto a layer when its platform is ready, and stays as it is until then. Infra's side (the Kubernetes pod, the actuator there, routing in front of the supervisor) is infra card Y3; Seedling's definitions and upgrades are V14.
 
-## Supervisor: route the server's traffic
+## Supervisor: route the server's traffic · A18
 
 Make the supervisor the server's front door: the frontend image becomes the server's entrypoint, carries both the web app and the patient portal, and routes the api's traffic itself, so routing ships with Tamanu instead of living in each platform's configuration. Run with the command `supervisor`, the binary does this; run without it, it stays in frontend mode as #11712 left it, so deployments that route to the server's parts themselves keep working, and move over when ready. A deployment uses one or the other, never both.
 
@@ -67,7 +67,7 @@ Logging:
 
 Tests: in-process smoke tests with a path-to-behaviour table against a fake api and fake actuator, including a row for each smuggling and forwarded-header case. Specs: the supervisor spec (SUPV) gains the front door, configuration, upgrades, status and compatibility sections (a supervisor and a server of one minor release work together in any mix of patches; the supervisor's api routes change incompatibly only between minor releases). Tell infra (Y3) and V14 about the actuator's state endpoint, the plain-HTTP actuator address, and that Envoy's hop to the supervisor can be HTTP/2 by declaring `appProtocol: kubernetes.io/h2c` on its Service port.
 
-## Supervisor: process control through a release manifest and the actuator
+## Supervisor: process control through a release manifest and the actuator · B18
 
 Each platform restates today which processes a Tamanu server runs, with which commands, how many of each, in what order, and how an upgrade proceeds: `pm2.config.cjs` on Windows, ops' Podman quadlets on Linux, infra's Kubernetes renderer, and V14's Seedling definitions. Ship that description with each release instead, platform-neutral, and define the actuator contract each platform implements to drive it at run time, so the supervisor and the platform meet in one place.
 
@@ -83,7 +83,7 @@ The contract, versioned, described by an OpenAPI file in this repository, HTTP a
 
 Every supervisor passes traffic, holder or not, so supervisors can be replaced or run several at once with no gap; only the holder acts. On `SIGTERM` the holder releases the lease at once and keeps passing traffic while connections drain. The supervisor keeps no state of its own: a new holder reads the phase from the parts' states (every part desired and observed down is asleep and stays so; anything else is woken). Upgrades now come from the description: the supervisor makes no api calls during one, and the platform replaces the supervisor before reporting an upgrade across minor releases finished.
 
-## Supervisor: sleep and wake
+## Supervisor: sleep and wake · C18
 
 Let the supervisor stop a quiet server and start it again on use, through the actuator's control. Busy sites never go quiet and never sleep; working-hours sites and demo, dev and PR deployments spend most of their time asleep. The savings are largest on Kubernetes; it also means longer battery life on Tamanu Iti and quieter workloads elsewhere, and a deployment where it is not worth it leaves it off. Deployments on the old layout keep working unchanged. The api's side is in place: the task hold and busy check (#11700) and syncs that wait for a waking central (#11617).
 
@@ -129,28 +129,28 @@ Repeating any step after a retry or restart leaves the server as doing it once. 
 
 Telegram: with a webhook configured, Telegram's requests to central are activity and wake it; with polling, messages to the bot wait at Telegram until central next wakes. Brings back the sleep and wake spec (SLPWK), without its scheduled tasks section, and the waking page (`waking.html` in the web app's error pages).
 
-## Scheduled tasks that sleep, catch up and wake the server when due
+## Scheduled tasks that sleep, catch up and wake the server when due · D18
 
 Give every scheduled task in `packages/central-server/app/tasks/` and `packages/facility-server/app/tasks/` a declaration of whether it can sleep. A task that can is skipped while the server sleeps and runs once on the next wake for a due time that passed meanwhile; one that cannot exposes its next due time (its cron's next fire, or the database for `ReportRequestScheduler`) so the supervisor wakes the server for it. A task wakes the server unless it declares it can sleep, so a missed declaration costs uptime rather than a skipped run. Only tasks whose output leaves the system on time are expected to wake it (scheduled reports, vaccination reminders, patient communications); generators, dischargers, queue processors and cleaners can sleep. Automatic discharge (`OutpatientDischarger`, `DeceasedPatientDischarger`) runs on central. If every facility task can sleep, facilities need no timed wakes at all.
 
 Last-ran bookkeeping reuses the task run state from #11700. The bed fee charger must not drop days across a sleep. A timed wake brings up the database and tasks (plus the api on central; a facility's ends with the final sync, like any facility sleep) and ends once the due tasks have run and the queues they fed are empty. Tests: a catch-up runs once, bed fees across a sleep, a timed wake ends with empty queues. Brings back SLPWK's scheduled tasks section.
 
-## Supervisor: health, server bundles and support docs for sleeping servers
+## Supervisor: health, server bundles and support docs for sleeping servers · E18
 
 Make a sleeping server read as healthy rather than down: the supervisor's status says asleep, and Canopy's stale-sync check reads it (Canopy's side is outside this repository). Ship Linux and Windows supervisor binaries in the server bundles (`cd-package-servers.yml`), for bare-metal deployments. Update the support pack for sleeping servers: `docs/runbooks/sync-facility-stale.md` and `docs/healthchecks.md`, so on-call can tell a sleeping server from a broken one.
 
-## Mobile: say a sync is waiting for central to wake
+## Mobile: say a sync is waiting for central to wake · F18
 
 While a sync waits in line behind a waking central (a `503` with `Retry-After` before the sync session opens), the mobile sync screen says it is waiting for central to wake up, in place of "Sync in queue". Built on the branch `feat/L13/mobile-waking-central-message`, and held until product confirms the wording. `MobileSyncManager` is under the sync code-owned paths, so it stays a small PR of its own.
 
-## Web app: show a waking server itself
+## Web app: show a waking server itself · G18
 
 Have the web app read `Retry-After` on a `503` from a waking or upgrading server and show that state itself, so a page can load straight into a sleeping server and wait, rather than the supervisor answering a browser with its own waking page.
 
-## Supervisor: speak cleartext HTTP/2 to the api
+## Supervisor: speak cleartext HTTP/2 to the api · H18
 
 Once the api serves cleartext HTTP/2 (Y17), have the supervisor speak it to the api's instances, keeping HTTP/1.1 for websockets, which take a connection each and share nothing between clients. HTTP/2 frames every request explicitly, which takes the shared pool of HTTP/1.1 connections, where request smuggling lives, out of the path between the supervisor and the api. HTTP/1.1 hardening stays for the websocket path.
 
-## Retire the old frontend layout and helmet in the servers
+## Retire the old frontend layout and helmet in the servers · J18
 
 Once every BES deployment runs behind the supervisor, remove the layout where the frontend images serve a frontend alone for a platform that routes to the server's parts itself, and remove helmet from central's api and the facility's api and sync process, since the supervisor sets those headers on the api's responses. A deployment outside BES still on the old layout implements an actuator for its platform to upgrade further.
