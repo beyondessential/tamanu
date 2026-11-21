@@ -61,7 +61,7 @@ export const PublicRoute = ({ element }: { element: React.ReactElement }) => {
   }
 
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/select-profile" replace />;
   }
 
   return <PublicPageLayout>{element}</PublicPageLayout>;

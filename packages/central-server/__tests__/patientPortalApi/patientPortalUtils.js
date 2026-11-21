@@ -2,7 +2,7 @@ import { expect } from 'vitest';
 import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
 
 export const getPatientAuthToken = async (app, models, email) => {
-  const portalUser = await models.PortalUser.getForAuthByEmail(email);
+  const [portalUser] = await models.PortalUser.getLivingByEmail(email);
   const oneTimeTokenService = new PortalOneTimeTokenService(models);
   const { token } = await oneTimeTokenService.createLoginToken(portalUser.id);
   const loginResponse = await app.post('/api/portal/login').send({

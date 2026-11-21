@@ -102,6 +102,7 @@ describe('Patient Portal Auth', () => {
         aud: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
         iss: config.canonicalHostName,
         portalUserId: expect.any(String),
+        email: TEST_PATIENT_EMAIL,
         jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
