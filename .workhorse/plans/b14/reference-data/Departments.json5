@@ -1,0 +1,138 @@
+{
+  "sheetName": "Departments",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus",
+    "facilityId"
+  ],
+  "data": [
+    {
+      "id": "department-Anaesthetics",
+      "code": "Anaesthetics",
+      "name": "Anaesthetics",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-BariatricSurgery",
+      "code": "BariatricSurgery",
+      "name": "Bariatric Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-BreastSurgery",
+      "code": "BreastSurgery",
+      "name": "Breast Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-CardiothoracicSurgery",
+      "code": "CardiothoracicSurgery",
+      "name": "Cardiothoracic Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-Endoscopy",
+      "code": "Endoscopy",
+      "name": "Endoscopy",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-ENTSurgery",
+      "code": "ENTSurgery",
+      "name": "ENT Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-EyeSurgery",
+      "code": "EyeSurgery",
+      "name": "Eye Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-GeneralSurgery",
+      "code": "GeneralSurgery",
+      "name": "General Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-GynaecologicalSurgery",
+      "code": "GynaecologicalSurgery",
+      "name": "Gynaecological Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-InterventionalCardiology",
+      "code": "InterventionalCardiology",
+      "name": "Interventional Cardiology",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-LiverSurgery",
+      "code": "LiverSurgery",
+      "name": "Liver Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-Neurosurgery",
+      "code": "Neurosurgery",
+      "name": "Neurosurgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-Oncology",
+      "code": "Oncology",
+      "name": "Oncology",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-OralMaxillofacialSurgery",
+      "code": "OralMaxillofacialSurgery",
+      "name": "Oral and Maxillofacial Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-OrthopaedicSurgery",
+      "code": "OrthopaedicSurgery",
+      "name": "Orthopaedic Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-Physiotherapy",
+      "code": "Physiotherapy",
+      "name": "Physiotherapy",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-PlasticsReconstructiveSurgery",
+      "code": "PlasticsReconstructiveSurgery",
+      "name": "Plastics and Reconstructive Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "department-UrologicalSurgery",
+      "code": "UrologicalSurgery",
+      "name": "Urological Surgery",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    }
+  ]
+}
