@@ -11,22 +11,11 @@ const mocks = vi.hoisted(() => ({
   post: null,
 }));
 
-vi.mock('react-redux', async importOriginal => ({
-  ...(await importOriginal()),
-  useDispatch: () => async action => {
-    mocks.calls.push(action);
-    return true;
-  },
-}));
 vi.mock('@tanstack/react-query', async importOriginal => ({
   ...(await importOriginal()),
   useQueryClient: () => ({
     invalidateQueries: async key => void mocks.calls.push({ invalidated: key }),
   }),
-}));
-vi.mock('../../app/store/auth', async importOriginal => ({
-  ...(await importOriginal()),
-  login: (email, password) => ({ login: { email, password } }),
 }));
 vi.mock('../../app/api', async importOriginal => ({
   ...(await importOriginal()),
@@ -60,27 +49,31 @@ describe('SetupWizardView', () => {
     await user.click(screen.getByRole('button', { name: 'Connect and continue' }));
   };
 
-  it('logs the administrator in before leaving the wizard', async () => {
+  it('leaves the wizard once setup succeeds, by refreshing the server status', async () => {
     mocks.post = vi.fn(async () => ({ configured: true }));
 
     await fillAndSubmit();
 
-    await waitFor(() => expect(mocks.calls).toHaveLength(2));
-    expect(mocks.calls).toEqual([
-      { login: { email: 'admin@example.com', password: 'sup3r-secret-pw' } },
-      { invalidated: ['serverAlive'] },
-    ]);
+    await waitFor(() => expect(mocks.calls).toEqual([{ invalidated: ['serverAlive'] }]));
+    expect(mocks.post).toHaveBeenCalledTimes(1);
+    expect(mocks.post).toHaveBeenCalledWith(
+      'public/setup/sync',
+      expect.objectContaining({ email: 'admin@example.com' }),
+      expect.anything(),
+    );
   });
 
-  it('stays on the wizard without logging in when setup fails', async () => {
+  it('stays on the wizard when setup fails', async () => {
     mocks.post = vi.fn(async () => {
-      throw new Error("Could not load this facility's data from the central server");
+      throw new Error('Could not log in to the central server with the new sync credentials');
     });
 
     await fillAndSubmit();
 
     expect(
-      await screen.findByText("Could not load this facility's data from the central server"),
+      await screen.findByText(
+        'Could not log in to the central server with the new sync credentials',
+      ),
     ).toBeTruthy();
     expect(mocks.calls).toEqual([]);
   });

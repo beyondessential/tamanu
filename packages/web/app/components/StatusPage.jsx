@@ -1,6 +1,4 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { Button } from '@tamanu/ui-components';
 import { LargeBodyText } from './Typography';
 import styled, { keyframes } from 'styled-components';
 import { Colors } from '../constants';
@@ -9,7 +7,6 @@ import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
 import { getBrandName } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { logout } from '../store/auth';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -152,14 +149,7 @@ const HeroErrorDescription = styled(ErrorDescription)`
   line-height: 18px;
 `;
 
-const HeroButton = styled(Button)`
-  margin-top: 30px;
-  padding: 8px 20px;
-  min-width: 0;
-  font-size: 14px;
-`;
-
-export const StatusPageWithHeroImage = ({ message, description, children }) => {
+export const StatusPageWithHeroImage = ({ message, description }) => {
   return (
     <FlexContainer data-testid="flexcontainer-jfut">
       <Container data-testid="container-j6sh">
@@ -169,7 +159,6 @@ export const StatusPageWithHeroImage = ({ message, description, children }) => {
           <HeroErrorDescription color="textTertiary" data-testid="heroerrordescription-zt18">
             {description}
           </HeroErrorDescription>
-          {children}
         </HeroContent>
       </Container>
       <HeroImage data-testid="heroimage-z3v9" />
@@ -190,7 +179,6 @@ const InlineAnimateEllipsis = styled.span`
 
 // spec: FSETUP#setting-up-screen
 export const SettingUpStatusPage = () => {
-  const dispatch = useDispatch();
   const brandName = getBrandName();
   return (
     <StatusPageWithHeroImage
@@ -207,11 +195,7 @@ export const SettingUpStatusPage = () => {
           replacements={{ brandName }}
         />
       }
-    >
-      <HeroButton onClick={() => dispatch(logout())} data-testid="settinguplogoutbutton-x7q2">
-        <TranslatedText stringId="auth.action.logout" fallback="Log out" />
-      </HeroButton>
-    </StatusPageWithHeroImage>
+    />
   );
 };
 
