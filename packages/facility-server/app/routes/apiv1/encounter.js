@@ -54,6 +54,7 @@ import {
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
 import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
+import { buildInvoiceDates } from './invoice/invoiceDates';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
 import {
   discardDischargeDraft,
@@ -817,15 +818,15 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/invoice',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, settings } = req;
     const { Invoice, InvoicePriceList } = models;
     req.checkPermission('read', 'Invoice');
     const encounterId = params.id;
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+    const { invoicePriceListId, include } = await Invoice.resolvePricingAssociations(encounterId);
 
     const invoiceRecord = await Invoice.findOne({
       where: { encounterId },
-      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      include,
       order: [
         [{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC'],
         [{ model: models.InvoiceItem, as: 'items' }, 'createdAt', 'ASC'],
@@ -846,7 +847,13 @@ encounterRelations.get(
 
     const responseRecord = invoiceForResponse(invoiceRecord);
     const priceList = await InvoicePriceList.findByPk(invoicePriceListId, { raw: true });
-    res.send({ ...responseRecord, priceList });
+    const { sections, encounterPeriod } = await buildInvoiceDates({
+      models,
+      settings: settings[req.facilityId],
+      encounterId,
+      items: responseRecord.items,
+    });
+    res.send({ ...responseRecord, priceList, sections, encounterPeriod });
   }),
 );
 

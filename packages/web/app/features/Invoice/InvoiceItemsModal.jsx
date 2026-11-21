@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
+import { useSectionName, useSectionPeriodText } from './InvoiceForm/SectionTitle';
 import { InvoiceForm } from './InvoiceForm';
 
 const ModalBody = styled.div`
@@ -17,17 +18,47 @@ const Description = styled(Typography)`
   }
 `;
 
-export const InvoiceItemsModal = ({ open, onClose, invoice, title, invoiceFormType }) => {
+// The window names the section it was opened from, and its date range where the facility holds
+// one, so the dates the form will hold the new line to are read before the line is started.
+const SectionDescription = ({ section }) => {
+  const sectionName = useSectionName();
+  const sectionPeriodText = useSectionPeriodText();
+  const period = sectionPeriodText(section);
+  return period ? (
+    <TranslatedText
+      stringId="invoice.modal.addItems.description"
+      fallback="Add items to :section (:period) below"
+      replacements={{ section: sectionName(section), period }}
+    />
+  ) : (
+    <TranslatedText
+      stringId="invoice.modal.addItems.description.noPeriod"
+      fallback="Add items to :section below"
+      replacements={{ section: sectionName(section) }}
+    />
+  );
+};
+
+export const InvoiceItemsModal = ({ open, onClose, invoice, title, invoiceFormType, section }) => {
   return (
     <Modal title={title} open={open} onClose={onClose} width="lg">
       <ModalBody>
         <Description>
-          <TranslatedText
-            stringId="invoice.modal.edit.description"
-            fallback="Edit invoice items below"
-          />
+          {section ? (
+            <SectionDescription section={section} />
+          ) : (
+            <TranslatedText
+              stringId="invoice.modal.edit.description"
+              fallback="Edit invoice items below"
+            />
+          )}
         </Description>
-        <InvoiceForm invoice={invoice} invoiceFormType={invoiceFormType} onClose={onClose} />
+        <InvoiceForm
+          invoice={invoice}
+          invoiceFormType={invoiceFormType}
+          onClose={onClose}
+          section={section}
+        />
       </ModalBody>
     </Modal>
   );

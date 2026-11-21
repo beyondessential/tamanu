@@ -60,12 +60,6 @@ export const IDEMPOTENCY_EXCLUSIONS = [
     reason:
       'Uses an unmanaged transaction with an explicit commit(), which the single wrapping transaction cannot cover. Migrate it to a managed transaction (see llm/project-rules/sequelize-transactions.md) and remove this entry.',
   },
-  {
-    pattern: /^\/invoices\/[^/]+\/insurancePlans$/,
-    samplePath: '/invoices/abc-123/insurancePlans',
-    reason:
-      'Uses an unmanaged transaction with an explicit commit(), which the single wrapping transaction cannot cover. Migrate it to a managed transaction (see llm/project-rules/sequelize-transactions.md) and remove this entry.',
-  },
 ];
 
 export const IDEMPOTENCY_EXCLUDED_PATHS = IDEMPOTENCY_EXCLUSIONS.map(({ pattern }) => pattern);
@@ -111,7 +105,4 @@ export const PRE_IDEMPOTENCY_MUTATING_ROUTES = [
  * an explicit `commit()`). That pattern is incompatible with the middleware's
  * wrapping transaction, so each of these must also be excluded above.
  */
-export const UNMANAGED_TRANSACTION_ROUTE_FILES = [
-  'invoice/invoices.js',
-  'invoice/insurancePlans.js',
-];
+export const UNMANAGED_TRANSACTION_ROUTE_FILES = ['invoice/invoices.js'];

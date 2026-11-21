@@ -203,3 +203,42 @@ sources:
             config:
               meta:
                 masking: string
+          - name: adoption_number
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__adoption_number') }}"
+            config:
+              meta:
+                masking: string
+          - name: marriage_licence
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__marriage_licence') }}"
+            config:
+              meta:
+                masking: string
+          - name: family_size
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__family_size') }}"
+          - name: annual_income
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__annual_income') }}"
+            config:
+              meta:
+                masking: string
+          - name: payor1_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__payor1_id') }}"
+          - name: payor1_reference_number
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__payor1_reference_number') }}"
+            config:
+              meta:
+                masking: string
+          - name: payor2_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__payor2_id') }}"
+          - name: payor2_reference_number
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__payor2_reference_number') }}"
+            config:
+              meta:
+                masking: string

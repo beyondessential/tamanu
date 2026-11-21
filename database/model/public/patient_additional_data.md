@@ -182,6 +182,40 @@ Reference to patient primary health center ([Reference Data](#!/source/source.ta
 Policy number of patient insurance.
 {% enddocs %}
 
+{% docs patient_additional_data__adoption_number %}
+Patient adoption number.
+{% enddocs %}
+
+{% docs patient_additional_data__marriage_licence %}
+Patient marriage licence number.
+{% enddocs %}
+
+{% docs patient_additional_data__family_size %}
+Number of people in the patient's family, as answered for the sliding fee scale. One of the family sizes the deployment's sliding fee scale covers, counted from 1.
+
+Left unmasked as a demographic category, in the same way as blood type and educational attainment. The household's income band is masked; see [`annual_income`](#!/source/source.tamanu.tamanu.patient_additional_data).
+{% enddocs %}
+
+{% docs patient_additional_data__annual_income %}
+The patient's annual income band, as answered for the sliding fee scale, stored as the band was displayed (for example `5,700 - 10,050`). Belongs to the family size it was answered against, and is kept as recorded even once the scale no longer covers that band.
+{% enddocs %}
+
+{% docs patient_additional_data__payor1_id %}
+Reference to the patient who pays the patient's bills ([Patients](#!/source/source.tamanu.tamanu.patients)), first of two.
+{% enddocs %}
+
+{% docs patient_additional_data__payor1_reference_number %}
+Reference number held by the first payor.
+{% enddocs %}
+
+{% docs patient_additional_data__payor2_id %}
+Reference to the patient who pays the patient's bills ([Patients](#!/source/source.tamanu.tamanu.patients)), second of two.
+{% enddocs %}
+
+{% docs patient_additional_data__payor2_reference_number %}
+Reference number held by the second payor.
+{% enddocs %}
+
 {% docs patient_additional_data__secondary_village_id %}
 Reference to patient administrative village of residence ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), secondary).
 

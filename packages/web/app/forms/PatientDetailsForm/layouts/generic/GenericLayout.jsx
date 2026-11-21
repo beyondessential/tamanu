@@ -10,16 +10,13 @@ import {
   NoteModalActionBlocker,
 } from '../../../../components';
 import { TextField, FormGrid, useDateTime } from '@tamanu/ui-components';
-import {
-  PatientDetailsHeading,
-  SecondaryDetailsFormGrid,
-  SecondaryDetailsGroup,
-} from '../../PatientDetailsCommonElements';
+import { PatientDetailsHeading, SecondaryDetailsGroup } from '../../PatientDetailsCommonElements';
 import { GenericLocationFields } from './patientFields/GenericLocationFields';
 import { GenericContactFields } from './patientFields/GenericContactFields';
 import { GenericIdentificationFields } from './patientFields/GenericIdentifiationFields';
 import { GenericPersonalFields } from './patientFields/GenericPersonalFields';
 import { GenericBirthFields } from './patientFields/GenericBirthFields';
+import { GenericBillingFields } from './patientFields/GenericBillingFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
@@ -121,7 +118,7 @@ export const GenericPrimaryDetailsLayout = ({
                 data-testid="translatedtext-o7gm"
               />
             }
-            max={getCurrentDate()}  
+            max={getCurrentDate()}
             component={DateField}
             required
             data-testid="localisedfield-oafl"
@@ -206,6 +203,7 @@ export const RequiredSecondaryDetails = ({ patientRegistryType, registeredBirthP
       data-testid="genericpersonalfields-m1dc"
     />
     <GenericLocationFields filterByMandatory data-testid="genericlocationfields-8w9p" />
+    <GenericBillingFields filterByMandatory data-testid="genericbillingfields-x11b" />
   </>
 );
 
@@ -216,77 +214,94 @@ export const GenericSecondaryDetailsLayout = ({
 }) => (
   <SecondaryDetailsGroup data-testid="secondarydetailsgroup-s246">
     {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-      <>
-        <PatientDetailsHeading data-testid="patientdetailsheading-u9ma">
+      <GenericBirthFields
+        registeredBirthPlace={registeredBirthPlace}
+        filterByMandatory={false}
+        heading={
           <TranslatedText
             stringId="patient.detail.subheading.birthDetails"
             fallback="Birth details"
             data-testid="translatedtext-w4iq"
           />
-        </PatientDetailsHeading>
-        <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-zpjh">
-          <GenericBirthFields
-            registeredBirthPlace={registeredBirthPlace}
-            filterByMandatory={false}
-            data-testid="genericbirthfields-3wv2"
-          />
-        </SecondaryDetailsFormGrid>
-      </>
+        }
+        headingTestId="patientdetailsheading-u9ma"
+        gridTestId="secondarydetailsformgrid-zpjh"
+        data-testid="genericbirthfields-3wv2"
+      />
     )}
 
-    <PatientDetailsHeading data-testid="patientdetailsheading-hkyy">
-      <TranslatedText
-        stringId="patient.detail.subheading.identificationInformation"
-        fallback="Identification information"
-        data-testid="translatedtext-nskp"
-      />
-    </PatientDetailsHeading>
-    <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-8o1s">
-      <GenericIdentificationFields
-        isEdit={isEdit}
-        patientRegistryType={patientRegistryType}
-        filterByMandatory={false}
-        data-testid="genericidentificationfields-uh67"
-      />
-    </SecondaryDetailsFormGrid>
+    <GenericIdentificationFields
+      isEdit={isEdit}
+      patientRegistryType={patientRegistryType}
+      filterByMandatory={false}
+      heading={
+        <TranslatedText
+          stringId="patient.detail.subheading.identificationInformation"
+          fallback="Identification information"
+          data-testid="translatedtext-nskp"
+        />
+      }
+      headingTestId="patientdetailsheading-hkyy"
+      gridTestId="secondarydetailsformgrid-8o1s"
+      data-testid="genericidentificationfields-uh67"
+    />
 
-    <PatientDetailsHeading data-testid="patientdetailsheading-pipb">
-      <TranslatedText
-        stringId="patient.detail.subheading.contactInformation"
-        fallback="Contact information"
-        data-testid="translatedtext-tq75"
-      />
-    </PatientDetailsHeading>
-    <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-g8w7">
-      <GenericContactFields filterByMandatory={false} data-testid="genericcontactfields-dfh4" />
-    </SecondaryDetailsFormGrid>
+    <GenericContactFields
+      filterByMandatory={false}
+      heading={
+        <TranslatedText
+          stringId="patient.detail.subheading.contactInformation"
+          fallback="Contact information"
+          data-testid="translatedtext-tq75"
+        />
+      }
+      headingTestId="patientdetailsheading-pipb"
+      gridTestId="secondarydetailsformgrid-g8w7"
+      data-testid="genericcontactfields-dfh4"
+    />
 
-    <PatientDetailsHeading data-testid="patientdetailsheading-vd0y">
-      <TranslatedText
-        stringId="patient.detail.subheading.personalInformation"
-        fallback="Personal information"
-        data-testid="translatedtext-bc5w"
-      />
-    </PatientDetailsHeading>
-    <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-qrkb">
-      <GenericPersonalFields
-        patientRegistryType={patientRegistryType}
-        filterByMandatory={false}
-        isEdit={isEdit}
-        data-testid="genericpersonalfields-hmrm"
-      />
-    </SecondaryDetailsFormGrid>
+    <GenericPersonalFields
+      patientRegistryType={patientRegistryType}
+      filterByMandatory={false}
+      isEdit={isEdit}
+      heading={
+        <TranslatedText
+          stringId="patient.detail.subheading.personalInformation"
+          fallback="Personal information"
+          data-testid="translatedtext-bc5w"
+        />
+      }
+      headingTestId="patientdetailsheading-vd0y"
+      gridTestId="secondarydetailsformgrid-qrkb"
+      data-testid="genericpersonalfields-hmrm"
+    />
 
-    <PatientDetailsHeading data-testid="patientdetailsheading-ccov">
-      <TranslatedText
-        stringId="patient.detail.subheading.locationInformation"
-        fallback="Location information"
-        data-testid="translatedtext-wy6z"
-      />
-    </PatientDetailsHeading>
-    <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-x46r">
-      <GenericLocationFields filterByMandatory={false} data-testid="genericlocationfields-z71v" />
-    </SecondaryDetailsFormGrid>
+    <GenericLocationFields
+      filterByMandatory={false}
+      heading={
+        <TranslatedText
+          stringId="patient.detail.subheading.locationInformation"
+          fallback="Location information"
+          data-testid="translatedtext-wy6z"
+        />
+      }
+      headingTestId="patientdetailsheading-ccov"
+      gridTestId="secondarydetailsformgrid-x46r"
+      data-testid="genericlocationfields-z71v"
+    />
+
+    <GenericBillingFields
+      filterByMandatory={false}
+      heading={
+        <TranslatedText
+          stringId="patient.detail.subheading.billingInformation"
+          fallback="Billing information"
+        />
+      }
+      headingTestId="patientdetailsheading-bill"
+      gridTestId="secondarydetailsformgrid-bill"
+      data-testid="genericbillingfields-x11a"
+    />
   </SecondaryDetailsGroup>
 );
 

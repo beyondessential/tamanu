@@ -35,7 +35,8 @@ export const createPatientSchema = z.object({
   birthCertificate: stringWithMaxLength.optional(),
   drivingLicense: stringWithMaxLength.optional(),
   passport: stringWithMaxLength.optional(),
-  insurerPolicyNumber: stringWithMaxLength.optional(),
+  adoptionNumber: stringWithMaxLength.optional(),
+  marriageLicence: stringWithMaxLength.optional(),
 
   // Contact Information (from GenericContactFields)
   // Contact numbers are handled as numbers with string coercion to match frontend validation
@@ -56,10 +57,19 @@ export const createPatientSchema = z.object({
   educationalLevel: z.enum(EDUCATIONAL_ATTAINMENT_TYPES).optional(),
   occupationId: foreignKey.optional(),
   socialMedia: z.enum(SOCIAL_MEDIA_TYPES).optional(),
-  patientBillingTypeId: foreignKey.optional(),
   motherId: foreignKey.optional(),
   fatherId: foreignKey.optional(),
+
+  // Billing Information (from GenericBillingFields)
+  insurerPolicyNumber: stringWithMaxLength.optional(),
   invoiceInsurancePlanId: foreignKey.array().optional(),
+  patientBillingTypeId: foreignKey.optional(),
+  familySize: stringWithMaxLength.optional(),
+  annualIncome: stringWithMaxLength.optional(),
+  payor1Id: foreignKey.optional(),
+  payor1ReferenceNumber: stringWithMaxLength.optional(),
+  payor2Id: foreignKey.optional(),
+  payor2ReferenceNumber: stringWithMaxLength.optional(),
 
   // Location Information (from GenericLocationFields)
   cityTown: stringWithMaxLength.optional(),

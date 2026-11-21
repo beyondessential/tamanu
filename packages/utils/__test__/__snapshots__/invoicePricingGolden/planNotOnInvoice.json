@@ -1,0 +1,65 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 100,
+    "invoiceItemsTotal": 100,
+    "insuranceCoverageTotal": 100,
+    "patientTotal": 0,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": 0,
+    "patientSubtotal": 0,
+    "patientPaymentsTotal": 0,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 0,
+    "patientPaymentRemainingBalance": 0,
+    "insurancePlanPaymentRemainingBalance": 100
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "100.00",
+    "invoiceItemsTotal": "100.00",
+    "insuranceCoverageTotal": "100.00",
+    "patientTotal": "0.00",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "0.00",
+    "patientSubtotal": "0.00",
+    "patientPaymentsTotal": "0.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "0.00",
+    "patientPaymentRemainingBalance": "0.00",
+    "insurancePlanPaymentRemainingBalance": "100.00"
+  },
+  "insuranceCoverageTotal": "100",
+  "coverageByPlan": [
+    {
+      "id": "plan-a",
+      "name": "Plan A",
+      "code": "PA",
+      "totalCoverage": "-60.00"
+    }
+  ],
+  "items": [
+    {
+      "id": "stray-plan",
+      "totalPrice": 100,
+      "discountedPrice": 100,
+      "adjustment": 0,
+      "coverage": 100,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 60
+        },
+        {
+          "id": "plan-b",
+          "percentage": 60,
+          "coverage": 60
+        }
+      ],
+      "netCost": 0,
+      "formattedCoverage": "-100.00",
+      "formattedNetCost": "0.00"
+    }
+  ],
+  "patientPayments": [],
+  "insurancePlanPayments": []
+}

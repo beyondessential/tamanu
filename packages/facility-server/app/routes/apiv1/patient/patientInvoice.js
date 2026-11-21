@@ -12,16 +12,11 @@ export const patientInvoiceRoutes = express.Router();
 async function hydrateInvoices(invoiceRecords, models) {
   return Promise.all(
     invoiceRecords.map(async invoiceRecord => {
-      const { Invoice, InvoicePriceList } = models;
-      // Determine the price list for the invoice based on its encounter
-      const invoiceId = invoiceRecord.id;
-      const encounterId = invoiceRecord.encounterId;
-      const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
-
+      const { Invoice } = models;
       // Refetch the invoice with associations that depend on the price list
       const hydratedInvoiceRecord = await Invoice.findOne({
-        where: { id: invoiceId },
-        include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+        where: { id: invoiceRecord.id },
+        include: await Invoice.getPricingAssociations(invoiceRecord.encounterId),
       });
 
       if (!hydratedInvoiceRecord) {

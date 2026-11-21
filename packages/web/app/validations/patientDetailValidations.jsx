@@ -11,10 +11,17 @@ import {
 } from '@tamanu/constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { yupAttemptTransformToNumber } from '../utils';
+import {
+  isSlidingFeeScaleFieldShown,
+  isSlidingFeeScalePlanSelected,
+} from '../utils/slidingFeeScale';
 
 const requiredWhenConfiguredMandatory = (getSetting, getTranslation, name, baseType) => {
+  // Several names mean the field is mandatory when any of them is, which is how a field that
+  // another one cannot be answered without inherits its requirement.
+  const names = Array.isArray(name) ? name : [name];
   return baseType.when([], {
-    is: () => !!getSetting(`fields.${name}.requiredPatientData`),
+    is: () => names.some(each => Boolean(getSetting(`fields.${each}.requiredPatientData`))),
     then: baseType.required(getTranslation('validation.required.inline', '*Required')),
     otherwise: baseType,
   });
@@ -40,7 +47,55 @@ const requiredBirthFieldWhenConfiguredMandatory = (
     otherwise: baseType,
   });
 
-export const getPatientDetailsValidation = (patientRegistryType, getSetting, getTranslation, insurancePlansInUse = []) => {
+export const getPatientDetailsValidation = (
+  patientRegistryType,
+  getSetting,
+  getTranslation,
+  { insurancePlansInUse = [], slidingFeeScalePlanId = null } = {},
+) => {
+  // Family size and annual income only answer the sliding fee scale, so they are required exactly
+  // when that plan is selected.
+  const isSlidingFeeScaleSelected = planIds =>
+    isSlidingFeeScalePlanSelected(slidingFeeScalePlanId, planIds);
+
+  // A deployment that hides a field is not collecting it, so requiring it would make the patient
+  // unsavable with no field to answer. Visibility and the requirement have to agree.
+  const isShown = field => isSlidingFeeScaleFieldShown(getSetting, field);
+
+  const slidingFeeScaleField = (
+    field,
+    stringId,
+    fallback,
+    message,
+    dependsOn,
+    isRequired,
+    { enabledBy, mandatoryWith } = {},
+  ) => {
+    const labelled = schema =>
+      schema.translatedLabel(<TranslatedText stringId={stringId} fallback={fallback} />);
+
+    // A field can only be required if it can actually be answered: it has to be on the form, and
+    // annual income additionally needs family size there, since its bands belong to one and it
+    // stays disabled until one is chosen. Requiring it otherwise — whether for the sliding fee
+    // scale or because a deployment marked it mandatory — leaves the patient unsavable against a
+    // field that cannot be filled in.
+    const isAnswerable = isShown(field) && (!enabledBy || isShown(enabledBy));
+
+    return yup.string().when(dependsOn, {
+      is: (...args) => isAnswerable && isRequired(...args),
+      then: schema => labelled(schema).required(message),
+      otherwise: schema =>
+        isAnswerable
+          ? requiredWhenConfiguredMandatory(
+              getSetting,
+              getTranslation,
+              mandatoryWith ? [field, mandatoryWith] : field,
+              labelled(schema),
+            )
+          : labelled(schema),
+    });
+  };
+
   const patientDetailsValidationSchema = yup.object().shape({
     firstName: yup
       .string()
@@ -827,6 +882,114 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
           },
         ),
       'Insurance plan',
+    ),
+    adoptionNumber: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'adoptionNumber',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.adoptionNumber.label"
+            fallback="Adoption number"
+          />,
+        ),
+      'Adoption number',
+    ),
+    marriageLicence: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'marriageLicence',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.marriageLicence.label"
+            fallback="Marriage licence"
+          />,
+        ),
+      'Marriage licence',
+    ),
+    familySize: slidingFeeScaleField(
+      'familySize',
+      'general.localisedField.familySize.label',
+      'Family size',
+      getTranslation(
+        'patient.validation.familySizeRequiredForSlidingFeeScale',
+        'Family size is required for sliding fee scale',
+      ),
+      'invoiceInsurancePlanId',
+      isSlidingFeeScaleSelected,
+      // Annual income is disabled until a family size is chosen, so a deployment that makes the
+      // income mandatory makes the family size mandatory too. Without this the form fails on a
+      // field that cannot be filled in, and the save is refused with nothing to act on.
+      { mandatoryWith: 'annualIncome' },
+    ),
+    // The income bands belong to a family size, so annual income cannot be answered — and is
+    // disabled on the form — until one is chosen. Asking for it before then would put a message
+    // on a field the user cannot yet fill in, so the two are asked for in turn.
+    annualIncome: slidingFeeScaleField(
+      'annualIncome',
+      'general.localisedField.annualIncome.label',
+      'Annual income',
+      getTranslation(
+        'patient.validation.annualIncomeRequiredForSlidingFeeScale',
+        'Annual income is required for sliding fee scale',
+      ),
+      ['invoiceInsurancePlanId', 'familySize'],
+      (planIds, familySize) => isSlidingFeeScaleSelected(planIds) && Boolean(familySize),
+      { enabledBy: 'familySize' },
+    ),
+    payor1Id: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'payor1Id',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.payor1Id.label" fallback="Payor 1" />,
+        ),
+      'Payor 1',
+    ),
+    payor1ReferenceNumber: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'payor1ReferenceNumber',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.payor1ReferenceNumber.label"
+            fallback="Payor 1 reference number"
+          />,
+        ),
+      'Payor 1 reference number',
+    ),
+    payor2Id: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'payor2Id',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.payor2Id.label" fallback="Payor 2" />,
+        ),
+      'Payor 2',
+    ),
+    payor2ReferenceNumber: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'payor2ReferenceNumber',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.payor2ReferenceNumber.label"
+            fallback="Payor 2 reference number"
+          />,
+        ),
+      'Payor 2 reference number',
     ),
   });
 

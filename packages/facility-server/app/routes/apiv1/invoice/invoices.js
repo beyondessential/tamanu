@@ -20,6 +20,7 @@ import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { insurancePlansRoute } from './insurancePlans';
+import { invoiceForPricing } from './invoiceForResponse';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -71,12 +72,29 @@ invoiceRoute.get(
     req.checkPermission('read', 'Invoice');
 
     const { encounterId, productId } = req.query;
+    // Express parses a repeated parameter into an array and a bracketed one into an object, and
+    // either would reach the where clause as it stands; this refuses both rather than letting
+    // Sequelize fail on them. Not .uuid(): provisioned section ids are codes.
+    const { data: invoiceSectionId, error: sectionError } = z
+      .string()
+      .min(1)
+      .nullish()
+      .safeParse(req.query.invoiceSectionId);
+    if (sectionError) {
+      throw new ValidationError(sectionError.message);
+    }
 
     if (!encounterId || !productId) {
       throw new ValidationError('encounterId and productId are required');
     }
 
-    const { Invoice, InvoiceInsurancePlanItem, InvoiceInsurancePlan, InvoiceProduct } = req.models;
+    const {
+      Invoice,
+      InvoiceInsurancePlanItem,
+      InvoiceInsurancePlan,
+      InvoicesInvoiceInsurancePlan,
+      InvoiceProduct,
+    } = req.models;
 
     // If the product is not insurable, there are no insurance plan items to return
     const product = await InvoiceProduct.findByPk(productId, { attributes: ['id', 'insurable'] });
@@ -85,23 +103,41 @@ invoiceRoute.get(
     }
 
     // Find the invoice for the encounter (there should be at most one per encounter)
-    const invoice = await Invoice.findOne({
-      where: { encounterId },
-      attributes: ['id'],
+    const invoice = await Invoice.findOne({ where: { encounterId }, attributes: ['id'] });
+
+    if (!invoice) {
+      // If no invoice yet, there will be no linked plans
+      return res.json([]);
+    }
+
+    // What the saved item will actually be covered by: a plan attached to the row's section, or
+    // one attached to no section and so covering the whole invoice. Answering for every plan on
+    // the invoice would advertise coverage the item is never going to get.
+    const attachments = await InvoicesInvoiceInsurancePlan.findAll({
+      where: {
+        invoiceId: invoice.id,
+        invoiceSectionId: invoiceSectionId ? { [Op.or]: [null, invoiceSectionId] } : null,
+      },
       include: [
         {
           model: InvoiceInsurancePlan,
-          as: 'insurancePlans',
+          as: 'invoiceInsurancePlan',
+          required: true,
           attributes: ['name', 'id', 'defaultCoverage'],
           where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
         },
       ],
     });
 
-    if (!invoice) {
-      // If no invoice yet, there will be no linked plans
-      return res.json([]);
-    }
+    // One entry per plan: a plan reaching this item through two attachments is still one payer.
+    const coveringPlans = [
+      ...new Map(
+        attachments.map(({ invoiceInsurancePlan }) => [
+          invoiceInsurancePlan.id,
+          invoiceInsurancePlan,
+        ]),
+      ).values(),
+    ];
 
     // Get the plan items for this product and the linked plans
     const items = await InvoiceInsurancePlanItem.findAll({
@@ -122,7 +158,7 @@ invoiceRoute.get(
     const itemsById = keyBy(items, 'invoiceInsurancePlanId');
 
     // Normalise to the shape expected by the client UI
-    const response = invoice.insurancePlans.map(insurancePlan => {
+    const response = coveringPlans.map(insurancePlan => {
       const planItem = itemsById[insurancePlan.id];
       const coverageValue = planItem?.coverageValue ?? insurancePlan.defaultCoverage;
       return {
@@ -184,7 +220,10 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z.string().uuid().default(() => crypto.randomUUID()),
+        id: z
+          .string()
+          .uuid()
+          .default(() => crypto.randomUUID()),
         percentage: z.coerce
           .number()
           .min(0)
@@ -197,7 +236,10 @@ const updateInvoiceSchema = z
       .nullish(),
     items: z
       .object({
-        id: z.string().uuid().default(() => crypto.randomUUID()),
+        id: z
+          .string()
+          .uuid()
+          .default(() => crypto.randomUUID()),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
@@ -208,9 +250,15 @@ const updateInvoiceSchema = z
         quantity: z.coerce.number().default(1),
         note: z.string().nullish(),
         sourceId: z.string().uuid().nullish(),
+        // Not .uuid(): provisioned section ids are codes such as 'invoiceSection-emergency'.
+        // min(1) keeps an empty string from reaching the foreign key as a value.
+        invoiceSectionId: z.string().min(1).nullish(),
         discount: z
           .object({
-            id: z.string().uuid().default(() => crypto.randomUUID()),
+            id: z
+              .string()
+              .uuid()
+              .default(() => crypto.randomUUID()),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().nullish(),
@@ -283,10 +331,55 @@ invoiceRoute.put(
         where: { invoiceId, id: { [Op.notIn]: data.items.map(item => item.id) } },
       });
 
+      // This route is the create path for manual items as well as the update path, so an item's
+      // section is written when it is added and never again. Without that an edit which
+      // round-trips the item would let the client move it to another section.
+      const existingItems = await req.models.InvoiceItem.findAll({
+        where: { id: data.items.map(item => item.id) },
+        attributes: ['id', 'invoiceId', 'invoiceSectionId'],
+        paranoid: false,
+        raw: true,
+      });
+
+      // An id already belonging to another invoice is refused rather than placed: the upsert below
+      // writes by id, so accepting one would move that invoice's line onto this one.
+      const foreignItem = existingItems.find(existing => existing.invoiceId !== invoiceId);
+      if (foreignItem) {
+        throw new ValidationError(`Invoice item ${foreignItem.id} belongs to another invoice`);
+      }
+
+      const sectionByExistingItemId = new Map(
+        existingItems.map(existing => [existing.id, existing.invoiceSectionId]),
+      );
+
+      // Only a new item needs placing, so a save that just edits existing lines reads neither the
+      // configured sections nor the encounter's current one.
+      const hasNewItems = data.items.some(item => !sectionByExistingItemId.has(item.id));
+      const { configuredSectionIds, currentSectionId } = hasNewItems
+        ? await req.models.Invoice.resolveManualItemPlacement(foundInvoice.encounterId)
+        : { configuredSectionIds: new Set(), currentSectionId: null };
+
       for (const item of data.items) {
         const { discount: itemDiscount, ...itemData } = item;
-        //update or create item
-        await req.models.InvoiceItem.upsert({ ...itemData, invoiceId });
+        // An item added from a section's own Add item names its section. One added from an invoice
+        // showing no headers names none, so it belongs to the category the encounter is in now.
+        const isExistingItem = sectionByExistingItemId.has(item.id);
+        if (
+          !isExistingItem &&
+          item.invoiceSectionId &&
+          !configuredSectionIds.has(item.invoiceSectionId)
+        ) {
+          throw new ValidationError(
+            `Invoice section ${item.invoiceSectionId} is not a current invoice section`,
+          );
+        }
+        await req.models.InvoiceItem.upsert({
+          ...itemData,
+          invoiceSectionId: isExistingItem
+            ? sectionByExistingItemId.get(item.id)
+            : (item.invoiceSectionId ?? currentSectionId),
+          invoiceId,
+        });
 
         //remove any existing discount if discount info is not provided
         if (!itemDiscount) {
@@ -308,14 +401,13 @@ invoiceRoute.put(
     // Recalculate patientPaymentStatus now that items/discount may have changed.
     // Payments can be recorded on in-progress invoices, so the status may be stale
     // if a fee scale discount is applied after a partial payment.
-    const invoicePriceListId = await req.models.InvoicePriceList.getIdForPatientEncounter(
-      foundInvoice.encounterId,
-    );
     const invoiceWithDetails = await req.models.Invoice.findOne({
       where: { encounterId: foundInvoice.encounterId },
-      include: req.models.Invoice.getFullReferenceAssociations(invoicePriceListId),
+      include: await req.models.Invoice.getPricingAssociations(foundInvoice.encounterId),
     });
-    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoiceWithDetails);
+    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(
+      invoiceForPricing(invoiceWithDetails),
+    );
     // Cap paidAmount at patientTotal in case a discount was applied after payments were recorded
     const effectivePaidAmount = Math.min(patientPaymentsTotal, patientTotal);
     await req.models.Invoice.update(
@@ -365,7 +457,7 @@ invoiceRoute.put(
     req.checkPermission('write', 'Invoice');
     const { models, params } = req;
     const invoiceId = params.id;
-    const { Invoice, InvoicePriceList, InvoiceItem, InvoiceItemFinalisedInsurance } = models;
+    const { Invoice, InvoiceItem, InvoiceItemFinalisedInsurance } = models;
 
     const invoice = await Invoice.findByPk(invoiceId, {
       attributes: ['id', 'status', 'encounterId'],
@@ -394,12 +486,9 @@ invoiceRoute.put(
       );
     }
 
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(invoice.encounterId);
-
-    const associations = InvoiceItem.getListReferenceAssociations(models, invoicePriceListId);
     const invoiceItems = await InvoiceItem.findAll({
       where: { invoiceId },
-      include: associations,
+      include: await InvoiceItem.getPricingAssociations(invoice.encounterId),
     });
 
     const transaction = await req.db.transaction();

@@ -10,6 +10,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
+import { useIsReadOnlyForm } from '../../contexts/ReadOnlyFormContext';
 import { FormTooltip } from '../FormTooltip';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
@@ -24,9 +25,12 @@ const FieldBase = ({
   name,
   component = TextField,
   onChange,
+  disabled,
   helperText,
   ...props
 }) => {
+  const isReadOnly = useIsReadOnlyForm();
+
   // Only show error messages once the user has attempted to submit the form
   const error = submitStatus === SUBMIT_ATTEMPTED_STATUS && !!getIn(errors, name);
   const message = error ? getIn(errors, name) : helperText;
@@ -66,6 +70,7 @@ const FieldBase = ({
     <FormikField
       {...props}
       component={component}
+      disabled={disabled || isReadOnly}
       error={error}
       helperText={message}
       name={name}

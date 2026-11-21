@@ -217,6 +217,73 @@ describe('Patient', () => {
       expect(additional).toHaveProperty('passport', 'TEST-PASSPORT');
     });
 
+    // The Billing information section's fields (spec: patient/details.md). The payors are
+    // references to other patients, so this also covers those foreign keys resolving.
+    it('should create a new patient with billing information', async () => {
+      const newPatient = await createDummyPatient(models);
+      const payor1 = await models.Patient.create(await createDummyPatient(models));
+      const payor2 = await models.Patient.create(await createDummyPatient(models));
+
+      const result = await app.post('/api/patient').send({
+        ...newPatient,
+        adoptionNumber: 'ADOPT-1',
+        marriageLicence: 'MARRIAGE-1',
+        familySize: '3',
+        annualIncome: '7,400 - 17,000',
+        payor1Id: payor1.id,
+        payor1ReferenceNumber: 'PAYOR-REF-1',
+        payor2Id: payor2.id,
+        payor2ReferenceNumber: 'PAYOR-REF-2',
+        facilityId,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const additional = await models.PatientAdditionalData.findOne({
+        where: { patientId: result.body.id },
+      });
+      expect(additional).toMatchObject({
+        adoptionNumber: 'ADOPT-1',
+        marriageLicence: 'MARRIAGE-1',
+        familySize: '3',
+        annualIncome: '7,400 - 17,000',
+        payor1Id: payor1.id,
+        payor1ReferenceNumber: 'PAYOR-REF-1',
+        payor2Id: payor2.id,
+        payor2ReferenceNumber: 'PAYOR-REF-2',
+      });
+    });
+
+    it('should update billing information on an existing patient', async () => {
+      const newPatient = await createDummyPatient(models);
+      const payor = await models.Patient.create(await createDummyPatient(models));
+      const created = await app.post('/api/patient').send({ ...newPatient, facilityId });
+      expect(created).toHaveSucceeded();
+
+      const updateResult = await app.put(`/api/patient/${created.body.id}`).send({
+        familySize: '5',
+        // Stored as the band was displayed, so a scale change cannot re-point it
+        annualIncome: '> 17,000',
+        payor1Id: payor.id,
+        payor1ReferenceNumber: 'PAYOR-REF-UPDATED',
+        adoptionNumber: 'ADOPT-UPDATED',
+        facilityId,
+      });
+      expect(updateResult).toHaveSucceeded();
+
+      const additionalDataResult = await app.get(
+        `/api/patient/${created.body.id}/additionalData`,
+      );
+      expect(additionalDataResult).toHaveSucceeded();
+      expect(additionalDataResult.body).toMatchObject({
+        familySize: '5',
+        annualIncome: '> 17,000',
+        payor1Id: payor.id,
+        payor1ReferenceNumber: 'PAYOR-REF-UPDATED',
+        adoptionNumber: 'ADOPT-UPDATED',
+      });
+    });
+
     it('should create a new patient with fields', async () => {
       // Arrange
       const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;

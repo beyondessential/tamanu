@@ -43,6 +43,14 @@ export class PatientAdditionalData extends Model {
   declare religionId?: string;
   declare patientBillingTypeId?: string;
   declare countryOfBirthId?: string;
+  declare adoptionNumber?: string;
+  declare marriageLicence?: string;
+  declare familySize?: string;
+  declare annualIncome?: string;
+  declare payor1Id?: string;
+  declare payor1ReferenceNumber?: string;
+  declare payor2Id?: string;
+  declare payor2ReferenceNumber?: string;
 
   static initModel(options: InitOptions) {
     super.init(
@@ -90,6 +98,16 @@ export class PatientAdditionalData extends Model {
         },
         updatedAtByField: DataTypes.JSON,
         insurerPolicyNumber: DataTypes.STRING,
+        adoptionNumber: DataTypes.STRING,
+        marriageLicence: DataTypes.STRING,
+        familySize: DataTypes.STRING,
+        // The sliding fee scale band as displayed, not an index into the scale: editing the
+        // scale must not silently move a saved answer onto a different range.
+        annualIncome: DataTypes.STRING,
+        payor1Id: DataTypes.STRING,
+        payor1ReferenceNumber: DataTypes.STRING,
+        payor2Id: DataTypes.STRING,
+        payor2ReferenceNumber: DataTypes.STRING,
       },
       {
         ...options,
@@ -117,6 +135,16 @@ export class PatientAdditionalData extends Model {
     this.belongsTo(models.Patient, {
       foreignKey: 'fatherId',
       as: 'father',
+    });
+
+    this.belongsTo(models.Patient, {
+      foreignKey: 'payor1Id',
+      as: 'payor1',
+    });
+
+    this.belongsTo(models.Patient, {
+      foreignKey: 'payor2Id',
+      as: 'payor2',
     });
 
     this.belongsTo(models.Facility, {

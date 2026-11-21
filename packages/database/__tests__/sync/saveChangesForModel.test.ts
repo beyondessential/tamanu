@@ -284,6 +284,83 @@ describe('saveChangesForModel', () => {
     });
   });
 
+  // Mobile carries only the patient_additional_data columns it uses, so its pushes omit the
+  // billing fields entirely — no value and no tick. The field-wise merge has to leave central's
+  // values alone, or a mobile edit of a contact number would silently wipe a patient's billing
+  // details. This is the claim the addBillingFieldsToPatientAdditionalData migration rests on.
+  describe('a push that omits fields it does not carry', () => {
+    it('leaves the billing fields central already holds', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const payor = await models.Patient.create(fake(models.Patient));
+      const additionalData = await models.PatientAdditionalData.create(
+        fake(models.PatientAdditionalData, {
+          patientId: patient.id,
+          primaryContactNumber: '111',
+          familySize: '3',
+          annualIncome: '7,400 - 17,000',
+          payor1Id: payor.id,
+          payor1ReferenceNumber: 'PAYOR-REF-1',
+        }),
+      );
+      onTestFinished(async () => {
+        await models.PatientAdditionalData.destroy({
+          where: { id: additionalData.id },
+          force: true,
+        });
+        await models.Patient.destroy({ where: { id: patient.id }, force: true });
+        await models.Patient.destroy({ where: { id: payor.id }, force: true });
+      });
+      await additionalData.reload();
+
+      const {
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        deletedAt: _deletedAt,
+        updatedAtSyncTick: _tick,
+        // the columns mobile does not carry, dropped from the push entirely
+        familySize: _familySize,
+        annualIncome: _annualIncome,
+        payor1Id: _payor1Id,
+        payor1ReferenceNumber: _payor1Ref,
+        payor2Id: _payor2Id,
+        payor2ReferenceNumber: _payor2Ref,
+        ...pushedAdditionalData
+      } = additionalData.get({ plain: true });
+
+      const {
+        family_size: _fs,
+        annual_income: _ai,
+        payor1_id: _p1,
+        payor1_reference_number: _p1r,
+        payor2_id: _p2,
+        payor2_reference_number: _p2r,
+        ...updatedAtByFieldWithoutBilling
+      } = pushedAdditionalData.updatedAtByField;
+
+      const changes = [
+        {
+          data: {
+            ...pushedAdditionalData,
+            primaryContactNumber: '222',
+            updatedAtByField: {
+              ...updatedAtByFieldWithoutBilling,
+              primary_contact_number: currentSyncTick + 1,
+            },
+          },
+        },
+      ];
+
+      await saveChangesForModel(models.PatientAdditionalData, changes, true, log);
+
+      const merged = await models.PatientAdditionalData.findByPk(additionalData.id);
+      expect(merged.primaryContactNumber).toBe('222');
+      expect(merged.familySize).toBe('3');
+      expect(merged.annualIncome).toBe('7,400 - 17,000');
+      expect(merged.payor1Id).toBe(payor.id);
+      expect(merged.payor1ReferenceNumber).toBe('PAYOR-REF-1');
+    });
+  });
+
   // On central, saveUpdates merges the incoming record with the existing one field by field using
   // updated_at_by_field. deleted_at isn’t tracked there, so left to the merge the existing (null)
   // value would win and the delete would be silently dropped — the caller’s decision has to win.

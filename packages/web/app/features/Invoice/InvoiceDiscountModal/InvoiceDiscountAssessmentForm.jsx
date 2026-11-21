@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
@@ -7,33 +7,15 @@ import { SelectField, Form, FormGrid, ConfirmCancelBackRow } from '@tamanu/ui-co
 import { Field, TranslatedText, BodyText } from '../../../components';
 import { useSettings } from '../../../contexts/Settings';
 import { useTranslation } from '../../../contexts/Translation';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { getAnnualIncomeOptions, getFamilySizeOptions } from '../../../utils/slidingFeeScale';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
 `;
 
-const MAX_FAMILY_SIZE = 12;
-
-const formatDisplayPrice = value => value.toLocaleString('en-US');
-
-// The income bands available to answer the assessment, derived from the sliding fee scale
-// setting for the chosen family size. Each band carries the proportion of the fee the
-// patient pays, so the discount is the remainder.
-export const getAnnualIncomeOptions = (slidingFeeScale, familySize) => {
-  const incomeArray = slidingFeeScale[familySize] || [];
-
-  return incomeArray.map((income, index) => {
-    let range;
-    const incomeDisplay = formatDisplayPrice(income);
-    if (index === incomeArray.length - 1) {
-      range = `> ${incomeDisplay}`;
-    } else {
-      const upperValueDisplay = formatDisplayPrice(incomeArray[index + 1]);
-      range = `${incomeDisplay} - ${upperValueDisplay}`;
-    }
-    return { value: range, label: range, percentage: (index + 2) / 10 };
-  });
-};
+export { getAnnualIncomeOptions };
 
 export const getAssessmentDiscount = (annualIncomeOptions, annualIncome) => {
   const selectedOption = annualIncomeOptions.find(option => option.value === annualIncome);
@@ -45,7 +27,7 @@ export const getAssessmentDiscount = (annualIncomeOptions, annualIncome) => {
 
 // The income bands depend on the selected family size, so an income selected against a
 // different family size is not a valid answer to this assessment.
-export const getAssessmentValidationSchema = (annualIncomeOptions, requiredMessage) =>
+export const getAssessmentValidationSchema = (slidingFeeScale, requiredMessage) =>
   yup.object().shape({
     familySize: yup
       .string()
@@ -60,9 +42,11 @@ export const getAssessmentValidationSchema = (annualIncomeOptions, requiredMessa
     annualIncome: yup
       .string()
       .required()
-      .oneOf(
-        annualIncomeOptions.map(option => option.value),
-        requiredMessage,
+      .when('familySize', (familySize, schema) =>
+        schema.oneOf(
+          getAnnualIncomeOptions(slidingFeeScale, familySize).map(option => option.value),
+          requiredMessage,
+        ),
       )
       .translatedLabel(
         <TranslatedText
@@ -73,35 +57,81 @@ export const getAssessmentValidationSchema = (annualIncomeOptions, requiredMessa
       ),
   });
 
-export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDiscount }) => {
-  const [familySize, setFamilySize] = useState();
+/**
+ * The assessment opens on what the patient's billing details already say, so the common case is
+ * confirming rather than re-answering.
+ *
+ * Both answers belong to the scale as it stood when they were saved. A deployment can edit the
+ * scale since, so an answer it no longer offers is dropped rather than shown as chosen: a family
+ * size the scale no longer covers would come with no income bands to pick from, and an income
+ * band it no longer lists is not something this assessment can price.
+ */
+export const getAssessmentInitialValues = (slidingFeeScale, additionalData) => {
+  const familySize = additionalData?.familySize ?? '';
+  if (!familySize) return {};
 
+  const annualIncomeOptions = getAnnualIncomeOptions(slidingFeeScale, familySize);
+  if (!annualIncomeOptions.length) return {};
+
+  const savedAnnualIncome = additionalData?.annualIncome;
+  const isSavedIncomeStillOffered = annualIncomeOptions.some(
+    option => option.value === savedAnnualIncome,
+  );
+  return {
+    familySize,
+    ...(isSavedIncomeStillOffered ? { annualIncome: savedAnnualIncome } : {}),
+  };
+};
+
+export const InvoiceDiscountAssessmentForm = ({
+  patientId,
+  onClose,
+  onBack,
+  handleUpdateDiscount,
+}) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const slidingFeeScale = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE);
 
-  const familySizesOptions = Array.from({ length: MAX_FAMILY_SIZE }, (_, i) => ({
-    label: (i + 1).toString(),
-    value: i,
-  }));
+  const { data: additionalData, isLoading: isLoadingPatient } =
+    usePatientAdditionalDataQuery(patientId);
 
-  const annualIncomeOptions = useMemo(
-    () => getAnnualIncomeOptions(slidingFeeScale, familySize),
-    [familySize, slidingFeeScale],
+  const familySizesOptions = useMemo(
+    () => getFamilySizeOptions(slidingFeeScale),
+    [slidingFeeScale],
   );
 
+  const initialValues = useMemo(
+    () => getAssessmentInitialValues(slidingFeeScale, additionalData),
+    [slidingFeeScale, additionalData],
+  );
+
+  // Formik re-validates whenever the schema's identity changes, so building it inline would
+  // re-run validation on every render.
   const validationSchema = useMemo(
     () =>
       getAssessmentValidationSchema(
-        annualIncomeOptions,
+        slidingFeeScale,
         getTranslation('validation.required.inline', '*Required'),
       ),
-    [annualIncomeOptions, getTranslation],
+    [slidingFeeScale, getTranslation],
   );
 
   const handleSubmit = async values => {
-    await handleUpdateDiscount(getAssessmentDiscount(annualIncomeOptions, values.annualIncome));
+    await handleUpdateDiscount(
+      getAssessmentDiscount(
+        getAnnualIncomeOptions(slidingFeeScale, values.familySize),
+        values.annualIncome,
+      ),
+    );
   };
+
+  // The form takes its initial values once, when it mounts. Rendering it before the patient's
+  // saved answers arrive would either strand it on empty values or, with enableReinitialize,
+  // reset it underneath someone who had already started answering.
+  if (isLoadingPatient) {
+    return <LoadingIndicator data-testid="loadingindicator-assessment" />;
+  }
 
   return (
     <>
@@ -113,51 +143,52 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDis
         />
       </BodyText>
       <Form
+        initialValues={initialValues}
         onSubmit={handleSubmit}
-        render={({ submitForm, setFieldValue }) => (
-          <>
-            <FormGrid columns={1} data-testid="formgrid-i3v1">
-              <Field
-                name="familySize"
-                label={
-                  <TranslatedText
-                    stringId="invoice.modal.discountAssessment.family.label"
-                    fallback="What is the family size?"
-                    data-testid="translatedtext-cmoh"
-                  />
-                }
-                component={SelectField}
-                options={familySizesOptions}
-                onChange={e => {
-                  setFamilySize(e.target.value);
-                  setFieldValue('annualIncome', '');
-                }}
-                data-testid="field-23z3"
+        render={({ submitForm, setFieldValue, values }) => {
+          const annualIncomeOptions = getAnnualIncomeOptions(slidingFeeScale, values.familySize);
+          return (
+            <>
+              <FormGrid columns={1} data-testid="formgrid-i3v1">
+                <Field
+                  name="familySize"
+                  label={
+                    <TranslatedText
+                      stringId="invoice.modal.discountAssessment.family.label"
+                      fallback="What is the family size?"
+                      data-testid="translatedtext-cmoh"
+                    />
+                  }
+                  component={SelectField}
+                  options={familySizesOptions}
+                  onChange={() => setFieldValue('annualIncome', '')}
+                  data-testid="field-23z3"
+                />
+                <Field
+                  name="annualIncome"
+                  label={
+                    <TranslatedText
+                      stringId="invoice.modal.discountAssessment.income.label"
+                      fallback="What is their annual income?"
+                      data-testid="translatedtext-kmjd"
+                    />
+                  }
+                  component={SelectField}
+                  options={annualIncomeOptions}
+                  disabled={!values.familySize}
+                  data-testid="field-rdtx"
+                />
+              </FormGrid>
+              <StyledDivider data-testid="styleddivider-pypl" />
+              <ConfirmCancelBackRow
+                onConfirm={submitForm}
+                onCancel={onClose}
+                onBack={onBack}
+                data-testid="confirmcancelbackrow-f5b4"
               />
-              <Field
-                name="annualIncome"
-                label={
-                  <TranslatedText
-                    stringId="invoice.modal.discountAssessment.income.label"
-                    fallback="What is their annual income?"
-                    data-testid="translatedtext-kmjd"
-                  />
-                }
-                component={SelectField}
-                options={annualIncomeOptions}
-                disabled={!familySize && familySize !== 0}
-                data-testid="field-rdtx"
-              />
-            </FormGrid>
-            <StyledDivider data-testid="styleddivider-pypl" />
-            <ConfirmCancelBackRow
-              onConfirm={submitForm}
-              onCancel={onClose}
-              onBack={onBack}
-              data-testid="confirmcancelbackrow-f5b4"
-            />
-          </>
-        )}
+            </>
+          );
+        }}
         validationSchema={validationSchema}
         data-testid="form-6cak"
       />
