@@ -4,6 +4,7 @@
 //! spec: SUPV#serving-a-frontend
 
 use std::{
+	hash::{DefaultHasher, Hash, Hasher},
 	io,
 	path::{Path, PathBuf},
 	time::Instant,
@@ -37,8 +38,28 @@ pub struct Files {
 /// The index page, held in memory: it answers every one of the app's own routes.
 #[derive(Clone)]
 struct Index {
-	identity: Bytes,
-	encoded: Vec<(&'static str, Bytes)>,
+	identity: Variant,
+	encoded: Vec<(&'static str, Variant)>,
+}
+
+/// One encoding of the index, with the tag a browser revalidates it by.
+#[derive(Clone)]
+struct Variant {
+	bytes: Bytes,
+	etag: HeaderValue,
+}
+
+impl Variant {
+	fn new(bytes: Vec<u8>) -> Self {
+		let mut hasher = DefaultHasher::new();
+		bytes.hash(&mut hasher);
+		let etag = HeaderValue::try_from(format!("\"{:016x}\"", hasher.finish()))
+			.expect("hex is a valid header");
+		Self {
+			bytes: bytes.into(),
+			etag,
+		}
+	}
 }
 
 impl Files {
@@ -129,6 +150,7 @@ impl Files {
 				if res.status().is_client_error() || res.status().is_server_error() {
 					return self.error(res.status()).await;
 				}
+				with_charset(res.headers_mut());
 				res.map(Body::new)
 			}
 		}
@@ -161,47 +183,60 @@ impl Index {
 			.iter()
 			.filter_map(|(name, ext)| {
 				let file = root.join(format!("index.html.{ext}"));
-				std::fs::read(file).ok().map(|b| (*name, Bytes::from(b)))
+				std::fs::read(file).ok().map(|b| (*name, Variant::new(b)))
 			})
 			.collect();
 		Ok(Self {
-			identity: identity.into(),
+			identity: Variant::new(identity),
 			encoded,
 		})
 	}
 
 	/// The index in the best encoding the client accepts. It is never cached without checking
-	/// again, since it names the release's other files.
+	/// again, since it names the release's other files; a browser that has it already gets
+	/// `304 Not Modified`.
 	fn respond(&self, head: bool, headers: &HeaderMap) -> Response<Body> {
 		let accepted = accepted_encodings(headers);
-		let chosen = self
+		let (encoding, variant) = self
 			.encoded
 			.iter()
-			.filter_map(|(name, bytes)| {
-				accepted
-					.iter()
-					.find(|(n, _)| n == name)
-					.map(|(_, q)| (*q, *name, bytes))
+			.filter_map(|(name, variant)| {
+				let (_, q) = accepted.iter().find(|(n, _)| n == name)?;
+				(*q > 0.0).then_some((*q, *name, variant))
 			})
-			.filter(|(q, _, _)| *q > 0.0)
 			// The first of the highest quality, which keeps the order of preference among equals.
 			.fold(
 				None,
-				|best: Option<(f32, &str, &Bytes)>, candidate| match best {
+				|best: Option<(f32, &str, &Variant)>, candidate| match best {
 					Some(b) if b.0 >= candidate.0 => Some(b),
 					_ => Some(candidate),
 				},
-			);
-		let mut res = match chosen {
-			Some((_, name, bytes)) => {
-				let mut res = body(head, bytes.clone());
-				res.headers_mut()
-					.insert(header::CONTENT_ENCODING, HeaderValue::from_static(name));
-				res
-			}
-			None => body(head, self.identity.clone()),
+			)
+			.map_or((None, &self.identity), |(_, name, variant)| {
+				(Some(name), variant)
+			});
+
+		let unchanged = headers
+			.get_all(header::IF_NONE_MATCH)
+			.iter()
+			.filter_map(|v| v.to_str().ok())
+			.flat_map(|v| v.split(','))
+			.any(|tag| {
+				let tag = tag.trim();
+				tag == "*" || tag.trim_start_matches("W/") == variant.etag
+			});
+		let mut res = if unchanged {
+			let mut res = Response::new(Body::empty());
+			*res.status_mut() = StatusCode::NOT_MODIFIED;
+			res
+		} else {
+			body(head, variant.bytes.clone())
 		};
 		let headers = res.headers_mut();
+		if let Some(name) = encoding {
+			headers.insert(header::CONTENT_ENCODING, HeaderValue::from_static(name));
+		}
+		headers.insert(header::ETAG, variant.etag.clone());
 		headers.insert(
 			header::CONTENT_TYPE,
 			HeaderValue::from_static("text/html; charset=utf-8"),
@@ -209,6 +244,28 @@ impl Index {
 		headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"));
 		headers.insert(header::VARY, HeaderValue::from_static("accept-encoding"));
 		res
+	}
+}
+
+/// Names UTF-8 as the charset of a text file, which the frontend's build writes.
+fn with_charset(headers: &mut HeaderMap) {
+	let Some(content_type) = headers
+		.get(header::CONTENT_TYPE)
+		.and_then(|v| v.to_str().ok())
+	else {
+		return;
+	};
+	let textual = content_type.starts_with("text/")
+		|| matches!(
+			content_type,
+			"application/javascript" | "application/json" | "image/svg+xml"
+		);
+	if textual && !content_type.contains("charset") {
+		let value = format!("{content_type}; charset=utf-8");
+		headers.insert(
+			header::CONTENT_TYPE,
+			HeaderValue::try_from(value).expect("a valid content type stays valid"),
+		);
 	}
 }
 

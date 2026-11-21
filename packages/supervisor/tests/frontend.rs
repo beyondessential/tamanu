@@ -201,7 +201,7 @@ async fn paths() {
 				status: StatusCode::OK,
 				body: APP_JS,
 				headers: &[
-					("content-type", Some("text/javascript")),
+					("content-type", Some("text/javascript; charset=utf-8")),
 					("cache-control", None),
 				],
 			},
@@ -376,4 +376,41 @@ fn a_root_without_an_index_is_refused() {
 	let root = tempfile::tempdir().unwrap();
 	let error = Files::new(root.path(), |_| None).err().unwrap();
 	assert!(error.to_string().contains("index.html"), "{error}");
+}
+
+#[tokio::test]
+async fn the_index_is_revalidated_by_its_tag() {
+	let running = start().await;
+	let client = http1();
+	let first = send(&client, running.addr, Method::GET, "/patients/1", &[]).await;
+	let etag = first
+		.headers
+		.get("etag")
+		.unwrap()
+		.to_str()
+		.unwrap()
+		.to_owned();
+	let again = send(
+		&client,
+		running.addr,
+		Method::GET,
+		"/",
+		&[("if-none-match", &etag)],
+	)
+	.await;
+	assert_eq!(again.status, StatusCode::NOT_MODIFIED);
+	assert!(again.body.is_empty());
+	assert_eq!(again.headers.get("cache-control").unwrap(), "no-cache");
+
+	// Each encoding has a tag of its own.
+	let zstd = send(
+		&client,
+		running.addr,
+		Method::GET,
+		"/",
+		&[("accept-encoding", "zstd"), ("if-none-match", &etag)],
+	)
+	.await;
+	assert_eq!(zstd.status, StatusCode::OK);
+	assert_ne!(zstd.headers.get("etag").unwrap(), etag.as_str());
 }
