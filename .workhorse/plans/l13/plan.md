@@ -193,7 +193,11 @@ Secure defaults. Caddy's best-known one, automatic HTTPS, is already off in the 
 - Limits: hyper's bounds on header size, and on HTTP/2 concurrent streams and reset streams (the rapid reset attack), kept at their defaults, which are no looser than Caddy's.
 - Files: the file server never leaves its root and never lists directories.
 - Admin surface: none listening outward. Caddy's admin API is off today; the status server stays loopback and read-only.
-- Responses: Tamanu's own error pages, never an upstream's error text. Caddy adds no security headers by default, so neither does this.
+- Responses: Tamanu's own error pages, never an upstream's error text.
+- Security headers: the supervisor takes over helmet's, which central's api and the facility's api and sync apps set today (`helmet({ crossOriginEmbedderPolicy: true, strictTransportSecurity: false })`, helmet 8.1). It adds them to the api's responses without replacing any the api sent itself, so they come out the same whether or not the api still sets them, and both are kept until every deployment runs behind the supervisor (see Later). `X-Powered-By` is removed. The set, as helmet 8.1 sends it:
+  - `Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests`
+  - `Cross-Origin-Embedder-Policy: require-corp`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, `Origin-Agent-Cluster: ?1`
+  - `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-DNS-Prefetch-Control: off`, `X-Download-Options: noopen`, `X-Frame-Options: SAMEORIGIN`, `X-Permitted-Cross-Domain-Policies: none`, `X-XSS-Protection: 0`
 - `/env.js` is serialised as JSON, where today's Caddy template pastes the variables unescaped into JavaScript template literals, which would run any `${…}` in them.
 - The crate forbids `unsafe` code, and CI checks its dependencies against the RustSec advisory database.
 
@@ -209,9 +213,18 @@ Logging. Today the frontend images' Caddy writes an access line per request (the
   - at debug, a line per request with its route class and the gate's decision.
 - Frontend mode keeps an access line per request at info, as today, with the method, path, status, bytes, duration and client address.
 
+Open:
+
+- Whether the web app's and patient portal's own responses get security headers too. Today they get none, since Caddy serves them and helmet only reaches the api's JSON, yet the HTML is where most of these headers count. Most of helmet's set applies to them unchanged. Three parts do not:
+  - Its CSP would block what the web app loads: `blob:` workers and object URLs for PDFs, and Bugsnag's endpoints when it is configured. Each app needs a policy written for it and checked by using the app.
+  - `upgrade-insecure-requests` makes the browser fetch the app's files over HTTPS, so a deployment served over plain HTTP (local, or on a private network) would fail to load.
+  - `Cross-Origin-Embedder-Policy: require-corp` only serves cross-origin isolation, which neither app uses, and would block any cross-origin image or font.
+  Proposed: send helmet's set on the apps' responses without those three, and write each app's CSP as its own step.
+
 ### Later
 
 - [ ] The web app shows waking itself (reads `Retry-After` on a `503`), so a page can load straight into a sleeping server instead of the waking page
+- [ ] Remove helmet from central's api and the facility's api and sync apps once every deployment, bare-metal included, runs behind the supervisor
 
 ### Scheduled tasks (SLPWK#scheduled-tasks)
 
