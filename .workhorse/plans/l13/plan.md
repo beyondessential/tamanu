@@ -227,6 +227,33 @@ The work lands as four PRs, each in its own release, so each goes through a rele
 
 #### Order of work
 
+Layer 0, on #11712 before anything else:
+
+- [x] A sketch of the whole supervisor in Rust beside the Go module (`packages/supervisor-rs`), with `todo!()` where it saves time, never meant to run in production. It exists to compare by the numbers: lines of code, and memory idle and under load in frontend mode and supervisor mode without an actuator, against the Caddy build
+- [ ] Archive the sketch to its own branch and remove it from #11712
+
+Layer 0 results (one machine, release builds, a synthetic web root with precompressed files, a Node fake api, a Go load generator; RSS from `/proc`):
+
+| Measure | Caddy build (Go) | Rust sketch |
+| --- | --- | --- |
+| Our code, without tests or fakes, as formatted (`gofmt`, `rustfmt`) | 2,103 Go lines, plus 300 of Caddyfiles and `entrypoint.sh` | 2,977 Rust lines, including the proxy, files, rate limits, listeners and config checks Caddy gave the Go version |
+| Binary | 82.5 MB (56.7 MB stripped) | 4.9 MB (stripped) |
+| Frontend mode, idle | 53 MB | 6 MB |
+| Frontend mode, under load (peak) | 78 MB | 14 MB |
+| Supervisor mode, idle | 56 MB | 6 MB |
+| Supervisor mode, api load from 256 client addresses (peak) | 116 MB | 16 MB |
+| Supervisor mode, api load from up to a million client addresses (peak) | 774 MB, 916 MB after the file load, not returned 15 s later | 22 MB, 18 MB 15 s later |
+| Throughput, api through the proxy | 21,900 rps | 26,000 rps |
+| Throughput, small file | 36,100 rps | 36,700 rps |
+| Throughput, web app route (index fallback) | 43,100 rps | 27,200 rps |
+
+Notes:
+
+- The Go supervisor's Caddyfile keys its rate limits on `{http.request.client_ip}`, a placeholder Caddy does not have, so the key is the literal text and every client shares one 1,000/s bucket (10/s for login). The Go figures under api load are from a copy keyed on `{client_ip}`; with the shipped key nearly every request got `429`. Layer B tests the limits with many client addresses.
+- The million-address row is the rate limiter's memory: Caddy's sliding windows keep a buffer of events per address, GCRA one timestamp.
+- The Rust sketch has no tests, its sleep and wake machine has never run, and it carries four TODOs (connection stall timeouts, rate-limit log counts, each app's CSP, letting a stop request finish when a sleep is cancelled). Its web app route is slower through `ServeDir`'s fallback, which layer A looks at.
+- The first Rust run served 780 rps: accepted connections need `TCP_NODELAY`, or responses wait on delayed acknowledgements.
+
 Layer A, on a branch of its own:
 
 - [ ] Archive the Go version as `archive/l13-supervisor-go`
