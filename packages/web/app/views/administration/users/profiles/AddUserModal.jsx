@@ -89,20 +89,24 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
 
   const handleSubmit = async (values, { setFieldError }) => {
     const data = await validateUser(values);
+    // Also surface these as toasts: the inline field error set below is cleared a tick later by the
+    // shared Field component, which revalidates on error against the schema (which has no uniqueness
+    // rule), so the message would never stay visible on its own.
     if (!data.isEmailUnique) {
-      setFieldError(
-        'email',
-        getTranslation(
-          'admin.users.add.error.email',
-          'Account already exists with this email address',
-        ),
+      const message = getTranslation(
+        'admin.users.add.error.email',
+        'Account already exists with this email address',
       );
+      setFieldError('email', message);
+      toast.error(message);
     }
     if (!data.isDisplayNameUnique) {
-      setFieldError(
-        'displayName',
-        getTranslation('admin.users.add.error.displayName', 'Display name already exists'),
+      const message = getTranslation(
+        'admin.users.add.error.displayName',
+        'Display name already exists',
       );
+      setFieldError('displayName', message);
+      toast.error(message);
     }
     if (!data.isEmailUnique || !data.isDisplayNameUnique) {
       return;
