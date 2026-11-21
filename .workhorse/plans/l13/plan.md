@@ -182,7 +182,20 @@ Order of work, replacing the Go module on this card's branch (#11712), which has
 
 - The Caddy that fronts bare-metal Linux and Windows servers stays: it terminates TLS and holds the hostnames, which the supervisor never does. It is the platform's side of the boundary there, as infra's ingress is on Kubernetes.
 
-- No deployment overrides the frontend images' command or mounts a Caddyfile into them, so the frontend mode only has to keep what they rely on: port 3000 by default (`BIND_ADDRESS` to change it), `200` on `/` for probes, `/env.js` from `NODE_ENV`, `REVISION` and `BUGSNAG_API_KEY`, and running as a non-root user. Checked in infra's Kubernetes renderer (image default, `PORT` set but unread, a 100 MiB memory limit), the Linux quadlets in ops (image default, behind the host Caddy on port 3000), and Seedling's Tamanu apps (image default on port 3000; its Windows runtime runs the entrypoint our own image config declares). Canopy's redirect runs the upstream Caddy image, not ours.
+- No deployment overrides the frontend images' command or mounts a Caddyfile into them, so the frontend mode only has to keep what they rely on: port 3000 by default (`BIND_ADDRESS` to change it), `200` on `/` for probes, `/env.js` from `NODE_ENV`, `REVISION` and `BUGSNAG_API_KEY`, and running as a non-root user. Checked in infra's Kubernetes renderer (image default, `PORT` set but unread, a 100 MiB memory limit), and the Linux quadlets in ops (image default, behind the host Caddy on port 3000). The Windows images run the entrypoint our own image config declares. Canopy's redirect runs the upstream Caddy image, not ours.
+
+Secure defaults. Caddy's best-known one, automatic HTTPS, is already off in the supervisor (TLS is the platform's), so what the Rust build has to match are its quieter defaults, each made explicit and covered by a smoke test row:
+
+- Slow clients: Caddy waits at most a minute for request headers and five minutes on an idle connection, and drops a connection whose body read or response write stalls for a minute (reset on every read or write, so large sync payloads are unaffected). Rust: hyper's header read timeout, which also bounds the wait for the next request on a kept-alive connection, and a stall timeout around each connection's socket.
+- Forwarded headers: Caddy strips `X-Forwarded-For`, `-Proto` and `-Host` from clients outside the trusted proxies before setting its own. Rust: the same, before the request reaches any route, so neither the rate limits nor the api ever see a client's own.
+- Path matching: Caddy matches paths case-insensitively, with dot segments resolved and doubled slashes merged, so a crafted path cannot slip past a route such as the refusal of `/api/supervisor`. Rust: routes classify a normalised copy of the path (percent-decoded, lowercased, dot segments resolved, slashes merged), and a path that decodes to a slash, a backslash or a NUL is refused with `400`. The request is forwarded with its path unchanged.
+- Proxying: hop-by-hop headers, and any named in `Connection`, are removed both ways; `Upgrade` passes only on the websocket route. hyper rejects conflicting or malformed body framing, and the client frames every forwarded body afresh, so a request cannot be smuggled to the api.
+- Limits: hyper's bounds on header size, and on HTTP/2 concurrent streams and reset streams (the rapid reset attack), kept at their defaults, which are no looser than Caddy's.
+- Files: the file server never leaves its root and never lists directories.
+- Admin surface: none listening outward. Caddy's admin API is off today; the status server stays loopback and read-only.
+- Responses: Tamanu's own error pages, never an upstream's error text. Caddy adds no security headers by default, so neither does this.
+- `/env.js` is serialised as JSON, where today's Caddy template pastes the variables unescaped into JavaScript template literals, which would run any `${…}` in them.
+- The crate forbids `unsafe` code, and CI checks its dependencies against the RustSec advisory database.
 
 ### Later
 
