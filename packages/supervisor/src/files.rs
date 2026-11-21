@@ -319,7 +319,10 @@ fn accepted_encodings(headers: &HeaderMap) -> Vec<(String, f32)> {
 			let mut parts = item.split(';');
 			let name = parts.next()?.trim().to_ascii_lowercase();
 			let q = parts
-				.find_map(|p| p.trim().strip_prefix("q="))
+				.find_map(|p| {
+					let (key, value) = p.split_once('=')?;
+					key.trim().eq_ignore_ascii_case("q").then_some(value)
+				})
 				.map_or(Some(1.0), |q| q.trim().parse().ok())?;
 			(!name.is_empty()).then_some((name, q))
 		})
@@ -349,7 +352,7 @@ mod tests {
 		let mut headers = HeaderMap::new();
 		headers.insert(
 			header::ACCEPT_ENCODING,
-			HeaderValue::from_static("gzip;q=0.5, br , zstd;q=0, identity"),
+			HeaderValue::from_static("gzip;q=0.5, br , zstd;Q=0, identity"),
 		);
 		assert_eq!(
 			accepted_encodings(&headers),
