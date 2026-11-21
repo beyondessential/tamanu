@@ -4,18 +4,13 @@ import * as yup from 'yup';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import { AutocompleteField, DateField, Field, SuggesterSelectField } from '../components/Field';
-import {
-  TextField,
-  Form,
-  FormSubmitCancelRow,
-  FormGrid,
-  useDateTime,
-} from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
+import { InfoPaneFormActions } from '../components/PatientInfoPane/InfoPaneFormActions';
 
 export const AllergyForm = ({
   onSubmit,
@@ -113,24 +108,9 @@ export const AllergyForm = ({
               component={TextField}
               data-testid="field-dayn"
             />
-            <FormSubmitCancelRow
+            <InfoPaneFormActions
               onCancel={onCancel}
-              onConfirm={submitForm}
-              confirmText={
-                editedObject ? (
-                  <TranslatedText
-                    stringId="general.action.save"
-                    fallback="Save"
-                    data-testid="translatedtext-8p7h"
-                  />
-                ) : (
-                  <TranslatedText
-                    stringId="general.action.add"
-                    fallback="Add"
-                    data-testid="translatedtext-1jjw"
-                  />
-                )
-              }
+              onSubmit={submitForm}
               data-testid="formsubmitcancelrow-nx2z"
             />
           </NoteModalActionBlocker>

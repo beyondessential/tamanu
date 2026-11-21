@@ -2,54 +2,79 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
+import { omit } from 'es-toolkit/compat';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 import { AutocompleteField, CheckField, DateField, Field } from '../components/Field';
-import {
-  TextField,
-  Form,
-  FormCancelButton,
-  FormSubmitButton,
-  FormSubmitCancelRow,
-  FormGrid,
-  useDateTime,
-} from '@tamanu/ui-components';
-import { Colors } from '../constants/styles';
+import { TextField, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 import { DeleteOngoingConditionModal } from '../components/PatientInfoPane/DeleteOngoingConditionModal';
+import { InfoPaneFormActions } from '../components/PatientInfoPane/InfoPaneFormActions';
 
-const Link = styled.span`
-  text-decoration: underline;
-  cursor: pointer;
-  color: ${Colors.darkText};
-  font-size: 12px;
-`;
+const RESOLUTION_FIELD_NAMES = [
+  'resolved',
+  'resolutionDate',
+  'resolutionNote',
+  'resolutionPractitionerId',
+];
 
-const ButtonRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  ${props => !props.$resolving && 'margin-top: -1.2rem;'}
-`;
+const resolutionDateLabel = (
+  <TranslatedText
+    stringId="conditions.resolutionDate.label"
+    fallback="Date resolved"
+    data-testid="translatedtext-q71w"
+  />
+);
 
-const StyledFormCancelButton = styled(FormCancelButton)`
-  min-width: 61px;
-  max-width: 61px;
-  padding: 10px 12px;
-  height: 35px;
-`;
+const ResolutionFields = ({ practitionerSuggester }) => (
+  <>
+    <Field
+      name="resolutionDate"
+      label={resolutionDateLabel}
+      component={DateField}
+      required
+      data-testid="field-r84h"
+    />
+    <Field
+      name="resolutionPractitionerId"
+      label={
+        <TranslatedText
+          stringId="patient.ongoingCondition.resolutionPractitionerId.label"
+          fallback=":clinician confirming resolution"
+          replacements={{
+            clinician: (
+              <TranslatedText
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
+                data-testid="translatedtext-8kug"
+              />
+            ),
+          }}
+          data-testid="translatedtext-p0km"
+        />
+      }
+      component={AutocompleteField}
+      suggester={practitionerSuggester}
+      data-testid="field-izs0"
+    />
+    <Field
+      name="resolutionNote"
+      label={
+        <TranslatedText
+          stringId="conditions.resolutionNote.label"
+          fallback="Notes on resolution"
+          data-testid="translatedtext-qw5q"
+        />
+      }
+      component={TextField}
+      data-testid="field-4g2s"
+    />
+  </>
+);
 
-const StyledFormSubmitButton = styled(FormSubmitButton)`
-  min-width: 50px;
-  max-width: 50px;
-  padding: 10px 12px;
-  height: 35px;
-`;
+const resolutionDateSchema = yup.date().translatedLabel(resolutionDateLabel);
 
 export const OngoingConditionForm = ({
   onSubmit,
@@ -62,91 +87,68 @@ export const OngoingConditionForm = ({
   const { getCurrentDate } = useDateTime();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const RenderForm = ({ submitForm, values }) => {
-    const resolving = values.resolved;
-    const buttonText = editedObject ? (
-      <TranslatedText
-        stringId="general.action.save"
-        fallback="Save"
-        data-testid="translatedtext-5jcb"
-      />
-    ) : (
-      <TranslatedText
-        stringId="general.action.add"
-        fallback="Add"
-        data-testid="translatedtext-rx6s"
-      />
-    );
+  const handleDeleteSuccess = () => {
+    if (onDelete) {
+      onDelete();
+    }
+    onCancel();
+  };
 
-    const handleDeleteClick = () => {
-      setDeleteModalOpen(true);
-    };
-
-    const handleDeleteSuccess = () => {
-      if (onDelete) {
-        onDelete();
-      }
-      onCancel();
-    };
-
-    return (
-      <FormGrid columns={1} data-testid="formgrid-lqds">
-        <NoteModalActionBlocker>
-          <Field
-            name="conditionId"
-            label={
-              <TranslatedText
-                stringId="conditions.conditionName.label"
-                fallback="Condition name"
-                data-testid="translatedtext-avk1"
-              />
-            }
-            component={AutocompleteField}
-            suggester={diagnosisSuggester}
-            disabled={resolving}
-            required
-            data-testid="field-j30y"
-          />
-          <Field
-            name="recordedDate"
-            label={
-              <TranslatedText
-                stringId="general.recordedDate.label"
-                fallback="Date recorded"
-                data-testid="translatedtext-hd0f"
-              />
-            }
-            component={DateField}
-            disabled={resolving}
-            data-testid="field-2775"
-          />
-          <Field
-            name="examinerId"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.clinician.label.short"
-                fallback="Clinician"
-                data-testid="translatedtext-n0zg"
-              />
-            }
-            disabled={resolving}
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-            data-testid="field-9miu"
-          />
-          <Field
-            name="note"
-            label={
-              <TranslatedText
-                stringId="general.notes.label"
-                fallback="Notes"
-                data-testid="translatedtext-f0ug"
-              />
-            }
-            component={TextField}
-            disabled={resolving}
-            data-testid="field-e52k"
-          />
+  const RenderForm = ({ submitForm, values }) => (
+    <FormGrid columns={1} data-testid="formgrid-lqds">
+      <NoteModalActionBlocker>
+        <Field
+          name="conditionId"
+          label={
+            <TranslatedText
+              stringId="conditions.conditionName.label"
+              fallback="Condition name"
+              data-testid="translatedtext-avk1"
+            />
+          }
+          component={AutocompleteField}
+          suggester={diagnosisSuggester}
+          required
+          data-testid="field-j30y"
+        />
+        <Field
+          name="recordedDate"
+          label={
+            <TranslatedText
+              stringId="general.recordedDate.label"
+              fallback="Date recorded"
+              data-testid="translatedtext-hd0f"
+            />
+          }
+          component={DateField}
+          data-testid="field-2775"
+        />
+        <Field
+          name="examinerId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.clinician.label.short"
+              fallback="Clinician"
+              data-testid="translatedtext-n0zg"
+            />
+          }
+          component={AutocompleteField}
+          suggester={practitionerSuggester}
+          data-testid="field-9miu"
+        />
+        <Field
+          name="note"
+          label={
+            <TranslatedText
+              stringId="general.notes.label"
+              fallback="Notes"
+              data-testid="translatedtext-f0ug"
+            />
+          }
+          component={TextField}
+          data-testid="field-e52k"
+        />
+        {(!editedObject || editedObject.resolved) && (
           <Field
             name="resolved"
             label={
@@ -159,103 +161,48 @@ export const OngoingConditionForm = ({
             component={CheckField}
             data-testid="field-c7nr"
           />
-          <Collapse in={resolving} data-testid="collapse-pybu">
-            <FormGrid columns={1} data-testid="formgrid-to6o">
-              <Field
-                name="resolutionDate"
-                label={
-                  <TranslatedText
-                    stringId="conditions.resolutionDate.label"
-                    fallback="Date resolved"
-                    data-testid="translatedtext-q71w"
-                  />
-                }
-                component={DateField}
-                data-testid="field-r84h"
-              />
-              <Field
-                name="resolutionPractitionerId"
-                label={
-                  <TranslatedText
-                    stringId="patient.ongoingCondition.resolutionPractitionerId.label"
-                    fallback=":clinician confirming resolution"
-                    replacements={{
-                      clinician: (
-                        <TranslatedText
-                          stringId="general.localisedField.clinician.label.short"
-                          fallback="Clinician"
-                          data-testid="translatedtext-8kug"
-                        />
-                      ),
-                    }}
-                    data-testid="translatedtext-p0km"
-                  />
-                }
-                component={AutocompleteField}
-                suggester={practitionerSuggester}
-                data-testid="field-izs0"
-              />
-              <Field
-                name="resolutionNote"
-                label={
-                  <TranslatedText
-                    stringId="conditions.resolutionNote.label"
-                    fallback="Notes on resolution"
-                    data-testid="translatedtext-qw5q"
-                  />
-                }
-                component={TextField}
-                data-testid="field-4g2s"
-              />
+        )}
+        {!editedObject && (
+          <Collapse in={values.resolved} data-testid="collapse-pybu">
+            <FormGrid columns={1} nested data-testid="formgrid-to6o">
+              <ResolutionFields practitionerSuggester={practitionerSuggester} />
             </FormGrid>
           </Collapse>
-
-          {editedObject ? (
-            <ButtonRow $resolving={resolving} data-testid="buttonrow-with-delete">
-              <Link
-                onClick={handleDeleteClick}
-                color="secondary"
-                data-testid="delete-condition-button"
-              >
-                <TranslatedText stringId="general.action.delete" fallback="Delete" />
-              </Link>
-              <Box style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <StyledFormCancelButton onClick={onCancel}>
-                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                </StyledFormCancelButton>
-                <StyledFormSubmitButton onSubmit={submitForm}>{buttonText}</StyledFormSubmitButton>
-              </Box>
-            </ButtonRow>
-          ) : (
-            <FormSubmitCancelRow
-              onCancel={onCancel}
-              onConfirm={submitForm}
-              confirmText={buttonText}
-              data-testid="formsubmitcancelrow-2r80"
-            />
-          )}
-
-          <DeleteOngoingConditionModal
-            open={deleteModalOpen}
-            onClose={() => setDeleteModalOpen(false)}
-            conditionToDelete={editedObject}
-            onDeleteSuccess={handleDeleteSuccess}
-          />
-        </NoteModalActionBlocker>
-      </FormGrid>
-    );
-  };
+        )}
+        <InfoPaneFormActions
+          onCancel={onCancel}
+          onSubmit={submitForm}
+          onDelete={editedObject ? () => setDeleteModalOpen(true) : null}
+          data-testid="formsubmitcancelrow-2r80"
+        />
+        <DeleteOngoingConditionModal
+          open={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          conditionToDelete={editedObject}
+          onDeleteSuccess={handleDeleteSuccess}
+        />
+      </NoteModalActionBlocker>
+    </FormGrid>
+  );
 
   const onDataSubmit = async data => {
-    const fields = { ...data };
-
-    if (!fields.resolved) {
-      delete fields.resolutionDate;
-      delete fields.resolutionNote;
-      delete fields.resolutionPractitionerId;
+    if (!editedObject && data.resolved) {
+      await onSubmit(data);
+      return;
     }
-
-    await onSubmit(fields);
+    const fields = omit(data, RESOLUTION_FIELD_NAMES);
+    const isUnresolving = Boolean(editedObject?.resolved) && !data.resolved;
+    await onSubmit(
+      isUnresolving
+        ? {
+            ...fields,
+            resolved: false,
+            resolutionDate: null,
+            resolutionPractitionerId: null,
+            resolutionNote: null,
+          }
+        : fields,
+    );
   };
 
   const getInitialValues = () => {
@@ -263,9 +210,9 @@ export const OngoingConditionForm = ({
       // Currently both dates are dateTime type in the database, so we need to convert them to date type
       // for now to avoid timezone conversion
       return {
-        ...editedObject,
+        ...omit(editedObject, RESOLUTION_FIELD_NAMES),
         recordedDate: trimToDate(editedObject.recordedDate),
-        resolutionDate: trimToDate(editedObject.resolutionDate),
+        resolved: Boolean(editedObject.resolved),
       };
     }
     return {
@@ -294,7 +241,10 @@ export const OngoingConditionForm = ({
         note: yup.string(),
 
         resolved: yup.boolean(),
-        resolutionDate: yup.date(),
+        resolutionDate: resolutionDateSchema.when('resolved', {
+          is: resolved => !editedObject && resolved,
+          then: schema => schema.required(),
+        }),
         resolutionPractitionerId: yup.string(),
         resolutionNote: yup.string(),
       })}
@@ -313,4 +263,42 @@ OngoingConditionForm.propTypes = {
 OngoingConditionForm.defaultProps = {
   editedObject: null,
   onDelete: null,
+};
+
+export const ResolveOngoingConditionForm = ({
+  onSubmit,
+  onCancel,
+  editedObject,
+  practitionerSuggester,
+}) => {
+  const { getCurrentDate } = useDateTime();
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={({ submitForm }) => (
+        <FormGrid columns={1} data-testid="formgrid-resolvecondition">
+          <NoteModalActionBlocker>
+            <ResolutionFields practitionerSuggester={practitionerSuggester} />
+            <InfoPaneFormActions
+              onCancel={onCancel}
+              onSubmit={submitForm}
+              data-testid="formsubmitcancelrow-resolvecondition"
+            />
+          </NoteModalActionBlocker>
+        </FormGrid>
+      )}
+      initialValues={{
+        id: editedObject.id,
+        resolved: true,
+        resolutionDate: getCurrentDate(),
+      }}
+      formType={FORM_TYPES.EDIT_FORM}
+      validationSchema={yup.object().shape({
+        resolutionDate: resolutionDateSchema.required(),
+        resolutionPractitionerId: yup.string(),
+        resolutionNote: yup.string(),
+      })}
+      data-testid="form-resolvecondition"
+    />
+  );
 };

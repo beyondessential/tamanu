@@ -38,6 +38,8 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly procedureTab: Locator;
   readonly invoicingTab: Locator;
   readonly healthIdText: Locator;
+  readonly deceasedTag: Locator;
+  readonly ongoingConditionsSection: Locator;
   patientVaccinePane?: PatientVaccinePane;
   invoicePane?: InvoicePane;
   patientProcedurePane?: ProcedurePane;
@@ -107,7 +109,9 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly warningModalContent: Locator;
   readonly warningModalDismissButton: Locator;
   readonly warningModalOkayButton: Locator;
-  readonly resolvedCheckbox: Locator;
+  readonly firstListItemEditButton: Locator;
+  readonly markConditionResolvedButton: Locator;
+  readonly resolveConditionSubmitButton: Locator;
   readonly resolvedClinician: Locator;
   readonly resolvedNote: Locator;
   readonly savedFamilyHistoryName: Locator;
@@ -150,6 +154,8 @@ export class PatientDetailsPage extends BasePatientPage {
     this.patientMedicationTab = this.page.getByTestId('tab-medication');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
+    this.deceasedTag = this.page.getByTestId('deceasedtag-sidebar');
+    this.ongoingConditionsSection = this.page.getByTestId('infopanelist-conditions');
     this.initiateNewOngoingConditionAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
@@ -257,14 +263,14 @@ export class PatientDetailsPage extends BasePatientPage {
     this.warningModalContent = this.page.getByTestId('modalcontent-bk4w');
     this.warningModalDismissButton = this.page.getByTestId('button-ui1m');
     this.warningModalOkayButton = this.page.getByTestId('button-3i9s');
-    this.resolvedCheckbox = this.page
-      .getByTestId('collapse-0a33')
-      .getByTestId('field-c7nr-controlcheck')
-      .first();
+    this.firstListItemEditButton = this.page.getByTestId('infopaneitemdetails-edit').first();
+    this.markConditionResolvedButton = this.page.getByTestId('mark-condition-resolved-button');
+    this.resolveConditionSubmitButton = this.page.getByTestId(
+      'formsubmitcancelrow-resolvecondition-confirmButton',
+    );
     this.resolvedClinician = this.page
-      .getByRole('combobox')
-      .filter({ hasText: 'Clinician confirming' })
-      .locator('input');
+      .getByTestId('formgrid-resolvecondition')
+      .getByTestId('field-izs0-input');
     this.resolvedNote = this.page.getByTestId('field-4g2s-input').first();
     this.savedFamilyHistoryName = this.page
       .getByTestId('collapse-0a33')
@@ -630,11 +636,25 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async resolveOngoingCondition(clinicianName: string, note: string) {
-    await this.resolvedCheckbox.check();
-    await this.resolvedClinician.click();
-    await this.page.getByRole('menuitem', { name: clinicianName }).click();
+    await this.markConditionResolvedButton.click();
+    await searchAndSelectAutocompleteOption(this.page, this.resolvedClinician, clinicianName);
+    await expect(this.resolvedClinician.locator('input')).toHaveValue(clinicianName);
     await this.resolvedNote.fill(note);
-    await this.page.getByRole('button', { name: 'Save' }).click();
+    await this.clickAddButtonToConfirm(this.resolveConditionSubmitButton);
+  }
+
+  /**
+   * Rows expand to read-only details; the edit form opens from the pencil in those details.
+   */
+  async openFirstListItemForEdit() {
+    if ((await this.firstListItem.getAttribute('aria-expanded')) !== 'true') {
+      await this.firstListItem.click();
+    }
+    await this.firstListItemEditButton.click();
+  }
+
+  itemDetailsValue(fieldKey: string) {
+    return this.page.getByTestId(`infopaneitemdetails-${fieldKey}`).first();
   }
 
   /**

@@ -1,63 +1,72 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Button, Collapse, Typography } from '@material-ui/core';
+import { Collapse } from '@material-ui/core';
 import { kebabCase } from 'es-toolkit/compat';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
+import { UnstyledHtmlButton } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
+import {
+  InfoPaneFormContainer,
+  InfoPaneListItem,
+  InfoPaneRow,
+  InfoPaneRowName,
+} from './InfoPaneListItem';
 import { PANE_SECTION_IDS } from './paneSections';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { useApi } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { PlusIcon } from '../../assets/icons/PlusIcon';
 
-const TitleContainer = styled.div`
-  color: ${Colors.primary};
+const Section = styled.section`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #ebebeb;
-  padding-bottom: 0.5rem;
+  flex-direction: column;
+  gap: 7px;
 `;
 
-const TitleText = styled(Typography)`
-  font-weight: 500;
+const TitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid ${Colors.outline};
+`;
+
+const TitleText = styled.h3`
+  margin: 0;
+  color: ${Colors.primary};
   font-size: 14px;
+  font-weight: 500;
   line-height: 18px;
 `;
 
-const AddButton = styled(Button)`
-  text-transform: none;
-
-  .MuiButton-label {
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 18px;
-    letter-spacing: 0;
-    color: ${Colors.primary};
-  }
-
-  .MuiSvgIcon-root {
-    color: ${Colors.secondary};
-  }
+const AddButton = styled(UnstyledHtmlButton)`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: ${Colors.primary};
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  cursor: pointer;
 `;
 
 const DataList = styled.ul`
-  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
   padding: 0;
+  list-style: none;
 `;
 
-const ListItem = styled.li`
-  display: block;
-  margin: 6px 0;
-  cursor: pointer;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 18px;
+const FormBox = styled(InfoPaneFormContainer)`
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.background2};
 `;
 
 const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
@@ -86,6 +95,8 @@ export const InfoPaneList = ({
   endpoint,
   getEndpoint,
   getName = () => '???',
+  getTag = () => null,
+  ItemDetails,
   behavior = 'collapse',
   itemTitle = '',
   CustomEditForm,
@@ -93,8 +104,13 @@ export const InfoPaneList = ({
   ListItemComponent,
   overrideContentPadding,
 }) => {
-  const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
-  const { adding, editKey } = addEditState;
+  const [paneState, setPaneState] = useState({
+    adding: false,
+    editKey: null,
+    expandedKey: null,
+    resolvingKey: null,
+  });
+  const { adding, editKey, expandedKey, resolvingKey } = paneState;
   const api = useApi();
   const { data, error } = useQuery(
     [`infoPaneListItem-${paneId}`, patient.id],
@@ -107,43 +123,142 @@ export const InfoPaneList = ({
   const { items, warnings } = getItems(isIssuesPane, data);
 
   const handleAddButtonClick = useCallback(
-    () => setAddEditState({ adding: !adding, editKey: null }),
-    [adding],
+    () => setPaneState(state => ({ ...state, adding: !state.adding, editKey: null })),
+    [],
   );
-  const handleRowClick = useCallback(id => setAddEditState({ adding: false, editKey: id }), []);
-  const handleCloseForm = useCallback(() => setAddEditState({ adding: false, editKey: null }), []);
+  const handleEdit = useCallback(
+    id => setPaneState(state => ({ ...state, adding: false, editKey: id })),
+    [],
+  );
+  const handleToggleExpanded = useCallback(
+    id =>
+      setPaneState(state => ({
+        ...state,
+        expandedKey: state.expandedKey === id ? null : id,
+      })),
+    [],
+  );
+  const handleCloseForm = useCallback(
+    () => setPaneState(state => ({ ...state, adding: false, editKey: null })),
+    [],
+  );
+  const handleResolve = useCallback(
+    id => setPaneState(state => ({ ...state, resolvingKey: id })),
+    [],
+  );
+  const handleCloseResolve = useCallback(
+    () => setPaneState(state => ({ ...state, resolvingKey: null })),
+    [],
+  );
 
-  const Wrapper = props =>
-    behavior === 'collapse' ? (
-      <Collapse in={adding} {...props} data-testid="collapse-qeou" />
-    ) : (
+  const EditForm = CustomEditForm || InfoPaneAddEditForm;
+
+  const renderCollapseItems = () => (
+    <>
+      <li>
+        <Collapse in={adding} unmountOnExit data-testid="collapse-qeou">
+          <FormBox>
+            <InfoPaneAddEditForm
+              Form={Form}
+              endpoint={endpoint}
+              onClose={handleCloseForm}
+              id={paneId}
+              items={items}
+              data-testid="infopaneaddeditform-2igo"
+            />
+          </FormBox>
+        </Collapse>
+      </li>
+      {items.map((item, index) => {
+        const { id } = item;
+        return (
+          <li key={id}>
+            <Collapse in={editKey !== id} data-testid="collapse-dhai">
+              <InfoPaneListItem
+                name={getName(item)}
+                tag={getTag(item)}
+                expanded={expandedKey === id || resolvingKey === id}
+                onToggle={() => handleToggleExpanded(id)}
+                data-testid={`listitem-adip-${index}`}
+              >
+                <ItemDetails
+                  item={item}
+                  readonly={readonly}
+                  onEdit={readonly ? null : () => handleEdit(id)}
+                  isResolving={resolvingKey === id}
+                  onResolve={() => handleResolve(id)}
+                  onCloseResolve={handleCloseResolve}
+                />
+              </InfoPaneListItem>
+            </Collapse>
+            <Collapse in={editKey === id} unmountOnExit data-testid="collapse-0a33">
+              <FormBox>
+                <EditForm
+                  Form={Form}
+                  endpoint={endpoint}
+                  item={item}
+                  onClose={handleCloseForm}
+                  id={paneId}
+                  items={items}
+                  data-testid="editform-r0ss"
+                />
+              </FormBox>
+            </Collapse>
+          </li>
+        );
+      })}
+    </>
+  );
+
+  const renderModalItems = () => (
+    <>
+      {items.map((item, index) => (
+        <li key={item.id}>
+          {ListItemComponent ? (
+            <ListItemComponent item={item} data-testid={`listitemcomponent-p5xe-${index}`} />
+          ) : (
+            <InfoPaneRow
+              type="button"
+              onClick={() => handleEdit(item.id)}
+              data-testid={`listitem-fx30${index}`}
+            >
+              <InfoPaneRowName>{getName(item)}</InfoPaneRowName>
+            </InfoPaneRow>
+          )}
+          <FormModal
+            width="md"
+            title={getEditFormName(item)}
+            open={editKey === item.id}
+            onClose={handleCloseForm}
+            overrideContentPadding={overrideContentPadding}
+            data-testid="formmodal-p7ky"
+          >
+            <EditForm Form={Form} endpoint={endpoint} item={item} data-testid="editform-b1y6" />
+          </FormModal>
+        </li>
+      ))}
       <FormModal
         width="md"
         title={itemTitle}
         open={adding}
         onClose={handleCloseForm}
-        {...props}
         overrideContentPadding={overrideContentPadding}
         data-testid="formmodal-afjc"
-      />
-    );
-
-  const addForm = (
-    <Wrapper data-testid="wrapper-f4zl">
-      <InfoPaneAddEditForm
-        Form={Form}
-        endpoint={endpoint}
-        onClose={handleCloseForm}
-        id={paneId}
-        items={items}
-        data-testid="infopaneaddeditform-2igo"
-      />
-    </Wrapper>
+      >
+        <InfoPaneAddEditForm
+          Form={Form}
+          endpoint={endpoint}
+          onClose={handleCloseForm}
+          id={paneId}
+          items={items}
+          data-testid="infopaneaddeditform-2igo"
+        />
+      </FormModal>
+    </>
   );
 
-  const EditForm = CustomEditForm || InfoPaneAddEditForm;
   return (
-    <>
+    <Section data-testid={`infopanelist-${paneId}`}>
       {isIssuesPane && <PatientAlert alerts={warnings} data-testid="patientalert-hboj" />}
       <TitleContainer
         data-test-id={`info-pane-${kebabCase(title)}`}
@@ -153,11 +268,12 @@ export const InfoPaneList = ({
         {!readonly && (
           <NoteModalActionBlocker>
             <AddButton
+              type="button"
               onClick={handleAddButtonClick}
-              endIcon={<AddCircleIcon data-testid="addcircleicon-m4ab" />}
               data-test-class="add-button-section"
               data-testid="addbutton-b0ln"
             >
+              <PlusIcon width={12} height={12} data-testid="addcircleicon-m4ab" />
               <TranslatedText
                 stringId="general.action.add"
                 fallback="Add"
@@ -167,86 +283,12 @@ export const InfoPaneList = ({
           </NoteModalActionBlocker>
         )}
       </TitleContainer>
-      <DataList data-testid="datalist-073t">
-        {error && error.message}
-        {!error &&
-          items.map((item, index) => {
-            const { id } = item;
-            const name = getName(item);
-            if (behavior === 'collapse') {
-              return (
-                <React.Fragment key={id}>
-                  <Collapse in={editKey !== id} data-testid="collapse-dhai">
-                    {ListItemComponent ? (
-                      <ListItemComponent
-                        item={item}
-                        handleRowClick={handleRowClick}
-                        ListItem={ListItem}
-                        data-testid={`listitemcomponent-5xs4-${index}`}
-                      />
-                    ) : (
-                      <ListItem
-                        onClick={() => handleRowClick(id)}
-                        data-testid={`listitem-adip-${index}`}
-                      >
-                        {name}
-                      </ListItem>
-                    )}
-                  </Collapse>
-                  <Collapse in={editKey === id} data-testid="collapse-0a33">
-                    <EditForm
-                      Form={Form}
-                      endpoint={endpoint}
-                      item={item}
-                      onClose={handleCloseForm}
-                      id={paneId}
-                      items={items}
-                      data-testid="editform-r0ss"
-                    />
-                  </Collapse>
-                </React.Fragment>
-              );
-            }
-
-            return (
-              <React.Fragment key={id}>
-                {ListItemComponent ? (
-                  <ListItemComponent
-                    item={item}
-                    handleRowClick={handleRowClick}
-                    ListItem={ListItem}
-                    data-testid={`listitemcomponent-p5xe-${index}`}
-                  />
-                ) : (
-                  <ListItem
-                    onClick={() => handleRowClick(id)}
-                    data-testid={`listitem-fx30${index}`}
-                  >
-                    {name}
-                  </ListItem>
-                )}
-                <FormModal
-                  width="md"
-                  title={getEditFormName(item)}
-                  open={editKey === id}
-                  onClose={handleCloseForm}
-                  overrideContentPadding={overrideContentPadding}
-                  data-testid="formmodal-p7ky"
-                >
-                  <EditForm
-                    Form={Form}
-                    endpoint={endpoint}
-                    item={item}
-                    handleRowClick={handleRowClick}
-                    ListItem={ListItem}
-                    data-testid="editform-b1y6"
-                  />
-                </FormModal>
-              </React.Fragment>
-            );
-          })}
-        {addForm}
-      </DataList>
-    </>
+      {error && error.message}
+      {!error && (items.length > 0 || adding) && (
+        <DataList data-testid="datalist-073t">
+          {behavior === 'collapse' ? renderCollapseItems() : renderModalItems()}
+        </DataList>
+      )}
+    </Section>
   );
 };

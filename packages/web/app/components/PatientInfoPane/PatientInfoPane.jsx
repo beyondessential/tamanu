@@ -4,7 +4,14 @@ import styled from 'styled-components';
 import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { InfoPaneList } from './InfoPaneList';
-import { CoreInfoDisplay } from './PatientCoreInfo';
+import { CoreInfoDisplay, HealthIdDisplay } from './PatientCoreInfo';
+import { GreyPill, ResolvedPill } from './InfoPanePill';
+import {
+  AllergyDetails,
+  FamilyHistoryDetails,
+  OngoingConditionDetails,
+  PatientIssueDetails,
+} from './paneItemDetails';
 import { PrintPatientDetailsModal } from '../PatientPrinting';
 import {
   AllergyForm,
@@ -43,18 +50,15 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     endpoint="ongoingCondition"
     getEndpoint={route('patient/:patientId/conditions', { patientId: patient.id })}
     Form={OngoingConditionForm}
-    getName={({ condition, resolved }) => {
-      const { name } = condition;
-      if (!resolved) return name;
-      return (
-        <TranslatedText
-          stringId="ongoingCondition.resolved"
-          fallback=":name (resolved)"
-          replacements={{ name }}
-          data-testid="translatedtext-hlax"
-        />
-      );
-    }}
+    getName={({ condition }) => condition.name}
+    getTag={({ resolved }) =>
+      resolved && (
+        <ResolvedPill data-testid="resolvedpill-condition">
+          <TranslatedText stringId="conditions.resolved.label" fallback="Resolved" />
+        </ResolvedPill>
+      )
+    }
+    ItemDetails={OngoingConditionDetails}
     data-testid="infopanelist-gx0r"
   />
 ));
@@ -82,6 +86,18 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
         data-testid="translatedreferencedata-xx23"
       />
     )}
+    getTag={({ reaction }) =>
+      reaction && (
+        <GreyPill data-testid="reactionpill-allergy">
+          <TranslatedReferenceData
+            fallback={reaction.name}
+            value={reaction.id}
+            category="reaction"
+          />
+        </GreyPill>
+      )
+    }
+    ItemDetails={AllergyDetails}
     data-testid="infopanelist-j1q8"
   />
 ));
@@ -107,6 +123,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
       if (!relation) return name;
       return `${name} (${relation})`;
     }}
+    ItemDetails={FamilyHistoryDetails}
     data-testid="infopanelist-x70z"
   />
 ));
@@ -127,6 +144,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
     getEndpoint={route('patient/:patientId/issues', { patientId: patient.id })}
     Form={PatientIssueForm}
     getName={issue => issue.note}
+    ItemDetails={PatientIssueDetails}
     data-testid="infopanelist-2y30"
   />
 ));
@@ -232,7 +250,7 @@ const Container = styled.div`
   flex-direction: column;
   position: relative;
   background: ${Colors.white};
-  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid ${Colors.outline};
   z-index: 10;
   overflow: auto;
 `;
@@ -241,13 +259,20 @@ const ListsSection = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
-  padding: 5px 25px 25px 25px;
+  gap: 16px;
+  padding: 16px;
 `;
 
-const Buttons = styled.div`
+const Footer = styled.div`
+  position: sticky;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: stretch;
+  gap: 10px;
+  padding: 16px;
+  border-top: 1px solid ${Colors.outline};
+  background: ${Colors.white};
 `;
 
 export const PatientInfoPane = () => {
@@ -304,10 +329,15 @@ export const PatientInfoPane = () => {
   return (
     <Container data-testid="container-qhh8">
       <CoreInfoDisplay patient={patient} data-testid="coreinfodisplay-fxik" />
-      {showAiPatientSummary && (
-        <AiPatientSummary patient={patient} data-testid="ai-patient-summary" />
-      )}
       <ListsSection data-testid="listssection-1frw">
+        <HealthIdDisplay
+          displayId={patient.displayId}
+          isDeceased={isPatientDeceased}
+          data-testid="healthiddisplay-su8y"
+        />
+        {showAiPatientSummary && (
+          <AiPatientSummary patient={patient} data-testid="ai-patient-summary" />
+        )}
         <OngoingConditionDisplay
           patient={patient}
           readonly={readonly}
@@ -330,12 +360,12 @@ export const PatientInfoPane = () => {
           readonly={readonly}
           data-testid="programregistrydisplay-4eu1"
         />
-        <Buttons data-testid="buttons-hh6n">
-          {showCauseOfDeathButton && (
-            <CauseOfDeathButton openModal={openModal} data-testid="causeofdeathbutton-ow4w" />
-          )}
-          <PrintSection patient={patient} readonly={readonly} data-testid="printsection-yt3i" />
-        </Buttons>
+      </ListsSection>
+      <Footer data-testid="buttons-hh6n">
+        {showCauseOfDeathButton && (
+          <CauseOfDeathButton openModal={openModal} data-testid="causeofdeathbutton-ow4w" />
+        )}
+        <PrintSection patient={patient} readonly={readonly} data-testid="printsection-yt3i" />
         {showRecordDeathActions && (
           <RecordDeathSection
             patient={patient}
@@ -343,7 +373,7 @@ export const PatientInfoPane = () => {
             data-testid="recorddeathsection-jeoi"
           />
         )}
-      </ListsSection>
+      </Footer>
       {patientDeathsEnabled && (
         <DeathModal
           open={isModalOpen}
