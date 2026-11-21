@@ -20,7 +20,12 @@ Routes, classified on a normalised copy of the path (percent-decoded, lowercased
 
 The proxy is written on hyper-util's client rather than a proxy crate, since least connections, retries and the gate later need hooks inside it: an in-flight count per api instance picks the least busy, a failed connect is retried on the next instance (twice within five seconds), and kept-alive connections are pooled. Hop-by-hop headers, and any named in `Connection`, are removed both ways, and `X-Forwarded-For`, `-Proto` and `-Host` are set. The client's address is the nearest untrusted one in `X-Forwarded-For` when the peer is one of the trusted proxies; from any other peer those headers are dropped before anything reads them.
 
-The api is reached over pooled HTTP/1.1, which is where request smuggling lives (see https://http1mustdie.com/): a front and back end that disagree on where a request ends let one client's bytes become the start of another's request. Until the api serves HTTP/2 (Y17), the supervisor narrows it: hyper parses strictly and frames every forwarded request afresh; requests with both `Content-Length` and `Transfer-Encoding`, a transfer coding other than `chunked`, or more than one `Content-Length` get `400`; `Expect: 100-continue` is answered by the supervisor and never passed on; a connection whose exchange ended irregularly (response before the request body was sent, an error, a timeout) is closed rather than pooled.
+The api is reached over pooled HTTP/1.1, which is where request smuggling lives (see https://http1mustdie.com/): a front and back end that disagree on where a request ends let one client's bytes become the start of another's request. Until the api serves HTTP/2 (Y17), the supervisor narrows it:
+
+- hyper parses strictly, and every forwarded request is framed afresh
+- requests with both `Content-Length` and `Transfer-Encoding`, a transfer coding other than `chunked`, or more than one `Content-Length` get `400`
+- `Expect: 100-continue` is answered by the supervisor and never passed on
+- a connection whose exchange ended irregularly (a response before the request body was sent, an error, a timeout) is closed rather than pooled
 
 Rate limits per client address: 1,000 requests a second in bursts of 100 on the api, and 10 a second on `/api/login`, with governor's GCRA, which keeps one timestamp per address and is swept periodically. Test them with many client addresses: the Go build this replaced keyed its limits on a placeholder Caddy does not have, so every client shared one bucket, and its sliding windows took 774 MB for a million addresses against 22 MB here.
 
@@ -28,11 +33,37 @@ Security headers: on the api's responses, helmet's set as central's api and the 
 
 Upgrades: the supervisor reads the actuator's `GET /v1/state` and, while it says an upgrade is in progress, answers a browser opening a page with Tamanu's upgrading page (`526.html` in the web app's error pages) and every other request for the server with `503` and `Retry-After`; syncs already wait in line on a `503` with `Retry-After`. This is the only actuator call, which is all V14's Seedling upgrades need; no lease, since no supervisor acts on the server yet. With no actuator configured, it only routes. Error pages: a part that does not answer gets Tamanu's page for `502`, `503` or `504`, never the upstream's text.
 
-Status server on loopback only, read-only, JSON: `/health` (the supervisor's own health, for a liveness probe), `/ready` (`503` until it knows what to do with requests: at once without an actuator, once it has read the actuator's state with one) and `/status` (release, parts, whether an upgrade is in progress). Kubernetes reads it with an exec probe such as `wget -qO- http://127.0.0.1:8081/ready`.
+Status server, on loopback only, read-only, answering JSON. Kubernetes reads it with an exec probe such as `wget -qO- http://127.0.0.1:8081/ready`.
 
-Configuration, by environment variables checked at start with every problem reported at once, naming the variable; an unknown `TAMANU_SUPERVISOR_` variable is an error; `--check` prints the configuration with the token hidden: `TAMANU_SUPERVISOR_ROLE` (`central` or `facility`, required), `_LISTEN` (`:8080`), `_PORTAL_LISTEN` (central only, with `_PORTAL_ROOT`), `_STATUS_LISTEN` (`127.0.0.1:8081`), `_API_UPSTREAMS` (space-separated `host:port`, required), `_WEB_ROOT` (required), `_PORTAL_ROOT`, `_ACTUATOR_URL` (must be `http://`), `_API_TOKEN` (required with an actuator; the server's side is its `SUPERVISOR_TOKEN`), `_TRUSTED_PROXIES` (space-separated CIDR ranges, required, never `/0`), `_LOG` (tracing filter, `info`). The release is stamped into the binary at build time from `TAMANU_VERSION`, for the status and the compatibility check.
+- `/health`: the supervisor's own health, for a liveness probe
+- `/ready`: `503` until it knows what to do with requests, which is at once without an actuator, and once it has read the actuator's state with one
+- `/status`: the release, the parts, and whether an upgrade is in progress
 
-No TLS anywhere: certificates and hostnames are the platform's, and the actuator is reached over plain HTTP on a private network (in the pod, or behind a network policy), since the bearer token crosses it in the clear. Each listener takes HTTP/1.1 or cleartext HTTP/2 by the connection's first bytes, as frontend mode does. Logging: no line for a request the api answers (the api logs each itself), but a warning for a request no instance answered, with method, path, instance and kind of failure, and for a refused path; rate-limited requests counted per client address and minute rather than logged each; status server requests at debug. Never logged: query strings, bodies, header values, the token.
+Configuration is by environment variables, checked at start with every problem reported at once and naming the variable. An unknown `TAMANU_SUPERVISOR_` variable is an error, and `--check` prints the configuration with the token hidden. The release is stamped into the binary at build time from `TAMANU_VERSION`, for the status and the compatibility check.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `TAMANU_SUPERVISOR_ROLE` | required | `central` or `facility` |
+| `TAMANU_SUPERVISOR_LISTEN` | `:8080` | Address for the server's traffic |
+| `TAMANU_SUPERVISOR_PORTAL_LISTEN` | none | Central only: address for the patient portal, with `PORTAL_ROOT` |
+| `TAMANU_SUPERVISOR_STATUS_LISTEN` | `127.0.0.1:8081` | Loopback address for the status server |
+| `TAMANU_SUPERVISOR_API_UPSTREAMS` | required | Space-separated `host:port` list of api instances |
+| `TAMANU_SUPERVISOR_WEB_ROOT` | required | The built web app, with Tamanu's error pages in `resources/errors` |
+| `TAMANU_SUPERVISOR_PORTAL_ROOT` | none | The built patient portal |
+| `TAMANU_SUPERVISOR_ACTUATOR_URL` | none | The platform's actuator, an `http://` address |
+| `TAMANU_SUPERVISOR_API_TOKEN` | none | Credential for the api's supervisor routes and the actuator, required with an actuator; the server's side is its `SUPERVISOR_TOKEN` |
+| `TAMANU_SUPERVISOR_TRUSTED_PROXIES` | required | Space-separated CIDR ranges of the platform's proxies, never `/0` |
+| `TAMANU_SUPERVISOR_LOG` | `info` | Log filter, in tracing's syntax |
+
+No TLS anywhere: certificates and hostnames are the platform's, and the actuator is reached over plain HTTP on a private network (in the pod, or behind a network policy), since the bearer token crosses it in the clear. Each listener takes HTTP/1.1 or cleartext HTTP/2 by the connection's first bytes, as frontend mode does.
+
+Logging:
+
+- no line for a request the api answers, since the api logs each itself
+- a warning for a request no instance answered (method, path, instance, kind of failure), and for a refused path
+- rate-limited requests counted per client address and minute, rather than a line each
+- status server requests at debug
+- never logged: query strings, bodies, header values, the token
 
 Tests: in-process smoke tests with a path-to-behaviour table against a fake api and fake actuator, including a row for each smuggling and forwarded-header case. Specs: the supervisor spec (SUPV) gains the front door, configuration, upgrades, status and compatibility sections (a supervisor and a server of one minor release work together in any mix of patches; the supervisor's api routes change incompatibly only between minor releases). Tell infra (Y3) and V14 about the actuator's state endpoint, the plain-HTTP actuator address, and that Envoy's hop to the supervisor can be HTTP/2 by declaring `appProtocol: kubernetes.io/h2c` on its Service port.
 
@@ -58,11 +89,43 @@ Let the supervisor stop a quiet server and start it again on use, through the ac
 
 Activity is every request through the supervisor except health probes, monitoring checks, probes of the supervisor itself and time synchronisation (`/`, `/api/public/ping` and `/api/timesync` from a non-browser). A request counts from its start until its response body has finished, so a long download or sync pull holds the server awake (the response body carries a guard that ends the count when dropped). Websocket upgrades are not activity. The idle time defaults to 30 minutes on a facility and 15 on central. An awake facility syncs with central every minute, and those requests reach central's supervisor, not the facility's, so central goes quiet only once every facility is asleep, knowing nothing about facilities. Data entered at one facility during a quiet period reaches the others when they are next used.
 
-Going to sleep, as the lease holder: announce the phase; every supervisor stops forwarding activity and handles it itself; wait until every supervisor follows the announcement with nothing in flight (an expired report is not waited for; giving up after a minute is a failed sleep); check the server runs the supervisor's own minor release; ask the api for the hold (`POST /api/supervisor/tasks/hold`, which in one transaction holds scheduled tasks and answers busy if a task is running or a FHIR job is queued or started; busy releases the hold, and the supervisor asks again every minute while still idle); stop tasks and fhir; on a facility, the final sync (`POST /api/supervisor/final-sync`; one that does not complete, such as with central unreachable, cancels the sleep, and a facility with sync disabled therefore never sleeps); stop sync and the api; stop the database last. Activity at any supervisor, or a failed step, cancels the sleep and wakes the server from wherever it got to; a stop request already sent is let finish so it cannot land after the wake's start; the failure is reported, and tried again after the next idle time.
+Going to sleep, as the lease holder:
 
-Waking: activity at any supervisor of a sleeping server starts a wake (one without the lease reports it at once and the holder starts it). Start the database, wait until ready, then the rest, forwarding to each part as it becomes ready; release the hold (`DELETE /api/supervisor/tasks/hold`; a failed release never blocks the wake, since the hold expires by itself). Meanwhile API paths get `503` with `Retry-After`, a browser opening a page gets the waking page (it reloads itself once the server is up), websocket upgrades get `503` without starting a wake, and the frontends' files are served throughout. A stalled wake is retried with backoff. A login at a facility that central answers with the waking response falls back to the facility's own login. An upgrade beginning mid-sleep or mid-wake stops the sequence; the server wakes once the upgrade ends.
+1. Announce the phase. Every supervisor stops forwarding activity and handles it itself.
+2. Wait until every supervisor follows the announcement with nothing in flight. An expired report is not waited for; giving up after a minute is a failed sleep.
+3. Check the server runs the supervisor's own minor release (`GET /api/supervisor/status`).
+4. Ask the api for the hold (`POST /api/supervisor/tasks/hold`), which in one transaction holds scheduled tasks and answers busy if a task is running or a FHIR job is queued or started. Busy releases the hold, and the supervisor asks again every minute while still idle.
+5. Stop tasks and fhir.
+6. On a facility, the final sync (`POST /api/supervisor/final-sync`). One that does not complete, such as with central unreachable, cancels the sleep, so a facility with sync disabled never sleeps.
+7. Stop sync and the api.
+8. Stop the database last.
 
-Supervisors coordinate through the actuator's reports: each reports how long it has gone without activity (never relying on another's clock), its requests in flight, and whether a wake was asked for, every 10 seconds and at once on a change, each report lasting 30; the holder's report announces the phase as a lease token and sequence pair, so a new holder's first announcement beats every earlier one; every supervisor reads the actuator every second. Repeating any step after a retry or restart leaves the server as doing it once. The supervisor needs no database connection and no storage: busy, final sync and release all come from the api. Its memory has a fixed ceiling so the platform can reserve it.
+Activity at any supervisor, or a failed step, cancels the sleep and wakes the server from wherever it got to. A stop request already sent is let finish, so it cannot land after the wake's start. A failure is reported, and the sleep tried again after the next idle time.
+
+Waking: activity at any supervisor of a sleeping server starts a wake; one without the lease reports it at once and the holder starts it.
+
+1. Start the database and wait until it is ready.
+2. Start the other parts, forwarding to each as it becomes ready.
+3. Release the hold (`DELETE /api/supervisor/tasks/hold`). A failed release never blocks the wake, since the hold expires by itself.
+
+While it wakes:
+
+- API paths get `503` with `Retry-After`
+- a browser opening a page gets the waking page, which reloads itself once the server is up
+- websocket upgrades get `503` and do not start a wake
+- the frontends' files are served throughout
+- a stalled wake is retried with backoff
+- a login at a facility that central answers with the waking response falls back to the facility's own login
+- an upgrade beginning mid-sleep or mid-wake stops the sequence, and the server wakes once the upgrade ends
+
+Supervisors coordinate through the actuator's reports (`PUT /v1/reports/{instance}`):
+
+- each reports how long it has gone without activity, never relying on another's clock, its requests in flight, and whether a wake was asked for
+- every 10 seconds, and at once on a change, each report lasting 30
+- the holder's report announces the phase as a lease token and sequence pair, so a new holder's first announcement beats every earlier one; every other report says which announcement it follows
+- every supervisor reads the actuator every second
+
+Repeating any step after a retry or restart leaves the server as doing it once. The supervisor needs no database connection and no storage: busy, final sync and release all come from the api. Its memory has a fixed ceiling, so the platform can reserve it.
 
 Telegram: with a webhook configured, Telegram's requests to central are activity and wake it; with polling, messages to the bot wait at Telegram until central next wakes. Brings back the sleep and wake spec (SLPWK), without its scheduled tasks section, and the waking page (`waking.html` in the web app's error pages).
 
