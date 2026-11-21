@@ -12,7 +12,7 @@ use socket2::{Domain, Socket, Type};
 use tokio::{
 	io::{AsyncRead, AsyncWrite, ReadBuf},
 	net::{TcpListener, TcpStream},
-	time::{Sleep, sleep},
+	time::{Instant, Sleep, sleep},
 };
 
 use crate::config::Bind;
@@ -63,8 +63,16 @@ fn listen(addr: SocketAddr, dual_stack: bool) -> io::Result<TcpListener> {
 pub struct Stalling {
 	stream: TcpStream,
 	timeout: Duration,
-	read: Option<Pin<Box<Sleep>>>,
-	write: Option<Pin<Box<Sleep>>>,
+	read: Timer,
+	write: Timer,
+}
+
+/// How long one direction of a connection has been waiting. The sleep is made once, on the first
+/// wait, and reset for each later one.
+#[derive(Default)]
+struct Timer {
+	sleep: Option<Pin<Box<Sleep>>>,
+	armed: bool,
 }
 
 impl Stalling {
@@ -72,24 +80,31 @@ impl Stalling {
 		Self {
 			stream,
 			timeout,
-			read: None,
-			write: None,
+			read: Timer::default(),
+			write: Timer::default(),
 		}
 	}
 }
 
 /// Polls `io`, tracking how long it has been pending in `timer`.
 fn watch<T>(
-	timer: &mut Option<Pin<Box<Sleep>>>,
+	timer: &mut Timer,
 	timeout: Duration,
 	cx: &mut Context<'_>,
 	io: Poll<io::Result<T>>,
 ) -> Poll<io::Result<T>> {
 	if io.is_ready() {
-		*timer = None;
+		timer.armed = false;
 		return io;
 	}
-	let deadline = timer.get_or_insert_with(|| Box::pin(sleep(timeout)));
+	if !timer.armed {
+		match &mut timer.sleep {
+			Some(deadline) => deadline.as_mut().reset(Instant::now() + timeout),
+			None => timer.sleep = Some(Box::pin(sleep(timeout))),
+		}
+		timer.armed = true;
+	}
+	let deadline = timer.sleep.as_mut().expect("armed above");
 	ready!(deadline.as_mut().poll(cx));
 	Poll::Ready(Err(io::Error::new(
 		io::ErrorKind::TimedOut,
