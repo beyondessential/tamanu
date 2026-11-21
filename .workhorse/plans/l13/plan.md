@@ -211,7 +211,8 @@ Logging. Today the frontend images' Caddy writes an access line per request (the
   - a refused path (`/api/supervisor`, or a path that decodes to a slash, a backslash or a NUL), at warn;
   - waking and upgrading responses as a count per wake or upgrade, and rate-limited requests as a count per client address and minute, so a burst or an attack cannot flood the log;
   - at debug, a line per request with its route class and the gate's decision.
-- Frontend mode keeps an access line per request at info, as today, with the method, path, status, bytes, duration and client address.
+- Frontend mode keeps an access line per request at info, as today, with the method, path, status, bytes, duration and client address. Probes are logged at debug instead: requests whose `User-Agent` is Kubernetes's `kube-probe/`, which would otherwise write a line every ten seconds per pod. A client can claim that agent to keep its requests out of the info log, which costs little for an access log of static files.
+- The status server's requests (`/health`, `/ready`, `/status`) are logged at debug in supervisor mode.
 
 Open:
 
