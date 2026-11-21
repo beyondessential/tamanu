@@ -55,7 +55,8 @@ const parseEmailRecipients = (recipients: unknown): string[] | null => {
       : (parsed as { email?: unknown })?.email;
 
   if (!Array.isArray(emails) || emails.length === 0) return null;
-  return emails.every(isEmailAddress) ? emails : null;
+  if (!emails.every(isEmailAddress)) return null;
+  return emails;
 };
 
 const filterAsync = async <T>(items: T[], predicate: (item: T) => Promise<boolean>) => {
@@ -157,7 +158,7 @@ export class ReportRequest extends Model {
     const requests = changes.map(({ data }) => data as PushedReportRequest);
 
     const userIds = [...new Set(requests.map(r => r.requestedByUserId))].filter(Boolean);
-    const reportIds = [...new Set(requests.map(getReportIdOf).filter(Boolean))];
+    const reportIds = [...new Set(requests.map(getReportIdOf))].filter(Boolean);
     const session = sessionId ? await models.SyncSession!.findByPk(sessionId) : null;
     const sessionFacilityIds: string[] = session?.get('parameters')?.facilityIds ?? [];
     const users = await filterAsync(await models.User!.findAll({ where: { id: userIds } }), user =>
