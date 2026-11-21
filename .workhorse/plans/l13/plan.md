@@ -47,7 +47,7 @@ Dropped with the earlier design: the changes-pending check and its tick, central
   - Sync lookup table (LOOKUP): "Refreshing on demand" deleted. Run history: the "up to date" outcome deleted.
 - [ ] **Supervisor phases**, outside the sync code-owned paths, each started once the one before is approved, and each landing the specs for what it builds:
   - [x] PR 4a (#11700, merged): server side. Scheduled task run state, the task hold, and the `/api/supervisor` routes on central and facility. No specs: nothing is observable without the supervisor, and SUPV and SLPWK land with PR 4b
-  - [x] PR 4b (#11712): the supervisor as a Caddy build, the actuator contract, and sleep and wake. Built and through nine review rounds, then replaced by the Rust supervisor in four layers, each its own PR in its own release ([Layers](#layers)):
+  - [x] PR 4b (#11712): the supervisor as a Caddy build, the actuator contract, and sleep and wake. Built and through nine review rounds, then replaced by the Rust supervisor in four layers, each its own PR, landed in order ([Layers](#layers)):
     - [ ] Layer A: frontend mode (#11712)
     - [ ] Layer B: the supervisor as a router, bringing back SUPV
     - [ ] Layer C: process control
@@ -218,7 +218,7 @@ Today the frontend images' Caddy writes an access line per request (the URI with
 
 #### Layers
 
-The work lands as four PRs, each in its own release, so each goes through a release's testing before the next builds on it. Each lands the specs for what it builds. The Go version, archived, stays the reference for C and D.
+The work lands as four PRs, in order, each building on the one before. Each lands the specs for what it builds. The Go version, archived, stays the reference for C and D.
 
 - **A, frontend mode** (#11712). The Rust binary serving one built frontend, replacing Caddy in the frontend and patient portal images, Linux and Windows. It is the images' default, so it reaches every deployment at once: the least code with the widest reach, and the first field test of the Rust HTTP stack.
 - **B, the supervisor as a router.** Routes, the proxy and its hardening, rate limits, security headers, error pages, the status server, logging, and the upgrading response. It reaches only the deployments infra moves onto it. It never acts on the server, so it takes no lease: every supervisor reads the actuator's state on its own, and B's contract is `GET /v1/state` saying whether an upgrade is in progress, which is all V14's upgrades need. Brings back SUPV, without its sleep and actuator-control parts.
