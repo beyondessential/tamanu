@@ -787,22 +787,50 @@ export const centralSettings = {
       },
     },
     labResultWidget: {
+      highRisk: true,
       name: 'Lab result widget',
       description: 'Which lab results the public lab-result-by-display-ID widget may return',
       properties: {
         categoryWhitelist: {
           name: 'Category whitelist',
-          description: 'Lab test category IDs the widget may return',
+          description:
+            'Lab test category IDs the widget may return; while empty, the widget returns nothing',
           type: yup.array(yup.string().required()),
           suggesterEndpoint: 'labTestCategory',
-          defaultValue: ['labTestCategory-COVID'],
+          defaultValue: [],
         },
         testTypeWhitelist: {
           name: 'Test type whitelist',
           description: 'Lab test type IDs the widget may return',
           type: yup.array(yup.string().required()),
           suggesterEndpoint: 'labTestType',
-          defaultValue: ['labTestType-COVID'],
+          defaultValue: [],
+        },
+      },
+    },
+    // Central's own limits, merged with the global rateLimit settings.
+    rateLimit: {
+      highRisk: true,
+      name: 'Rate limiting',
+      description: 'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
+      requiresRestart: true,
+      properties: {
+        labResultWidget: {
+          description: 'Limit on lab result widget lookups; every lookup is counted',
+          properties: {
+            windowMs: {
+              name: 'Window',
+              type: yup.number().integer().positive(),
+              defaultValue: 900000,
+              unit: 'ms',
+            },
+            max: {
+              name: 'Max requests',
+              description: 'Maximum lookups per window per IP',
+              type: yup.number().integer().positive(),
+              defaultValue: 30,
+            },
+          },
         },
       },
     },

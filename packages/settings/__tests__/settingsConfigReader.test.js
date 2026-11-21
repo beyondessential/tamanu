@@ -92,4 +92,13 @@ describe('SettingsConfigReader', () => {
       schedules: { outpatientDischarger: { schedule: '0 3 * * *', batchSize: 500 } },
     });
   });
+
+  it('lifts a locally configured lab result widget whitelist, including the former default', async () => {
+    const labResultWidget = {
+      categoryWhitelist: ['labTestCategory-COVID'],
+      testTypeWhitelist: ['labTestType-COVID'],
+    };
+    config.localisation = { labResultWidget };
+    expect(await readCentral()).toEqual({ labResultWidget });
+  });
 });

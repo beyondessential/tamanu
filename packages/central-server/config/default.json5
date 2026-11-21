@@ -360,10 +360,6 @@
   // Legacy block: these values have moved into settings (see CONFIG_TO_SETTINGS);
   // anything still set here is served as a fallback until migrated on upgrade.
   "localisation": {
-    "labResultWidget": {
-      "categoryWhitelist": ["labTestCategory-COVID"],
-      "testTypeWhitelist": ["labTestType-COVID"]
-    },
     "data": {
       // To do: review this section when implementing the patient charts feature
       "units": {

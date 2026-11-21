@@ -36,7 +36,7 @@ const rawBodySaver = function (req, res, buf) {
 
 function api(ctx, limiters) {
   const apiRoutes = defineExpress.Router();
-  apiRoutes.use('/public', publicRoutes);
+  apiRoutes.use('/public', publicRoutes(limiters));
   apiRoutes.post(
     '/timesync',
     bodyParser.raw({ verify: rawBodySaver, type: '*/*' }),
