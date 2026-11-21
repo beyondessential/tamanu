@@ -46,6 +46,12 @@ Applies to the supervisor, Tamanu's own server at the front of a Tamanu server, 
 > [!NOTE]
 > These are the headers helmet gives the api's responses, but its content security policy and `Cross-Origin-Embedder-Policy`. helmet's policy would block what the web app loads, and would send a deployment served over plain HTTP to HTTPS for its own files. `Cross-Origin-Embedder-Policy` only serves cross-origin isolation, which neither app uses, and would block any image or font from another origin.
 
+- Every response also carries a content security policy written for the web app and the patient portal, as `Content-Security-Policy-Report-Only`: the browser reports in its console whatever the policy would block, and blocks nothing.
+- The policy allows the app's own files, inline styles, images and fonts from `data:` addresses, workers, frames and images from `blob:` addresses, connections to the server itself and to Bugsnag, and nothing from any other origin. It allows no inline scripts, no plugins, and no framing by another site.
+
+> [!NOTE]
+> The policy is reported before it is enforced because a source it misses would break the app for every deployment at once. Its reports are read while the release is tested.
+
 ## Logging
 
 - Each request is logged as a line of JSON on standard error, with its method, path, status, size, duration and client address.

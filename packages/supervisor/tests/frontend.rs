@@ -308,6 +308,12 @@ async fn paths() {
 			);
 		}
 		// spec: SUPV#security-headers
+		assert!(
+			got.headers
+				.get("content-security-policy-report-only")
+				.is_some_and(|v| v.to_str().unwrap().starts_with("default-src 'self'; ")),
+			"{case}"
+		);
 		assert_eq!(
 			got.headers.get("x-frame-options").unwrap(),
 			"SAMEORIGIN",

@@ -270,7 +270,7 @@ Layer A, on #11712, which the Go version leaves for the archive since none of it
 - [x] Tests in process: the path-to-behaviour table, listener and configuration tables, the timeouts
 - [x] The frontend and patient portal images, Linux and Windows, moved onto it, as main lays them out (one frontend at `/app` each), now with Tamanu's error pages beside the web app and a non-root user; delete both `Caddyfile.docker`. Checked once against the Caddy images, path by path: status, headers, body, encoding
 - [x] SUPV, cut to what A builds: serving a frontend alone
-- [ ] A CSP for the web app and one for the patient portal, each checked by using the app
+- [x] A content security policy for both apps, sent as `Content-Security-Policy-Report-Only`, so the release's testing reads its reports in the browser console and nothing is blocked. Loaded in headless Chromium without an api: the web app reported nothing up to its browser check; the patient portal reported one string evaluated as JavaScript on load, from a `Function(...)` fallback in a bundled dependency
 - [x] Measure idle and loaded memory against the Caddy images and record it here
 
 Layer A notes:
@@ -283,6 +283,7 @@ Layer A notes:
 Layer B, on the card's next branch, after A:
 
 - [ ] Proxy: instance pool, least connections, connect retries, client address, the request smuggling hardening, websockets, compression, rate limits
+- [ ] Enforce the content security policy: run Postgres, central, a facility server and both apps locally behind the supervisor, walk the main flows of each app with Playwright, collect every report, adjust the policy (the portal's string evaluation first), then send it as `Content-Security-Policy`
 - [ ] Routes for each role and the portal's address, with path normalisation and the refusal of `/api/supervisor`
 - [ ] helmet's set on the api's responses where the api sent none
 - [ ] Actuator client reading `GET /v1/state` for upgrades, a fake actuator, the upgrading response, the status server
