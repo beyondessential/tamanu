@@ -1,7 +1,6 @@
-import React, { type FunctionComponent, useCallback } from 'react';
-import { Alert, KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
+import React, { type FunctionComponent } from 'react';
+import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import { useSelector } from 'react-redux';
-import type { OutdatedVersionError } from '~/services/error';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
@@ -26,20 +25,6 @@ import { theme } from '/styled/theme';
 export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProps) => {
   const authState = useSelector(authSelector);
   const { getTranslation } = useTranslation();
-
-  const showOutdatedVersionAlert = useCallback(
-    (error: OutdatedVersionError) => {
-      console.log(error);
-      Alert.alert(getTranslation('login.outdatedVersion.title', 'Update required'), error.message, [
-        { text: getTranslation('general.action.dismiss', 'Dismiss'), style: 'cancel' },
-        {
-          text: getTranslation('general.action.update', 'Update'),
-          onPress: () => Linking.openURL(error.updateUrl),
-        },
-      ]);
-    },
-    [getTranslation],
-  );
 
   const { signedOutFromInactivity } = route.params;
   const inactivityMessage = signedOutFromInactivity
@@ -80,7 +65,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProp
           </StyledView>
           <SignInForm
             initialErrorMessage={inactivityMessage}
-            onOutdatedVersionError={showOutdatedVersionAlert}
             onSuccess={(): void => {
               if (!facilityId) {
                 navigation.navigate(Routes.SignUpStack.SelectFacility);

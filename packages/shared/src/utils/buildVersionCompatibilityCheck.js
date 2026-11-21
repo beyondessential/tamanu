@@ -1,5 +1,6 @@
 import semver from 'semver';
 import {
+  SERVER_TYPES,
   VERSION_COMPATIBILITY_ERRORS,
   VERSION_MAXIMUM_PROBLEM_KEY,
   VERSION_MINIMUM_PROBLEM_KEY,
@@ -7,17 +8,30 @@ import {
 import { ClientIncompatibleError } from '@tamanu/errors';
 import { log } from '../services/logging';
 
+function isMobileClient(req) {
+  return (req.header('X-Tamanu-Client') || '').includes(SERVER_TYPES.MOBILE);
+}
+
 function getUpdateInformation(req, minVersion, updateUrls) {
   if (!updateUrls?.mobile) return {};
 
-  const clientType = req.header('X-Tamanu-Client') || '';
-  if (clientType.includes('Tamanu Mobile')) {
+  if (isMobileClient(req)) {
     return {
       updateUrl: updateUrls.mobile.replaceAll('{minVersion}', minVersion),
     };
   }
 
   return {};
+}
+
+/**
+ * An out-of-date mobile app updates itself while staff keep working offline, so turning it away at
+ * login would strand anyone who signed out mid-update. It is let in to log in and told to update by
+ * the next sync instead. Other clients are still turned away at login, where they can be told
+ * plainly rather than failing every call afterwards.
+ */
+function isExemptFromMinimumVersion(req) {
+  return isMobileClient(req) && (req.path ?? '').endsWith('/login');
 }
 
 export const buildVersionCompatibilityCheck = (min, max, updateUrls) => (req, res, next) => {
@@ -37,7 +51,7 @@ export const buildVersionCompatibilityCheck = (min, max, updateUrls) => (req, re
     return;
   }
 
-  if (min && semver.compare(clientVersion, min) < 0) {
+  if (min && semver.compare(clientVersion, min) < 0 && !isExemptFromMinimumVersion(req)) {
     throw new ClientIncompatibleError(VERSION_COMPATIBILITY_ERRORS.LOW).withExtraData({
       ...getUpdateInformation(req, min, updateUrls),
       [VERSION_MINIMUM_PROBLEM_KEY]: min,
