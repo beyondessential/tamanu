@@ -201,7 +201,7 @@ Secure defaults. Caddy's best-known one, automatic HTTPS, is already off in the 
 - Files: the file server never leaves its root and never lists directories.
 - Admin surface: none listening outward. Caddy's admin API is off today; the status server stays loopback and read-only.
 - Responses: Tamanu's own error pages, never an upstream's error text.
-- Security headers: the supervisor takes over helmet's, which central's api and the facility's api and sync apps set today (`helmet({ crossOriginEmbedderPolicy: true, strictTransportSecurity: false })`, helmet 8.1). It adds them to the api's responses without replacing any the api sent itself, so they come out the same whether or not the api still sets them, and both are kept until every deployment runs behind the supervisor (see Later). `X-Powered-By` is removed. The set, as helmet 8.1 sends it:
+- Security headers: the supervisor takes over helmet's, which central's api and the facility's api and sync process set today (`helmet({ crossOriginEmbedderPolicy: true, strictTransportSecurity: false })`, helmet 8.1). It adds them to the api's responses without replacing any the api sent itself, so they come out the same whether or not the api still sets them, and both are kept until every deployment runs behind the supervisor (see Later). `X-Powered-By` is removed. The set, as helmet 8.1 sends it:
   - `Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests`
   - `Cross-Origin-Embedder-Policy: require-corp`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, `Origin-Agent-Cluster: ?1`
   - `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-DNS-Prefetch-Control: off`, `X-Download-Options: noopen`, `X-Frame-Options: SAMEORIGIN`, `X-Permitted-Cross-Domain-Policies: none`, `X-XSS-Protection: 0`
@@ -230,7 +230,7 @@ Logging. Today the frontend images' Caddy writes an access line per request (the
 
 - [ ] The web app shows waking itself (reads `Retry-After` on a `503`), so a page can load straight into a sleeping server instead of the waking page
 - [ ] Once the api serves cleartext HTTP/2 (#Y17), the supervisor speaks it to the api, HTTP/1.1 kept for websockets
-- [ ] Remove helmet from central's api and the facility's api and sync apps once every deployment, bare-metal included, runs behind the supervisor
+- [ ] Remove helmet from central's api and the facility's api and sync process once every deployment, bare-metal included, runs behind the supervisor
 
 ### Scheduled tasks (SLPWK#scheduled-tasks)
 
