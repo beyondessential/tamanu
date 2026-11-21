@@ -20,3 +20,10 @@ The setting-up state already keys on the pull cursor being unset (`isSettingUp` 
 - Constants: `BOOTSTRAP_TRANSLATION_STRING_IDS` and `BOOTSTRAP_TRANSLATION_STRING_ID_PREFIXES`
 - Facility: `facilityBootstrap.js`, `CentralServerConnection.fetchBootstrap`, the sync manager's `bootstrap()` and `hasBootstrapped`, the wizard's fetch and apply, and their tests
 - Web: the wizard's post-setup login, and the setting-up screen's Log out button
+
+## Build checklist
+
+- [ ] Central and constants: remove the bootstrap route, builder, translation constants and tests; inline the awaited facility access check back into session start
+- [ ] Facility: remove `applyBootstrap`, `fetchBootstrap` and the sync manager's bootstrap; the wizard logs in as the sync user without fetching; tests
+- [ ] Web: setting-up screen ahead of login without Log out; wizard no longer logs in; tests
+- [ ] Test cases file
