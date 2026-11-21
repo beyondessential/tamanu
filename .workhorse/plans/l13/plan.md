@@ -84,7 +84,7 @@ Supervisor (Go, `packages/supervisor`):
 - [x] Sleep barrier: after announcing going-to-sleep, nothing stops until every live report follows that announcement with nothing in flight; an expired report is no longer waited for
 - [x] On `SIGTERM` the holder releases the lease and keeps passing traffic while Caddy drains; readiness is having read the actuator's state, whether or not holding the lease
 - [x] The frontend images are built on the supervisor binary (a Caddy build) and serve their frontend with the existing `Caddyfile.docker` by default; `supervisor` as the command runs the supervisor
-- [ ] Tell infra (Y3) and V14 the contract file exists
+- [x] Tell infra (Y3) and V14 the contract file exists: moved to the routing card, since the contract left this card with the Go build
 
 Built as PR 4a (#11700, server side, merged) and PR 4b (this card's branch, the supervisor). Notes from the build:
 
@@ -118,7 +118,7 @@ Build order, on this card's branch (#11712):
 - [x] Caddyfile routing: the shipped Caddyfiles, the `tamanu` app's Caddyfile block, the `sh` entrypoint with its test table, the Dockerfile; remove `internal/config`, `internal/routes` (but the smoke tests) and `internal/command`. Smoke tests against the Caddyfile, with the path table
 - [x] Test review cuts and merges, package by package, and the remaining gap tests. The tests came to about 2,800 lines rather than 1,900: the machine's tests stayed near 1,200, the gap rows and the per-supervisor harness taking what the merges saved. The upgrade table caught a wake that went on starting parts after an upgrade began mid-wake, now fixed
 - [x] Remove `cmd/fake-actuator`; README and PR description
-- [ ] Then triage the open review issues against what is left, since many touch removed code
+- [x] Then triage the open review issues against what is left: the Go build's open review issues went with it
 
 ### The supervisor in Rust
 
