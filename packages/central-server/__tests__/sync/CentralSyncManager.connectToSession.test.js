@@ -122,6 +122,40 @@ describe('CentralSyncManager.connectToSession', () => {
     );
   });
 
+  it("does not time out a session that ended cleanly, even if it outlasted 'syncSessionTimeoutMs'", async () => {
+    const syncSessionTimeoutMs = 1000;
+    const centralSyncManager = await initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: false,
+        },
+        syncSessionTimeoutMs,
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    // Pin both timestamps to the same moment in the past, as in the test above: ending the
+    // session sees zero age, then refreshes updatedAt, opening a gap > limit.
+    const baseline = new Date(Date.now() - syncSessionTimeoutMs * 5);
+    await models.SyncSession.update(
+      { createdAt: baseline, updatedAt: baseline },
+      {
+        where: { id: sessionId },
+        silent: true,
+      },
+    );
+
+    await centralSyncManager.endSession(sessionId);
+
+    await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
+      `Sync session '${sessionId}' is already completed`,
+    );
+    const session = await models.SyncSession.findOne({ where: { id: sessionId } });
+    expect(session.errors).toBeNull();
+  });
+
   it('append error if sync session already encounters an error before', async () => {
     const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
