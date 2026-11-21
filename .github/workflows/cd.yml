@@ -379,11 +379,37 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
+  # The supervisor for Windows, built once for both frontend Windows images.
+  # rust-toolchain.toml picks the toolchain, which the runner's rustup installs.
+  windows-supervisor:
+    needs:
+      - config
+    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.all-images == 'true'
+    name: Supervisor for Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Build supervisor
+        shell: bash
+        working-directory: packages/supervisor
+        run: cargo build --release --locked
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-supervisor
+          path: packages/supervisor/target/release/tamanu-supervisor.exe
+          retention-days: 1
+          if-no-files-found: error
+
   # Frontend Windows images (web / patient-portal): built dist plus the
   # supervisor, self-contained like the linux frontend container.
   windows-image-frontend:
     needs:
       - config
+      - windows-supervisor
     if: needs.config.outputs.build-images == 'true' && needs.config.outputs.all-images == 'true'
     strategy:
       fail-fast: false
@@ -414,10 +440,10 @@ jobs:
         shell: bash
         run: bash scripts/docker-build.sh '${{ matrix.package.path }}'
 
-      - name: Build supervisor
-        shell: bash
-        working-directory: packages/supervisor
-        run: cargo build --release --locked
+      - uses: actions/download-artifact@v8
+        with:
+          name: windows-supervisor
+          path: supervisor-bin
 
       - name: Assemble layer (dist + supervisor)
         shell: bash
@@ -432,7 +458,7 @@ jobs:
             mkdir -p layer/Files/app/resources
             cp -r "packages/${{ matrix.package.path }}/resources/errors" layer/Files/app/resources/
           fi
-          cp packages/supervisor/target/release/tamanu-supervisor.exe layer/Files/supervisor/
+          cp supervisor-bin/tamanu-supervisor.exe layer/Files/supervisor/
 
       - name: Pack Windows image
         uses: ./.github/actions/windows-image-pack
