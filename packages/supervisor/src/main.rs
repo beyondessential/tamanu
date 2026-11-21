@@ -51,6 +51,10 @@ fn main() -> ExitCode {
 		}
 	};
 	if check {
+		if let Err(error) = Files::new(&config.root, |_| None) {
+			eprintln!("FRONTEND_ROOT: {error}");
+			return ExitCode::FAILURE;
+		}
 		println!("{config:#?}");
 		return ExitCode::SUCCESS;
 	}
