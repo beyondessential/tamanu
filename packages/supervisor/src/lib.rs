@@ -3,6 +3,7 @@
 //!
 //! spec: SUPV#serving-a-frontend
 
+pub mod access;
 pub mod config;
 pub mod files;
 pub mod headers;
