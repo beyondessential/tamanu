@@ -166,16 +166,16 @@ runs:
 
         # Mirrors the linux image config (see /Dockerfile), at Windows paths:
         # servers run docker-entrypoint.sh's effective `node --import tsx app serve`
-        # from the package directory, frontends run caddy over the built dist.
-        # Labels carry the process profile the Windows runtime reads
-        # (wcr[artifact.profile]): node and caddy both shut down cleanly on a
-        # console control event, and neither takes a reload event.
+        # from the package directory, frontends run the supervisor over the
+        # built dist, which it serves from C:\app by default. Labels carry the
+        # process profile the Windows runtime reads (wcr[artifact.profile]): node
+        # and the supervisor both shut down cleanly on a console control event,
+        # and neither takes a reload event.
         if [ "$KIND" = 'frontend' ]; then
-          runcfg="$(jq -n --arg path "C:\\caddy;$system_path" '{
+          runcfg="$(jq -n --arg path "C:\\supervisor;$system_path" '{
             WorkingDir: "C:\\app",
             Env: ["NODE_ENV=production", ("PATH=" + $path)],
-            Entrypoint: ["caddy"],
-            Cmd: ["run","--config","C:/caddy/Caddyfile","--adapter","caddyfile"],
+            Entrypoint: ["tamanu-supervisor"],
             ExposedPorts: {"3000/tcp": {}},
             Labels: {"au.bes.seedling.stop-method": "ctrl_break"}
           }')"

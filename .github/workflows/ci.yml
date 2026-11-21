@@ -34,6 +34,7 @@ jobs:
       run-mobile: ${{ steps.plan.outputs.run-mobile }}
       run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
       run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
+      run-supervisor: ${{ steps.plan.outputs.run-supervisor }}
       allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
     steps:
       - uses: actions/checkout@v6
@@ -61,6 +62,13 @@ jobs:
           echo "Node.js major in Dockerfile:    $dckr"
           echo "Node.js major in .node-version: $file"
           test "$dckr" = "$file"
+      - name: Check dockerfile against the supervisor's rust-toolchain.toml
+        run: |
+          file=$(sed -n 's/^channel = "\(.*\)"$/\1/p' packages/supervisor/rust-toolchain.toml)
+          dckr=$(grep -oP '(?<=^FROM rust:)[0-9.]+(?=-alpine AS build-supervisor)' Dockerfile)
+          echo "Rust in Dockerfile:          $dckr"
+          echo "Rust in rust-toolchain.toml: $file"
+          test -n "$file" && test "$dckr" = "$file"
 
   node_modules_cache:
     name: Cache node modules
@@ -393,6 +401,66 @@ jobs:
       - run: npm install --include-workspace-root --workspace=scripts
       - run: npm run dbt-check-todos
 
+  test-supervisor:
+    needs: plan
+    if: needs.plan.outputs.run-supervisor == 'true'
+    name: Test supervisor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/supervisor
+    env:
+      CARGO_AUDIT_VERSION: 0.23.0
+      # The caches are saved only from pushes to main, so what a run restores and
+      # executes was always built from main's own code, never a branch's. They are
+      # restored by exact key only, so a new lockfile or toolchain starts a clean
+      # target directory rather than carrying every earlier build forward.
+      # The Windows lint's build is left out, so it does not double the entry.
+      BUILD_CACHE_PATHS: |
+        ~/.cargo/registry/index
+        ~/.cargo/registry/cache
+        packages/supervisor/target
+        !packages/supervisor/target/x86_64-pc-windows-gnu
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      # rust-toolchain.toml picks the toolchain, which rustup installs on first use.
+      - uses: actions/cache/restore@v5
+        with:
+          path: ~/.cargo/bin/cargo-audit
+          key: supervisor-${{ runner.os }}-cargo-audit-${{ env.CARGO_AUDIT_VERSION }}
+      - uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.BUILD_CACHE_PATHS }}
+          key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked
+      # The Windows images build the supervisor on a Windows runner; linting its
+      # Windows-only code here finds a break before then. zstd's C sources need a
+      # C compiler for the target.
+      - name: Lint for Windows
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends gcc-mingw-w64-x86-64
+          rustup target add x86_64-pc-windows-gnu
+          cargo clippy --locked --all-targets --target x86_64-pc-windows-gnu -- -D warnings
+      - name: Check dependencies against the RustSec advisories
+        run: |
+          command -v cargo-audit || cargo install --locked "cargo-audit@$CARGO_AUDIT_VERSION"
+          cargo audit
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.cargo/bin/cargo-audit
+          key: supervisor-${{ runner.os }}-cargo-audit-${{ env.CARGO_AUDIT_VERSION }}
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.BUILD_CACHE_PATHS }}
+          key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
+
   typos:
     name: Spellcheck
     runs-on: ubuntu-latest
@@ -420,6 +488,7 @@ jobs:
       - lockfile-peers
       - dbt-model
       - dbt-todos
+      - test-supervisor
       - typos
     runs-on: ubuntu-latest
     steps:
