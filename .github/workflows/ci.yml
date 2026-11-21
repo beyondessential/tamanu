@@ -415,10 +415,12 @@ jobs:
       # executes was always built from main's own code, never a branch's. They are
       # restored by exact key only, so a new lockfile or toolchain starts a clean
       # target directory rather than carrying every earlier build forward.
+      # The Windows lint's build is left out, so it does not double the entry.
       BUILD_CACHE_PATHS: |
         ~/.cargo/registry/index
         ~/.cargo/registry/cache
         packages/supervisor/target
+        !packages/supervisor/target/x86_64-pc-windows-gnu
     steps:
       - uses: actions/checkout@v6
         with:
