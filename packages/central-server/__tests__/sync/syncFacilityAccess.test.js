@@ -99,12 +99,4 @@ describe('sync facility access', () => {
     });
     expect(response).toBeForbidden();
   });
-
-  // spec: FBOOT#serving-the-bootstrap
-  it('serves the bootstrap only for facilities the user can access', async () => {
-    expect(
-      await post('/api/sync/bootstrap', { facilityIds: [allowedFacilityId] }),
-    ).toHaveSucceeded();
-    expect(await post('/api/sync/bootstrap', { facilityIds: [otherFacilityId] })).toBeForbidden();
-  });
 });

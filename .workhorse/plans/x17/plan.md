@@ -23,7 +23,7 @@ The setting-up state already keys on the pull cursor being unset (`isSettingUp` 
 
 ## Build checklist
 
-- [ ] Central and constants: remove the bootstrap route, builder, translation constants and tests; inline the awaited facility access check back into session start
+- [x] Central and constants: remove the bootstrap route, builder, translation constants and tests; inline the awaited facility access check back into session start
 - [ ] Facility: remove `applyBootstrap`, `fetchBootstrap` and the sync manager's bootstrap; the wizard logs in as the sync user without fetching; tests
 - [ ] Web: setting-up screen ahead of login without Log out; wizard no longer logs in; tests
 - [ ] Test cases file
