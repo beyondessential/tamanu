@@ -132,7 +132,13 @@ impl Files {
 			"/" | "/index.html" => self.index.respond(head, req.headers()),
 			path => {
 				let manifest = path == "/manifest.json";
-				let headers = req.headers().clone();
+				// Only what the index reads, should the path turn out not to be a file.
+				let mut headers = HeaderMap::new();
+				for name in [header::ACCEPT_ENCODING, header::IF_NONE_MATCH] {
+					for value in req.headers().get_all(&name) {
+						headers.append(name.clone(), value.clone());
+					}
+				}
 				let mut res = self
 					.dir
 					.clone()
