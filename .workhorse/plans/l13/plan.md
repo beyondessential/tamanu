@@ -246,12 +246,18 @@ Layer 0 results (one machine, release builds, a synthetic web root with precompr
 | Throughput, api through the proxy | 21,900 rps | 26,000 rps |
 | Throughput, small file | 36,100 rps | 36,700 rps |
 | Throughput, web app route (index fallback) | 43,100 rps | 27,200 rps |
+| CPU while idle, 30 s, either mode | under 1 ms | under 1 ms |
+| CPU per request, api through the proxy, 256 / a million client addresses | 168 / 181 µs | 161 / 144 µs |
+| CPU per request, small file, frontend / supervisor mode | 177 / 150 µs | 156 / 194 µs |
+| CPU per request, large file (1 MB) | 471 µs | 396 µs |
+| CPU per request, web app route (index fallback) | 162 µs | 216 µs |
 
 Notes:
 
 - The Go supervisor's Caddyfile keys its rate limits on `{http.request.client_ip}`, a placeholder Caddy does not have, so the key is the literal text and every client shares one 1,000/s bucket (10/s for login). The Go figures under api load are from a copy keyed on `{client_ip}`; with the shipped key nearly every request got `429`. Layer B tests the limits with many client addresses.
 - The million-address row is the rate limiter's memory: Caddy's sliding windows keep a buffer of events per address, GCRA one timestamp.
 - The Rust sketch has no tests, its sleep and wake machine has never run, and it carries four TODOs (connection stall timeouts, rate-limit log counts, each app's CSP, letting a stop request finish when a sleep is cancelled). Its web app route is slower through `ServeDir`'s fallback, which layer A looks at.
+- CPU is the process's on-CPU time from `/proc/<pid>/task/*/schedstat` across each load run, divided by its requests; single runs on a shared machine, so differences under about 20% are noise. The Rust sketch writes an access line for every file in both modes, which the Go supervisor does not in supervisor mode, and checks whether each path is a file before routing it; both show in its file and web app route figures.
 - The first Rust run served 780 rps: accepted connections need `TCP_NODELAY`, or responses wait on delayed acknowledgements.
 
 Layer A, on a branch of its own:
