@@ -415,12 +415,13 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       # rust-toolchain.toml picks the toolchain, which rustup installs on first use.
       # The cache is saved only from pushes to main, so what a run restores and
-      # executes was always built from main's own code, never a branch's.
+      # executes was always built from main's own code, never a branch's. It is
+      # restored by exact key only, so a new lockfile or toolchain starts a clean
+      # target directory rather than carrying every earlier build forward.
       - uses: actions/cache/restore@v5
         with:
           path: ${{ env.SUPERVISOR_CACHE_PATHS }}
           key: supervisor-${{ runner.os }}-audit-${{ env.CARGO_AUDIT_VERSION }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
-          restore-keys: supervisor-${{ runner.os }}-audit-${{ env.CARGO_AUDIT_VERSION }}-
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked
