@@ -1,0 +1,725 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import config from 'config';
+
+import { fake } from '@tamanu/fake-data/fake';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
+import {
+  ENCOUNTER_TYPES,
+  REFERENCE_TYPES,
+  SETTINGS_SCOPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
+import { settingsCache } from '@tamanu/settings';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+
+import { buildToken } from '../../app/middleware/auth';
+import { createTestContext } from '../utilities';
+
+// spec: DIETSUM#printing-the-sheet — the permissions handover notes needs, less the note
+// permission itself.
+const REQUIRED_PERMISSIONS = [
+  ['list', 'Patient'],
+  ['read', 'LocationGroup'],
+  ['read', 'Location'],
+  ['read', 'Encounter'],
+];
+
+const SUMMARY_URL = '/api/dietSummary';
+const REGULAR_SETTING_KEY = 'bedManagement.dietSummary.regularDietId';
+
+describe('Diet summary', () => {
+  const [facilityId] = selectFacilityIds(config);
+  let ctx;
+  let models;
+  let baseApp;
+  let app;
+
+  let cardiology;
+  let maternity;
+  let bed2;
+  let bed10;
+  let maternityBed;
+  let bedWithoutArea;
+  let glutenFree;
+  let diabetic;
+  let regularDiet;
+
+  const admit = async ({ location, diets = [], encounterType = ENCOUNTER_TYPES.ADMISSION }) => {
+    const patient = await models.Patient.create(await createDummyPatient(models));
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      encounterType,
+      locationId: location.id,
+      patientId: patient.id,
+      endDate: null,
+    });
+    for (const diet of diets) {
+      await models.EncounterDiet.create({ encounterId: encounter.id, dietId: diet.id });
+    }
+    return { patient, encounter };
+  };
+
+  const createDiet = name =>
+    models.ReferenceData.create(fake(models.ReferenceData, { type: REFERENCE_TYPES.DIET, name }));
+
+  const createBed = ({ locationGroupId = null, ...bed }) =>
+    models.Location.create(fake(models.Location, { facilityId, locationGroupId, ...bed }));
+
+  // Deleting through the model cascades the soft delete down to the encounter, which the sheet
+  // already leaves off. The row has to be marked deleted on its own to stand for one that arrived
+  // from central that way.
+  const markDeleted = (model, id) =>
+    model.update({ deletedAt: new Date() }, { where: { id }, validate: false });
+
+  const configureRegularDiet = async (dietId, scope = SETTINGS_SCOPES.FACILITY) => {
+    const settingFacilityId = scope === SETTINGS_SCOPES.FACILITY ? facilityId : null;
+    await models.Setting.set(REGULAR_SETTING_KEY, dietId, scope, settingFacilityId);
+    // Belt-and-braces: Setting.set already resets the cache via its own hooks.
+    settingsCache.reset();
+  };
+
+  const getSummary = (query = '') => app.get(`${SUMMARY_URL}${query}`);
+
+  // `/setFacility` issues a token for any facility the user may access, which is not only the
+  // ones this server hosts, so a session can arrive signed in to a facility the server has no
+  // settings reader for.
+  const getSummaryAsFacility = async signedInFacilityId => {
+    const token = await buildToken({
+      user: app.user,
+      deviceId: ctx.deviceId,
+      facilityId: signedInFacilityId,
+      expiresIn: '1d',
+    });
+    return baseApp.get(SUMMARY_URL).set('authorization', `Bearer ${token}`);
+  };
+
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    models = ctx.models;
+    baseApp = ctx.baseApp;
+    app = await baseApp.asRole('practitioner');
+
+    const [facility] = await models.Facility.upsert({
+      id: facilityId,
+      name: facilityId,
+      code: facilityId,
+    });
+
+    cardiology = await models.LocationGroup.create({
+      name: 'Cardiology',
+      code: 'diet-summary-cardiology',
+      facilityId: facility.id,
+    });
+    maternity = await models.LocationGroup.create({
+      name: 'Maternity',
+      code: 'diet-summary-maternity',
+      facilityId: facility.id,
+    });
+
+    [bed2, bed10, maternityBed, bedWithoutArea] = await Promise.all(
+      [
+        { name: 'Bed 2', code: 'diet-summary-bed-2', locationGroupId: cardiology.id },
+        { name: 'Bed 10', code: 'diet-summary-bed-10', locationGroupId: cardiology.id },
+        { name: 'Bed 1', code: 'diet-summary-maternity-bed', locationGroupId: maternity.id },
+        { name: 'Corridor', code: 'diet-summary-corridor' },
+      ].map(createBed),
+    );
+
+    [glutenFree, diabetic, regularDiet] = await Promise.all(
+      ['Gluten free', 'Diabetic', 'Regular diet'].map(createDiet),
+    );
+  });
+
+  afterAll(() => ctx.close());
+
+  beforeEach(async () => {
+    await models.Encounter.truncate({ force: true, cascade: true });
+  });
+
+  afterEach(async () => {
+    // Setting it to null would leave a row behind that explicitly overrides the global value
+    // with "no diet" rather than removing the facility override altogether, which would shadow
+    // the global-scope cases below. Destroying the row is the reset `Setting.set` expects:
+    // it restores a soft-deleted row rather than leaving a stray one around.
+    await models.Setting.destroy({
+      where: { key: REGULAR_SETTING_KEY, scope: SETTINGS_SCOPES.FACILITY, facilityId },
+    });
+    await models.Setting.destroy({
+      where: { key: REGULAR_SETTING_KEY, scope: SETTINGS_SCOPES.GLOBAL, facilityId: null },
+    });
+    // Belt-and-braces: Setting.destroy already resets the cache via its own hooks.
+    settingsCache.reset();
+  });
+
+  it('groups patients by ward, ordering wards alphabetically and beds naturally', async () => {
+    await admit({ location: bed10, diets: [glutenFree] });
+    const { patient } = await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+    await admit({ location: bedWithoutArea, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', 'Maternity', null]);
+    expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 2', 'Bed 10']);
+    expect(areas[2].id).toBe(null);
+    // spec: DIETSUM#who-appears-on-the-sheet — patients are identified by name and NHN.
+    expect(areas[0].patients[0]).toMatchObject({
+      displayId: patient.displayId,
+      firstName: patient.firstName,
+      lastName: patient.lastName,
+    });
+  });
+
+  it('returns an empty sheet when nobody is admitted', async () => {
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    expect(result.body).toEqual({ columns: [], hospitalTotals: {}, areas: [] });
+  });
+
+  it('counts a patient with no diet recorded under a Regular column', async () => {
+    await admit({ location: bed2 });
+    await admit({ location: maternityBed, diets: [glutenFree] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals, areas } = result.body;
+    expect(columns).toEqual([
+      { key: 'regular', name: null, isRegular: true },
+      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
+    expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
+  });
+
+  it('counts a patient with no diet recorded under the configured regular diet', async () => {
+    await configureRegularDiet(regularDiet.id);
+
+    await admit({ location: bed2 });
+    await admit({ location: maternityBed, diets: [regularDiet] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
+    expect(hospitalTotals).toEqual({ [regularDiet.id]: 2 });
+  });
+
+  it('counts a patient with no diet recorded under the deployment-wide regular diet', async () => {
+    await configureRegularDiet(regularDiet.id, SETTINGS_SCOPES.GLOBAL);
+
+    await admit({ location: bed2 });
+    await admit({ location: maternityBed, diets: [regularDiet] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
+    expect(hospitalTotals).toEqual({ [regularDiet.id]: 2 });
+  });
+
+  it('lets a facility-level regular diet override the deployment-wide one', async () => {
+    const facilityRegular = await createDiet('Facility regular diet');
+    await configureRegularDiet(regularDiet.id, SETTINGS_SCOPES.GLOBAL);
+    await configureRegularDiet(facilityRegular.id, SETTINGS_SCOPES.FACILITY);
+
+    await admit({ location: bed2 });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([
+      { key: facilityRegular.id, name: 'Facility regular diet', isRegular: true },
+    ]);
+    expect(hospitalTotals).toEqual({ [facilityRegular.id]: 1 });
+  });
+
+  it('falls back to its own Regular column when the regular diet setting has been cleared', async () => {
+    await configureRegularDiet('');
+
+    await admit({ location: bed2 });
+    await admit({ location: maternityBed, diets: [glutenFree] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([
+      { key: 'regular', name: null, isRegular: true },
+      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
+  });
+
+  it('names the regular column when nobody on the sheet has the configured diet recorded', async () => {
+    await configureRegularDiet(regularDiet.id);
+
+    await admit({ location: bed2 });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
+    expect(hospitalTotals).toEqual({ [regularDiet.id]: 1 });
+  });
+
+  it('leaves the regular column unnamed when the configured diet has been deleted', async () => {
+    const retiredRegular = await createDiet('Retired regular');
+    await configureRegularDiet(retiredRegular.id);
+    await retiredRegular.destroy();
+
+    await admit({ location: bed2 });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: retiredRegular.id, name: null, isRegular: true }]);
+    expect(hospitalTotals).toEqual({ [retiredRegular.id]: 1 });
+  });
+
+  it('leaves the regular column unnamed when the setting names reference data that is not a diet', async () => {
+    const village = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.VILLAGE, name: 'Not a diet either' }),
+    );
+    await configureRegularDiet(village.id);
+
+    await admit({ location: bed2 });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: village.id, name: null, isRegular: true }]);
+    expect(hospitalTotals).toEqual({ [village.id]: 1 });
+  });
+
+  it('counts a patient with several diets under each of them', async () => {
+    await admit({ location: bed2, diets: [glutenFree, diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { hospitalTotals, areas } = result.body;
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 1 });
+    expect(areas).toHaveLength(1);
+    expect(areas[0].patients).toHaveLength(1);
+    expect([...areas[0].patients[0].dietKeys].sort()).toEqual([glutenFree.id, diabetic.id].sort());
+    expect(areas[0].subTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 1 });
+  });
+
+  it('counts a diet recorded twice against an encounter once', async () => {
+    await admit({ location: bed2, diets: [glutenFree, glutenFree] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { hospitalTotals, areas } = result.body;
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1 });
+    expect(areas[0].subTotals).toEqual({ [glutenFree.id]: 1 });
+    expect(areas[0].patients[0].dietKeys).toEqual([glutenFree.id]);
+  });
+
+  it('counts only a ward’s own patients in its sub total, summing the wards in the hospital total', async () => {
+    await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: bed10, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', 'Maternity']);
+    expect(areas[0].subTotals).toEqual({ [glutenFree.id]: 2 });
+    expect(areas[1].subTotals).toEqual({ [diabetic.id]: 1 });
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 2, [diabetic.id]: 1 });
+  });
+
+  // The No area group is keyed on a null area id rather than a ward's, so it is the one a
+  // misattributed sub total would hide in.
+  it('counts the No area group’s own patients in its sub total', async () => {
+    await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: bedWithoutArea, diets: [diabetic] });
+    await admit({ location: bedWithoutArea, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', null]);
+    expect(areas[0].subTotals).toEqual({ [glutenFree.id]: 1 });
+    expect(areas[1].subTotals).toEqual({ [diabetic.id]: 2 });
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 2 });
+  });
+
+  // Reference data ids come from the importer and the admin panel's Manage tab, both of which
+  // accept these as ids, and a patient dropped from the totals is one the kitchen does not feed.
+  it('counts diets whose ids are prototype keys', async () => {
+    const [protoDiet, constructorDiet] = await Promise.all(
+      [
+        { id: '__proto__', name: 'Prototype diet' },
+        { id: 'constructor', name: 'Constructor diet' },
+      ].map(({ id, name }) =>
+        models.ReferenceData.create(
+          fake(models.ReferenceData, { id, type: REFERENCE_TYPES.DIET, name }),
+        ),
+      ),
+    );
+    await admit({ location: bed2, diets: [protoDiet] });
+    await admit({ location: bed10, diets: [constructorDiet] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals, areas } = result.body;
+    expect(columns).toEqual([
+      { key: protoDiet.id, name: 'Prototype diet', isRegular: false },
+      { key: constructorDiet.id, name: 'Constructor diet', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ [protoDiet.id]: 1, [constructorDiet.id]: 1 });
+    expect(areas[0].subTotals).toEqual({ [protoDiet.id]: 1, [constructorDiet.id]: 1 });
+  });
+
+  it('includes triage, active ED care and emergency encounters, leaving off clinic and closed ones', async () => {
+    await admit({ location: bed2, encounterType: ENCOUNTER_TYPES.TRIAGE });
+    await admit({ location: bed10, encounterType: ENCOUNTER_TYPES.EMERGENCY });
+    await admit({ location: maternityBed, encounterType: ENCOUNTER_TYPES.OBSERVATION });
+    await admit({ location: bedWithoutArea, encounterType: ENCOUNTER_TYPES.CLINIC });
+
+    const { encounter } = await admit({ location: bedWithoutArea });
+    await encounter.update({ endDate: '2026-01-01 10:00:00' });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', 'Maternity']);
+    expect(hospitalTotals).toEqual({ regular: 3 });
+  });
+
+  it('leaves off a deleted diet, counting its patient as regular', async () => {
+    const retiredDiet = await createDiet('Retired diet');
+    await admit({ location: bed2, diets: [retiredDiet] });
+    await admit({ location: maternityBed, diets: [glutenFree] });
+    await retiredDiet.destroy();
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([
+      { key: 'regular', name: null, isRegular: true },
+      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
+  });
+
+  it('keeps a patient whose diet has been retired but not deleted', async () => {
+    const retiredDiet = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.DIET,
+        name: 'Retired diet still offered',
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      }),
+    );
+    await admit({ location: bed2, diets: [retiredDiet] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([
+      { key: retiredDiet.id, name: 'Retired diet still offered', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ [retiredDiet.id]: 1 });
+  });
+
+  it('leaves off a diet a clinician has cancelled, counting its patient as regular', async () => {
+    const { encounter } = await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+    const cancelled = await models.EncounterDiet.findOne({
+      where: { encounterId: encounter.id, dietId: glutenFree.id },
+    });
+    await cancelled.destroy();
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals, areas } = result.body;
+    expect(columns).toEqual([
+      { key: 'regular', name: null, isRegular: true },
+      { key: diabetic.id, name: 'Diabetic', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ regular: 1, [diabetic.id]: 1 });
+    expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
+  });
+
+  it('leaves off reference data that is not a diet, counting its patient as regular', async () => {
+    const village = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.VILLAGE, name: 'Not a diet' }),
+    );
+    await admit({ location: bed2, diets: [village] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals, areas } = result.body;
+    expect(columns).toEqual([
+      { key: 'regular', name: null, isRegular: true },
+      { key: diabetic.id, name: 'Diabetic', isRegular: false },
+    ]);
+    expect(hospitalTotals).toEqual({ regular: 1, [diabetic.id]: 1 });
+    expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
+  });
+
+  it('leaves off a patient who has been deleted', async () => {
+    const { patient } = await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+    await markDeleted(models.Patient, patient.id);
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Maternity']);
+    expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
+  });
+
+  it('leaves off a patient whose bed has been deleted', async () => {
+    const retiredBed = await createBed({
+      name: 'Retired bed',
+      code: 'diet-summary-retired-bed',
+      locationGroupId: cardiology.id,
+    });
+    await admit({ location: retiredBed, diets: [glutenFree] });
+    await admit({ location: bed2, diets: [diabetic] });
+    await markDeleted(models.Location, retiredBed.id);
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
+    expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 2']);
+  });
+
+  it('keeps a patient whose bed has been retired but not deleted', async () => {
+    const retiredBed = await createBed({
+      name: 'Bed 3',
+      code: 'diet-summary-historical-bed',
+      locationGroupId: cardiology.id,
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+    });
+    await admit({ location: retiredBed, diets: [glutenFree] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1 });
+    expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 3']);
+  });
+
+  it('counts two patients sharing a bay as separate entries under the same bed', async () => {
+    const bay = await createBed({
+      name: 'Bay 1',
+      code: 'diet-summary-bay-1',
+      locationGroupId: cardiology.id,
+      maxOccupancy: null,
+    });
+    await admit({ location: bay, diets: [glutenFree] });
+    await admit({ location: bay, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas[0].patients).toHaveLength(2);
+    expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bay 1', 'Bay 1']);
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 1 });
+  });
+
+  it('groups a patient whose ward has been deleted under no area', async () => {
+    const retiredWard = await models.LocationGroup.create({
+      name: 'Retired ward',
+      code: 'diet-summary-retired-ward',
+      facilityId,
+    });
+    const retiredWardBed = await createBed({
+      name: 'Bed 1',
+      code: 'diet-summary-retired-ward-bed',
+      locationGroupId: retiredWard.id,
+    });
+    await admit({ location: retiredWardBed, diets: [glutenFree] });
+    await admit({ location: bed2, diets: [diabetic] });
+    await markDeleted(models.LocationGroup, retiredWard.id);
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', null]);
+    expect(areas[1].id).toBe(null);
+    expect(areas[1].patients.map(patient => patient.bed)).toEqual(['Bed 1']);
+  });
+
+  it('groups a patient whose bed points at another facility’s ward under no area', async () => {
+    const otherFacility = await models.Facility.create(fake(models.Facility));
+    const foreignWard = await models.LocationGroup.create({
+      name: 'Foreign ward',
+      code: 'diet-summary-foreign-ward',
+      facilityId: otherFacility.id,
+    });
+    const bedInForeignWard = await createBed({
+      name: 'Bed 9',
+      code: 'diet-summary-foreign-ward-bed',
+      locationGroupId: foreignWard.id,
+    });
+    await admit({ location: bedInForeignWard, diets: [glutenFree] });
+    await admit({ location: bed2, diets: [diabetic] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology', null]);
+    expect(areas.map(area => area.id)).toEqual([cardiology.id, null]);
+    expect(areas[1].patients.map(patient => patient.bed)).toEqual(['Bed 9']);
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1, [diabetic.id]: 1 });
+  });
+
+  it('covers a single ward when an area is given', async () => {
+    await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+
+    const result = await getSummary(`?areaId=${maternity.id}`);
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Maternity']);
+    expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
+  });
+
+  // The area filter narrows the locations the facility scope already picked, so a ward id from
+  // another facility matches nothing. Dropping that scope would hand back that facility's roster.
+  it('returns an empty sheet for an area id belonging to another facility', async () => {
+    const otherFacility = await models.Facility.create(fake(models.Facility));
+    const foreignWard = await models.LocationGroup.create({
+      name: 'Foreign maternity',
+      code: 'diet-summary-foreign-area-ward',
+      facilityId: otherFacility.id,
+    });
+    const foreignBed = await models.Location.create(
+      fake(models.Location, {
+        facilityId: otherFacility.id,
+        name: 'Bed 11',
+        code: 'diet-summary-foreign-area-bed',
+        locationGroupId: foreignWard.id,
+      }),
+    );
+    await admit({ location: foreignBed, diets: [glutenFree] });
+    await admit({ location: bed2, diets: [diabetic] });
+
+    const result = await getSummary(`?areaId=${foreignWard.id}`);
+    expect(result).toHaveSucceeded();
+
+    expect(result.body).toEqual({ columns: [], hospitalTotals: {}, areas: [] });
+  });
+
+  it('rejects an area id that is not a single value', async () => {
+    const result = await getSummary('?areaId[]=a');
+    expect(result).toHaveRequestError();
+  });
+
+  it('covers the session facility, ignoring any facility given in the query', async () => {
+    const otherFacility = await models.Facility.create(fake(models.Facility));
+    const otherWard = await models.LocationGroup.create({
+      name: 'Another ward',
+      code: 'diet-summary-other-ward',
+      facilityId: otherFacility.id,
+    });
+    const otherBed = await models.Location.create(
+      fake(models.Location, {
+        facilityId: otherFacility.id,
+        name: 'Bed 1',
+        code: 'diet-summary-other-bed',
+        locationGroupId: otherWard.id,
+      }),
+    );
+    await admit({ location: otherBed, diets: [glutenFree] });
+    await admit({ location: bed2, diets: [diabetic] });
+
+    const result = await getSummary(`?facilityId=${otherFacility.id}`);
+    expect(result).toHaveSucceeded();
+
+    const { areas, hospitalTotals } = result.body;
+    expect(areas.map(area => area.name)).toEqual(['Cardiology']);
+    expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
+  });
+
+  it('rejects a session signed in to a facility this server does not host', async () => {
+    const otherFacility = await models.Facility.create(fake(models.Facility));
+    await admit({ location: bed2, diets: [glutenFree] });
+
+    const result = await getSummaryAsFacility(otherFacility.id);
+    expect(result).toHaveRequestError();
+    expect(result.body.error.message).not.toContain('Cannot read properties');
+  });
+
+  it('rejects a session signed in to a facility whose id is the server-wide settings key', async () => {
+    const globalFacility = await models.Facility.create(
+      fake(models.Facility, { id: 'global', code: 'diet-summary-global' }),
+    );
+    try {
+      await admit({ location: bed2, diets: [glutenFree] });
+
+      const result = await getSummaryAsFacility(globalFacility.id);
+      expect(result).toHaveRequestError();
+    } finally {
+      // The id collides with the server-wide reader, so it must not outlive this test.
+      await globalFacility.destroy({ force: true });
+    }
+  });
+
+  it('rejects an unauthenticated request', async () => {
+    const result = await baseApp.get(SUMMARY_URL);
+    expect(result).toHaveRequestError();
+  });
+
+  it('rejects a user without permission to read the wards', async () => {
+    const noPermissionApp = await baseApp.asRole('base');
+    const result = await noPermissionApp.get(SUMMARY_URL);
+    expect(result).toBeForbidden();
+  });
+
+  describe('permission boundary', () => {
+    disableHardcodedPermissionsForSuite();
+
+    it('succeeds for a role holding exactly the required permissions', async () => {
+      const minimalApp = await baseApp.asNewRole(REQUIRED_PERMISSIONS);
+      const result = await minimalApp.get(SUMMARY_URL);
+      expect(result).toHaveSucceeded();
+    });
+
+    it.each(REQUIRED_PERMISSIONS)(
+      'is forbidden without %s %s permission',
+      async (verb, noun) => {
+        const permissions = REQUIRED_PERMISSIONS.filter(
+          ([otherVerb, otherNoun]) => !(otherVerb === verb && otherNoun === noun),
+        );
+        const partialApp = await baseApp.asNewRole(permissions);
+        const result = await partialApp.get(SUMMARY_URL);
+        expect(result).toBeForbidden();
+      },
+    );
+  });
+});

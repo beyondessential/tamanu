@@ -13,6 +13,7 @@ import {
 import {
   ageDisplayFormatDefault,
   ageDisplayFormatSchema,
+  dietSummaryProperties,
   displayIdFieldProperties,
   generateFieldSchema,
   imagingCancellationReasonsDefault,
@@ -415,6 +416,18 @@ export const globalSettings = {
           type: yup.number().positive(),
           unit: 'hours',
           defaultValue: 72,
+        },
+      },
+    },
+    bedManagement: {
+      name: 'Bed management',
+      description: 'Settings related to bed management',
+      properties: {
+        dietSummary: {
+          name: 'Diet summary sheet',
+          description:
+            'Settings for the diet summary sheet printed from bed management. A facility can override the regular diet here in its own bed management settings.',
+          properties: dietSummaryProperties,
         },
       },
     },
