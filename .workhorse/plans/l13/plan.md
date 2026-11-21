@@ -229,6 +229,7 @@ Logging. Today the frontend images' Caddy writes an access line per request (the
 ### Later
 
 - [ ] The web app shows waking itself (reads `Retry-After` on a `503`), so a page can load straight into a sleeping server instead of the waking page
+- [ ] Once the api serves cleartext HTTP/2 (#Y17), the supervisor speaks it to the api, HTTP/1.1 kept for websockets
 - [ ] Remove helmet from central's api and the facility's api and sync apps once every deployment, bare-metal included, runs behind the supervisor
 
 ### Scheduled tasks (SLPWK#scheduled-tasks)
