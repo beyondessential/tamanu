@@ -1,0 +1,96 @@
+//! Serves one built frontend, configured from the environment.
+//!
+//! spec: SUPV#configuration
+
+use std::process::ExitCode;
+
+use tamanu_supervisor::{config::Frontend, files::Files, frontend, listen, server};
+use tokio_util::sync::CancellationToken;
+use tracing_subscriber::EnvFilter;
+
+const USAGE: &str = "usage: tamanu-supervisor [--check]
+
+Serves the built frontend at FRONTEND_ROOT on the addresses in BIND_ADDRESS.
+--check prints the configuration and exits.
+";
+
+fn main() -> ExitCode {
+	tracing_subscriber::fmt()
+		.json()
+		.with_env_filter(
+			EnvFilter::try_from_env("TAMANU_SUPERVISOR_LOG")
+				.unwrap_or_else(|_| EnvFilter::new("info")),
+		)
+		.with_writer(std::io::stderr)
+		.init();
+
+	let args: Vec<String> = std::env::args().skip(1).collect();
+	let check = match args.as_slice() {
+		[] => false,
+		[flag] if flag == "--check" => true,
+		_ => {
+			eprint!("{USAGE}");
+			return ExitCode::from(2);
+		}
+	};
+	let config = match Frontend::from_env() {
+		Ok(config) => config,
+		Err(problems) => {
+			eprint!("{problems}");
+			return ExitCode::FAILURE;
+		}
+	};
+	if check {
+		println!("{config:#?}");
+		return ExitCode::SUCCESS;
+	}
+
+	let runtime = tokio::runtime::Builder::new_multi_thread()
+		.enable_all()
+		.build()
+		.expect("starting the runtime");
+	match runtime.block_on(run(config)) {
+		Ok(()) => ExitCode::SUCCESS,
+		Err(error) => {
+			tracing::error!(%error, "stopped");
+			ExitCode::FAILURE
+		}
+	}
+}
+
+async fn run(config: Frontend) -> std::io::Result<()> {
+	let files = Files::new(&config.root, |name| std::env::var(name).ok())?;
+	let router = frontend(files);
+	let shutdown = stop_signal();
+
+	let mut servers = tokio::task::JoinSet::new();
+	for bind in config.binds {
+		let listener = listen::bind(bind)?;
+		tracing::info!(address = %listener.local_addr()?, root = %config.root.display(), "serving");
+		servers.spawn(server::serve(listener, router.clone(), shutdown.clone()));
+	}
+	servers.join_all().await;
+	Ok(())
+}
+
+/// Cancelled on the first stop signal: `SIGTERM` or `SIGINT`, or Ctrl-C on Windows.
+fn stop_signal() -> CancellationToken {
+	let token = CancellationToken::new();
+	let stop = token.clone();
+	tokio::spawn(async move {
+		#[cfg(unix)]
+		{
+			use tokio::signal::unix::{SignalKind, signal};
+			let mut terminate = signal(SignalKind::terminate()).expect("listening for SIGTERM");
+			tokio::select! {
+				_ = terminate.recv() => {}
+				_ = tokio::signal::ctrl_c() => {}
+			}
+		}
+		#[cfg(not(unix))]
+		let _ = tokio::signal::ctrl_c().await;
+		tracing::info!("stopping");
+		stop.cancel();
+	});
+	token
+}
