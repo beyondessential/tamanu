@@ -402,18 +402,22 @@ jobs:
     defaults:
       run:
         working-directory: packages/supervisor
+    env:
+      SUPERVISOR_CACHE_PATHS: |
+        ~/.cargo/bin/cargo-audit
+        ~/.cargo/registry/index
+        ~/.cargo/registry/cache
+        packages/supervisor/target
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      # rust-toolchain.toml picks the toolchain, which rustup installs on first use
-      - uses: actions/cache@v6
+      # rust-toolchain.toml picks the toolchain, which rustup installs on first use.
+      # The cache is saved only from pushes to main, so what a run restores and
+      # executes was always built from main's own code, never a branch's.
+      - uses: actions/cache/restore@v5
         with:
-          path: |
-            ~/.cargo/bin/cargo-audit
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            packages/supervisor/target
+          path: ${{ env.SUPERVISOR_CACHE_PATHS }}
           key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
           restore-keys: supervisor-${{ runner.os }}-
       - run: cargo fmt --check
@@ -423,6 +427,11 @@ jobs:
         run: |
           command -v cargo-audit || cargo install --locked cargo-audit@0.23.0
           cargo audit
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.SUPERVISOR_CACHE_PATHS }}
+          key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
 
   typos:
     name: Spellcheck
