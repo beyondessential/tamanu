@@ -4,7 +4,8 @@ import config from 'config';
 import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
-import { SETTING_KEYS } from '@tamanu/constants';
+import { SERVER_TYPES, SETTING_KEYS, SETTINGS_SCOPES } from '@tamanu/constants';
+import { settingsCache } from '@tamanu/settings';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
@@ -175,6 +176,28 @@ describe('Auth - Login', () => {
         'settings.fields.displayId',
         expect.objectContaining({ pattern: '[\\s\\S]*' }),
       );
+    });
+
+    it('Should send a facility server its sync tuning in the login response', async () => {
+      const key = 'facilitySync.persistUpdateWorkerPoolSize';
+      await store.models.Setting.set(key, 2, SETTINGS_SCOPES.CENTRAL);
+      settingsCache.reset();
+      try {
+        const response = await baseApp
+          .post('/api/login')
+          .set({ 'X-Tamanu-Client': SERVER_TYPES.FACILITY })
+          .send({
+            email: TEST_EMAIL,
+            password: TEST_PASSWORD,
+            deviceId: TEST_DEVICE_ID,
+          });
+
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveProperty(`settings.${key}`, 2);
+      } finally {
+        await store.models.Setting.destroy({ where: { key }, force: true });
+        settingsCache.reset();
+      }
     });
 
     it('Should reject an empty credential', async () => {

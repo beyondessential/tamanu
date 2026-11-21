@@ -33,8 +33,6 @@
     "vitest": "^4.1.8"
   },
   "dependencies": {
-    "@bugsnag/js": "^8.0.0",
-    "@bugsnag/plugin-react": "^8.0.0",
     "@casl/ability": "^6.8.0",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.13.3",

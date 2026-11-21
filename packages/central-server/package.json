@@ -42,8 +42,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.49.0",
     "@bgotink/kdl": "^0.1.6",
-    "@bugsnag/js": "^7.22.4",
-    "@bugsnag/plugin-express": "^7.19.0",
     "@casl/ability": "^6.8.0",
     "@langchain/anthropic": "^1.5.12",
     "@langchain/core": "^1.2.17",

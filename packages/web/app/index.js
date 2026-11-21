@@ -1,14 +1,10 @@
 import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
-import Bugsnag from '@bugsnag/js';
-import BugsnagPluginReact from '@bugsnag/plugin-react';
-
 import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { initWebTelemetry } from './telemetry';
 import { registerYup } from './utils/errorMessages';
-import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
 import { systemErrorStore } from './state/systemErrorStore';
 
@@ -41,15 +37,6 @@ function initPersistor(api, store) {
 
 async function start() {
   registerYup();
-
-  if (BUGSNAG_API_KEY) {
-    Bugsnag.start({
-      apiKey: BUGSNAG_API_KEY,
-      plugins: [new BugsnagPluginReact()],
-      releaseStage: NODE_ENV,
-      appVersion: FULL_VERSION,
-    });
-  }
 
   // spec: BTEL — start browser performance telemetry (collects from before sign-in).
   initWebTelemetry(API);

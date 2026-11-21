@@ -1,6 +1,5 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import config from 'config';
 import defineExpress from 'express';
 import asyncHandler from 'express-async-handler';
 import helmet from 'helmet';
@@ -69,16 +68,6 @@ export async function createApi(ctx) {
   // keys like includedDataTypes[0]=x become flat keys, breaking many callers and
   // tests that rely on Express 4's extended (qs) parsing.
   express.set('query parser', 'extended');
-
-  let errorMiddleware = null;
-  if (config.errors?.enabled) {
-    if (config.errors?.type === 'bugsnag') {
-      const { default: Bugsnag } = await import('@bugsnag/js');
-      const middleware = Bugsnag.getPlugin('express');
-      express.use(middleware.requestHandler);
-      errorMiddleware = middleware.errorHandler;
-    }
-  }
 
   express.use(
     helmet({
@@ -157,10 +146,6 @@ export async function createApi(ctx) {
   express.use((req, res) => {
     res.status(404).end();
   });
-
-  if (errorMiddleware) {
-    express.use(errorMiddleware);
-  }
 
   express.use(defaultErrorHandler);
 

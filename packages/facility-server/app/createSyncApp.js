@@ -17,7 +17,7 @@ export async function createSyncApp({ sequelize, syncManager, models, deviceId }
       strictTransportSecurity: false,
     }),
   );
-  const { errorMiddleware } = addFacilityMiddleware(express);
+  addFacilityMiddleware(express);
 
   express.use((req, res, next) => {
     req.models = models;
@@ -43,9 +43,6 @@ export async function createSyncApp({ sequelize, syncManager, models, deviceId }
     res.status(404).end();
   });
 
-  if (errorMiddleware) {
-    express.use(errorMiddleware);
-  }
   express.use(errorHandler);
 
   return { express, server };

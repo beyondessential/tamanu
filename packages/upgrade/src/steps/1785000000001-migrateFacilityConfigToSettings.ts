@@ -41,6 +41,39 @@ export const servedFacilityIds = async (
   return selectFacilityIds(config) ?? [];
 };
 
+// A facility not synced down yet is skipped (the carrier has a foreign key to it) and the
+// result reports incomplete, so the next upgrade retries.
+export const writeCarrierRows = async (
+  rows: { key: string; value: unknown }[],
+  { models: { Facility, FacilitySettingMigration, LocalSystemFact }, log }: StepArgs,
+  stepName: string,
+): Promise<boolean> => {
+  if (!rows.length) return true;
+  let complete = true;
+  const facilityIds = await servedFacilityIds(LocalSystemFact);
+  const existing = new Set(
+    (await Facility.findAll({ attributes: ['id'], where: { id: facilityIds } })).map(
+      (facility: { id: string }) => facility.id,
+    ),
+  );
+  for (const facilityId of facilityIds) {
+    if (!existing.has(facilityId)) {
+      complete = false;
+      log?.warn(`${stepName}: facility not synced yet; retrying next upgrade`, { facilityId });
+      continue;
+    }
+    for (const { key, value } of rows) {
+      await FacilitySettingMigration.upsert({
+        id: carrierId(facilityId, key),
+        key,
+        value,
+        facilityId,
+      });
+    }
+  }
+  return complete;
+};
+
 // On the first facility upgrade, snapshot each facility-scoped config value into the
 // FacilitySettingMigration carrier (one row per served facility) so it pushes up and
 // central turns it into a facility Setting. Fact-gated to run once. The config fallback
@@ -53,45 +86,14 @@ export const STEPS: Steps = [
         serverType === 'facility' && !(await LocalSystemFact.get(FACT_FACILITY_CONFIG_MIGRATED))
       );
     },
-    async run({
-      toVersion,
-      log,
-      models: { Facility, FacilitySettingMigration, LocalSystemFact },
-    }: StepArgs) {
-      const rows = facilityConfigRows();
-      let complete = true;
-      if (rows.length) {
-        const facilityIds = await servedFacilityIds(LocalSystemFact);
-        // Only facilities that exist locally: on a fresh server the configured
-        // facility may not have synced down yet, and the carrier has a foreign key
-        // to it. Skip and retry on the next upgrade (the config fallback keeps
-        // serving the values meanwhile) rather than failing the upgrade.
-        const existing = new Set(
-          (await Facility.findAll({ attributes: ['id'], where: { id: facilityIds } })).map(
-            (facility: { id: string }) => facility.id,
-          ),
-        );
-        for (const facilityId of facilityIds) {
-          if (!existing.has(facilityId)) {
-            complete = false;
-            log?.warn(
-              'migrateFacilityConfigToSettings: facility not synced yet; retrying next upgrade',
-              { facilityId },
-            );
-            continue;
-          }
-          for (const { key, value } of rows) {
-            await FacilitySettingMigration.upsert({
-              id: carrierId(facilityId, key),
-              key,
-              value,
-              facilityId,
-            });
-          }
-        }
-      }
+    async run(args: StepArgs) {
+      const complete = await writeCarrierRows(
+        facilityConfigRows(),
+        args,
+        'migrateFacilityConfigToSettings',
+      );
       if (complete) {
-        await LocalSystemFact.set(FACT_FACILITY_CONFIG_MIGRATED, toVersion);
+        await args.models.LocalSystemFact.set(FACT_FACILITY_CONFIG_MIGRATED, args.toVersion);
       }
     },
   },

@@ -6,6 +6,5 @@
 // utils/env.js instead of window.env directly.
 window.env = {
   // NODE_ENV: 'production',
-  // BUGSNAG_API_KEY: '',
 };
 
