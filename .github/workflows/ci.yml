@@ -62,6 +62,13 @@ jobs:
           echo "Node.js major in Dockerfile:    $dckr"
           echo "Node.js major in .node-version: $file"
           test "$dckr" = "$file"
+      - name: Check dockerfile against the supervisor's rust-toolchain.toml
+        run: |
+          file=$(sed -n 's/^channel = "\(.*\)"$/\1/p' packages/supervisor/rust-toolchain.toml)
+          dckr=$(grep -oP '(?<=^FROM rust:)[0-9.]+(?=-alpine AS build-supervisor)' Dockerfile)
+          echo "Rust in Dockerfile:          $dckr"
+          echo "Rust in rust-toolchain.toml: $file"
+          test -n "$file" && test "$dckr" = "$file"
 
   node_modules_cache:
     name: Cache node modules
