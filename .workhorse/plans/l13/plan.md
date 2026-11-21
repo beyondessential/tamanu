@@ -182,9 +182,7 @@ Order of work, replacing the Go module on this card's branch (#11712), which has
 
 - The Caddy that fronts bare-metal Linux and Windows servers stays: it terminates TLS and holds the hostnames, which the supervisor never does. It is the platform's side of the boundary there, as infra's ingress is on Kubernetes.
 
-Open:
-
-- Whether any deployment overrides the frontend image's command or mounts its own Caddyfile: those break when Caddy goes. A question for infra.
+- No deployment overrides the frontend images' command or mounts a Caddyfile into them, so the frontend mode only has to keep what they rely on: port 3000 by default (`BIND_ADDRESS` to change it), `200` on `/` for probes, `/env.js` from `NODE_ENV`, `REVISION` and `BUGSNAG_API_KEY`, and running as a non-root user. Checked in infra's Kubernetes renderer (image default, `PORT` set but unread, a 100 MiB memory limit), the Linux quadlets in ops (image default, behind the host Caddy on port 3000), and Seedling's Tamanu apps (image default on port 3000; its Windows runtime runs the entrypoint our own image config declares). Canopy's redirect runs the upstream Caddy image, not ours.
 
 ### Later
 
