@@ -1674,6 +1674,64 @@ describe('Suggestions', () => {
       // unitConversion is a DECIMAL, serialised as a string.
       expect(Number(referenceDrug.unitConversion)).toBe(250);
     });
+
+    // spec: DQLIM#medication-sets
+    it("should return the drug's dose and dispensing quantity limits on each template's medication", async () => {
+      const { ReferenceData, ReferenceDataRelation, ReferenceMedicationTemplate, ReferenceDrug } =
+        models;
+
+      const medicationSet = await ReferenceData.create({
+        id: 'test-med-set-limits',
+        code: 'MED_SET_LIMITS',
+        type: 'medicationSet',
+        name: 'Limits Medication Set',
+        visibilityStatus: 'current',
+      });
+      const drug = await ReferenceData.create({
+        id: 'test-drug-with-limits',
+        code: 'DRUG_WITH_LIMITS',
+        type: 'drug',
+        name: 'Drug With Limits',
+        visibilityStatus: 'current',
+      });
+      await ReferenceDrug.create({
+        ...fake(models.ReferenceDrug),
+        referenceDataId: drug.id,
+        doseMin: 1,
+        doseMax: 2,
+        dispensingQuantityMax: 4,
+      });
+      const templateRef = await ReferenceData.create({
+        id: 'template-ref-with-limits',
+        code: 'TEMPLATE_WITH_LIMITS',
+        type: 'medicationTemplate',
+        name: 'Template With Limits',
+        visibilityStatus: 'current',
+      });
+      await ReferenceMedicationTemplate.create({
+        referenceDataId: templateRef.id,
+        medicationId: drug.id,
+        dosingUnit: 'mg',
+        frequency: 'daily',
+        route: 'oral',
+      });
+      await ReferenceDataRelation.create({
+        referenceDataId: templateRef.id,
+        referenceDataParentId: medicationSet.id,
+        type: 'medication',
+      });
+
+      const result = await userApp.get('/api/suggestions/medicationSet?language=en');
+      expect(result).toHaveSucceeded();
+
+      const suggestion = result.body.find(item => item.id === medicationSet.id);
+      const template = suggestion.children.find(child => child.id === templateRef.id);
+      const { referenceDrug } = template.medicationTemplate.medication;
+      // The dose limits are DECIMALs, serialised as strings.
+      expect(Number(referenceDrug.doseMin)).toBe(1);
+      expect(Number(referenceDrug.doseMax)).toBe(2);
+      expect(referenceDrug.dispensingQuantityMax).toBe(4);
+    });
   });
 
   it('should respect visibility status', async () => {

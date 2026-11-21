@@ -71,6 +71,7 @@ describe('Reference data exporter', () => {
       'LabTestPanelLabTestTypes',
       'LabTestType',
       'LabTestPanel',
+      'ReferenceDrug',
       'ReferenceData',
       'Patient',
       'PatientFieldDefinition',
@@ -211,6 +212,38 @@ describe('Reference data exporter', () => {
       ],
       '',
     );
+  });
+
+  // spec: DQLIM#configuring-limits
+  it('Should export drug limits after isSensitive, with a blank cell for an unset limit', async () => {
+    const drug = await createDrug(models, {
+      id: 'drug-limits',
+      name: 'Drug Limits',
+      code: 'drug-limits',
+    });
+    await models.ReferenceDrug.create({
+      referenceDataId: drug.id,
+      doseMax: 2,
+      dispensingQuantityMin: 1,
+      dispensingQuantityMax: 100,
+    });
+
+    await exporter(store, { 1: REFERENCE_TYPES.DRUG });
+
+    const [[{ data }]] = writeExcelFile.mock.calls[0];
+    const [headers, row] = data;
+    const exported = Object.fromEntries(headers.map((header, index) => [header, row[index]]));
+    expect(headers.slice(headers.indexOf('isSensitive'))).toEqual([
+      'isSensitive',
+      'doseMin',
+      'doseMax',
+      'dispensingQuantityMin',
+      'dispensingQuantityMax',
+    ]);
+    expect(exported.doseMin).toBeNull();
+    expect(Number(exported.doseMax)).toBe(2);
+    expect(exported.dispensingQuantityMin).toBe(1);
+    expect(exported.dispensingQuantityMax).toBe(100);
   });
 
   it('Should export a tab with name "Medication Dispense Mod Reason" for "medicationDispenseModifyReason"', async () => {

@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { upperFirst } from 'es-toolkit/compat';
 import {
   ADMINISTRATION_FREQUENCIES,
+  DRUG_LIMIT_FIELDS,
   DRUG_ROUTE_VALUES,
   DRUG_UNIT_VALUES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
@@ -17,6 +18,7 @@ import {
   TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
+import { getTemplateDoseLimitError, validateDrugLimits } from '@tamanu/shared/utils/medication';
 
 // Some reference data types have a value stored as a ReferenceDataRelation (parent = this record,
 // child = another reference-data record) rather than a column. The manage UI surfaces it as a
@@ -372,6 +374,50 @@ export const splitWritableData = (columns, data, isEditMode) => ({
   base: getWritableData(columns.filter(c => !c.detail), data, isEditMode),
   detail: getWritableData(columns.filter(c => c.detail), data, isEditMode),
 });
+
+/**
+ * spec: DQLIM#configuring-limits
+ * A drug's own dose and dispensing quantity limits, by the importer's rules.
+ */
+const assertValidDrugLimits = drug => {
+  const errors = validateDrugLimits(drug);
+  if (errors.length > 0) throw new InvalidOperationError(`${errors.join('. ')}.`);
+};
+
+/**
+ * spec: DQLIM#medication-sets
+ * A medication template's dose against its drug's dose limits, by the importer's rules.
+ */
+const assertTemplateDoseWithinDrugLimits = async (models, template) => {
+  if (!template.medicationId) return;
+  const referenceDrug = await models.ReferenceDrug.findOne({
+    where: { referenceDataId: template.medicationId },
+    attributes: DRUG_LIMIT_FIELDS,
+  });
+  const error = getTemplateDoseLimitError(template, referenceDrug, template.medicationId);
+  if (error) throw new InvalidOperationError(error);
+};
+
+/**
+ * Checks the rules a type's detail values must meet beyond their column types, which only drugs
+ * and medication templates have. `recordId` is the record being edited, whose stored detail
+ * supplies any value the request leaves out, such as a template's drug, which is fixed once
+ * created. It is left out when creating.
+ */
+export const assertValidDetail = async (models, type, detail, recordId) => {
+  if (type !== REFERENCE_TYPES.DRUG && type !== REFERENCE_TYPES.MEDICATION_TEMPLATE) return;
+
+  const stored = recordId
+    ? await getDetailModel(models, type).findOne({ where: { referenceDataId: recordId } })
+    : null;
+  const values = { ...stored?.get({ plain: true }), ...detail };
+
+  if (type === REFERENCE_TYPES.DRUG) {
+    assertValidDrugLimits(values);
+  } else {
+    await assertTemplateDoseWithinDrugLimits(models, values);
+  }
+};
 
 export const assertValidType = type => {
   if (!type) {

@@ -14,7 +14,13 @@ import {
   DEFAULT_LANGUAGE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
+  DRUG_LIMIT_FIELDS,
 } from '@tamanu/constants';
+import {
+  getTemplateDoseLimitError,
+  parseDrugLimit,
+  validateDrugLimits,
+} from '@tamanu/shared/utils/medication';
 import __cjs_inflection from 'inflection';
 const { pluralize } = __cjs_inflection;
 import { isEmpty, isNil } from 'es-toolkit/compat';
@@ -691,6 +697,7 @@ const DRUG_COLUMNS = [
   'unitConversion',
   'notes',
   'isSensitive',
+  ...DRUG_LIMIT_FIELDS,
 ];
 
 // The set of facilities where mSupply is the stock-on-hand source of truth is fixed for
@@ -726,6 +733,20 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
   } = item;
   const rows = [];
 
+  // spec: DQLIM#configuring-limits
+  // Like an invalid unit, an invalid limit rejects the row. A blank cell leaves the limit unset, and
+  // each limit is saved as the number it was read as.
+  const limitErrors = validateDrugLimits(item);
+  if (limitErrors.length > 0) {
+    for (const message of limitErrors) {
+      pushError(`Drug "${drugId}": ${message}.`);
+    }
+    return [];
+  }
+  const limits = Object.fromEntries(
+    DRUG_LIMIT_FIELDS.map(field => [field, parseDrugLimit(item[field])]),
+  );
+
   const validDrugUnits = Object.values(DRUG_UNITS);
   if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
     pushError(
@@ -757,6 +778,7 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
     unitConversion,
     notes,
     isSensitive: !!isSensitive,
+    ...limits,
   };
   rows.push({
     model: 'ReferenceDrug',
@@ -854,8 +876,11 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
 
   const rows = [];
 
+  // spec: DQLIM#medication-sets
+  // The Drug sheet is imported first (see dependencies.js), so the drug's limits are its saved ones.
   const drug = await models.ReferenceData.findOne({
     where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
+    include: { association: 'referenceDrug', attributes: DRUG_LIMIT_FIELDS },
   });
   if (!drug) {
     pushError(
@@ -864,12 +889,20 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     );
   }
 
-  if (isNaN(doseAmount) && doseAmount?.toString().toLowerCase() !== 'variable') {
+  const isVariableDose = doseAmount?.toString().toLowerCase() === 'variable';
+  if (isNaN(doseAmount) && !isVariableDose) {
     pushError(
       `Dose amount must be a number or the string "variable".`,
       'ReferenceMedicationTemplate',
     );
   }
+
+  const doseLimitError = getTemplateDoseLimitError(
+    { doseAmount, isVariableDose },
+    drug?.referenceDrug,
+    drugReferenceDataId,
+  );
+  if (doseLimitError) pushError(doseLimitError, 'ReferenceMedicationTemplate');
 
   const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
     where: { referenceDataId },
@@ -882,7 +915,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     referenceDataId,
     medicationId: drugReferenceDataId,
     isPrn: prnMedication,
-    isVariableDose: doseAmount?.toString().toLowerCase() === 'variable',
+    isVariableDose,
     doseAmount: parseFloat(doseAmount) || null,
     dosingUnit,
     frequency,

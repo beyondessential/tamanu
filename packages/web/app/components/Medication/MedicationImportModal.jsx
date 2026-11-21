@@ -14,6 +14,8 @@ import {
   SUBMIT_ATTEMPTED_STATUS,
 } from '@tamanu/constants';
 import {
+  getDispensingQuantityLimitBreach,
+  getDoseLimitBreach,
   getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
@@ -44,6 +46,7 @@ import { createPrescriptionHash } from '../../utils/medications';
 import { foreignKey } from '../../utils/validation';
 import { CheckInput } from '../Field';
 import { TableFormFields } from '../Table';
+import { renderLimitWarning } from './MedicationLimitWarning';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -222,6 +225,11 @@ const getColumns = (
       <Box>
         {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
         {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
+        {/* spec: DQLIM#adding-ongoing-medications-to-an-encounter */}
+        {renderLimitWarning(
+          getDoseLimitBreach(data, data.medication?.referenceDrug),
+          data.dosingUnit,
+        )}
       </Box>
     ),
   },
@@ -268,7 +276,14 @@ const getColumns = (
           onChange={e => setFieldValue(fieldName, e.target.value)}
           disabled={!selected}
           error={hasError}
-          helperText={hasError && fieldError}
+          helperText={
+            hasError
+              ? fieldError
+              : renderLimitWarning(
+                  getDispensingQuantityLimitBreach(value, data.medication?.referenceDrug),
+                  data.dispensingUnit,
+                )
+          }
         />
       );
     },

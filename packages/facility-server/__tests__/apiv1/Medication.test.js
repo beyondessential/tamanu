@@ -1600,6 +1600,29 @@ describe('Medication', () => {
       expect(Number(row.doseAmount)).toBe(250);
     });
 
+    // spec: DQLIM#dispensing
+    it('should return the limits of both the prescribed and the dispensed drug', async () => {
+      const { dispenseId, medication, substitute } = await arrangeModifiedDispense();
+      await models.ReferenceDrug.update(
+        { doseMax: 2, dispensingQuantityMax: 100 },
+        { where: { referenceDataId: medication.id } },
+      );
+      await models.ReferenceDrug.update(
+        { doseMin: 1, dispensingQuantityMin: 5 },
+        { where: { referenceDataId: substitute.id } },
+      );
+
+      const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(d => d.id === dispenseId);
+      const prescribedDrug = row.pharmacyOrderPrescription.prescription.medication.referenceDrug;
+      expect(Number(prescribedDrug.doseMax)).toBe(2);
+      expect(prescribedDrug.dispensingQuantityMax).toBe(100);
+      expect(Number(row.medication.referenceDrug.doseMin)).toBe(1);
+      expect(row.medication.referenceDrug.dispensingQuantityMin).toBe(5);
+    });
+
     // The dispensed medication details window reads the prescription type from this field.
     it.each([true, false])(
       'should return the prescription type of the order, isDischargePrescription=%s',
@@ -1888,6 +1911,59 @@ describe('Medication', () => {
       expect(row.frequency).toBe(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY);
     });
 
+    // spec: DQLIM#dispensing
+    it('should return the limits of the prescribed drug, and of the substitute when modified', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const asPrescribed = await createPharmacyOrderWithPrescription({
+        patientId: localPatient.id,
+      });
+      const modified = await createPharmacyOrderWithPrescription({ patientId: localPatient.id });
+      const { medication: substitute } = await createDrug();
+      const modifyReason = await createModifyReason();
+      await models.ReferenceDrug.update(
+        { doseMax: 2, dispensingQuantityMax: 100 },
+        { where: { referenceDataId: asPrescribed.medication.id } },
+      );
+      await models.ReferenceDrug.update(
+        { doseMin: 1, dispensingQuantityMin: 5 },
+        { where: { referenceDataId: substitute.id } },
+      );
+
+      const asPrescribedResult = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: asPrescribed.pharmacyOrderPrescription.id,
+          quantity: 10,
+          instructions: 'As prescribed',
+        },
+      ]);
+      expect(asPrescribedResult).toHaveSucceeded();
+      const modifiedResult = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: modified.pharmacyOrderPrescription.id,
+          quantity: 16,
+          instructions: 'Modified label',
+          modification: buildModification({
+            medicationId: substitute.id,
+            modifiedReasonId: modifyReason.id,
+            modifiedById: app.user.id,
+          }),
+        },
+      ]);
+      expect(modifiedResult).toHaveSucceeded();
+
+      const result = await app.get(`/api/patient/${localPatient.id}/dispensed-medications`);
+      expect(result).toHaveSucceeded();
+
+      const asPrescribedRow = result.body.data.find(d => d.id === asPrescribedResult.body[0].id);
+      const prescribedDrug =
+        asPrescribedRow.pharmacyOrderPrescription.prescription.medication.referenceDrug;
+      expect(Number(prescribedDrug.doseMax)).toBe(2);
+      expect(prescribedDrug.dispensingQuantityMax).toBe(100);
+      const modifiedRow = result.body.data.find(d => d.id === modifiedResult.body[0].id);
+      expect(Number(modifiedRow.medication.referenceDrug.doseMin)).toBe(1);
+      expect(modifiedRow.medication.referenceDrug.dispensingQuantityMin).toBe(5);
+    });
+
     // The dispensed medication details window reads the prescription type from this field.
     it.each([true, false])(
       'should return the prescription type of the order, isDischargePrescription=%s',
@@ -2009,6 +2085,22 @@ describe('Medication', () => {
       expect(row).toBeDefined();
       return row;
     };
+
+    // spec: DQLIM#sending-to-pharmacy
+    it('should return the drug limits with each ongoing prescription', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      await models.ReferenceDrug.update(
+        { doseMin: 1, doseMax: 2, dispensingQuantityMin: 1, dispensingQuantityMax: 30 },
+        { where: { referenceDataId: arranged.ongoingPrescription.medicationId } },
+      );
+
+      const row = await fetchOngoingPrescription(arranged);
+      const { referenceDrug } = row.medication;
+      expect(Number(referenceDrug.doseMin)).toBe(1);
+      expect(Number(referenceDrug.doseMax)).toBe(2);
+      expect(referenceDrug.dispensingQuantityMin).toBe(1);
+      expect(referenceDrug.dispensingQuantityMax).toBe(30);
+    });
 
     const sendToPharmacy = async ({ localPatient, ongoingPrescription }) => {
       const result = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
@@ -2279,6 +2371,31 @@ describe('Medication', () => {
       });
       // unitConversion is a DECIMAL, serialised as a string.
       expect(Number(row.prescription.unitConversion)).toBe(250);
+    });
+
+    // spec: DQLIM#dispensing
+    it('should return the drug limits with each dispensable prescription', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, medication } = await createDispensablePrescription({
+        patientId: localPatient.id,
+      });
+      await models.ReferenceDrug.update(
+        { doseMax: 2, dispensingQuantityMin: 1, dispensingQuantityMax: 100 },
+        { where: { referenceDataId: medication.id } },
+      );
+
+      const result = await app.get(
+        `/api/medication/dispensable-medications?patientId=${localPatient.id}&facilityId=${facilityId}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(item => item.id === pharmacyOrderPrescription.id);
+      const { referenceDrug } = row.prescription.medication;
+      // An unset limit is null, and null fields are left out of responses.
+      expect(referenceDrug.doseMin).toBeUndefined();
+      expect(Number(referenceDrug.doseMax)).toBe(2);
+      expect(referenceDrug.dispensingQuantityMin).toBe(1);
+      expect(referenceDrug.dispensingQuantityMax).toBe(100);
     });
 
     it('should not list a prescription whose drug has no reference drug record', async () => {

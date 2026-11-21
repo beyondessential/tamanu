@@ -18,6 +18,9 @@ export class NewPrescriptionModal {
   readonly prescriberField: Locator;
   readonly dispensingQuantityInput: Locator;
 
+  readonly doseLimitWarning: Locator;
+  readonly dispensingQuantityLimitWarning: Locator;
+
   readonly sendToPharmacyCheckbox: Locator;
   readonly prescriptionTypeLabel: Locator;
   readonly finaliseButton: Locator;
@@ -30,6 +33,14 @@ export class NewPrescriptionModal {
     this.routeField = page.getByTestId('medication-field-route-6d1b-select');
     this.prescriberField = page.getByTestId('medication-field-prescriberId-3x5h-input');
     this.dispensingQuantityInput = page.getByTestId('medication-field-quantity-6j9m-input');
+
+    // The out-of-range warnings sit in each field's helper text, inside the field's wrapper.
+    this.doseLimitWarning = page
+      .getByTestId('medication-field-doseAmount-3t6w')
+      .getByTestId('medication-limit-warning');
+    this.dispensingQuantityLimitWarning = page
+      .getByTestId('medication-field-quantity-6j9m')
+      .getByTestId('medication-limit-warning');
 
     this.sendToPharmacyCheckbox = page.getByTestId(
       'medication-field-sendToPharmacy-6r4d-controlcheck',
@@ -55,6 +66,14 @@ export class NewPrescriptionModal {
       selectFirst: true,
       returnOptionText: true,
     })) as string;
+  }
+
+  /** Searches for the drug by name first, since it may not be among the first suggestions. */
+  async selectMedicationByName(name: string): Promise<void> {
+    await this.medicationField.locator('input').fill(name);
+    await selectAutocompleteFieldOption(this.page, this.medicationField, {
+      optionToSelect: name,
+    });
   }
 
   /**

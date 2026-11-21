@@ -68,3 +68,15 @@ sources:
             description: "{{ doc('reference_drugs__unit_conversion') }}"
             data_tests:
               - not_null
+          - name: dose_min
+            data_type: numeric
+            description: "{{ doc('reference_drugs__dose_min') }}"
+          - name: dose_max
+            data_type: numeric
+            description: "{{ doc('reference_drugs__dose_max') }}"
+          - name: dispensing_quantity_min
+            data_type: integer
+            description: "{{ doc('reference_drugs__dispensing_quantity_min') }}"
+          - name: dispensing_quantity_max
+            data_type: integer
+            description: "{{ doc('reference_drugs__dispensing_quantity_max') }}"

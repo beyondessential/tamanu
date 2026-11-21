@@ -14,7 +14,10 @@ import {
 } from '@tamanu/constants';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
-import { renderElementWithTranslatedText } from '../helpers';
+import {
+  createTranslationContextWithReplacements,
+  renderElementWithTranslatedText,
+} from '../helpers';
 
 // Settings and encounter type are per-test, so the stubbed providers read from these.
 const settings = {};
@@ -92,7 +95,7 @@ const dateTimeValue = {
   storedDateTimeToEpochMilliseconds: () => 0,
 };
 
-const renderForm = (props = {}) =>
+const renderForm = (props = {}, translationContext = undefined) =>
   renderElementWithTranslatedText(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <SettingsContext.Provider value={{ getSetting: path => settings[path] }}>
@@ -106,6 +109,8 @@ const renderForm = (props = {}) =>
         </DateTimeProviderContext.Provider>
       </SettingsContext.Provider>
     </LocalizationProvider>,
+    undefined,
+    translationContext,
   );
 
 const sendToPharmacyCheckbox = () =>
@@ -295,5 +300,98 @@ describe('MedicationForm administration schedule', () => {
     expect(onConfirmEdit.mock.calls[0][0].idealTimes).toEqual(
       ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.HOURLY].startTimes,
     );
+  });
+});
+
+// spec: DQLIM#prescribing, DQLIM#the-inline-warning
+describe('MedicationForm dose and dispensing quantity limits', () => {
+  const DOSE_FIELD = 'medication-field-doseAmount-3t6w';
+  const QUANTITY_FIELD = 'medication-field-quantity-6j9m';
+
+  let onConfirmEdit;
+
+  beforeEach(() => {
+    settings['features.pharmacyOrder.enabled'] = false;
+    settings['medications.dispensing.dispensingQuantityAutocalculation'] = false;
+    settings['medications.defaultAdministrationTimes'] = {};
+    encounter = { id: 'encounter-1', encounterType: ENCOUNTER_TYPES.ADMISSION };
+    onConfirmEdit = vi.fn();
+  });
+
+  // A medication set item is edited with its drug, and so its limits, already chosen.
+  const renderSetItem = overrides =>
+    renderForm(
+      {
+        onConfirmEdit,
+        editingMedication: {
+          medication: {
+            name: 'Paracetamol',
+            referenceDrug: {
+              doseMin: '1',
+              doseMax: '2',
+              dispensingQuantityMin: 1,
+              dispensingQuantityMax: 4,
+            },
+          },
+          medicationId: 'drug-1',
+          doseAmount: 1,
+          dosingUnit: 'Tablet',
+          dispensingUnit: 'Pack',
+          route: DRUG_ROUTES.oral,
+          frequency: ADMINISTRATION_FREQUENCIES.HOURLY,
+          ...overrides,
+        },
+      },
+      createTranslationContextWithReplacements(),
+    );
+
+  const typeInto = (testId, value) =>
+    fireEvent.change(screen.getByTestId(testId).querySelector('input'), { target: { value } });
+
+  it('warns about a value already out of range when the form opens', () => {
+    renderSetItem({ doseAmount: 5, quantity: 10 });
+
+    expect(screen.getByText('Above expected max of 2 tablets')).toBeTruthy();
+    expect(screen.getByText('Above expected max of 4 packs')).toBeTruthy();
+  });
+
+  it('updates the dose warning as the user types, and clears it in range or when empty', () => {
+    renderSetItem();
+    expect(screen.queryByTestId('medication-limit-warning')).toBeNull();
+
+    typeInto(DOSE_FIELD, '0.5');
+    expect(screen.getByText('Below expected min of 1 tablet')).toBeTruthy();
+
+    typeInto(DOSE_FIELD, '2');
+    expect(screen.queryByTestId('medication-limit-warning')).toBeNull();
+
+    typeInto(DOSE_FIELD, '3');
+    expect(screen.getByText('Above expected max of 2 tablets')).toBeTruthy();
+
+    typeInto(DOSE_FIELD, '');
+    expect(screen.queryByTestId('medication-limit-warning')).toBeNull();
+  });
+
+  it('warns about a dispensing quantity below its minimum', () => {
+    renderSetItem();
+
+    typeInto(QUANTITY_FIELD, '0');
+
+    expect(screen.getByText('Below expected min of 1 pack')).toBeTruthy();
+  });
+
+  it('does not check the dose of a variable-dose prescription', () => {
+    renderSetItem({ isVariableDose: true, doseAmount: '' });
+
+    expect(screen.queryByTestId('medication-limit-warning')).toBeNull();
+  });
+
+  it('saves a value outside its range as entered', async () => {
+    renderSetItem({ doseAmount: 5, quantity: 10 });
+
+    fireEvent.click(screen.getByTestId('medication-button-finalise-7x3d'));
+
+    await waitFor(() => expect(onConfirmEdit).toHaveBeenCalled());
+    expect(onConfirmEdit.mock.calls[0][0]).toMatchObject({ doseAmount: 5, quantity: 10 });
   });
 });
