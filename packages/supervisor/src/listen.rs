@@ -48,7 +48,7 @@ fn listen(addr: SocketAddr, dual_stack: bool) -> io::Result<TcpListener> {
 /// open. The timer restarts on every read and write that makes progress, so a large transfer at
 /// any steady pace is unaffected.
 ///
-/// spec: SUPV#front-door
+/// spec: SUPV#connections
 pub struct Stalling {
 	stream: TcpStream,
 	timeout: Duration,

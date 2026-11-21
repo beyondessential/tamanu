@@ -1,7 +1,7 @@
 //! Serves a router on a listener: HTTP/1.1 or cleartext HTTP/2 per connection, with timeouts
 //! against slow clients, and a graceful stop bounded in time.
 //!
-//! spec: SUPV#front-door
+//! spec: SUPV#connections
 
 use std::{convert::Infallible, net::SocketAddr, time::Duration};
 
