@@ -436,6 +436,15 @@ jobs:
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked
+      # The Windows images build the supervisor on a Windows runner; linting its
+      # Windows-only code here finds a break before then. zstd's C sources need a
+      # C compiler for the target.
+      - name: Lint for Windows
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends gcc-mingw-w64-x86-64
+          rustup target add x86_64-pc-windows-gnu
+          cargo clippy --locked --all-targets --target x86_64-pc-windows-gnu -- -D warnings
       - name: Check dependencies against the RustSec advisories
         run: |
           command -v cargo-audit || cargo install --locked "cargo-audit@$CARGO_AUDIT_VERSION"
