@@ -415,7 +415,6 @@ jobs:
       # executes was always built from main's own code, never a branch's. They are
       # restored by exact key only, so a new lockfile or toolchain starts a clean
       # target directory rather than carrying every earlier build forward.
-      BUILD_CACHE_KEY: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
       BUILD_CACHE_PATHS: |
         ~/.cargo/registry/index
         ~/.cargo/registry/cache
@@ -432,7 +431,7 @@ jobs:
       - uses: actions/cache/restore@v5
         with:
           path: ${{ env.BUILD_CACHE_PATHS }}
-          key: ${{ env.BUILD_CACHE_KEY }}
+          key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked
@@ -458,7 +457,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: ${{ env.BUILD_CACHE_PATHS }}
-          key: ${{ env.BUILD_CACHE_KEY }}
+          key: supervisor-${{ runner.os }}-${{ hashFiles('packages/supervisor/rust-toolchain.toml', 'packages/supervisor/Cargo.lock') }}
 
   typos:
     name: Spellcheck
