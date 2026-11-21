@@ -35,6 +35,9 @@ impl fmt::Display for Problems {
 
 impl std::error::Error for Problems {}
 
+/// The variables the frontend mode reads.
+const VARIABLES: [&str; 2] = ["BIND_ADDRESS", "FRONTEND_ROOT"];
+
 const DEFAULT_BIND: &str = ":3000";
 
 #[cfg(windows)]
@@ -43,9 +46,30 @@ const DEFAULT_ROOT: &str = r"C:\app";
 const DEFAULT_ROOT: &str = "/app";
 
 impl Frontend {
-	/// Reads the configuration from the process's environment.
+	/// Reads the configuration from the process's environment. Only its own variables are read,
+	/// so another that is not valid Unicode is no concern of the supervisor's.
 	pub fn from_env() -> Result<Self, Problems> {
-		Self::from_vars(&std::env::vars().collect())
+		let mut vars = BTreeMap::new();
+		let mut unreadable = Problems::default();
+		for name in VARIABLES {
+			match std::env::var(name) {
+				Ok(value) => {
+					vars.insert(name.to_owned(), value);
+				}
+				Err(std::env::VarError::NotUnicode(_)) => {
+					unreadable.0.push((name, "is not valid Unicode".into()));
+				}
+				Err(std::env::VarError::NotPresent) => {}
+			}
+		}
+		match Self::from_vars(&vars) {
+			Ok(config) if unreadable.0.is_empty() => Ok(config),
+			Ok(_) => Err(unreadable),
+			Err(mut problems) => {
+				problems.0.extend(unreadable.0);
+				Err(problems)
+			}
+		}
 	}
 
 	/// Reads the configuration from `vars`, where an empty value counts as unset.
