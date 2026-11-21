@@ -14,13 +14,23 @@ Serves the built frontend at FRONTEND_ROOT on the addresses in BIND_ADDRESS.
 --check prints the configuration and exits.
 ";
 
+/// Which log lines are written.
+const LOG_VAR: &str = "TAMANU_SUPERVISOR_LOG";
+
 fn main() -> ExitCode {
+	let filter = match std::env::var(LOG_VAR) {
+		Ok(directives) if !directives.trim().is_empty() => match EnvFilter::try_new(&directives) {
+			Ok(filter) => filter,
+			Err(error) => {
+				eprintln!("{LOG_VAR}: {error}");
+				return ExitCode::FAILURE;
+			}
+		},
+		_ => EnvFilter::new("info"),
+	};
 	tracing_subscriber::fmt()
 		.json()
-		.with_env_filter(
-			EnvFilter::try_from_env("TAMANU_SUPERVISOR_LOG")
-				.unwrap_or_else(|_| EnvFilter::new("info")),
-		)
+		.with_env_filter(filter)
 		.with_writer(std::io::stderr)
 		.init();
 
