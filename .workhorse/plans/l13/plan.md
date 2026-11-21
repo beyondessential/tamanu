@@ -124,6 +124,64 @@ Build order, on this card's branch (#11712):
 - [x] Remove `cmd/fake-actuator`; README and PR description
 - [ ] Then triage the open review issues against what is left, since many touch removed code
 
+### Rust instead of Caddy (draft, under discussion)
+
+Proposed with Edwin: drop Caddy and Go, and write the supervisor in Rust. Go would be Tamanu's only Go, while Rust is already in Tamanu's build (the toolbox image compiles bestool) and is BES's language for server tooling. A purpose-built server should also sit well under the Caddy build's memory floor. Supersedes the Caddy decisions above (Decisions, and "Making the supervisor smaller") once agreed; the Go version is then archived as a pushed branch, like the earlier designs.
+
+Premises:
+
+- The whole supervisor moves, not only the proxying: the gate, the sleep and wake machine, the actuator and api clients, the pages and the status server. The Go module, `entrypoint.sh`, the supervisor's Caddyfiles and both `Caddyfile.docker` go.
+- One binary with two modes. The frontend mode serves one built frontend alone, as each `Caddyfile.docker` does today (web app and patient portal, Linux and Windows images), and is the images' default. `supervisor` runs the supervisor. The image contract is otherwise unchanged.
+- The actuator contract, the api's supervisor routes, the specs' behaviour and the environment variables are unchanged. Only the spec line naming Caddy changes.
+
+Proposed decisions:
+
+- Routing is Rust code, not a config file. The routes are fixed per release and their differences are the role and whether a portal is served, which is already environment. A config file would mean writing a parser and a route interpreter: a small Caddy, with its own tests. Routes in code are one table of path to route class, tested directly, and the gate is typed into each route instead of named in text.
+- Configuration stays environment variables, same names and defaults, parsed and checked in Rust with every problem reported at once. This replaces `entrypoint.sh`, its test table, the `_TAMANU_SUPERVISOR_*_PORT` workaround and `supervisor adapt`; a `--check` flag validates and prints the configuration with the token redacted. The frontend mode keeps `BIND_ADDRESS`, comma-separated.
+- Stack: tokio; hyper 1 with hyper-util (server detecting HTTP/1.1 or cleartext HTTP/2 per connection, and the pooled client for proxying); axum for routing; tower-http for files, compression and request tracing; governor for rate limits; reqwest with rustls for the actuator and api clients; tracing for logs. Versions pinned with `cargo add`.
+- Own reverse proxy on hyper-util's client, not a proxy crate: least connections, retrying a failed connect on the next instance, and the gate's accounting all need hooks inside the proxy.
+- One crate at `packages/supervisor`, library and binary, its modules mirroring the Go packages. The release is stamped at build time from a `TAMANU_VERSION` variable read with `option_env!`, so a version bump recompiles only the crate itself.
+- Linux image: a static musl build in a `rust:alpine` stage, with BuildKit cache mounts for the registry and target directory. Windows image: built natively on the Windows layer job's runner (already `windows-latest`), replacing the download of `caddy.exe`.
+
+What Caddy does today, which the Rust build does itself:
+
+| Concern | Today | Rust |
+| --- | --- | --- |
+| Listeners | `bind` lists, h1 and h2c | One tokio listener per address, hyper-util auto connection builder |
+| Static files | `file_server`, precompressed zstd, br, gzip | tower-http `ServeDir` with its precompressed variants |
+| Web app routes | `file {path} {path}/ /index.html` | Index fallback for paths that are not files, but `/env.js` |
+| `/env.js` | `respond` with `{env.*}` | Rendered once at start from the same variables |
+| Cache headers | `header` per path | Set per route class |
+| Compression | `encode zstd gzip` | tower-http compression layer on api and page routes |
+| Error pages | `handle_errors` and `tamanu_error_page` | The error page module, on proxy failures and missing files |
+| Proxying | `reverse_proxy`, least_conn, 2 retries within 5 s, keepalive 2 min | Own proxy: in-flight count per instance, retry on connect failure, pooled keepalive; hop-by-hop headers removed, `X-Forwarded-*` set |
+| Websockets | `reverse_proxy` upgrade | hyper upgrade on both sides, then a bidirectional copy |
+| Client address | `trusted_proxies` strict | The nearest untrusted address in `X-Forwarded-For` |
+| Rate limits | caddy-ratelimit sliding windows | governor GCRA keyed by client address: one timestamp per address instead of a buffer of events, swept periodically |
+| Stopping | `grace_period 10s` | Graceful shutdown bounded at 10 s, lease released first |
+| Logs | Caddy's JSON access log on stderr | tracing JSON on stderr |
+| Status | `tamanu_status` on a loopback server | Same, a second axum router |
+
+The gate counts a request from its start until its response body has finished, so a long download or sync pull counts as activity throughout: the response body is wrapped in a guard that ends the count when it is dropped.
+
+Order of work, replacing the Go module on this card's branch (#11712), which has not merged:
+
+- [ ] Archive the Go version as `archive/l13-supervisor-go`
+- [ ] Crate skeleton, configuration from the environment with its error table, CI job (build, test, clippy, fmt), Dockerfile stage
+- [ ] Frontend mode, then the frontend and patient portal images and the Windows images moved onto it; delete both `Caddyfile.docker`. Checked once against the Caddy images, path by path: status, headers, body, encoding
+- [ ] Proxy: instance pool, least connections, connect retries, client address, websockets, compression, rate limits
+- [ ] State, gate, pages, error pages and status server
+- [ ] Actuator client and fake actuator, api client and fake api
+- [ ] Sleep and wake machine, its tests ported as tables
+- [ ] In-process smoke tests replacing the Caddyfile ones, with the path-to-behaviour table
+- [ ] Remove the Go module, its CI job and `entrypoint.sh`; README, the spec line naming Caddy, and this plan's decisions
+- [ ] Measure idle and loaded memory against the Caddy build and record it here
+
+Open:
+
+- Whether the Caddy that fronts bare-metal Linux and Windows servers (TLS, hostnames, managed outside this repository) is also meant to be replaced. Proposed: no, it is the platform's side of the boundary, as infra's ingress is on Kubernetes.
+- Whether any deployment overrides the frontend image's command or mounts its own Caddyfile: those break when Caddy goes. A question for infra.
+
 ### Later
 
 - [ ] The web app shows waking itself (reads `Retry-After` on a `503`), so a page can load straight into a sleeping server instead of the waking page
