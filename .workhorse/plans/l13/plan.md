@@ -48,8 +48,8 @@ Dropped with the earlier design: the changes-pending check and its tick, central
 - [ ] **Supervisor phases**, outside the sync code-owned paths, each started once the one before is approved, and each landing the specs for what it builds:
   - [x] PR 4a (#11700, merged): server side. Scheduled task run state, the task hold, and the `/api/supervisor` routes on central and facility. No specs: nothing is observable without the supervisor, and SUPV and SLPWK land with PR 4b
   - [x] PR 4b (#11712): the supervisor as a Caddy build, the actuator contract, and sleep and wake. Built and through nine review rounds, then replaced by the Rust supervisor in four layers, each its own PR in its own release ([Layers](#layers)):
-    - [ ] Layer A: frontend mode
-    - [ ] Layer B: the supervisor as a router (#11712), bringing back SUPV
+    - [ ] Layer A: frontend mode (#11712)
+    - [ ] Layer B: the supervisor as a router, bringing back SUPV
     - [ ] Layer C: process control
     - [ ] Layer D: sleep, bringing back SLPWK (without its scheduled tasks section)
   - PR 5: scheduled tasks, with SLPWK's scheduled tasks section
@@ -220,8 +220,8 @@ Today the frontend images' Caddy writes an access line per request (the URI with
 
 The work lands as four PRs, each in its own release, so each goes through a release's testing before the next builds on it. Each lands the specs for what it builds. The Go version, archived, stays the reference for C and D.
 
-- **A, frontend mode.** The Rust binary serving one built frontend, replacing Caddy in the frontend and patient portal images, Linux and Windows. It is the images' default, so it reaches every deployment at once: the least code with the widest reach, and the first field test of the Rust HTTP stack.
-- **B, the supervisor as a router** (#11712). Routes, the proxy and its hardening, rate limits, security headers, error pages, the status server, logging, and the upgrading response. It reaches only the deployments infra moves onto it. It never acts on the server, so it takes no lease: every supervisor reads the actuator's state on its own, and B's contract is `GET /v1/state` saying whether an upgrade is in progress, which is all V14's upgrades need. Brings back SUPV, without its sleep and actuator-control parts.
+- **A, frontend mode** (#11712). The Rust binary serving one built frontend, replacing Caddy in the frontend and patient portal images, Linux and Windows. It is the images' default, so it reaches every deployment at once: the least code with the widest reach, and the first field test of the Rust HTTP stack.
+- **B, the supervisor as a router.** Routes, the proxy and its hardening, rate limits, security headers, error pages, the status server, logging, and the upgrading response. It reaches only the deployments infra moves onto it. It never acts on the server, so it takes no lease: every supervisor reads the actuator's state on its own, and B's contract is `GET /v1/state` saying whether an upgrade is in progress, which is all V14's upgrades need. Brings back SUPV, without its sleep and actuator-control parts.
 - **C, process control.** The first layer that acts, so the lease comes with it. Each Tamanu release ships a platform-neutral manifest of its parts (command, scaling bounds, what each depends on, the upgrade steps), and the actuator contract is how a platform is driven at run time (desired and observed state per part, the upgrade sequence). Today each platform restates the parts its own way: `pm2.config.cjs` on Windows, ops' Podman quadlets on Linux, infra's Kubernetes renderer, and V14's Seedling definitions, which would be built from the manifest instead. This card owns the manifest and the contract; each platform adopts them on its own card. To be designed when B is in review.
 - **D, sleep.** Idle time, the gate's waking, the sleep and wake machine, reports and the sleep barrier, on top of C's control. The api's side merged in #11700. Brings back SLPWK, without its scheduled tasks section.
 
@@ -230,7 +230,7 @@ The work lands as four PRs, each in its own release, so each goes through a rele
 Layer 0, on #11712 before anything else:
 
 - [x] A sketch of the whole supervisor in Rust beside the Go module (`packages/supervisor-rs`), with `todo!()` where it saves time, never meant to run in production. It exists to compare by the numbers: lines of code, and memory idle and under load in frontend mode and supervisor mode without an actuator, against the Caddy build
-- [ ] Archive the sketch to its own branch and remove it from #11712
+- [x] Archive the sketch to its own branch (`archive/l13-supervisor-rs-sketch`) and remove it from #11712
 
 Layer 0 results (one machine, release builds, a synthetic web root with precompressed files, a Node fake api, a Go load generator; RSS from `/proc`):
 
@@ -260,16 +260,19 @@ Notes:
 - CPU is the process's on-CPU time from `/proc/<pid>/task/*/schedstat` across each load run, divided by its requests; single runs on a shared machine, so differences under about 20% are noise. The Rust sketch writes an access line for every file in both modes, which the Go supervisor does not in supervisor mode, and checks whether each path is a file before routing it; both show in its file and web app route figures.
 - The first Rust run served 780 rps: accepted connections need `TCP_NODELAY`, or responses wait on delayed acknowledgements.
 
-Layer A, on a branch of its own:
+Layer A, on #11712, which the Go version leaves for the archive since none of it reached main; B goes on the card's next branch once A merges:
 
-- [ ] Archive the Go version as `archive/l13-supervisor-go`
-- [ ] Crate skeleton, configuration from the environment with its error table, CI job (build, test, clippy, fmt, RustSec advisories), Dockerfile stage, Windows build
-- [ ] Frontend mode: listeners, files with their precompressed variants, the index fallback, `/env.js`, cache headers, compression, error pages, the apps' security headers, logging, the secure defaults that apply to it
-- [ ] The frontend and patient portal images, Linux and Windows, moved onto it; delete both `Caddyfile.docker`. Checked once against the Caddy images, path by path: status, headers, body, encoding
+- [x] Archive the Go version as `archive/l13-supervisor-go`
+- [ ] Clear the branch back to main but the plan: the Go module and its CI job, the sketch, the actuator contract, `waking.html`, SLPWK (back with D) and the frontend image changes, each returning with the layer that needs it
+- [ ] Crate at `packages/supervisor`, frontend mode only: configuration from the environment with its error table (`BIND_ADDRESS` comma-separated, `:port` as every address, falling back to IPv4 alone where IPv6 is off; `FRONTEND_ROOT`, `/app` by default and `C:\app` on Windows); CI job (build, test, clippy, fmt, RustSec advisories); the release stamp waits for B, which reports it
+- [ ] Frontend mode: listeners (HTTP/1.1 and h2c, `TCP_NODELAY`, header and stall timeouts, graceful stop), files with their precompressed variants, the index fallback served from memory, `/env.js`, cache headers, compression, error pages, the apps' security headers, logging with probes at debug
+- [ ] Tests in process: the path-to-behaviour table, listener and configuration tables, the timeouts
+- [ ] The frontend and patient portal images, Linux and Windows, moved onto it, as main lays them out (one frontend at `/app` each), now with Tamanu's error pages beside the web app and a non-root user; delete both `Caddyfile.docker`. Checked once against the Caddy images, path by path: status, headers, body, encoding
+- [ ] SUPV, cut to what A builds: serving a frontend alone
 - [ ] A CSP for the web app and one for the patient portal, each checked by using the app
 - [ ] Measure idle and loaded memory against the Caddy images and record it here
 
-Layer B, on #11712, after A:
+Layer B, on the card's next branch, after A:
 
 - [ ] Proxy: instance pool, least connections, connect retries, client address, the request smuggling hardening, websockets, compression, rate limits
 - [ ] Routes for each role and the portal's address, with path normalisation and the refusal of `/api/supervisor`

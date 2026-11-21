@@ -192,8 +192,10 @@ jobs:
             path: facility-server
             target: server
           - name: frontend
+            path: web
             target: frontend
           - name: patient-portal
+            path: patient-portal
             target: patient-portal
 
     name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
@@ -263,7 +265,7 @@ jobs:
           # `mode=max` export per ref); other refs read main's, which is usually a partial hit
           cache-from: type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
           cache-to: ${{ needs.config.outputs.ref == 'main' && format('type=gha,mode=max,ignore-error=true,scope={0}-main-{1}', matrix.platform.arch, matrix.package.name) || '' }}
-          build-args: ${{ matrix.package.path && format('PACKAGE_PATH={0}', matrix.package.path) || '' }}
+          build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
@@ -414,22 +416,19 @@ jobs:
 
       - name: Assemble layer (dist + Windows Caddy)
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euxo pipefail
           rm -rf layer
           mkdir -p layer/Files/app layer/Files/caddy
           cp -r "packages/${{ matrix.package.path }}/dist/." layer/Files/app
-          # the built web app lacks Tamanu's error pages, so they go beside it,
-          # as in the Linux image
-          if [ -d "packages/${{ matrix.package.path }}/resources/errors" ]; then
-            mkdir -p layer/Files/app/resources
-            cp -r "packages/${{ matrix.package.path }}/resources/errors" layer/Files/app/resources/
-          fi
 
-          # the Caddy release the Linux image's supervisor is built on, so the
-          # same Caddyfile runs on the same Caddy on both
-          caddy_version="$(sed -n 's|^\s*github.com/caddyserver/caddy/v2 v\([0-9.]*\).*|\1|p' packages/supervisor/go.mod)"
-          test -n "$caddy_version"
+          # authenticated: unauthenticated api.github.com is rate-limited per
+          # runner IP, which is shared. No xtrace around the token.
+          set +x
+          caddy_version="$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
+          set -x
           curl -fsSL -o caddy.zip \
             "https://github.com/caddyserver/caddy/releases/download/v${caddy_version}/caddy_${caddy_version}_windows_amd64.zip"
           unzip -o caddy.zip caddy.exe -d layer/Files/caddy
@@ -438,8 +437,6 @@ jobs:
           # same web root as the linux container, spelled as a Windows path
           sed -E 's|root \* /app|root * C:/app|' \
             "packages/${{ matrix.package.path }}/Caddyfile.docker" > layer/Files/caddy/Caddyfile
-          mkdir -p layer/Files/caddy/supervisor
-          cp packages/supervisor/caddy/*.caddyfile layer/Files/caddy/supervisor/
 
       - name: Pack Windows image
         uses: ./.github/actions/windows-image-pack

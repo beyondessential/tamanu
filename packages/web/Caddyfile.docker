@@ -34,6 +34,12 @@
 		}
 	}
 
-	# Shared with the supervisor, which the image installs in /etc/caddy/supervisor.
-	import supervisor/env-js.caddyfile
+	# make sure to update app/utils/env.js when changing this
+	respond /env.js <<JS
+		window.env = {
+			NODE_ENV: `{$NODE_ENV}` || 'production',
+			BUGSNAG_API_KEY: `{$BUGSNAG_API_KEY}` || null,
+			REVISION: `{$REVISION}` || null,
+		}
+		JS 200
 }
