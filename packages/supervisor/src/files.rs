@@ -4,9 +4,11 @@
 //! spec: SUPV#serving-a-frontend
 
 use std::{
+	collections::BTreeMap,
 	hash::{DefaultHasher, Hash, Hasher},
 	io,
-	path::{Path, PathBuf},
+	path::Path,
+	sync::Arc,
 	time::Instant,
 };
 
@@ -29,10 +31,11 @@ const ERRORS: &str = "resources/errors";
 
 #[derive(Clone)]
 pub struct Files {
-	root: PathBuf,
 	dir: ServeDir,
 	index: Index,
 	env_js: Bytes,
+	/// Tamanu's error pages, by status, held in memory.
+	errors: Arc<BTreeMap<u16, Bytes>>,
 }
 
 /// The index page, held in memory: it answers every one of the app's own routes.
@@ -72,10 +75,10 @@ impl Files {
 			.precompressed_gzip()
 			.append_index_html_on_directories(false);
 		Ok(Self {
-			root: root.to_owned(),
 			dir,
 			index: Index::read(root)?,
 			env_js: env_js(env),
+			errors: Arc::new(error_pages(&root.join(ERRORS))),
 		})
 	}
 
@@ -112,7 +115,7 @@ impl Files {
 
 	async fn respond(&self, req: Request<Body>) -> Response<Body> {
 		if req.method() != Method::GET && req.method() != Method::HEAD {
-			let mut res = self.error(StatusCode::METHOD_NOT_ALLOWED).await;
+			let mut res = self.error(StatusCode::METHOD_NOT_ALLOWED);
 			res.headers_mut()
 				.insert(header::ALLOW, HeaderValue::from_static("GET, HEAD"));
 			return res;
@@ -154,7 +157,7 @@ impl Files {
 						.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"));
 				}
 				if res.status().is_client_error() || res.status().is_server_error() {
-					return self.error(res.status()).await;
+					return self.error(res.status());
 				}
 				with_charset(res.headers_mut());
 				res.map(Body::new)
@@ -163,14 +166,10 @@ impl Files {
 	}
 
 	/// Tamanu's page for the status, or an empty response with it where there is none.
-	async fn error(&self, status: StatusCode) -> Response<Body> {
-		let page = self
-			.root
-			.join(ERRORS)
-			.join(format!("{}.html", status.as_u16()));
-		let (content_type, body) = match tokio::fs::read(page).await {
-			Ok(html) => ("text/html; charset=utf-8", Body::from(html)),
-			Err(_) => ("text/plain; charset=utf-8", Body::empty()),
+	fn error(&self, status: StatusCode) -> Response<Body> {
+		let (content_type, body) = match self.errors.get(&status.as_u16()) {
+			Some(html) => ("text/html; charset=utf-8", Body::from(html.clone())),
+			None => ("text/plain; charset=utf-8", Body::empty()),
 		};
 		let mut res = Response::new(body);
 		*res.status_mut() = status;
@@ -273,6 +272,27 @@ fn with_charset(headers: &mut HeaderMap) {
 			HeaderValue::try_from(value).expect("a valid content type stays valid"),
 		);
 	}
+}
+
+/// The error pages in `dir`, named by their status, such as `502.html`. A frontend without them
+/// answers errors with an empty body.
+fn error_pages(dir: &Path) -> BTreeMap<u16, Bytes> {
+	let Ok(entries) = std::fs::read_dir(dir) else {
+		return BTreeMap::new();
+	};
+	entries
+		.filter_map(|entry| {
+			let path = entry.ok()?.path();
+			let status = path
+				.file_name()?
+				.to_str()?
+				.strip_suffix(".html")?
+				.parse::<u16>()
+				.ok()
+				.filter(|code| StatusCode::from_u16(*code).is_ok())?;
+			Some((status, std::fs::read(&path).ok()?.into()))
+		})
+		.collect()
 }
 
 /// The response carrying `bytes`, or only their length for a `HEAD` request.
