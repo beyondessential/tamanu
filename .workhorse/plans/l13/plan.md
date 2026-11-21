@@ -197,6 +197,18 @@ Secure defaults. Caddy's best-known one, automatic HTTPS, is already off in the 
 - `/env.js` is serialised as JSON, where today's Caddy template pastes the variables unescaped into JavaScript template literals, which would run any `${…}` in them.
 - The crate forbids `unsafe` code, and CI checks its dependencies against the RustSec advisory database.
 
+Logging. Today the frontend images' Caddy writes an access line per request (the URI with its query string, and every request header, with only cookies and authorisation redacted), and the supervisor writes no access log, but Caddy's error log carries the full URI and headers of every request answered with a `5xx` (an api instance down, say), beside the sleep and wake machine's events.
+
+- One format in both modes: JSON lines on stderr through tracing, each with a UTC time, level, message and fields. The level is set by `TAMANU_SUPERVISOR_LOG` in tracing's filter syntax, `info` by default.
+- Never logged, at any level: query strings (the api's searches carry patient names and other details), request and response bodies, header values, and the api token. Paths are logged, as the api's own log does. This is stricter than Caddy, whose logs carry query strings and every header but the credential ones.
+- Supervisor mode logs no line for a request it forwards and the api answers, since the api logs each request itself (`getLoggingMiddleware`, at winston's `http` level). It logs what only it knows:
+  - its sleep and wake events, with the same messages and levels as now, and fields for the phase, announcement and step;
+  - a request it could not forward (no api instance answered), at warn, with the method, path, instance and the kind of failure;
+  - a refused path (`/api/supervisor`, or a path that decodes to a slash, a backslash or a NUL), at warn;
+  - waking and upgrading responses as a count per wake or upgrade, and rate-limited requests as a count per client address and minute, so a burst or an attack cannot flood the log;
+  - at debug, a line per request with its route class and the gate's decision.
+- Frontend mode keeps an access line per request at info, as today, with the method, path, status, bytes, duration and client address.
+
 ### Later
 
 - [ ] The web app shows waking itself (reads `Retry-After` on a `503`), so a page can load straight into a sleeping server instead of the waking page
