@@ -90,7 +90,8 @@ fn stop_signal() -> CancellationToken {
 		}
 		#[cfg(windows)]
 		{
-			let mut ctrl_break = tokio::signal::windows::ctrl_break().expect("listening for Ctrl-Break");
+			let mut ctrl_break =
+				tokio::signal::windows::ctrl_break().expect("listening for Ctrl-Break");
 			tokio::select! {
 				_ = ctrl_break.recv() => {}
 				_ = tokio::signal::ctrl_c() => {}

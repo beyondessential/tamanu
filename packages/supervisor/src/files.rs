@@ -66,7 +66,10 @@ impl Files {
 			.headers()
 			.get(header::USER_AGENT)
 			.is_some_and(|agent| agent.as_bytes().starts_with(b"kube-probe/"));
-		let peer = req.extensions().get::<Peer>().map(|p| p.0);
+		let peer = req
+			.extensions()
+			.get::<Peer>()
+			.map_or_else(|| "-".to_owned(), |p| p.0.ip().to_canonical().to_string());
 
 		let mut res = self.respond(req).await;
 		headers::app(res.headers_mut());
@@ -74,16 +77,14 @@ impl Files {
 		let bytes = res
 			.headers()
 			.get(header::CONTENT_LENGTH)
-			.and_then(|v| v.to_str().ok())
-			.unwrap_or("-")
-			.to_owned();
+			.and_then(|v| v.to_str().ok()?.parse::<u64>().ok());
 		let status = res.status().as_u16();
 		let ms = started.elapsed().as_secs_f64() * 1000.0;
 		// spec: SUPV#logging
 		if probe {
-			tracing::debug!(%method, path, status, bytes, ms, ?peer, "file");
+			tracing::debug!(%method, path, status, bytes, ms, peer, "file");
 		} else {
-			tracing::info!(%method, path, status, bytes, ms, ?peer, "file");
+			tracing::info!(%method, path, status, bytes, ms, peer, "file");
 		}
 		res
 	}
