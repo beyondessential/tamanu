@@ -22,9 +22,7 @@ Dropped with the earlier design: the changes-pending check and its tick, central
 - Each scheduled task says whether it can sleep: a task that can sleep does not wake a sleeping server when due, and catches up once on the next wake. A task wakes the server unless it declares it can sleep, so a missed declaration costs uptime rather than a skipped run. Only tasks whose output leaves the system on time are expected to wake (scheduled reports, vaccination reminders, patient communications); generators, dischargers, queue processors and cleaners can sleep. If every facility task can sleep, facilities need no timed wakes at all.
 - A `503` with a `Retry-After` from central, anywhere before a sync session opens (the session start, or the login or token refresh before it), puts the sync in line as a queued one, on facility and mobile. A `503` without one is an ordinary failure. This is the only change under the sync code-owned paths.
 - Specs on main describe only what is built; each supervisor PR lands its own specs with its code.
-- The supervisor is a Caddy build carrying Tamanu's Go modules, not a separate process running Caddy. A handler wrapping each route sees every request's start and end in process, so there is no per-request call out, no access-log matching, and no config reload, which would drop websockets and reset Caddy's in-flight metrics. BES already builds Caddy with `xcaddy` (third-party-builds, Seedling), so Go is no new toolchain at BES.
-- Routing is generated in Go from the role and the configured part addresses, not shipped as a Caddyfile: the role and portal differences are code, and the routes, the gate and the actuator contract share one list of parts.
-- The supervisor is configured entirely by environment variables, checked for obvious mistakes by the image's `sh` entrypoint, and filled into the shipped Caddyfile.
+- The supervisor is a Rust program, as [The supervisor in Rust](#the-supervisor-in-rust) describes: one binary that serves a frontend alone by default and runs the supervisor given `supervisor`, with its routes in Rust code and its configuration from environment variables, checked in Rust.
 - Boundary: plain HTTP on fixed ports, no TLS, no hostnames. The patient portal is a second port. The actuator is the only interface outward; the supervisor's own status and health endpoints are read-only.
 - Upgrades (V14) reach the supervisor through the actuator contract: the actuator's status says when an upgrade is in progress. Controlling parts is optional in the contract, and an actuator that does not control parts never has its server put to sleep, which is how a platform that only reports upgrades runs it.
 - The supervisor serves the web app and patient portal itself. Its image is the release's frontend image, so infra moves deployments over one at a time: by default the frontend and patient portal images serve their frontend alone, as for a deployment that routes to the parts itself, and given the `supervisor` command and its environment the frontend image runs the supervisor. A deployment never has both. Tamanu's error pages then come from the one process that is always up, and the front end stays up while the server sleeps. `web` and `portal` are no longer parts. A browser opening a page while the server is not awake still gets the waking page until the web app can show waking itself.
@@ -36,6 +34,8 @@ Dropped with the earlier design: the changes-pending check and its tick, central
 
 - Stopping mobile's periodic sync while the app is idle. An app not in use is backgrounded, and there is no sync in the background, so it already stops syncing.
 - Replacing the TLS-terminating Caddy on bare-metal Linux and Windows servers with the supervisor, or giving the supervisor TLS of any kind.
+- The supervisor as a Caddy build carrying Tamanu's Go modules, with its routing in shipped Caddyfiles and an `sh` entrypoint checking its environment (built, then replaced by the Rust supervisor).
+- Routing from a config file read by the supervisor, which would need its own parser and route interpreter.
 
 ## Order of work
 
@@ -99,11 +99,7 @@ Built as PR 4a (#11700, server side, merged) and PR 4b (this card's branch, the 
 
 ### Making the supervisor smaller
 
-The supervisor came out far larger than a small component should be. The decision stays with the supervisor: moving it to the actuator only moves the cost to infra. Settled so far:
-
-- Routing is a Caddyfile shipped with the release, not generated in Go. Lists are space-separated, so Caddy splits them itself. The `tamanu` app's settings (actuator address, idle time, api token) are a block in that Caddyfile, parsed by our module with Caddy's own types.
-- The image's entrypoint is a POSIX `sh` script. With no `supervisor` command it runs Caddy with its arguments, so the default old-layout mode is unchanged. With `supervisor` it checks each required variable is set and non-empty, checks the obvious formats (role, `host:port` addresses, an `http(s)://` actuator address, a duration-looking idle time), rejects unknown `TAMANU_SUPERVISOR_*` names, picks the role's Caddyfile and the portal's block when its address is set, and runs `caddy run`. It catches the obvious mistakes only; the operator follows the documented contract.
-- This removes the `config` and `routes` packages and the `tamanu-supervisor` command. The smoke tests stay, run against the shipped Caddyfile.
+The supervisor came out far larger than a small component should be. The decision stays with the supervisor: moving it to the actuator only moves the cost to infra. Built in Go; its Caddyfile routing and `sh` entrypoint are superseded by [The supervisor in Rust](#the-supervisor-in-rust), and the rest carries into the port:
 
 - No saved state. A new lease holder reads the phase from the actuator's part states: every part desired and observed down is asleep, and stays so; anything else is woken, so a sleep cut short by a restart becomes a wake. This drops the saved-state record and its contract endpoint, step tracking and resuming a sleep, and the saved release check (upgrades already wake through the actuator). The last failure is kept in memory only, so a new holder shows none until it meets one itself.
 - Several supervisors per server stay: the lease, reports and sleep barrier remain, and the lease only decides who acts.
@@ -125,17 +121,17 @@ Build order, on this card's branch (#11712):
 - [x] Remove `cmd/fake-actuator`; README and PR description
 - [ ] Then triage the open review issues against what is left, since many touch removed code
 
-### Rust instead of Caddy (draft, under discussion)
+### The supervisor in Rust
 
-Proposed with Edwin: drop Caddy and Go, and write the supervisor in Rust. Go would be Tamanu's only Go, while Rust is already in Tamanu's build (the toolbox image compiles bestool) and is BES's language for server tooling. A purpose-built server should also sit well under the Caddy build's memory floor. Supersedes the Caddy decisions above (Decisions, and "Making the supervisor smaller") once agreed; the Go version is then archived as a pushed branch, like the earlier designs.
+Agreed with Edwin: drop Caddy and Go, and write the supervisor in Rust. Go would be Tamanu's only Go, while Rust is already in Tamanu's build (the toolbox image compiles bestool) and is BES's language for server tooling. A purpose-built server should also sit well under the Caddy build's memory floor. The Go version is archived as a pushed branch, like the earlier designs.
 
 Premises:
 
 - The whole supervisor moves, not only the proxying: the gate, the sleep and wake machine, the actuator and api clients, the pages and the status server. The Go module, `entrypoint.sh`, the supervisor's Caddyfiles and both `Caddyfile.docker` go.
 - One binary with two modes. The frontend mode serves one built frontend alone, as each `Caddyfile.docker` does today (web app and patient portal, Linux and Windows images), and is the images' default. `supervisor` runs the supervisor. The image contract is otherwise unchanged.
-- The actuator contract, the api's supervisor routes, the specs' behaviour and the environment variables are unchanged. Only the spec line naming Caddy changes.
+- The actuator contract, the api's supervisor routes and the environment variables are unchanged. The specs change only where the line naming Caddy goes and the security headers come in.
 
-Proposed decisions:
+Decisions:
 
 - Routing is Rust code, not a config file. The routes are fixed per release and their differences are the role and whether a portal is served, which is already environment. A config file would mean writing a parser and a route interpreter: a small Caddy, with its own tests. Routes in code are one table of path to route class, tested directly, and the gate is typed into each route instead of named in text.
 - Configuration stays environment variables, same names and defaults, parsed and checked in Rust with every problem reported at once. This replaces `entrypoint.sh`, its test table, the `_TAMANU_SUPERVISOR_*_PORT` workaround and `supervisor adapt`; a `--check` flag validates and prints the configuration with the token redacted. The frontend mode keeps `BIND_ADDRESS`, comma-separated.
@@ -176,6 +172,8 @@ Order of work, replacing the Go module on this card's branch (#11712), which has
 - [ ] State, gate, pages, error pages and status server
 - [ ] Actuator client and fake actuator, api client and fake api
 - [ ] Sleep and wake machine, its tests ported as tables
+- [ ] Security headers: helmet's set on the api's responses where the api sent none, and the apps' set on the web app's and patient portal's, with SUPV's criteria for both
+- [ ] A CSP for the web app and one for the patient portal, each checked by using the app
 - [ ] In-process smoke tests replacing the Caddyfile ones, with the path-to-behaviour table
 - [ ] Remove the Go module, its CI job and `entrypoint.sh`; README, the spec line naming Caddy, and this plan's decisions
 - [ ] Measure idle and loaded memory against the Caddy build and record it here
@@ -214,13 +212,10 @@ Logging. Today the frontend images' Caddy writes an access line per request (the
 - Frontend mode keeps an access line per request at info, as today, with the method, path, status, bytes, duration and client address. Probes are logged at debug instead: requests whose `User-Agent` is Kubernetes's `kube-probe/`, which would otherwise write a line every ten seconds per pod. A client can claim that agent to keep its requests out of the info log, which costs little for an access log of static files.
 - The status server's requests (`/health`, `/ready`, `/status`) are logged at debug in supervisor mode.
 
-Open:
-
-- Whether the web app's and patient portal's own responses get security headers too. Today they get none, since Caddy serves them and helmet only reaches the api's JSON, yet the HTML is where most of these headers count. Most of helmet's set applies to them unchanged. Three parts do not:
-  - Its CSP would block what the web app loads: `blob:` workers and object URLs for PDFs, and Bugsnag's endpoints when it is configured. Each app needs a policy written for it and checked by using the app.
-  - `upgrade-insecure-requests` makes the browser fetch the app's files over HTTPS, so a deployment served over plain HTTP (local, or on a private network) would fail to load.
-  - `Cross-Origin-Embedder-Policy: require-corp` only serves cross-origin isolation, which neither app uses, and would block any cross-origin image or font.
-  Proposed: send helmet's set on the apps' responses without those three, and write each app's CSP as its own step.
+- The web app's and patient portal's own responses get security headers too. Today they get none, since Caddy serves them and helmet only reaches the api's JSON, yet the HTML is where most of these headers count. They get helmet's set but three parts, in both modes:
+  - Its CSP, which would block what the web app loads (`blob:` workers and object URLs for PDFs, and Bugsnag's endpoints when it is configured). Each app gets a policy written for it and checked by using the app, as a step of its own.
+  - `upgrade-insecure-requests`, which makes the browser fetch the app's files over HTTPS, so a deployment served over plain HTTP (local, or on a private network) would fail to load.
+  - `Cross-Origin-Embedder-Policy: require-corp`, which only serves cross-origin isolation, used by neither app, and would block any cross-origin image or font.
 
 ### Later
 
