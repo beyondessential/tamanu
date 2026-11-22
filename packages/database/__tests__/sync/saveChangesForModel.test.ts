@@ -146,6 +146,23 @@ describe('saveChangesForModel', () => {
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
     });
 
+    it.each(['__proto__', 'constructor'])(
+      'should update an existing record whose id is `%s`, not create it again',
+      async id => {
+        // setup test data
+        await models.SurveyScreenComponent.create({ id, text: 'historical' });
+        const newRecord = { id, text: 'current' };
+        const changes = [{ data: newRecord, isDeleted: false }];
+        // act
+        await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+        // assertions
+        expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
+        expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
+        const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(id);
+        expect(updatedRecordInDb.text).toEqual(newRecord.text);
+      },
+    );
+
     it('should update soft deleted records', async () => {
       // setup test data
       const existingRecord = await models.SurveyScreenComponent.create({

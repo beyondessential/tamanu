@@ -1,5 +1,5 @@
 import config from 'config';
-import { keyBy, partition } from 'es-toolkit';
+import { partition } from 'es-toolkit';
 import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 
@@ -53,21 +53,22 @@ export const saveChangesForModel = async (
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
-  const idToExistingRecord = keyBy(existingRecords, record => record.id);
+  const idToExistingRecord = new Map<string, Record<string, any>>(
+    existingRecords.map(record => [record.id, record]),
+  );
   /**
    * Follow the same pattern for incoming records
    * @see https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
    */
-  const idToIncomingRecord = keyBy(changesWithId, change => change.data.id);
-  /** Own-property check, so an ID like `constructor` doesn’t match an inherited member */
-  const isExistingRecord = (id: SyncSnapshotData['id']) => Object.hasOwn(idToExistingRecord, id);
+  const idToIncomingRecord = new Map<string, SyncSnapshotAttributes>(
+    changesWithId.map(change => [change.data.id, change]),
+  );
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
   for (const existing of existingRecords) {
     // compares incoming and existing records by id
-    // (Technically an unsafe access; `existing.id` may match an inherited member.)
-    const incoming = idToIncomingRecord[existing.id];
+    const incoming = idToIncomingRecord.get(existing.id);
 
     // Restores only originate from central server
     if (isCentralServer === false && existing.deletedAt && !incoming?.isDeleted) {
@@ -85,7 +86,7 @@ export const saveChangesForModel = async (
    * (The same record can turn up more than once, see {@link saveCreates}.)
    */
   for (const c of changes) {
-    if (c.isDeleted && !isExistingRecord(c.data.id)) {
+    if (c.isDeleted && !idToExistingRecord.has(c.data.id)) {
       idsForDelete.add(c.data.id);
     }
   }
@@ -113,7 +114,7 @@ export const saveChangesForModel = async (
    */
   const [recordsForUpdate, recordsForCreate] = partition(
     changes.map(({ data }) => toRecordToWrite(data)),
-    record => isExistingRecord(record.id),
+    record => idToExistingRecord.has(record.id),
   );
 
   // run each import process
