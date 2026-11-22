@@ -13,7 +13,7 @@ import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { route } from '@tamanu/api-client';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
@@ -31,12 +31,8 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
   const { data: additionalData, isLoading: isAdditionalDataLoading } =
     usePatientAdditionalDataQuery(encounter.patientId);
 
-  const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
-    ['village', encounter.patientId],
-    () => api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
-    {
-      enabled: !!patient?.villageId,
-    },
+  const { data: village = {}, isLoading: isVillageQueryLoading } = useReferenceDataQuery(
+    patient?.villageId,
   );
 
   const isVillageLoading = isVillageQueryLoading && !!patient?.villageId;

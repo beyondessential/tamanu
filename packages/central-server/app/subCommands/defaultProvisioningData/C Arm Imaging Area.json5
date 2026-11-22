@@ -1,0 +1,71 @@
+{
+  "sheetName": "C Arm Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "cArmImagingArea-Hip",
+      "code": "Hip",
+      "name": "Hip",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-Femur",
+      "code": "Femur",
+      "name": "Femur",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-Knee",
+      "code": "Knee",
+      "name": "Knee",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-TibiaandFibula",
+      "code": "TibiaandFibula",
+      "name": "Tibia and Fibula",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-Ankle",
+      "code": "Ankle",
+      "name": "Ankle",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-Humerus",
+      "code": "Humerus",
+      "name": "Humerus",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-Elbow",
+      "code": "Elbow",
+      "name": "Elbow",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-Forearm",
+      "code": "Forearm",
+      "name": "Forearm",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-WristandHand",
+      "code": "WristandHand",
+      "name": "Wrist and Hand",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "cArmImagingArea-Spine",
+      "code": "Spine",
+      "name": "Spine",
+      "visibilityStatus": "current"
+    }
+  ]
+}

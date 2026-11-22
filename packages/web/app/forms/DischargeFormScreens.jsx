@@ -1,14 +1,16 @@
-import { Divider as BaseDivider, IconButton as BaseIconButton, Box } from '@material-ui/core';
-import CloseIcon from '@mui/icons-material/Close';
+import { Divider as BaseDivider, Box } from '@material-ui/core';
 import { useFormikContext } from 'formik';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import {
+  CloseButton,
   ConditionalTooltip,
   FormConfirmCancelBackRow,
   FormSubmitButton,
+  MODAL_HEADER_PADDING_BLOCK,
+  MODAL_HEADER_PADDING_INLINE_END,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
   TranslatedReferenceData,
@@ -28,10 +30,13 @@ export const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
-const IconButton = styled(BaseIconButton)`
+// The form draws its own close button so the click can route through the unsaved-changes screen.
+// Styling BaseModal's keeps its size and label in step; these offsets put it where the header's
+// own button sits.
+const CornerCloseButton = styled(CloseButton)`
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: ${MODAL_HEADER_PADDING_BLOCK}px;
+  right: ${MODAL_HEADER_PADDING_INLINE_END}px;
 `;
 
 const ConfirmContent = styled.div`
@@ -149,9 +154,7 @@ export const DischargeFormScreen = props => {
 
   return (
     <>
-      <IconButton onClick={handleCancelAttempt} data-testid="iconbutton-h244">
-        <CloseIcon data-testid="closeicon-ggbt" />
-      </IconButton>
+      <CornerCloseButton onClick={handleCancelAttempt} data-testid="iconbutton-h244" />
       <DefaultFormScreen
         customBottomRow={
           <FormConfirmCancelBackRow
@@ -323,9 +326,7 @@ export const UnsavedChangesScreen = ({ onDiscardDraft, onSaveDraft, values, onSt
   };
   return (
     <div>
-      <IconButton onClick={onStepBack} data-testid="iconbutton-r4jg">
-        <CloseIcon data-testid="closeicon-nkjl" />
-      </IconButton>
+      <CornerCloseButton onClick={onStepBack} data-testid="iconbutton-r4jg" />
       <UnsavedContent data-testid="unsavedcontent-lqwq">
         <TranslatedText
           stringId="discharge.modal.unsavedChanges.message"
