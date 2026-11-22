@@ -18,6 +18,15 @@ const Warning = styled.span`
   line-height: 15px;
   color: ${Colors.darkText};
   text-align: start;
+
+  /*
+   * Table cells balance their lines (see the theme), which would split a warning below a quantity
+   * input into two short lines using half the input's width. Below an input, fill the width the
+   * way text does outside tables.
+   */
+  .MuiFormHelperText-root & {
+    text-wrap-style: pretty;
+  }
 `;
 
 const WarningIcon = styled(CircleAlert)`
