@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
+import { supervisorRoutes } from '@tamanu/shared/routes/supervisor';
 import { getTrustedProxy, requireHttps } from '@tamanu/shared/utils';
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -120,6 +121,10 @@ export async function createApi(ctx) {
       index: true,
     });
   });
+
+  // spec: SUPV#talking-to-the-server
+  // Before user auth and the HTTPS check: it has its own credential and calls over plain HTTP.
+  express.use('/api/supervisor', limiters.authLimiter, supervisorRoutes({ version }));
 
   // Reject non-HTTPS requests when the security.requireHttps setting is enabled
   express.use(requireHttps);

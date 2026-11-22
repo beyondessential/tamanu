@@ -25,8 +25,9 @@ export const saveChangesForModel = async (
   changes: SyncSnapshotAttributes[],
   isCentralServer: boolean,
   log: Logger,
+  sessionId?: string,
 ) => {
-  const sanitizeContext = await model.prepareSanitizeContext(changes);
+  const sanitizeContext = await model.prepareSanitizeContext(changes, sessionId);
   const sanitizeData = (d: ModelSanitizeArgs) => {
     /**
      * Discard value from client. (Applies only to mobile, which doesn’t strip deleted_at.) Enforces
@@ -168,7 +169,7 @@ const saveChangesForModelInBatches = async (
 
       const { snapshotRecords, changelogRecords } =
         extractChangelogFromSnapshotRecords(batchRecords);
-      await saveChangesForModel(model, snapshotRecords, isCentralServer, log);
+      await saveChangesForModel(model, snapshotRecords, isCentralServer, log, sessionId);
       await insertChangelogRecords(model.sequelize.models, changelogRecords);
 
       await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);

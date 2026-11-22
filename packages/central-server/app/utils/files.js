@@ -1,9 +1,44 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 
 import { tmpdir } from '@tamanu/shared/utils';
+
+const ATTACHMENT_DIRECTORY_NAME = 'tamanu-email-attachments';
+
+const attachmentDirPath = () => path.join(path.resolve(os.tmpdir()), ATTACHMENT_DIRECTORY_NAME);
+
+/**
+ * The directory central writes the files it generates for sending, such as certificates. It is
+ * kept apart from the rest of the temp directory so that no other file central writes there, a
+ * report spreadsheet for example, can be taken for an attachment.
+ */
+export async function attachmentDir() {
+  const dir = attachmentDirPath();
+  await fs.promises.mkdir(dir, { recursive: true, mode: 0o700 });
+  return dir;
+}
+
+/**
+ * Whether a path is a file central generated for sending, which it writes into its attachment
+ * directory. A path anywhere else was not generated for sending and must not be read or removed.
+ * The temp directory is shared with other accounts on the host, so a file there also has to be a
+ * regular file this process's account owns, not a link or a file someone else left there.
+ */
+export async function isGeneratedFile(filePath) {
+  if (path.dirname(path.resolve(filePath)) !== attachmentDirPath()) return false;
+
+  try {
+    const stats = await fs.promises.lstat(filePath);
+    // Windows has no owning uid, and its temp directory is per-account already
+    const isOwnedByUs = process.getuid === undefined || stats.uid === process.getuid();
+    return stats.isFile() && isOwnedByUs;
+  } catch {
+    return false;
+  }
+}
 
 export function removeFile(filePath) {
   return new Promise(resolve => {

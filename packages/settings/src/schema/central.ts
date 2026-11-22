@@ -242,6 +242,7 @@ export const centralSettings = {
               description: 'Use streaming endpoints',
               type: yup.boolean(),
               defaultValue: false,
+              exposedToWeb: true,
             },
             databasePollBatchSize: {
               description:

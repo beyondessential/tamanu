@@ -144,6 +144,7 @@ const useTranslationMutation = () => {
         </span>,
       );
       queryClient.invalidateQueries(['translation']);
+      queryClient.invalidateQueries(['translations']);
     },
     onError: err => {
       toast.error(

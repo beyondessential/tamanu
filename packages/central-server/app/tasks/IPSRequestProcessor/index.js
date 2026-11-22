@@ -11,10 +11,10 @@ import {
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { tmpdir } from '@tamanu/shared/utils';
 
 import { getRandomBase64String } from '../../auth/utils';
 import { generateIPSBundle } from '@tamanu/shared/routes/fhir/patientSummary/bundleGenerator';
+import { attachmentDir } from '../../utils/files';
 import { QRCodeToFileAsync } from './helpers';
 
 // SHL flag reference: https://docs.smarthealthit.org/smart-health-links/spec/#construct-a-shlink-payload
@@ -150,7 +150,7 @@ export class IPSRequestProcessor extends ScheduledTask {
         // GENERATE QR
 
         const qrCodeFileName = `International Patient Summary for ${patient.displayName}.png`;
-        const folder = await tmpdir();
+        const folder = await attachmentDir();
         const qrCodeFilePath = path.join(folder, qrCodeFileName);
 
         await QRCodeToFileAsync(qrCodeFilePath, fullUrl, { type: 'png' });
