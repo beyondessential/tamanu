@@ -1,0 +1,18 @@
+{
+  "name": "@tamanu/iti-browser",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "description": "Tamanu Iti Browser — prototype of the desktop headless-helper spike (BES-CA-pinned TLS + loopback reverse proxy + launch real Chrome)",
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "BES International Limited",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "validate": "node test/run-all.mjs"
+  }
+}
