@@ -80,18 +80,10 @@ surveyResponseAnswer.get(
 );
 
 async function putSurveyResponseAnswer(req, isVital = false) {
-  const {
-    db,
-    models,
-    user,
-    params,
-    body,
-  } = req;
+  const { body, db, models, params, user } = req;
   const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
   const { id } = params;
-  const surveyWhereClause = isVital
-    ? { surveyType: SURVEY_TYPES.VITALS }
-    : { id: body.surveyId };
+  const surveyWhereClause = isVital ? { surveyType: SURVEY_TYPES.VITALS } : { id: body.surveyId };
   const answerObject = await SurveyResponseAnswer.findByPk(id, {
     include: [
       {
@@ -142,23 +134,22 @@ async function putSurveyResponseAnswer(req, isVital = false) {
 }
 
 async function postSurveyResponseAnswer(req, isVital = false) {
-  const {
-    db,
-    models,
-    user,
-    body,
-  } = req;
+  const { body, db, models, user } = req;
   const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
 
   // Ensure data element exists and it's not a calculated question
-  const dataElement = await ProgramDataElement.findOne({ where: { id: body.dataElementId } });
-  if (!dataElement || dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED) {
+  const validDataElement = await ProgramDataElement.findOne({
+    attributes: ['id'], // Arbitrary projection, just checking existence
+    where: {
+      id: body.dataElementId ?? null,
+      type: { [Op.ne]: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED },
+    },
+  });
+  if (!validDataElement) {
     throw new InvalidOperationError('Invalid data element.');
   }
 
-  const surveyWhereClause = isVital
-    ? { surveyType: SURVEY_TYPES.VITALS }
-    : { id: body.surveyId };
+  const surveyWhereClause = isVital ? { surveyType: SURVEY_TYPES.VITALS } : { id: body.surveyId };
   const dateDataElementId = isVital
     ? VITALS_DATA_ELEMENT_IDS.dateRecorded
     : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
@@ -263,7 +254,9 @@ surveyResponseAnswer.put(
     } = req;
     req.checkPermission('write', subject('Charting', { id: surveyId }));
 
-    const enableChartEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
+    const enableChartEdit = await settings[facilityId].get(
+      SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT,
+    );
     if (!enableChartEdit) {
       throw new InvalidOperationError('Editing charts is disabled.');
     }
@@ -284,7 +277,9 @@ surveyResponseAnswer.post(
 
     // Even though this wouldn't technically be editing a chart
     // we will not allow the creation of a single chart answer if its not enabled
-    const enableChartEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
+    const enableChartEdit = await settings[facilityId].get(
+      SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT,
+    );
     if (!enableChartEdit) {
       throw new InvalidOperationError('Editing charts is disabled.');
     }
