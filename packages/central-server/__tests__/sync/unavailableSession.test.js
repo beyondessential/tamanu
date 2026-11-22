@@ -10,7 +10,7 @@ describe('Sync routes for an unavailable session', () => {
   let models;
   let token;
 
-  const deviceId = 'session-not-found-test-device';
+  const deviceId = 'unavailable-session-test-device';
 
   beforeAll(async () => {
     ctx = await createTestContext();
