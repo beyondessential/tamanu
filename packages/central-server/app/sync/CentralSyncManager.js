@@ -267,7 +267,7 @@ export class CentralSyncManager {
       log.warn('CentralSyncManager.endSession: session already ended, ignoring', {
         sessionId,
         hasErrored: Boolean(endedSession.errors),
-        error,
+        error: error?.slice(0, 1000),
       });
       return;
     }
