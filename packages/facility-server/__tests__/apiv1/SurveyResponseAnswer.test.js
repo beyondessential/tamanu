@@ -594,6 +594,45 @@ describe('SurveyResponseAnswer', () => {
         expect(log.reasonForChange).toBe(reasonForChange);
       });
 
+      describe('data element validation', () => {
+        // Otherwise-valid payload, so the data element is the only reason to reject
+        const postWithDataElementId = async dataElementId => {
+          const response = await createNewVitalsSurveyResponse();
+          const answers = await response.getAnswers();
+          const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
+          return app.post('/api/surveyResponseAnswer/vital').send({
+            reasonForChange: 'invalid-data-element-test',
+            newValue: chance.integer({ min: 0, max: 100 }),
+            date: getCurrentDateTimeString(),
+            recordedDate: dateAnswer.body,
+            dataElementId,
+            encounterId: response.encounterId,
+            facilityId,
+          });
+        };
+
+        it('should reject a calculated data element', async () => {
+          const result = await postWithDataElementId(dataElements[2].id);
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('Invalid data element.');
+        });
+
+        it('should reject a data element that does not exist', async () => {
+          const result = await postWithDataElementId('non-existent-data-element-id');
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('Invalid data element.');
+        });
+
+        it('should reject a missing data element id', async () => {
+          const result = await postWithDataElementId(undefined);
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('Invalid data element.');
+        });
+      });
+
       it('should return error if feature flag is off', async () => {
         await models.Setting.set('features.enableVitalEdit', false);
 
