@@ -103,10 +103,9 @@ node --import tsx ../scripts/src/scrubSeedSecrets.mts\
 "]
 
 
-## Build the supervisor, which serves the frontend images, with the Rust release named in
-## packages/supervisor/rust-toolchain.toml (CI checks the two match). Its dependencies are compiled in a
-## layer of their own, so a change to its code alone does not rebuild them.
-FROM rust:1.98.1-alpine AS build-supervisor
+## Build the supervisor, which serves the frontend images, on stable Rust. Its dependencies are
+## compiled in a layer of their own, so a change to its code alone does not rebuild them.
+FROM rust:alpine AS build-supervisor
 RUN apk add --no-cache musl-dev
 WORKDIR /src
 COPY packages/supervisor/Cargo.toml packages/supervisor/Cargo.lock ./

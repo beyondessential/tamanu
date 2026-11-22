@@ -4,8 +4,7 @@ The supervisor is Tamanu's own server at the front of a Tamanu server. In this r
 the frontend images: the web app, and the patient portal. Its behaviour is specified in
 [Supervisor](../../specs/platform/supervisor/overview.md).
 
-This is a Rust crate, not an npm workspace. `rust-toolchain.toml` names the Rust release it builds
-with, which rustup installs on first use.
+This is a Rust crate, not an npm workspace, built with stable Rust.
 
 ## Building and testing
 

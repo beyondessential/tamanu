@@ -270,7 +270,7 @@ Layer A, on #11712, which the Go version leaves for the archive since none of it
 
 Layer A notes:
 
-- The toolchain is pinned in `rust-toolchain.toml` (1.98.1), matching the `rust:1.98.1-alpine` build stage, so Linux, Windows and CI build with the same Rust. The Linux binary is a static PIE of about 3.8 MB.
+- It builds on stable Rust, with no pinned toolchain: the `rust:alpine` build stage, and CI and the Windows image job install the latest stable. CI's build cache is keyed by the rustc release. The Linux binary is a static PIE of about 3.8 MB.
 - Checked against main's Caddy over a built web app, path by path. Same status, encoding and body throughout, but: `/env.js` is JSON; the index carries an ETag and no-cache on every path that answers with it (Caddy left `/index.html` and the app's routes without `Cache-Control`, so browsers cached the index by heuristic); a directory path such as `/assets` gets the index where Caddy answered an empty `404`; text types name `charset=utf-8` as Caddy did, JSON included.
 - Measured on the synthetic root (frontend mode): 5.5 MB idle and 12.4 MB at peak against Caddy's 53 and 78 MB; web app routes 47,100 rps at 121 µs a request against 43,100 at 162 µs, now that the index is held in memory; small files 37,900 rps at 156 µs; the 1 MB file 409 µs against 471.
 - A `BIND_ADDRESS` of `host:port` made main's Caddy also listen on port 80 for HTTPS redirects, since Caddy treats a site address with a host as wanting automatic HTTPS. Only `:port` worked as documented; the supervisor takes both.
