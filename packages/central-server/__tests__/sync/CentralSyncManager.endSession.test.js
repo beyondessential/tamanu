@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { completeSyncSession } from '@tamanu/database/sync';
 
 import {
   createTestContext,
@@ -128,5 +129,94 @@ describe('CentralSyncManager.endSession', () => {
     expect(sessionAfterEnd.errors).toEqual(['The sync failed on the client']);
     expect(sessionAfterEnd.completedAt).toEqual(sessionAfterReport.completedAt);
     expect(sessionAfterEnd.updatedAt).toEqual(sessionAfterReport.updatedAt);
+  });
+
+  it('throws an error when ending a session that does not exist', async () => {
+    const centralSyncManager = await initializeCentralSyncManager();
+    const sessionId = await models.SyncSession.generateDbUuid();
+
+    await expect(centralSyncManager.endSession(sessionId)).rejects.toThrow(
+      `Sync session '${sessionId}' not found`,
+    );
+  });
+
+  // A client that gave up waiting for a response repeats its request, or reports the missing
+  // response as an error, while central is still handling the first one
+  describe('when requests to end a session arrive together', () => {
+    const SIMULTANEOUS_REQUEST_COUNT = 5;
+
+    it('ends the session for exactly one of them', async () => {
+      const centralSyncManager = await initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      const didEndSessionResults = await Promise.all(
+        Array.from({ length: SIMULTANEOUS_REQUEST_COUNT }, (_, requestIndex) =>
+          completeSyncSession(ctx.store, sessionId, `Error from request ${requestIndex}`),
+        ),
+      );
+
+      expect(didEndSessionResults.filter(Boolean)).toHaveLength(1);
+      const session = await models.SyncSession.findOne({ where: { id: sessionId } });
+      expect(session.errors).toHaveLength(1);
+    });
+
+    it('succeeds for each of two requests to end it', async () => {
+      const centralSyncManager = await initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await expect(
+        Promise.all([
+          centralSyncManager.endSession(sessionId),
+          centralSyncManager.endSession(sessionId),
+        ]),
+      ).resolves.toEqual([undefined, undefined]);
+
+      const session = await models.SyncSession.findOne({ where: { id: sessionId } });
+      expect(session.completedAt).toBeTruthy();
+      expect(session.errors).toBeNull();
+    });
+
+    it('records one error when the same error is reported twice', async () => {
+      const centralSyncManager = await initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await expect(
+        Promise.all([
+          centralSyncManager.endSession(sessionId, 'The sync failed on the client'),
+          centralSyncManager.endSession(sessionId, 'The sync failed on the client'),
+        ]),
+      ).resolves.toEqual([undefined, undefined]);
+
+      const session = await models.SyncSession.findOne({ where: { id: sessionId } });
+      expect(session.errors).toEqual(['The sync failed on the client']);
+    });
+
+    it('keeps whichever outcome came first when it is ended as an error is reported', async () => {
+      const centralSyncManager = await initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await expect(
+        Promise.all([
+          centralSyncManager.endSession(sessionId),
+          centralSyncManager.endSession(sessionId, 'The sync failed on the client'),
+        ]),
+      ).resolves.toEqual([undefined, undefined]);
+
+      const session = await models.SyncSession.findOne({ where: { id: sessionId } });
+      expect(session.completedAt).toBeTruthy();
+      // a session that ended cleanly has its snapshot dropped; one that errored keeps it
+      const expectedOutcomes = [
+        { errors: null, hasDroppedSnapshot: true },
+        { errors: ['The sync failed on the client'], hasDroppedSnapshot: false },
+      ];
+      expect(expectedOutcomes).toContainEqual({
+        errors: session.errors,
+        hasDroppedSnapshot: Boolean(session.snapshotDroppedAt),
+      });
+    });
   });
 });

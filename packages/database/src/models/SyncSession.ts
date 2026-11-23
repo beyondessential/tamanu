@@ -1,10 +1,15 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, fn } from 'sequelize';
+
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { Model } from './Model';
 import { type InitOptions } from '../types/model';
+import { Model } from './Model';
 
 const MAX_STORED_ERROR_LENGTH = 5000;
+
+/** Postgres rejects NUL bytes in TEXT columns. */
+const sanitizeError = (error: string) =>
+  String(error).replaceAll('\u0000', '').slice(0, MAX_STORED_ERROR_LENGTH);
 
 export class SyncSession extends Model {
   declare id: string;
@@ -91,15 +96,28 @@ export class SyncSession extends Model {
   }
 
   async markErrored(error: string) {
-    // error messages may embed raw binary (e.g. the body of a failed request);
-    // Postgres rejects NUL bytes in TEXT columns, so sanitize before persisting
-    // lest recording the error itself fail
-    const sanitized = String(error).replaceAll('\u0000', '').slice(0, MAX_STORED_ERROR_LENGTH);
     const errors = this.errors || [];
     await this.update({
-      errors: [...errors, sanitized],
+      errors: [...errors, sanitizeError(error)],
       completedAt: new Date(),
     });
+  }
+
+  /**
+   * End the session, with an error if it failed, unless it has already ended. A session keeps
+   * the outcome it first ended with.
+   * @returns whether this call ended the session
+   */
+  static async markEnded(id: string, error?: string) {
+    const [endedCount] = await this.update(
+      {
+        completedAt: fn('statement_timestamp'),
+        // an error is only ever recorded as a session ends, so a session yet to end has none
+        ...(error ? { errors: [sanitizeError(error)] } : {}),
+      },
+      { where: { id, completedAt: null } },
+    );
+    return endedCount > 0;
   }
 
   static async markSessionErrored(id: string, error: string) {

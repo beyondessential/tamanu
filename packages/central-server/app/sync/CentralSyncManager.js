@@ -255,27 +255,27 @@ export class CentralSyncManager {
   }
 
   async endSession(sessionId, error) {
-    // A client whose request got through but never saw the response will ask again, or report
-    // the missing response as an error. A session keeps the outcome it first ended with, so
-    // either succeeds without doing anything. This is checked ahead of connecting, which
-    // rejects an ended session
-    const endedSession = await this.store.sequelize.models.SyncSession.findOne({
-      attributes: ['errors'],
-      where: { id: sessionId, completedAt: { [Op.not]: null } },
-    });
-    if (endedSession) {
-      log.warn('CentralSyncManager.endSession: session already ended, ignoring', {
+    void trace.getActiveSpan()?.setAttributes({ 'app.sync.sessionId': sessionId });
+
+    // A client whose request got through but never saw the response will ask again, or report the
+    // missing response as an error, possibly while the first request is still being handled. Handle
+    //  only the first request; throw away any retries (should be rare).
+    log.debug('CentralSyncManager.completingSession', { sessionId });
+    const didEndSession = await completeSyncSession(this.store, sessionId, error);
+
+    const session = await this.store.sequelize.models.SyncSession.findByPk(sessionId);
+    if (!session) throw new Error(`Sync session '${sessionId}' not found`);
+
+    if (!didEndSession) {
+      log.warn('CentralSyncManager.endSession: Session already ended. Ignoring.', {
         sessionId,
-        hasErrored: Boolean(endedSession.errors),
+        hasErrored: Boolean(session.errors),
         error: error?.slice(0, 1000),
       });
       return;
     }
 
-    const session = await this.connectToSession(sessionId);
     const durationMs = Date.now() - session.startTime;
-    log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
-    await completeSyncSession(this.store, sessionId, error);
     if (error) {
       log.error('CentralSyncManager.completedSession with error', {
         sessionId,
