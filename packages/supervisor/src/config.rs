@@ -20,6 +20,16 @@ pub enum Bind {
 	Addr(SocketAddr),
 }
 
+/// As written in `BIND_ADDRESS`.
+impl fmt::Display for Bind {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::Any(port) => write!(f, ":{port}"),
+			Self::Addr(addr) => write!(f, "{addr}"),
+		}
+	}
+}
+
 /// Every problem found, as the variable's name and what is wrong with it.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Problems(pub Vec<(&'static str, String)>);

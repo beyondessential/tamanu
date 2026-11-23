@@ -80,7 +80,9 @@ async fn run(config: Frontend) -> std::io::Result<()> {
 
 	let mut servers = tokio::task::JoinSet::new();
 	for bind in config.binds {
-		let listener = listen::bind(bind)?;
+		let listener = listen::bind(bind).map_err(|error| {
+			std::io::Error::new(error.kind(), format!("BIND_ADDRESS {bind}: {error}"))
+		})?;
 		tracing::info!(address = %listener.local_addr()?, root = %config.root.display(), "serving");
 		servers.spawn(server::serve(listener, router.clone(), shutdown.clone()));
 	}
