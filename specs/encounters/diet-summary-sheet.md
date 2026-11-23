@@ -48,7 +48,7 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - The Hospital total row, the Sub total rows and the ward headings are set in bold, so they read apart from the patient rows.
 - Diet column headers are rotated to vertical, and zero counts are left blank.
 - The diet columns share the width left over from the patient columns, and narrow as the number of diets grows, so the sheet is never more than one page wide.
-- A table is as wide as its columns, so a sheet with few diets leaves the rest of the page width empty.
+- Every table spans the width of the page. Where the diet columns leave room, an empty column to their right takes up the rest, so no diet column is stretched.
 - Where no patient matches, the sheet prints its letterhead, title and footer with a line reporting that there are no patients to show.
 - The title, the column and total labels, and the empty-state line are translatable, and ward and diet names carry their reference data translations.
 
