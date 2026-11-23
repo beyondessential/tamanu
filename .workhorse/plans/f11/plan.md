@@ -32,6 +32,7 @@ Kitchen and ward staff use the sheet to see how many meals of each diet to prepa
 - Per-ward detail starts directly below the Hospital total on page 1 and runs on from page to page. A ward that breaks across a page continues under "{Ward} (continued)" with the column headers repeated
 - Each ward section is a patient × diet grid: patient name, NHN and bed, then a tick under each of the patient's diets. A **Sub total** row at the top of each ward table carries that ward's counts, matching the Hospital total's total-first layout
 - Patients are ordered by bed within a ward
+- Patient and diet columns keep fixed widths, so a facility with only a handful of diets leaves the grid short of the page width. A single blank column on the right takes up the slack, so the table still rules across the full width on either sheet. Mocked up at `.workhorse/design/mockups/f11/diet-summary-few-diet-columns.html`
 
 ### Counting
 
