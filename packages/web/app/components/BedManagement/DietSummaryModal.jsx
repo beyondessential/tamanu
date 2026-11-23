@@ -87,6 +87,7 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
           columns={dietSummary?.columns}
           hospitalTotals={dietSummary?.hospitalTotals}
           areas={dietSummary?.areas}
+          isFilteredByArea={Boolean(areaId)}
           getSetting={getSetting}
           translations={translations}
           primaryTimeZone={primaryTimeZone}

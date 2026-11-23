@@ -12,7 +12,8 @@ import { GLOBAL_PDF_FONT } from '../pdf/fonts';
 import { estimateWardPresence } from './estimateWardPresence';
 import { CELL_PADDING_VERTICAL, COLUMN_HEADER_HEIGHT, NAME_WIDTH } from './layout';
 
-const borderStyle = '1 solid black';
+const BORDER_WIDTH = 1;
+const borderStyle = `${BORDER_WIDTH} solid black`;
 
 const NHN_WIDTH = 60;
 const BED_WIDTH = 35;
@@ -124,9 +125,14 @@ const getDietColumnWidth = (columnCount) => {
   if (columnCount === 0) return MAX_DIET_COLUMN_WIDTH;
   // Diet columns share whatever width the patient columns leave, so the sheet stays one page
   // wide however many diets there are.
-  const available = (CONTENT_WIDTH - PATIENT_COLUMNS_WIDTH) / columnCount;
+  const available = (CONTENT_WIDTH - BORDER_WIDTH - PATIENT_COLUMNS_WIDTH) / columnCount;
   return Math.min(MAX_DIET_COLUMN_WIDTH, available);
 };
+
+// A table stops at its last diet column. Left to fill the page, a sheet with few diets ends in a
+// stretch of empty row that reads as one over-wide final column.
+const getTableWidth = (columnCount, columnWidth) =>
+  PATIENT_COLUMNS_WIDTH + columnCount * columnWidth + BORDER_WIDTH;
 
 const Letterhead = ({ logoSrc, letterheadConfig, title }) => {
   const { title: facilityTitle, subTitle } = letterheadConfig ?? {};
@@ -193,10 +199,10 @@ const TotalCells = ({ dietColumns, columnWidth, totals }) => (
   </>
 );
 
-const HospitalTotalTable = ({ dietColumns, columnWidth, hospitalTotals }) => {
+const HospitalTotalTable = ({ dietColumns, columnWidth, tableWidth, hospitalTotals }) => {
   const { getTranslation } = useLanguageContext();
   return (
-    <View style={styles.table}>
+    <View style={[styles.table, { width: tableWidth }]}>
       <View style={styles.row} wrap={false}>
         <View style={[styles.dietHeaderCell, { width: PATIENT_COLUMNS_WIDTH }]} />
         <DietHeaderRowCells dietColumns={dietColumns} columnWidth={columnWidth} />
@@ -271,7 +277,7 @@ const WardHeading = ({ wardName }) => {
 };
 
 // spec: DIETSUM#layout
-const WardSection = ({ area, wardName, dietColumns, columnWidth }) => {
+const WardSection = ({ area, wardName, dietColumns, columnWidth, tableWidth }) => {
   const { getTranslation, pdfFont } = useLanguageContext();
 
   return (
@@ -284,7 +290,7 @@ const WardSection = ({ area, wardName, dietColumns, columnWidth }) => {
         minPresenceAhead={estimateWardPresence(area, pdfFont === GLOBAL_PDF_FONT)}
         style={{ height: 14 }}
       />
-      <View style={styles.table}>
+      <View style={[styles.table, { width: tableWidth }]}>
         <View fixed>
           <WardHeading wardName={wardName} />
           <View style={styles.row}>
@@ -331,6 +337,7 @@ const DietSummaryPDFComponent = ({
   columns = [],
   hospitalTotals = {},
   areas = [],
+  isFilteredByArea = false,
   logoSrc,
   letterheadConfig,
   printedBy,
@@ -345,6 +352,7 @@ const DietSummaryPDFComponent = ({
 
   const { dietColumns, wardSections } = prepareDietSummary({ columns, areas, getTranslation });
   const columnWidth = getDietColumnWidth(dietColumns.length);
+  const tableWidth = getTableWidth(dietColumns.length, columnWidth);
 
   return (
     <Document>
@@ -357,11 +365,15 @@ const DietSummaryPDFComponent = ({
           </Text>
         ) : (
           <>
-            <HospitalTotalTable
-              dietColumns={dietColumns}
-              columnWidth={columnWidth}
-              hospitalTotals={hospitalTotals}
-            />
+            {/* A single ward's Sub total already carries every count on the sheet. */}
+            {!isFilteredByArea && (
+              <HospitalTotalTable
+                dietColumns={dietColumns}
+                columnWidth={columnWidth}
+                tableWidth={tableWidth}
+                hospitalTotals={hospitalTotals}
+              />
+            )}
             {wardSections.map(({ area, wardName }) => (
               <WardSection
                 key={area.id ?? 'no-area'}
@@ -369,6 +381,7 @@ const DietSummaryPDFComponent = ({
                 wardName={wardName}
                 dietColumns={dietColumns}
                 columnWidth={columnWidth}
+                tableWidth={tableWidth}
               />
             ))}
           </>

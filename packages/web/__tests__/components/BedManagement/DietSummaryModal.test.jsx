@@ -12,13 +12,13 @@ import { TranslationProvider } from '../../../app/contexts/Translation';
 import { DietSummaryModal } from '../../../app/components/BedManagement/DietSummaryModal';
 
 // vi.mock factories are hoisted above the imports, so the spy has to be hoisted with them.
-const { mockGet } = vi.hoisted(() => {
+const { mockGet, MockDietSummaryPDF } = vi.hoisted(() => {
   // Node 22+ has a built-in localStorage global that shadows jsdom's and is undefined unless
   // --localstorage-file is passed; ui-components reads it at module load.
   if (!globalThis.localStorage) {
     globalThis.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
   }
-  return { mockGet: vi.fn() };
+  return { mockGet: vi.fn(), MockDietSummaryPDF: vi.fn(() => null) };
 });
 
 vi.mock('../../../app/api', () => ({ useApi: () => ({ get: mockGet }) }));
@@ -30,7 +30,7 @@ vi.mock('../../../app/utils/useCertificate', () => ({
 
 // The sheet itself is react-pdf, which neither renders nor prints under jsdom. This test is about
 // which of the modal's three branches is chosen, so the preview stands in for the document.
-vi.mock('@tamanu/shared/utils/dietSummary', () => ({ DietSummaryPDF: () => null }));
+vi.mock('@tamanu/shared/utils/dietSummary', () => ({ DietSummaryPDF: MockDietSummaryPDF }));
 vi.mock('../../../app/components/PatientPrinting/PDFLoader', () => ({
   PDFLoader: ({ children }) => <div data-testid="pdfloader-stub">{children}</div>,
   printPDF: vi.fn(),
@@ -48,8 +48,8 @@ vi.mock('@tamanu/ui-components', async importOriginal => ({
 const FORBIDDEN_MESSAGE = /don't have permission/i;
 const GENERIC_ERROR_MESSAGE = /something went wrong loading the diet summary/i;
 
-const renderModal = () =>
-  render(<DietSummaryModal open onClose={() => {}} />, {
+const renderModal = props =>
+  render(<DietSummaryModal open onClose={() => {}} {...props} />, {
     wrapper: ({ children }) => (
       <QueryClientProvider client={createQueryClient()}>
         <ThemeProvider theme={createTheme({})}>
@@ -69,10 +69,12 @@ const renderModal = () =>
   });
 
 const printButton = () => screen.queryByRole('button', { name: 'Print' });
+const sheetProps = () => MockDietSummaryPDF.mock.lastCall[0];
 
 describe('DietSummaryModal', () => {
   beforeEach(() => {
     mockGet.mockReset();
+    MockDietSummaryPDF.mockClear();
   });
 
   it('shows the no-permission message and offers no print action when the request is forbidden', async () => {
@@ -106,5 +108,25 @@ describe('DietSummaryModal', () => {
     await waitFor(() => expect(printButton()).not.toBeNull());
     expect(screen.queryByText(FORBIDDEN_MESSAGE)).toBeNull();
     expect(screen.queryByText(GENERIC_ERROR_MESSAGE)).toBeNull();
+  });
+
+  it('asks for the whole facility and an unfiltered sheet when no area is applied', async () => {
+    mockGet.mockResolvedValue({ columns: [], hospitalTotals: {}, areas: [] });
+
+    renderModal();
+
+    await screen.findByTestId('pdfloader-stub');
+    expect(mockGet).toHaveBeenCalledWith('dietSummary', {});
+    expect(sheetProps().isFilteredByArea).toBe(false);
+  });
+
+  it('asks for the applied area alone and tells the sheet it is filtered', async () => {
+    mockGet.mockResolvedValue({ columns: [], hospitalTotals: {}, areas: [] });
+
+    renderModal({ area: 'ward-1' });
+
+    await screen.findByTestId('pdfloader-stub');
+    expect(mockGet).toHaveBeenCalledWith('dietSummary', { areaId: 'ward-1' });
+    expect(sheetProps().isFilteredByArea).toBe(true);
   });
 });
