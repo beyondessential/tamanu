@@ -71,7 +71,6 @@ describe('FacilitySyncManager settings on first sync', () => {
       models,
       sequelize,
       centralServer: {
-        streaming: () => false,
         fetchBootstrap: async () => {
           if (!bootstrap) throw new Error('central unreachable');
           return bootstrap.map(asSyncRecord);

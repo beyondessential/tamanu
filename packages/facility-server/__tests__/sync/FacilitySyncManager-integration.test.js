@@ -30,7 +30,6 @@ describe('FacilitySyncManager integration', () => {
   afterAll(() => ctx.close());
 
   const mockCentralServer = {
-    streaming: () => false,
     startSyncSession: vi.fn().mockResolvedValue({
       sessionId,
       startedAtTick: 200,
