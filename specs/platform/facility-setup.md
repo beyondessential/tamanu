@@ -13,21 +13,23 @@ Applies to the setup wizard a facility server serves in place of the login scree
 - The wizard is only available to requests from local or private network addresses.
 - The wizard refuses to run on a server that is already configured.
 - The credentials entered must belong to a central administrator with full access. Central uses them to mint a dedicated sync user for this server, and the server does not store them.
-- The wizard then logs in to central as the minted sync user and fetches the [facility bootstrap](../sync/bootstrap.md). If this fails, the wizard reports that the server could not be set up, and the server stays unconfigured.
-- The server's configuration (central address, sync credentials, and facilities) and the bootstrap are saved in one transaction, so a server is never configured without its bootstrap.
-- Once setup succeeds, the wizard logs the administrator in with the credentials they entered, which takes them to the setting-up screen.
+- The wizard then logs in to central as the minted sync user, to confirm its credentials work.
+- If central cannot be reached, rejects the administrator's credentials, cannot mint the sync user, or refuses the sync user's login, the wizard reports it and the server stays unconfigured.
+- The server's configuration (central address, sync credentials, and facilities) is saved in one transaction.
+- Once setup succeeds, the wizard gives way to the setting-up screen.
 
 ## Setting-up state
 
 - A facility server is setting up while it is configured and its first sync has not completed, that is, while its pull cursor is unset.
 - A server with sync turned off is never setting up.
 - The server's liveness check reports whether it is setting up, alongside whether setup is required.
-- Logging in while the server is setting up follows the same path as at any other time: through central, falling back to local credentials when central cannot be reached.
 
 ## Setting-up screen
 
-- A logged-in user on a server that is setting up sees the setting-up screen ahead of facility selection, whatever their role.
-- The screen tells the user the facility is being set up and asks them to wait.
-- The screen checks periodically whether the first sync has completed. When it has, the user carries on to facility selection as after any login.
-- The screen offers a way to log out.
-- The screen follows the server's state rather than the browser session, so a user who closes the page and returns, or logs in afresh, sees it for as long as the server is setting up.
+- While the server is setting up, the web app shows the setting-up screen in place of the login screen, whether or not the browser holds a session.
+- The screen tells the visitor the facility is being set up and asks them to wait.
+- The screen checks periodically whether the first sync has completed. When it has, it gives way to the login screen.
+- The screen follows the server's state rather than the browser session, so a visitor who closes the page and returns sees it for as long as the server is setting up.
+
+> [!NOTE]
+> A facility server cannot log anyone in until its first sync has brought down its users, roles and facilities, so the screen holds visitors ahead of the login screen rather than letting them sign in to a server that would refuse them.
