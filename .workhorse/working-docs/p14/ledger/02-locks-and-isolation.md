@@ -38,7 +38,7 @@ Notes: every advisory lock in the repo is transaction scoped (`..._xact_...`); t
 ### LCK-03 "Those advisory locks are what we use everywhere"
 Source: Part 1 01:00:42
 Verdict: partly
-Evidence: Besides advisory locks, sync depends on: `FOR UPDATE` on the clock row in imports (`packages/central-server/app/admin/importer/importerEndpoint.js:100-103`); implicit row locks from `incrementValue` (`LocalSystemFact.ts:86-96`); `FOR KEY SHARE OF <table>` on lookup source rows (`packages/central-server/app/sync/updateLookupTable.js:101`); a `findOne({ skipLocked: true })` intended to avoid row locks (`packages/database/src/models/SyncSession.ts:77`, see LCK-50); and the capacity `UPDATE` (`startSnapshotWhenCapacityAvailable.js:15-19`).
+Evidence: Besides advisory locks, sync depends on: `FOR UPDATE` on the clock row in imports (`packages/central-server/app/admin/importer/importerEndpoint.js:100-103`); implicit row locks from `incrementValue` (`LocalSystemFact.ts:86-96`); `FOR KEY SHARE OF <table>` on lookup source rows (`packages/central-server/app/sync/updateLookupTable.js:101`); a `findOne({ skipLocked: true })` intended to avoid row locks (`packages/database/src/models/SyncSession.ts:77`, see Q7); and the capacity `UPDATE` (`startSnapshotWhenCapacityAvailable.js:15-19`).
 Why: n/a.
 Notes: see Q7 answer.
 
