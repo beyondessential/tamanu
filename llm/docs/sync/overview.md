@@ -11,7 +11,7 @@ Companion documents:
 
 ## Before you change sync
 
-Sync is in its current shape because of years of learning from failures on large, busy deployments. Most of what looks redundant was added to close a specific hole, and the holes were small: a few milliseconds, one interleaving, one record in a million. The failures were not. A hole in sync does not usually corrupt data; it stops a facility syncing, or quietly leaves one record behind.
+Sync is in its current shape because of years of learning from learning from failures on large, busy deployments. Most of what looks redundant was added to close a specific hole, and the holes were small: a few milliseconds, one interleaving, one record in a million. 
 
 So the default is restraint:
 
