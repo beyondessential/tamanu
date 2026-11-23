@@ -4,15 +4,17 @@ Code is main at `22d3edaa36`. Transcript ranges: Part 1 00:05:43-00:18:02, 00:26
 
 ## Drift
 
-- PSH-01, PSH-04, PSH-05: "highest tick wins" is only true for field-level merge. At record level the incoming (last to sync) record always wins on central, and tests pin that.
+- PSH-01, PSH-04, PSH-05, PSH-31: "highest tick wins" is only true for field-level merge. At record level the incoming (last to sync) record always wins on central, and tests pin that.
 - PSH-03: the "tick" half of the persist tick-tock is thrown away; only the tock is used.
-- PSH-13, PSH-26: "hooks do not change data" (Part 2 00:37:48 and 01:33:33) is wrong. The Part 1 01:43:31 version is right: both existing hooks change what gets saved.
-- PSH-13: the field-level merge does NOT mark anything for repull. Only incoming sync hooks do.
-- PSH-16: persisted-at tick is not "returned from the end of the transaction"; it is used inside the transaction and stored in `sync_device_ticks` inside the same transaction (PR #11057).
-- PSH-20: the "duplicate creates" comment names a cause (extra pass for sync-all-lab-requests) that no longer exists, but duplicates can still arise from the full and regular pull snapshots overlapping.
-- PSH-24: the transcript says only `isDeleted` creates and restores are handled simply; since PRs #11055 and #11269 delete/restore now ride on the record's own INSERT/UPDATE and client `deletedAt` is discarded.
-- PSH-27 (the main open question): a PAD row changed by central's field-merge is attributed to the pushing device and, with the default `avoidRepull: true`, is not sent back to it. Nothing flags it for repull and no test covers it. Verdict: broken (see Open questions answered, Q7).
-- PSH-28: `removeEchoedChanges` (the pre-lookup safety net that used `updated_at_by_field_sum`) still runs but cannot fire for incrementally built lookup rows, so it is not a backstop for PSH-27.
+- PSH-13, PSH-21, Q2: "hooks do not change data" (Part 2 00:37:48 and 01:33:33) is wrong. The Part 1 01:43:31 version is right: both existing hooks change what gets saved.
+- PSH-13, PSH-35: the field-level merge does NOT mark anything for repull. Only incoming sync hooks do.
+- PSH-16: the persisted-at tick is not "returned from the end of the transaction"; it is used inside the transaction and stored in `sync_device_ticks` inside the same transaction (PR #11057).
+- PSH-23: `withDeferredSyncSafeguards` is about deferring FK and unique constraints, not about `logs.changes`.
+- PSH-26: sanitisers are not all "push only"; `Asset` and `ReferenceDrugFacility` matter on pull.
+- PSH-27, PSH-28: delete and restore are no longer separate `saveDeletes`/`saveRestores`; they ride on the record's own INSERT/UPDATE, and client `deletedAt` is discarded (PRs #11055, #11269).
+- PSH-29: the "duplicate creates" comment names a cause (extra pass for sync-all-lab-requests) that no longer exists, but duplicates can still arise from overlapping pull snapshots.
+- PSH-35 (the main open question): a PAD row changed by central's field merge is attributed to the pushing device and, with the default `avoidRepull: true`, is not sent back to it. Nothing flags it for repull and no test covers it. Verdict: broken (Q7).
+- PSH-34: `removeEchoedChanges` (the pre-lookup safety net using `updated_at_by_field_sum`) still runs but cannot fire for incrementally built lookup rows, so it is not a backstop for PSH-35.
 
 ## Claims
 
@@ -40,13 +42,13 @@ Notes: the end-of-persist tick-tock (`:787`) adds another two, so a persist cons
 ### PSH-04 "Highest tick wins" is a blunt but simple conflict rule
 Source: Part 1 00:10:51
 Verdict: partly
-Evidence: see PSH-01 and PSH-22. True for field-level merge only.
+Evidence: see PSH-01 and PSH-31. True for field-level merge only.
 Why: n/a.
 
 ### PSH-05 Example: facility that synced second looks "more recent" even if it edited earlier
 Source: Part 1 00:12:26
 Verdict: partly
-Evidence: true for a field-level merge, since field ticks are the session ticks of the device that made the edit (`set_updated_at_by_field` stamps `currentSyncTick`, which a facility sets to its session tick at `packages/facility-server/app/sync/FacilitySyncManager.js:287-292`). For a record-level model the later push wins regardless of tick (PSH-22).
+Evidence: true for a field-level merge, since field ticks are the session ticks of the device that made the edit (`set_updated_at_by_field` stamps `currentSyncTick`, which a facility sets to its session tick at `packages/facility-server/app/sync/FacilitySyncManager.js:287-292`). For a record-level model the later push wins regardless of tick (PSH-31).
 Why: baseline migration `packages/database/src/migrations/000_baseline.sql:1113-1164`.
 
 ### PSH-06 Conflicts are rare because encounters live on one facility; patient details are more likely to clash
@@ -77,7 +79,7 @@ Notes: `updatedAtByField` itself is rebuilt as a new object (`:34`).
 ### PSH-10 Clients never compare to local; a locally changed record that is also pulled aborts the sync
 Source: Part 1 00:26:03, 00:27:10
 Verdict: confirmed
-Evidence: facility pull persists with `isCentralServer = false`, so `saveUpdates` takes the incoming record untouched (`saveChanges.ts:60-61`, comment "on the facility server, trust the resolved central server version"; call at `FacilitySyncManager.js:363`). The abort is `packages/facility-server/app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot.js`: if a pulled record's local `updated_at_sync_tick` is above the last successful push tick it throws and the sync restarts. It runs when `sync.assertIfPulledRecordsUpdatedAfterPushSnapshot` is true (`FacilitySyncManager.js:347`; default true at `packages/facility-server/config/default.json5:28`).
+Evidence: facility pull persists with `isCentralServer = false`, so `saveUpdates` takes the incoming record untouched (`saveChanges.ts:60-61`, comment "on the facility server, trust the resolved central server version"; call at `FacilitySyncManager.js:363`). The abort is `packages/facility-server/app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot.js`: if a pulled record's local `updated_at_sync_tick` is above the last successful push tick it throws and the sync restarts. It runs when `sync.assertIfPulledRecordsUpdatedAfterPushSnapshot` is true (`FacilitySyncManager.js:349`; default true at `packages/facility-server/config/default.json5:28`).
 Why: file comment. PR #11269 (see Q6) widened it to pulled deletes.
 Notes: pulled records are stamped `updatedAtSyncTick: -1` (`pullIncomingChanges.js:56,96`), which the trigger stores as `-999`, so a facility never pushes back what it just pulled.
 
@@ -89,13 +91,13 @@ Evidence: merge only on central (`saveChanges.ts:48`); clock is central's `curre
 ### PSH-12 Persist is "locked" so nothing else can happen during it
 Source: Part 1 00:35:22
 Verdict: partly
-Evidence: `completePush` takes a per-session advisory lock via `markSessionAsProcessing` and runs `persistIncomingChanges` in the background (`CentralSyncManager.js:882-894`); the client polls `checkPushComplete` (`:896-914`). There is no global write lock. What actually serialises against other sessions: the tick-tock `UPDATE local_system_facts` runs inside the persist transaction and holds that row lock until commit, so any other session's tick-tock (session start, snapshot start, lookup build) blocks; and the `set_updated_at_sync_tick` trigger takes `pg_try_advisory_xact_lock_shared(current_tick)` (migration `1793235590139-moveSyncLookupFlaggingToAfterTrigger.ts:55-63`), which snapshot builders wait on via `waitForPendingEdits` (`CentralSyncManager.js:437-447`).
+Evidence: `completePush` takes a per-session advisory lock via `markSessionAsProcessing` and runs `persistIncomingChanges` in the background (`CentralSyncManager.js:882-894`); the client polls `checkPushComplete` (`:896-914`). There is no global write lock. What actually serialises against other sessions: the tick-tock `UPDATE local_system_facts` runs inside the persist transaction and holds that row lock until commit, so any other session's tick-tock (session start, snapshot start, lookup build) blocks; and the `set_updated_at_sync_tick` trigger takes `pg_try_advisory_xact_lock_shared(current_tick)` (migration `1793235590139-moveSyncLookupFlaggingToAfterTrigger.ts:55-63`), which snapshot builders wait on via `waitForPendingEdits` (`CentralSyncManager.js:436-447`).
 Why: comment at `CentralSyncManager.js:166-168` (session start "might get blocked ... if the central server is concurrently persisting records from another client"). The row-lock mechanism is inference from Postgres UPDATE semantics.
 
 ### PSH-13 Central may tweak records on the way in and mark them to sync back; the merge is one such place
 Source: Part 1 00:36:48, 00:38:02; Part 2 00:37:48 (corrected), 01:33:33
 Verdict: partly
-Evidence: only incoming sync hooks flag repull (`incomingSyncHook.ts:62-77` sets `requiresRepull: true`; `bumpSyncTickForRepull.ts:28-48`). The field merge in `saveUpdates` sets no flag and has no repull path. See PSH-27. Hooks do change data (PSH-26).
+Evidence: only incoming sync hooks flag repull (`incomingSyncHook.ts:62-77` sets `requiresRepull: true`; `bumpSyncTickForRepull.ts:28-48`). The field merge in `saveUpdates` sets no flag and has no repull path. See PSH-35. Hooks do change data (PSH-21).
 Why: n/a.
 
 ### PSH-14 completePush marks the session processing and persists in the background, after counting snapshot records for debug
@@ -109,7 +111,7 @@ Source: Part 1 01:42:18
 Verdict: confirmed
 Evidence: `CentralSyncManager.js:752-757`. `pauseAudit` sets the transaction variable `audit.pause` (`packages/database/src/utils/audit/pauseAudit.ts`); `logs.is_audit_changes_enabled()` returns false when it is set (latest definition: migration `1778000000000-retireAuditChangesEnabledSetting.ts:6-17`; baseline `000_baseline.sql:704`), and `logs.record_change()` (latest: `1785457572615-captureHardDeletesInChangelog.ts:19-60`) only writes when that is true.
 Why: code comment `:753-754`: "currently we do not create audit logs on mobile devices so we rely on sync process to create audit logs". The facility's own `logs.changes` rows travel with the record and are inserted explicitly (`saveIncomingChanges.ts:173`, `utils/audit/insertChangelogRecords.ts`, which uses `ignoreDuplicates`), so triggering the trigger as well would double-log.
-Notes: for mobile pushes the trigger logs with `updated_by_user_id` = `uuid_nil()` unless a user id is set in the session; the persist never sets one (`AUDIT_USERID_KEY` is only set in `packages/database/src/services/database.js:167,182`). That answers the speaker's "I don't know what user". Steps that run after the transaction (adjust, bump) are not paused and are audited normally by the trigger (inference from structure). Records changed only by an incoming hook (for example the renamed existing patient, PSH-26) carry no pushed changelog, so for non-mobile pushes they get no `logs.changes` row (inference).
+Notes: for mobile pushes the trigger logs with `updated_by_user_id` = `uuid_nil()` unless a user id is set in the session; the persist never sets one (`AUDIT_USERID_KEY` is only set in `packages/database/src/services/database.js:167,182`). That answers the speaker's "I don't know what user". Steps that run after the transaction (adjust, bump) are not paused and are audited normally by the trigger (inference from structure). Records changed only by an incoming hook (for example the renamed existing patient, PSH-21) carry no pushed changelog, so for non-mobile pushes they get no `logs.changes` row (inference).
 
 ### PSH-16 "Persisted at sync tick": a tock grabbed in the transaction and returned from it
 Source: Part 1 01:42:18, Part 2 01:33:33
@@ -181,13 +183,13 @@ Notes: the first transcript example of hooks "getting the buffer out of base64" 
 ### PSH-27 Creates, updates and deletes are split by looking up what exists; the existing-record map is used
 Source: Part 1 01:52:33, 01:53:41, 01:54:59
 Verdict: partly (code has moved on)
-Evidence: `saveIncomingChanges.ts:47-112`. `findByIds(ids, false)` (paranoid off, so soft-deleted rows count as existing; `Model.ts:~185-195`) returns existing rows. Classification:
+Evidence: `saveIncomingChanges.ts:47-112`. `findByIds(ids, false)` (paranoid off, so soft-deleted rows count as existing; `Model.ts:185`) returns existing rows. Classification:
 - Create: incoming id not among existing (`:107-109`).
 - Update: every incoming whose id exists, including ones being deleted or restored (`:67`, `:110-112`).
 - Delete: existing live and incoming `isDeleted` (`:73-75`), on either server; or a create where ANY copy in the payload is deleted (`:86-90`).
 - Restore: facility only, existing deleted and incoming not deleted (`:70-72`).
 - Both deleted: nothing (`:76-79`).
-There are no separate `saveDeletes`/`saveRestores` functions any more. The decision is attached to the record as `deletedAt` (`now()` for delete, `null` for restore, absent for no decision, `:96-106`) so `deleted_at` is written in the same statement (see PSH-24 notes and Q6).
+There are no separate `saveDeletes`/`saveRestores` functions any more. The decision is attached to the record as `deletedAt` (`now()` for delete, `null` for restore, absent for no decision, `:96-106`) so `deleted_at` is written in the same statement (see PSH-28 and Q6).
 Why: the `c.data.id` filter at `:47` and `:58` is the "Chesterton's fence" (see Q3).
 
 ### PSH-28 Soft-deleted creates are created and immediately soft-deleted
@@ -198,7 +200,7 @@ Evidence: `saveIncomingChanges.ts:82-90` adds the id to `idsForDelete`, `getDele
 ### PSH-29 Duplicate create records, and its stated cause
 Source: Part 1 01:56:12
 Verdict: partly
-Evidence: `saveChanges.ts:30-34` dedupes by id (`uniqBy`) before `bulkCreate(..., { hooks: false })`. The comment's cause (an extra per-model pass when sync-all-lab-requests is on) is gone: the lookup snapshot is one `INSERT ... SELECT` over `sync_lookup` with `OR is_lab_request IS TRUE` inside the `WHERE` (`central-server/app/sync/snapshotOutgoingChanges.js:230-300`), and `sync_lookup` is unique on `(record_id, record_type)`. Duplicates can still arise because `setupSnapshotForPull` runs several snapshots into one table: a full (`-1`) snapshot for newly marked patients (`CentralSyncManager.js:~578-590`), the regular incremental one (`:~600`), and an optional full resync of named tables (`:~612`). A record in two of them appears twice (inference from reading the three calls). The dedupe also applies to a central persist if a push repeated a record.
+Evidence: `saveChanges.ts:30-34` dedupes by id (`uniqBy`) before `bulkCreate(..., { hooks: false })`. The comment's cause (an extra per-model pass when sync-all-lab-requests is on) is gone: the lookup snapshot is one `INSERT ... SELECT` over `sync_lookup` with `OR is_lab_request IS TRUE` inside the `WHERE` (`central-server/app/sync/snapshotOutgoingChanges.js:230-300`), and `sync_lookup` is unique on `(record_id, record_type)`. Duplicates can still arise because `setupSnapshotForPull` runs several snapshots into one table: a full (`-1`) snapshot for newly marked patients (`CentralSyncManager.js:579-598`), the regular incremental one (`:600-613`), and an optional full resync of named tables (`:615-628`). A record in two of them appears twice (inference from reading the three calls). The dedupe also applies to a central persist if a push repeated a record.
 Notes: `idToIncomingRecord` keeps the last copy (`saveIncomingChanges.ts:57-59`) but updates are not de-duplicated: a record present twice and existing is written twice through the concurrent pool (inference, low impact because the copies are normally identical).
 
 ### PSH-30 Hooks are off for all persists
@@ -210,7 +212,7 @@ Notes: this is Sequelize ORM hooks only; database triggers still fire (sync tick
 ### PSH-31 Field-wise merge keeps the higher tick; record-wise merge is last-sync-wins
 Source: Part 1 01:59:01-02:08:10
 Verdict: confirmed
-Evidence: `mergeRecord.ts` and tests above; the speaker's 10-minute scenario is not covered by a test but follows from `mergeRecord.ts:48-52`. The only record-level tick comparison anywhere is none; see Q4.
+Evidence: `mergeRecord.ts` and tests above; the speaker's 10-minute scenario is not covered by a test but follows from `mergeRecord.ts:48-52`. There is no record-level tick comparison anywhere; see Q4.
 
 ### PSH-32 "Trust the resolved central server version" comment on the facility
 Source: Part 1 02:04:07, 02:05:13
@@ -245,7 +247,7 @@ Evidence: see Q7 for the full trace.
 5. (`:758-763`) Tick-tock; keep only `tock` (call it T). The comment, verbatim: "we tick-tock the global clock to make sure there is a unique tick for these changes / n.b. this used to also be used for concurrency control, but that is now handled by shared advisory locks taken using the current sync tick as the id, which are waited on by an exclusive lock taken prior to starting a snapshot - so this is now purely for saving with a unique tick". From here the current sync tick is T, and every row the transaction writes is stamped T by the trigger.
 6. (`:767`) `incomingSyncHook` for every model with one. Reads committed data in a read-only sub-transaction and edits the INCOMING snapshot table only (insert rows, update rows), flagged `requires_repull`.
 7. (`:769-771`) `withDeferredSyncSafeguards` around `saveIncomingChanges(..., isCentralServer = true)`: all models in dependency order, creates, updates (with field merge), soft deletes folded in, changelog rows inserted.
-8. (`:775-780`) `updateSnapshotRecords` sets `saved_at_sync_tick = T` on all INCOMING snapshot rows. Used by `removeEchoedChanges` (PSH-28).
+8. (`:775-780`) `updateSnapshotRecords` sets `saved_at_sync_tick = T` on all INCOMING snapshot rows. Used by `removeEchoedChanges` (PSH-34).
 9. (`:782`) `SyncDeviceTick.create({ deviceId, persistedAtSyncTick: T })`. Written after the saves, inside the transaction, so it commits or rolls back with them (PR #11057). `deviceId` comes from `completePush`.
 10. (`:784-787`) Second tick-tock; the result is ignored. Current tick becomes T+2 so later writes cannot share T. The comment says so: records modified by `adjustDataPostSyncPush()` will be picked up for pulling in the same session.
 11. Transaction commits. The shared advisory lock on T (taken by the trigger) and the `local_system_facts` row lock are released.
@@ -330,7 +332,7 @@ Not found in `packages/` apart from mobile (mobile has its own sync code, not re
 - **Hook queries only see committed data** and execute before any save, so a hook cannot see the push it belongs to except via the snapshot rows it is given.
 - **Audit and hooks**: records changed only by a hook have no pushed changelog (PSH-15 note).
 - **Models not in `modelsToInclude`** (`tablesToInclude` set) would have hook-inserted rows never saved (inference; hook models are iterated from the same list but inserted rows for other tables are not filtered).
-- **Facility pull sets `pauseAudit` only when `totalPulled > 0`** and records `LAST_SUCCESSFUL_SYNC_PULL` in the same transaction (`FacilitySyncManager.js:357-372`).
+- **Facility pull sets `pauseAudit` only when `totalPulled > 0`** and records `LAST_SUCCESSFUL_SYNC_PULL` in the same transaction (`FacilitySyncManager.js:358-372`).
 - **Self-referencing FKs and unique constraints are deferred only during the save**; central still runs the hook phase outside deferral.
 - **`persistedCacheBatchSize`, `incomingSyncHookBatchSize`, `adjustDataBatchSize`, `persistUpdateWorkerPoolSize`, `pauseBetweenPersistedCacheBatchesInMilliseconds`** in `packages/central-server/config/default.json5:47-52` change persist behaviour. `sync.lookupTable.avoidRepull` (`:61`, default true) changes who gets what back (Q7).
 - **`avoidRepull` is read from two places**: the lookup build uses the manager's config (`updateLookupTable.js:133`), the pull snapshot uses the real config unless overridden (`snapshotOutgoingChanges.js:231`), so tests that override only one side can produce inconsistent attribution (`CentralSyncManager.setupSnapshotForPull.test.js:1030-1100`, inference).
@@ -343,4 +345,4 @@ Not found in `packages/` apart from mobile (mobile has its own sync code, not re
 - How mobile converts its string `updatedAtByField` to an object before pushing, and whether mobile-pushed PAD merges behave (`mobile/App/models/PatientAdditionalData.ts:180`, `services/sync/utils/snapshotOutgoingChanges.spec.ts:60` expects an object). Not read.
 - Whether the missed return of a merged PAD to its pusher has been seen in production or filed; a repro would be a two-facility push test using `PatientAdditionalData` through `CentralSyncManager` with `avoidRepull: true` in both config sides.
 - Why the `c.data.id` filter exists (PR #4854 discussion records only that nobody knew).
-- Whether the removed `removeEchoedChanges` could be deleted; confirming my reading that it cannot match lookup rows needs a test that sets `avoidRepull: false` and pushes then pulls.
+- Whether `removeEchoedChanges` could be retired; confirming my reading that it cannot match lookup rows needs a test that sets `avoidRepull: false` and pushes then pulls.
