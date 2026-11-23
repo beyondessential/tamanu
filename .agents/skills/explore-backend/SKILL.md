@@ -3,7 +3,7 @@ name: explore-backend
 description: "Explore this card's server side directly, in passes, until a full pass finds nothing above low"
 label: "Explore the backend"
 category: verify
-workhorse-version: 0.8.0
+workhorse-version: 0.8.1
 ---
 
 ## Your task: explore the backend
@@ -55,4 +55,4 @@ Ask for a rig with `workhorse-local rig lease` and release it before you report.
 
 Stop when a full pass over every entry point finds nothing above low, and every finding from earlier passes has a test that failed before its fix. Then summarise in your reply what each pass covered and found, and say the findings are in the card's issues.
 
-If the work outlasts this turn, hold the pull request while you do it (see `.agents/docs/pull-requests.md`).
+If the work outlasts this turn, hold the pull request until the card's issues are handled, with `hold_pr` and `untilIssuesHandled` (see `.agents/docs/pull-requests.md`).

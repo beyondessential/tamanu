@@ -4,7 +4,7 @@ description: "Workshop how to break this card into smaller spawned cards and cap
 label: "Draft card breakdown"
 category: plan
 surface: both
-workhorse-version: 0.8.0
+workhorse-version: 0.8.1
 ---
 
 ## Your task: Draft card breakdown
