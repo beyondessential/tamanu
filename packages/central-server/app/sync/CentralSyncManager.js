@@ -212,14 +212,6 @@ export class CentralSyncManager {
     }
   }
 
-  async sessionExists(sessionId) {
-    const session = await this.store.sequelize.models.SyncSession.findOne({
-      where: { id: sessionId },
-    });
-
-    return Boolean(session);
-  }
-
   async connectToSession(sessionId) {
     const session = await this.store.sequelize.models.SyncSession.findOne({
       where: { id: sessionId },
