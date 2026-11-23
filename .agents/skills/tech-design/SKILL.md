@@ -3,7 +3,7 @@ name: tech-design
 description: "Workshop the technical approach and capture notes in the plan"
 label: "Tech design"
 category: build
-workhorse-version: 0.8.0
+workhorse-version: 0.8.1
 ---
 
 ## Your task: Tech design workshop

@@ -3,7 +3,7 @@ name: review-loop
 description: "Review this card's changes the way the hosted Review Hero does, fix what it finds, and review again, until a round comes back clean"
 label: "Review loop"
 category: verify
-workhorse-version: 0.8.0
+workhorse-version: 0.8.1
 ---
 
 ## Your task: review loop
