@@ -4,6 +4,7 @@ import { FACT_CURRENT_SYNC_TICK, FACT_LAST_SUCCESSFUL_SYNC_PULL } from '@tamanu/
 import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 import { createTestContext } from '../utilities';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
+import { clearLocallyAuthoredSettings } from '../../app/sync/facilityBootstrap';
 
 const HEARTBEAT_KEY = 'fhir.worker.heartbeat';
 const BASELINE_HEARTBEAT_ID = '44fbfb10-3019-44f8-b0c5-d02b860e521e';
@@ -155,5 +156,19 @@ describe('FacilitySyncManager settings on first sync', () => {
     expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
       { id: BASELINE_HEARTBEAT_ID, value: '1 minute' },
     ]);
+  });
+
+  it('keeps the cleared settings out of the changelog', async () => {
+    const id = crypto.randomUUID();
+    await insertSetting({ id, key: HEARTBEAT_KEY, value: '"1 minute"' });
+
+    await clearLocallyAuthoredSettings(sequelize);
+
+    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([]);
+    const [deletions] = await sequelize.query(
+      'SELECT id FROM logs.changes WHERE record_id = :id AND is_hard_delete',
+      { replacements: { id } },
+    );
+    expect(deletions).toEqual([]);
   });
 });

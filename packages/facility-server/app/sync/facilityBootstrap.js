@@ -12,10 +12,14 @@ import { pauseAudit } from '@tamanu/database/utils/audit';
 
 // Rows central never sent were seeded by migrations, and collide by key with central's copies
 export async function clearLocallyAuthoredSettings(sequelize) {
-  await sequelize.query(
-    'DELETE FROM settings WHERE facility_id IS NULL AND updated_at_sync_tick <> :fromCentral',
-    { replacements: { fromCentral: SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE } },
-  );
+  await sequelize.transaction(async () => {
+    // Unpaused, the changelog would record each deleted row, secret included.
+    await pauseAudit(sequelize);
+    await sequelize.query(
+      'DELETE FROM settings WHERE facility_id IS NULL AND updated_at_sync_tick <> :fromCentral',
+      { replacements: { fromCentral: SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE } },
+    );
+  });
 }
 
 // spec: FBOOT#applying-the-bootstrap
