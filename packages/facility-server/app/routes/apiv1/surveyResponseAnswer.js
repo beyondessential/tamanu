@@ -137,17 +137,17 @@ async function postSurveyResponseAnswer(req, isVital = false) {
   const { body, db, models, user } = req;
   const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
 
+  if (!body.dataElementId) throw new InvalidParameterError('dataElementId is required');
+
   // Ensure data element exists and it's not a calculated question
   const validDataElement = await ProgramDataElement.findOne({
     attributes: ['id'], // Arbitrary projection, just checking existence
     where: {
-      id: body.dataElementId ?? null,
+      id: body.dataElementId,
       type: { [Op.ne]: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED },
     },
   });
-  if (!validDataElement) {
-    throw new InvalidOperationError('Invalid data element.');
-  }
+  if (!validDataElement) throw new InvalidOperationError('Invalid data element');
 
   const surveyWhereClause = isVital ? { surveyType: SURVEY_TYPES.VITALS } : { id: body.surveyId };
   const dateDataElementId = isVital

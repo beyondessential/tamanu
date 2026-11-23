@@ -617,21 +617,21 @@ describe('SurveyResponseAnswer', () => {
           const result = await postWithDataElementId(dataElements[2].id);
           expect(result).toHaveRequestError();
           expect(result.status).toBe(422);
-          expect(result.body.error.message).toBe('Invalid data element.');
+          expect(result.body.error.message).toBe('Invalid data element');
         });
 
         it('should reject a data element that does not exist', async () => {
           const result = await postWithDataElementId('non-existent-data-element-id');
           expect(result).toHaveRequestError();
           expect(result.status).toBe(422);
-          expect(result.body.error.message).toBe('Invalid data element.');
+          expect(result.body.error.message).toBe('Invalid data element');
         });
 
         it('should reject a missing data element id', async () => {
           const result = await postWithDataElementId(undefined);
           expect(result).toHaveRequestError();
           expect(result.status).toBe(422);
-          expect(result.body.error.message).toBe('Invalid data element.');
+          expect(result.body.error.message).toBe('dataElementId is required');
         });
       });
 
@@ -773,21 +773,21 @@ describe('SurveyResponseAnswer', () => {
           const result = await postWithDataElementId(calculatedDataElement.id);
           expect(result).toHaveRequestError();
           expect(result.status).toBe(422);
-          expect(result.body.error.message).toBe('Invalid data element.');
+          expect(result.body.error.message).toBe('Invalid data element');
         });
 
         it('should reject a data element that does not exist', async () => {
           const result = await postWithDataElementId('non-existent-data-element-id');
           expect(result).toHaveRequestError();
           expect(result.status).toBe(422);
-          expect(result.body.error.message).toBe('Invalid data element.');
+          expect(result.body.error.message).toBe('Invalid data element');
         });
 
         it('should reject a missing data element id', async () => {
           const result = await postWithDataElementId(undefined);
           expect(result).toHaveRequestError();
           expect(result.status).toBe(422);
-          expect(result.body.error.message).toBe('Invalid data element.');
+          expect(result.body.error.message).toBe('dataElementId is required');
         });
       });
     });
