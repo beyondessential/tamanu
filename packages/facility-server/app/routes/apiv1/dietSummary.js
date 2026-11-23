@@ -17,7 +17,8 @@ const DIET_SUMMARY_ENCOUNTER_TYPES = [
 
 // Column key for the patients with no diet recorded when no diet is configured as the regular
 // meal. A deployment whose own diet carries this id simply shares the column, which is where
-// those patients belong anyway.
+// those patients belong anyway. The default provisioning data's Regular diet carries it on
+// purpose, so a deployment set up from it needs no setting to keep the two together.
 const UNCONFIGURED_REGULAR_KEY = 'regular';
 
 const querySchema = z.object({

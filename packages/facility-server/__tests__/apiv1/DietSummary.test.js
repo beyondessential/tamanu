@@ -241,6 +241,22 @@ describe('Diet summary', () => {
     expect(hospitalTotals).toEqual({ [facilityRegular.id]: 1 });
   });
 
+  it('shares its own Regular column with a diet whose id is regular', async () => {
+    const [defaultRegular] = await models.ReferenceData.upsert(
+      fake(models.ReferenceData, { id: 'regular', type: REFERENCE_TYPES.DIET, name: 'Regular' }),
+    );
+
+    await admit({ location: bed2 });
+    await admit({ location: maternityBed, diets: [defaultRegular] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expect(columns).toEqual([{ key: 'regular', name: 'Regular', isRegular: true }]);
+    expect(hospitalTotals).toEqual({ regular: 2 });
+  });
+
   it('falls back to its own Regular column when the regular diet setting has been cleared', async () => {
     await configureRegularDiet('');
 

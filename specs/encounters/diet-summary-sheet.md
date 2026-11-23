@@ -75,6 +75,7 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 
 - A setting names the diet that stands for a regular meal, chosen from the deployment's diet reference data. It is set deployment-wide, and a facility can override it with a diet of its own.
 - Where no diet is named, the sheet carries its own **Regular** column, which holds the patients with no diet recorded.
+- The default reference data's **Regular** diet shares that column, so a deployment set up from it counts the patients with that diet recorded and the patients with no diet recorded together, with no diet named in the setting.
 - Where the diet configured as the regular meal no longer exists, its column still appears, under the generic **Regular** label.
 
 > [!NOTE]
