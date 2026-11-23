@@ -25,29 +25,24 @@ let configure = |c| {
 let api_max_replicas = if AVAILABLE_THREADS / 2 < 1 { 1 } else { AVAILABLE_THREADS / 2 };
 
 configure.call(app.deployment("api"))
-    .description("API")
     .scale(1..=api_max_replicas)
     .arg(["startApi"])
     .http(3000, public_svc.route("/api"))
     .http(3000, public_svc.route("/v1"));
 
 configure.call(app.deployment("tasks"))
-    .description("Tasks")
     .on_update(OnUpdate.Replace)
     .arg(["startTasks"]);
 
 configure.call(app.deployment("fhir-refresh"))
-    .description("FHIR refresh worker")
     .on_update(OnUpdate.Replace)
     .arg(["startFhirWorker", "--topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream"]);
 
 configure.call(app.deployment("fhir-resolve"))
-    .description("FHIR resolver worker")
     .on_update(OnUpdate.Replace)
     .arg(["startFhirWorker", "--topics=fhir.resolver"]);
 
 app.deployment("frontend")
-    .description("Web app")
     .image(image.call("frontend"))
     .scale(1)
     .http(3000, public_svc.route("/"));
@@ -59,7 +54,6 @@ let frontends = ["frontend"];
 if portal != () {
     app.deployment("api").http(3000, portal_svc.route("/api"));
     app.deployment("patient-portal")
-        .description("Patient portal")
         .image(image.call("patient-portal"))
         .scale(1)
         .http(3000, portal_svc.route("/"));

@@ -11,7 +11,7 @@ app.on_action("provision", |rt, param| {
         .arg(["provision", `/provisioning/${file}`])
     ).terminated_eventually().ensure_success();
 }, #{
-    description: "Provision from a file on a site volume",
+    description: "Provision a new server from a file on a site volume; refused if the file's admin users already exist",
     params: #{
         site: #{
             kind: "volume",
@@ -29,4 +29,4 @@ app.on_action("provision", |rt, param| {
 
 app.on_shell("node", |_rt, shell, _param| {
     shell.attach(configure.call(app.job()).arg(["shell"]));
-}, #{ description: "Tamanu shell" });
+}, #{ description: "Node.js REPL with the server's models loaded" });

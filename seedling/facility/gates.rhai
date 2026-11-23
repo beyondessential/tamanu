@@ -6,7 +6,6 @@
 
 // spec: SDDEF#readiness-check
 let readiness_check = configure.call(app.job("readiness-check"))
-    .description("Readiness check")
     .arg(["checkReadiness"])
     .deadline(60);
 
@@ -16,7 +15,6 @@ let readiness = app.gate("readiness")
 
 // spec: SDUPG#checking-the-migrations
 let migrations_check = configure.call(app.job("migrations-check"))
-    .description("Pending migrations check")
     .arg(["just-migrate", "list", "--pending", "--check"])
     .deadline(120);
 

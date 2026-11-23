@@ -26,7 +26,6 @@ let configure = |c| {
 let api_max_replicas = if AVAILABLE_THREADS / 2 < 1 { 1 } else { AVAILABLE_THREADS / 2 };
 
 configure.call(app.deployment("api"))
-    .description("API")
     .scale(1..=api_max_replicas)
     .arg(["startApi"])
     .mount(sync_http.port(3004))
@@ -34,24 +33,20 @@ configure.call(app.deployment("api"))
     .http(3000, public_svc.route("/v1"));
 
 configure.call(app.deployment("sync"))
-    .description("Sync")
     .scale(1)
     .on_update(OnUpdate.Replace)
     .arg(["startSync"])
     .tcp(3000, sync_http.port(3004));
 
 configure.call(app.deployment("tasks"))
-    .description("Tasks")
     .on_update(OnUpdate.Replace)
     .arg(["startTasks"]);
 
 configure.call(app.deployment("fhir"))
-    .description("FHIR worker")
     .on_update(OnUpdate.Replace)
     .arg(["startFhirWorker"]);
 
 app.deployment("frontend")
-    .description("Web app")
     .image(image.call("frontend"))
     .scale(1)
     .http(3000, public_svc.route("/"));

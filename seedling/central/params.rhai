@@ -3,7 +3,7 @@
 
 let version = app.param("version")
     .required(true)
-    .description("Tamanu image tag")
+    .description("Tamanu image tag, such as v2.71.3; changing it upgrades the server, with downtime")
     .validate(|v, all| {
         if published == () || v == published.tag { return; }
         let wanted = minor_of.call(published.release);
@@ -19,7 +19,7 @@ if published != () {
 let database_url = app.param("database-url")
     .kind("password")
     .required(true)
-    .description("PostgreSQL URL")
+    .description("PostgreSQL URL; a socket URL (?host=/dir) also needs the database-socket volume mapped")
     .validate(|v, all| {
         if !v.starts_with("postgres://") && !v.starts_with("postgresql://") {
             throw "must be a postgres:// or postgresql:// URL";
@@ -39,30 +39,30 @@ let crypto_key = app.param("crypto-key")
     .kind("random")
     .secret(true)
     .required(true)
-    .description("Crypto key")
+    .description("Encrypts stored secrets; must be the key they were stored with")
     .validate(|v, all| hex_secret.call(v));
 
 let auth_secret = app.param("auth-secret")
     .kind("random")
     .secret(true)
     .required(true)
-    .description("Auth secret");
+    .description("Signs login tokens; changing it logs everyone out");
 
 let refresh_secret = app.param("auth-refresh-secret")
     .kind("random")
     .secret(true)
     .required(true)
-    .description("Refresh token secret");
+    .description("Signs refresh tokens; changing it logs everyone out when their login next expires");
 
 let canonical_url = app.param("canonical-url")
     .required(true)
-    .description("Canonical URL")
+    .description("URL the server is reached at; sets its ingress, with TLS for https")
     .validate(|v, all| { parse_origin.call(v); });
 
 let timezone = app.param("timezone")
     .required(false)
     .default_value("UTC")
-    .description("Primary timezone");
+    .description("IANA timezone; changing it doesn't convert stored datetimes, and a facility's must match its central server's");
 
 // A parameter can be unset while the definition is first registered, so nothing
 // below throws on an unset one.
