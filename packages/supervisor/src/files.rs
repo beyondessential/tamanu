@@ -28,6 +28,9 @@ const ENCODINGS: &[(&str, &str)] = &[("zstd", "zst"), ("br", "br"), ("gzip", "gz
 /// Where a frontend's error pages are, under its root.
 const ERRORS: &str = "resources/errors";
 
+/// The apps' manifests: the patient portal's, and the web app's, which it keeps under `shared/`.
+const MANIFESTS: &[&str] = &["/tamanu-manifest.json", "/shared/tamanu-manifest.json"];
+
 #[derive(Clone)]
 pub struct Files {
 	dir: ServeDir,
@@ -108,7 +111,7 @@ impl Files {
 			}
 			"/" | "/index.html" => self.index.respond(head, req.headers()),
 			path => {
-				let manifest = path == "/manifest.json";
+				let manifest = MANIFESTS.contains(&path);
 				// Only what the index reads, should the path turn out not to be a file.
 				let mut headers = HeaderMap::new();
 				for name in [header::ACCEPT_ENCODING, header::IF_NONE_MATCH] {

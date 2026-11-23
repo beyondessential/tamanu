@@ -11,7 +11,7 @@ Applies to the supervisor, Tamanu's own server at the front of a Tamanu server, 
 - The release's frontend image serves the web app, and its patient portal image the patient portal, each through the supervisor.
 - A path that names a file of the built frontend gets that file. Any other path gets the frontend's index page, so the app's own routes open directly.
 - A file stored beside precompressed copies of itself is sent in the best encoding the browser accepts, preferring zstd, then Brotli, then gzip. Text that has no precompressed copy is compressed as it is sent.
-- The index page, `/env.js` and `/manifest.json` are never cached without the browser checking again. The index page carries a tag for that check, so a browser that holds the release's index has it confirmed rather than sent again.
+- The index page, `/env.js` and the app's manifest, `/tamanu-manifest.json` or the web app's `/shared/tamanu-manifest.json`, are never cached without the browser checking again. The index page carries a tag for that check, so a browser that holds the release's index has it confirmed rather than sent again.
 - `/env.js` gives the app the deployment's environment name, Bugsnag key and revision, written as data, so no value can change what the script does.
 - Requests other than `GET` and `HEAD` are refused.
 - A response with an error status carries Tamanu's error page for that status, where the frontend has one.

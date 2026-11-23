@@ -31,7 +31,9 @@ fn frontend_root(root: &Path) {
 	fs::write(root.join("index.html.gz"), "index as gzip").unwrap();
 	fs::write(root.join("assets/app.js"), APP_JS).unwrap();
 	fs::write(root.join("assets/app.js.gz"), "app as gzip").unwrap();
-	fs::write(root.join("manifest.json"), MANIFEST).unwrap();
+	fs::create_dir_all(root.join("shared")).unwrap();
+	fs::write(root.join("tamanu-manifest.json"), MANIFEST).unwrap();
+	fs::write(root.join("shared/tamanu-manifest.json"), MANIFEST).unwrap();
 	fs::write(
 		root.join("resources/errors/405.html"),
 		"<p>method not allowed</p>",
@@ -231,7 +233,17 @@ async fn paths() {
 		),
 		(
 			Method::GET,
-			"/manifest.json",
+			"/tamanu-manifest.json",
+			&[],
+			Want {
+				status: StatusCode::OK,
+				body: MANIFEST,
+				headers: &[("cache-control", Some("no-cache"))],
+			},
+		),
+		(
+			Method::GET,
+			"/shared/tamanu-manifest.json",
 			&[],
 			Want {
 				status: StatusCode::OK,
@@ -354,7 +366,7 @@ async fn compresses_what_is_not_stored_compressed() {
 		&http1(),
 		running.addr,
 		Method::GET,
-		"/manifest.json",
+		"/tamanu-manifest.json",
 		&[("accept-encoding", "gzip")],
 	)
 	.await;
