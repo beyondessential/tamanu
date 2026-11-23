@@ -3,7 +3,7 @@ name: curate-support-docs
 description: "Maintain a support docs pack — dedup, length budgets, and no splintering — and land changes as a reviewed pull request. Use when a support thread, or a hand-off from Support assist, surfaces a new resolution, a correction to an existing one, or a deployment quirk worth recording. Not for ordinary code changes."
 label: "Curate support docs"
 category: other
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: Curate support docs
@@ -26,4 +26,4 @@ A per-deployment "known weird thing" doesn't belong hand-edited into a shared do
 
 ### Landing the change
 
-Changes land as a **pull request for review** — never committed straight to the main line. Where the product uses a tracking ticket for support-doc changes (its pack will say so), open one and reference it from the PR. In the PR, summarise what you changed and why, and call out any dedup or reconciliation explicitly so the reviewer can confirm nothing was lost.
+Changes land as a **pull request for review**, never committed straight to the main line. On a Workhorse card, that pull request is the card's own, which Workhorse opens: push the branch and never open one yourself (see `.agents/docs/pull-requests.md`). Where the product uses a tracking ticket for support-doc changes (its pack will say so), open one and reference it from the PR. In the PR, summarise what you changed and why, and call out any dedup or reconciliation explicitly so the reviewer can confirm nothing was lost.
