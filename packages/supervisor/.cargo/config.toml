@@ -1,0 +1,3 @@
+# Links the Visual C++ runtime statically, so the supervisor runs on a Windows base without it installed.
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
