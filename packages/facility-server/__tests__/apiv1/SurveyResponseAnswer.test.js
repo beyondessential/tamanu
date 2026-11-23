@@ -736,7 +736,7 @@ describe('SurveyResponseAnswer', () => {
           ...fake(SurveyResponseAnswer),
           dataElementId: answeredDataElement.id,
           responseId: response.id,
-          body: String(chance.integer({ min: 0, max: 100 })),
+          body: chance.integer({ min: 0, max: 100 }).toString(),
         });
 
         return { response, recordedDate };
