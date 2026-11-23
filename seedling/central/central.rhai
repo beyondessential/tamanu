@@ -6,7 +6,7 @@ app.canopy_type("tamanu-central");
 
 let portal_url = app.param("patient-portal-url")
     .required(false)
-    .description("Patient portal URL")
+    .description("Patient portal URL; setting it enables the patient portal")
     .validate(|v, all| { parse_origin.call(v); });
 let portal = if portal_url.is_set() { parse_origin.call(portal_url.value()) } else { () };
 
