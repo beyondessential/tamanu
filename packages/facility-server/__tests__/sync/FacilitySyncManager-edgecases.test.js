@@ -49,7 +49,6 @@ describe('FacilitySyncManager edge cases', () => {
       models,
       sequelize,
       centralServer: {
-        streaming: () => false,
         startSyncSession: vi.fn().mockImplementation(async () => ({
           sessionId: TEST_SESSION_ID,
           startedAtTick: newSyncTick,
@@ -157,7 +156,6 @@ describe('FacilitySyncManager edge cases', () => {
         models,
         sequelize,
         centralServer: {
-          streaming: () => false,
           startSyncSession: vi.fn().mockImplementation(async () => ({
             sessionId: TEST_SESSION_ID,
             startedAtTick: NEW_SYNC_TICK,
@@ -322,7 +320,6 @@ describe('FacilitySyncManager edge cases', () => {
         models,
         sequelize,
         centralServer: {
-          streaming: () => false,
           startSyncSession: vi.fn().mockImplementation(async () => ({
             sessionId: TEST_SESSION_ID,
             startedAtTick: '1',
