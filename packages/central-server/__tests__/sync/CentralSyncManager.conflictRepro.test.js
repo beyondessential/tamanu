@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryTypes } from 'sequelize';
+import config from 'config';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
@@ -25,14 +26,23 @@ describe('Conflict repro: stale sync_lookup row vs avoid-repull', () => {
   let sequelize;
   let manager;
   let facility;
+  let originalLookupEnabled;
   const DEVICE_X = 'device-x';
   const DEVICE_Y = 'device-y';
 
   beforeAll(async () => {
     ctx = await createTestContext();
     ({ models, sequelize } = ctx.store);
+    // config/test.json5 turns the lookup table off for the module-level config that
+    // snapshotOutgoingChanges reads (production default is on), so switch it on here
+    originalLookupEnabled = config.sync.lookupTable.enabled;
+    config.sync.lookupTable.enabled = true;
+    config.sync.lookupTable.avoidRepull = true;
   });
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    config.sync.lookupTable.enabled = originalLookupEnabled;
+    await ctx.close();
+  });
 
   beforeEach(async () => {
     vi.resetModules();
@@ -151,6 +161,15 @@ describe('Conflict repro: stale sync_lookup row vs avoid-repull', () => {
 
     if (refreshBeforeStep4) await updateLookupAndLog(patient.id, 'control refresh before step 4');
 
+    // DEBUG probe: a different device Z pulling now from the same cursor, in its own session
+    {
+      const sz = await startSession('device-z');
+      const z = await pull(sz, 'device-z', cursorX);
+      console.log(`[repro] PROBE device-z pull rows for R: ${JSON.stringify(describeRows(z.changes, 'firstName', patient.id))}`);
+      const sx2 = await startSession(DEVICE_X);
+      const x2 = await pull(sx2, DEVICE_X, cursorX);
+      console.log(`[repro] PROBE device-x fresh-session (no push) pull rows for R: ${JSON.stringify(describeRows(x2.changes, 'firstName', patient.id))}`);
+    }
     // Step 4: same session pull
     const step4 = await pull(sx, DEVICE_X, cursorX);
     const step4Rows = describeRows(step4.changes, 'firstName', patient.id);
