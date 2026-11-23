@@ -95,8 +95,7 @@ To capture from a demo site:
   leave the placeholder rather than using another patient
 - **Use a throwaway headless-browser script outside the repository**, not a spec in the e2e suite
 - **Capture per the format doc**: cropped to the part of the screen the section is about, at twice
-  screen resolution, with the red outlines the author chose drawn in at capture and a black border
-  drawn around the image
+  screen resolution, with the red outlines the author chose drawn in at capture
 - **Check each image before using it**: it shows what its placeholder describes, and no real names.
   Save it to the `images/` folder named for its guide and what it shows, replace the placeholder, and
   add its centred caption

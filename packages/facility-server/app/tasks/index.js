@@ -2,6 +2,7 @@ import {
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
   FhirMissingResources,
+  recordScheduledTaskRuns,
   startFhirWorkerTasks,
 } from '@tamanu/shared/tasks';
 import { facilityDefaults, globalDefaults } from '@tamanu/settings';
@@ -55,6 +56,7 @@ export async function startScheduledTasks(context, taskClasses) {
   await resolveSchedules(context);
 
   const tasks = (taskClasses || DEFAULT_TASK_CLASSES).map(Task => new Task(context));
+  await recordScheduledTaskRuns(tasks, context.models);
 
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());

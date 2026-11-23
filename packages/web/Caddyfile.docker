@@ -13,10 +13,18 @@
 
 	header / Cache-Control no-cache
 	header /manifest.json Cache-Control no-cache
-	header /env.js Cache-Control no-cache
+	header /env.js {
+		Cache-Control no-cache
+		Content-Type "text/javascript; charset=utf-8"
+	}
 
-	# SPA fallback
-    try_files {path} {path}/ /index.html
+	# SPA fallback, spelled out from try_files so it can leave /env.js alone:
+	# rewrites run before respond, so it would otherwise become /index.html.
+	@spa {
+		not path /env.js
+		file {path} {path}/ /index.html
+	}
+	rewrite @spa {file_match.relative}
 
 	handle_errors {
 		@custom_err file /resources/errors/{err.status_code}.html

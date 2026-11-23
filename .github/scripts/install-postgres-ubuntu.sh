@@ -10,9 +10,10 @@ pgversion="${1:?version must be provided}"
 
 # configure official upstream apt repo
 # from https://wiki.postgresql.org/wiki/Apt
-sudo apt install -y curl ca-certificates gnupg
-curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null
-echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+# postgresql-common ships the repo's signing key, so nothing is fetched from www.postgresql.org
+sudo apt install -y postgresql-common
+sudo install -D -m 0644 /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc /etc/apt/keyrings/pgdg.asc
+echo "deb [signed-by=/etc/apt/keyrings/pgdg.asc] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
 
 # remove existing postgresql and install desired version
 sudo apt update
