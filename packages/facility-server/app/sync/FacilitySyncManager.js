@@ -24,7 +24,7 @@ import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledR
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { applyBootstrap } from './facilityBootstrap';
-import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
+import { pullIncomingChanges } from './pullIncomingChanges';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
@@ -336,10 +336,7 @@ export class FacilitySyncManager {
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
     await createSnapshotTable(this.sequelize, sessionId);
-    const pull = (await this.centralServer.streaming())
-      ? streamIncomingChanges
-      : pullIncomingChanges;
-    const { totalPulled, pullUntil } = await pull(
+    const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       this.sequelize,
       sessionId,
