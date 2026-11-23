@@ -102,7 +102,7 @@ async function putSurveyResponseAnswer(req, isVital = false) {
       {
         required: true,
         model: ProgramDataElement,
-        where: { type: { [Op.not]: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED } },
+        where: { type: { [Op.ne]: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED } },
       },
     ],
   });
