@@ -1,13 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
 import * as z from 'zod';
 
-import { Op } from 'sequelize';
-import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
-import { completeSyncSession } from '@tamanu/database/sync';
 import { DEVICE_SCOPES } from '@tamanu/constants';
-
+import { completeSyncSession } from '@tamanu/database/sync';
+import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
+import { log } from '@tamanu/shared/services/logging';
 import { buildFacilityBootstrap } from './buildFacilityBootstrap';
 import { CentralSyncManager } from './CentralSyncManager';
 
