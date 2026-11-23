@@ -36,9 +36,9 @@ let upgrade = app.gate("upgrade")
 for name in parts {
     app.deployment(name).after([readiness, upgrade]);
 }
-supervisor.after([readiness, upgrade]);
-for name in parts {
-    supervisor.after(app.deployment(name));
+// The frontends keep serving the previous release until the upgrade succeeds.
+for name in frontends {
+    app.deployment(name).after(upgrade);
 }
 
 // spec: SDDEF#ingress

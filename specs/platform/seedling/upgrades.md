@@ -17,7 +17,7 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 ### Compatibility within a minor
 
 - Every release in a minor runs under the definition of any other release in that minor.
-- A release changes its definition, and the parts of Tamanu a definition drives (its routes, commands and the supervisor's interface among them), only in ways that keep this true.
+- A release changes its definition, and the parts of Tamanu a definition drives (its routes and commands among them), only in ways that keep this true.
 - The one exception is a release that restores compatibility an earlier release in the minor broke by mistake. It may break compatibility with that earlier release's definition in doing so.
 
 > [!NOTE]
@@ -33,10 +33,9 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 
 - A definition's **upgrade** [gate](overview.md#borrowed-terms) is keyed on the version, so changing the version upgrades the server, whether an operator sets it or a definition update moves its default.
 - The new release's images are pulled before anything is stopped. A failed pull leaves the server running its current version, untouched, and the upgrade is retried.
-- Once the images are present, every part of the server but the supervisor is stopped.
-- While the parts are stopped, the supervisor goes on serving the web app, and answers requests for the parts with Tamanu's error pages.
+- Once the images are present, every part that connects to the database is stopped. The web app and patient portal go on serving the current release.
 - The new release's migrations then run against the database.
-- When the migrations succeed, the new release's parts are started. Once they are ready, the supervisor is replaced with the new release's, which serves normally.
+- When the migrations succeed, the new release's parts are started, and the web app and patient portal move to the new release.
 
 ### Moving to an older release
 

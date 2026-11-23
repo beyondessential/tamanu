@@ -1,3 +1,6 @@
+// The API reaches the sync part at `localmount`.
+let sync_http = app.service("sync-http");
+
 let configure = |c| {
     c.image(image.call("facility"))
         .env("TZ", timezone.value())
@@ -27,7 +30,8 @@ configure.call(app.deployment("api"))
     .scale(1..=api_max_replicas)
     .arg(["startApi"])
     .mount(sync_http.port(3004))
-    .tcp(3000, api_http.port(3001));
+    .http(3000, public_svc.route("/api"))
+    .http(3000, public_svc.route("/v1"));
 
 configure.call(app.deployment("sync"))
     .description("Sync")
@@ -46,4 +50,11 @@ configure.call(app.deployment("fhir"))
     .on_update(OnUpdate.Replace)
     .arg(["startFhirWorker"]);
 
+app.deployment("frontend")
+    .description("Web app")
+    .image(image.call("frontend"))
+    .scale(1)
+    .http(3000, public_svc.route("/"));
+
 let parts = ["api", "sync", "tasks", "fhir"];
+let frontends = ["frontend"];

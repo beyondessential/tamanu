@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-- **Supervisor specs (L13):** the Seedling definitions specs assume the supervisor specs return to `main` before this card merges.
+- **Supervisor (Smoother Upgrades support project):** the definitions run Tamanu's current layout, with no supervisor, because the supervisor's routing (#A18) won't ship before Seedling does. The card that moves deployments onto the supervisor changes these definitions in the same release. Once #B18's process description ships, the definitions read it from the bundle rather than restating the parts.
 - **T16:** a facility server stops when its primary timezone differs from central's. That check is what lets both definitions keep the timezone as an ordinary parameter defaulting to UTC, and it carries the sync and facility setup spec changes.
 - **Seedling gates (seedling/H6, landed):** the readiness check and the upgrade are built on gates. Gates replaced change handlers and the install action, so neither definition declares an `on_change` handler or an install action. Seedling/J6 was cancelled because gate holds already give it what it was for.
 
@@ -10,12 +10,12 @@
 
 Each definition declares its gates in this order, which is also the order Seedling runs them when several are due at once.
 
-- **`readiness`:** keyed on the database URL and crypto key. No body, and a check Job that connects with the database URL and decrypts the stored secrets with the crypto key. Every Deployment, the supervisor included, is ordered after it, so a changed URL or key makes them stale but they keep running on the old value until the check passes. Seedling stores only a digest of the key, but the check Job's error output is shown on the fault, so it must not print the URL's password. The check declares an `interval`, around five minutes. A failed interval check invalidates the gate: running parts stay up, since Seedling never stops a running dependant because a target isn't ready, but a part that restarts waits.
-- **`upgrade`:** keyed on the version, ordered after `readiness`, with every Deployment but the supervisor as its exclusive selection. Its body runs the new release's `upgrade` subcommand in a Job from the new server image. Its check runs `just-migrate list --pending --check`, which exits non-zero when migrations are pending.
+- **`readiness`:** keyed on the database URL and crypto key. No body, and a check Job that connects with the database URL and decrypts the stored secrets with the crypto key. Every part that connects to the database is ordered after it, so a changed URL or key makes them stale but they keep running on the old value until the check passes. Seedling stores only a digest of the key, but the check Job's error output is shown on the fault, so it must not print the URL's password. The check declares an `interval`, around five minutes. A failed interval check invalidates the gate: running parts stay up, since Seedling never stops a running dependant because a target isn't ready, but a part that restarts waits.
+- **`upgrade`:** keyed on the version, ordered after `readiness`, with the parts that connect to the database as its exclusive selection. Its body runs the new release's `upgrade` subcommand in a Job from the new server image. Its check runs `just-migrate list --pending --check`, which exits non-zero when migrations are pending.
 - **`certificates`:** keyed on the hostnames of the `https` URLs (canonical, and the portal's when set). Its body calls `rt.warm_certs(app).ready()`. Nothing is ordered after it, so a certificate that can't be issued raises `gate_failed` without holding the server back. Seedling reports the app as installing, not set up, until every gate is satisfied, including this one.
-- The parts are ordered after `upgrade`, and the supervisor after `upgrade` and the parts, so Seedling replaces the supervisor only once the new parts are ready, and the old one goes on serving the web app while `upgrade` keeps failing.
+- The frontends (the web app, and on central the patient portal) are ordered after `upgrade` only, outside its exclusive selection, so they go on serving the previous release until the upgrade succeeds, then roll to the new one.
 
-The supervisor gets no upgrading signal. On L13 it learns of an upgrade only from an actuator's `upgrading` state, and the definitions configure no actuator. During an upgrade it answers for the parts with Tamanu's error pages, and facility syncs meet errors with no `Retry-After`. The aim is an actuator for this later, either a minimal one in the definition or Seedling implementing the contract, but no card for it yet.
+While the parts are down, API and sync requests fail at Seedling's proxy, with no `Retry-After`, so facility syncs show as failed until the upgrade finishes. The supervisor, with an actuator, would answer for them later.
 
 The Retry upgrade action is gone: Seedling retries a failed gate on its own, and an operator runs a gate at once through `/apps/gates/run`.
 
@@ -36,6 +36,4 @@ Tamanu:
 - **A `PATIENT_PORTAL_URL` environment variable** on central. Today it is in config only (`patientPortal.portalUrl`).
 - **A `published-version` file**, written into each bundle when it is published: the image tag on the first line, the Tamanu version it carries on the second. The version parameter's default and the minor check read it.
 
-Supervisor (#L13): the draft follows the supervisor on the `workhorse/l13-5` branch. It runs from the frontend image with the `supervisor` command, configured by `TAMANU_SUPERVISOR_*` variables. It serves the web app and the portal itself, and has no database connection and no storage.
-
-Trusted proxies: both hops trust `fc00::/7`, a CIDR that the supervisor and Express both read. Seedling's pods are IPv6 only, within the host's unique local `/48`. The proxy connects to the supervisor from its own address in that prefix, and a service mount rewrites only the destination, so the parts see the supervisor's own pod address.
+Trusted proxies: the parts trust `fc00::/7`. Seedling's pods are IPv6 only, within the host's unique local `/48`, and its proxy connects to the parts from its own address in that prefix.
