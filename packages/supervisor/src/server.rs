@@ -3,7 +3,7 @@
 //!
 //! spec: SUPV#connections
 
-use std::{convert::Infallible, net::SocketAddr, time::Duration};
+use std::{convert::Infallible, io::ErrorKind, net::SocketAddr, time::Duration};
 
 use axum::{Router, body::Body};
 use hyper::{Request, body::Incoming};
@@ -46,6 +46,11 @@ pub async fn serve(listener: TcpListener, router: Router, shutdown: Cancellation
 		let (stream, peer) = tokio::select! {
 			accepted = listener.accept() => match accepted {
 				Ok(accepted) => accepted,
+				// A connection the client gave up on before it was accepted.
+				Err(error) if matches!(
+					error.kind(),
+					ErrorKind::ConnectionAborted | ErrorKind::ConnectionRefused | ErrorKind::ConnectionReset
+				) => continue,
 				Err(error) => {
 					// Running out of file descriptors, say: wait rather than spin.
 					tracing::warn!(%error, "accepting a connection");
