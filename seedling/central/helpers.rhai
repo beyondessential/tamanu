@@ -16,20 +16,27 @@ let published = try {
     ()
 };
 
-// The minor of a release tag, such as "2.71" for "v2.71.3", or () for a tag
-// that names no release.
-let minor_of = |release| {
-    let bare = if release.starts_with("v") { release.sub_string(1) } else { release };
+// spec: SDUPG#version-parameter
+// The numbers of a release, such as [2, 71, 3] for "v2.71.3", or () for a tag
+// that names no release. The published tag is read as the release it carries,
+// since a build that is not a release is in that release's minor.
+let release_of = |tag| {
+    if published != () && tag == published.tag { tag = published.release; }
+    let bare = if tag.starts_with("v") { tag.sub_string(1) } else { tag };
     let parts = bare.split(".");
     if parts.len() != 3 { return (); }
+    let numbers = [];
     for part in parts {
         if part.len() == 0 { return (); }
         for c in part.chars() {
             if c < '0' || c > '9' { return (); }
         }
+        numbers.push(parse_int(part));
     }
-    `${parts[0]}.${parts[1]}`
+    numbers
 };
+
+let same_minor = |a, b| a != () && b != () && a[0] == b[0] && a[1] == b[1];
 
 // spec: SDDEF#canonical-urls
 // A single trailing slash is accepted as the root path, since a URL copied from

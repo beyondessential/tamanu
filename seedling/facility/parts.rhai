@@ -47,7 +47,7 @@ configure.call(app.deployment("fhir"))
     .arg(["startFhirWorker"]);
 
 app.deployment("frontend")
-    .image(image.call("frontend"))
+    .image(frontend_image.call("frontend"))
     .scale(1)
     .http(3000, public_svc.route("/"));
 

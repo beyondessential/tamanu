@@ -14,6 +14,14 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 - A published definition refuses a version in any other minor, with a reason saying that the definition for that minor is needed.
 - A definition run from the repository accepts any image tag as its version, such as the build of a branch.
 
+### Frontend version
+
+- A definition takes an optional frontend version, the build the web app and patient portal run in place of the version.
+- A published definition accepts a frontend version that is a release in the version's minor, the same as the version or newer.
+- A change that would leave the frontend version older than the version, or in another minor, is refused, with a reason naming the version. An upgrade past the frontend version raises or unsets it in the same change.
+- A definition run from the repository accepts any image tag as its frontend version.
+- Changing the frontend version moves the web app and patient portal to it, without stopping the server or running migrations.
+
 ### Compatibility within a minor
 
 - Every release in a minor runs under the definition of any other release in that minor.
@@ -35,7 +43,7 @@ Applies to the version parameter of Tamanu's [Seedling definitions](overview.md)
 - The new release's images are pulled before anything is stopped. A failed pull leaves the server running its current version, untouched, and the upgrade is retried.
 - Once the images are present, every part that connects to the database is stopped. The web app and patient portal go on serving the current release.
 - The new release's migrations then run against the database.
-- When the migrations succeed, the new release's parts are started, and the web app and patient portal move to the new release.
+- When the migrations succeed, the new release's parts are started, and the web app and patient portal move to the new release, or stay on the [frontend version](#frontend-version) when one is set.
 
 ### Moving to an older release
 

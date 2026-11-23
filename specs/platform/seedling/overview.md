@@ -27,7 +27,7 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 
 - A central definition runs the API, the background tasks, the FHIR workers and the web app, and the patient portal when its URL is set.
 - A facility definition runs the API, sync, the background tasks, the FHIR worker and the web app.
-- Each part runs from the image of the version the definition is set to.
+- Each part runs from the image of the version the definition is set to, except the web app and patient portal when a [frontend version](upgrades.md#frontend-version) is set.
 - The definition sets the parts' trusted proxies to Seedling's proxy.
 - The definition sets every environment variable that is a property of how it runs the server, so the operator never sets them: ports, the disk-space path, the trusted-proxy lists, console logging, which is on, and migrations at startup, which are off.
 

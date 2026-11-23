@@ -5,16 +5,31 @@ let version = app.param("version")
     .required(true)
     .description("Tamanu image tag, such as v2.71.3; changing it upgrades the server, with downtime")
     .validate(|v, all| {
-        if published == () || v == published.tag { return; }
-        let wanted = minor_of.call(published.release);
-        let given = minor_of.call(v);
-        if given == () || given != wanted {
-            throw `this definition runs releases of ${wanted}; use the definition for the release you want`;
-        }
+        if published == () { return; }
+        let wanted = release_of.call(published.tag);
+        if same_minor.call(release_of.call(v), wanted) { return; }
+        throw `this definition runs releases of ${wanted[0]}.${wanted[1]}; use the definition for the release you want`;
     });
 if published != () {
     version.default_value(published.tag);
 }
+
+// A validator runs whenever its parameter is set, so this one also refuses a
+// version change that would leave the frontend version behind.
+let frontend_version = app.param("frontend-version")
+    .required(false)
+    .description("Image tag for the frontends in place of the version, no older than it and in its minor; changing it has no downtime")
+    .validate(|v, all| {
+        if published == () { return; }
+        let server = if "version" in all { all.version } else { published.tag };
+        let base = release_of.call(server);
+        // The version's own validator refuses a version outside the minor.
+        if !same_minor.call(base, release_of.call(published.tag)) { return; }
+        let given = release_of.call(v);
+        if !same_minor.call(given, base) || given[2] < base[2] {
+            throw `must be a release of ${base[0]}.${base[1]} no older than the version, ${server}; raise it or unset it`;
+        }
+    });
 
 let database_url = app.param("database-url")
     .kind("password")
@@ -69,3 +84,7 @@ let timezone = app.param("timezone")
 let canonical = if canonical_url.is_set() { parse_origin.call(canonical_url.value()) } else { () };
 
 let image = |name| `ghcr.io/beyondessential/tamanu-${name}:${version.value()}`;
+let frontend_image = |name| {
+    let tag = if frontend_version.is_set() { frontend_version.value() } else { version.value() };
+    `ghcr.io/beyondessential/tamanu-${name}:${tag}`
+};

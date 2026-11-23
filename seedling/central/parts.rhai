@@ -43,7 +43,7 @@ configure.call(app.deployment("fhir-resolve"))
     .arg(["startFhirWorker", "--topics=fhir.resolver"]);
 
 app.deployment("frontend")
-    .image(image.call("frontend"))
+    .image(frontend_image.call("frontend"))
     .scale(1)
     .http(3000, public_svc.route("/"));
 
@@ -54,7 +54,7 @@ let frontends = ["frontend"];
 if portal != () {
     app.deployment("api").http(3000, portal_svc.route("/api"));
     app.deployment("patient-portal")
-        .image(image.call("patient-portal"))
+        .image(frontend_image.call("patient-portal"))
         .scale(1)
         .http(3000, portal_svc.route("/"));
     frontends.push("patient-portal");
