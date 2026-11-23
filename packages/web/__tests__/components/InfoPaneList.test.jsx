@@ -143,6 +143,17 @@ describe('InfoPaneList', () => {
     expect(payload).not.toHaveProperty('resolutionNote');
   });
 
+  it('shows an edited row collapsed once the edit is saved', async () => {
+    renderConditions();
+    fireEvent.click(await screen.findByTestId('listitem-adip-1'));
+    fireEvent.click(screen.getByTestId('infopaneitemdetails-edit'));
+
+    fireEvent.click(screen.getByTestId('formsubmitcancelrow-2r80-confirmButton'));
+
+    await waitFor(() => expect(screen.queryByTestId('collapse-0a33')).toBeNull());
+    expect(screen.getByTestId('listitem-adip-1').getAttribute('aria-expanded')).toBe('false');
+  });
+
   it('un-resolves a resolved condition when Resolved is unticked in its edit form', async () => {
     put.mockClear();
     renderConditions();

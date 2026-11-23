@@ -62,6 +62,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
               component={TextField}
               multiline
               minRows={2}
+              required
               data-testid="field-nj3s"
             />
             <Field

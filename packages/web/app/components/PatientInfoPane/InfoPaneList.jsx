@@ -127,7 +127,7 @@ export const InfoPaneList = ({
     [],
   );
   const handleEdit = useCallback(
-    id => setPaneState(state => ({ ...state, adding: false, editKey: id })),
+    id => setPaneState(state => ({ ...state, adding: false, editKey: id, expandedKey: null })),
     [],
   );
   const handleToggleExpanded = useCallback(
