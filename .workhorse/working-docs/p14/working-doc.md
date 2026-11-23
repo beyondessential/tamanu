@@ -187,6 +187,11 @@ Not proposed for this card beyond two small things: correct the lookup table spe
 - The unfiled problems stay in the list above for now. Come back to them before the card closes.
 - The overview is drafted first, on its own. The dragons doc follows once the overview's framing is agreed.
 - Specs may be built out at the end of the card, from the agreed docs.
+- Record-level conflict resolution is presented as it is (last push wins), with one note on the original intent (highest tick wins) and why the difference has not mattered.
+- The docs tell agents to avoid changing sync as a side effect of other work. Sync changes should be explicitly sync-focused or strongly directed.
+- The path with the lookup table switched off gets its own full document, `llm/docs/sync/legacy-model-snapshot.md`, so the understanding is written down. The overview says only that it is no longer in use and links to it. No other doc leans on it.
+- Code references are file and function names, never line numbers. The ledgers keep line numbers as of `22d3edaa36`.
+- Mobile gets a full section, linking to the matching facility section wherever the behaviour is shared instead of repeating it.
 
 ## Open questions
 
