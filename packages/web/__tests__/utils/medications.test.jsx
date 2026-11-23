@@ -232,7 +232,8 @@ describe('QuantityInput', () => {
     const user = userEvent.setup();
     renderElementWithTranslatedText(withSettings(<DispenseRowQuantity initialQuantity={1} />));
 
-    // One change per keystroke, as in a browser: '2', then '2.', then '2.5'.
+    // One change per keystroke. jsdom can't hold '2.', so the '.' reports '2' here; a browser
+    // reports '' (bad input). Either way, the '5' sets the row to 2 and the box shows it.
     await user.clear(getQuantityBox());
     await user.type(getQuantityBox(), '2.5');
 
