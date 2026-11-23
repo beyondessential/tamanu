@@ -8,7 +8,7 @@ Working doc for P14: what we learned from checking the sync orientation sessions
 
 ## Where the groundwork stands
 
-- The three orientation sessions were split into eleven areas and each was checked against main (`22d3edaa36`) with file and line references. About 335 claims across the first eight ledgers, with `09` still to come.
+- The three orientation sessions were split into eleven areas and each was checked against main (`22d3edaa36`) with file and line references. About 360 claims in all.
 - The concurrency questions the sessions left open were worked through separately in `ledger/00-concurrency-analysis.md`.
 - One suspected bug was reproduced in a throwaway test (`ledger/12-conflict-repro.md`).
 - The fix history was mined into 105 past problems, each with cause, where the guard lives now, and the lesson (`ledger/10-history-server.md`, `ledger/11-history-clients-runbooks.md`).
@@ -69,6 +69,15 @@ Only the ones that change how sync should be explained. Minor drift is in each l
 - The old model-level filters are not dead: the facility bootstrap reads through them, and the presence of `buildPatientSyncFilter` is what marks a model as patient-linked (`PLL` drift).
 - The old path and the lookup path disagree about notes on lab requests when sync-all-lab-requests is on (`PLL-48`).
 
+### Models and migrations
+
+- There are five sync directions, not four: do not sync, push, pull, bidirectional, and push to central then delete. Mobile has no equivalent of the last (`MDL-03`).
+- No constant defines "reference data" for sync. A table syncs everywhere when its filter returns nothing to filter on; facility-scoped tables such as settings and `patient_facilities` do not (`MDL-05`).
+- Composite primary keys do exist in the database on a few syncing tables (`patient_facilities`, `patient_field_values`, `patient_program_registrations`, `translated_strings`). Sync works because each also has a stored generated `id` column, which is what sync uses (`MDL-10`).
+- Hard deletes still never reach clients, but central now flags the lookup row when a source row is hard-deleted (`MDL-09`).
+- The rule files tell a migration author nothing about the sync tick trigger being off or about the lookup table (`MDL` surprises).
+- Patients are marked for sync on more paths than the sessions listed: appointments, location bookings, program registration, mobile edits and patient merge as well (`MDL-21`).
+
 ### Clients
 
 - Mobile has no sync triggers. A TypeORM listener stamps the tick, and there is no equivalent of waiting for pending edits. "Robustness via database triggers" is a server-side principle (`MOB-21`).
@@ -88,7 +97,7 @@ Only the ones that change how sync should be explained. Minor drift is in each l
 | Is `removeEchoedChanges` redundant with the lookup table? | Yes. The ticks it compares can never be equal on that path. | `00` F5 |
 | Is the persist tick-tock really "purely for a unique tick"? | That uniqueness is what avoid-repull attribution rests on. Both persist tick-tocks are load-bearing. | `00` F6 |
 | Is persist the only thing that blocks tick-tock? | No: also the importer and the lookup stamping transaction. | `CLK-13` |
-| Does the whole user row, password hash included, sync everywhere? | Pending ledger `09`. | |
+| Does the whole user row, password hash included, sync everywhere? | Yes, to every facility and mobile device. Only four bookkeeping columns are excluded from sync, for every model. The scope that hides the password from queries does not affect sync. | `MDL` Q4 |
 | Are facility push snapshots in memory? | Yes. | `FAC` answers |
 | How are incoming and outgoing snapshot rows told apart? | A `direction` column in one table per session. | `SES` answers |
 | Does the clock start at 0 or 1, and does parity hold? | Starts at 1. Central's own writes are odd, ticks handed to clients are even. | `CLK` answers |
@@ -98,7 +107,7 @@ Only the ones that change how sync should be explained. Minor drift is in each l
 | Which models opt into field-level merge? | Only `patient_additional_data`. Settings does not. | `PSH` Q5 |
 | Why does the initial lookup build use source ticks? | So clients do not re-pull unchanged records after a rebuild. Inferred; the code only states the mechanism. | `LKP` answers |
 | Why is the lookup table not a materialised view? | Nothing in code, specs or PRs says. | `LKP` answers |
-| What does unmarking a patient for sync leave behind? | Pending ledger `09`. | |
+| What does unmarking a patient for sync leave behind? | Not settled by the code. No path unmarks a patient except patient merge, which hard-deletes and recreates the rows. The patient's data would stay on the facility, since nothing carries a removal. No runbook or spec covers it. | `MDL-22` |
 | Why was the "edited after push" check switched off in 2024? | Not recorded anywhere found. On again since Aug 2025. | `FAC-46` |
 
 ## Problems found
@@ -113,7 +122,6 @@ Found by reading, not yet filed. Each needs a decision on whether to file:
 
 - [ ] Pull stream route passes a numeric cursor where a base64 one is expected, and the stream routes read settings at undeclared paths (`SES-26`, `PLL-15`, `LCK-19`). Streaming is off by default.
 - [ ] Snapshot timeout throws inside a timer and cannot abort the snapshot; may crash the process (`LCK-28`, `HIS-14`).
-- [ ] With sync-all-lab-requests on, the lab-request clause in the pull query sits outside both the patient clause and the sensitive-network clause (`snapshotOutgoingChanges.js:262-294`). Waiting on ledger `09` for what the spec says.
 - [ ] A lost `sync_lookup_ticks` row if the process dies between the lookup build commit and the stamping transaction, leaving a gap in changelog attachment (`00` F1 residual).
 - [ ] Create-session lock checks capacity before taking the lock and not again after (`LCK-18`).
 - [ ] The sync-all-lab-requests settings query ignores soft-deleted settings (`PLL` surprises).
@@ -121,7 +129,8 @@ Found by reading, not yet filed. Each needs a decision on whether to file:
 - [ ] A queued follow-up sync on the facility is dropped if the running sync fails (`FAC-20`).
 - [ ] Mobile reads one `tablesForFullResync` row while migrations insert a new row each time (`HIC-20`).
 - [ ] Mobile's batch-update fallback still uses `Promise.all`, the shape fixed for inserts (`MOB` surprises).
-- [ ] A pull model with no `buildSyncLookupQueryDetails` fails every lookup build, and nothing checks for one (`LKP` surprises).
+- [ ] A pull model with no `buildSyncLookupQueryDetails` fails every lookup build, and nothing checks for one (`LKP` surprises, `MDL-07`).
+- [ ] Turning the lookup table off is not a safe fallback: the old path has no sensitive-network scoping (`MDL` surprises).
 - [ ] Nothing stops two lookup refreshers overlapping across processes (`LKP` surprises).
 - [ ] `sync_lookup.encounter_id` is never populated; `SYNC_LOOKUP_PENDING_UPDATE_FLAG` is a dead constant; a leftover debug `log.warn` on every sync request (`buildSyncRoutes.js:105`).
 - [ ] Two known fixes sit on unmerged branches: crash-safe push acknowledgement and the whole-table `updated_at_by_field` aggregate (`HIS-08`, `HIS-32`).
@@ -171,11 +180,17 @@ Found by reading, not yet filed. Each needs a decision on whether to file:
 
 Not proposed for this card beyond two small things: correct the lookup table spec where it has drifted (two passes, attribution, the pending flag), and decide whether the overview spec stub stays a stub. Conflict resolution and the session phases are the obvious candidates for real specs later, but conflict resolution should not be specified until the divergence bug has a decision.
 
+## Decisions
+
+- The docs live in `llm/docs/sync/` as `overview.md` and `dragons.md`, reached by pointer: a plain line in `AGENTS.md`, a short `CLAUDE.md` in each sync code directory, and a Review Hero prompt. Not loaded into every session.
+- The dragons doc lists known open problems on main, each linked to its issue and removed when its fix merges.
+- The unfiled problems stay in the list above for now. Come back to them before the card closes.
+- The overview is drafted first, on its own. The dragons doc follows once the overview's framing is agreed.
+- Specs may be built out at the end of the card, from the agreed docs.
+
 ## Open questions
 
-- [ ] Where the two documents live: `llm/docs/` beside the existing overview and authentication docs, or somewhere else.
-- [ ] Whether the known open holes belong in the dragons doc (my view: yes, linked to issues, removed as they are fixed).
-- [ ] Which of the unfiled problems above to file.
 - [ ] Whether the reasons recorded as inference match memory: source ticks on the initial lookup build; why the pending-edit check was off in 2024.
 - [ ] Whether to do the remaining walkthrough topics the sessions skipped, or whether the ledgers now cover them (database schemas, model sync config, sync directions are in `09`).
+- [ ] Sync-all-lab-requests and sensitive networks: the sensitive networks spec says a facility syncing all lab requests receives every lab request "ahead of patient and network scoping", and the code does that. So lab requests, their tests and their encounters from inside a sensitive network reach any such facility outside it. Specified, but was the confidentiality consequence a deliberate choice?
 - [ ] The design notes for a different sync-all-lab-requests and the dropped sync-all-vaccines behaviour: worth recording in the overview as known intent if they can be found, since the code has no trace of the vaccine one.
