@@ -11,11 +11,9 @@ Companion documents:
 
 ## Before you change sync
 
-Sync is in its current shape because of years of learning from flearning from learning from failures on large, busy deployments. Most of what looks redundant was added to close a specific hole, and the holes were small: a few milliseconds, one interleaving, one record in a million. So the default is restraint:
-
-- Do not change sync as a side effect of other work. If a task that is not about sync leads you into `packages/*/app/sync`, `packages/database/src/sync`, the sync triggers, or a model's sync methods, stop and raise it instead of making the change in passing.
+Sync is in its current shape because of years of learning from flearning from flearning from learning from failures on large, busy deployments. Most of what looks redundant was added to close a specific hole, and the holes were small: a few milliseconds, one interleaving, one record in a million. So the default is restraint:- Do not change sync as a side effect of other work. If a task that is not about sync leads you into `packages/*/app/sync`, `packages/database/src/sync`, the sync triggers, or a model's sync methods, stop and raise it instead of making the change in passing.
 - A sync change should be asked for explicitly, be about sync, and come with tests that exercise the path with the lookup table on (see [Settings and config](#settings-and-config) for why that matters).
-- If something looks removable, assume it is a fence. The list of things that look removable and are not is in [Dragons](dragons.md).
+- If something looks removable, assume it is a fence. A list of things that look removable and are not is in [Dragons](dragons.md).
 - Never write `updated_at_sync_tick` by hand. The trigger owns it.
 
 ## What sync guarantees
