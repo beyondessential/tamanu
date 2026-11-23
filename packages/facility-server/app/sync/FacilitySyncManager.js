@@ -23,7 +23,7 @@ import { getSyncConfig } from '../serverConfig';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
-import { applyBootstrap } from './facilityBootstrap';
+import { applyBootstrap, clearLocallyAuthoredSettings } from './facilityBootstrap';
 import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
@@ -191,6 +191,7 @@ export class FacilitySyncManager {
     const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
 
     if (pullSince === -1 && !this.hasBootstrapped) {
+      await clearLocallyAuthoredSettings(this.sequelize);
       await this.bootstrap();
     }
 

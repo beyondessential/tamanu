@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import { FACT_LAST_SUCCESSFUL_SYNC_PULL } from '@tamanu/constants/facts';
 
-vi.mock('../../app/sync/facilityBootstrap', () => ({ applyBootstrap: vi.fn() }));
+vi.mock('../../app/sync/facilityBootstrap', () => ({
+  applyBootstrap: vi.fn(),
+  clearLocallyAuthoredSettings: vi.fn(),
+}));
 
 const { applyBootstrap } = await import('../../app/sync/facilityBootstrap');
 const { FacilitySyncManager } = await import('../../app/sync/FacilitySyncManager');

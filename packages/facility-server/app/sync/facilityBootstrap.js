@@ -10,11 +10,20 @@ import {
 import { sortInDependencyOrder } from '@tamanu/database/utils/sortInDependencyOrder';
 import { pauseAudit } from '@tamanu/database/utils/audit';
 
+// Rows central never sent were seeded by migrations, and collide by key with central's copies
+export async function clearLocallyAuthoredSettings(sequelize) {
+  await sequelize.query(
+    'DELETE FROM settings WHERE facility_id IS NULL AND updated_at_sync_tick <> :fromCentral',
+    { replacements: { fromCentral: SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE } },
+  );
+}
+
 // spec: FBOOT#applying-the-bootstrap
 // Saves the records central serves for a facility bootstrap the way the first sync saves pulled
 // records, so a facility can be logged into before that sync completes. Must run inside a
 // transaction, which the caller shares with anything that has to land alongside the bootstrap.
 export async function applyBootstrap({ sequelize, models }, records) {
+  await clearLocallyAuthoredSettings(sequelize);
   const recordsByType = groupBy(records, 'recordType');
   const bootstrappedModels = Object.fromEntries(
     Object.entries(getModelsForPull(models)).filter(([, model]) => recordsByType[model.tableName]),

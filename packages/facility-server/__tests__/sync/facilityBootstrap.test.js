@@ -127,4 +127,19 @@ describe('applyBootstrap', () => {
       getServerFacilityIds().sort(),
     );
   });
+
+  it("replaces global settings the facility seeded itself with central's", async () => {
+    const key = 'fhir.worker.assumeDroppedAfter';
+    await sequelize.query(
+      `INSERT INTO settings (id, key, value) VALUES ('4d656cb5-193c-4ba6-bd50-37d7e14fdb99', :key, '"10 minutes"')`,
+      { replacements: { key } },
+    );
+    const fromCentral = { id: crypto.randomUUID(), key, value: '20 minutes', scope: 'global' };
+
+    await apply([record(models.Setting, fromCentral)]);
+
+    expect(await models.Setting.findAll({ where: { key }, raw: true })).toMatchObject([
+      { id: fromCentral.id, value: '20 minutes' },
+    ]);
+  });
 });
