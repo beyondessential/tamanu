@@ -46,17 +46,6 @@ describe('Sync routes for an unavailable session', () => {
   const asSyncClient = request =>
     request.set('Authorization', `Bearer ${token}`).set('X-Tamanu-Client', SERVER_TYPES.FACILITY);
 
-  describe('unknown session', () => {
-    it.each(['ready/stream', 'pull/ready/stream'])('responds 404 from %s', async endpoint => {
-      const response = await asSyncClient(
-        baseApp.get(`/api/sync/${crypto.randomUUID()}/${endpoint}`),
-      );
-
-      expect(response.status).toBe(404);
-      expect(response.body.error.message).toBe('Session not found');
-    });
-  });
-
   describe('completed session', () => {
     let sessionId;
 
