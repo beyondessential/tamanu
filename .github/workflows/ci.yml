@@ -408,12 +408,13 @@ jobs:
       # executes was always built from main's own code, never a branch's. They are
       # restored by exact key only, so a new lockfile or Rust release starts a clean
       # target directory rather than carrying every earlier build forward.
-      # The Windows lint's build is left out, so it does not double the entry.
+      # The Windows lint's build is cached apart, so neither entry carries the other.
       BUILD_CACHE_PATHS: |
         ~/.cargo/registry/index
         ~/.cargo/registry/cache
         packages/supervisor/target
         !packages/supervisor/target/x86_64-pc-windows-gnu
+      WINDOWS_CACHE_PATH: packages/supervisor/target/x86_64-pc-windows-gnu
     steps:
       - uses: actions/checkout@v6
         with:
@@ -432,6 +433,10 @@ jobs:
         with:
           path: ${{ env.BUILD_CACHE_PATHS }}
           key: supervisor-${{ runner.os }}-${{ steps.rust.outputs.version }}-${{ hashFiles('packages/supervisor/Cargo.lock') }}
+      - uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.WINDOWS_CACHE_PATH }}
+          key: supervisor-windows-gnu-${{ steps.rust.outputs.version }}-${{ hashFiles('packages/supervisor/Cargo.lock') }}
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked
@@ -459,6 +464,11 @@ jobs:
         with:
           path: ${{ env.BUILD_CACHE_PATHS }}
           key: supervisor-${{ runner.os }}-${{ steps.rust.outputs.version }}-${{ hashFiles('packages/supervisor/Cargo.lock') }}
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.WINDOWS_CACHE_PATH }}
+          key: supervisor-windows-gnu-${{ steps.rust.outputs.version }}-${{ hashFiles('packages/supervisor/Cargo.lock') }}
 
   typos:
     name: Spellcheck
