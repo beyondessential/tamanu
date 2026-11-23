@@ -110,20 +110,38 @@ describe('FacilitySyncManager settings on first sync', () => {
     ]);
   });
 
-  it('keeps settings central already delivered when a first sync is attempted again', async () => {
-    const fromCentral = centralHeartbeat();
-    await makeSyncManager({ bootstrap: [fromCentral], isQueued: true }).runSync();
-    await insertSetting({ key: 'features.reminderContactModule.enabled', value: 'false' });
+  it('keeps settings the bootstrap delivered when the first pull follows it', async () => {
+    const REMINDER_KEY = 'features.reminderContactModule.enabled';
+    const fromBootstrap = centralHeartbeat();
+    await makeSyncManager({ bootstrap: [fromBootstrap], isQueued: true }).runSync();
+    await insertSetting({ key: REMINDER_KEY, value: 'false' });
+    const fromPull = {
+      id: crypto.randomUUID(),
+      key: REMINDER_KEY,
+      value: true,
+      scope: SETTINGS_SCOPES.GLOBAL,
+      facilityId: null,
+    };
+
+    await makeSyncManager({ pulled: [fromPull] }).runSync();
+
+    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
+      { id: fromBootstrap.id, value: '2 minutes' },
+    ]);
+    expect(await settingsWithKey(REMINDER_KEY)).toEqual([{ id: fromPull.id, value: true }]);
+  });
+
+  it('keeps seeded settings when no pull completes', async () => {
+    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
 
     await makeSyncManager({ isQueued: true }).runSync();
 
     expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
-      { id: fromCentral.id, value: '2 minutes' },
+      { id: BASELINE_HEARTBEAT_ID, value: '1 minute' },
     ]);
-    expect(await settingsWithKey('features.reminderContactModule.enabled')).toEqual([]);
   });
 
-  it('keeps facility-scoped settings and settings migration carriers', async () => {
+  it('keeps facility-scoped and central-scoped settings and settings migration carriers', async () => {
     const [facilityId] = JSON.parse(await models.LocalSystemFact.get(FACT_FACILITY_IDS));
     const facilitySettingId = crypto.randomUUID();
     await insertSetting({
@@ -139,10 +157,21 @@ describe('FacilitySyncManager settings on first sync', () => {
       facilityId,
     });
 
-    await makeSyncManager({ isQueued: true }).runSync();
+    const centralScopedId = crypto.randomUUID();
+    await insertSetting({
+      id: centralScopedId,
+      key: 'sync.maxFlaggedPatientsPerBuild',
+      value: '500',
+      scope: SETTINGS_SCOPES.CENTRAL,
+    });
+
+    await makeSyncManager({ pulled: [centralHeartbeat()] }).runSync();
 
     expect(await settingsWithKey('templates.letterhead.title')).toEqual([
       { id: facilitySettingId, value: 'Clinic' },
+    ]);
+    expect(await settingsWithKey('sync.maxFlaggedPatientsPerBuild')).toEqual([
+      { id: centralScopedId, value: 500 },
     ]);
     expect(await models.FacilitySettingMigration.findByPk(carrier.id)).not.toBeNull();
   });

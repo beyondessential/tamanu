@@ -1,5 +1,6 @@
 import config from 'config';
 import { chunk, groupBy } from 'es-toolkit/compat';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   getModelsForPull,
@@ -16,8 +17,14 @@ export async function clearLocallyAuthoredSettings(sequelize) {
     // Unpaused, the changelog would record each deleted row, secret included.
     await pauseAudit(sequelize);
     await sequelize.query(
-      'DELETE FROM settings WHERE facility_id IS NULL AND updated_at_sync_tick <> :fromCentral',
-      { replacements: { fromCentral: SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE } },
+      `DELETE FROM settings
+      WHERE scope = :global AND facility_id IS NULL AND updated_at_sync_tick <> :fromCentral`,
+      {
+        replacements: {
+          global: SETTINGS_SCOPES.GLOBAL,
+          fromCentral: SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE,
+        },
+      },
     );
   });
 }

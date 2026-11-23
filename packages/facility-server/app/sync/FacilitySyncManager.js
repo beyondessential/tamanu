@@ -191,7 +191,6 @@ export class FacilitySyncManager {
     const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
 
     if (pullSince === -1 && !this.hasBootstrapped) {
-      await clearLocallyAuthoredSettings(this.sequelize);
       await this.bootstrap();
     }
 
@@ -356,6 +355,9 @@ export class FacilitySyncManager {
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
         await pauseAudit(this.sequelize);
+        if (pullSince === -1) {
+          await clearLocallyAuthoredSettings(this.sequelize);
+        }
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
         await withDeferredSyncSafeguards(this.sequelize, async () =>
           saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId),
