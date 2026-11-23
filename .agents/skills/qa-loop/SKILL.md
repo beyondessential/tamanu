@@ -3,7 +3,7 @@ name: qa-loop
 description: "Run an adversarial QA loop over this card's changes, fixing and re-checking until no bugs, edge cases or UI roughness are left"
 label: "QA loop"
 category: verify
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: QA loop
@@ -38,10 +38,7 @@ This runs best in a conversation on the user's device, where Bash is unrestricte
   | `fable` | Judgement the others cannot make. The feel and taste critic over screenshots and filmstrips. The architecture review. A contested triage call that is really a design or architecture decision. At most one or two Fable agents in a round, and none in most rounds. |
 
 - **Every finding is the same shape:** id, severity (blocker, high, medium, low; filed as critical, suggestion or nit, see "Reporting the run"), kind (bug, edge, ui, feel, a11y, security, perf, coverage), file and line, how to reproduce it (steps or a script path), expected against actual, whether it was **run** or only **traced**, a suggested fix, and **covered by** the name of an existing test or "none". Adversaries write findings to their report file as they go.
-- **A traced finding is a hypothesis.** Before anything above low severity is fixed, it is reproduced: by a failing test, a script, or a short repro agent. A finding that does not reproduce is closed with the attempt recorded.
-- **Every confirmed finding the tests did not cover gets a test.** Write it at the lowest level that would have caught it: unit, then integration or API, then end-to-end in a browser. It is committed with the fix, in the repo's own style and with its own commands (`CLAUDE.md`, `AGENTS.md`, neighbouring tests), and ticked in the card's test-cases file. The fixer writes it first and watches it fail, then fixes and watches it pass. A fix without a test is not closed. Never delete, skip or loosen a test to get a fix through.
-- **A bug fix is not a feature.** A finding that is really a request for something new goes on the backlog and is reported, not built.
-- **No fix removes a safeguard to save cost**, such as a check, a revalidation or a retry. Fail closed where an access check goes unanswered. Put every settled decision through a security lens before it goes into a brief.
+- **Find, fix and re-check as `.agents/docs/running-loops.md` says** in "Finding, fixing and re-checking": a traced finding is reproduced before anything above low is fixed, every confirmed finding the tests did not cover gets a test written first (and is ticked in the card's test cases), a fix is not a feature, and no fix removes a safeguard. Put every settled decision through a security lens before it goes into a brief.
 - **Report the run** as "Reporting the run" below says. The run holds the pull request itself, so you never call `hold_pr` or `release_pr`.
 - **The log** is `.workhorse/plans/{card-id}/qa/log.md` (committed), and bulk reports go in the card's work directory (`workhorse-local rig workdir`, not committed).
 - **Fixers are partitioned by area,** with the other areas' files named in each brief.
@@ -50,23 +47,20 @@ This runs best in a conversation on the user's device, where Bash is unrestricte
 
 ### Reporting the run
 
-- **File each confirmed finding with `file_issue` as you confirm it,** with a `severity` on the scale the hosted review uses: blocker and high are `critical`, medium is `suggestion`, low is `nit`. It is filed under this run and the round you are in, and you fix what you file whatever the card's Auto-fix toggle says. A finding that was only traced is filed once it reproduces. Measurements, the ledger and the log stay in the log and are not filed.
-- **Set its disposition with `set_issue_disposition`** as the fixer fixes it (in progress, then fixed with the commit's sha) or you decide it (skipped with the reason, or needs you).
-- **When a round files five or more issues, call `set_triage` before any fix is started:** the triage rule applies to a loop's issues as it does to any others, so group them into themes and carry on without waiting for approval.
-- **Call `report_round` once per round,** after the round's triage is set: `loop` `qa_loop`, the `round` you have just finished counting from 1, the `cap` this card's rigour gives (the turn names it), `found` as the round's critical, suggestion and nit counts before any fix, a one-line `summary`, and `status`: `going` while another round follows, `done` when the stop rule in step 6 is met, and `stopped` only if the user told you to stop. If the tool refuses because the conversation has no open run of the loop, say so and do not report again.
+Report as `.agents/docs/running-loops.md` "Reporting a run" says, with `report_round` and `loop` `qa_loop` once per round, after the round's triage is set. File each confirmed finding with `file_issue` and a `severity` as you confirm it (blocker and high are `critical`, medium is `suggestion`, low is `nit`), once it has reproduced where it was only traced, and set its disposition with `set_issue_disposition` as the fixer fixes it or you decide it. When a round files five or more issues, call `set_triage` before any fix is started. Use `stopped` only if the user told you to stop.
 
 ### 0. Orient, once
 
 0. **Prerequisites,** per `.agents/docs/running-loops.md`. A branch with no changes against its base and nothing uncommitted is "Nothing to do". Ask first when the card has no description or specs to test against, whether to draft them first or test against what the diff alone shows.
-1. **Scope.** The card's branch against its base (`git merge-base` with the default branch, then the diff, plus anything uncommitted), the files and surfaces it touches, the specs and the test-cases file for the card.
+1. **Scope.** The card's branch against its base, as `.agents/docs/running-loops.md` "Scope" says, plus anything uncommitted; the files and surfaces it touches; the specs and the test-cases file for the card.
 2. **Write the charter** at the top of the log:
    - the user-facing flows, each with who does it, the steps and what done looks like;
    - the API surface touched: endpoints, inputs, who may call them;
    - the data and state touched, including anything migrated;
    - the risks, ranked;
-   - how to run the tests, the typecheck, the lint and the build, from the repo's own guidance;
+   - how to run the tests, and the typecheck, lint and build where the repo has them, from the repo's own guidance;
    - how to run the app (see `.agents/docs/browser-rig.md`).
-3. **Baseline.** Run the typecheck, lint, the full tests and the build. A failure that was there before this branch is recorded as pre-existing and left alone. A failure the branch caused is the first finding.
+3. **Baseline.** Run the full tests, and the typecheck, lint and build where the repo has them. A failure that was there before this branch is recorded as pre-existing and left alone. A failure the branch caused is the first finding.
 4. **Browser preflight and rig,** if the scope has any UI or HTTP surface. Record the browser result, including "no browser", in the log, and prove a rig comes up at the commit under test with `workhorse-local rig lease`, releasing it after. Add the first "rigs and disk" line.
 5. **Seed the findings ledger** in the log: id, round, severity, kind, status (open, fixed, follow-up, won't fix, needs decision), commit and test.
 
@@ -90,18 +84,15 @@ Round 1 runs every lens that applies. Later rounds run the lenses that found som
 | **Test audit** | `sonnet` | Do the tests this branch added assert behaviour? Revert each fix's hunk and confirm its test fails. Sleeps, order dependence, ticked cases with no test behind them. |
 | **Neighbours** | `sonnet` | What else uses the shared code that changed. Runs their tests and walks the neighbouring screens in the browser. |
 
-**Briefs.** Every adversary brief carries: the working directory and "read `CLAUDE.md` first"; the scope and the charter; the lens and its instructions; the ledger so far, so it does not report what is known and does try to break what was fixed; how to take its own lease (`workhorse-local rig lease --holder qa-loop/<its name> --holder-pid parent`) and to release it before reporting, and that it never builds, copies dependencies or starts a server itself; the report path and the finding shape; and a reply of ten lines at most, with counts by severity and the path. Tell each one its job is to find something, and that a report with nothing in it must list what it tried. Never tell an adversary the code is probably fine.
+**Briefs** follow `.agents/docs/running-loops.md`. An adversary's brief also carries "read the repository's agent guidance first", the charter, and how to take its own lease (`workhorse-local rig lease --holder qa-loop/<its name> --holder-pid parent`) and release it before reporting, and that it never builds, copies dependencies or starts a server itself.
 
 ### 2. Triage
 
-1. Read the reports. Merge duplicates, rank, and check each traced finding has been reproduced.
-2. Decide each one and record it in the ledger: **fix now**, **follow-up** (a card of its own, with the reason), **won't fix** (with the reason), or **needs decision** (something only the user can settle, collected for the final report rather than stopping the run).
-3. A finding that is really a taste or architecture call is decided by a Fable agent or by you, with the reason recorded so it is not reopened without new evidence.
-4. Group the fix-now items by area so no two fixers touch the same files.
+Triage as `.agents/docs/running-loops.md` says, checking each traced finding has been reproduced. A finding that is really a taste or architecture call is decided by a Fable agent or by you, with the reason recorded so it is not reopened without new evidence.
 
 ### 3. Fix
 
-One fixer per group, `sonnet`, or `opus` for concurrency, security and tangled areas. Each brief carries the findings, the decisions already made, the files the fixer owns and the files others own, the instruction to write the failing test first, to commit per finding, to run the affected tests and to report. The fixer ticks the test case it covered.
+One fixer per group, `sonnet`, or `opus` for concurrency, security and tangled areas. Each brief carries the findings, the decisions already made, the files the fixer owns and the files others own, and the instruction to write the failing test first, commit per finding, run the affected tests, tick the test case it covered, and report.
 
 ### 4. Re-check
 
@@ -116,17 +107,15 @@ Its findings enter the next round like any other. A fix that was not re-checked 
 
 ### 5. Checkpoint
 
-After every round, a `haiku` agent runs the typecheck, lint, the full tests and the build and reports only failures. Fix what the round broke. Rerun a known flake rather than fixing it; fix a flake you introduced. Update the log, push, and move on.
+Run the checkpoint as `.agents/docs/running-loops.md` says, then move on.
 
 ### 6. When it is done
 
-The count of rounds is not the measure. Confidence comes from rounds that come back clean while the lenses change.
-
-A round is **clean** by the card's rigour (`.agents/docs/running-loops.md`), judged on what survived triage, with every report listing what it tried: at light, no critical; at standard, no critical and a few suggestions at most; at thorough, no critical and no suggestion.
+A round is **clean**, and a round is **cold**, as `.agents/docs/running-loops.md` says; a cold QA round also runs its lenses in a different order.
 
 The loop is **done** when all of these hold:
 
-- the rigour's clean rounds in a row: one at light; two at standard, the second of them **cold**; two at thorough, both cold. A cold round is run by fresh agents who are not given the ledger or the earlier findings, with the lenses run in a different order;
+- the rigour's clean rounds in a row;
 - every lens has come back clean, and the architecture lens has run;
 - every charter flow has passed in a real browser, or is listed as not verified with the reason;
 - the API matrix passes;
@@ -134,13 +123,7 @@ The loop is **done** when all of these hold:
 - every confirmed finding has a committed test, or a recorded reason and a follow-up;
 - nothing is open except follow-ups and decisions that are the user's.
 
-Guards, so the loop converges rather than churns:
-
-- **Raise the bar each round.** From round 3, tell each adversary which classes of bug have been found so far and ask for a different class, and give the Opus or Fable agent the question "what would every other lens miss?"
-- **The same area keeps producing findings for three rounds:** stop patching it. That is a design problem. Run an architecture review of the area and either rework it or make it a follow-up card.
-- **A round's fixes produce more regressions than they fix:** stop and review the approach before the next round.
-- **The cap reached without the clean rounds the rigour asks for:** report that last round as `going`, since Workhorse ends the run at its cap, and say in the report where it stands rather than continuing.
-- Running out of ideas does not end the run. Only the conditions above do.
+The guards in `.agents/docs/running-loops.md` apply, so the loop converges rather than churns. One more is this loop's own: **raise the bar each round.** From round 3, tell each adversary which classes of bug have been found so far and ask for a different class, and give the Opus or Fable agent the question "what would every other lens miss?" A same area that keeps producing findings for three rounds gets an architecture review.
 
 ### 7. Report
 
@@ -152,7 +135,7 @@ Lead with the result, then:
 - what was verified in a real browser and what was not, and why;
 - what a reader should still not trust: the unverified, the residual risk, and the decisions that are theirs.
 
-Say what the evidence is. Clean rounds, and more so cold ones, are strong evidence that nothing is left that these lenses can find. They are not proof that nothing is left. Keep the PR description, the test cases and the progress summary current.
+Say what the evidence is, as `.agents/docs/running-loops.md` says. Keep the test cases and the progress summary current (see `.agents/docs/progress-summary.md`).
 
 ### Never
 

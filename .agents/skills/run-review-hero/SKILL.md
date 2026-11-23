@@ -3,7 +3,7 @@ name: run-review-hero
 description: "Drive the card's Review Hero loop by hand — trigger a review, address its comments, rerun until clean, then merge. Use in an external tool (Claude Code, Cursor) where Workhorse's automated loop isn't running."
 label: "Run Review Hero"
 category: verify
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: Run Review Hero
@@ -18,8 +18,8 @@ You need the `gh` CLI authenticated, and you must be working on the card's branc
 
 - Confirm the current branch: `git rev-parse --abbrev-ref HEAD`
 - Find its open PR: `gh pr view --json number,url,state,body,mergeable,mergeStateStatus` (or `gh pr list --head <branch> --state open`)
-- **If there is no open PR, stop.** Review Hero only runs on an open PR. Tell the user; offer to open one with `gh pr create` using the template at `.github/pull_request_template.md`
-- Build your understanding of the intended behaviour before you start judging comments: read the card's specs under `specs/` and diff the branch against its upstream base (`git rev-parse --abbrev-ref @{upstream}`, usually `origin/main`) so you know what this PR is meant to change. If you have the card's title/description, use them too
+- **If there is no open PR, stop.** Review Hero only runs on an open PR. Tell the user the PR is opened from the card in Workhorse; never open one yourself (see `.agents/docs/pull-requests.md`)
+- Build your understanding of the intended behaviour before you start judging comments: read the card's specs under `specs/` and diff the branch against the card's base (the PR's base branch; see `.agents/docs/bases-and-dependencies.md`) so you know what this PR is meant to change. If you have the card's title/description, use them too
 
 ### 2. Trigger a review — tick the checkbox
 
@@ -42,6 +42,7 @@ The workflow takes a few minutes. Poll — don't assume it's done.
   - inline review comments: `gh api repos/{owner}/{repo}/pulls/<n>/comments`
   - review bodies: `gh api repos/{owner}/{repo}/pulls/<n>/reviews`
   - PR issue comments: `gh pr view <n> --json comments` — the Summary lands here in Review Hero's grouped-comment fallback
+- **Where the repository's Review Hero posts its findings to Workhorse,** it can leave them, and its Summary, off the PR. Read the round's findings with `read_issues` on the Workhorse MCP instead, and tell the user they are in the card's issues (see `.agents/docs/pull-requests.md`). A PR with no review comments is not a clean review
 - **A round is complete only once the `review-hero[bot]` Summary has arrived.** Don't treat the checkbox unticking on its own as done — the workflow unticks it when it finishes, but the comments and Summary can still be in flight
 - If the workflow was skipped, errored, or hit a permissions problem on GitHub, or the PR has conflicts with its base branch, Review Hero can't run productively. Resolve the underlying issue first — run the **Update** skill to rebase past base-branch conflicts — then re-trigger. Don't spin waiting for a review that will never come
 
@@ -78,7 +79,7 @@ Report progress at each round so the user can follow along — which comments yo
 Once you deem the PR clean and CI is green:
 
 - **Pause for the user first** if you flagged any spec-level comment, deemed it clean while leaving items unaddressed, or anything else leaves the merge in doubt. Otherwise — when the loop reached a clean verdict with everything resolved — merging is what this skill is for, so proceed
-- **Empty the card-scoped artefact trees before submitting.** Merging here bypasses Workhorse's merge button, so this path owns the obligations that button carries. Delete everything under `.workhorse/design/mockups/`, `.workhorse/working-docs/`, `.workhorse/plans/`, and `.workhorse/test-cases/` — the whole trees, not just this card's folders, since they hold card scratch only. Commit and push, then wait for CI to pass on the new head. This is not optional and not a question for the user
+- **Empty the card scratch before submitting.** Merging here bypasses Workhorse's merge button, so this path owns the obligations that button carries. Delete every tree `.agents/docs/card-artefacts.md` says the merge empties, the whole trees and not just this card's folders, since they hold card scratch only. Commit and push, then wait for CI to pass on the new head. This is not optional and not a question for the user
 - If the card's design-library changes are to be reverted before merge, revert those files in the same commit
 - **Work out how this repository expects PRs to be merged rather than assuming a squash.** Read the base branch's rules and the repository's settings — `gh api repos/{owner}/{repo}/rules/branches/{branch}` names a `merge_queue` rule when a queue is in force and a `pull_request` rule's `allowed_merge_methods` when the branch narrows the methods, and `gh api repos/{owner}/{repo}` gives the repository's allowed methods. Then:
   - **Merge queue in force** → run `gh pr merge <n>` with no strategy flag; on a queue-gated branch that adds the PR to the queue. Report that it is queued and don't wait out the queue's own run. Two things to watch: `gh` enables GitHub's native auto-merge instead if the branch's *required* checks have not yet passed, so only run this once they have — auto-merge would merge on GitHub's conditions rather than yours, past the artefact cleanup and the review verdict this skill exists to enforce. And never pass `--auto` (which arms it outright) or `--admin` (which bypasses the queue)

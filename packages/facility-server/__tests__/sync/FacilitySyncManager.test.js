@@ -94,7 +94,6 @@ describe('FacilitySyncManager', () => {
           query: () => true,
         },
         centralServer: {
-          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
         },
@@ -138,7 +137,6 @@ describe('FacilitySyncManager', () => {
             transaction: async callback => callback(),
           },
           centralServer: {
-            streaming: () => false,
             startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
             endSyncSession: vi.fn(),
             setToken: vi.fn(),
@@ -225,7 +223,6 @@ describe('FacilitySyncManager', () => {
           query: () => true,
         },
         centralServer: {
-          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           markSessionErrored: vi.fn(),
@@ -404,7 +401,6 @@ describe('FacilitySyncManager', () => {
         models,
         sequelize: ctx.sequelize,
         centralServer: {
-          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
@@ -444,7 +440,6 @@ describe('FacilitySyncManager', () => {
         models,
         sequelize: ctx.sequelize,
         centralServer: {
-          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
@@ -502,7 +497,6 @@ describe('FacilitySyncManager', () => {
         models,
         sequelize: ctx.sequelize,
         centralServer: {
-          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
@@ -541,7 +535,6 @@ describe('FacilitySyncManager', () => {
         models,
         sequelize: ctx.sequelize,
         centralServer: {
-          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
@@ -590,7 +583,7 @@ describe('FacilitySyncManager', () => {
       const syncManager = new TestFacilitySyncManager({
         models,
         sequelize: ctx.sequelize,
-        centralServer: { streaming: () => false },
+        centralServer: {},
       });
 
       await syncManager.pullChanges(TEST_SESSION_ID, syncRun);
@@ -626,7 +619,7 @@ describe('FacilitySyncManager', () => {
       const syncManager = new TestFacilitySyncManager({
         models,
         sequelize: ctx.sequelize,
-        centralServer: { streaming: () => false },
+        centralServer: {},
       });
       const syncRun = {
         update: vi.fn(async fields => {

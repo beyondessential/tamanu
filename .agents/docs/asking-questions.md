@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 # Asking the user a question
@@ -39,3 +39,9 @@ read after that reply, not instead of it.
 
 Only ask when you cannot proceed without the answer: the turn is parked and the
 user is blocked on you while it is open.
+
+## Questions in prose
+
+Open questions, and every question where the tool is not available, go in
+prose. Ask focused questions one or two at a time, not long lists, and number
+them (1., 2.) so the user can reply by number.

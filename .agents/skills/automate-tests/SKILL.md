@@ -3,7 +3,7 @@ name: automate-tests
 description: "Write automated tests for unticked scenarios in this card's test cases"
 label: "Automate tests"
 category: verify
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: Automate tests
@@ -19,4 +19,4 @@ Write automated tests that match the unticked scenarios in this card's test-case
 5. If a scenario is genuinely not automatable (manual feel, cross-browser visual), leave it unticked and note in the file why it's manual-only
 6. Summarise what you automated, which scenarios remain manual, and any scenarios you couldn't make sense of
 
-See `specs/test-cases/overview.md` for the file's shape.
+The rules for test cases, including never deleting one to account for missing coverage, are in `.agents/docs/card-artefacts.md`.

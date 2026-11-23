@@ -3,7 +3,7 @@ name: handoff
 description: "Generate a context-rich briefing prompt for an external agent (Claude Code, Cursor, etc.)"
 label: "Handoff"
 category: other
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: Hand off to an external agent
@@ -31,17 +31,16 @@ The user wants to hand off work on this card to an external agent (Claude Code, 
 
 Whether delivered inline or written to `handoff.md`, the briefing contains these sections, in order:
 
-**1. Workhorse context** — explain the spec-driven workflow:
-- Specs live in `specs/` as structured markdown with YAML frontmatter, an H1 title, a one-sentence scope opening, and acceptance criteria as plain bullets under `##` sections
-- Describe the system as it should be (not changes to make). Acceptance criteria are facts about behaviour, in the declarative voice. Rationale goes in a `> [!NOTE]` callout beneath its section's bullets rather than inside a criterion. Include implementation detail only where a reimplementation should be constrained back to that technical choice (e.g. a backend sync healing strategy); keep product-facing and frontend criteria behavioural
-- Mockups live in `.workhorse/design/mockups/{card-id}/` as standalone HTML with inline CSS
-- Design system is at `.workhorse/design/design-system.md`
-- The card's implementation plan lives at `.workhorse/plans/{card-id}/` — a free-form markdown working document with tech design notes and/or a checklist of build steps. Read it first if it exists, tick items (`- [ ]` → `- [x]`) as work completes, and expand steps into sub-items if they turn out larger than anticipated
+**1. Workhorse context**: what the agent needs of the spec-driven workflow:
+- Point it at the Workhorse manual: `workhorse.md` among the repository's Workhorse reference docs, or, where the repository keeps none, the same doc as a resource on the Workhorse MCP. Name the doc by name, not by a path from this turn, since the briefing is written into the repository
+- Specs live in `specs/` and describe the system as it should be, as declarative acceptance criteria
+- Mockups live in `.workhorse/design/mockups/{card-id}/`, and the design system is at `.workhorse/design/design-system.md`
+- The card's plan lives at `.workhorse/plans/{card-id}/plan.md`: read it first if it exists, and tick items as work completes
 - Australian/NZ English spelling
 
 **2. Card context** — the card title, identifier, and description (when present)
 
-**3. Branch instructions** — tell the agent to check the card's branch out in a **git worktree** (e.g. `git fetch origin` then `git worktree add ../<repo>-{card-id} <card-branch>`) rather than switching branches in place, so the user's working tree is left undisturbed, and to diff the branch against the upstream base branch to understand what specs and mockups have been added or changed
+**3. Branch instructions**: tell the agent to check the card's branch out in a **git worktree** (e.g. `git fetch origin` then `git worktree add ../<repo>-{card-id} <card-branch>`) rather than switching branches in place, so the user's working tree is left undisturbed, and to diff the branch against the card's base, which you name in the briefing, to understand what specs and mockups have been added or changed (see `.agents/docs/bases-and-dependencies.md` for finding it)
 
 **4. Progress** — where the work stands, taken from the card's progress summary: read it with `get_card` and carry its sections (where it's at, decided, open) into the prompt. Leave this section out when the card has no progress summary
 

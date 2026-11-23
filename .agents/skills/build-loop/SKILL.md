@@ -3,7 +3,7 @@ name: build-loop
 description: "Build this card from its specs to a working feature, then refine it in rounds until a full round finds nothing to add, change or cut"
 label: "Build loop"
 category: build
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: build the feature, then refine it in rounds
@@ -16,7 +16,8 @@ Read these before anything else:
 
 - `.agents/docs/running-loops.md`: the rules every loop follows, including how you report a round, the severity scale and what this card's rigour sets.
 - `.agents/docs/design-judgement.md`: deciding features and the bar for taste. Feature rounds follow its "Deciding features".
-- `.agents/docs/flagship-surface-playbook.md`: the method in detail, covering work packages, the polish loop, backend exploration loops and parallel agents.
+- `.agents/docs/flagship-surface-playbook.md`: the method in detail, covering work packages, the polish loop and parallel agents.
+- `.agents/skills/explore-backend/SKILL.md`: the method of a backend round.
 - `.agents/skills/qa-loop/SKILL.md`, "The lenses" and "Findings, fixes and tests": how a package is verified. You follow it rather than inventing reviews of your own.
 - `.agents/docs/browser-rig.md`: how to get a browser and drive the app.
 - `.agents/skills/design-loop/SKILL.md`: the references, direction and polish steps you call where the work needs design.
@@ -36,26 +37,24 @@ If you don't already have this card's context, establish it first by following `
   You move items between these lists, but only in a feature round, and every move is recorded with its reason so the user can overrule it later.
 - **Fence the shared components.** List in the plan the shared components you expect to change. Changing any other one needs a reason in the plan and a before-and-after screenshot of every place it appears.
 - **Follow `.agents/docs/running-loops.md`** for models, cut-offs, the rig and parallel agents. For this run: Sonnet builds the work packages, and planning, the hardest spike and the technical design review go to you or a stronger agent. Leases are named `--holder build-loop/<role>`. The loop log is `.workhorse/plans/{card-id}/build/log.md`.
-- **Test the backend as hard as the screens.** A feature's server side (its actions, routes, access checks, data model, migrations and background work) gets its own exploratory rounds, run against the rig with seeded edge-case data, not only the per-package lenses and the walkthroughs that reach it through the UI. Once polish findings are only at the edges (a tap target, a hyphen), stop polishing and spend the time on the backend.
-- **Every substantive finding becomes an automated test,** wherever it was found: a package check, a backend round, a walkthrough or a critique. The QA loop's rule applies to all of them: a test at the lowest level that would have caught it, failing before the fix and passing after, committed with the fix. A fix without one is not finished.
-- **Write less code.** Before writing a component, hook or helper, look for one the codebase already has. Track the branch's line count in the plan as the run goes. Shrinking it afterwards is the refactor loop's job, so leave the code readable and do not golf it.
+- **Test the backend as hard as the screens.** A feature's server side (its entry points, access checks, data model, migrations and background work) gets its own exploratory rounds, run against the rig with seeded edge-case data, not only the per-package lenses and the walkthroughs that reach it through the UI. Once polish findings are only at the edges (a tap target, a hyphen), stop polishing and spend the time on the backend.
+- **Every substantive finding becomes an automated test,** wherever it was found: a package check, a backend round, a walkthrough or a critique. The rule in `.agents/docs/running-loops.md` "Finding, fixing and re-checking" applies to all of them: a test at the lowest level that would have caught it, failing before the fix and passing after, committed with the fix. A fix without one is not finished.
+- **Write less code.** Before writing a component, function or helper, look for one the codebase already has. Track the branch's line count in the plan as the run goes. Shrinking it afterwards is the refactor loop's job, so leave the code readable and do not golf it.
 - **Ask once, at the start, without stopping.** The only question you ask is for references (step 1), when the work needs design, together with anything that truly blocks. After that, decide, and record each decision and its reason in the plan, where the user can overrule it later.
 
 ### Reporting: rounds, findings and the stop rule
 
 A round is one feature round together with the polish and backend rounds that follow it until they converge. Building the first version (steps 1 to 4) comes before round 1 and is not a round.
 
-- **File each confirmed finding as you confirm it,** with `file_issue` and a `severity`, on the scale the hosted review uses: critical (broken behaviour, a security or data hole, a failed job), suggestion (worth fixing, not critical) and nit (minor). A QA-style finding maps blocker and high to critical, medium to suggestion and low to nit; a design finding maps major to critical, moderate to suggestion and minor to nit. A feature the feature round judges worth taking, and a change or cut it decides on, is filed as a suggestion. Work that goes on the backlog or the Out list, measurements and the ledger stay in the log and are not filed.
-- **Set its disposition** with `set_issue_disposition` as you act on it: in progress, then fixed with the commit that fixed it, or skipped with the reason. You fix what you file whatever the card's Auto-fix toggle says.
-- **Triage a big round first.** When a round has filed five or more issues, call `set_triage` before fixing any of them: the triage rule applies to a loop's issues as it does to any others.
-- **Call `report_round` once per round,** with `loop` `build_loop`, the `round` you have just finished counting from 1, the `cap` from this card's rigour (the turn names it), `found` as the round's critical, suggestion and nit counts before you fixed any of it, a one-line `summary`, and a `status`: `going` while another round follows, `done` when the stop rule is met, and `stopped` only if the user told you to stop. If the tool refuses, because this conversation has no open run of the loop or the run has ended, say so and do not report again.
-- **The stop rule** comes from the card's rigour (see `.agents/docs/running-loops.md`): the number of clean rounds in a row, and what clean means by severity. A round is clean when its feature round found nothing to add, change or cut, its backend round found nothing, and what the polish and backend rounds filed is within what the rigour allows. A run that reaches its cap without meeting the rule reports that last round as `going`, since Workhorse ends the run at its cap and its row names the cap reached, and says in its recap where it stands.
+- **Report as `.agents/docs/running-loops.md` "Reporting a run" says,** with `report_round` and `loop` `build_loop` once per round, when its feature, polish and backend work are done. File each confirmed finding with `file_issue` and a `severity` as you confirm it, mapped as that doc says, and set its disposition with `set_issue_disposition` as you act on it. When a round has filed five or more issues, call `set_triage` before fixing any of them. Use `stopped` only if the user told you to stop.
+- **What is filed:** a feature the feature round judges worth taking, and a change or cut it decides on, is filed as a suggestion. Work that goes on the backlog or the Out list, measurements and the ledger stay in the log and are not filed.
+- **The stop rule** comes from the card's rigour (see `.agents/docs/running-loops.md`). A round is clean when its feature round found nothing to add, change or cut, its backend round found nothing, and what the polish and backend rounds filed is within what the rigour allows.
 
 ### 1. Brief, references and scope
 
 0. **Prerequisites,** per `.agents/docs/running-loops.md`. Ask first when the card's description and specs are too thin to build from: start with a spec interview, or go forward with what is there. A card with nothing left to build is "Nothing to do".
 1. Write the brief into the plan, using the template at the top of the playbook.
-2. List the jobs the surface exists for, three to six of them, each naming who does it, when, and what done looks like. Feature rounds walk these jobs, so make them concrete: "a lead moves a slipping project two weeks later and sees what else now overlaps", not "manage projects".
+2. List the jobs the surface exists for, three to six of them, each naming who does it, when, and what done looks like. Feature rounds walk these jobs, so make them concrete: "a support lead sees which tickets will miss their deadline today and reassigns them", not "manage tickets".
 3. **Decide whether the work needs design.** It does when it adds a surface, changes a layout, or adds controls or states that no pattern in the app already covers. It does not when it is backend or data work behind surfaces that already look right, or when its UI follows a pattern the app already has. Record the call and its reason in the plan. Without design, new UI follows the neighbouring surfaces. A feature batch that adds a surface or changes a layout brings design back for that batch.
 4. Where the work needs design, start the design loop's references step now (`design-loop`, step 1). It asks in prose and carries on.
 5. While references are pending, do the work that does not depend on them: behaviour specs, the data design, spikes.
@@ -67,7 +66,7 @@ A round is one feature round together with the polish and backend rounds that fo
 
 ### 3. Design the system, simply
 
-1. **Spike the hardest interaction at target scale first.** That means drag, zoom, scroll or live updates, with realistic volume and the CPU throttled 4x. Then choose the architecture that makes it cheap, and record the numbers.
+1. **Spike the hardest interaction at target scale first.** That means drag, zoom, scroll or live updates, with realistic volume on a slowed device (in a browser, the CPU throttled 4x). Then choose the architecture that makes it cheap, and record the numbers.
 2. **Keep one source of truth** for each piece of state, and one optimistic path. If the design needs a further layer to reconcile two others, the design is wrong.
 3. **Keep files reviewable:** no component over about 400 lines.
 4. **Have a fresh-eyes agent review the technical design** before anything is built. This is an architecture call: use the strongest model, with none of your context.
@@ -109,20 +108,7 @@ The bar for adding rises as the run goes on. Early rounds settle the shape; late
 
 **Polish rounds.** These run only where the work needs design, and are the design loop's polish step (`design-loop`, step 3) over the build. Run it until its stop condition holds, then return to a feature round. A feature idea it sets aside goes on the feature ledger's backlog. When its findings have shrunk to the edges, do not let polish rounds crowd out the backend rounds: run them in parallel, or stop polishing.
 
-**Backend rounds.** Exploratory testing of the server side as a whole, in loops, the way polish rounds explore the screens. A package check probes each package's endpoints; a backend round explores every entry point the feature touches, on the edge-case seed, and keeps going until the backend stops yielding findings. The playbook's "Backend exploration loops" has the method. Each round:
-
-1. **Explore** against the rig and the functions behind it:
-   - **Every entry point directly,** not only through the UI: API routes and server actions over HTTP as each kind of user, and the plain functions behind them called from a harness.
-   - **The access matrix:** every entry point for each access level (member, member who lost access, check unanswered, non-member, signed out), and with ids belonging to another owner.
-   - **Hostile input:** malformed, oversized, unicode, case variants, path tricks, and values from another tenant.
-   - **Concurrency:** the same write twice at once, conflicting writes, a write racing a delete, retries after a lost response.
-   - **Failure injection:** the external service down, slow or answering errors; a partial write; a restart mid-operation.
-   - **Data at scale and in odd shapes:** large counts, legacy rows, records shared between owners, and the migration run on hostile data.
-2. **File each substantive finding** with its severity and a reproduction, then turn it into a failing unit or integration test.
-3. **Fix** in a package whose decisions are settled, and have a different agent re-check the fix.
-4. **Explore again,** including around what the fixes touched.
-
-A backend round is done when a full exploratory pass finds nothing above low (nothing above a nit) and every substantive finding from earlier passes has its test.
+**Backend rounds.** Exploratory testing of the server side as a whole, in passes, the way polish rounds explore the screens. A package check probes each package's entry points; a backend round explores every entry point the feature touches, on the edge-case seed, and keeps going until the backend stops yielding findings. Run each as `.agents/skills/explore-backend/SKILL.md` says, filing its findings under this run. A backend round is done when that skill's stopping condition holds.
 
 **The run is done** when its stop rule is met on a round whose feature round found nothing to add, change or cut and whose backend round converged, and the design loop's polish after it converged where the work needs design. Running out of time or ideas does not end the run; only the stop rule and the cap do.
 

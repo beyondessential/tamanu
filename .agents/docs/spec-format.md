@@ -1,10 +1,14 @@
 ---
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 # Spec format and information architecture
 
 Specs are the product-level source of truth for a workspace. The format serves three audiences: product owners and testers authoring them (via interview or direct edit), developers and AI agents implementing from them, and anyone browsing them as a knowledge base.
+
+## The repository's own rules
+
+This doc sets Workhorse's defaults. A repository can add rules of its own for its specs, or replace some of these, in its agent guidance (`AGENTS.md`, `CLAUDE.md` and the like), its contributor docs, or a README in its specs directory. Read those before writing a spec. Where they add to this doc, follow both. Where they disagree with it, the repository's rule wins: it is the more specific instruction, and the repository's maintainers chose it.
 
 ## Information hierarchy
 
@@ -136,7 +140,7 @@ The `id` in frontmatter is a short, stable handle. It lets code reference the sp
 - IDs are 2–6 character alphanumeric codes, uppercase, chosen when the spec is first created (e.g. `ALG`, `AUTH`, `LAB1`). Use something memorable rather than sequential numbering
 - IDs are unique within a workspace. Workhorse checks for collisions on creation
 - Once assigned, an ID never changes. The filename or location can change freely — code references keep working
-- Code references an implementing spec with an inline comment of the form `// spec: ALG`. For a specific section within the spec, append a kebab-case slug of the heading text: `// spec: ALG#conflict-handling`
+- Code references an implementing spec with an inline comment in the language's own syntax, such as `// spec: ALG` or `# spec: ALG`. For a specific section within the spec, append a kebab-case slug of the heading text: `// spec: ALG#conflict-handling`
 - A single piece of code can reference multiple specs with multiple comments — don't try to combine them
 
 Code references are advisory, not load-bearing. They help a reader jump from an implementation detail to the product rule it answers to. Missing references are not a bug.
@@ -153,9 +157,9 @@ Because the number isn't in the file, it can't be text-searched — "see section
 
 - **Describe the system as it should be, not the changes to make.** Each spec is a coherent snapshot — it reads as "this is how the system works" rather than "change X to Y" or "no longer does Z". No references to "current behaviour", "remains unchanged", "now does", or "rather than the old way". The implementation agent works from the diff to know what's changing.
 - **Acceptance criteria are facts about behaviour, not instructions to a developer.**
-- **Grade implementation detail by whether it constrains behaviour that must be preserved.** Product-owner-level language is the default: write "the system checks whether all parent cards have been committed" rather than naming the field that tracks commit state, and "Spec complete" rather than an all-caps status constant. But a technical choice belongs in the spec when the choice *is* the requirement — when a reimplementation should be held to it rather than free to pick its own approach. The decision test is: **"Would someone reimplementing this from scratch need to be constrained back to this technical choice?"** If yes, name the detail; the spec is where that constraint is recorded. If no, describe the behaviour and let the implementation choose its tools.
+- **Grade implementation detail by whether it constrains behaviour that must be preserved.** Product-owner-level language is the default: write "the system checks whether every item on the order has shipped" rather than naming the field that tracks shipping, and "Shipped" rather than an all-caps status constant. But a technical choice belongs in the spec when the choice *is* the requirement — when a reimplementation should be held to it rather than free to pick its own approach. The decision test is: **"Would someone reimplementing this from scratch need to be constrained back to this technical choice?"** If yes, name the detail; the spec is where that constraint is recorded. If no, describe the behaviour and let the implementation choose its tools.
   - **Keep the detail** when it is load-bearing. A sync engine that heals divergence by replaying from a known-good checkpoint must preserve that mechanism, so the spec names it — a different healing strategy would be a different product. Backend and platform specs often carry this kind of detail: data-integrity rules, concurrency and ordering guarantees, wire and storage formats, migration and healing strategies.
-  - **Leave it out** when the detail is one acceptable way among several to build the same behaviour. Choosing React hooks to manage state in a frontend workflow is an implementation choice — the user-visible behaviour is the requirement, so specify that and let the build pick its tools. Product-facing, CRUD, and frontend specs stay behavioural.
+  - **Leave it out** when the detail is one acceptable way among several to build the same behaviour. Choosing a particular state-management library for a frontend workflow is an implementation choice — the user-visible behaviour is the requirement, so specify that and let the build pick its tools. Product-facing, CRUD, and frontend specs stay behavioural.
   - File paths inside `specs/` are always acceptable because they're part of the product's information architecture.
 - **Stay within the spec's scope.** Each spec contains only sections that relate directly to its title and area. If content would make more sense in another spec, it belongs there — add a cross-reference rather than duplicating or misplacing it. When in doubt, ask: "would someone looking for this information expect to find it in a spec with this title?"
 - **Don't specify absences.** Document what the system does, not what it doesn't do. "We don't support X" or "X is not included" is not useful — if it's not in the spec, it's not in the system. If another spec needs updating because this feature changes its behaviour, update that spec declaratively.
