@@ -405,9 +405,8 @@ jobs:
     env:
       CARGO_AUDIT_VERSION: 0.23.0
     steps:
+      # The event's own commit rather than the branch head, as the job can save the build cache.
       - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.head_ref || github.ref }}
       - name: Install Rust
         run: |
           rustup toolchain install stable --profile minimal --component clippy,rustfmt --target x86_64-pc-windows-gnu --no-self-update
