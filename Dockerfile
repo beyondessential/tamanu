@@ -103,24 +103,30 @@ node --import tsx ../scripts/src/scrubSeedSecrets.mts\
 "]
 
 
+## The supervisor, which serves the frontend images: a static musl build of it, made on the host
+## and passed in as its own build context, `--build-context supervisor=<directory>`.
+FROM scratch AS supervisor
+
 ## Build the frontend packages (web or patient-portal)
 FROM build-base AS build-frontend-base
 ARG PACKAGE_PATH
 COPY packages/ packages/
 RUN DOCKER_BUILD=1 scripts/docker-build.sh ${PACKAGE_PATH}
 
-## Minimal image to serve frontend packages
+## Minimal image to serve frontend packages: the supervisor serves the built frontend at /app.
 FROM alpine AS frontend-base
 ARG PACKAGE_PATH
-WORKDIR /app
-ENTRYPOINT ["/usr/bin/caddy"]
-CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
-COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
-COPY packages/${PACKAGE_PATH}/Caddyfile.docker /etc/caddy/Caddyfile
-COPY --from=build-frontend-base /app/packages/${PACKAGE_PATH}/dist/ .
+RUN adduser -D -H -u 10001 tamanu
+COPY --from=supervisor --chmod=0755 tamanu-supervisor /usr/bin/tamanu-supervisor
+COPY --from=build-frontend-base /app/packages/${PACKAGE_PATH}/dist/ /app/
+USER tamanu
+EXPOSE 3000
+ENTRYPOINT ["/usr/bin/tamanu-supervisor"]
 
-## Specific targets for each frontend
+## Specific targets for each frontend. The web app's build lacks Tamanu's error pages, so they
+## are copied in beside it.
 FROM frontend-base AS frontend
+COPY packages/web/resources/errors/ /app/resources/errors/
 
 FROM frontend-base AS patient-portal
 

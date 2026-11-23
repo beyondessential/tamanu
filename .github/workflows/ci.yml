@@ -34,6 +34,7 @@ jobs:
       run-mobile: ${{ steps.plan.outputs.run-mobile }}
       run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
       run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
+      run-supervisor: ${{ steps.plan.outputs.run-supervisor }}
       allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
     steps:
       - uses: actions/checkout@v6
@@ -393,6 +394,47 @@ jobs:
       - run: npm install --include-workspace-root --workspace=scripts
       - run: npm run dbt-check-todos
 
+  test-supervisor:
+    needs: plan
+    if: needs.plan.outputs.run-supervisor == 'true'
+    name: Test supervisor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/supervisor
+    env:
+      CARGO_AUDIT_VERSION: 0.23.0
+    steps:
+      # The event's own commit rather than the branch head, as the job can save the build cache.
+      - uses: actions/checkout@v6
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component clippy,rustfmt --target x86_64-pc-windows-gnu --no-self-update
+          rustup default stable
+      # Only main saves the cache, so what a branch restores and runs was built from main's own
+      # code, cargo-audit included.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/supervisor
+          save-if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked
+      # The Windows images build the supervisor on a Windows runner; linting its
+      # Windows-only code here finds a break before then. The gnu target stands in
+      # for the MSVC one the images ship, as both compile the same cfg(windows)
+      # code. zstd's C sources need a C compiler for the target.
+      - name: Lint for Windows
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends gcc-mingw-w64-x86-64
+          cargo clippy --locked --all-targets --target x86_64-pc-windows-gnu -- -D warnings
+      - name: Check dependencies against the RustSec advisories
+        run: |
+          cargo audit --version 2>/dev/null | grep -qF " $CARGO_AUDIT_VERSION" \
+            || cargo install --locked "cargo-audit@$CARGO_AUDIT_VERSION"
+          cargo audit
+
   typos:
     name: Spellcheck
     runs-on: ubuntu-latest
@@ -420,6 +462,7 @@ jobs:
       - lockfile-peers
       - dbt-model
       - dbt-todos
+      - test-supervisor
       - typos
     runs-on: ubuntu-latest
     steps:
