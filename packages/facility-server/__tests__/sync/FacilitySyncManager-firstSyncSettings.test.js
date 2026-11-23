@@ -131,6 +131,26 @@ describe('FacilitySyncManager settings on first sync', () => {
     expect(await settingsWithKey(REMINDER_KEY)).toEqual([{ id: fromPull.id, value: true }]);
   });
 
+  it('keeps seeded settings when the first pull fails to save', async () => {
+    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
+
+    await expect(
+      makeSyncManager({ pulled: [centralHeartbeat(), centralHeartbeat()] }).runSync(),
+    ).rejects.toThrow();
+
+    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
+      { id: BASELINE_HEARTBEAT_ID, value: '1 minute' },
+    ]);
+  });
+
+  it('clears seeded settings on a first pull that brings no records', async () => {
+    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
+
+    await makeSyncManager().runSync();
+
+    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([]);
+  });
+
   it('keeps seeded settings when no pull completes', async () => {
     await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
 
@@ -191,7 +211,7 @@ describe('FacilitySyncManager settings on first sync', () => {
     const id = crypto.randomUUID();
     await insertSetting({ id, key: HEARTBEAT_KEY, value: '"1 minute"' });
 
-    await clearLocallyAuthoredSettings(sequelize);
+    await sequelize.transaction(() => clearLocallyAuthoredSettings(sequelize));
 
     expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([]);
     const [deletions] = await sequelize.query(

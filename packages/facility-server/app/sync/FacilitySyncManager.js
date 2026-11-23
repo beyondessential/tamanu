@@ -353,11 +353,11 @@ export class FacilitySyncManager {
     // Recorded outside the save transaction so it is visible while the save runs
     await this.recordSyncRunProgress(syncRun, { persistStartedAt: new Date() });
     await this.sequelize.transaction(async () => {
+      if (pullSince === -1) {
+        await clearLocallyAuthoredSettings(this.sequelize);
+      }
       if (totalPulled > 0) {
         await pauseAudit(this.sequelize);
-        if (pullSince === -1) {
-          await clearLocallyAuthoredSettings(this.sequelize);
-        }
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
         await withDeferredSyncSafeguards(this.sequelize, async () =>
           saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId),

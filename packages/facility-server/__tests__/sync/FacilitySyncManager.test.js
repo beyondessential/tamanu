@@ -92,8 +92,6 @@ describe('FacilitySyncManager', () => {
             createSchema,
           }),
           query: () => true,
-          transaction: async callback => callback(),
-          setTransactionVar: vi.fn(),
         },
         centralServer: {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
@@ -137,7 +135,6 @@ describe('FacilitySyncManager', () => {
             getQueryInterface: () => ({ dropSchema: vi.fn(), createSchema: vi.fn() }),
             query: () => true,
             transaction: async callback => callback(),
-            setTransactionVar: vi.fn(),
           },
           centralServer: {
             startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
@@ -224,8 +221,6 @@ describe('FacilitySyncManager', () => {
         sequelize: {
           getQueryInterface: () => ({ dropSchema: vi.fn(), createSchema: vi.fn() }),
           query: () => true,
-          transaction: async callback => callback(),
-          setTransactionVar: vi.fn(),
         },
         centralServer: {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
