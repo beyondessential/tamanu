@@ -436,8 +436,9 @@ jobs:
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked
       # The Windows images build the supervisor on a Windows runner; linting its
-      # Windows-only code here finds a break before then. zstd's C sources need a
-      # C compiler for the target.
+      # Windows-only code here finds a break before then. The gnu target stands in
+      # for the MSVC one the images ship, as both compile the same cfg(windows)
+      # code. zstd's C sources need a C compiler for the target.
       - name: Lint for Windows
         run: |
           sudo apt-get update -qq
