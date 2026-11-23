@@ -228,7 +228,7 @@ Evidence: `CentralSyncManager.js:752-793`. The `saved_at_sync_tick` update and t
 Source: Part 2 01:36:32, 01:39:30
 Verdict: confirmed (still present)
 Evidence: `central-server/app/sync/CentralSyncManager.js:866-872` stores `updatedAtByFieldSum` on incoming snapshot rows; `snapshotOutgoingChanges.js:62,71-91` and `updateLookupTable.js:60-80` compute the same sum on outgoing rows; `removeEchoedChanges.ts:5-27` deletes an outgoing row only if incoming and outgoing agree on record, `saved_at_sync_tick` and `updated_at_by_field_sum` (`IS NOT DISTINCT FROM`). It is still called from `CentralSyncManager.js:631`.
-Notes: see PSH-28 for why it no longer protects anything on the lookup path.
+Notes: see Q7 step 8 for why it no longer protects anything on the lookup path.
 
 ### PSH-35 With the lookup table, repull avoidance is by pushed_by_device_id and may not cover the merge case
 Source: Part 2 01:31:47, 01:39:30, 01:44:15
