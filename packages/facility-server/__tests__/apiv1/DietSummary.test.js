@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import config from 'config';
+import { Op } from 'sequelize';
 
 import { fake } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
@@ -62,6 +63,18 @@ describe('Diet summary', () => {
 
   const createDiet = name =>
     models.ReferenceData.create(fake(models.ReferenceData, { type: REFERENCE_TYPES.DIET, name }));
+
+  const dietColumn = ({ id, name }) => ({ key: id, name, isRegular: false });
+  const GENERIC_REGULAR_COLUMN = { key: 'regular', name: null, isRegular: true };
+
+  // The regular column leads. The rest come back in no promised order, because the sheet sorts
+  // them by the names it prints.
+  const expectColumns = (columns, regularColumn, otherDiets) => {
+    const [first, ...rest] = columns;
+    expect(first).toEqual(regularColumn);
+    expect(rest).toHaveLength(otherDiets.length);
+    expect(rest).toEqual(expect.arrayContaining(otherDiets.map(dietColumn)));
+  };
 
   const createBed = ({ locationGroupId = null, ...bed }) =>
     models.Location.create(fake(models.Location, { facilityId, locationGroupId, ...bed }));
@@ -135,6 +148,14 @@ describe('Diet summary', () => {
 
   beforeEach(async () => {
     await models.Encounter.truncate({ force: true, cascade: true });
+    // Every diet on offer gets a column, so a diet one case makes must not outlive it.
+    await models.ReferenceData.destroy({
+      where: {
+        type: REFERENCE_TYPES.DIET,
+        id: { [Op.notIn]: [glutenFree.id, diabetic.id, regularDiet.id] },
+      },
+      force: true,
+    });
   });
 
   afterEach(async () => {
@@ -177,7 +198,33 @@ describe('Diet summary', () => {
     const result = await getSummary();
     expect(result).toHaveSucceeded();
 
-    expect(result.body).toEqual({ columns: [], hospitalTotals: {}, areas: [] });
+    const { columns, hospitalTotals, areas } = result.body;
+    expect(hospitalTotals).toEqual({});
+    expect(areas).toEqual([]);
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
+  });
+
+  it('gives every diet on offer a column, whether or not anybody is on it', async () => {
+    await admit({ location: bed2, diets: [glutenFree] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
+    expect(hospitalTotals).toEqual({ [glutenFree.id]: 1 });
+  });
+
+  it('gives the same columns to a single ward as to the whole facility', async () => {
+    await admit({ location: bed2, diets: [glutenFree] });
+    await admit({ location: maternityBed, diets: [diabetic] });
+
+    const result = await getSummary(`?areaId=${maternity.id}`);
+    expect(result).toHaveSucceeded();
+
+    const { columns, hospitalTotals } = result.body;
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
+    expect(hospitalTotals).toEqual({ [diabetic.id]: 1 });
   });
 
   it('counts a patient with no diet recorded under a Regular column', async () => {
@@ -188,10 +235,7 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals, areas } = result.body;
-    expect(columns).toEqual([
-      { key: 'regular', name: null, isRegular: true },
-      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
-    ]);
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
     expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
     expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
   });
@@ -206,7 +250,10 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
+    expectColumns(columns, { key: regularDiet.id, name: 'Regular diet', isRegular: true }, [
+      glutenFree,
+      diabetic,
+    ]);
     expect(hospitalTotals).toEqual({ [regularDiet.id]: 2 });
   });
 
@@ -220,7 +267,10 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
+    expectColumns(columns, { key: regularDiet.id, name: 'Regular diet', isRegular: true }, [
+      glutenFree,
+      diabetic,
+    ]);
     expect(hospitalTotals).toEqual({ [regularDiet.id]: 2 });
   });
 
@@ -235,14 +285,16 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([
+    expectColumns(
+      columns,
       { key: facilityRegular.id, name: 'Facility regular diet', isRegular: true },
-    ]);
+      [glutenFree, diabetic, regularDiet],
+    );
     expect(hospitalTotals).toEqual({ [facilityRegular.id]: 1 });
   });
 
   it('shares its own Regular column with a diet whose id is regular', async () => {
-    const [defaultRegular] = await models.ReferenceData.upsert(
+    const defaultRegular = await models.ReferenceData.create(
       fake(models.ReferenceData, { id: 'regular', type: REFERENCE_TYPES.DIET, name: 'Regular' }),
     );
 
@@ -253,7 +305,11 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([{ key: 'regular', name: 'Regular', isRegular: true }]);
+    expectColumns(columns, { key: 'regular', name: 'Regular', isRegular: true }, [
+      glutenFree,
+      diabetic,
+      regularDiet,
+    ]);
     expect(hospitalTotals).toEqual({ regular: 2 });
   });
 
@@ -267,10 +323,7 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([
-      { key: 'regular', name: null, isRegular: true },
-      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
-    ]);
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
     expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
   });
 
@@ -283,7 +336,10 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([{ key: regularDiet.id, name: 'Regular diet', isRegular: true }]);
+    expectColumns(columns, { key: regularDiet.id, name: 'Regular diet', isRegular: true }, [
+      glutenFree,
+      diabetic,
+    ]);
     expect(hospitalTotals).toEqual({ [regularDiet.id]: 1 });
   });
 
@@ -298,7 +354,11 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([{ key: retiredRegular.id, name: null, isRegular: true }]);
+    expectColumns(columns, { key: retiredRegular.id, name: null, isRegular: true }, [
+      glutenFree,
+      diabetic,
+      regularDiet,
+    ]);
     expect(hospitalTotals).toEqual({ [retiredRegular.id]: 1 });
   });
 
@@ -314,7 +374,11 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([{ key: village.id, name: null, isRegular: true }]);
+    expectColumns(columns, { key: village.id, name: null, isRegular: true }, [
+      glutenFree,
+      diabetic,
+      regularDiet,
+    ]);
     expect(hospitalTotals).toEqual({ [village.id]: 1 });
   });
 
@@ -396,9 +460,12 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals, areas } = result.body;
-    expect(columns).toEqual([
-      { key: protoDiet.id, name: 'Prototype diet', isRegular: false },
-      { key: constructorDiet.id, name: 'Constructor diet', isRegular: false },
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [
+      glutenFree,
+      diabetic,
+      regularDiet,
+      protoDiet,
+      constructorDiet,
     ]);
     expect(hospitalTotals).toEqual({ [protoDiet.id]: 1, [constructorDiet.id]: 1 });
     expect(areas[0].subTotals).toEqual({ [protoDiet.id]: 1, [constructorDiet.id]: 1 });
@@ -431,10 +498,7 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([
-      { key: 'regular', name: null, isRegular: true },
-      { key: glutenFree.id, name: 'Gluten free', isRegular: false },
-    ]);
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
     expect(hospitalTotals).toEqual({ regular: 1, [glutenFree.id]: 1 });
   });
 
@@ -452,10 +516,29 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals } = result.body;
-    expect(columns).toEqual([
-      { key: retiredDiet.id, name: 'Retired diet still offered', isRegular: false },
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [
+      glutenFree,
+      diabetic,
+      regularDiet,
+      retiredDiet,
     ]);
     expect(hospitalTotals).toEqual({ [retiredDiet.id]: 1 });
+  });
+
+  it('leaves off a retired diet nobody on the sheet is on', async () => {
+    await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.DIET,
+        name: 'Retired diet nobody is on',
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      }),
+    );
+    await admit({ location: bed2, diets: [glutenFree] });
+
+    const result = await getSummary();
+    expect(result).toHaveSucceeded();
+
+    expectColumns(result.body.columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
   });
 
   it('leaves off a diet a clinician has cancelled, counting its patient as regular', async () => {
@@ -470,10 +553,7 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals, areas } = result.body;
-    expect(columns).toEqual([
-      { key: 'regular', name: null, isRegular: true },
-      { key: diabetic.id, name: 'Diabetic', isRegular: false },
-    ]);
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
     expect(hospitalTotals).toEqual({ regular: 1, [diabetic.id]: 1 });
     expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
   });
@@ -489,10 +569,7 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { columns, hospitalTotals, areas } = result.body;
-    expect(columns).toEqual([
-      { key: 'regular', name: null, isRegular: true },
-      { key: diabetic.id, name: 'Diabetic', isRegular: false },
-    ]);
+    expectColumns(columns, GENERIC_REGULAR_COLUMN, [glutenFree, diabetic, regularDiet]);
     expect(hospitalTotals).toEqual({ regular: 1, [diabetic.id]: 1 });
     expect(areas[0].patients[0].dietKeys).toEqual(['regular']);
   });
@@ -648,7 +725,8 @@ describe('Diet summary', () => {
     const result = await getSummary(`?areaId=${foreignWard.id}`);
     expect(result).toHaveSucceeded();
 
-    expect(result.body).toEqual({ columns: [], hospitalTotals: {}, areas: [] });
+    expect(result.body.hospitalTotals).toEqual({});
+    expect(result.body.areas).toEqual([]);
   });
 
   it('rejects an area id that is not a single value', async () => {
