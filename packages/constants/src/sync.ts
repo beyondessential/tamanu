@@ -10,6 +10,9 @@ export const SYNC_DIRECTIONS = {
 
 export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
 
+// Overrides sync.streaming.enabled: while false, no setting can switch streaming sync on.
+export const IS_STREAMING_SYNC_RELEASED = false;
+
 // 16-bit uint
 //
 // When adding message kinds here, also add them to the Wireshark dissector at:

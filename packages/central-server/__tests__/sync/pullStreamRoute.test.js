@@ -17,6 +17,11 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';
 
+vi.mock('@tamanu/constants', async () => ({
+  ...(await vi.importActual('@tamanu/constants')),
+  IS_STREAMING_SYNC_RELEASED: true,
+}));
+
 const DEVICE_ID = 'pull-stream-device';
 const PAGE_SIZE = 1;
 

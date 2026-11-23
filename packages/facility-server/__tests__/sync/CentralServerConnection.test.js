@@ -231,6 +231,20 @@ describe('CentralServerConnection', () => {
       });
     });
 
+    it('does not stream while streaming sync is unreleased, even if central enables it', async () => {
+      fetch
+        .mockReturnValueOnce(
+          fakeSuccess({
+            token: validTestToken,
+            user: { id: 'not-real' },
+            settings: { sync: { streaming: { enabled: true } } },
+          }),
+        )
+        .mockReturnValueOnce(meSuccess);
+      expect((await centralServer.loginData()).settings.sync.streaming.enabled).toBe(true);
+      expect(await centralServer.streaming()).toBe(false);
+    });
+
     it('retrieves user data', async () => {
       fetch
         .mockReturnValueOnce(authSuccess)

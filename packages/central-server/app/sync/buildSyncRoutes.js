@@ -4,13 +4,13 @@ import * as z from 'zod';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
+import { ForbiddenError, InvalidParameterError, UnimplementedError } from '@tamanu/errors';
 import {
   completeSyncSession,
   decodeSnapshotCursor,
   encodeSnapshotCursor,
 } from '@tamanu/database/sync';
-import { DEVICE_SCOPES } from '@tamanu/constants';
+import { DEVICE_SCOPES, IS_STREAMING_SYNC_RELEASED } from '@tamanu/constants';
 
 import { buildFacilityBootstrap } from './buildFacilityBootstrap';
 import { CentralSyncManager } from './CentralSyncManager';
@@ -40,6 +40,13 @@ const assertUserCanSyncFacilities = async (req, facilityIds) => {
       throw new ForbiddenError('User does not have access to facility');
     }
   }
+};
+
+const refuseUnreleasedStreaming = (_req, _res, next) => {
+  if (!IS_STREAMING_SYNC_RELEASED) {
+    throw new UnimplementedError('Streaming sync is not ready for release');
+  }
+  next();
 };
 
 /**
@@ -208,6 +215,7 @@ export const buildSyncRoutes = ctx => {
   // wait until session is ready, as a stream
   syncRoutes.get(
     '/:sessionId/ready/stream',
+    refuseUnreleasedStreaming,
     asyncHandler(async (req, res) => {
       const {
         params: { sessionId },
@@ -267,6 +275,7 @@ export const buildSyncRoutes = ctx => {
   // wait until pull snapshot is ready, as a stream
   syncRoutes.get(
     '/:sessionId/pull/ready/stream',
+    refuseUnreleasedStreaming,
     asyncHandler(async (req, res) => {
       const {
         params: { sessionId },
@@ -319,6 +328,7 @@ export const buildSyncRoutes = ctx => {
   // stream changes down to facility
   syncRoutes.get(
     '/:sessionId/pull/stream',
+    refuseUnreleasedStreaming,
     asyncHandler(async (req, res) => {
       const {
         params: { sessionId },

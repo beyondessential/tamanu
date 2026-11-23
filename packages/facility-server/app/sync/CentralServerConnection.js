@@ -1,7 +1,12 @@
 import config from 'config';
 
 import { TamanuApi } from '@tamanu/api-client';
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/constants';
+import {
+  SERVER_TYPES,
+  SYNC_STREAM_MESSAGE_KIND,
+  DEVICE_SCOPES,
+  IS_STREAMING_SYNC_RELEASED,
+} from '@tamanu/constants';
 
 import { ERROR_TYPE } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
@@ -123,6 +128,7 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async streaming() {
+    if (!IS_STREAMING_SYNC_RELEASED) return false;
     return Boolean((await this.loginData())?.settings?.sync?.streaming?.enabled);
   }
 

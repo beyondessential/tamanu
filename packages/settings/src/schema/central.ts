@@ -232,7 +232,8 @@ export const centralSettings = {
         streaming: {
           properties: {
             enabled: {
-              description: 'Use streaming endpoints',
+              description:
+                'Not ready for release and has no effect yet: streaming sync stays off whatever this is set to',
               type: yup.boolean(),
               defaultValue: false,
               exposedToWeb: true,
