@@ -117,6 +117,7 @@ Filed as issues needing cards:
 - **Conflict divergence** (reproduced, critical). In a true conflict the pushing device and central end up holding each other's version.
 - **Trigger reads the tick before locking it** (read, very small window).
 - **Two runbooks have drifted** (restored-from-backup, restart loop).
+- **Answers to sensitive surveys appear to reach mobile** (read, critical if confirmed). The filter that removes them lives only in the retired model filters and checks a flag that is never passed.
 
 Found by reading, not yet filed. Each needs a decision on whether to file:
 
@@ -193,9 +194,18 @@ Not proposed for this card beyond two small things: correct the lookup table spe
 - Code references are file and function names, never line numbers. The ledgers keep line numbers as of `22d3edaa36`.
 - Mobile gets a full section, linking to the matching facility section wherever the behaviour is shared instead of repeating it.
 
+## Drafts
+
+- `llm/docs/sync/overview.md`: first draft written, awaiting review.
+- `llm/docs/sync/legacy-model-snapshot.md`: drafted by a subagent from the pull ledger and the code, skimmed but not yet reviewed line by line.
+- `llm/docs/sync/dragons.md`: not started. The overview links to it.
+- `facts/`: the fact sheets the overview was written from. Working material, to be removed with the ledgers before the card merges.
+
 ## Open questions
 
-- [ ] Whether the reasons recorded as inference match memory: source ticks on the initial lookup build; why the pending-edit check was off in 2024.
+- [x] Principles: the list of eight stands. "Central is relatively stateless" is not a principle; it becomes a note that responsibility is preferred to sit with clients.
+- [x] The initial lookup build uses source ticks so that clients do not re-pull unchanged records. Confirmed from memory.
+- [ ] Why the "edited after push snapshot" check was switched off in March 2024. Not recorded anywhere found.
 - [ ] Whether to do the remaining walkthrough topics the sessions skipped, or whether the ledgers now cover them (database schemas, model sync config, sync directions are in `09`).
-- [ ] Sync-all-lab-requests and sensitive networks: the sensitive networks spec says a facility syncing all lab requests receives every lab request "ahead of patient and network scoping", and the code does that. So lab requests, their tests and their encounters from inside a sensitive network reach any such facility outside it. Specified, but was the confidentiality consequence a deliberate choice?
+- [ ] Sync-all-lab-requests and sensitive networks: the sensitive networks spec says a facility syncing all lab requests receives every lab request "ahead of patient and network scoping", and the code does that. So lab requests, their tests and their encounters from inside a sensitive network reach any such facility outside it. Specified, but was the confidentiality consequence a deliberate choice? Not remembered; to be asked of an agent with access to Slack history.
 - [ ] The design notes for a different sync-all-lab-requests and the dropped sync-all-vaccines behaviour: worth recording in the overview as known intent if they can be found, since the code has no trace of the vaccine one.
