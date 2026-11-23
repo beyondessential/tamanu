@@ -97,7 +97,7 @@ describe('saveChangesForModel', () => {
     });
 
     describe.each(['__proto__', 'constructor', 'entries', 'hasOwn', 'is', 'toString', 'values'])(
-      'when a new record’s id is `%s`',
+      'when a new record’s ID is ‘%s’',
       id => {
         it.each([false, true])('should create it (isDeleted: %s)', async isDeleted => {
           // setup test data
@@ -168,7 +168,7 @@ describe('saveChangesForModel', () => {
     });
 
     it.each(['__proto__', 'constructor', 'entries', 'hasOwn', 'is', 'toString', 'values'])(
-      'should update an existing record whose id is `%s`, not create it again',
+      'should update (not create) an existing record whose ID is ‘%s’',
       async id => {
         // setup test data
         await models.SurveyScreenComponent.create({ id, text: 'historical' });
