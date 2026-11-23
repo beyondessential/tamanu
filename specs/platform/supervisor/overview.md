@@ -34,17 +34,13 @@ Applies to the supervisor, Tamanu's own server at the front of a Tamanu server, 
 | --- | --- |
 | `Cross-Origin-Opener-Policy` | `same-origin` |
 | `Cross-Origin-Resource-Policy` | `same-origin` |
-| `Origin-Agent-Cluster` | `?1` |
+| `Permissions-Policy` | `camera=(self), display-capture=(), geolocation=(), microphone=(), payment=(), usb=()` |
 | `Referrer-Policy` | `no-referrer` |
 | `X-Content-Type-Options` | `nosniff` |
-| `X-DNS-Prefetch-Control` | `off` |
-| `X-Download-Options` | `noopen` |
 | `X-Frame-Options` | `SAMEORIGIN` |
-| `X-Permitted-Cross-Domain-Policies` | `none` |
-| `X-XSS-Protection` | `0` |
 
 > [!NOTE]
-> These are the headers helmet gives the api's responses, but its content security policy and `Cross-Origin-Embedder-Policy`. helmet's policy would block what the web app loads, and would send a deployment served over plain HTTP to HTTPS for its own files. `Cross-Origin-Embedder-Policy` only serves cross-origin isolation, which neither app uses, and would block any image or font from another origin.
+> The camera is allowed because the web app scans codes and takes photos with it. `Strict-Transport-Security` is left out because deployments served over plain HTTP, locally or on a private network, would be sent to HTTPS. `Cross-Origin-Embedder-Policy` is left out because it only serves cross-origin isolation, which neither app uses, and would block any image or font from another origin.
 
 - Every response also carries a content security policy written for the web app and the patient portal, as `Content-Security-Policy-Report-Only`: the browser reports in its console whatever the policy would block, and blocks nothing.
 - The policy allows the app's own files, inline styles, images and fonts from `data:` addresses, workers, frames and images from `blob:` addresses, connections to the server itself and to Bugsnag, and nothing from any other origin. It allows no inline scripts, no plugins, and no framing by another site.

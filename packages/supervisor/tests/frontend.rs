@@ -311,7 +311,7 @@ async fn paths() {
 		assert!(
 			got.headers
 				.get("content-security-policy-report-only")
-				.is_some_and(|v| v.to_str().unwrap().starts_with("default-src 'self'; ")),
+				.is_some_and(|v| v.to_str().unwrap().contains("default-src 'self'")),
 			"{case}"
 		);
 		assert_eq!(
@@ -330,6 +330,16 @@ async fn paths() {
 		);
 		assert!(
 			got.headers.get("cross-origin-embedder-policy").is_none(),
+			"{case}"
+		);
+		assert!(
+			got.headers.get("strict-transport-security").is_none(),
+			"{case}"
+		);
+		assert!(
+			got.headers
+				.get("permissions-policy")
+				.is_some_and(|v| v.to_str().unwrap().contains("camera=(self)")),
 			"{case}"
 		);
 	}

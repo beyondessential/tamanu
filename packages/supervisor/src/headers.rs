@@ -2,58 +2,83 @@
 //!
 //! spec: SUPV#security-headers
 
-use axum::http::{HeaderMap, HeaderName, HeaderValue, header};
+use std::sync::LazyLock;
 
-/// helmet's headers, as the api sets them, but its content security policy and
-/// `Cross-Origin-Embedder-Policy`.
-const APP: &[(&str, &str)] = &[
-	("cross-origin-opener-policy", "same-origin"),
-	("cross-origin-resource-policy", "same-origin"),
-	("origin-agent-cluster", "?1"),
-	("referrer-policy", "no-referrer"),
-	("x-content-type-options", "nosniff"),
-	("x-dns-prefetch-control", "off"),
-	("x-download-options", "noopen"),
-	("x-frame-options", "SAMEORIGIN"),
-	("x-permitted-cross-domain-policies", "none"),
-	("x-xss-protection", "0"),
-];
+use axum::http::{HeaderMap, HeaderName, HeaderValue};
+use http_security_headers::{
+	ContentSecurityPolicy, CrossOriginOpenerPolicy, CrossOriginResourcePolicy, PermissionsPolicy,
+	SecurityHeaders,
+};
 
-/// The content security policy for the web app and the patient portal, reported but not enforced:
-/// a browser lists in its console what the policy would block, and blocks nothing.
+/// Every security header, rendered once.
+static APP: LazyLock<Vec<(HeaderName, HeaderValue)>> = LazyLock::new(|| {
+	SecurityHeaders::builder()
+		.content_security_policy_report_only(csp())
+		.cross_origin_opener_policy(CrossOriginOpenerPolicy::SameOrigin)
+		.cross_origin_resource_policy(CrossOriginResourcePolicy::SameOrigin)
+		.permissions_policy(permissions_policy())
+		.referrer_policy_no_referrer()
+		.x_content_type_options_nosniff()
+		.x_frame_options_sameorigin()
+		.build()
+		.expect("the security headers are valid")
+		.header_pairs()
+		.iter()
+		.map(|(name, value)| {
+			(
+				HeaderName::from_static(name),
+				HeaderValue::try_from(value).expect("the security headers are valid"),
+			)
+		})
+		.collect()
+});
+
+/// The content security policy for the web app and the patient portal, sent report-only: a
+/// browser lists in its console what the policy would block, and blocks nothing.
 ///
 /// - Styles allow inline: the apps' style libraries insert `<style>` elements as they render.
 /// - Workers, frames and images allow `blob:`: PDFs are rendered in workers and printed through
 ///   frames, from object URLs.
 /// - Connections go to the server itself, the websocket included, and to Bugsnag where it is
 ///   configured.
-const CSP_REPORT_ONLY: &str = concat!(
-	"default-src 'self'; ",
-	"base-uri 'self'; ",
-	"object-src 'none'; ",
-	"frame-ancestors 'self'; ",
-	"form-action 'self'; ",
-	"script-src 'self'; ",
-	"script-src-attr 'none'; ",
-	"style-src 'self' 'unsafe-inline'; ",
-	"img-src 'self' data: blob:; ",
-	"font-src 'self' data:; ",
-	"worker-src 'self' blob:; ",
-	"frame-src 'self' blob:; ",
-	"connect-src 'self' https://notify.bugsnag.com https://sessions.bugsnag.com ",
-	"https://notify.bugsnag.smartbear.com https://sessions.bugsnag.smartbear.com",
-);
+fn csp() -> ContentSecurityPolicy {
+	ContentSecurityPolicy::new()
+		.default_src(["'self'"])
+		.base_uri(["'self'"])
+		.object_src(["'none'"])
+		.frame_ancestors(["'self'"])
+		.form_action(["'self'"])
+		.script_src(["'self'"])
+		.directive("script-src-attr", ["'none'"])
+		.style_src(["'self'", "'unsafe-inline'"])
+		.img_src(["'self'", "data:", "blob:"])
+		.font_src(["'self'", "data:"])
+		.directive("worker-src", ["'self'", "blob:"])
+		.frame_src(["'self'", "blob:"])
+		.connect_src([
+			"'self'",
+			"https://notify.bugsnag.com",
+			"https://sessions.bugsnag.com",
+			"https://notify.bugsnag.smartbear.com",
+			"https://sessions.bugsnag.smartbear.com",
+		])
+}
+
+/// The camera is the apps' own, for scanning codes and taking photos; the other powerful features
+/// are refused.
+fn permissions_policy() -> PermissionsPolicy {
+	PermissionsPolicy::new()
+		.self_only("camera")
+		.deny("display-capture")
+		.deny("geolocation")
+		.deny("microphone")
+		.deny("payment")
+		.deny("usb")
+}
 
 /// Sets the security headers on one of the frontend's own responses.
 pub fn app(headers: &mut HeaderMap) {
-	for (name, value) in APP {
-		headers.insert(
-			HeaderName::from_static(name),
-			HeaderValue::from_static(value),
-		);
+	for (name, value) in APP.iter() {
+		headers.insert(name, value.clone());
 	}
-	headers.insert(
-		header::CONTENT_SECURITY_POLICY_REPORT_ONLY,
-		HeaderValue::from_static(CSP_REPORT_ONLY),
-	);
 }
