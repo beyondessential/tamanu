@@ -1,5 +1,6 @@
 //! The access log: a line for each request, written once its response body has been handed to the
 //! connection or abandoned, so the duration covers the transfer but for what the socket buffers.
+//! It wraps the response compression, so the size is what was sent.
 //!
 //! spec: SUPV#logging
 
@@ -11,23 +12,41 @@ use std::{
 
 use axum::{
 	body::Body,
-	http::{Method, Response},
+	http::{Method, Request, Response, header},
+	middleware::Next,
 };
 use bytes::Bytes;
 use http_body::{Frame, SizeHint};
 
+use crate::server::Peer;
+
 /// What the line says about a request, besides what the response adds.
-pub struct Entry {
-	pub started: Instant,
-	pub method: Method,
-	pub path: String,
-	pub peer: String,
+struct Entry {
+	started: Instant,
+	method: Method,
+	path: String,
+	peer: String,
 	/// A Kubernetes probe, logged at debug.
-	pub probe: bool,
+	probe: bool,
 }
 
-/// Wraps the response's body so the line is written when the body is finished with.
-pub fn log(entry: Entry, res: Response<Body>) -> Response<Body> {
+/// Logs the request, wrapping the response's body so the line is written when the body is
+/// finished with.
+pub async fn log(req: Request<Body>, next: Next) -> Response<Body> {
+	let entry = Entry {
+		started: Instant::now(),
+		method: req.method().clone(),
+		path: req.uri().path().to_owned(),
+		peer: req
+			.extensions()
+			.get::<Peer>()
+			.map_or_else(|| "-".to_owned(), |p| p.0.ip().to_canonical().to_string()),
+		probe: req
+			.headers()
+			.get(header::USER_AGENT)
+			.is_some_and(|agent| agent.as_bytes().starts_with(b"kube-probe/")),
+	};
+	let res = next.run(req).await;
 	let status = res.status().as_u16();
 	res.map(|inner| {
 		Body::new(Logged {

@@ -9,7 +9,6 @@ use std::{
 	io,
 	path::Path,
 	sync::Arc,
-	time::Instant,
 };
 
 use axum::{
@@ -20,7 +19,7 @@ use bytes::Bytes;
 use tower::ServiceExt;
 use tower_http::services::ServeDir;
 
-use crate::{access, headers, server::Peer};
+use crate::headers;
 
 /// The encodings a file may be stored precompressed in, beside it with the encoding's extension,
 /// in the order they are preferred.
@@ -83,22 +82,9 @@ impl Files {
 	}
 
 	pub async fn serve(&self, req: Request<Body>) -> Response<Body> {
-		let entry = access::Entry {
-			started: Instant::now(),
-			method: req.method().clone(),
-			path: req.uri().path().to_owned(),
-			peer: req
-				.extensions()
-				.get::<Peer>()
-				.map_or_else(|| "-".to_owned(), |p| p.0.ip().to_canonical().to_string()),
-			probe: req
-				.headers()
-				.get(header::USER_AGENT)
-				.is_some_and(|agent| agent.as_bytes().starts_with(b"kube-probe/")),
-		};
 		let mut res = self.respond(req).await;
 		headers::app(res.headers_mut());
-		access::log(entry, res)
+		res
 	}
 
 	async fn respond(&self, req: Request<Body>) -> Response<Body> {

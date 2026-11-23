@@ -23,4 +23,5 @@ pub fn frontend(files: Files) -> Router {
 			async move { files.serve(req).await }
 		})
 		.layer(CompressionLayer::new())
+		.layer(axum::middleware::from_fn(access::log))
 }
