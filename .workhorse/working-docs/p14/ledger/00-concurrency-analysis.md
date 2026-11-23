@@ -90,6 +90,41 @@ The reader's cursor is now above `t` and the row is never picked up: on central 
 
 Closing it means locking and then re-reading the clock, repeating if it moved. Confidence: medium (read; the PR behind the migration may explain what it meant to fix).
 
+## F8. The clock row lock: what each holder needs, and what relaxing it would take
+
+Written for the day someone tries to reduce contention on central. The clock row is the one point every session, pull, lookup build, persist and import passes through, so it is the obvious place to look for throughput, and the easiest place to open a hole.
+
+How the lock behaves:
+
+- An update takes a row lock that lasts until its transaction ends, at any isolation level. A second update of the same row waits. `tickTockGlobalClock` is such an update, so a tick-tock inside a transaction holds the clock until that transaction ends.
+- Readers never wait. The trigger's read of the clock returns the last committed value. That is what makes a tick taken inside an open transaction private to it.
+- What a waiter does when the holder commits depends on the waiter's isolation level. At read committed it carries on against the new value. At repeatable read or serializable it fails with a serialisation error. Every tick-tock runs at read committed, so they queue cleanly.
+
+What each holder is getting from holding it:
+
+| Holder | Held for | What it needs | What breaks without it |
+| --- | --- | --- | --- |
+| Persist (`persistIncomingChanges`) | The whole persist | A tick that no other transaction can write with, before or after commit, so rows stamped with it are provably this push's. | Device attribution. Another write sharing the tick is attributed to the pushing device and never sent to it. |
+| Lookup stamping (second transaction of `updateLookupTable`) | A moment | No pull may be given a `pullUntil` above the stamping tick until the stamped rows are visible. | A client's cursor passes rows it has not seen. They are never sent. |
+| Import (`importerTransaction`) | The whole import | Nothing may tick past the tick the import is stamping with until the import commits. | A snapshot passes the import's rows before they are visible. |
+
+Why the import cannot simply rely on pending edits: it runs serializable. Above read committed a transaction sees the database as of its first statement, so the trigger reads the clock as it was when the import began, however long the import runs. The trigger takes the pending-edit lock only when the first synced row is written. Between the first statement and that first write, which includes reading the spreadsheet, nothing marks the tick as in use. A pull or lookup build that ticks past in that gap finds nothing to wait for. The row lock closes the gap by stopping the clock.
+
+To drop the import's row lock safely, the import would take the shared advisory lock on the current tick as its first statement. Pulls and lookup builds would still wait for it, through pending edits. Session starts and pushes would no longer stall behind it. Not tested.
+
+The same gap exists for any transaction above read committed that writes synced rows, and only the importer guards it. `createReportDefinitionVersion` and the report import route (`packages/central-server/app/admin/reports/`) run serializable to stop two saves computing the same next version number (there is no unique constraint on definition and version number), read first, then create report definition rows, which sync. A lookup build starting between the first read and the first write would leave that version out of the lookup table for good. The window is a few milliseconds per save. Not tested.
+
+What must stay true through any attempt to reduce contention:
+
+1. The tick a push is persisted with is written by that push and nothing else, ever.
+2. The `sync_device_ticks` row commits in the same transaction as the rows it describes.
+3. Deliberate changes to pushed records that must go back to the pusher are written at a different tick from the persist.
+4. A `pullUntil` is never handed out above a tick that rows may still become visible at. That covers source rows read directly by a pull (`patient_facilities`) and lookup rows.
+5. The lookup build's cursor never passes a source tick that rows may still become visible at.
+6. A long transaction that writes synced rows is visible to pending edits from before the tick it stamps with can be passed, not from its first write.
+
+The persist holding the clock for its whole length is the main cost: persists run one at a time, and every session start and pull start waits behind each one. It buys invariant 1 cheaply. Letting persists overlap means finding another way to give each a private tick, which is a redesign of how the trigger learns what to stamp with, not a matter of moving the tick-tock.
+
 ## Things that look removable and are not
 
 - The tick-tock in `prepareSession` (`:196`): gives the client its unique tick for the session. Needed.

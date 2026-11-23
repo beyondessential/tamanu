@@ -154,7 +154,7 @@ Direction says whether a table syncs. Scope says which clients receive a given r
 Two things to hold on to:
 
 - **A row with no scope columns goes to everyone.** Leaving a scope column null is a decision, not a default. It has leaked data twice.
-- The lab-request arm sits ahead of patient and network scoping, as the sensitive networks spec states. A facility syncing all lab requests receives lab requests and their encounters from inside a sensitive network it is not part of.
+- The lab-request arm sits ahead of patient and network scoping. A facility syncing all lab requests receives lab requests and their encounters from inside a sensitive network it is not part of. The sensitive networks spec states the ordering, but the interaction was carried over when networks were added and never decided on its merits. Treat it as an open question, not a designed exception.
 
 There is no constant that defines "reference data" for sync. What syncs everywhere is simply every model that sets no scope.
 
@@ -220,7 +220,7 @@ The logical clock invites the assumption that the highest tick wins. It does not
 
 Central serves many clients at once from several processes, alongside an admin panel, imports and scheduled tasks all writing to the same tables. Everything is coordinated in the database, never in process memory, because a second process would not see it. Four mechanisms do nearly all the work.
 
-**The clock row lock.** A tick-tock is an update to one row. Made inside a transaction, it holds that row's lock until the transaction ends, and every other tick-tock waits. There is no explicit lock; it is a consequence of where the tick-tock is placed. The persist transaction holds it for the whole persist, the lookup build's stamping transaction holds it briefly, and an import holds it deliberately for the whole import. Since starting a session, starting a pull snapshot, starting a lookup build and persisting a push all begin with a tick-tock, they all queue behind whichever of those is running. This is what "you cannot sync during an import" means, and why persists happen one at a time.
+**The clock row lock.** A tick-tock is an update to one row. Made inside a transaction, it holds that row's lock until the transaction ends, and every other tick-tock waits. Reading the clock never waits: a reader sees the last committed value, which is what lets a transaction hold a tick nobody else can see. The persist transaction holds the lock for the whole persist and the lookup build's stamping transaction holds it briefly, neither with an explicit lock, only by where their tick-tock is placed. An import takes the same row lock explicitly and holds it for the whole import. Since starting a session, starting a pull snapshot, starting a lookup build and persisting a push all begin with a tick-tock, they all queue behind whichever of those is running. This is what "you cannot sync during an import" means, and why persists happen one at a time.
 
 **The private tock.** Described under [Persisting a push](#persisting-a-push): a tick that only one transaction can ever write with.
 
@@ -235,6 +235,8 @@ The pull still needs it even though it reads the lookup table, because it reads 
 ### Isolation
 
 Snapshots are taken in repeatable read transactions so that every table is read as of the same instant, and a child cannot be copied without its parent: the pull snapshot, the lookup build, the facility's push snapshot, and the facility bootstrap. Inside one, only read shared tables. Writing a row that something outside also writes (the session row, which every poll touches) raises a serialisation failure, and nothing retries those. That is why session updates sit just outside these transactions.
+
+Everything else in sync runs at the default, read committed, and pending edits depend on it. Above read committed a transaction sees the clock as it was at its first statement, however long it then runs, while the trigger takes its lock only at the first write to a synced table. In between, nothing marks that tick as in use, and a snapshot can pass it. So a transaction at repeatable read or serializable that writes synced rows needs to hold the clock itself. The importer runs serializable and does exactly that, which is the real reason it locks the clock row.
 
 ### Advisory lock keys
 

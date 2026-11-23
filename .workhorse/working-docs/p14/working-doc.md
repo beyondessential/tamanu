@@ -200,8 +200,8 @@ Not proposed for this card beyond two small things: correct the lookup table spe
 ## Drafts
 
 - `llm/docs/sync/overview.md`: first draft written, awaiting review.
-- `llm/docs/sync/legacy-model-snapshot.md`: drafted by a subagent from the pull ledger and the code, skimmed but not yet reviewed line by line.
-- `llm/docs/sync/dragons.md`: not started. The overview links to it.
+- `llm/docs/sync/legacy-model-snapshot.md`: drafted by a subagent, then reviewed against the code and rewritten.
+- `llm/docs/sync/dragons.md`: not started. The overview links to it. It must carry, as its own section, the write-up on the clock row lock from `ledger/00-concurrency-analysis.md` F8: what each holder needs from it, why the importer cannot simply rely on pending edits, and what has to stay true if contention on central is ever reduced.
 - `facts/`: the fact sheets the overview was written from. Working material, to be removed with the ledgers before the card merges.
 
 ## Open questions
