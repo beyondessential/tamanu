@@ -45,8 +45,10 @@ export const saveChangesForModel = async (
   };
 
   /**
-   * Only for the lookups below, which need an ID to key on. Changes without one are not dropped:
-   * they can’t match an existing record, so they are still written as creates from `changes`.
+   * Filtering by presence of ID is only for the lookups below, used to work out which records
+   * already exist vs which are being created fresh. Changes without an ID are still used later
+   * during creation: they can’t match an existing record, so it doesn’t matter that we don’t
+   * include for the existence checks.
    */
   const changesWithId = changes.filter(change => change.data.id);
 
