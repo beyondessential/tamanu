@@ -15,9 +15,15 @@ cargo clippy --all-targets -- -D warnings
 cargo fmt --check
 ```
 
-The binary is `target/release/tamanu-supervisor`. The Linux images build it in the root
-Dockerfile's `build-supervisor` stage as a static binary, and the Windows images on the Windows
-image job's runner.
+The binary is `target/release/tamanu-supervisor`. The images build it on the CD runners and copy
+it in. For the Linux images it is a static musl build, passed to the root Dockerfile as a build
+context of its own. From the repository root:
+
+```sh
+cargo build --release --target x86_64-unknown-linux-musl --manifest-path packages/supervisor/Cargo.toml
+docker build --target frontend --build-arg PACKAGE_PATH=web \
+  --build-context supervisor=packages/supervisor/target/x86_64-unknown-linux-musl/release .
+```
 
 ## Running
 

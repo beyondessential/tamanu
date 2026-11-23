@@ -177,8 +177,54 @@ jobs:
       # - we're doing a release, because images are both a product and how we make other artifacts.
       build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
 
-  images:
+  # The supervisor for the frontend Linux images, built on each platform's runner as a static
+  # binary and handed to the image build. Only main saves the build cache, so what any other ref
+  # restores was built from main's own code.
+  linux-supervisor:
     needs: config
+    if: needs.config.outputs.build-images == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+    name: Supervisor for ${{ matrix.platform.arch }}
+    runs-on: ${{ matrix.platform.runs-on }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      # zstd's C sources are compiled against musl too, with musl-gcc.
+      - name: Install Rust
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends musl-tools
+          target="$(uname -m)-unknown-linux-musl"
+          rustup toolchain install stable --profile minimal --target "$target" --no-self-update
+          rustup default stable
+          echo "TARGET=$target" >> "$GITHUB_ENV"
+          echo "CC_${target//-/_}=musl-gcc" >> "$GITHUB_ENV"
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/supervisor
+          save-if: ${{ needs.config.outputs.ref == 'main' }}
+
+      - name: Build supervisor
+        working-directory: packages/supervisor
+        run: cargo build --release --locked --target "$TARGET"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-supervisor-${{ matrix.platform.arch }}
+          path: packages/supervisor/target/${{ env.TARGET }}/release/tamanu-supervisor
+          retention-days: 1
+          if-no-files-found: error
+
+  images:
+    needs:
+      - config
+      - linux-supervisor
     if: needs.config.outputs.build-images == 'true'
     strategy:
       fail-fast: false
@@ -235,6 +281,13 @@ jobs:
         id: version
         run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
 
+      - name: Download supervisor
+        if: matrix.package.target != 'server'
+        uses: actions/download-artifact@v8
+        with:
+          name: linux-supervisor-${{ matrix.platform.arch }}
+          path: ${{ runner.temp }}/supervisor
+
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v4
 
@@ -266,6 +319,7 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
           cache-to: ${{ needs.config.outputs.ref == 'main' && format('type=gha,mode=max,ignore-error=true,scope={0}-main-{1}', matrix.platform.arch, matrix.package.name) || '' }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
+          build-contexts: ${{ matrix.package.target != 'server' && format('supervisor={0}/supervisor', runner.temp) || '' }}
           target: ${{ matrix.package.target }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
@@ -379,7 +433,8 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
-  # The supervisor for Windows, built once for both frontend Windows images.
+  # The supervisor for Windows, built once for both frontend Windows images, caching as the Linux
+  # build does.
   windows-supervisor:
     needs:
       - config
@@ -396,6 +451,11 @@ jobs:
         run: |
           rustup toolchain install stable --profile minimal --no-self-update
           rustup default stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/supervisor
+          save-if: ${{ needs.config.outputs.ref == 'main' }}
 
       - name: Build supervisor
         shell: bash

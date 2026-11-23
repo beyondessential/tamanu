@@ -103,19 +103,9 @@ node --import tsx ../scripts/src/scrubSeedSecrets.mts\
 "]
 
 
-## Build the supervisor, which serves the frontend images, on stable Rust. Its dependencies are
-## compiled in a layer of their own, so a change to its code alone does not rebuild them.
-FROM rust:alpine AS build-supervisor
-RUN apk add --no-cache musl-dev
-WORKDIR /src
-COPY packages/supervisor/Cargo.toml packages/supervisor/Cargo.lock ./
-RUN mkdir src && echo 'fn main() {}' > src/main.rs && touch src/lib.rs \
-  && cargo build --release --locked \
-  && rm -rf src
-COPY packages/supervisor/src/ src/
-RUN touch src/main.rs src/lib.rs \
-  && cargo build --release --locked \
-  && cp target/release/tamanu-supervisor /tamanu-supervisor
+## The supervisor, which serves the frontend images: a static musl build of it, made on the host
+## and passed in as its own build context, `--build-context supervisor=<directory>`.
+FROM scratch AS supervisor
 
 ## Build the frontend packages (web or patient-portal)
 FROM build-base AS build-frontend-base
@@ -127,7 +117,7 @@ RUN DOCKER_BUILD=1 scripts/docker-build.sh ${PACKAGE_PATH}
 FROM alpine AS frontend-base
 ARG PACKAGE_PATH
 RUN adduser -D -H -u 10001 tamanu
-COPY --from=build-supervisor /tamanu-supervisor /usr/bin/tamanu-supervisor
+COPY --from=supervisor --chmod=0755 tamanu-supervisor /usr/bin/tamanu-supervisor
 COPY --from=build-frontend-base /app/packages/${PACKAGE_PATH}/dist/ /app/
 USER tamanu
 EXPOSE 3000
