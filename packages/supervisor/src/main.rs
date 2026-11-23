@@ -73,7 +73,8 @@ fn main() -> ExitCode {
 }
 
 async fn run(config: Frontend) -> std::io::Result<()> {
-	let files = Files::new(&config.root, |name| std::env::var(name).ok())?;
+	let files = Files::new(&config.root, |name| std::env::var(name).ok())
+		.map_err(|error| std::io::Error::new(error.kind(), format!("FRONTEND_ROOT: {error}")))?;
 	let router = frontend(files);
 	let shutdown = stop_signal();
 
