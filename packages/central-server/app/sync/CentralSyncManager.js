@@ -210,15 +210,6 @@ export class CentralSyncManager {
     }
   }
 
-  async sessionExists(sessionId) {
-    /** @type {[{ exists: boolean }]} */
-    const [{ exists }] = await this.store.sequelize.query(
-      'SELECT EXISTS (SELECT 1 FROM sync_sessions WHERE id = :sessionId AND deleted_at IS NULL) AS "exists"',
-      { replacements: { sessionId }, type: QueryTypes.SELECT },
-    );
-    return exists;
-  }
-
   async connectToSession(sessionId) {
     const session = await this.store.sequelize.models.SyncSession.findOne({
       where: { id: sessionId },
