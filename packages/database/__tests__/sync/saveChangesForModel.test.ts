@@ -790,7 +790,7 @@ describe('saveChangesForModel', () => {
       await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
 
       expect(prepareSpy).toHaveBeenCalledTimes(1);
-      expect(prepareSpy).toHaveBeenCalledWith(changes);
+      expect(prepareSpy).toHaveBeenCalledWith(changes, undefined);
       expect(sanitizeSpy).toHaveBeenCalledTimes(2);
       expect(sanitizeSpy).toHaveBeenCalledWith({ id: 'ssc-1', text: 'a' }, 'context-value');
       expect(sanitizeSpy).toHaveBeenCalledWith({ id: 'ssc-2', text: 'b' }, 'context-value');

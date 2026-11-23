@@ -3,7 +3,7 @@ name: plan-implementation
 description: "Draft or refine the implementation checklist from specs and current code"
 label: "Plan implementation"
 category: build
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: Plan implementation
@@ -17,6 +17,6 @@ Draft or refine the implementation checklist in the card's plan file. The plan t
 3. If a plan already exists, edit it in place — add, refine, or reorder checklist sections around the existing prose notes. Don't replace notes
 4. If no plan exists, create one at `.workhorse/plans/{card-id}/plan.md` with an H1 title, a short summary, and one or more checklist sections
 5. Each checklist item should be a concrete step — a file to change, a feature to wire up, a migration to author. Avoid vague items like "add tests"
-6. Ask only the clarifying questions you genuinely need to produce a useful plan — the expectation is one or two turns, not an extended interview
+6. Ask only the clarifying questions you genuinely need to produce a useful plan: one or two turns, not an extended interview
 
-The plan is a free-form working document, not a spec — checkboxes describe build steps, not product behaviour. See `specs/plan/overview.md`.
+The plan's shape and rules are in `.agents/docs/card-artefacts.md`.

@@ -4,7 +4,7 @@ description: "Workshop the shape of this project — audience, components, ambig
 label: "Workshop project"
 category: plan
 surface: project
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: Workshop project
@@ -21,19 +21,11 @@ Things to push on:
 
 Methodology:
 
-- Ask focused questions, one or two at a time. Number them so the user can reply by number
+- Ask focused questions, one or two at a time. Number them so the user can reply by number, and keep a question's number if you ask it again
 - Take what the user says at face value first, then probe the implications
 - Don't draft the PRD during this skill; capture material in conversation. `Draft PRD` is the next step
 - If the user gives you enough to start sketching structure (component-led, feature-led, mixed), say which shape you'd recommend and why, but leave the draft to **Draft PRD**
 
 ### Restrictions on this surface
 
-You are working on the **project surface**, not a card workspace. Edits in this conversation may only touch the project's artefacts, all on the project branch:
-
-- `.workhorse/projects/{hash}-{slug}/prd.md`
-- `.workhorse/projects/{hash}-{slug}/mockups/`
-- `.workhorse/projects/{hash}-{slug}/breakdown.md`
-
-Do **not** edit specs, per-card plans, test cases, card working docs, or any code. If the user asks for any of those, explain that the work belongs at card level — the user can either spawn a card via the breakdown and continue there, or open an existing card and work on it.
-
-You may **read** anything from the workspace's main branch for context.
+You are working on the project surface, not a card. Keep to what `.agents/docs/project-surface.md` allows.

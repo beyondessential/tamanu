@@ -4,6 +4,7 @@ import config from 'config';
 import { NotFoundError } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
 import {
+  CHARTING_DATA_ELEMENT_IDS,
   PROGRAM_DATA_ELEMENT_TYPES,
   SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
@@ -15,7 +16,8 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 const chance = new Chance();
-const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
+const TEST_VITALS_SURVEY_ID = crypto.randomUUID();
+const TEST_CHART_SURVEY_ID = crypto.randomUUID();
 describe('SurveyResponseAnswer', () => {
   const [facilityId] = selectFacilityIds(config);
   let app;
@@ -594,6 +596,45 @@ describe('SurveyResponseAnswer', () => {
         expect(log.reasonForChange).toBe(reasonForChange);
       });
 
+      describe('data element validation', () => {
+        // Otherwise-valid payload, so the data element is the only reason to reject
+        const postWithDataElementId = async dataElementId => {
+          const response = await createNewVitalsSurveyResponse();
+          const answers = await response.getAnswers();
+          const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
+          return app.post('/api/surveyResponseAnswer/vital').send({
+            reasonForChange: 'invalid-data-element-test',
+            newValue: chance.integer({ min: 0, max: 100 }),
+            date: getCurrentDateTimeString(),
+            recordedDate: dateAnswer.body,
+            dataElementId,
+            encounterId: response.encounterId,
+            facilityId,
+          });
+        };
+
+        it('should reject a calculated data element', async () => {
+          const result = await postWithDataElementId(dataElements[2].id);
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('Invalid data element');
+        });
+
+        it('should reject a data element that does not exist', async () => {
+          const result = await postWithDataElementId('non-existent-data-element-id');
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('Invalid data element');
+        });
+
+        it('should reject a missing data element id', async () => {
+          const result = await postWithDataElementId(undefined);
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('dataElementId is required');
+        });
+      });
+
       it('should return error if feature flag is off', async () => {
         await models.Setting.set('features.enableVitalEdit', false);
 
@@ -604,6 +645,150 @@ describe('SurveyResponseAnswer', () => {
         });
 
         expect(result.status).toBe(422);
+      });
+    });
+  });
+
+  describe('charting', () => {
+    let unansweredDataElement;
+    let calculatedDataElement;
+    let createNewChartSurveyResponse;
+
+    beforeAll(async () => {
+      const {
+        Survey,
+        ProgramDataElement,
+        SurveyScreenComponent,
+        SurveyResponse,
+        SurveyResponseAnswer,
+        Patient,
+        Encounter,
+      } = models;
+
+      // Setup a somewhat credible simple chart survey
+      await Survey.create({
+        ...fake(Survey),
+        id: TEST_CHART_SURVEY_ID,
+        surveyType: SURVEY_TYPES.SIMPLE_CHART,
+      });
+
+      const answeredDataElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
+        code: 'ChartCodeWithoutMathSymbolsOne',
+      });
+      // Left unanswered, so an answer can be created for it
+      unansweredDataElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
+        code: 'ChartCodeWithoutMathSymbolsTwo',
+      });
+      calculatedDataElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED,
+        code: 'ChartCodeWithoutMathSymbolsThree',
+      });
+      await ProgramDataElement.findOrCreate({
+        where: { id: CHARTING_DATA_ELEMENT_IDS.dateRecorded },
+        defaults: {
+          ...fake(ProgramDataElement),
+          id: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
+          type: PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME,
+          code: 'PatientChartingDate',
+        },
+      });
+
+      const calculationsByDataElementId = {
+        [answeredDataElement.id]: '',
+        [unansweredDataElement.id]: '',
+        [calculatedDataElement.id]: `${answeredDataElement.code}+1`,
+        [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: '',
+      };
+      for (const [dataElementId, calculation] of Object.entries(calculationsByDataElementId)) {
+        await SurveyScreenComponent.create({
+          ...fake(SurveyScreenComponent),
+          dataElementId,
+          surveyId: TEST_CHART_SURVEY_ID,
+          calculation,
+          config: '',
+        });
+      }
+
+      createNewChartSurveyResponse = async () => {
+        const patient = await Patient.create(await createDummyPatient(models));
+        const encounter = await Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+        const response = await SurveyResponse.create({
+          ...fake(SurveyResponse),
+          surveyId: TEST_CHART_SURVEY_ID,
+          encounterId: encounter.id,
+        });
+        const recordedDate = getCurrentDateTimeString();
+        await SurveyResponseAnswer.create({
+          ...fake(SurveyResponseAnswer),
+          dataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
+          responseId: response.id,
+          body: recordedDate,
+        });
+        await SurveyResponseAnswer.create({
+          ...fake(SurveyResponseAnswer),
+          dataElementId: answeredDataElement.id,
+          responseId: response.id,
+          body: chance.integer({ min: 0, max: 100 }).toString(),
+        });
+
+        return { response, recordedDate };
+      };
+
+      await models.Setting.set('features.enableChartingEdit', true);
+    });
+
+    describe('create', () => {
+      // Otherwise-valid payload, so the data element is the only reason to reject
+      const postWithDataElementId = async dataElementId => {
+        const { response, recordedDate } = await createNewChartSurveyResponse();
+        return app.post('/api/surveyResponseAnswer/chart').send({
+          reasonForChange: 'chart-data-element-test',
+          newValue: chance.integer({ min: 0, max: 100 }),
+          date: getCurrentDateTimeString(),
+          recordedDate,
+          dataElementId,
+          surveyId: TEST_CHART_SURVEY_ID,
+          encounterId: response.encounterId,
+          facilityId,
+        });
+      };
+
+      it('should create a survey response answer', async () => {
+        const result = await postWithDataElementId(unansweredDataElement.id);
+        expect(result).toHaveSucceeded();
+        const createdAnswer = await models.SurveyResponseAnswer.findByPk(result.body.id);
+        expect(createdAnswer.dataElementId).toBe(unansweredDataElement.id);
+      });
+
+      describe('data element validation', () => {
+        it('should reject a calculated data element', async () => {
+          const result = await postWithDataElementId(calculatedDataElement.id);
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('Invalid data element');
+        });
+
+        it('should reject a data element that does not exist', async () => {
+          const result = await postWithDataElementId('non-existent-data-element-id');
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('Invalid data element');
+        });
+
+        it('should reject a missing data element id', async () => {
+          const result = await postWithDataElementId(undefined);
+          expect(result).toHaveRequestError();
+          expect(result.status).toBe(422);
+          expect(result.body.error.message).toBe('dataElementId is required');
+        });
       });
     });
   });

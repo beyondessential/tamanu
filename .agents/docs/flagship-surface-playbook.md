@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 # Building a surface to a reference standard
@@ -10,7 +10,7 @@ Fill in the block below in the plan. Everything after the brief is how to work.
 
 ## The brief (fill in per card)
 
-- **Card and surface:** {card code}, {the surface: the card board, the project roadmap, ...}.
+- **Card and surface:** {card code}, {the surface: a board, a timeline, an inbox, ...}.
 - **The ask, in the user's words:** {quote it; it is the standard you are held to}.
 - **Reference product:** {the product that does this best}. Screenshots: {paths}. Docs worth fetching: {URLs}.
 - **Decisions already made:** {list; do not reopen them}.
@@ -22,14 +22,14 @@ Fill in the block below in the plan. Everything after the brief is how to work.
 
 "Work really well, buttery smooth, completely free of bugs." Turn that into checks you can fail:
 
-- An interaction that stays on the page shows its result within a frame or two: under about 50 ms locally, under about 100 ms on Fast 3G with 4x CPU throttling.
-- A route change shows feedback within about 100 ms and content within about 200 ms locally.
-- Nothing shifts once painted. Cumulative layout shift stays at or below 0.01 on a reload.
-- Every action is reachable by keyboard, focus is never lost to the page body, and a screen reader hears what changed.
+- An interaction that stays on the screen shows its result within a frame or two: under about 50 ms on a fast machine, and under about 100 ms on a slow device and network. In a web app, test the slow case with the browser's throttling, such as Fast 3G with 4x CPU.
+- Moving to another screen shows feedback within about 100 ms and content within about 200 ms on a fast machine.
+- Nothing shifts once painted. In a web app, cumulative layout shift stays at or below 0.01 on a reload.
+- Every action is reachable by keyboard where the platform has one, focus is never lost, and a screen reader hears what changed.
 - Nothing the user typed or did is lost on a refusal, a reload, a second tab or a dropped connection.
 - Side by side with the reference, a person cannot point at something that looks unconsidered.
 
-Only a browser proves the first four. Code review proves none of them. `.agents/docs/browser-rig.md` is how to get one. The server side has its own bar: every entry point refuses what the caller may not do, survives hostile input, concurrency and an external service failing, and every bug found has a test (see "Backend exploration loops").
+Only the running app proves the first four. Code review proves none of them. `.agents/docs/browser-rig.md` is how to get a running copy and a browser. The server side has its own bar: every entry point refuses what the caller may not do, survives hostile input, concurrency and an external service failing, and every bug found has a test (see `.agents/skills/explore-backend/SKILL.md`).
 
 ## Roles and economy
 
@@ -42,46 +42,35 @@ Only a browser proves the first four. Code review proves none of them. `.agents/
 
 1. **Orient.** Read the shipped implementation of the surface first. An agent surveys the current code, the specs that govern it and the reference product's docs, and reports where they differ. Read the existing specs yourself.
 2. **Ask for references at the start, and wait for them before any visual decision.** Write a wishlist into the plan: each item names the state to capture (a row hovered, a menu open, an empty state) and the decision it settles. Ask the user for captures and do the non-visual work while they come. A wishlist that is written and never sent produces a design from memory, which is polished for hours before anyone sees it is wrong.
-3. **Spike the risky technology and the hardest interaction.** Throwaway code outside the repo, with numbers: volumes, latencies, browser behaviour, and frame rate for the most demanding interaction at target scale with 4x CPU. Record results and blockers in the plan. A spike that finds a bundler bug costs an hour; the same bug found after the build costs a redesign. Skipping it tends to end with an expensive approach, such as restyling every element on each animation frame, and several performance rounds to undo it.
+3. **Spike the risky technology and the hardest interaction.** Throwaway code outside the repo, with numbers: volumes, latencies, platform behaviour, and frame rate for the most demanding interaction at target scale on a slow device. Record results and blockers in the plan. A spike that finds a build-tool bug costs an hour; the same bug found after the build costs a redesign. Skipping it tends to end with an expensive approach, such as restyling every element on each animation frame, and several performance rounds to undo it.
 4. **Edit the specs** to describe the system as it should be, folding into existing specs before creating new ones. Resolve every open question before the spec is called done.
 5. **Mock up from a capture or the build, never from imagination.** Start from a capture of the reference or the shipped screen. Where the reference does not settle the direction, produce three structurally different directions from separately briefed agents and choose by critique (design judgement, "Diverge, then converge"). Screenshot each beside the reference. The chosen mockup is the contract the build is compared with every round. A build treated as its own mockup means nothing visual is compared with anything until the user steps in.
-6. **Write the technical design** into the plan as types and schemas, not prose: data contracts, endpoints and their access rules, how writes flow and roll back, how the UI reads. Fix the read hooks' signatures early, so the UI can be built against a simple implementation and the data layer swapped underneath later without touching components. Keep one source of truth per piece of state. Three optimistic layers plus a fourth to reconcile them means every later fix has to reason about all four.
+6. **Write the technical design** into the plan as types and schemas, not prose: data contracts, endpoints and their access rules, how writes flow and roll back, how the UI reads. Fix the signatures of the UI's data reads early, so the UI can be built against a simple implementation and the data layer swapped underneath later without touching components. Keep one source of truth per piece of state. Three optimistic layers plus a fourth to reconcile them means every later fix has to reason about all four.
 7. **Write work packages** (format below), test cases marked automated or manual with the package that writes each, and a review checklist ordered by what is most likely to go wrong, each item saying how to check it.
 8. **Review your own output** with a fresh-eyes subagent that has none of your context, fix what it finds, then show the user.
 
 ## Design principles
 
-The general method for taste and feel is in `.agents/docs/design-judgement.md`. These are specific calls that held up under a user's eye, and then the ones that did not.
+The general method for taste and feel is in `.agents/docs/design-judgement.md`. These are calls that hold on any surface:
 
-**What worked**
-
-- **Restraint is the reference's main quality.** Copy it. Fewer elements per row, one list rather than tabs, no advanced modes until someone asks. A priority split the reference does not have is the first thing a user cuts.
-- **An accent budget, written down.** Name the exact places the accent may appear and make everything else neutral: the send control when ready, the border of a reaction the viewer added, the unread badge. Avatars without photos go neutral app-wide.
-- **Bare muted icons, not discs.** Event marks as 16px muted glyphs in a fixed column with a rail between them.
-- **Folds keep the first and last line** and name what is inside ("Show 5 events: changed status, priority").
-- **Measure alignment in the build.** Take DOM rects at 2x and make shared edges and baselines equal by number: avatar columns, text columns, control centres, gaps. Then redraw the mockups to match the build, so the mockups stay a true record.
-- **A keyboard model, specified.** The focus ring shows on keyboard use only. A menu takes focus when it opens, arrows walk it, Esc returns focus to the opener, and Tab closes it. When an action removes the focused row, focus goes to the next one.
-- **Optimistic writes that never visibly undo themselves.**
-  - The React key survives the swap from temporary id to server id, so the node is never recreated.
-  - Pending work dims with `aria-busy` and no spinner.
-  - A refusal restores the exact prior state, including the row's position, shows one toast naming the action, and puts typed text back in the box.
-- **Paint a section once.** Hold a section until its parts are ready, with a short cap, so the first paint does not shove anything. Draw the composer in the same frame as the timeline above it.
+- **Ground mockups in a capture or the build.** Mockups designed fresh come out noisier than the reference, heavier on the accent and misaligned.
+- **Write an accent budget down.** Name the exact places the accent may appear, and make everything else neutral.
+- **Measure alignment in the build.** Take element bounds at 2x and make shared edges and baselines equal by number: avatar columns, text columns, control centres, gaps. Then redraw the mockups to match the build, so the mockups stay a true record.
+- **Specify a keyboard model.** The focus ring shows on keyboard use only. A menu takes focus when it opens, arrows walk it, Esc returns focus to the opener, and Tab closes it. When an action removes the focused row, focus goes to the next one.
+- **Optimistic writes never visibly undo themselves.**
+  - An item keeps its identity when its temporary id is swapped for the server's, so it is never redrawn.
+  - Pending work dims, marked busy for assistive technology, with no spinner.
+  - A refusal restores the exact prior state, including the item's position, says so once, naming the action, and puts typed text back.
+- **Paint a section once.** Hold a section until its parts are ready, with a short cap, so the first paint does not shove anything.
+- **A loading state that shows on every open costs every open.** Show one only once a load has run past a short delay, and warm what the next screen needs before it is asked for.
 - **Accessibility as its own review.**
-  - Live regions exist before their text is written, and are cleared when the thing they announced goes.
+  - Announcements are wired up before their text is written, and cleared when the thing they announced goes.
   - State is in words for screen readers ("Unread", "Snoozed until …").
   - Every icon button has a name.
   - Contrast is checked on every ground a row can sit on (selected, hovered), not only the page.
+- **Exact measurements belong in mockups and the design system,** not in specs.
 
-**What did not work**
-
-- **Mockups designed fresh.** They came out noisier than the reference, heavy on the accent, and misaligned. Grounding them in the build and the reference fixed all three.
-- **Designing from memory of the reference.** A roadmap tinted every bar with its project's colour and set the names inside, where the reference's bars were neutral with the names above and colour only in the icons. An overnight polish loop refined the wrong design.
-- **Route-level `loading.tsx` skeletons.** In a React app with Suspense, the fallback throttle added about 300 ms to every fast open. What replaced them:
-  - An in-page skeleton shown only after about 150 ms.
-  - The route's JavaScript warmed by hidden fully prefetched links, since a payload prefetch does not fetch the chunks.
-  - A pending pulse on the clicked link after 100 ms.
-- **Key hints in placeholders.** Surfaces do not advertise their own keys.
-- **Exact measurements in specs.** They belong in mockups and the design system.
+A repository's own lessons from earlier surfaces, where it keeps them (often in its design library or its agent guidance), come before these: read them in phase 1.
 
 ## Phase 2: build through work packages
 
@@ -96,15 +85,15 @@ Each package is a self-contained brief a cheaper model can finish without asking
 
 A shared README carries the rules every package follows. Take them from the repository's own `CLAUDE.md` and `AGENTS.md`: environment variables not to set, the test database, how migrations are numbered and written, rules for scripts and configuration, which build to run after which kind of change, and how to commit. State them once, there, so no package restates them differently.
 
-Order the packages so protocol and data land first, the UI is built against the stable hooks, and the data layer swaps in late. After each package, run a QA loop scoped to it (the `qa-loop` skill), and answer its findings with a fix package whose decisions are settled, so the implementer never sets policy.
+Order the packages so protocol and data land first, the UI is built against the stable data reads, and the data layer swaps in late. After each package, run a QA loop scoped to it (the `qa-loop` skill), and answer its findings with a fix package whose decisions are settled, so the implementer never sets policy.
 
 ## Phase 3: verification is a loop, not a pass
 
-The method lives in the `qa-loop` skill: adversaries by lens, triage, fixers, a different agent re-checking the fixes, regression tests for everything found, and a stopping rule built on consecutive clean rounds. What this playbook adds is the lessons it was distilled from:
+The method lives in the `qa-loop` skill: adversaries by lens, triage, fixers, a different agent re-checking the fixes, regression tests for everything found, and a stopping rule built on consecutive clean rounds. What this playbook adds:
 
-- **A round is not closed until its fixes are re-reviewed.** Deferring that until the user asks is how a high-severity security issue (dates past year 9999 stored and breaking a page workspace-wide) and two regressions from a fix that dropped a revalidation surfaced late.
-- **Re-review the fixes adversarially.** One re-review found 22 problems in the fixes, including a security regression, a stream that failed open on an unanswered access check, which came from the orchestrator's own brief. Put every settled decision through a security lens before it goes out.
-- **Prefer a policy fix to a parameter tweak.** Widening a replay window from 100 to 1,000 still lost rows. Replaying in broadcast order closed the gap.
+- **A round is not closed until its fixes are re-reviewed.** Deferred until someone asks, high-severity issues and regressions from the fixes themselves surface late.
+- **Re-review the fixes adversarially.** Fixes carry problems of their own, security regressions among them, and some come from the orchestrator's own brief. Put every settled decision through a security lens before it goes out.
+- **Prefer a policy fix to a parameter tweak.** Widening a limit moves the failure; changing the rule, such as the order work is replayed in, removes it.
 - **Structural refactors found late become follow-up cards.** Do the cheap guards now: a lint rule for the client and server boundary, a digest guard on a versioned schema, one home for shared constants.
 - **An automated reviewer** on a diff of hundreds of files is shallow. Use it as a final gate, not as the loop.
 
@@ -114,8 +103,8 @@ Run it unattended, round and round, until a pass produces nothing worth doing.
 
 - **A log file is the loop's memory**, under the card's plan folder. It holds two tracks, each with a queue, a done list with commit hashes, and a "noticed, not done" list. Any session resumes from it.
 - **Each iteration is one small agent task** that commits per item and appends to the log.
-- **Feature rounds and polish rounds are separate, and both loop.** A feature round walks the jobs, then decides what to add, change or cut, in a batch of one to three, each built through its own design, review and polish. A polish round only subtracts and corrects. Features added inside fix and polish rounds (hover dates, an off-screen marker, narrow layouts, remembered scroll, keyboard menus app-wide) get no design, no walkthrough and none of the reviews they needed, and their fixes reach into a dozen shared components. Deciding features is welcome; doing it inside a polish round is the mistake. See design judgement, "Deciding features".
-- **The design track** is the `design-loop` skill, which runs design judgement's UI loop: one change per iteration, before and after side by side, a taste ledger so the loop does not oscillate. It works against the reference screenshots, the user's comments, the design system, and the app's own restraint. Its items: the accent budget, alignment surface by surface, hover bars, the composer, folds, empty states and notices. It ends with a side-by-side comparison and a closing list of every remaining difference, each marked to fix or to keep with the reason.
+- **Feature rounds and polish rounds are separate, and both loop.** A feature round walks the jobs, then decides what to add, change or cut, in a batch of one to three, each built through its own design, review and polish. A polish round only subtracts and corrects. Features added inside fix and polish rounds get no design, no walkthrough and none of the reviews they needed, and their fixes reach into shared components across the app. Deciding features is welcome; doing it inside a polish round is the mistake. See design judgement, "Deciding features".
+- **The design track** is the `design-loop` skill, which runs design judgement's UI loop: one change per iteration, before and after side by side, a taste ledger so the loop does not oscillate. It works against the reference screenshots, the user's comments, the design system, and the app's own restraint. Its items come from the critique: the accent budget, alignment surface by surface, empty states and notices among them. It ends with a side-by-side comparison and a closing list of every remaining difference, each marked to fix or to keep with the reason.
 - **The code track:**
   - Split modules by responsibility, and tests over about 400 lines.
   - Keep one formatter for each concern.
@@ -123,41 +112,15 @@ Run it unattended, round and round, until a pass produces nothing worth doing.
   - Replace fixed sleeps in tests with mocked timers or wait-until helpers.
 - **Checkpoint every few iterations:** typecheck, lint, the full suite against a database, and the production build. Then push.
 
-## Phase 5: feel sweeps in a real browser
+## Phase 5: feel sweeps in the running app
 
-A browser finds the bugs that matter most, and code review finds none of them: a section painting twice, the composer pushed under the dock, Back losing the selection, a skeleton adding 300 ms to every open, a hydration mismatch redrawing a list after paint, focus dropped to the page body, rows reshuffling on Back, a refused action leaving a row in the wrong place.
+The running app finds the bugs that matter most, and code review finds none of them: a section painting twice, content pushed under a fixed bar, Back losing the selection, a loading state adding delay to every open, a list redrawn after its first paint, focus dropped, rows reshuffling on Back, a refused action leaving a row in the wrong place.
 
-Setup, flows and reporting are in `.agents/docs/browser-rig.md` and the browser lens of `qa-loop`. Ask for a rig at the commit under test with `workhorse-local rig lease`, never build one, release it before you report, and run `workhorse-local rig gc --card <card>` between rounds. The flows for a surface usually number about a dozen: a cold open on a slow link; a warm open; keyboard-only triage; create, edit and delete; two users live at once; a server restart mid-session; Back and forward; a reload; sign-out and sign-in as someone else; a refused action; reaching an item through search.
+For a web app, setup, flows and reporting are in `.agents/docs/browser-rig.md` and the browser lens of `qa-loop`. Ask for a rig at the commit under test with `workhorse-local rig lease`, never build one, release it before you report, and run `workhorse-local rig gc --card <card>` between rounds. The flows for a surface usually number about a dozen: a cold open on a slow link; a warm open; keyboard-only triage; create, edit and delete; two users live at once; a server restart mid-session; Back and forward; a reload; sign-out and sign-in as someone else; a refused action; reaching an item through search.
 
-## Backend exploration loops
+## Backend exploration
 
-Code review reads the server side; walkthroughs reach it through the UI. Neither drives it directly with the inputs and timing that break it. The QA loop's API adversary and edge-case lenses probe each batch's endpoints; these loops explore the server side as a whole, across every entry point the feature touches, with the same persistence as the polish loop and interleaved with it. Findings take the QA loop's shape and its triage, fix and re-check steps.
-
-**The seed.** Keep an edge-case seed in the rig recipe's `seed` entry point, so every lease starts from it, alongside the walkthrough seed:
-- names that differ only by case or collide after normalising;
-- unicode and maximum-length names;
-- the largest counts the product allows;
-- records shared between owners, and records owned by someone else;
-- deleted, moved and archived records;
-- legacy rows shaped by the previous release;
-- one user at every access level.
-
-Every lease is cloned from it, so a run starts from known data; `workhorse-local rig reset <lease>` returns a lease to it mid-run.
-
-**Two harnesses.**
-- **HTTP:** call routes and server actions over HTTP against the production build, with a session for each user. Server actions are usually reachable through the same request the browser sends (in Next.js, a POST carrying the `Next-Action` header), so a probe can replay a recorded request.
-- **Functions:** call the plain functions behind the actions from a small script against the lease's database (`RIG_DATABASE_URL`). This is quicker for a matrix and reaches code the UI never calls with odd arguments.
-
-**What to try, per entry point:**
-- **Access:** each level in the access matrix, and an id from another workspace or owner. A refusal must say nothing about a thing the caller cannot see.
-- **Input:** empty values, the maximum and one past it, unicode, case variants, `../` and encoded slashes in anything that becomes a path or a URL, and a value valid for another tenant.
-- **Concurrency:** fire the same write twice with `Promise.all`; race conflicting writes, such as set and unset, add and remove, or change and delete. Afterwards the data must be consistent and every caller must have had a definite answer.
-- **Failure:** stop or slow the fake external service, make it answer 5xx or 403, restart the server mid-operation, and replay a request whose first response was lost.
-- **State:** run the operation against legacy rows, against a record mid-transition, and at the counts the product allows.
-
-**Every finding becomes a test.** Write the reproduction as a failing unit or database integration test first, then fix. Probes are throwaway; the test is what keeps the finding fixed. Turn the exploration's best probes into permanent tests too, even where they found nothing, when they cover a path no test reached.
-
-**Stop** when a full pass over every entry point finds nothing above low, and every finding from earlier passes has a test that failed before its fix.
+The server side is explored directly, in passes interleaved with the polish loop, as `.agents/skills/explore-backend/SKILL.md` says. Its findings take the QA loop's shape and its triage, fix and re-check steps.
 
 ## Running parallel agents in one worktree
 
@@ -166,7 +129,7 @@ Every lease is cloned from it, so a run starts from known data; `workhorse-local
 - **Partition by area.** Split fix agents by area, and name in each brief the files the others own. Commit early, since an automatic commit at the end of a turn can sweep staged files into it.
 - **Brief contents.** Every brief carries:
   - the working directory;
-  - "read `CLAUDE.md` first";
+  - "read the repository's agent guidance first";
   - the environment rules and the DB URL;
   - what the other agents are doing;
   - the commit prefix;
@@ -176,14 +139,15 @@ Every lease is cloned from it, so a run starts from known data; `workhorse-local
 
 ## Keeping the branch landable
 
-- **Merge the base branch often.** Expect migration numbers to collide, and renumber yours.
+- **Merge the base branch often.** Expect migration numbers to collide, and follow the repository's own rule for that. Never rename a migration a database has already applied, a rig's included: most migration tools track a migration by its name, so they would apply it again.
 - **Expect semantic conflicts.** A new enum member from the base needs an entry in every exhaustive map on your branch.
 - **After a merge**, reinstall dependencies and regenerate any generated clients before trusting a test run. Files that fail because a client regenerated mid-run pass on a rerun.
 - **CI is not your machine.** CI may run an older runtime than this machine, with globals it lacks. Get the real failure from the CI log by searching for the failing test line; the log tail rarely shows it.
 - **Fix the flakes you introduced:** unawaited closes, global sweeps in tests, timing assertions. Rerun known flakes rather than "fixing" them.
 - **Keep the PR description current:**
   - hand-authored migrations;
-  - anything renumbered or edited in place;
+  - a migration edited in place;
+  - a migration moved to run after one the base merged since, because it depends on it;
   - release blockers you could not verify, such as other browsers and private windows;
   - failures specific to your machine, so a reviewer is not told to expect them in CI.
 - **Revise the card's progress summary** at each milestone.

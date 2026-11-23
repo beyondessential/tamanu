@@ -14,7 +14,7 @@ const readEnv = (name) => {
   return null;
 };
 
-// remember to update Caddyfile.docker when touching these
+// update env_js in packages/supervisor/src/files.rs when touching these
 export const NODE_ENV = readEnv('NODE_ENV');
 export const BUGSNAG_API_KEY = readEnv('BUGSNAG_API_KEY');
 export const VERSION = __VERSION__;

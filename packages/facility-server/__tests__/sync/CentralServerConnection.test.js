@@ -87,7 +87,7 @@ describe('CentralServerConnection', () => {
       },
       settings: {
         sync: {
-          streaming: false,
+          urgentIntervalInSeconds: 10,
         },
       },
     });    
@@ -226,7 +226,7 @@ describe('CentralServerConnection', () => {
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
       expect((await centralServer.loginData()).settings).toMatchObject({
         sync: {
-          streaming: false,
+          urgentIntervalInSeconds: 10,
         },
       });
     });

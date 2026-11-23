@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 # Establishing card context outside Workhorse
@@ -18,10 +18,10 @@ Follow this process whenever a skill directs you here.
 
 When you have no card context, ask the user to establish it before you start the skill's work. Offer two paths:
 
-1. **Linear card** — the user gives you a Linear card code and connects the Linear MCP, so you can read the card directly. Read whatever detail helps the task at hand — at minimum the card's title and description. If the Linear MCP is not connected, walk the user through connecting it
+1. **From the team's tracker** — the user names the card in whatever tracks the team's work, and you read it there. That may be Workhorse itself, read with the Workhorse MCP's `get_card`, or another tracker such as Linear, Jira or GitHub Issues, read through its own MCP. Read whatever detail helps the task at hand — at minimum the card's title and description. If the tracker's MCP is not connected, walk the user through connecting it
 2. **Paste** — the user pastes the card's title and description directly into the chat
 
-Also ask the user for the card's **identifier**. It is used for the file paths of mockups (`.workhorse/design/mockups/{card-id}/`), plans (`.workhorse/plans/{card-id}/`), and test cases (`.workhorse/test-cases/{card-id}/`). Every card has one — a Linear card code supplies it directly. If no Linear or Workhorse ticket backs the work, ask the user to create one so the work is tracked; you can offer to create it for them through the Linear MCP.
+Also ask the user for the card's **identifier**. It is used for the file paths of mockups (`.workhorse/design/mockups/{card-id}/`), plans (`.workhorse/plans/{card-id}/`), and test cases (`.workhorse/test-cases/{card-id}/`). Every card has one — the tracker's own code supplies it directly. If no ticket backs the work, ask the user to create one in their tracker so the work is tracked; you can offer to create it for them through the tracker's MCP, such as the Workhorse MCP's `create_card`.
 
 ## When context is incomplete
 

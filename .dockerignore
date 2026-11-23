@@ -3,3 +3,4 @@ node_modules
 .ssh
 .tmp
 database/docs
+packages/supervisor/target

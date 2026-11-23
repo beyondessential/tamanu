@@ -3,7 +3,7 @@ name: refactor-loop
 description: "Take stock of this card's code and refactor it, in loops, until it is as small, DRY and well structured as it sensibly can be, with behaviour unchanged"
 label: "Refactor loop"
 category: build
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: make the code smaller and better structured, behaviour unchanged
@@ -22,7 +22,7 @@ Check them first, per `.agents/docs/running-loops.md`. No product code in scope 
 
 ### Scope
 
-The scope is everything the card's branch changed against its base, product code and tests, or the area the user names. It extends to nearby code where that is what makes the card's code simpler:
+The scope is everything the card's branch changed against its base (see `.agents/docs/running-loops.md`, "Scope"), product code and tests, or the area the user names. It extends to nearby code where that is what makes the card's code simpler:
 
 - an existing helper or component the card's code should reuse rather than copy;
 - an abstraction the card's code had to work around, reshaped so it no longer has to;
@@ -37,7 +37,7 @@ Keep each wider change to one clear idea, so a reviewer can follow it, and recor
 - **Look for the abstraction the code is missing.** Code that does nearly the same job in several places often wants one shape, with the differences as data or options. Two things that only look alike, and change for different reasons, stay apart.
 - **Weigh risk against the gain.** Tests and the proof in step 5 bring risk down, so a clearly simpler result is worth doing with tests written first. A marginal gain in code that is hard to cover is not.
 - **The tests stay green, and keep their meaning.** Run them before and after every refactor. A test may be rewritten when the internals it reached into are gone, against the public entry point that replaced them. A test is never deleted or loosened to get a refactor through.
-- **Count every line, and judge by the net.** A new helper, hook or file counts against what it replaces, and so do the tests written to guard a refactor. An entry that does not bring the net down is reverted, unless it buys a clarity the ledger names. A package whose total is not down has missed its purpose, however many entries it ticked.
+- **Count every line, and judge by the net.** A new helper, module or file counts against what it replaces, and so do the tests written to guard a refactor. An entry that does not bring the net down is reverted, unless it buys a clarity the ledger names. A package whose total is not down has missed its purpose, however many entries it ticked.
 - **Guard refactors with few, sharp tests.** Write the smallest test that would catch the regression the entry risks, at the public entry point. Where existing tests already pin the behaviour, write none.
 - **Commit per refactor**, each with its line count before and after, so any one can be reverted alone.
 - **Follow `.agents/docs/running-loops.md`** for models, cut-offs, how a round is reported, what this card's rigour sets, the rig and parallel agents. The run holds the pull request itself, so you never call `hold_pr` or `release_pr`.
@@ -48,11 +48,11 @@ Keep each wider change to one clear idea, so a reviewer can follow it, and recor
 
 ### Reporting the run
 
-A round is one survey, triage, refactor and proof (steps 2 to 5), with the measure that follows it.
+A round is one survey, triage, refactor and proof (steps 2 to 5), with the measure that follows it. Report as `.agents/docs/running-loops.md` "Reporting a run" says, with `report_round` and `loop` `refactor_loop` once per round, when the round's survey has been judged and its packages proved, and `status` `done` when the stop rule in step 6 is met. Use `stopped` only if the user told you to stop.
 
-- **A refactor loop has no issues of its own** beyond the bugs it finds. Candidates, ledger entries and decisions stay in the plan's refactor ledger and are not filed. A bug found while refactoring is filed with `file_issue` as you find it, with a `severity` on the scale the hosted review uses (critical, suggestion or nit; a behaviour regression a package review catches counts by how much it would hurt), under this run and the round you are in, with a failing test where it is substantive. Do not fix it in a refactor commit: it is fixed apart, and you set its disposition with `set_issue_disposition` as that happens (in progress, then fixed with the commit's sha, or skipped with the reason).
-- **When a round files five or more issues, call `set_triage` before acting on any of them:** the triage rule applies to a loop's issues as it does to any others.
-- **Call `report_round` once per round,** when the round's survey has been judged and its packages proved: `loop` `refactor_loop`, the `round` you have just finished counting from 1, the `cap` this card's rigour gives (the turn names it), `found` as what the round turned up that was a defect, in critical, suggestion and nit counts (a refactor candidate is not a finding, so a round that only found things to refactor reports zeros), a one-line `summary` that carries the round's line numbers before and after, and `status`: `going` while another round follows, `done` when the stop rule in step 6 is met, and `stopped` only if the user told you to stop. If the tool refuses because the conversation has no open run of the loop, say so and do not report again.
+- **A refactor loop has no issues of its own** beyond the bugs it finds. Candidates, ledger entries and decisions stay in the plan's refactor ledger and are not filed, so a round that only found things to refactor reports `found` as zeros, and its `summary` carries the round's line numbers before and after.
+- **A bug found while refactoring** is filed with `file_issue` and a `severity` as you find it, with a failing test where it is substantive. Do not fix it in a refactor commit: it is fixed apart, and you set its disposition with `set_issue_disposition` as that happens.
+- **When a round files five or more issues, call `set_triage` before acting on any of them.**
 
 ### 1. Measure
 
@@ -60,13 +60,13 @@ Record a baseline in the plan's refactor ledger (create the section if the plan 
 
 - lines added and removed by the branch, product code and tests separately (`git diff --numstat <base>...HEAD`);
 - the largest files the branch added or grew;
-- how many files, components, hooks and modules the branch added.
+- how many files, components and modules the branch added.
 
 ### 2. Survey with fresh eyes
 
 Brief three or four agents that have not seen the build, each with the whole scope and a different lens. Always include altitude: the other lenses only find what can be merged or deleted in place, so on their own they settle for small savings. Each returns candidates, every one naming the files, what would replace them, an estimate of the lines saved, and the risk to behaviour.
 
-- **Duplication:** components, hooks, queries and logic that do the same job in several places; per-case branches that could be a table of data; tests that repeat each other's setup or assertions.
+- **Duplication:** components, functions, queries and logic that do the same job in several places; per-case branches that could be a table of data; tests that repeat each other's setup or assertions.
 - **Reuse:** code that rebuilds something the codebase already has (a component, a utility, a query helper, a test helper). Search the codebase for each new helper's job before accepting that it needed writing.
 - **Structure:**
   - layers that only pass values through;

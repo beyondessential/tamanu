@@ -3,19 +3,22 @@ name: bug-review
 description: "Review code changes on this card for likely bugs, regressions, and missed edges"
 label: "Bug review"
 category: verify
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: Bug review
 
 Review the code changes on this card's branch for likely bugs, regressions, and missed edges.
 
-1. Diff this card's branch against its upstream base to see what's changed (a card's base is usually `main`, but may be a parent card's branch)
+1. Find the card's base and diff against it as `.agents/docs/bases-and-dependencies.md` says
 2. Read the specs to understand the intended behaviour
-3. Inspect the diff for anything that looks wrong — use your judgement about what matters for this code
-4. Post findings grouped by severity: real bugs first, then smells or likely issues, then nitpicks
-5. For each finding, reference the file and a short excerpt so the user can locate it
+3. Inspect the diff for anything that looks wrong. Use your judgement about what matters for this code
+4. For each finding, reference the file and a short excerpt so the user can locate it
 
-Be specific and actionable. Don't flag stylistic preferences as bugs.
+Be specific and actionable. Don't flag stylistic preferences as bugs. Real bugs are `critical`, smells and likely issues are `suggestion`, and nitpicks are `nit`.
 
-If you go on to fix what you found, and the fixing takes more than one turn, call `hold_pr` with a short reason as you start and `release_pr` once the last fix is pushed, so the review loop does not request a round on a half-fixed branch and an armed merge does not fire between your turns. A review that only reports needs no hold. Where the tools are not available, carry on without them.
+### Recording findings
+
+Record the findings as `.agents/docs/card-issues.md` "Recording an audit's findings" says, with the summary grouped by severity, real bugs first.
+
+If you go on to fix what you found and the fixing takes more than one turn, hold the pull request while you do (see `.agents/docs/pull-requests.md`). A review that only reports needs no hold.
