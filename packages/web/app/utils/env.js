@@ -14,7 +14,7 @@ const readEnv = (name) => {
   return null;
 };
 
-// remember to update Caddyfile.docker when touching these
+// update env_js in packages/supervisor/src/files.rs when touching these
 export const NODE_ENV = readEnv('NODE_ENV');
 export const VERSION = __VERSION__;
 export const MIN_CHROME_VERSION = __MIN_CHROME_VERSION__;
