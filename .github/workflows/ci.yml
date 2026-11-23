@@ -404,39 +404,20 @@ jobs:
         working-directory: packages/supervisor
     env:
       CARGO_AUDIT_VERSION: 0.23.0
-      # The caches are saved only from pushes to main, so what a run restores and
-      # executes was always built from main's own code, never a branch's. They are
-      # restored by exact key only, so a new lockfile or Rust release starts a clean
-      # target directory rather than carrying every earlier build forward.
-      # The Windows lint's build is cached apart, so neither entry carries the other.
-      BUILD_CACHE_PATHS: |
-        ~/.cargo/registry/index
-        ~/.cargo/registry/cache
-        packages/supervisor/target
-        !packages/supervisor/target/x86_64-pc-windows-gnu
-      WINDOWS_CACHE_PATH: packages/supervisor/target/x86_64-pc-windows-gnu
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
       - name: Install Rust
-        id: rust
         run: |
-          rustup toolchain install stable --profile minimal --component clippy,rustfmt --no-self-update
+          rustup toolchain install stable --profile minimal --component clippy,rustfmt --target x86_64-pc-windows-gnu --no-self-update
           rustup default stable
-          echo "version=$(rustc --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/restore@v5
+      # Only main saves the cache, so what a branch restores and runs was built from main's own
+      # code, cargo-audit included.
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: ~/.cargo/bin/cargo-audit
-          key: supervisor-${{ runner.os }}-cargo-audit-${{ env.CARGO_AUDIT_VERSION }}
-      - uses: actions/cache/restore@v5
-        with:
-          path: ${{ env.BUILD_CACHE_PATHS }}
-          key: supervisor-${{ runner.os }}-${{ steps.rust.outputs.version }}-${{ hashFiles('packages/supervisor/Cargo.lock') }}
-      - uses: actions/cache/restore@v5
-        with:
-          path: ${{ env.WINDOWS_CACHE_PATH }}
-          key: supervisor-windows-gnu-${{ steps.rust.outputs.version }}-${{ hashFiles('packages/supervisor/Cargo.lock') }}
+          workspaces: packages/supervisor
+          save-if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked
@@ -448,27 +429,12 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends gcc-mingw-w64-x86-64
-          rustup target add x86_64-pc-windows-gnu
           cargo clippy --locked --all-targets --target x86_64-pc-windows-gnu -- -D warnings
       - name: Check dependencies against the RustSec advisories
         run: |
-          command -v cargo-audit || cargo install --locked "cargo-audit@$CARGO_AUDIT_VERSION"
+          cargo audit --version 2>/dev/null | grep -qF " $CARGO_AUDIT_VERSION" \
+            || cargo install --locked "cargo-audit@$CARGO_AUDIT_VERSION"
           cargo audit
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v5
-        with:
-          path: ~/.cargo/bin/cargo-audit
-          key: supervisor-${{ runner.os }}-cargo-audit-${{ env.CARGO_AUDIT_VERSION }}
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v5
-        with:
-          path: ${{ env.BUILD_CACHE_PATHS }}
-          key: supervisor-${{ runner.os }}-${{ steps.rust.outputs.version }}-${{ hashFiles('packages/supervisor/Cargo.lock') }}
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v5
-        with:
-          path: ${{ env.WINDOWS_CACHE_PATH }}
-          key: supervisor-windows-gnu-${{ steps.rust.outputs.version }}-${{ hashFiles('packages/supervisor/Cargo.lock') }}
 
   typos:
     name: Spellcheck
