@@ -236,10 +236,6 @@ export const InvoiceForm = ({
       {
         ...invoice,
         items: invoiceItems,
-        insurers: data.insurers.map(insurer => ({
-          ...insurer,
-          percentage: insurer.percentage / 100,
-        })),
       },
       {
         onSuccess: () => {
@@ -270,13 +266,8 @@ export const InvoiceForm = ({
     );
   };
 
-  const handleShowErrorDialog = errors => {
-    return Object.keys(errors).length === 1 && errors['totalInsurerPercentage'];
-  };
-
   return (
     <Form
-      suppressErrorDialogCondition={errors => !handleShowErrorDialog(errors)}
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
@@ -293,12 +284,6 @@ export const InvoiceForm = ({
               })),
               ...inProgressItems,
             ],
-        insurers: invoice.insurers?.length
-          ? invoice.insurers.map(insurer => ({
-              ...insurer,
-              percentage: insurer.percentage * 100,
-            }))
-          : [],
       }}
       validationSchema={validationSchema}
       render={({ submitForm, values }) => (
