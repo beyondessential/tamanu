@@ -1,10 +1,10 @@
 ---
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 # Working doc format
 
-A working doc is a per-card drafting space where spec-level and implementation thinking co-exist before the card is split into its long-lived artefacts (specs, plan, test cases). This doc defines its shape and voice. The artefact itself is specified in `specs/working-doc/overview.md`.
+A working doc is a per-card drafting space where spec-level and implementation thinking co-exist before the card is split into its long-lived artefacts (specs, plan, test cases). This doc defines its shape and voice.
 
 ## When to use one
 

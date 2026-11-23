@@ -3,7 +3,7 @@ name: rebase-post-merge
 description: "Rebase the branch past a merge so a follow-up PR carries only new work"
 label: "Rebase"
 category: other
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: rebase past the merge
@@ -14,7 +14,7 @@ landed. Your job is to drop those commits and leave only the work done since.
 
 Workhorse tried this automatically and hit conflicts, which is why you have it.
 
-The user message names the base branch and the merged PR's number.
+The user message names the base branch and the merged PR's number. Follow `.agents/docs/git-reconcile.md` for conflicts, the push and the report. The follow-up PR is opened from the card with Create New PR; never open one yourself (see `.agents/docs/pull-requests.md`).
 
 1. `git fetch origin` to refresh remote refs
 2. Get the merged PR's head commit: `gh pr view <number> --json headRefOid -q .headRefOid`. That
@@ -45,11 +45,6 @@ The user message names the base branch and the merged PR's number.
    card's specs, description, and conversation history to decide which side to favour. `git add`
    the resolved files and `git rebase --continue`
 6. Force-push with `git push --force-with-lease origin <branch>`
-7. **Check for soft conflicts** — the branch now sits on newer upstream code, so inspect the diff
-   against local specs and code for assumptions the upstream changes invalidated. Use your
-   judgement about what matters
+7. **Check for soft conflicts**: the branch now sits on newer upstream code
 8. Report what the branch now contains, any conflicts you resolved and how, and any soft conflicts
    you found
-
-If the rebase turns out to be unsalvageable, `git rebase --abort` and explain what blocked it
-rather than leaving the branch mid-rebase.
