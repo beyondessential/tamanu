@@ -29,8 +29,8 @@
 - The printout is titled "Patient invoice summary" and lists all of the patient's in-progress and finalised invoices, not only the page shown in the table, so it needs its own unpaginated fetch
 - The printout is landscape A4 (`<Page size="A4" orientation="landscape">`, as in `EncounterRecordPrintout`), so its columns have room
 - The printout has two coverage columns between Invoice total and Patient subtotal, each a positive amount and $0.00 where there is none:
-  - NHI payments: the NHI plan's coverage of that invoice, from `getFormattedCoverageAmountPerInsurancePlanForInvoice`
   - Insurance payments: the invoice's total insurance coverage (`insuranceCoverageTotal` from `getInvoiceSummary`) less the NHI coverage
+  - NHI payments: the NHI plan's coverage of that invoice, from `getFormattedCoverageAmountPerInsurancePlanForInvoice`
 - Nothing in the code marks an insurance plan as NHI (`InvoiceInsurancePlan` has only a code and name), so a new setting names the NHI plan. It belongs in the settings schema, not a config file (`llm/project-rules/settings.md`), in whichever scope the printout's data is assembled. When the setting is unset, the NHI payments column is left off the printout and Insurance payments holds all of each invoice's coverage
 - The on-screen table has no coverage columns
 - The printout keeps a Patient payments column, which the on-screen table does not have
