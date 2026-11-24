@@ -63,12 +63,12 @@ It does three things, in order:
 
 1. If the `syncTrigger` local system fact is set to `disabled`, it does nothing and leaves the row's tick alone. Migrations run in this mode (see [Migrations and sync](#migrations-and-sync)).
 2. If the write is setting the tick to `-1`, it stores `-999` instead. This is how a client saves a record it has pulled without that looking like a local edit (see [Flag values](#flag-values)).
-3. Otherwise it reads the current sync tick, takes an in-flight lock on that tick value for the rest of the transaction (this is important; see "in-flight" below), and stamps the row with it. Whatever tick the write supplied is thrown away.
+3. Otherwise it reads the current sync tick, takes an in-flight lock on that tick value for the rest of the transaction (this is important; see "in-flight lock" below), and stamps the row with it. Whatever tick the write supplied is thrown away.
 
 Step 3 has two consequences worth knowing:
 
 - A tick cannot be set by hand, in JS, or in any way other than the trigger. Write any value other than `-1` and the trigger replaces it with the current tick. That is also how a record gets re-queued for sync, since touching the row is enough.
-- **In flight lock:** The lock is how sync finds out about writes that are still in progress, i.e. transactions that have stamped a row but not yet committed. That is covered under pending edits in [Concurrency](#concurrency).
+- **In-flight lock:** The lock is how sync finds out about writes that are still in progress, i.e. transactions that have stamped a row but not yet committed. That is covered under pending edits in [Concurrency](#concurrency).
 
 ### Flag values
 
