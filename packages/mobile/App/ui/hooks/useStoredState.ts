@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
 import type { StoredState } from '~/ui/helpers/storedState';
 
 /**
@@ -14,20 +14,23 @@ export const useStoredState = <T extends object>(
 ): [T, Dispatch<SetStateAction<T>>, boolean] => {
   const [state, setState] = useState(initialState);
   const [restoredState, setRestoredState] = useState<T | null>(null);
+  // What the state starts as is settled on the first render, so that a caller passing a
+  // fresh object each render does not send the read round again
+  const initialStateRef = useRef(initialState);
 
   useEffect(() => {
     let isCurrent = true;
     (async () => {
       const stored = await storedState.read();
       if (!isCurrent) return;
-      const restored = { ...initialState, ...stored };
+      const restored = { ...initialStateRef.current, ...stored };
       setState(restored);
       setRestoredState(restored);
     })();
     return () => {
       isCurrent = false;
     };
-  }, [storedState, initialState]);
+  }, [storedState]);
 
   useEffect(() => {
     // The restored state is not stored again. It is either what storage already holds, or
