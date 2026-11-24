@@ -124,10 +124,10 @@ Pushed records are only lightly validated on the way in. Central checks that eac
 
 ### Building a pull XXX [I'm surprised we don't have "building a push"?]
 
-This is `setupSnapshotForPull`, which is a central-side snapshot process, which is a central-side snapshot process, which is a central-side snapshot process, which is a facility-side snapshot process. In order:
+This is `setupSnapshotForPull`, which is a central-side snapshot process. In order:
 
 1. **Wait for a snapshot slot.** Only a few snapshots are built at once. This is a separate limit from the limit on sessions.
-2. **Tick-tock, and hand the tick.** This becomes `pullUntil`: the cursor the client will store once it has saved the pull.
+2. **Tick-tock, and hand the tick to the client.** This becomes `pullUntil`: the cursor the client will store once it has saved the pull.
 3. **Wait for pending edits** below that tick, i.e. for any transaction still in flight that has already stamped rows with an earlier tick (see [Concurrency](#concurrency)).
 4. **Work out which patients are newly marked for sync**, by reading `patient_facilities` for marks made since the client's cursor.
 5. **Copy records from the lookup table into the snapshot table.** This happens inside one repeatable read transaction, so that everything is read as at a single moment. There are up to three passes: the full history of newly marked patients; everything changed since the cursor for everyone else; and, for mobile only, any tables it asked to sync again from scratch.
