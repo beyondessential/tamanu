@@ -27,12 +27,22 @@ const updatedAtSyncTickClause = (table: string, isFullyRebuilding: boolean) => {
     : newRecordSyncTick;
 };
 
+/**
+ * SQL expression deriving a row's `updated_at_by_field_sum`, or `NULL` for models that don't track
+ * `updated_at_by_field`. Shared by the sync lookup and the outgoing snapshot, whose sums must agree.
+ *
+ * Computed per row rather than via a joined GROUP BY, which aggregates the whole table.
+ */
+export const updatedAtByFieldSumClause = (model: typeof Model) =>
+  model.getAttributes().updatedAtByField
+    ? (`(SELECT sum(value::text::bigint) FROM json_each(${model.tableName}.updated_at_by_field))` as const)
+    : ('NULL' as const);
+
 export async function buildSyncLookupSelect(model: typeof Model, columns: Columns = {}) {
   const attributes = model.getAttributes();
   const table = model.tableName;
   const isFullyRebuilding =
     await model.sequelize.models.LocalSystemFact.isLookupRebuildingModel(table);
-  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
   const { patientId, facilityId, sensitiveNetworkId, encounterId, isLabRequestValue } = columns;
 
   return `
@@ -44,14 +54,14 @@ export async function buildSyncLookupSelect(model: typeof Model, columns: Column
       sync_device_ticks.device_id,
       json_build_object(
         ${Object.keys(attributes)
-          .filter((a) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
-          .map((a) => `'${a}', ${table}.${snake(a)}`)}
+          .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
+          .map(a => `'${a}', ${table}.${snake(a)}`)}
       ),
       ${patientId || 'NULL'},
       ${facilityId || 'NULL'},
       ${sensitiveNetworkId || 'NULL'},
       ${encounterId || 'NULL'},
       ${isLabRequestValue || 'FALSE'},
-      ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'}
+      ${updatedAtByFieldSumClause(model)}
   `;
 }
