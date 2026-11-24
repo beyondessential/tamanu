@@ -174,7 +174,8 @@ Two things to be careful of:
 - **Bookkeeping columns stay put:** Four columns never sync, on any model: `createdAt`, `updatedAt`, `deletedAt` and `updatedAtSyncTick` XXX [hold on the last one syncs for conflict resolution no?]. These are each server's own bookkeeping about the row.
 - **Everything else travels:** That includes the whole user row with its password hash XXX [wrong spot for this], which goes to every client. Logging in while central is unreachable depends on it.
 - **Soft deletes only:** A delete is sent as an `isDeleted` flag alongside the record, and whoever receives it sets  `deleted_at` in the same statement as the rest of the record. A hard delete (actually removing the row) is not supported by sync. Any hard delete will not be synced at all, and every other server keeps the row. This follows from how sync works: it finds out what changed by reading what each row says about itself, and a row that no longer exists cannot say anything. XXX [the hard delete stuff is a good note here, but feels more like it belongs somewhere else, perhaps along with the password hash thing]
-- **One `id` per record:** A record is identified by a single `id` column. A few tables have a composite primary key in the database, i.e. a key made of two or more columns. Each of those also has a stored, generated `id` column built from the parts, and that is what sync uses.
+- **One `id` per record:** A record is identified by a single `id` column. A few tables have a composite primary key in the database, i.e. a key made of two or more columns XXX [but this is never done in the strict composite primary key fashion]. Each of those also has a stored, generated `id` column built from the parts, and that is what sync uses.
+- XXX [changelogs]
 - XXX [changelogs]
 
 ### Marking patients for sync
