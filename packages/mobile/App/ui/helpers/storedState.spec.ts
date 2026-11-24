@@ -81,6 +81,23 @@ describe('createStoredState', () => {
     expect(await createStoredState(storage, 'persist:auth').read()).toBeNull();
   });
 
+  it('reads nothing when storage has not answered after five seconds', async () => {
+    jest.useFakeTimers();
+    const storage = createStorage();
+    storage.getItem.mockReturnValue(new Promise(() => {}));
+
+    const read = createStoredState(storage, 'persist:auth').read();
+    jest.advanceTimersByTime(4999);
+    const settled = jest.fn();
+    read.then(settled);
+    await Promise.resolve();
+    expect(settled).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(1);
+
+    expect(await read).toBeNull();
+    jest.useRealTimers();
+  });
+
   it('starts reading on preload and hands the result to the next read', async () => {
     const storage = createStorage();
     storage.getItem.mockResolvedValue(JSON.stringify(session));

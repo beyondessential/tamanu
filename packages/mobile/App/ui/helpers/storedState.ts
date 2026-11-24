@@ -16,6 +16,11 @@ export interface StoredState<T> {
 
 const REDUX_PERSIST_KEY = '_persist';
 
+// How long a read may take before the app carries on as though nothing were stored, so that
+// storage which never answers cannot hold the first screen forever. redux-persist allowed
+// the same.
+const READ_TIMEOUT_MS = 5000;
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -50,10 +55,16 @@ export const createStoredState = <T>(storage: StringStorage, key: string): Store
   let preloaded: Promise<Partial<T> | null> | null = null;
 
   const readFromStorage = async (): Promise<Partial<T> | null> => {
+    let timer: ReturnType<typeof setTimeout>;
+    const timeout = new Promise<null>(resolve => {
+      timer = setTimeout(resolve, READ_TIMEOUT_MS, null);
+    });
     try {
-      return parseStoredState<T>(await storage.getItem(key));
+      return parseStoredState<T>(await Promise.race([storage.getItem(key), timeout]));
     } catch {
       return null;
+    } finally {
+      clearTimeout(timer);
     }
   };
 
