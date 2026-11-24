@@ -29,17 +29,24 @@ const asReduxPersistEntry = (state: Record<string, unknown>): string =>
     _persist: JSON.stringify({ version: -1, rehydrated: true }),
   });
 
+const renderSelectedPatientHook = () =>
+  renderHook(() => useSelectedPatient(), { wrapper: SelectedPatientProvider });
+
 const renderSelectedPatient = async () => {
-  const { result } = await renderHook(() => useSelectedPatient(), {
-    wrapper: SelectedPatientProvider,
-  });
+  const { result } = await renderSelectedPatientHook();
   // The provider renders nothing until it has read the stored selection
   await waitFor(() => expect(result.current).not.toBeNull());
   return result;
 };
 
 /** Lets a write that has been started reach storage, so its absence means something */
-const flushStorage = () => act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+const flushStorage = () =>
+  act(
+    () =>
+      new Promise<void>(resolve => {
+        setTimeout(resolve, 0);
+      }),
+  );
 
 const storedSelection = async () => JSON.parse(await AsyncStorage.getItem(STORAGE_KEY));
 const recentlyViewed = async () => JSON.parse(await AsyncStorage.getItem(RECENTLY_VIEWED_KEY));
@@ -55,6 +62,28 @@ describe('SelectedPatientProvider', () => {
       const result = await renderSelectedPatient();
 
       expect(result.current.selectedPatient).toBeNull();
+    });
+
+    it('holds everything back until the stored selection has been read', async () => {
+      let finishReading: (stored: string) => void;
+      const getItem = jest.spyOn(AsyncStorage, 'getItem').mockReturnValueOnce(
+        new Promise(resolve => {
+          finishReading = resolve;
+        }),
+      );
+      const setItem = jest.spyOn(AsyncStorage, 'setItem');
+
+      const { result } = await renderSelectedPatientHook();
+      await flushStorage();
+
+      expect(result.current).toBeNull();
+      expect(setItem).not.toHaveBeenCalled();
+
+      await act(async () => finishReading(JSON.stringify({ selectedPatient: mele })));
+
+      expect(result.current.selectedPatient).toEqual(mele);
+      getItem.mockRestore();
+      setItem.mockRestore();
     });
 
     it('restores a stored selection', async () => {

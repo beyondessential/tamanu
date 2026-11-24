@@ -24,6 +24,9 @@ module.exports = {
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
   moduleNameMapper: {
+    // Packages hoisted to the repository root would otherwise load the root's copy of React,
+    // which is a different version from this package's, and fail on their first hook
+    '^react$': '<rootDir>/node_modules/react',
     // @tamanu workspace source uses the `.js` import extension convention even for
     // `.ts` files (e.g. `export * from './ai.js'`); strip it so jest resolves against
     // moduleFileExtensions (which prefers `.ts`, falling back to real `.js`).

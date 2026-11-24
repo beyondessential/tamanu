@@ -80,21 +80,34 @@ const renderAuth = async ({
   navigation?: ReturnType<typeof createNavigation>;
 } = {}) => {
   mockGetStored.mockResolvedValue(stored ? { password: stored } : false);
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <BackendContext.Provider value={backend as any}>
-      <AuthProvider navRef={navigation as any}>{children}</AuthProvider>
-    </BackendContext.Provider>
-  );
-  const { result } = await renderHook(() => useAuth(), { wrapper });
+  const { result } = await renderAuthHook(backend, navigation);
   // The provider renders nothing until it has read the stored session
   await waitFor(() => expect(result.current).not.toBeNull());
   return { result, backend, navigation };
 };
 
+const renderAuthHook = (
+  backend: ReturnType<typeof createBackend>,
+  navigation: ReturnType<typeof createNavigation>,
+) => {
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <BackendContext.Provider value={backend as any}>
+      <AuthProvider navRef={navigation as any}>{children}</AuthProvider>
+    </BackendContext.Provider>
+  );
+  return renderHook(() => useAuth(), { wrapper });
+};
+
 const lastStoredSession = () => JSON.parse(mockSetStored.mock.calls.at(-1)[1]);
 
 /** Lets a write that has been started reach storage, so its absence means something */
-const flushStorage = () => act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+const flushStorage = () =>
+  act(
+    () =>
+      new Promise<void>(resolve => {
+        setTimeout(resolve, 0);
+      }),
+  );
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -114,6 +127,29 @@ describe('AuthProvider', () => {
       expect(result.current.user).toBeNull();
       expect(result.current.checkFirstSession()).toBe(true);
       expect(backend.auth.startSession).not.toHaveBeenCalled();
+    });
+
+    it('holds everything back until the stored session has been read', async () => {
+      let finishReading: (stored: { password: string }) => void;
+      mockGetStored.mockReturnValue(
+        new Promise(resolve => {
+          finishReading = resolve;
+        }),
+      );
+      const backend = createBackend();
+
+      const { result } = await renderAuthHook(backend, createNavigation());
+      await flushStorage();
+
+      expect(result.current).toBeNull();
+      expect(backend.auth.startSession).not.toHaveBeenCalled();
+      expect(backend.auth.endSession).not.toHaveBeenCalled();
+      expect(mockSetStored).not.toHaveBeenCalled();
+
+      await act(async () => finishReading({ password: JSON.stringify(signedInSession) }));
+
+      expect(result.current.signedIn).toBe(true);
+      expect(backend.auth.startSession).toHaveBeenCalledWith('token-1', 'refresh-1');
     });
 
     it('opens signed in from a stored session', async () => {
