@@ -79,8 +79,9 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
     }
   });
 
-  // Hand the facility the deployment-wide settings PSK so secrets central
-  // encrypts into synced settings are decryptable there. Generated here if this
+  // Hand the facility the deployment-wide settings PSK (the pre-shared key that secret
+  // settings are encrypted with) so secrets central encrypts into synced settings are
+  // decryptable there. Generated here if this
   // is the first server to need it; facilities never mint their own.
   await ensureSettingsPsk(LocalSystemSecret);
   const settingsPsk = await LocalSystemSecret.get(FACT_SETTINGS_PSK);

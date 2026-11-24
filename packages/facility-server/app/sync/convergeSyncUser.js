@@ -10,7 +10,8 @@ import { log } from '@tamanu/shared/services/logging';
 import { initServerConfig } from '../serverConfig';
 
 // a facility that was set up from the config file syncs as a person's admin account. central only
-// gives the settings PSK to a sync user, so swap to the sync user it creates for this device.
+// gives the settings PSK (the pre-shared key that secret settings are encrypted with) to a sync
+// user, so swap to the sync user it creates for this device.
 // this happens during sync so that a facility that was offline for its upgrade still gets swapped
 export async function convergeSyncUser({ sequelize, models, centralServer }) {
   // Provisioning rotates the password, so only act on a positive answer: an
