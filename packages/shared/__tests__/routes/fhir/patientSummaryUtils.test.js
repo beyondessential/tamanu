@@ -3,14 +3,28 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 import { administeredVaccineStatusToHL7Status } from '../../../src/routes/fhir/patientSummary/utils';
 
 describe('administeredVaccineStatusToHL7Status', () => {
-  it.each(Object.values(VACCINE_STATUS))('maps %s to an HL7 status', status => {
-    expect(['completed', 'entered-in-error', 'not-done']).toContain(
-      administeredVaccineStatusToHL7Status(status),
-    );
-  });
+  it('maps every vaccine status to its HL7 status', () => {
+    const expectedHL7Statuses = {
+      [VACCINE_STATUS.UNKNOWN]: 'not-done',
+      [VACCINE_STATUS.GIVEN]: 'completed',
+      [VACCINE_STATUS.NOT_GIVEN]: 'not-done',
+      [VACCINE_STATUS.SCHEDULED]: 'not-done',
+      [VACCINE_STATUS.MISSED]: 'not-done',
+      [VACCINE_STATUS.DUE]: 'not-done',
+      [VACCINE_STATUS.UPCOMING]: 'not-done',
+      [VACCINE_STATUS.OVERDUE]: 'not-done',
+      [VACCINE_STATUS.RECORDED_IN_ERROR]: 'entered-in-error',
+      [VACCINE_STATUS.HISTORICAL]: 'not-done',
+    };
 
-  it('maps HISTORICAL to not-done', () => {
-    expect(administeredVaccineStatusToHL7Status(VACCINE_STATUS.HISTORICAL)).toBe('not-done');
+    const actualHL7Statuses = Object.fromEntries(
+      Object.values(VACCINE_STATUS).map(status => [
+        status,
+        administeredVaccineStatusToHL7Status(status),
+      ]),
+    );
+
+    expect(actualHL7Statuses).toEqual(expectedHL7Statuses);
   });
 
   it('throws on an unknown status', () => {
