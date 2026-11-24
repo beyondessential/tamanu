@@ -60,8 +60,7 @@ export function startSyncRuntimeWhenConfigured(
       for (const facilityId of getServerFacilityIds()) {
         context.settings[facilityId] ??= new ReadSettings(context.models, facilityId);
       }
-      // Only stop polling after setup has worked. If it throws (e.g. central can't be reached) we
-      // try again on the next tick.
+      // If setup throws (e.g. central can't be reached) we try again on the next tick.
       await setup(context);
       clearInterval(timer);
       log.info('Setup completed; runtime started');

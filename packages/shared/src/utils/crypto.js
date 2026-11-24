@@ -190,8 +190,6 @@ async function resolveSettingsPsk() {
   if (fromStore != null) return fromStore;
 
   const fromConfig = await getConfigSecret('crypto.settingsPsk');
-  // getConfigSecret throws when the key isn't set, so if we get to here the PSK did come from
-  // config.
   log.warn('settings PSK resolved from legacy crypto.settingsPsk config');
   return fromConfig;
 }
