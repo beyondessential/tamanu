@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { BaseModal, useTranslation } from '@tamanu/ui-components';
-import { AddReminderContact } from './AddReminderContact';
 import { ReminderContactList } from './ReminderContactList';
 import { RemoveReminderContact } from './RemoveReminderContact';
 
@@ -23,7 +22,6 @@ const StyledBaseModal = styled(BaseModal)`
 
 const REMINDER_CONTACT_VIEWS = {
   REMINDER_CONTACT_LIST: 'ReminderContactList',
-  ADD_REMINDER_FORM: 'AddReminderForm',
   REMOVE_REMINDER: 'RemoveReminder',
 };
 
@@ -44,8 +42,6 @@ export const ReminderContactModal = ({ onClose, open }) => {
     switch (activeView) {
       case REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST:
         return getTranslation('patient.details.reminderContacts.title', 'Reminder contacts');
-      case REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM:
-        return getTranslation('patient.details.addReminderContact.title', 'Add reminder contact');
       case REMINDER_CONTACT_VIEWS.REMOVE_REMINDER:
         return getTranslation(
           'patient.details.removeReminderContact.title',
@@ -74,17 +70,9 @@ export const ReminderContactModal = ({ onClose, open }) => {
       <ReminderModalContainer data-testid="remindermodalcontainer-3k3b">
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
           <ReminderContactList
-            onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
             onRemoveContact={handleRemoveContact}
             onClose={onClose}
             data-testid="remindercontactlist-og9g"
-          />
-        )}
-        {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM && (
-          <AddReminderContact
-            onBack={onBack}
-            onClose={onClose}
-            data-testid="addremindercontact-alhi"
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (

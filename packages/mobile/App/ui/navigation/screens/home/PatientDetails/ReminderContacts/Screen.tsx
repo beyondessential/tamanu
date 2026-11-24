@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
@@ -7,14 +7,12 @@ import { PatientContact } from '~/models/PatientContact';
 import { type IPatientContact, ReferenceDataType } from '~/types';
 import { Button } from '~/ui/components/Button';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
-import { PlusIcon } from '~/ui/components/Icons/PlusIcon';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { withPatient } from '~/ui/containers/Patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
@@ -37,10 +35,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   const { ability } = useAuth();
   const canWriteReminderContacts = ability.can('write', 'Patient');
-
-  const onNavigateAddReminderContact = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddReminderContact);
-  }, [navigation]);
 
   const queryClient = useQueryClient();
   const { mutate: removeReminderContact } = useMutation({
@@ -87,8 +81,8 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   );
 
   const emptyDescription = getTranslation(
-    'patient.details.reminderContacts.emptyDescription',
-    "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+    'patient.details.reminderContacts.noContacts',
+    'There are no contacts registered to receive reminders for :patientName.',
     { replacements: { patientName } },
   );
 
@@ -141,7 +135,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       <>
                         <StyledText>{emptyDescription.split(`${patientName}.`)[0]}</StyledText>
                         <StyledText fontWeight={600}>{patientName}.</StyledText>
-                        <StyledText>{emptyDescription.split(`${patientName}.`)[1]}</StyledText>
                       </>
                     )}
                   </StyledText>
@@ -177,34 +170,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                   </StyledView>
                 ))}
               </>
-            )}
-            {canWriteReminderContacts && !isLoadingReminderContactList && (
-              <Button
-                onPress={onNavigateAddReminderContact}
-                backgroundColor={theme.colors.WHITE}
-                borderColor={theme.colors.PRIMARY_MAIN}
-                borderWidth={1}
-                marginTop={15}
-                width={screenPercentageToDP(34, Orientation.Width)}
-                height={screenPercentageToDP(5, Orientation.Height)}
-                textColor={theme.colors.PRIMARY_MAIN}
-                fontSize={screenPercentageToDP(2, Orientation.Height)}
-                fontWeight={500}
-                alignItems="center"
-                buttonText={
-                  <TranslatedText
-                    stringId="patient.details.reminderContacts.action.add"
-                    fallback="Add contact"
-                  />
-                }
-              >
-                <StyledView marginRight={screenPercentageToDP(0.6, Orientation.Height)}>
-                  <PlusIcon
-                    width={screenPercentageToDP(1.8, Orientation.Height)}
-                    height={screenPercentageToDP(1.8, Orientation.Height)}
-                  />
-                </StyledView>
-              </Button>
             )}
           </StyledView>
         </StyledSafeAreaView>

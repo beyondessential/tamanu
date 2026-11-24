@@ -149,6 +149,24 @@ export const ContactDetails = ({ onRemoveContact, selectedContact, isRemoveModal
       sortable: false,
       accessor: ({ relationship }) => relationship.name,
     },
+    {
+      key: 'method',
+      title: (
+        <TranslatedText
+          stringId="patient.details.reminderContacts.field.contactMethod"
+          fallback="Contact method"
+          data-testid="translatedtext-yndp"
+        />
+      ),
+      sortable: false,
+      accessor: ({ method }) => (
+        <TranslatedText
+          stringId={`patient.details.reminderContacts.method.${method}`}
+          fallback={method}
+          data-testid="translatedtext-0k1c"
+        />
+      ),
+    },
     ...(canRemoveReminderContacts && !isRemoveModal
       ? [
           {
@@ -197,8 +215,8 @@ export const ContactDetails = ({ onRemoveContact, selectedContact, isRemoveModal
         <StyledText
           dangerouslySetInnerHTML={{
             __html: getTranslation(
-              'patient.details.reminderContacts.emptyDescription',
-              "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+              'patient.details.reminderContacts.noContacts',
+              'There are no contacts registered to receive reminders for :patientName.',
               { replacements: { patientName: `<span>${patientName}</span>` } },
             ),
           }}

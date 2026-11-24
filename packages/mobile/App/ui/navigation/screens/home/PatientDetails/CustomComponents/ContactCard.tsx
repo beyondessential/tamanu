@@ -15,7 +15,7 @@ export const StyledViewWithBorder = styled(StyledView)`
   color: ${theme.colors.MAIN_SUPER_DARK};
 `;
 
-export const ContactCard = ({ name, relationship }: IPatientContact) => {
+export const ContactCard = ({ name, relationship, method }: IPatientContact) => {
   return (
     <StyledViewWithBorder>
       <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
@@ -55,6 +55,27 @@ export const ContactCard = ({ name, relationship }: IPatientContact) => {
             category={ReferenceDataType.ContactRelationship}
             fallback={relationship?.name}
             value={relationship?.id}
+          />
+        </StyledText>
+      </RowView>
+      <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
+        <StyledText
+          color={theme.colors.TEXT_SUPER_DARK}
+          fontSize={screenPercentageToDP(2, Orientation.Height)}
+          fontWeight={500}
+        >
+          <TranslatedText
+            stringId="patient.details.reminderContacts.field.contactMethod"
+            fallback="Contact method"
+          />
+        </StyledText>
+        <StyledText
+          color={theme.colors.TEXT_SUPER_DARK}
+          fontSize={screenPercentageToDP(2, Orientation.Height)}
+        >
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${method}`}
+            fallback={method}
           />
         </StyledText>
       </RowView>
