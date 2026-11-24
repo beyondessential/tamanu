@@ -45,7 +45,6 @@ describe('FacilitySyncManager bootstrap', () => {
         },
       },
       centralServer: {
-        streaming: () => false,
         fetchBootstrap: vi.fn(async () => {
           calls.push('fetchBootstrap');
           return fetchBootstrap();

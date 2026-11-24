@@ -44,6 +44,13 @@ export const FACT_CENTRAL_CONFIG_MIGRATED = 'centralConfigMigratedToSettings';
 // FacilitySettingMigration carrier to push up to central, so it runs only once.
 export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
 
+// Browser telemetry aggregation (spec: BTAG): the receipt time up to which raw
+// spans have been rolled up (exclusive, ISO 8601), and the bucket size in
+// minutes that rollup was using, so a change of size can finish the old size's
+// buckets until the first boundary of the new one.
+export const FACT_BROWSER_TELEMETRY_ROLLED_UP_TO = 'browserTelemetryRolledUpTo';
+export const FACT_BROWSER_TELEMETRY_ROLLUP_BUCKET_MINUTES = 'browserTelemetryRollupBucketMinutes';
+
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
 
@@ -66,3 +73,10 @@ export const FACT_REPORTING_SECRET_ROTATED_AT = 'reportingSecretRotatedAt';
 
 // Materialised views
 export const FACT_MV_UPCOMING_VACCINATIONS = `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`;
+
+// spec: SLPWK#going-to-sleep
+/**
+ * Expiry of the supervisor's hold on scheduled tasks; null or past means no hold. The row is kept
+ * once created, so tasks and the supervisor can lock it against each other.
+ */
+export const FACT_SCHEDULED_TASK_HOLD_UNTIL = 'scheduledTaskHoldUntil';

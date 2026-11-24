@@ -18,6 +18,8 @@ export function getDosesPerSlot(frequency) {
   return Math.max(1, Math.round(dosesPerDay / 12));
 }
 
+export const toPlainTime = timeStr => (timeStr === '24:00' ? '00:00' : timeStr);
+
 const timeToMinutes = timeStr => {
   if (timeStr === '24:00') return 1440; // 24 × 60;
   const [hh, mm] = timeStr.split(':').map(part => Number.parseInt(part, 10));

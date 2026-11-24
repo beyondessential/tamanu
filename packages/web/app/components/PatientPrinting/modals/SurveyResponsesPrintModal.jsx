@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../../../api';
-import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal, TranslatedText } from '../..';
@@ -35,13 +35,8 @@ export const SurveyResponsesPrintModal = React.memo(
     const { data: additionalData, isLoading: isAdditionalDataLoading } =
       usePatientAdditionalDataQuery(patient.id);
 
-    const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
-      ['village', patient.id],
-      async () =>
-        await api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
-      {
-        enabled: !!patient?.villageId,
-      },
+    const { data: village = {}, isLoading: isVillageQueryLoading } = useReferenceDataQuery(
+      patient?.villageId,
     );
 
     const { data: transformedSurveyResponse, isLoading: surveyResponseLoading } =

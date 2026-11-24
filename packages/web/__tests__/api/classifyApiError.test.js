@@ -4,6 +4,7 @@ import {
   ERROR_TYPE,
   extractErrorFromFetchResponse,
   ForbiddenError,
+  GoneError,
   NotFoundError,
   Problem,
   RemoteUnreachableError,
@@ -28,6 +29,7 @@ const EXPECTED_BY_TYPE = {
   [ERROR_TYPE.AUTH_TOKEN_INVALID]: null,
   [ERROR_TYPE.CLIENT_INCOMPATIBLE]: null,
   [ERROR_TYPE.FORBIDDEN]: null,
+  [ERROR_TYPE.GONE]: null,
   [ERROR_TYPE.NOT_FOUND]: null,
   [ERROR_TYPE.RATE_LIMITED]: null,
   [ERROR_TYPE.VALIDATION]: null,
@@ -67,6 +69,7 @@ describe('classifyApiError', () => {
   it('stays quiet for errors the caller handles itself', () => {
     expect(classifyApiError(new ValidationError('Date of birth is required'))).toBeNull();
     expect(classifyApiError(new NotFoundError())).toBeNull();
+    expect(classifyApiError(new GoneError())).toBeNull();
     expect(classifyApiError(new ForbiddenError())).toBeNull();
   });
 

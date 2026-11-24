@@ -82,7 +82,9 @@ export const buildFacilityBootstrap = async ({ models, sequelize }, facilityIds)
     const records = [];
     // one table at a time: a bootstrap is small, and there's no call to contend for connections
     for (const modelName of bootstrapModelNames) {
-      records.push(...(await queryModelRecords(models[modelName], facilityIds)));
+      for (const record of await queryModelRecords(models[modelName], facilityIds)) {
+        records.push(record);
+      }
     }
     return records;
   });

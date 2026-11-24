@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
-import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import { SYNC_SESSION_DIRECTION, getModelsForPush } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
@@ -220,5 +220,115 @@ describe('CentralSyncManager.addIncomingChanges', () => {
       sessionId,
       expect.arrayContaining(incomingChanges),
     );
+  });
+
+  // spec: BTAG
+  it('stores browser telemetry aggregates pushed from a facility', async () => {
+    // An earlier test in this file mocks out snapshot inserts; vi.resetModules
+    // does not clear vi.doMock registrations.
+    vi.doUnmock('@tamanu/database/sync');
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '20');
+    const facility = await models.Facility.create(fake(models.Facility));
+
+    const trend = {
+      id: 'trend-1',
+      bucketStart: '2026-11-05T01:00:00.000Z',
+      bucketMinutes: 60,
+      interface: 'clinical',
+      facilityId: facility.id,
+      kind: 'navigation',
+      route: '/patients/:patientId',
+      method: null,
+      appVersion: '2.70.0',
+      eventCount: 2,
+      settledCount: 2,
+      timedCount: 2,
+      totalDurationMs: 9000,
+      durationHistogram: [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+      p50DurationMs: 3000,
+      p95DurationMs: 6000,
+      p99DurationMs: 6000,
+      maxDurationMs: 6000,
+    };
+    const slowEvent = {
+      id: 'slow-event-1',
+      trendId: trend.id,
+      traceId: 'trace-1',
+      spanId: 'span-1',
+      kind: 'navigation',
+      route: '/patients/:patientId',
+      outcome: 'settled',
+      durationMs: 6000,
+      occurredAt: '2026-11-05T01:10:00.000Z',
+      receivedAt: '2026-11-05T01:10:15.000Z',
+      interface: 'clinical',
+      facilityId: facility.id,
+      appVersion: '2.70.0',
+      deviceId: 'device-1',
+      userId: 'user-1',
+      pathParameters: { patientId: 'patient-1' },
+      queryParameterNames: [],
+    };
+    const slowEventRequest = {
+      id: 'slow-event-request-1',
+      slowEventId: slowEvent.id,
+      spanId: 'span-2',
+      route: 'patient/:patientId',
+      method: 'GET',
+      statusCode: 200,
+      durationMs: 5800,
+      startOffsetMs: 40,
+      pathParameters: { patientId: 'patient-1' },
+      queryParameterNames: ['page'],
+    };
+    const changes = [
+      ['browser_telemetry_trends', trend],
+      ['browser_telemetry_slow_events', slowEvent],
+      ['browser_telemetry_slow_event_requests', slowEventRequest],
+    ].map(([recordType, data]) => ({
+      direction: SYNC_SESSION_DIRECTION.OUTGOING,
+      isDeleted: false,
+      recordType,
+      recordId: data.id,
+      data,
+    }));
+
+    const centralSyncManager = await initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+    await centralSyncManager.updateLookupTable();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+    await centralSyncManager.setupSnapshotForPull(
+      sessionId,
+      { since: 1, facilityIds: [facility.id] },
+      () => true,
+    );
+
+    await centralSyncManager.addIncomingChanges(sessionId, changes);
+    // Every table a facility pushes, as a real facility sync does.
+    await centralSyncManager.completePush(
+      sessionId,
+      facility.id,
+      Object.values(getModelsForPush(models)).map(model => model.tableName),
+    );
+    await waitForPushCompleted(centralSyncManager, sessionId);
+
+    const storedTrend = await models.BrowserTelemetryTrend.findByPk(trend.id);
+    expect(storedTrend.durationHistogram).toEqual(trend.durationHistogram);
+    expect(storedTrend.facilityId).toBe(facility.id);
+    const storedSlowEvent = await models.BrowserTelemetrySlowEvent.findByPk(slowEvent.id);
+    expect(storedSlowEvent.trendId).toBe(trend.id);
+    expect(storedSlowEvent.pathParameters).toEqual({ patientId: 'patient-1' });
+    const storedRequest = await models.BrowserTelemetrySlowEventRequest.findByPk(
+      slowEventRequest.id,
+    );
+    expect(storedRequest.slowEventId).toBe(slowEvent.id);
+    expect(storedRequest.queryParameterNames).toEqual(['page']);
   });
 });

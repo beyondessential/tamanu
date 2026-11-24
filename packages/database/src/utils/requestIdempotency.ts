@@ -40,7 +40,7 @@ interface CapturedResponse {
 
 interface RequestIdempotencyOptions {
   // Path matchers (tested against `req.path`) that opt out of idempotent handling
-  // even when a key is present — e.g. token-issuing, streaming/sync, AI endpoints.
+  // even when a key is present — e.g. token-issuing, sync, AI endpoints.
   excludePaths?: RegExp[];
   // How long a recorded key is retained before the cleanup task may remove it.
   retentionMs?: number;

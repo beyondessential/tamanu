@@ -13,23 +13,14 @@ import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedicationWorkflowModal';
-import {
-  ThemedTooltip,
-  TranslatedEnum,
-  TranslatedReferenceData,
-  useDateTime,
-} from '@tamanu/ui-components';
+import { ThemedTooltip, TranslatedReferenceData, useDateTime } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
-import {
-  PHARMACY_PRESCRIPTION_TYPE_LABELS,
-  PHARMACY_PRESCRIPTION_TYPES,
-  TABLE_PAGE_SIZE_PREFERENCE_KEYS,
-} from '@tamanu/constants';
+import { TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { NotDispensedMedicationModal } from './Medication/NotDispensedMedicationModal';
 import { Box } from '@mui/material';
-import { getStockStatus } from '../utils/medications';
+import { getStockStatus, PharmacyPrescriptionTypeLabel } from '../utils/medications';
 import { getApprovalStatus } from '../utils/invoice';
 import { ApprovedColumnTitle } from './ApprovedColumnTitle';
 import { useSettings } from '../contexts/Settings';
@@ -70,15 +61,14 @@ const getPatientName = ({ pharmacyOrder }) => (
   <PatientNameDisplay patient={pharmacyOrder?.encounter?.patient} />
 );
 const getPrescriptionType = ({ pharmacyOrder }) => {
-  return pharmacyOrder?.isDischargePrescription ? (
-    <ThemedTooltip
-      title={
-        <TranslatedEnum
-          value={PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT}
-          enumValues={PHARMACY_PRESCRIPTION_TYPE_LABELS}
-        />
-      }
-    >
+  const isDischargePrescription = pharmacyOrder?.isDischargePrescription;
+  const prescriptionTypeLabel = (
+    <PharmacyPrescriptionTypeLabel isDischargePrescription={isDischargePrescription} />
+  );
+  if (!isDischargePrescription) return prescriptionTypeLabel;
+
+  return (
+    <ThemedTooltip title={prescriptionTypeLabel}>
       <Box width={'fit-content'}>
         <TranslatedText
           stringId="medication-requests.table.column.prescriptionType.outpatientDischarge"
@@ -86,11 +76,6 @@ const getPrescriptionType = ({ pharmacyOrder }) => {
         />
       </Box>
     </ThemedTooltip>
-  ) : (
-    <TranslatedEnum
-      value={PHARMACY_PRESCRIPTION_TYPES.INPATIENT}
-      enumValues={PHARMACY_PRESCRIPTION_TYPE_LABELS}
-    />
   );
 };
 const getLocation = ({ pharmacyOrder }) => {

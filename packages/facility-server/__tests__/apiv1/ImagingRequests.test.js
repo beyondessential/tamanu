@@ -290,6 +290,16 @@ describe('Imaging requests', () => {
       );
     });
 
+    it('should key C-arm areas under the C-arm imaging type', async () => {
+      const cArmArea = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.C_ARM_IMAGING_AREA }),
+      );
+
+      const result = await app.get('/api/imagingRequest/areas');
+      expect(result).toHaveSucceeded();
+      expect(result.body.cArm).toEqual([expect.objectContaining({ id: cArmArea.id })]);
+    });
+
     it('should respect visibilityStatus', async () => {
       const hiddenArea = await models.ReferenceData.create(
         fake(models.ReferenceData, {

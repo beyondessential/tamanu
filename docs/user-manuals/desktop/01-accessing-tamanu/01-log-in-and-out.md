@@ -3,14 +3,14 @@ Start from your web browser.
 
 # Before you start
 
-You need your site's Tamanu address, and the email address and password for your Tamanu account. Your
-system administrator gives you these.
+You need your site's Tamanu address, and the email address and password for your Tamanu account.
+Your system administrator gives you these.
 
 # Log in
 
 1. Open your site's Tamanu address in your web browser.
 
-   The **Log in** screen opens. If you ticked **Remember me** last time, the heading says
+   The **Log in** screen opens. If you selected **Remember me** last time, the heading says
    **Welcome back** and your email address is already filled in.
 
    <figure>
@@ -24,12 +24,12 @@ system administrator gives you these.
 
 2. Enter your email address in **Email** and your password in **Password**.
 
-3. Tick **Remember me** if you want Tamanu to fill in your email address next time you log in on this
-   computer.
+3. Select **Remember me** if you want Tamanu to fill in your email address next time you log in on
+   this computer.
 
-   Leave it unticked to have Tamanu forget your email address.
+   Leave it unselected to have Tamanu forget your email address.
 
-4. Select **Log in**.
+4. Click **Log in**.
 
    <figure>
      <img
@@ -37,7 +37,7 @@ system administrator gives you these.
        alt="The Log in screen with an email address and password entered, with the Log in button outlined in red"
        width="288"
      />
-     <figcaption>Enter your email address and password, then select <b>Log in</b>.</figcaption>
+     <figcaption>Enter your email address and password, then click <b>Log in</b>.</figcaption>
    </figure>
 
    If your email address or password is wrong, a message appears under the heading. It may tell you
@@ -46,9 +46,9 @@ system administrator gives you these.
    [Reset your password](02-reset-password.md).
 
 5. If the **Select facility** screen opens, choose where you are working from **Facility**, then
-   select **Submit**.
+   click **Submit**.
 
-   This screen opens only when your account can work at more than one facility. Select **Cancel** to
+   This screen opens only when your account can work at more than one facility. Click **Cancel** to
    go back to the **Log in** screen.
 
    Tamanu opens, with the sidebar on the left of the screen.
@@ -56,12 +56,12 @@ system administrator gives you these.
 # Log out
 
 Your site may also log you out after a period of inactivity. Before it does, the **Login timeout**
-window counts down the seconds left. Select **Stay logged in** to carry on working, or **Log out** to
+alert counts down the seconds left. Click **Stay logged in** to carry on working, or **Log out** to
 log out straight away.
 
-1. If the sidebar is collapsed, select the arrow at the top of the sidebar to expand it.
+1. If the sidebar is collapsed, click the arrow at the top of the sidebar to expand it.
 
-2. Select **Log out** at the bottom of the sidebar, beside the version number.
+2. Click **Log out** at the bottom of the sidebar, beside the version number.
 
    You cannot log out while you have a note open. Save or close the note first.
 
@@ -71,7 +71,7 @@ log out straight away.
        alt="The bottom of the expanded sidebar, with the Log out button outlined in red"
        width="260"
      />
-     <figcaption>Select <b>Log out</b> at the bottom of the sidebar.</figcaption>
+     <figcaption>Click <b>Log out</b> at the bottom of the sidebar.</figcaption>
    </figure>
 
    The **Log in** screen opens.

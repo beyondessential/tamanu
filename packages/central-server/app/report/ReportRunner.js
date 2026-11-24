@@ -5,7 +5,7 @@ import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
 import ms from 'ms';
 
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, GENERIC_SURVEY_EXPORT_REPORT_ID } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
@@ -97,11 +97,14 @@ export class ReportRunner {
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ');
 
+    const { surveyName } = await this.getReportDetails();
+
     return [
       ['Report Name:', reportName],
       ['Date Generated:', date],
       ['User:', user.email],
       ['Filters:', filterString],
+      ...(surveyName ? [['Survey:', surveyName]] : []),
     ];
   }
 
@@ -212,26 +215,45 @@ export class ReportRunner {
   }
 
   /**
+   * The report's name and, for a Generic Survey Export, the name of the survey it is run against.
+   * Looked up once per run, as both the report's file name and its metadata need them.
+   * spec: REPORTS
+   *
+   * @returns {Promise<{ reportName: string, surveyName: string | null }>}
+   */
+  async getReportDetails() {
+    if (!this.reportDetails) {
+      const { ReportDefinitionVersion, Survey } = this.store.models;
+      const reportVersion = await ReportDefinitionVersion.findByPk(this.reportId, {
+        include: ['reportDefinition'],
+      });
+      const isGenericSurveyExport =
+        reportVersion?.reportDefinitionId === GENERIC_SURVEY_EXPORT_REPORT_ID;
+      // A survey that can't be found is left out of the name
+      const survey = isGenericSurveyExport
+        ? await Survey.findByPk(this.parameters?.surveyId)
+        : null;
+
+      this.reportDetails = {
+        reportName: reportVersion?.reportDefinition.name ?? this.reportId,
+        surveyName: survey?.name ?? null,
+      };
+    }
+    return this.reportDetails;
+  }
+
+  /**
    *
    * @returns {Promise<string>}
    */
   async getReportName() {
     const { country } = await getLocalisation(this.settings);
 
-    let reportName = this.reportId;
-
-    const dbDefinedReportModule = await this.store.models.ReportDefinitionVersion.findByPk(
-      this.reportId,
-      { include: ['reportDefinition'] },
-    );
-
-    if (dbDefinedReportModule) {
-      reportName = `${dbDefinedReportModule.reportDefinition.name}`;
-    }
+    const { reportName, surveyName } = await this.getReportDetails();
 
     const date = formatDate(new Date(), 'ddMMyyyy');
 
-    const dashedName = `${reportName}-${country.name}`
+    const dashedName = `${[reportName, surveyName].filter(Boolean).join('-')}-${country.name}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')

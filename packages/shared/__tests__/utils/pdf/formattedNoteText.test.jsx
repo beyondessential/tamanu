@@ -1,6 +1,6 @@
 import React from 'react';
 import zlib from 'zlib';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { renderToBuffer } from '@react-pdf/renderer';
 
 import { EncounterRecordPrintout } from '../../../src/utils/patientCertificates/EncounterRecordPrintout';
@@ -47,10 +47,9 @@ const renderHandoverNotes = content =>
 const readPdf = buffer => {
   const pdf = buffer.toString('latin1');
   const baseFontByObject = Object.fromEntries(
-    [...pdf.matchAll(/(\d+) 0 obj\s*<<[^]*?\/BaseFont \/([\w+-]+)/g)].map(([, id, name]) => [
-      id,
-      name,
-    ]),
+    [...pdf.matchAll(/(\d+) 0 obj\s*<<(?:(?!endobj)[^])*?\/BaseFont \/([\w+-]+)/g)].map(
+      ([, id, name]) => [id, name],
+    ),
   );
   const fontByResource = Object.fromEntries(
     [...pdf.matchAll(/\/(F\d+) (\d+) 0 R/g)].map(([, resource, id]) => [
@@ -61,7 +60,9 @@ const readPdf = buffer => {
 
   const textByFont = {};
   let strokeCount = 0;
-  for (const [, stream] of pdf.matchAll(/stream\r?\n([^]*?)\r?\nendstream/g)) {
+  // react-pdf writes "\n" on both sides of the stream data, which is binary and can itself end in
+  // "\r": allowing "\r\n" here would cut that byte off and make the deflate stream unreadable.
+  for (const [, stream] of pdf.matchAll(/stream\n([^]*?)\nendstream/g)) {
     let content;
     try {
       content = zlib.inflateSync(Buffer.from(stream, 'latin1')).toString('latin1');
@@ -83,6 +84,14 @@ const readPdf = buffer => {
   }
   return { textByFont, allText: Object.values(textByFont).join(''), strokeCount };
 };
+
+// The page footer prints the current time, so the PDF bytes depend on the clock. Pin it to a
+// minute whose page stream ends in "\r", which readPdf has to handle.
+beforeAll(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-19T09:01:00Z'));
+});
+afterAll(() => vi.useRealTimers());
 
 describe.each([
   ['encounter record', renderEncounterRecordNotes],
