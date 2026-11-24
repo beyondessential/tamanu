@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { z } from 'zod';
-import { ENCOUNTER_TYPES, REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 
 // spec: DIETSUM
@@ -75,16 +75,6 @@ const buildQuery = hasArea => `
   ORDER BY location_groups.name NULLS LAST, locations.name, patients.last_name, patients.first_name
 `;
 
-// Every diet on offer gets a column whether or not anybody on the sheet is on it, so a diet sits
-// in the same place from one day's sheet to the next and from one ward's to another's.
-// spec: DIETSUM#diet-columns-and-counting
-const listDietsOnOffer = models =>
-  models.ReferenceData.findAll({
-    where: { type: REFERENCE_TYPES.DIET, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-    attributes: ['id', 'name'],
-    raw: true,
-  });
-
 // Constrained to diet reference data, so a setting pointed at a village or a drug falls back to
 // the generic Regular label rather than printing that record's name as the column header.
 const lookupDietName = async (models, dietId) => {
@@ -146,9 +136,7 @@ dietSummary.get(
       type: QueryTypes.SELECT,
     });
 
-    const dietsOnOffer = await listDietsOnOffer(req.models);
-    // The rows add to these any diet a patient is still on that is no longer offered.
-    const dietNamesById = new Map(dietsOnOffer.map(({ id, name }) => [id, name]));
+    const dietNamesById = new Map();
     const areasByKey = new Map();
     const patientsByEncounter = new Map();
 
@@ -193,16 +181,18 @@ dietSummary.get(
 
     // Left unsorted: the sheet sorts the columns by the names it displays, which are translated,
     // so isRegular is what tells it which column leads rather than the order or the name.
-    const columns = [...dietNamesById.keys()]
+    const columns = Object.keys(hospitalTotals)
       .filter(key => key !== regularKey)
       .map(key => ({ key, name: dietNamesById.get(key), isRegular: false }));
 
-    // Only a configured regular diet that is no longer offered, with nobody on the sheet on it,
-    // costs a lookup. A null name tells the sheet to print its own Regular label.
-    const regularName =
-      dietNamesById.get(regularKey) ??
-      (regularDietId ? await lookupDietName(req.models, regularDietId) : null);
-    columns.unshift({ key: regularKey, name: regularName, isRegular: true });
+    if (hospitalTotals[regularKey]) {
+      // The rows already name the regular diet wherever a patient is on it, so only a sheet with
+      // nobody on it costs a lookup. A null name tells the sheet to print its own Regular label.
+      const name =
+        dietNamesById.get(regularKey) ??
+        (regularDietId ? await lookupDietName(req.models, regularDietId) : null);
+      columns.unshift({ key: regularKey, name, isRegular: true });
+    }
 
     res.send({ columns, hospitalTotals, areas });
   }),
