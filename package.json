@@ -135,9 +135,6 @@
     },
     "react-native-nitro-sqlite": {
       "typeorm": "^0.3.28"
-    },
-    "@cypress/request": {
-      "qs": "^6.16.0"
     }
   }
 }

@@ -2,6 +2,7 @@ import { COMMUNICATION_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getOptionalSettingSecret } from '@tamanu/shared/utils/crypto';
 import TelegramBot from 'node-telegram-bot-api';
+import { Agent, fetch } from 'undici';
 
 /**
  *
@@ -19,10 +20,8 @@ export const defineTelegramBotService = async (injector) => {
     : new TelegramBot(apiToken, {
         polling: !telegramBot?.webhook?.url,
         request: {
-          agentOptions: {
-            keepAlive: true,
-            family: 4,
-          },
+          fetch,
+          fetchOptions: { dispatcher: new Agent({ connect: { family: 4 } }) },
         },
       });
 
@@ -38,7 +37,7 @@ export const defineTelegramBotService = async (injector) => {
 
   /**
    *
-   * @param {TelegramBot.Update} update
+   * @param {import('node-telegram-bot-api').Update} update
    */
   const update = (update) => {
     if (!bot) return;
@@ -52,7 +51,7 @@ export const defineTelegramBotService = async (injector) => {
   const setWebhook = async (hook) => {
     try {
       await bot
-        .setWebHook(hook.url, { secret_token: hook.secret })
+        .setWebhook(hook.url, { secret_token: hook.secret })
         .then((result) => log.info('set telegram webhook successfully', { result }));
     } catch (e) {
       log.error('set telegram webhook failed', { url: hook.url, error: e.message });
@@ -62,7 +61,7 @@ export const defineTelegramBotService = async (injector) => {
   /**
    *
    * @param {string} command
-   * @param {(msg: TelegramBot.Message, match?: string) => void } handler
+   * @param {(msg: import('node-telegram-bot-api').Message, match?: string) => void } handler
    */
   const setCommand = (command, handler) => {
     bot.onText(new RegExp(`^\\/${command}\\s*([A-z0-9\\-]*)$`), (message, match) =>
@@ -73,7 +72,7 @@ export const defineTelegramBotService = async (injector) => {
   /**
    * @param {string} chatId
    * @param {string} message
-   * @param {options?: TelegramBot.SendMessageOptions} options
+   * @param {Omit<import('node-telegram-bot-api').SendMessageParams, 'chat_id' | 'text'>} [options]
    *  */
   const sendMessage = async (chatId, textMsg, options) => {
     if (!bot) return;
@@ -93,7 +92,7 @@ export const defineTelegramBotService = async (injector) => {
   /**
    * Register a new contact and send a success message.
    *
-   * @param {TelegramBot.Message} message - the message object containing contact information
+   * @param {import('node-telegram-bot-api').Message} message - the message object containing contact information
    * @param {string} contactId
    */
   const subscribeCommandHandler = async (message, contactId) => {
@@ -140,7 +139,7 @@ export const defineTelegramBotService = async (injector) => {
 
   /**
    *
-   * @param {TelegramBot.Message} message - the message object containing contact information
+   * @param {import('node-telegram-bot-api').Message} message - the message object containing contact information
    * @param {string} contactId
    */
   const unsubscribeCommandHandler = async (message, contactId) => {
@@ -240,7 +239,7 @@ export const defineTelegramBotService = async (injector) => {
       } catch (e) {
         log.error('telegram callback query failed', { error: e.message });
       } finally {
-        bot.answerCallbackQuery({ callback_query_id: query.id });
+        bot.answerCallbackQuery(query.id);
       }
     });
   }
