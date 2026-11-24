@@ -21,6 +21,7 @@ Applies to the signed-in session the mobile app holds on a device: what it holds
 
 - The app reads the stored session before it shows its first screen.
 - With a user signed in to the screens when the app was last closed, the app opens signed in without asking for a password, however long it was closed.
+- The signed-in user's permissions apply from the first screen, whether they last signed in online or offline.
 - A signed-in device with a facility linked opens on the home screen, and one with no facility linked opens on facility selection.
 - With nobody signed in to the screens, the app opens on the log in screen.
 - Stored tokens are handed to the central server connection when the app opens, so syncing resumes whether or not anyone is signed in to the screens.
