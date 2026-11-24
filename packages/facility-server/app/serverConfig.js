@@ -34,10 +34,8 @@ export async function initServerConfig({ context }) {
 
   resolved = { sync: { host, email, password }, facilityIds };
 
-  // TAM-6962: the config leg goes away next release. Name the keys still coming from
-  // it so we can find these servers first. This is a normal resting state, not an
-  // error — provisionSyncUser is failure-tolerant and leaves a server on config when
-  // central was unreachable during an upgrade.
+  // log which keys still come from the config file, so that servers that haven't moved to facts can
+  // be found before the config fallback is removed
   const fromConfig = ['host', 'email', 'password'].filter(
     key => env[key] == null && facts[key] == null && resolved.sync[key] != null,
   );

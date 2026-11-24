@@ -170,10 +170,8 @@ export function setSettingsPskSource(source) {
 }
 
 /**
- * Drop the cached key buffer so the next read re-resolves the PSK. Needed when
- * the PSK lands in the local store on a *running* server (the setup wizard):
- * an earlier read may have cached the legacy per-host config key, which would
- * otherwise be used until restart.
+ * Forget the cached key so the next read looks the PSK up again. Used when the PSK is stored on a
+ * server that is already running, which may have cached the key from config.
  */
 export function clearSettingsPskCache() {
   settingsPskKeyBufferPromise = null;
@@ -183,17 +181,14 @@ export function clearSettingsPskCache() {
 // value covers deployments that haven't converged yet, and goes away once the store
 // is guaranteed populated.
 async function resolveSettingsPsk() {
-  // == null, not falsy: only a genuinely unset source (not yet provisioned) falls
-  // back. A falsy-but-present value (e.g. '' from a corrupted row) passes through
-  // and fails validation loudly rather than silently decrypting with the wrong key.
+  // only fall back to config when the store has no value at all. an empty string is returned as it
+  // is, so that it fails the format check in getSettingsPskKeyBuffer
   const fromStore = settingsPskSource && (await settingsPskSource());
   if (fromStore != null) return fromStore;
 
   const fromConfig = await getConfigSecret('crypto.settingsPsk');
-  // Warned after the read rather than before it: getConfigSecret throws when the key
-  // is unset, so reaching this line means config really is the source. An empty local
-  // store on its own says nothing. Callers cache the result, so this is once per
-  // process.
+  // getConfigSecret throws when the key isn't set, so if we get to here the PSK did come from
+  // config
   log.warn('settings PSK resolved from legacy crypto.settingsPsk config');
   return fromConfig;
 }
@@ -207,10 +202,9 @@ export async function getSettingsPskKeyBuffer() {
   if (!settingsPskKeyBufferPromise) {
     settingsPskKeyBufferPromise = (async () => {
       const psk = await resolveSettingsPsk();
-      // Validate before use. Buffer.from(x, 'hex') silently drops invalid/odd
-      // characters, so a corrupt or empty PSK would otherwise yield a wrong-length
-      // key whose only symptom is an opaque "Decryption failed" far from the cause.
-      // Fail here, at the source, with a message that names the problem.
+      // check the format before using it. Buffer.from(x, 'hex') stops at the first invalid
+      // character without throwing, so a bad PSK would give a short key and decryption would fail
+      // later with nothing pointing at the PSK
       const expectedHexLength = KEY_LENGTH_BYTES * 2;
       if (
         typeof psk !== 'string' ||
@@ -243,9 +237,8 @@ async function resolveOrGeneratePsk() {
 }
 
 /**
- * Ensures a settings PSK exists in the local secrets store. Central only:
- * facilities pull the PSK from central and must never mint their own (that was
- * the per-host bug). Idempotent via setIfAbsent.
+ * Makes sure there is a settings PSK in the local secrets store, creating one if needed. Only
+ * central calls this. Facilities get the PSK from central.
  */
 export async function ensureSettingsPsk(localSystemSecret) {
   if (await localSystemSecret.get(FACT_SETTINGS_PSK)) return;

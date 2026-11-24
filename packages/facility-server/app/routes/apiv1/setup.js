@@ -25,14 +25,12 @@ import {
 import { version } from '../../serverInfo';
 import { applyBootstrap } from '../../sync/facilityBootstrap';
 
-// POST /public/setup/sync is unauthenticated (a fresh server has no users), so it's
-// gated three ways: trusted source network, server still unconfigured, and valid
-// central super-admin creds. We gate the source (not the target host — central may
-// be on Tailscale) to stop a public attacker driving the probe (SSRF) or claiming
-// a fresh server. Note the source gate is only as good as `req.ip`: behind a
-// reverse proxy not covered by `config.proxy.trusted`, requests appear to come
-// from the proxy's (private) address, so treat this as defence in depth — the
-// admin-credentials check is the real gate.
+// the setup endpoint has to work before the server has any users, so it can't ask for a login. we
+// only accept it from these private and tailscale ranges, so that someone on the public internet
+// can't make the server log in to a host of their choosing or set up a fresh server as their own.
+// it also needs the server to be unconfigured and a central admin's credentials.
+// behind a proxy the server hasn't been told to trust, req.ip is the proxy's address, so this check
+// passes for every caller
 const TRUSTED_SOURCE_RANGES = {
   ipv4: [
     '127.0.0.0/8',
@@ -98,10 +96,10 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))];
   const normalisedHost = new URL(host).origin;
 
-  // The boot integrity check refuses to start unless the recorded host matches the
-  // declared one and the recorded facilities are a subset of the declared ones, so
-  // anything else configures a server that runs now and won't restart. Names only
-  // what was rejected, never what was declared: this endpoint is unauthenticated.
+  // at boot the integrity check throws if the recorded host differs from the declared one, or if a
+  // recorded facility isn't in the declared list. refuse those here, otherwise setup would succeed
+  // and the server would fail the next time it starts.
+  // the error only says what was refused, because the caller hasn't been checked yet
   const declaredHost = getDeclaredHost();
   if (declaredHost && declaredHost !== normalisedHost) {
     return res.status(422).send({
@@ -197,8 +195,8 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   }
 
   const { LocalSystemFact, LocalSystemSecret } = req.models;
-  // Atomic write; advisory lock + re-check closes the TOCTOU with the
-  // isServerConfigured() check above so concurrent requests can't both configure.
+  // take the lock and check again inside it, so that two requests arriving at the same time can't
+  // both configure the server
   let alreadyConfigured = false;
   await req.db.transaction(async () => {
     await req.db.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:facility-setup'));`);
