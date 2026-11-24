@@ -374,11 +374,11 @@ describe('AuthProvider', () => {
     });
   });
 
-  describe('rejected sessions', () => {
-    it('signs the user out when the central server rejects the session', async () => {
+  describe('refused log ins', () => {
+    it('signs the device out when the central server refuses a log in', async () => {
       const { result, backend } = await renderAuth({ stored: JSON.stringify(signedInSession) });
 
-      await act(async () => backend.auth.emitter.emit('authError', new Error('rejected')));
+      await act(async () => backend.auth.emitter.emit('authError', new Error('refused')));
 
       expect(result.current.signedIn).toBe(false);
       expect(backend.stopSyncService).toHaveBeenCalledTimes(1);
@@ -405,7 +405,7 @@ describe('AuthProvider', () => {
       expect(backend.syncManager.triggerSync).toHaveBeenCalledTimes(1);
     });
 
-    it('leaves the user signed in on the first rejection after a reconnect attempt', async () => {
+    it('leaves the user signed in on the first refused log in after a reconnect attempt', async () => {
       const { result, backend } = await renderAuth({ stored: JSON.stringify(signedInSession) });
       backend.auth.remoteSignIn.mockRejectedValue(new Error('Invalid credentials'));
 
@@ -414,11 +414,11 @@ describe('AuthProvider', () => {
           'Invalid credentials',
         );
       });
-      await act(async () => backend.auth.emitter.emit('authError', new Error('rejected')));
+      await act(async () => backend.auth.emitter.emit('authError', new Error('refused')));
 
       expect(result.current.signedIn).toBe(true);
 
-      await act(async () => backend.auth.emitter.emit('authError', new Error('rejected')));
+      await act(async () => backend.auth.emitter.emit('authError', new Error('refused')));
 
       expect(result.current.signedIn).toBe(false);
     });

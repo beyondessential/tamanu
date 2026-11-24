@@ -28,9 +28,9 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [x] A sign-out while the log in screen is showing leaves that screen as it is
 - [x] An inactivity sign-out keeps the tokens and does not stop syncing
 - [x] The welcome introduction stays marked as shown once it has been
-- [x] A rejected session signs the user out
+- [x] A log in the central server refuses signs the device out, discarding its tokens and stopping sync
 - [x] Reconnecting with a password signs in again as the same user and starts a sync
-- [x] The first rejection after a reconnect attempt leaves the user signed in, and the next one signs them out
+- [x] The first refused log in after a reconnect attempt leaves the user signed in, and the next one signs them out
 
 ### Selected patient (`contexts/SelectedPatientContext.spec.tsx`, verifies spec: MSELP)
 
@@ -69,6 +69,7 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [ ] After logging out, sign in offline, close the app and reopen it: screens that check permissions (patient home, program registry, lab requests) open without error (the one behaviour change)
 - [ ] Leave the app untouched for 30 minutes: the log in screen shows with "Logged out due to inactivity"
 - [ ] Background the app for over 30 minutes and return: the same
+- [ ] On the log in screen while online, enter a wrong password: an error shows and the log in screen stays
 - [ ] With sync stopped by a rejected session, reconnect with a wrong password: an error shows in the form and the user stays signed in. Reconnect with the right password: sync resumes on the same screen
 - [ ] The user's name shows on the home screen, the More screen and the welcome introduction, and changes on all of them after signing in as someone else
 
