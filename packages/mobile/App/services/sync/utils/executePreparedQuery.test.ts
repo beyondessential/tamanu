@@ -46,6 +46,29 @@ describe('executePreparedQuery', () => {
       expect(getEffectiveBatchSize).toHaveBeenCalledWith(500, 3);
     });
 
+    it('inserts rows with different column sets in separate batches, leaving absent columns to their defaults', async () => {
+      const repository = makeRepository();
+      const editedTime = new Date().toISOString();
+      const rows = [
+        { id: '1', name: 'Dog Man' },
+        { id: '2', name: 'Muffin Man', editedTime },
+      ];
+
+      await executePreparedInsert(repository, rows as any, 500, progress);
+
+      // Rows are grouped by column signature so no NULL is bound for a column a row doesn't carry
+      expect(repository.query).toHaveBeenCalledTimes(2);
+      const [sqlWithoutEditedTime, paramsWithoutEditedTime] = repository.query.mock.calls[0];
+      const [sqlWithEditedTime, paramsWithEditedTime] = repository.query.mock.calls[1];
+      expect(sqlWithoutEditedTime).toContain('"name"');
+      expect(sqlWithoutEditedTime).not.toContain('"editedTime"');
+      expect(paramsWithoutEditedTime).toEqual(['1', 'Dog Man']);
+      expect(sqlWithEditedTime).toContain('"name"');
+      expect(sqlWithEditedTime).toContain('"editedTime"');
+      expect(paramsWithEditedTime).toEqual(['2', 'Muffin Man', editedTime]);
+      expect(repository.insert).not.toHaveBeenCalled();
+    });
+
     it('falls back to repository.insert when raw query fails', async () => {
       const repository = makeRepository();
       repository.query.mockRejectedValue(new Error('raw insert failed'));
