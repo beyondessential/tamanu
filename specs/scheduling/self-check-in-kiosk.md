@@ -56,7 +56,7 @@ Applies to the tablet at a facility where patients check themselves in for today
 
 ## Forms
 
-- The forms a patient completes are set by the kiosk setting, per appointment type for outpatient appointments and per booking type for location bookings. Forms that have been retired are left out. A type with no forms goes straight to Ready to check in.
+- The forms a patient completes are set by the kiosk setting, per appointment type for outpatient appointments and per booking type for location bookings. Forms that have been retired are left out, as is the [syndromic surveillance form](../encounters/syndromic-surveillance.md), which is completed only from the encounter it is for. A type with no forms goes straight to Ready to check in.
 - Forms can be completed in any order. A "Your forms" list beside the open form shows each form's status (Completed, In progress with its current page where it has more than one, Not started) and how many are complete; tapping a form opens it.
 - After the patient confirms who they are, the first form opens.
 - The open form shows its own page progress ("Page 2 of 3") with a progress bar.
