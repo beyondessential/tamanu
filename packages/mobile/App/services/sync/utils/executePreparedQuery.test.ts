@@ -46,7 +46,7 @@ describe('executePreparedQuery', () => {
       expect(getEffectiveBatchSize).toHaveBeenCalledWith(500, 3);
     });
 
-    it('binds null for columns missing from some rows', async () => {
+    it('inserts rows with different column sets in separate batches, leaving absent columns to their defaults', async () => {
       const repository = makeRepository();
       const editedTime = new Date().toISOString();
       const rows = [
@@ -56,10 +56,16 @@ describe('executePreparedQuery', () => {
 
       await executePreparedInsert(repository, rows as any, 500, progress);
 
-      expect(repository.query).toHaveBeenCalledTimes(1);
-      const [, params] = repository.query.mock.calls[0];
-      expect(params).toEqual(['1', 'Dog Man', null, '2', 'Muffin Man', editedTime]);
-      expect(params).not.toContain(undefined);
+      // Rows are grouped by column signature so no NULL is bound for a column a row doesn't carry
+      expect(repository.query).toHaveBeenCalledTimes(2);
+      const [sqlWithoutEditedTime, paramsWithoutEditedTime] = repository.query.mock.calls[0];
+      const [sqlWithEditedTime, paramsWithEditedTime] = repository.query.mock.calls[1];
+      expect(sqlWithoutEditedTime).toContain('"name"');
+      expect(sqlWithoutEditedTime).not.toContain('"editedTime"');
+      expect(paramsWithoutEditedTime).toEqual(['1', 'Dog Man']);
+      expect(sqlWithEditedTime).toContain('"name"');
+      expect(sqlWithEditedTime).toContain('"editedTime"');
+      expect(paramsWithEditedTime).toEqual(['2', 'Muffin Man', editedTime]);
       expect(repository.insert).not.toHaveBeenCalled();
     });
 

@@ -11,9 +11,6 @@ const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): st
 
 const quote = (identifier: string): string => `"${identifier}"`;
 
-// Since sync only sends populated columns, we need to check all rows to get all columns
-const getAllColumns = (rows: DataToPersist[]): string[] => [...new Set(rows.flatMap(Object.keys))];
-
 /**
  * Much faster than typeorm bulk insert or save
  * Prepare a raw query and execute it with the values
@@ -28,36 +25,51 @@ export const executePreparedInsert = async (
 
   const { tableName } = repository.metadata;
 
-  const columns = getAllColumns(rows);
-  const columnNames = columns.map(quote).join(', ');
+  // Group rows by their column signature so each batch only inserts columns present in those rows,
+  // leaving columns a row doesn't carry to their entity defaults (matching executePreparedUpdate).
+  const rowsByColumnSignature = new Map<string, DataToPersist[]>();
+  for (const row of rows) {
+    const signature = Object.keys(row).sort().join(',');
+    const group = rowsByColumnSignature.get(signature);
+    if (group) {
+      group.push(row);
+    } else {
+      rowsByColumnSignature.set(signature, [row]);
+    }
+  }
 
-  const chunkSize = getEffectiveBatchSize(maxRecordsPerBatch, columns.length);
+  for (const groupRows of rowsByColumnSignature.values()) {
+    const columns = Object.keys(groupRows[0]);
+    const columnNames = columns.map(quote).join(', ');
 
-  for (const chunkRows of chunk(rows, chunkSize)) {
-    const query = `
+    const chunkSize = getEffectiveBatchSize(maxRecordsPerBatch, columns.length);
+
+    for (const chunkRows of chunk(groupRows, chunkSize)) {
+      const query = `
     INSERT INTO ${tableName} (${columnNames})
     VALUES ${getValuePlaceholdersForRows(chunkRows.length, columns.length)}
   `;
-    // NitroSQLite rejects undefined; a column the server left out is null there
-    const parameters = chunkRows.flatMap(row => columns.map(col => row[col] ?? null));
-    try {
-      await repository.query(query, parameters);
-    } catch (bulkError: any) {
-      console.warn(
-        `executePreparedInsert: bulk insert into ${tableName} failed, falling back to row by row: ${bulkError.message}`,
-      );
-      // `Promise.all` doesn’t abort other in-flight promises if one throws, so we do this
-      // sequentially. (Concurrent queries still share the same SQLite connection, racing against
-      // the transaction's ROLLBACK.
-      for (const row of chunkRows) {
-        try {
-          await repository.insert(row);
-        } catch (error: any) {
-          throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
+      // NitroSQLite rejects undefined; a column present with an undefined value binds as null
+      const parameters = chunkRows.flatMap(row => columns.map(col => row[col] ?? null));
+      try {
+        await repository.query(query, parameters);
+      } catch (bulkError: any) {
+        console.warn(
+          `executePreparedInsert: bulk insert into ${tableName} failed, falling back to row by row: ${bulkError.message}`,
+        );
+        // `Promise.all` doesn’t abort other in-flight promises if one throws, so we do this
+        // sequentially. (Concurrent queries still share the same SQLite connection, racing against
+        // the transaction's ROLLBACK.
+        for (const row of chunkRows) {
+          try {
+            await repository.insert(row);
+          } catch (error: any) {
+            throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
+          }
         }
       }
+      progressCallback(chunkRows.length);
     }
-    progressCallback(chunkRows.length);
   }
 };
 
