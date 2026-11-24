@@ -152,7 +152,7 @@ Every model declares a sync direction, which says whether its table syncs at all
 
 ### Scope
 
-Direction says whether a table syncs. Scope says which clients receive a particular row.
+Direction says whether a table syncs. Scope says which clients receive a particular row. XXX [this line doesn't sound like me]
 
 For pulls, scope is worked out when the row is copied into the lookup table, not when a client asks. Each model has a `buildSyncLookupQueryDetails` method that fills in the lookup row's scope columns:
 
