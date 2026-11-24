@@ -78,7 +78,7 @@ Most values of `updated_at_sync_tick` are real ticks, but a few are flags with a
 | --- | --- | --- |
 | Positive | A real tick. | The trigger. |
 | `-1` | "This row is arriving from central; do not treat it as a local edit." | A client saving pulled records. The trigger turns it into `-999`. |
-| `-999` | Last updated elsewhere. Will never be pushed (-999 guaranteed below the push cursor). | The trigger, from `-1`. Also the column default on facilities and mobile. |
+| `-999` | Last updated elsewhere. Will never be pushed (-999 is always below the push cursor). | The trigger, from `-1`. Also the column default on facilities and mobile. |
 | `0` | The column default on central. | Column default only. |
 | `-2` | A `sync_lookup` row written by a build and not yet stamped. | The lookup build. Only ever in `sync_lookup`. |
 
