@@ -34,4 +34,5 @@
 - Nothing in the code marks an insurance plan as NHI (`InvoiceInsurancePlan` has only a code and name), so a new setting names the NHI plan. It belongs in the settings schema, not a config file (`llm/project-rules/settings.md`), in whichever scope the printout's data is assembled. When the setting is unset, the NHI payments column is left off the printout and Insurance payments holds all of each invoice's coverage
 - The on-screen table has no coverage columns
 - The printout keeps a Patient payments column, which the on-screen table does not have
+- The printout has no Patient total due column, which the on-screen table does have. The total balance in its summary pane is still the sum of each listed invoice's patient total due
 - Every column in the printout, amounts included, is left-aligned, headings and values alike. This differs from `InvoiceRecordPrintout`, whose cost columns are right-aligned (`justifyContent: 'flex-end'`), so don't carry that style across. The first column has no left padding, so dates line up with the table's left edge and the patient details above (`InvoiceRecordPrintout` indents its first column with `paddingLeft: 13`)
