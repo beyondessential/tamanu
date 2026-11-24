@@ -64,11 +64,13 @@ export const EditReportView = () => {
     },
   );
 
-  // Keyed once per fetched version: withParameterIds mints fresh ids each call,
-  // and enableReinitialize would reset the form on every render otherwise.
+  // Built once per version loaded: withParameterIds mints fresh ids each call, so
+  // rebuilding these on a refetch of the same version (after a rename, or on window
+  // focus) would reinitialise the form and discard the user's unsaved edits.
   const initialValues = useMemo(
     () => version && getInitialValues(version, version.reportDefinition),
-    [version],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [version?.id],
   );
 
   const handleBack = () => {
@@ -151,6 +153,7 @@ export const EditReportView = () => {
             isEdit
             onSubmit={handleSave}
             initialValues={initialValues}
+            reportName={version.reportDefinition.name}
             data-testid="reporteditor-89qw"
           />
         </>

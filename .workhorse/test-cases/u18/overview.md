@@ -1,6 +1,6 @@
 # Renaming a report
 
-Server cases are covered in `packages/central-server/__tests__/admin/reports/reportRoutes.test.js`, UI cases in `packages/web/__tests__/views/administration/reports/RenameReportModal.test.jsx`.
+Server cases are covered in `packages/central-server/__tests__/admin/reports/reportRoutes.test.js`, UI cases in `packages/web/__tests__/views/administration/reports/RenameReportModal.test.jsx` and `EditReportView.test.jsx`.
 
 ## Renaming
 
@@ -24,5 +24,6 @@ Server cases are covered in `packages/central-server/__tests__/admin/reports/rep
 - [x] Change the name and save; the rename request is sent, a success toast shows and the dialog closes
 - [x] Save a name the server rejects; an error toast shows and the dialog stays open
 - [ ] After renaming, the edit screen's info card and the report list on the Edit tab show the new name without a page reload (verifies spec: REPORTS)
+- [x] Edit the query, parameters or notes without saving, then rename the report; the unsaved edits are kept and the new name shows in the info card and the read-only name field
 - [ ] After renaming, a facility that has synced lists the report under its new name (verifies spec: REPORTS)
 - [ ] Run the renamed report and export it; the file name uses the new name (verifies spec: REPORTS)
