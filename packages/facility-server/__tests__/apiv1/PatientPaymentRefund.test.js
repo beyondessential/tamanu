@@ -273,6 +273,8 @@ describe('Patient Payment Refund', () => {
         }
         return models.InvoiceItem.create(
           fake(models.InvoiceItem, {
+            // fake ids carry a zero version, which the update route's uuid validation rejects
+            id: crypto.randomUUID(),
             invoiceId: invoice.id,
             productId: product.id,
             quantity: 1,
