@@ -68,7 +68,7 @@ It does three things, in order:
 Step 3 has two consequences worth knowing:
 
 - A tick cannot be set by hand, in JS, or in any way other than the trigger. Write any value other than `-1` and the trigger replaces it with the current tick. That is also how a record gets re-queued for sync, since touching the row is enough.
-- **In-flight lock:** The lock is how sync finds out about writes that are still in progress, i.e. transactions that have stamped a row but not yet committed. That is covered under pending edits in [Concurrency](#concurrency).
+- **In-flight lock:** The lock taken on the tick  is how sync finds out about writes that are still in progress, i.e. transactions that have stamped a row but not yet committed. That is covered under pending edits in [Concurrency](#concurrency).
 
 ### Flag values
 
