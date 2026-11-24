@@ -77,7 +77,7 @@ One pull request, built in commits that each leave the app building and its test
 1. Auth: session state and storage into `AuthProvider`, `authUserSelector` and `authSelector` callers onto `useAuth()`, `withAuth` removed. The store is left holding the patient slice only.
 2. Selected patient: the context and provider, then every `withPatient`, `useSelector`, `useDispatch` and `store.getState()` caller onto the hook. The store, `Provider` and `PersistGate` go in this commit too, because the store and the new provider would otherwise both write to `persist:root`.
 3. Removal: the `reactotronRedux()` plugin, the seven packages from `packages/mobile/package.json`, the Redux parts of `App/ui/README.md`.
-4. A `no-restricted-imports` entry for the Redux packages in the mobile block of `eslint.config.js`, so they do not come back.
+4. ~~A `no-restricted-imports` entry for the Redux packages in the mobile block of `eslint.config.js`.~~ Added, then removed. The web app's Redux removal (H17) ships in the same release, after which the packages are gone from the workspace and an import fails to resolve on its own, so the rule only covered the gap between the two cards merging.
 
 The root `react-redux` override in the top-level `package.json` stays. The web app still depends on it until H17 lands.
 
@@ -113,7 +113,7 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ### Guard
 
-- [x] `no-restricted-imports` for the Redux packages in the mobile lint block
+- [x] `no-restricted-imports` for the Redux packages in the mobile lint block, since removed (see Sequencing)
 
 ### Checks
 
