@@ -14,9 +14,6 @@ import { QueryInterface } from 'sequelize';
 // everything a row update sets off (changelog entries, sync lookup rebuild flags, change
 // notifications such as FHIR refreshes) is bounded by the actual bad rows. On servers with none,
 // nothing is written.
-//
-// socket_io_attachments also has a nullable created_at but no updated_at, so it can't be
-// written at all while logs.record_change() reads updated_at; it is left alone.
 const TABLES = [
   // created_at and updated_at both nullable
   'appointments',

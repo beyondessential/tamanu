@@ -15,6 +15,8 @@
 - [x] An ORM create, and a raw insert that leaves the timestamps out, still get both timestamps
 - [x] Every changelog-logged table has NOT NULL created_at and updated_at (schema test, catches new tables)
 - [x] Registering a patient in a program registry succeeds when the patient already has a patient facility row for the registering facility, and that row keeps its created_at
+- [x] A write to socket_io_attachments commits
+- [x] No table in NON_LOGGED_TABLES carries a changelog trigger (schema test)
 
 ## Manual
 

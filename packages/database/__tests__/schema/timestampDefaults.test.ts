@@ -70,11 +70,7 @@ describe('created_at / updated_at columns', () => {
       { type: QueryTypes.SELECT },
     );
 
-    // socket_io_attachments has no updated_at, so its changelog trigger fails on every write and
-    // the table can't hold a new row either way.
-    const offenders = columns
-      .filter(({ table_name }) => table_name !== 'socket_io_attachments')
-      .map(({ table_name, column_name }) => `${table_name}.${column_name}`);
+    const offenders = columns.map(({ table_name, column_name }) => `${table_name}.${column_name}`);
 
     expect(offenders).toEqual([]);
   });
