@@ -207,15 +207,26 @@ export default [
         },
         // Interpolating into a route() template defeats the point of route(): the
         // template is the telemetry grouping key, so a value spliced into it makes a
-        // different key per value. A leading `${BASE_PATH}` prefix is the documented
-        // exception (see packages/api-client/src/route.ts) — a base path is one fixed
-        // string, and belongs in the template rather than as a param. Anywhere after
-        // the first literal character is where a real path param goes, so forbid it.
+        // different key per value. The one exception is a fixed base path spliced at
+        // the start, as the admin call sites are written: route(`${ROLE_ENDPOINT}/:roleId`,
+        // { roleId }) in views/administration/users/roles/useRoleQuery.js. That base is
+        // one constant string, so it still groups as a single key. Anywhere after the
+        // first literal character is where a real path param goes, so forbid it.
         {
           selector:
             "CallExpression[callee.name='route'] > TemplateLiteral[expressions.length>0][quasis.0.value.raw!='']",
           message:
-            'Do not interpolate into a route() template except as a leading base-path prefix. Pass the segment as a path param: route("admin/import/:endpoint", { endpoint }).',
+            'Do not interpolate into a route() template except as a leading base-path constant. Pass the segment as a path param: route("admin/import/:endpoint", { endpoint }).',
+        },
+        // A leading interpolation only reads as a base path when it is a constant: a
+        // SCREAMING_SNAKE module constant, or a field holding one (Suggester's
+        // this.basePath). A local lowercase binding is a value like any other, so it
+        // gets no exception even though it sits at the start.
+        {
+          selector:
+            "CallExpression[callee.name='route'] > TemplateLiteral[expressions.length>0][quasis.0.value.raw=''][expressions.0.type!='MemberExpression'][expressions.0.name!=/^[A-Z][A-Z0-9_]*$/]",
+          message:
+            'A leading interpolation in a route() template is only allowed for a fixed base-path constant. Pass the segment as a path param: route("collection/:segment/updateStats", { segment }).',
         },
         // extendRoute takes the base path as its first argument, so a leading
         // interpolation in its template is not a base path and gets no exception.
