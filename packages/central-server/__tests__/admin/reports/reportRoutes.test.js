@@ -374,6 +374,87 @@ describe('reportRoutes', () => {
     });
   });
 
+  describe('PATCH /reports/:id', () => {
+    const createReport = name => models.ReportDefinition.create({ name, dbSchema });
+
+    it('renames a report without creating a version', async () => {
+      const report = await createReport('Rename Me');
+      await models.ReportDefinitionVersion.create({
+        ...getMockReportVersion(1),
+        reportDefinitionId: report.id,
+      });
+
+      const res = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: '  Renamed Report  ' });
+
+      expect(res).toHaveSucceeded();
+      expect(res.body).toEqual({ id: report.id, name: 'Renamed Report' });
+      await report.reload();
+      expect(report.name).toBe('Renamed Report');
+      const versionCount = await models.ReportDefinitionVersion.count({
+        where: { reportDefinitionId: report.id },
+      });
+      expect(versionCount).toBe(1);
+    });
+
+    it('accepts the report keeping its own name', async () => {
+      const report = await createReport('Unchanged Name');
+      const res = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Unchanged Name' });
+      expect(res).toHaveSucceeded();
+      expect(res.body.name).toBe('Unchanged Name');
+    });
+
+    it('rejects a blank name', async () => {
+      const report = await createReport('Blank Rename');
+      const res = await adminApp.patch(`/api/admin/reports/${report.id}`).send({ name: '   ' });
+      expect(res).toHaveRequestError();
+      await report.reload();
+      expect(report.name).toBe('Blank Rename');
+    });
+
+    it('rejects a name another report uses', async () => {
+      const report = await createReport('Duplicate Source');
+      await createReport('Duplicate Target');
+      const res = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Duplicate Target' });
+      expect(res).toHaveRequestError('InvalidOperationError');
+      expect(res.body.error.message).toBe('Report name already exists');
+    });
+
+    it('rejects a name a deleted report still uses', async () => {
+      const report = await createReport('Deleted Source');
+      const deletedReport = await createReport('Deleted Target');
+      await deletedReport.destroy();
+      const res = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Deleted Target' });
+      expect(res).toHaveRequestError('InvalidOperationError');
+      expect(res.body.error.message).toBe('A deleted report is still using this name');
+    });
+
+    it('returns not found for an unknown report', async () => {
+      const res = await adminApp
+        .patch('/api/admin/reports/no-such-report')
+        .send({ name: 'Anything' });
+      expect(res.status).toBe(404);
+    });
+
+    it('forbids a user without permission to write reports', async () => {
+      const report = await createReport('Forbidden Rename');
+      const baseUserApp = await baseApp.asRole('base');
+      const res = await baseUserApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Should Not Apply' });
+      expect(res).toBeForbidden();
+      await report.reload();
+      expect(report.name).toBe('Forbidden Rename');
+    });
+  });
+
   describe('GET /reports/:id/versions/:versionId/export/:format', () => {
     it('should export a report as json', async () => {
       const { ReportDefinitionVersion } = models;

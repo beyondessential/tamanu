@@ -6,6 +6,19 @@ id: REPORTS
 
 Applies to report definitions, generation, and exports.
 
+## Renaming a report
+
+- A report is renamed from its edit screen in the admin panel, through a rename button beside its name, which opens a dialog holding the current name.
+- The rename button is offered to a user with permission to write report definitions.
+- Renaming changes the report's name and nothing else: its ID and versions are kept, and no new version is created.
+- The name is saved without leading or trailing spaces, cannot be blank, and must not match the name of any other report, including a deleted one.
+- Where the reporting schema is enabled, a report using the raw schema can be renamed only by a user with permission to edit the raw schema.
+- A renamed report shows its new name in the admin panel's report list and edit screen straight away, and on facilities once they have synced.
+- Every export generated after a rename carries the new name.
+
+> [!NOTE]
+> A report's versions are fixed snapshots of its query, and the name belongs to the report rather than to any one version. Renaming apart from versioning keeps the version history to query changes, and leaves the query unchecked by a rename.
+
 ## Export file name
 
 - An exported report's file name is `report-<date>-<report name>-<country name>`.

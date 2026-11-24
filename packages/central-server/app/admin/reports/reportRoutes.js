@@ -1,7 +1,8 @@
 import express from 'express';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Sequelize } from 'sequelize';
+import { QueryTypes, Sequelize, UniqueConstraintError } from 'sequelize';
+import { z } from 'zod';
 import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { capitalize } from 'es-toolkit/compat';
@@ -154,6 +155,69 @@ reportsRouter.post(
       user.id,
     );
     res.send(version);
+  }),
+);
+
+const renameReportSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, { message: 'Report name is required' })
+    .max(255, { message: 'Report name must be no longer than 255 characters' }),
+});
+
+// spec: REPORTS
+reportsRouter.patch(
+  '/:reportId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'ReportDefinition');
+
+    const { store, params, isReportingSchemaEnabled } = req;
+    const { ReportDefinition } = store.models;
+    const { name } = await renameReportSchema.parseAsync(req.body);
+
+    const report = await ReportDefinition.findByPk(params.reportId);
+    if (!report) {
+      throw new NotFoundError(`No report found with id ${params.reportId}`);
+    }
+
+    const canEditSchema = req.ability.can('write', 'ReportDbSchema');
+    if (
+      isReportingSchemaEnabled &&
+      !canEditSchema &&
+      report.dbSchema === REPORT_DB_CONNECTIONS.RAW
+    ) {
+      throw new InvalidOperationError(
+        'You do not have permission to rename reports using the raw schema',
+      );
+    }
+
+    if (name !== report.name) {
+      // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
+      const existingDefinition = await ReportDefinition.findOne({
+        where: { name },
+        attributes: ['id', 'deletedAt'],
+        paranoid: false,
+      });
+      if (existingDefinition) {
+        throw new InvalidOperationError(
+          existingDefinition.deletedAt
+            ? 'A deleted report is still using this name'
+            : 'Report name already exists',
+        );
+      }
+
+      try {
+        await report.update({ name });
+      } catch (err) {
+        if (err instanceof UniqueConstraintError) {
+          throw new InvalidOperationError('Report name already exists');
+        }
+        throw err;
+      }
+    }
+
+    res.send({ id: report.id, name: report.name });
   }),
 );
 
