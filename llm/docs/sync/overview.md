@@ -108,7 +108,7 @@ Central runs as several node processes, so "is this background step still runnin
 This is `persistIncomingChanges`. Everything in the numbered list happens inside one database transaction, in this order:
 
 1. **Pause audit logging**, unless the client is mobile. A facility server has already written its own changelog rows, and sends them along with each record. Mobile keeps no changelog, so for a mobile push central's own triggers write it XXX [add the effect of this being that between syncs we can't tell what happened on mobile or by different users].
-2. **Tick-tock, and keep the tock.** Call it T. Every row saved in this transaction is stamped T by the trigger.
+2. **Tick-tock, and use the tock.** Call it T. Every row saved in this transaction is stamped T by the trigger.
 3. **Run incoming sync hooks.** A model can declare `incomingSyncHook` to adjust records before they are saved. Two models do. `Patient` renames clashing display ids, so that two facilities registering the same id does not fail the whole push on a unique constraint. `AppointmentSchedule` removes later appointments when a schedule has been cancelled.
 4. **Save the records** (`saveIncomingChanges`). Models are saved in dependency order, i.e. a table is saved after the tables its foreign keys point to. Constraints are deferred until the end of the transaction. Sequelize hooks are switched off, so that saving one record cannot trigger side effects on another.
 5. **Record that this device pushed at T**, as a row in `sync_device_ticks`.
