@@ -43,7 +43,7 @@ Where there is a choice, responsibility sits with the client. A client holds its
 | Marked for sync | A patient with a `patient_facilities` row for a facility. That facility holds the patient's full record, and it is kept in sync with changes elsewhere in the system. |
 | Omni-server / Multi-facility server | A facility server that serves several facilities. It sends several facility ids. |
 
-## The clock
+## /The clock
 
 Central holds one number, `currentSyncTick`, in `local_system_facts`. It starts at 1 and only ever goes up (i.e. is monotonic).
 
