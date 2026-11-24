@@ -27,8 +27,8 @@ If the user names only a version ("RC 2.69"), the namespace is `tamanu-release-2
 ### 2. Get the infra repository
 
 Look for a sibling checkout (`../infra`). If it is absent, clone
-`github.com/beyondessential/infra` into the scratchpad and read it there (see
-`local-first-research`); do not page its files over the network. Its `docs/` is a support
+`github.com/beyondessential/infra` into a scratch directory and read it there, rather than
+paging its files over the network. Its `docs/` is a support
 pack: use its `README.md` index, `docs/deployment-context.md`, and the runbook that matches
 the symptom (crash-looping hook jobs, render errors, stuck Applications, hibernation).
 Run `jj`/`git` there only to read, and match the revision Argo deployed
