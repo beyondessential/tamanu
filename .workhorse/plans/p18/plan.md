@@ -39,7 +39,8 @@ With one `user`, `ability` is restored whenever a user is. Decided with Tom: let
 
 - Each provider renders nothing until its stored state has been read, which is what `PersistGate loading={null}` does today.
 - Both reads start as the app loads, from `App/index.tsx`, and each provider picks up the result when it mounts. redux-persist read at module load too, so the reads ran alongside the backend starting. The notes first had each provider start its own read on mount, which put the two reads one after the other behind the backend, and left the launch sync, which starts with the backend, further ahead of the stored tokens reaching the central server connection than it is today.
-- A preloaded read is handed over once. A provider that mounts again, as it does when `BackendProvider` re-initialises, reads storage afresh.
+- A preloaded read is handed over once. A provider that mounts again, as it does when `BackendProvider` re-initialises, reads storage afresh, behind any write still in the queue so it cannot read back what was stored before that write.
+- The hook settles what the state starts as on its first render, so a caller passing a fresh object each render cannot send the read round again.
 - A read that fails, finds nothing, or has not settled after five seconds starts from the initial state (signed out, welcome introduction not shown, no patient), as redux-persist does.
 - After the read, each provider stores its state whenever it changes, from an effect. This is the external-store case the coding rules allow an effect for, and it means no setter can forget to persist.
 - The restored state itself is not stored again. redux-persist wrote it back straight after rehydrating, which replaced an entry it had failed to read with the initial state. Leaving the entry alone until something changes means a passing storage error, or an entry from an earlier build that this reader gets wrong, does not cost the device its session.
@@ -121,7 +122,7 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 ### Checks
 
 - [x] Typecheck shows no errors beyond the ones already on the base (480 on the base, 477 now with main merged in, none from this card)
-- [x] Mobile jest suite passes (65 suites, 474 tests, run with three workers)
+- [x] Mobile jest suite passes (66 suites, 481 tests, run with three workers)
 - [x] Lint passes on the mobile package with no errors
 - [x] Android JavaScript bundle builds, so every import resolves under Metro, with no Redux package in it
 - [ ] Run on a device or emulator, including the upgrade from the previous build

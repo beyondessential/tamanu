@@ -14,6 +14,8 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [x] Writes land in the order the changes were made, and a failed write does not block the next
 - [x] A read started ahead of time is handed to the next read, and the read after that goes to storage again
 - [x] A read that storage has not answered after five seconds reads as nothing stored
+- [x] A read waits for a write still in the queue, rather than reading what was there before it
+- [x] The hook reads once however the initial state is passed, and stores every change after the read (`hooks/useStoredState.spec.tsx`)
 
 ### Session (`contexts/AuthContext.spec.tsx`, verifies spec: MSESS)
 
