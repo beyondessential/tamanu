@@ -124,7 +124,7 @@ Pushed records are only lightly validated on the way in. Central checks that eac
 
 ### Building a pull
 
-This is `setupSnapshotForPull`. In order:
+This is `setupSnapshotForPull`, which is a facility-side snapshot process. In order:
 
 1. **Wait for a snapshot slot.** Only a few snapshots are built at once. This is a separate limit from the limit on sessions.
 2. **Tick-tock, and keep the tick.** This becomes `pullUntil`: the cursor the client will store once it has saved the pull.
