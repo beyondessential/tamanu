@@ -125,6 +125,7 @@ describe('Appointments', () => {
     const expectSearchToMatch = async query => {
       const result = await searchPatientNameOrId(query);
       expect(result).toHaveSucceeded();
+      expect(result.body.count).toBe(result.body.data.length);
       expect(result.body.data.map(({ id }) => id)).toContain(appointment.id);
       const lowerCaseQuery = query.toLowerCase();
       for (const { patient: matchedPatient } of result.body.data) {
