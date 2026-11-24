@@ -39,7 +39,10 @@
           enabled: true,
         },
         enableTasking: true,
-      patientPortal: true,
+        patientPortal: true,
+        invoicing: {
+          enabled: true,
+        },
       },
       experimentalAi: {
         enabled: true,
@@ -56,6 +59,11 @@
           // prescribing (exercised by the medication prescribe e2e spec).
           dispensingQuantityAutocalculation: true,
         },
+      },
+      // Playwright's bundled Chromium lags the latest Chrome major, which the support floor
+      // tracks; at the default the suite lands on the browser-unsupported page.
+      browserSupport: {
+        versionsBack: 12,
       },
     },
     central: {

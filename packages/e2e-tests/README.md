@@ -114,12 +114,16 @@ Two things are easy to get wrong:
 The simplest reliable pattern — start the five servers in separate clean shells:
 
 ```bash
-npm run start-dev --workspace=@tamanu/central-server        # :3000
-npm run start-dev --workspace=@tamanu/facility-server       # :4000
-npm run e2e-client-preview --workspace=@tamanu/web-frontend # :5173
-npm run e2e-admin-preview --workspace=@tamanu/web-frontend  # :5174
-npm run e2e-preview --workspace=@tamanu/patient-portal      # :5175
+NODE_ENV=e2e npm run start-dev --workspace=@tamanu/central-server   # :3000
+NODE_ENV=e2e npm run start-dev --workspace=@tamanu/facility-server  # :4000
+npm run e2e-client-preview --workspace=@tamanu/web-frontend         # :5173
+npm run e2e-admin-preview --workspace=@tamanu/web-frontend          # :5174
+npm run e2e-preview --workspace=@tamanu/patient-portal              # :5175
 ```
+
+`NODE_ENV=e2e` matches CI. Left unset, the servers load their `development` config, which turns
+off the built-in role permissions, so the practitioner the kiosk specs sign in as can't run the
+kiosk.
 
 The config's `reuseExistingServer: true` means Playwright will use them rather than launching its
 own. Then, from this package:
@@ -150,6 +154,8 @@ NODE_OPTIONS="--import tsx" npx playwright test tests/basic/Basic.spec.ts --work
 | Assertions find another test's patient in row 0 | Parallel workers racing — run with `--workers=1` |
 | Tests pass locally but fail on CI (or vice versa) after web changes | Stale `packages/web/dist` — rebuild the frontend |
 | Portal specs fail to connect to the database | `CENTRAL_DATABASE_URL` unset or pointing somewhere other than central's database |
+| Kiosk specs say the account can't run the kiosk | Servers started without `NODE_ENV=e2e`, on the `development` config |
+| Every spec lands on "Tamanu is not available on your browser" | `browserSupport.versionsBack` not raised in provisioning (see the example file) |
 | Kiosk or portal form specs can't find Health questions | Kiosk demo not seeded before the facility's first sync — run `generate kioskDemo` (step 3), then sync |
 
 ## Suite conventions
