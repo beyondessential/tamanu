@@ -1,3 +1,5 @@
+import { ERROR_TYPE, Problem } from '@tamanu/errors';
+
 interface AuthErrorAction {
   // whether this auth error should sign the user out
   shouldSignOut: boolean;
@@ -18,3 +20,15 @@ export const resolveAuthErrorAction = (preventSignOutOnFailure: boolean): AuthEr
   shouldSignOut: !preventSignOutOnFailure,
   nextPreventSignOutOnFailure: false,
 });
+
+/**
+ * Whether a failed central login may fall back to the device's own copy of the user.
+ *
+ * Only when central gave no verdict on the credentials: it could not be reached (a
+ * connected network with no internet behind it, a timeout) or it failed with an error
+ * of its own. Anything central decided (wrong credentials, a lockout, an unapproved
+ * device, an outdated app) must stand, so that credentials central rejects can't
+ * succeed against a stale local password.
+ */
+export const canFallBackToLocalSignIn = (error: unknown): boolean =>
+  error instanceof Problem && error.type === ERROR_TYPE.UNKNOWN;

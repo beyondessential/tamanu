@@ -16,7 +16,7 @@ import type { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters }
 import { withAuth } from '~/ui/containers/Auth';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { buildAbility } from '~/ui/helpers/ability';
-import { resolveAuthErrorAction } from '~/ui/helpers/auth';
+import { canFallBackToLocalSignIn, resolveAuthErrorAction } from '~/ui/helpers/auth';
 import { Routes } from '~/ui/helpers/routes';
 import type { RootStackParamList } from '~/ui/navigation/stacks/Core';
 import type { WithAuthStoreProps } from '~/ui/store/ducks/auth';
@@ -118,10 +118,20 @@ const Provider = ({
     signInAs(usr);
   };
 
+  // NetInfo reports a network with no route to central (e.g. Wi-Fi with no internet) as connected
+  const remoteSignInWithLocalFallback = async (params: SyncConnectionParameters): Promise<void> => {
+    try {
+      await remoteSignIn(params);
+    } catch (error) {
+      if (!canFallBackToLocalSignIn(error)) throw error;
+      await localSignIn(params);
+    }
+  };
+
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
     const network = await NetInfo.fetch();
     if (network.isConnected) {
-      await remoteSignIn(params);
+      await remoteSignInWithLocalFallback(params);
     } else {
       await localSignIn(params);
     }
