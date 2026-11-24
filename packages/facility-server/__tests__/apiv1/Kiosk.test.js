@@ -16,6 +16,7 @@ import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getCurrentDateStringInTimezone, getDayBoundaries } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
+import { setupSyndromicSurveillanceSurvey } from '../setupSurvey';
 import { createTestContext } from '../utilities';
 
 const shiftDate = (date, days) => format(addDays(parseISO(date), days), 'yyyy-MM-dd');
@@ -533,6 +534,41 @@ describe('Kiosk', () => {
 
       const forms = await app.get(`/api/kiosk/appointments/${appointment.id}`);
       expect(forms.body.forms.map(({ id }) => id)).toEqual([survey.id]);
+
+      const checkIn = await app.post(`/api/kiosk/appointments/${appointment.id}/checkIn`).send({
+        responses: [{ surveyId: survey.id, answers: { [requiredDataElement.id]: 'Fine' } }],
+      });
+      expect(checkIn).toHaveSucceeded();
+    });
+
+    it('leaves out the syndromic surveillance form, and rejects a response to it', async () => {
+      const syndromicSurveillanceSurvey = await setupSyndromicSurveillanceSurvey(models);
+      await setKioskSettings({
+        enabled: true,
+        forms: [
+          {
+            appointmentTypeId: appointmentTypeWithForms.id,
+            surveyIds: [syndromicSurveillanceSurvey.id, survey.id],
+          },
+        ],
+      });
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+
+      const forms = await app.get(`/api/kiosk/appointments/${appointment.id}`);
+      expect(forms.body.forms.map(({ id }) => id)).toEqual([survey.id]);
+
+      const rejected = await app.post(`/api/kiosk/appointments/${appointment.id}/checkIn`).send({
+        responses: [
+          { surveyId: syndromicSurveillanceSurvey.id, answers: {} },
+          { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Fine' } },
+        ],
+      });
+      expect(rejected).toHaveRequestError();
+      expect(await findPatientResponses(patient)).toHaveLength(0);
 
       const checkIn = await app.post(`/api/kiosk/appointments/${appointment.id}/checkIn`).send({
         responses: [{ surveyId: survey.id, answers: { [requiredDataElement.id]: 'Fine' } }],

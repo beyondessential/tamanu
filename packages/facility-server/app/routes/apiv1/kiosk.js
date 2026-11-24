@@ -10,6 +10,7 @@ import {
   KIOSK_SUGGESTER_ALLOW_LIST,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
+  SYNDROMIC_SURVEILLANCE_SURVEY_ID,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { EditConflictError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
@@ -79,7 +80,8 @@ const findKioskAppointment = async (req, facilitySettings) => {
 /**
  * The forms a patient completes for their appointment type, or for a location booking its booking
  * type: the current surveys the setting lists for it, in the order listed. Retired or missing
- * surveys are skipped, so a stale setting can't stop patients from checking in.
+ * surveys are skipped, so a stale setting can't stop patients from checking in. The syndromic
+ * surveillance form is skipped too, as it is completed only from the encounter it is for.
  */
 const getKioskSurveys = async (req, facilitySettings, { appointmentTypeId, bookingTypeId }) => {
   const formsByType = await facilitySettings.get('kiosk.forms');
@@ -93,7 +95,11 @@ const getKioskSurveys = async (req, facilitySettings, { appointmentTypeId, booki
     ),
   ];
   const surveys = await req.models.Survey.findAll({
-    where: { id: { [Op.in]: configuredIds }, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    where: {
+      // spec: SYND#the-syndromic-surveillance-form
+      id: { [Op.in]: configuredIds, [Op.ne]: SYNDROMIC_SURVEILLANCE_SURVEY_ID },
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
   });
   return configuredIds
     .map(surveyId => surveys.find(survey => survey.id === surveyId))
