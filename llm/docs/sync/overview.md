@@ -40,8 +40,7 @@ Where there is a choice, responsibility sits with the client. A client holds its
 | Cursor | A tick a client has stored: "I have pushed everything up to here" or "I have pulled everything up to here". |
 | Snapshot table | A per-session table in the `sync_snapshots` schema holding the records in flight. An ordinary table, not a temporary one. |
 | Lookup table | `sync_lookup` on central: a copy of every syncable record with the columns that decide who receives it. Pulls read from it. |
-| In-flight lock | The lock a write takes on the tick it is stamping with, held until its transaction ends. It is how sync knows a tick still has uncommitted writes (aka pending edits, next). |
-| Pending edit | A write that has stamped a row but not yet committed, i.e. one still holding an in-flight lock. Sync waits for the pending edits below a tick before treating everything up to that tick as complete. |
+| In-flight lock | The lock a write takes on the tick it is stamping with, held until its transaction ends. It is how sync knows a tick still has uncommitted writes (aka pending edits). |
 | Marked for sync | A patient with a `patient_facilities` row for a facility. That facility holds the patient's full record, and it is kept in sync with changes elsewhere in the system. |
 | Omni-server / Multi-facility server | A facility server that serves several facilities. It sends several facility ids. |
 
