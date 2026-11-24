@@ -1,6 +1,7 @@
 # E2E tests
 
-Playwright end-to-end tests for the Tamanu facility and admin web frontends.
+Playwright end-to-end tests for the Tamanu facility and admin web frontends, the self check-in
+kiosk, and the patient portal.
 
 CI runs these via [`.github/workflows/ci-e2e.yml`](../../.github/workflows/ci-e2e.yml), with the
 environment built by [`.github/scripts/e2e-test-setup.sh`](../../.github/scripts/e2e-test-setup.sh).
@@ -15,7 +16,7 @@ the same setup on a local machine.
 
   ```bash
   npm install
-  npm run build          # or clean-build; the preview servers serve packages/web/dist
+  npm run build          # or clean-build; the preview servers serve packages/web/dist and packages/patient-portal/dist
   npx playwright install chromium
   ```
 
@@ -27,14 +28,16 @@ the same setup on a local machine.
 
 ### 1. `.env`
 
-Copy `.env.example` to `.env` in this package. The defaults suit a local run. Two values matter:
+Copy `.env.example` to `.env` in this package. The defaults suit a local run. Three values matter:
 
-- `LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS=true` makes Playwright launch the four servers itself
+- `LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS=true` makes Playwright launch the five servers itself
   (see the caveat under [Running the tests](#running-the-tests)).
 - `TZ` must match the timezone your facility server displays in (`primaryTimeZone` /
   `countryTimeZone` in its config). CI uses `Pacific/Auckland` end to end; if your local server
   config uses another timezone, set `TZ` to that instead. A mismatch causes off-by-one-day
   failures in any test that asserts "today's" date.
+- `CENTRAL_DATABASE_URL` must point at the central server's database. The portal reads only from
+  central, so the portal specs create their patients there directly (`utils/centralDatabase.ts`).
 
 ### 2. Server configs
 
@@ -66,8 +69,18 @@ npm run --workspace @tamanu/central-server start provision provisioning.json5
 The provisioning file mirrors the one CI writes (see the setup script). It creates the
 `admin@tamanu.io` / `admin` login the tests use, a `facility-1` facility with its sync user,
 the default reference data spreadsheet, the vitals/charting programs, and the feature settings
-the tests rely on (`enableTasking`, `desktopCharting`, patient/encounter summaries, and
-`deviceRegistrationQuota` off).
+the tests rely on (`enableTasking`, `desktopCharting`, patient/encounter summaries, the patient
+portal, the kiosk at `facility-1`, and `deviceRegistrationQuota` off). It also sends central's
+email through nodemailer's JSON transport, which accepts every email and delivers none, so the
+portal can "email" sign-in codes.
+
+Then seed the kiosk demo, whose forms the kiosk and portal specs fill in, and rebuild the sync
+lookup so the facility's first sync picks everything up:
+
+```bash
+TAMANU_ALLOW_FAKE_DATA=true npm run --workspace @tamanu/central-server start generate kioskDemo -- --facility facility-1
+npm run --workspace @tamanu/central-server start rebuildSyncLookup
+```
 
 ### 4. Configure and sync the facility server
 
@@ -98,13 +111,14 @@ Two things are easy to get wrong:
    errors). So either start the servers yourself in a clean shell, or export `NODE_OPTIONS`
    only for the test command, never globally.
 
-The simplest reliable pattern — start the four servers in separate clean shells:
+The simplest reliable pattern — start the five servers in separate clean shells:
 
 ```bash
 npm run start-dev --workspace=@tamanu/central-server        # :3000
 npm run start-dev --workspace=@tamanu/facility-server       # :4000
 npm run e2e-client-preview --workspace=@tamanu/web-frontend # :5173
 npm run e2e-admin-preview --workspace=@tamanu/web-frontend  # :5174
+npm run e2e-preview --workspace=@tamanu/patient-portal      # :5175
 ```
 
 The config's `reuseExistingServer: true` means Playwright will use them rather than launching its
@@ -135,6 +149,8 @@ NODE_OPTIONS="--import tsx" npx playwright test tests/basic/Basic.spec.ts --work
 | Dates off by one day (`17/07` vs `16/07`) | `.env` `TZ` doesn't match the server's display timezone |
 | Assertions find another test's patient in row 0 | Parallel workers racing — run with `--workers=1` |
 | Tests pass locally but fail on CI (or vice versa) after web changes | Stale `packages/web/dist` — rebuild the frontend |
+| Portal specs fail to connect to the database | `CENTRAL_DATABASE_URL` unset or pointing somewhere other than central's database |
+| Kiosk or portal form specs can't find Health questions | Kiosk demo not seeded before the facility's first sync — run `generate kioskDemo` (step 3), then sync |
 
 ## Suite conventions
 

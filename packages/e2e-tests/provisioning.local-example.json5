@@ -39,6 +39,7 @@
           enabled: true,
         },
         enableTasking: true,
+      patientPortal: true,
       },
       experimentalAi: {
         enabled: true,
@@ -54,6 +55,16 @@
           // Auto-calculate the dispensing quantity from dose, frequency and duration when
           // prescribing (exercised by the medication prescribe e2e spec).
           dispensingQuantityAutocalculation: true,
+        },
+      },
+    },
+    central: {
+      mail: {
+        // Patient portal sign-in emails a code; the JSON transport accepts the email and delivers
+        // nothing, and the portal specs issue the code themselves (utils/centralDatabase.ts).
+        from: "tamanu-e2e@tamanu.io",
+        transport: {
+          jsonTransport: true,
         },
       },
     },
