@@ -55,7 +55,7 @@ Work directory (not committed): `/home/rohan/.cache/workhorse-rig/beyondessentia
 
 ## Baseline
 
-(pending)
+At `594a57e31c`: central `__tests__/admin` 28 files / 356 tests pass; web unit tests 142 files / 923 tests pass; eslint on changed files clean. No pre-existing failures. Browser: system Chrome via playwright-core passes the smoke test (bundled chromium fails).
 
 ## Rigs and disk
 
