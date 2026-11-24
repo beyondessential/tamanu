@@ -113,13 +113,17 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ### Guard
 
-- [ ] `no-restricted-imports` for the Redux packages in the mobile lint block
+- [x] `no-restricted-imports` for the Redux packages in the mobile lint block
 
 ### Checks
 
-- [ ] Typecheck shows no errors beyond the ones already on the base
-- [ ] Mobile jest suite passes
-- [ ] Lint passes on changed files
+- [x] Typecheck shows no errors beyond the ones already on the base (480 on the base, 476 now, none new)
+- [x] Mobile jest suite passes (65 suites, 466 tests, run with three workers)
+- [x] Lint passes on the mobile package with no errors
+- [ ] Android JavaScript bundle builds, so every import resolves under Metro
+- [ ] Run on a device or emulator, including the upgrade from the previous build
+
+> The full jest suite fails a handful of unrelated suites on this machine at the default eight workers, on the base as well as on this branch. Each passes on its own and the whole suite passes at three workers.
 
 ## Testing
 

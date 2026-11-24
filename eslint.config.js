@@ -95,6 +95,35 @@ export default [
     },
   },
   {
+    // Mobile app state lives in React contexts. The web app still depends on these packages,
+    // so they resolve from the workspace root and an import in mobile would not fail on its own.
+    files: [`packages/mobile/**/*.${EXTS}`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            'redux',
+            'react-redux',
+            '@reduxjs/toolkit',
+            'redux-persist',
+            'reselect',
+            'reactotron-redux',
+          ].map(name => ({
+            name,
+            message: 'The mobile app does not use Redux. Hold shared state in a context instead.',
+          })),
+          patterns: [
+            {
+              group: ['redux-persist/*', 'react-redux/*', '@reduxjs/toolkit/*'],
+              message: 'The mobile app does not use Redux. Hold shared state in a context instead.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: [`**/*.${TS_EXTS}`],
     rules: {
       // Disable rules that are incompatible with or better handled by TypeScript
