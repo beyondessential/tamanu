@@ -24,7 +24,7 @@ Sync is in its current shape because of years of learning from failures on large
 - **Central is the only place conflicts are resolved.** A client pushes before it pulls so that central sees local changes first, and then takes whatever central gives it without comparing.
 - **Each client holds a subset.** Everything a client needs to run, plus the full records of the patients marked for sync at its facilities.
 - **Changes are detected by database triggers, not ORM hooks.** A write made by raw SQL in a psql session is tracked the same as one made by a model. This holds on the servers. Mobile is the exception, described in its own section.
-- **Applying the same data twice is safe.** Sessions get interrupted and repeated. Nothing may depend on a record arriving exactly once.
+- **Idempotent: applying the same data twice is safe.** Sessions get interrupted and repeated. Nothing may depend on a record arriving exactly once.
 
 Where there is a choice, responsibility sits with the client. A client holds its own cursors, tells central which facilities it serves and (on mobile) which tables it wants, and asks for a resync when it needs one. Central keeps only what it needs for its own job: the clock, the queue of waiting devices, which device pushed what, and the lookup table's cursor.
 
