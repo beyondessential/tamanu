@@ -6,8 +6,9 @@ Work directory (not committed): `/home/rohan/.cache/workhorse-rig/beyondessentia
 
 ## In flight / next
 
-- Round 1: conventions, architecture, correctness, neighbours and test-audit lenses reported. The api, security and browser lenses were relaunched after the first attempt lost its rig build; pinned to `a3f73522f7`.
-- Next: collect those three, judge the browser captures for feel, then triage, file and report round 1.
+- Round 1: all lenses but browser have reported. The browser lens is running against a leased build of `a3f73522f7`.
+- A server fixer is working SEC-1, SEC-2, API-1/2, SEC-6 and TST-3; a web fixer follows it (one at a time, since they share the worktree).
+- The tracked loop run lapsed when the earlier session ended, and an automation turn cannot reopen one, so rounds are recorded here rather than on the card's Loops bar.
 
 ## Charter
 
@@ -67,6 +68,15 @@ At `594a57e31c`: central `__tests__/admin` 28 files / 356 tests pass; web unit t
 | id | round | severity | kind | status | issue | commit | test |
 |---|---|---|---|---|---|---|---|
 | ARC-1 / COR-1 / NEI-1 | 1 | critical | bug | fixed | cursor[bot] `cmwu6vv3x06ei1fmp79t9dynr` | `a3f73522f7` | `packages/web/__tests__/views/administration/reports/EditReportView.test.jsx` |
+| SEC-1 | 1 | critical | security | fixing | - | - | - |
+| SEC-2 | 1 | suggestion | security | fixing | - | - | - |
+| SEC-3 | 1 | suggestion | bug | decided | - | - | - |
+| SEC-4 | 1 | nit | security | skipped | - | - | - |
+| SEC-5 / CON-3 / COR-2 | 1 | suggestion | ui | fixing | - | - | - |
+| SEC-6 / TST-3 | 1 | nit | coverage | fixing | - | - | - |
+| API-1 / API-2 | 1 | nit | edge | fixing | - | - | - |
+| API-3 | 1 | nit | edge | needs card | `cmwu7mrmq07i01fmpc9ehdxlq` | - | - |
+| API-4 / API-5 / API-6 | 1 | nit | edge | skipped | - | - | - |
 
 ## Rounds
 
@@ -75,4 +85,10 @@ At `594a57e31c`: central `__tests__/admin` 28 files / 356 tests pass; web unit t
 - The headline critical was found independently by three of this round's lenses and, separately, by cursor[bot] on the pull request: a rename refetched `['version', id]`, and because `EditReportView` rebuilt the editor's initial values from the new object (with fresh parameter ids from `withParameterIds`), Formik's `enableReinitialize` reset the form and discarded unsaved query, parameter, notes and status edits.
 - Fixed in `a3f73522f7`: the editor's initial values are built once per version loaded, and the read-only name field takes the report's current name as a prop so a rename still shows straight away. The same reset also fired on an ordinary refetch (window focus), so the fix covers more than the rename.
 - Regression test `EditReportView.test.jsx` was checked against the unfixed code and fails there.
+**Decisions on findings not fixed**
+
+- SEC-3: the rename keeps requiring the `write ReportDefinition` verb, though no other report route uses it and a role holding only create/read/list cannot rename. `write` is the correct verb for editing a definition, and it is one of the per-object verbs `OBJECT_ID_PERMISSION_SCHEMA` allows for this noun, which is what makes SEC-1's fix meaningful. The consequence is a deployment one: roles need the grant added. It belongs in the pull request description and the release notes.
+- SEC-4: the collision messages confirm the existence of a raw-schema or soft-deleted report the caller cannot list. `POST /import` already behaves this way, the names carry no patient data, and collapsing the two messages would lose the guidance that makes the deleted-name case actionable.
+- API-4, API-5, API-6: a no-op submit of a legacy untrimmed name performs a real update; concurrent renames are last-write-wins with no conflict signal, as elsewhere in the admin API; malformed JSON returns 500 from the global body parser, which is pre-existing and not this route's.
+
 - Rigs and disk: the shared build of `594a57e31c` was collected after the session that was waiting on it ended; relaunched lenses are pinned to `a3f73522f7`. Free 129.8 GB, card 3.0 GB of 10 GB.
