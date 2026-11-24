@@ -129,7 +129,7 @@ This is `setupSnapshotForPull`, which is a central-side snapshot process. In ord
 1. **Wait for a snapshot slot.** Only a few snapshots are built at once. This is a separate limit from the limit on sessions.
 2. **Tick-tock, and use the tick.** This becomes `pullUntil`: the cursor the client will store once it has saved the pull.
 3. **Wait for pending edits** below that tick, i.e. for any transaction still in flight that has already stamped rows with an earlier tick (see [Concurrency](#concurrency)).
-4. **Work out which patients are newly marked for sync**, by reading `patient_facilities` for any added since the client's cursor.
+4. **Work out which patients are newly marked for sync**, by reading `patient_facilities` for any added since the client's last successful pull.
 5. **Copy records from the lookup table into the snapshot table.** This happens inside one repeatable read transaction, so that everything is read as at a single moment. There are up to three passes: the full history of newly marked patients; everything changed since the cursor for everyone else; and, for mobile only, any tables it asked to sync again from scratch.
 
 There is no upper limit on what goes into the snapshot. If a row newer than `pullUntil` is visible when the transaction starts, it is sent, and it will be sent again next time. That is fine, and intended. `pullUntil` means "central is certain you are complete up to here", not "you have nothing newer than this".
