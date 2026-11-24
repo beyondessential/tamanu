@@ -55,6 +55,7 @@ function status(administeredVaccineStatus: string) {
     case VACCINE_STATUS.DUE:
     case VACCINE_STATUS.UPCOMING:
     case VACCINE_STATUS.OVERDUE:
+    case VACCINE_STATUS.HISTORICAL:
     case VACCINE_STATUS.UNKNOWN:
     default:
       return 'not-done';
