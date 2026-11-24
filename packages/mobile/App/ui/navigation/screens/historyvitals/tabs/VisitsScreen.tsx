@@ -1,5 +1,4 @@
 import React, { type ReactElement } from 'react';
-import { compose } from 'redux';
 import { useQuery } from '@tanstack/react-query';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
@@ -9,7 +8,7 @@ import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import type { IDiagnosis, INote } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
@@ -50,7 +49,8 @@ const visitsHistoryRows = {
   },
 };
 
-const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
+export const VisitsScreen = (): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const { data, error } = useQuery({
     queryKey: patientKeys.encounters(selectedPatient.id),
     queryFn: () => Database.models.Encounter.getForPatient(selectedPatient.id),
@@ -70,5 +70,3 @@ const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
     </StyledSafeAreaView>
   );
 };
-
-export const VisitsScreen = compose(withPatient)(DumbVisitsScreen);

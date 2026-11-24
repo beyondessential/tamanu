@@ -3,12 +3,10 @@ import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SYNDROMIC_SURVEILLANCE_SURVEY_ID } from '@tamanu/constants';
 import { FullView } from '/styled/common';
-import { compose } from 'redux';
 import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
-import { withPatient } from '/containers/Patient';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { programKeys } from '~/ui/hooks/queries/queryKeys';
@@ -18,7 +16,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { SurveyTypes } from '~/types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
-const Screen = (): ReactElement => {
+export const ProgramListScreen = (): ReactElement => {
   const navigation = useNavigation();
 
   const {
@@ -93,5 +91,3 @@ const Screen = (): ReactElement => {
     </FullView>
   );
 };
-
-export const ProgramListScreen = compose(withPatient)(Screen);

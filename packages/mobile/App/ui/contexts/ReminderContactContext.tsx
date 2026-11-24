@@ -1,16 +1,14 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
-import { compose } from 'redux';
 import { WS_EVENTS } from '~/constants/webSocket';
 import { Database } from '~/infra/db';
 import { PatientContact } from '~/models/PatientContact';
 import type { IPatientContact } from '~/types';
-import { withPatient } from '../containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { patientKeys } from '../hooks/queries/queryKeys';
 import { useBackend } from '../hooks';
 import { useSocket } from '../hooks/useSocket';
 import { wakeCentral } from '../helpers/wakeCentral';
-import type { BaseAppProps } from '../interfaces/BaseAppProps';
 
 interface ReminderContactData {
   reminderContactList: IPatientContact[];
@@ -44,7 +42,8 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
   });
 };
 
-const Provider = ({ children, selectedPatient }: BaseAppProps & { children: ReactNode }) => {
+export const ReminderContactProvider = ({ children }: { children: ReactNode }) => {
+  const { selectedPatient } = useSelectedPatient();
   const { socket } = useSocket();
   const { centralServer } = useBackend();
   const queryClient = useQueryClient();
@@ -122,5 +121,3 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
     </ReminderContactContext.Provider>
   );
 };
-
-export const ReminderContactProvider = compose(withPatient)(Provider);

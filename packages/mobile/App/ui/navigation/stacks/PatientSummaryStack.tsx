@@ -3,8 +3,7 @@ import { Routes } from '/helpers/routes';
 import { ErrorBoundary } from '/components/ErrorBoundary';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { joinNames } from '~/ui/helpers/user';
-import { compose } from 'redux';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import type { NavigationProp } from '@react-navigation/native';
 import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -21,10 +20,8 @@ interface PatientSummaryStackProps extends BaseAppProps {
   navigation: NavigationProp<any>;
 }
 
-const PatientSummary = ({
-  navigation,
-  selectedPatient,
-}: PatientSummaryStackProps): ReactElement => {
+export const PatientSummaryStack = ({ navigation }: PatientSummaryStackProps): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   return (
     <ErrorBoundary>
       <StackHeader
@@ -43,5 +40,3 @@ const PatientSummary = ({
     </ErrorBoundary>
   );
 };
-
-export const PatientSummaryStack = compose(withPatient)(PatientSummary);

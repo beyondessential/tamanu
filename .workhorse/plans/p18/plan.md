@@ -63,9 +63,11 @@ Decided with Tom: keep the storage keys, write plain JSON, and have the reader a
 
 - `withPatient(Component)` becomes a `useSelectedPatient()` call in the component body, and the `compose` wrapper goes with it. All 35 are function components, so none needs restructuring.
 - `useSelector(state => state.patient)` becomes the hook in the 10 files that use it.
-- `NewPatientScreen` keeps its mount-time snapshot, taken from the hook: `useState(() => selectedPatient)`. The snapshot exists so that clearing the selection on the way back does not blank this screen while its stack is still mounted.
+- `NewPatientScreen` keeps its mount-time snapshot, taken from the hook: `useState(selectedPatient)`. The snapshot exists so that clearing the selection on the way back does not blank this screen while its stack is still mounted.
+- That snapshot depends on the screen mounting after the selection is set. Registration calls `setSelectedPatient` and then `navigation.navigate` in the same tick, after an `await`. Navigation state lives in a `useSyncExternalStore`, which React renders at sync priority, while the selection is ordinary state set at default priority. React 19 renders both priorities in one pass, so the screen mounts with the patient already selected. Checked with a throwaway jest experiment against the installed React, with a transition-priority update as the control that does split.
 - `useSurveySubmitMutation` reads the selected patient's id and the setter from the hook. Its reload after a submit calls the setter, so it re-enters recently viewed as it does today (a no-op when the patient is already first).
-- `DumbSearchPatientTabs` keeps taking the patient and setter as props, with the connected export calling the hook and passing them down, so its spec keeps rendering the dumb component.
+- `SearchPatientTabs` calls the hook like every other caller, and its spec mocks the hook the way it already mocks the settings and translation hooks. The notes first kept a props-taking `DumbSearchPatientTabs` for the spec; that split existed only because a connected component could not be rendered under jest.
+- `setSelectedPatient` accepts the `Patient` model as well as `IPatient`. The model is meant to implement the interface but is not assignable to it, because the two disagree on the type of `village.visibilityStatus`. Callers passed models through untyped props before, so typing the setter as `IPatient` alone would have added type errors at each of them.
 - `interfaces/ReduxStoreProps.ts`, `helpers/selectors.ts`, `containers/Patient.tsx` and `store/ducks/` are deleted. `WithPatientStoreProps` and similar prop types that screens extend are replaced by the hook's return type or dropped where the props no longer exist.
 
 ## Sequencing
@@ -73,8 +75,8 @@ Decided with Tom: keep the storage keys, write plain JSON, and have the reader a
 One pull request, built in commits that each leave the app building and its tests passing. The two slices persist under separate keys, so each can leave the store on its own.
 
 1. Auth: session state and storage into `AuthProvider`, `authUserSelector` and `authSelector` callers onto `useAuth()`, `withAuth` removed. The store is left holding the patient slice only.
-2. Selected patient: the context and provider, then every `withPatient`, `useSelector`, `useDispatch` and `store.getState()` caller onto the hook.
-3. Removal: the store, `Provider` and `PersistGate` in `Root.tsx`, the `reactotronRedux()` plugin and `createEnhancer`, the seven packages from `packages/mobile/package.json`, the Redux line in `App/ui/README.md`.
+2. Selected patient: the context and provider, then every `withPatient`, `useSelector`, `useDispatch` and `store.getState()` caller onto the hook. The store, `Provider` and `PersistGate` go in this commit too, because the store and the new provider would otherwise both write to `persist:root`.
+3. Removal: the `reactotronRedux()` plugin, the seven packages from `packages/mobile/package.json`, the Redux parts of `App/ui/README.md`.
 4. A `no-restricted-imports` entry for the Redux packages in the mobile block of `eslint.config.js`, so they do not come back.
 
 The root `react-redux` override in the top-level `package.json` stays. The web app still depends on it until H17 lands.
@@ -93,19 +95,19 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ### Selected patient
 
-- [ ] `SelectedPatientContext` with provider and `useSelectedPatient()`
-- [ ] Provider mounted in `Root.tsx`
-- [ ] `withPatient` callers onto the hook
-- [ ] `useSelector(state => state.patient)` callers onto the hook
-- [ ] `NewPatientScreen` and `useSurveySubmitMutation` onto the hook
-- [ ] Prop types that extended the store's types
-- [ ] Specs: `SelectedPatientProvider`, `useSurveySubmitMutation`, `SearchPatientTabs`
+- [x] `SelectedPatientContext` with provider and `useSelectedPatient()`
+- [x] Provider mounted in `Root.tsx`
+- [x] `withPatient` callers onto the hook
+- [x] `useSelector(state => state.patient)` callers onto the hook
+- [x] `NewPatientScreen` and `useSurveySubmitMutation` onto the hook
+- [x] Prop types that extended the store's types
+- [x] Store, `Provider` and `PersistGate` gone from `Root.tsx`
+- [x] `containers/Patient.tsx`, `interfaces/ReduxStoreProps.ts`, `store/` deleted
+- [x] Specs: `SelectedPatientProvider`, `NewPatientScreen`, `useSurveySubmitMutation`, `SearchPatientTabs`
 
 ### Removal
 
-- [ ] Store, `Provider` and `PersistGate` gone from `Root.tsx`
-- [ ] `containers/Patient.tsx`, `interfaces/ReduxStoreProps.ts`, `store/` deleted
-- [ ] `reactotronRedux()` and `createEnhancer` removed
+- [ ] `reactotronRedux()` removed
 - [ ] Seven packages removed from `packages/mobile/package.json`, lockfile updated
 - [ ] Redux removed from `App/ui/README.md`
 

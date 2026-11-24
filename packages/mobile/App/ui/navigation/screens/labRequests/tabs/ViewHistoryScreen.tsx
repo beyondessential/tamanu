@@ -1,13 +1,12 @@
 import React, { type ReactElement, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { compose } from 'redux';
 import { Routes } from '/helpers/routes';
 import { Circle, Svg } from 'react-native-svg';
 import { parseISO } from 'date-fns';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys, syncKeys } from '~/ui/hooks/queries/queryKeys';
@@ -97,7 +96,8 @@ const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps) => {
   );
 };
 
-export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
+export const ViewHistoryScreen = ({ navigation }): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const { ability, user } = useAuth();
   const canListSensitive = ability.can('create', 'SensitiveLabRequest');
   const { data, error } =
@@ -131,5 +131,3 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
 
   return <ScrollView>{rows}</ScrollView>;
 };
-
-export const ViewHistoryScreen = compose(withPatient)(DumbViewHistoryScreen);

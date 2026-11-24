@@ -1,21 +1,17 @@
 import React, { type ReactElement } from 'react';
-import { useSelector } from 'react-redux';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
 import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '~/ui/store/ducks/patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { ReferralHistoryScreen } from '~/ui/navigation/screens/referrals/ReferralHistoryScreen';
 import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
-  const { selectedPatient } = useSelector(
-    (state: ReduxStoreProps): PatientStateProps => state.patient,
-  );
+  const { selectedPatient } = useSelectedPatient();
   return (
     <ErrorBoundary>
       <StackHeader

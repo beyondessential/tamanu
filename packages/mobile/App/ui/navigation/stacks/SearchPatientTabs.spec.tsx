@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
-import { DumbSearchPatientTabs } from './SearchPatientTabs';
+import { SearchPatientTabs } from './SearchPatientTabs';
 import { Routes } from '~/ui/helpers/routes';
 
 let mockDisplayIdPattern: string | undefined;
@@ -56,17 +56,14 @@ jest.mock('../screens/PatientSearch/PatientSearchTabs', () => ({
   ).useClearFilterFields,
 }));
 
-jest.mock('~/ui/containers/Patient', () => ({ withPatient: component => component }));
+jest.mock('~/ui/contexts/SelectedPatientContext', () => ({
+  useSelectedPatient: () => ({ selectedPatient: null, setSelectedPatient: jest.fn() }),
+}));
 
 const renderTabs = async () => {
   const navigation = { navigate: jest.fn() };
   const screen = await render(
-    <DumbSearchPatientTabs
-      navigation={navigation as any}
-      routingFrom={undefined}
-      selectedPatient={null}
-      setSelectedPatient={jest.fn()}
-    />,
+    <SearchPatientTabs navigation={navigation as any} routingFrom={undefined} />,
   );
   const scan = async (value: string) => {
     mockScannedValue = value;

@@ -15,9 +15,7 @@ import {
   VaccineLocationField,
 } from './VaccineCommonFields';
 import type { VaccineFormProps } from './types';
-import { useSelector } from 'react-redux';
-import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '~/ui/store/ducks/patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { parseISO } from 'date-fns';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
@@ -27,9 +25,7 @@ export const VaccineFormGiven = ({ navigation }: VaccineFormProps) => {
 
   const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
 
-  const { selectedPatient } = useSelector(
-    (state: ReduxStoreProps): PatientStateProps => state.patient,
-  );
+  const { selectedPatient } = useSelectedPatient();
 
   return (
     <StyledView paddingTop={10}>

@@ -6,13 +6,13 @@ import { Formik } from 'formik';
 import React, { type ReactElement, type ReactNode, useCallback } from 'react';
 import { Alert, KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
+import type { IPatient } from '~/types';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
 
 const getPatientInitialValues = (
   isEdit: boolean,
-  patient: Patient,
+  patient: IPatient,
   patientAdditionalData: PatientAdditionalData,
   customPatientFieldValues: CustomPatientFieldValues,
   getSetting: <T>(key: string) => T,
@@ -128,7 +128,14 @@ class PartialPatientSaveError extends Error {
   }
 }
 
-const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
+export const PatientPersonalInfoForm = ({
+  isEdit,
+  children,
+}: {
+  isEdit?: boolean;
+  children?: ReactNode;
+}): ReactElement => {
+  const { selectedPatient, setSelectedPatient } = useSelectedPatient();
   const navigation = useNavigation();
   const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
     selectedPatient?.id,
@@ -271,6 +278,3 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     </FullView>
   );
 };
-
-export const PatientPersonalInfoForm =
-  compose<React.FC<{ isEdit?: boolean; children?: ReactNode }>>(withPatient)(FormComponent);

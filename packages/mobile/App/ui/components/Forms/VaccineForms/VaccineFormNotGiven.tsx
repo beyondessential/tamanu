@@ -12,14 +12,10 @@ import {
 import type { VaccineFormProps } from './types';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { parseISO } from 'date-fns';
-import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { useSelector } from 'react-redux';
-import type { PatientStateProps } from '~/ui/store/ducks/patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 
 export const VaccineFormNotGiven = ({ navigation }: VaccineFormProps) => {
-  const { selectedPatient } = useSelector(
-    (state: ReduxStoreProps): PatientStateProps => state.patient,
-  );
+  const { selectedPatient } = useSelectedPatient();
   return (
     <StyledView paddingTop={10}>
       <DateGivenField

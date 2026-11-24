@@ -1,9 +1,8 @@
 import React, { type ReactElement, useEffect } from 'react';
 import { StatusBar } from 'react-native';
-import { compose } from 'redux';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
@@ -46,7 +45,8 @@ const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElemen
   </StyledTouchableOpacity>
 );
 
-const BaseHomeScreen = ({ navigation, setSelectedPatient }: BaseAppProps): ReactElement => {
+export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
+  const { setSelectedPatient } = useSelectedPatient();
   useDisableAndroidBackButton();
   const { user, checkFirstSession, setUserFirstSignIn } = useAuth();
   const { facilityName, facilityId } = useFacility();
@@ -133,5 +133,3 @@ const BaseHomeScreen = ({ navigation, setSelectedPatient }: BaseAppProps): React
     </StyledSafeAreaView>
   );
 };
-
-export const HomeScreen = compose(withPatient)(BaseHomeScreen);

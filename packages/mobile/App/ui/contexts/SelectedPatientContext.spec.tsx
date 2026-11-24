@@ -1,0 +1,201 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
+import type { IPatient } from '~/types';
+import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
+import queryClient from '~/ui/queryClient';
+import { SelectedPatientProvider, useSelectedPatient } from './SelectedPatientContext';
+
+jest.mock('~/ui/queryClient', () => ({
+  __esModule: true,
+  default: { invalidateQueries: jest.fn() },
+}));
+
+jest.useRealTimers();
+
+const mockInvalidateQueries = queryClient.invalidateQueries as jest.Mock;
+
+const STORAGE_KEY = 'persist:root';
+const RECENTLY_VIEWED_KEY = 'recentlyViewedPatients';
+
+const mele = { id: 'patient-1', firstName: 'Mele', lastName: 'Tuala' } as IPatient;
+const sione = { id: 'patient-2', firstName: 'Sione', lastName: 'Fonoti' } as IPatient;
+
+/** The shape redux-persist wrote: each value a JSON string of its own, plus `_persist` */
+const asReduxPersistEntry = (state: Record<string, unknown>): string =>
+  JSON.stringify({
+    ...Object.fromEntries(
+      Object.entries(state).map(([key, value]) => [key, JSON.stringify(value)]),
+    ),
+    _persist: JSON.stringify({ version: -1, rehydrated: true }),
+  });
+
+const renderSelectedPatient = async () => {
+  const { result } = await renderHook(() => useSelectedPatient(), {
+    wrapper: SelectedPatientProvider,
+  });
+  // The provider renders nothing until it has read the stored selection
+  await waitFor(() => expect(result.current).not.toBeNull());
+  return result;
+};
+
+const storedSelection = async () => JSON.parse(await AsyncStorage.getItem(STORAGE_KEY));
+const recentlyViewed = async () => JSON.parse(await AsyncStorage.getItem(RECENTLY_VIEWED_KEY));
+
+beforeEach(async () => {
+  jest.clearAllMocks();
+  await AsyncStorage.clear();
+});
+
+describe('SelectedPatientProvider', () => {
+  describe('opening the app', () => {
+    it('starts with no patient selected when nothing is stored', async () => {
+      const result = await renderSelectedPatient();
+
+      expect(result.current.selectedPatient).toBeNull();
+    });
+
+    it('restores a stored selection', async () => {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedPatient: mele }));
+
+      const result = await renderSelectedPatient();
+
+      expect(result.current.selectedPatient).toEqual(mele);
+    });
+
+    it('restores a selection an earlier build stored through redux-persist', async () => {
+      await AsyncStorage.setItem(
+        STORAGE_KEY,
+        asReduxPersistEntry({ patient: { selectedPatient: mele } }),
+      );
+
+      const result = await renderSelectedPatient();
+
+      expect(result.current.selectedPatient).toEqual(mele);
+    });
+
+    it('restores an empty selection an earlier build stored through redux-persist', async () => {
+      await AsyncStorage.setItem(
+        STORAGE_KEY,
+        asReduxPersistEntry({ patient: { selectedPatient: null } }),
+      );
+
+      const result = await renderSelectedPatient();
+
+      expect(result.current.selectedPatient).toBeNull();
+    });
+
+    it('does not count a restored selection as viewed again', async () => {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedPatient: mele }));
+
+      await renderSelectedPatient();
+
+      expect(await recentlyViewed()).toBeNull();
+    });
+  });
+
+  describe('selecting a patient', () => {
+    it('selects the patient and stores the selection', async () => {
+      const result = await renderSelectedPatient();
+
+      await act(async () => result.current.setSelectedPatient(mele));
+
+      expect(result.current.selectedPatient).toEqual(mele);
+      await waitFor(async () => expect(await storedSelection()).toEqual({ selectedPatient: mele }));
+    });
+
+    it('replaces whichever patient was selected before', async () => {
+      const result = await renderSelectedPatient();
+
+      await act(async () => result.current.setSelectedPatient(mele));
+      await act(async () => result.current.setSelectedPatient(sione));
+
+      expect(result.current.selectedPatient).toEqual(sione);
+      await waitFor(async () =>
+        expect(await storedSelection()).toEqual({ selectedPatient: sione }),
+      );
+    });
+
+    it('clears the selection and stores that it is empty', async () => {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedPatient: mele }));
+      const result = await renderSelectedPatient();
+
+      await act(async () => result.current.setSelectedPatient(null));
+
+      expect(result.current.selectedPatient).toBeNull();
+      await waitFor(async () => expect(await storedSelection()).toEqual({ selectedPatient: null }));
+    });
+
+    it('keeps the same setter between renders', async () => {
+      const result = await renderSelectedPatient();
+      const { setSelectedPatient } = result.current;
+
+      await act(async () => result.current.setSelectedPatient(mele));
+
+      expect(result.current.setSelectedPatient).toBe(setSelectedPatient);
+    });
+  });
+
+  describe('recently viewed', () => {
+    it('puts a selected patient at the top of the list and refreshes it', async () => {
+      await AsyncStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify([sione.id]));
+      const result = await renderSelectedPatient();
+
+      await act(async () => result.current.setSelectedPatient(mele));
+
+      await waitFor(async () => expect(await recentlyViewed()).toEqual([mele.id, sione.id]));
+      await waitFor(() =>
+        expect(mockInvalidateQueries).toHaveBeenCalledWith({
+          queryKey: patientListKeys.recentlyViewed(),
+        }),
+      );
+    });
+
+    it('moves a patient already in the list to the top', async () => {
+      await AsyncStorage.setItem(
+        RECENTLY_VIEWED_KEY,
+        JSON.stringify([sione.id, 'patient-3', mele.id]),
+      );
+      const result = await renderSelectedPatient();
+
+      await act(async () => result.current.setSelectedPatient(mele));
+
+      await waitFor(async () =>
+        expect(await recentlyViewed()).toEqual([mele.id, sione.id, 'patient-3']),
+      );
+    });
+
+    it('keeps the 20 most recently selected patients', async () => {
+      const twentyPatientIds = Array.from({ length: 20 }, (_, index) => `earlier-${index}`);
+      await AsyncStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(twentyPatientIds));
+      const result = await renderSelectedPatient();
+
+      await act(async () => result.current.setSelectedPatient(mele));
+
+      await waitFor(async () =>
+        expect(await recentlyViewed()).toEqual([mele.id, ...twentyPatientIds.slice(0, 19)]),
+      );
+    });
+
+    it('leaves the list alone when the patient is already at the top', async () => {
+      await AsyncStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify([mele.id, sione.id]));
+      const result = await renderSelectedPatient();
+
+      await act(async () => result.current.setSelectedPatient(mele));
+      await waitFor(async () => expect(await storedSelection()).toEqual({ selectedPatient: mele }));
+
+      expect(await recentlyViewed()).toEqual([mele.id, sione.id]);
+      expect(mockInvalidateQueries).not.toHaveBeenCalled();
+    });
+
+    it('leaves the list alone when the selection is cleared', async () => {
+      await AsyncStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify([mele.id]));
+      const result = await renderSelectedPatient();
+
+      await act(async () => result.current.setSelectedPatient(null));
+      await waitFor(async () => expect(await storedSelection()).toEqual({ selectedPatient: null }));
+
+      expect(await recentlyViewed()).toEqual([mele.id]);
+      expect(mockInvalidateQueries).not.toHaveBeenCalled();
+    });
+  });
+});

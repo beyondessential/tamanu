@@ -4,11 +4,9 @@ import {
   type StackNavigationOptions,
 } from '@react-navigation/stack';
 import React, { type ReactElement } from 'react';
-import { compose } from 'redux';
-import type { IPatient } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
 import { NewVaccineTabs } from './NewVaccineTabs';
 import { VaccineTableTabs } from './VaccineTableTabs';
@@ -18,11 +16,8 @@ import { joinNames } from '/helpers/user';
 
 const Stack = createStackNavigator();
 
-type VaccineHeaderProps = StackHeaderProps & {
-  selectedPatient: IPatient;
-};
-
-const VaccineHeaderComponent = ({ navigation, selectedPatient }: VaccineHeaderProps) => {
+const VaccineHeader = ({ navigation }: StackHeaderProps) => {
+  const { selectedPatient } = useSelectedPatient();
   return (
     <StackHeader
       title={<TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />}
@@ -32,15 +27,13 @@ const VaccineHeaderComponent = ({ navigation, selectedPatient }: VaccineHeaderPr
   );
 };
 
-const VaccineHeaderWithPatient = compose(withPatient)(VaccineHeaderComponent);
-
 /**
  * Not a redundant wrapper! The stack `header` option is called as a plain render function (where
  * hooks aren’t allowed), not treated as a function component (where React Compiler can do its
  * optimisations).
  */
 function renderVaccineHeader(props: StackHeaderProps): ReactElement {
-  return <VaccineHeaderWithPatient {...props} />;
+  return <VaccineHeader {...props} />;
 }
 
 const screenOptions = { header: (): null => null } as const satisfies StackNavigationOptions;

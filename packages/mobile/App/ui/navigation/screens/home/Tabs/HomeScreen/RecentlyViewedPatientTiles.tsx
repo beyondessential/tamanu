@@ -1,9 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { type ReactElement } from 'react';
 import { ScrollView, View } from 'react-native';
-import { compose } from 'redux';
 import type { Patient } from '~/models/Patient';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import useRecentlyViewedPatients from '~/ui/hooks/useRecentlyViewedPatients';
 import { PatientCard } from '/components/PatientCard';
@@ -13,10 +12,10 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 
-const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(({
+const PatientCardContainer: React.FC<{ displayedPatient: Patient }> = ({
   displayedPatient,
-  setSelectedPatient,
 }: any): ReactElement => {
+  const { setSelectedPatient } = useSelectedPatient();
   const navigation = useNavigation();
 
   return (
@@ -33,7 +32,7 @@ const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(wi
       />
     </StyledView>
   );
-});
+};
 
 const NoPatientsCard = (): ReactElement => <StyledText>No recent patients</StyledText>;
 

@@ -1,7 +1,6 @@
 import { useFocusEffect } from '@react-navigation/core';
 import React, { type ReactElement, useCallback, useMemo, useRef } from 'react';
 import { Alert, Platform, StatusBar } from 'react-native';
-import { compose } from 'redux';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -11,7 +10,7 @@ import { PatientFromRoute } from '~/ui/helpers/constants';
 import usePatientIssuesQuery from '~/ui/hooks/queries/usePatientIssuesQuery';
 import { Screen } from './Screen';
 import * as Icons from '/components/Icons';
-import { withPatient } from '/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { Routes } from '/helpers/routes';
 import type { PatientHomeScreenProps } from '/interfaces/Screens/HomeStack/PatientHomeProps';
 import { theme } from '/styled/theme';
@@ -135,12 +134,8 @@ const usePatientMenuButtons = navigation => {
   );
 };
 
-const PatientHomeContainer = ({
-  navigation,
-  selectedPatient,
-  setSelectedPatient,
-  route,
-}: PatientHomeScreenProps): ReactElement => {
+export const PatientHome = ({ navigation, route }: PatientHomeScreenProps): ReactElement => {
+  const { selectedPatient, setSelectedPatient } = useSelectedPatient();
   const { from } = route.params || {};
 
   const patientMenuButtons = usePatientMenuButtons(navigation);
@@ -211,5 +206,3 @@ const PatientHomeContainer = ({
     />
   );
 };
-
-export const PatientHome = compose(withPatient)(PatientHomeContainer);

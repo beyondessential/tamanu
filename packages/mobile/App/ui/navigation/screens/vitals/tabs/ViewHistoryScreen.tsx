@@ -6,14 +6,10 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
-import { useSelector } from 'react-redux';
-import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '/store/ducks/patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 
 export const ViewHistoryScreen = (): ReactElement => {
-  const { selectedPatient } = useSelector(
-    (state: ReduxStoreProps): PatientStateProps => state.patient,
-  );
+  const { selectedPatient } = useSelectedPatient();
 
   // Note: Vitals are only filtered by patient instead of encounter on mobile
   const { data: response, error } = useQuery({

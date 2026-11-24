@@ -2,10 +2,9 @@ import { type RouteProp, StackActions, useNavigation } from '@react-navigation/n
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatISO9075, parseISO } from 'date-fns';
 import React, { type ReactElement, useCallback } from 'react';
-import { compose } from 'redux';
 import type { AdministeredVaccine } from '~/models/AdministeredVaccine';
-import { EncounterType, type IPatient } from '~/types';
-import { withPatient } from '~/ui/containers/Patient';
+import { EncounterType } from '~/types';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { returnToVaccineTable } from '~/ui/helpers/navigators';
@@ -30,7 +29,6 @@ type NewVaccineTabRouteProps = RouteProp<
 
 type NewVaccineTabProps = {
   route: NewVaccineTabRouteProps;
-  selectedPatient: IPatient;
 };
 
 const getVaccinationDescription = (vaccineData, scheduledVaccine): string => {
@@ -45,10 +43,8 @@ const getVaccinationDescription = (vaccineData, scheduledVaccine): string => {
   return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
 };
 
-export const NewVaccineTabComponent = ({
-  route,
-  selectedPatient,
-}: NewVaccineTabProps): ReactElement => {
+export const NewVaccineTab = ({ route }: NewVaccineTabProps): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const { vaccine, status } = route.params;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
@@ -198,5 +194,3 @@ export const NewVaccineTabComponent = ({
     </StyledSafeAreaView>
   );
 };
-
-export const NewVaccineTab = compose(withPatient)(NewVaccineTabComponent);

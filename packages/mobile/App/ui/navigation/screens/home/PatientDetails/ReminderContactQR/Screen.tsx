@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-native-qrcode-svg';
-import { compose } from 'redux';
 import { WS_EVENTS } from '~/constants/webSocket';
 import { CrossIcon } from '~/ui/components/Icons';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -27,7 +26,8 @@ interface IReminderContactQR extends BaseAppProps {
   };
 }
 
-const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
+export const ReminderContactQRScreen = ({ navigation, route }: IReminderContactQR) => {
+  const { selectedPatient } = useSelectedPatient();
   const { getTranslation } = useTranslation();
   const [embedUrl, setEmbedUrl] = useState('');
   const [hasTimedOut, setHasTimedOut] = useState(false);
@@ -137,5 +137,3 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
     </FullView>
   );
 };
-
-export const ReminderContactQRScreen = compose(withPatient)(Screen);

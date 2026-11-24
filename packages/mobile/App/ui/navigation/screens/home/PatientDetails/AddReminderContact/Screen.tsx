@@ -1,11 +1,10 @@
 import React, { type ReactElement } from 'react';
 import * as yup from 'yup';
 import { ScrollView } from 'react-native-gesture-handler';
-import { compose } from 'redux';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
 import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
@@ -33,7 +32,8 @@ interface IFormValues {
   reminderContactRelationship: string;
 }
 
-const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
+export const AddReminderContactScreen = ({ navigation }: BaseAppProps) => {
+  const { selectedPatient } = useSelectedPatient();
   const { getTranslation } = useTranslation();
   const { afterAddContact } = useReminderContact();
 
@@ -235,5 +235,3 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     </ScrollView>
   );
 };
-
-export const AddReminderContactScreen = compose(withPatient)(Screen);

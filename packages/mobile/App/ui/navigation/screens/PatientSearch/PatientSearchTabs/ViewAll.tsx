@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { type FieldHelperProps, type FieldInputProps, type FieldMetaProps, useField } from 'formik';
-import React, { type FC, type ReactElement, useMemo } from 'react';
-import { compose } from 'redux';
+import React, { type ReactElement, useMemo } from 'react';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { Database } from '~/infra/db';
 import type { IPatient } from '~/types';
@@ -15,7 +14,7 @@ import { Button } from '/components/Button';
 import { FilterIcon } from '/components/Icons/FilterIcon';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { PatientSectionList } from '/components/PatientSectionList';
-import { withPatient } from '/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import type { ViewAllScreenProps } from '/interfaces/Screens/PatientSearchStack/ViewAllScreenProps';
@@ -128,10 +127,8 @@ const searchAndFilterPatients = async (
   return patients as unknown as IPatient[];
 };
 
-const Screen: FC<ViewAllScreenProps> = ({
-  navigation,
-  setSelectedPatient,
-}: ViewAllScreenProps): ReactElement => {
+export const ViewAllScreen = ({ navigation }: ViewAllScreenProps): ReactElement => {
+  const { setSelectedPatient } = useSelectedPatient();
   /** Get Search Input */
   const [searchField] = useField<string>('search');
   const query = useDebouncedValue(searchField.value.trim(), 300);
@@ -194,4 +191,3 @@ const Screen: FC<ViewAllScreenProps> = ({
   );
 };
 
-export const ViewAllScreen = compose(withPatient)(Screen);

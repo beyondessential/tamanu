@@ -1,27 +1,24 @@
 import type { NavigationProp } from '@react-navigation/native';
 import React, { type ReactElement } from 'react';
-import { compose } from 'redux';
-import type { IPatient } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { AddIllnessScreen } from '../screens/diagnosisAndTreatment/AddIllnessDetails';
 import { PrescribeMedicationScreen } from '../screens/diagnosisAndTreatment/PrescribeMedication';
 import { StackHeader } from '/components/StackHeader';
 import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
-import { withPatient } from '/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { Routes } from '/helpers/routes';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 
 type DiagnosisAndTreatmentTabsProps = {
   navigation: NavigationProp<any>;
-  selectedPatient: IPatient;
 };
 
-const TabNavigator = ({
+export const DiagnosisAndTreatmentTabs = ({
   navigation,
-  selectedPatient,
 }: DiagnosisAndTreatmentTabsProps): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   return (
     <ErrorBoundary>
       <FullView>
@@ -65,5 +62,3 @@ const TabNavigator = ({
     </ErrorBoundary>
   );
 };
-
-export const DiagnosisAndTreatmentTabs = compose(withPatient)(TabNavigator);

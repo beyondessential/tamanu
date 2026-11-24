@@ -1,13 +1,11 @@
 import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useDispatch, useSelector } from 'react-redux';
 import { Patient } from '~/models/Patient';
 import type { Referral } from '~/models/Referral';
 import type { SurveyResponse } from '~/models/SurveyResponse';
 import { type GenericFormValues, type ISurveyScreenComponent, SurveyTypes } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useBackend } from '~/ui/hooks';
-import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { actions } from '~/ui/store/ducks/patient';
 import {
   patientKeys,
   patientListKeys,
@@ -50,10 +48,8 @@ export default function useSurveySubmitMutation<T extends SurveyTypes>({
   const { models } = useBackend();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const dispatch = useDispatch();
-  const selectedPatientId = useSelector(
-    (state: ReduxStoreProps) => state.patient.selectedPatient?.id,
-  );
+  const { selectedPatient, setSelectedPatient } = useSelectedPatient();
+  const selectedPatientId = selectedPatient?.id;
 
   return useMutation<SurveySubmitResult<T> | null, Error, SurveySubmitVariables>({
     mutationFn: async ({ patientId, surveyId, components, values }) => {
@@ -71,7 +67,7 @@ export default function useSurveySubmitMutation<T extends SurveyTypes>({
       void invalidateRelevantQueries(queryClient, patientId);
       if (selectedPatientId !== patientId) return;
       const patient = await Patient.findOne({ where: { id: patientId }, relations: ['village'] });
-      if (patient) dispatch(actions.setSelectedPatient(patient));
+      if (patient) setSelectedPatient(patient);
     },
   });
 }

@@ -1,7 +1,6 @@
 import React, { type FC, type ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { compose } from 'redux';
 import {
   type BottomTabBarProps,
   type BottomTabNavigationOptions,
@@ -11,9 +10,8 @@ import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
 import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
-import { withPatient } from '/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import type { SvgProps } from 'react-native-svg';
-import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { Routes } from '/helpers/routes';
 import { MoreScreen, ReportScreen, SyncDataScreen } from '/navigation/screens/home/Tabs';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -169,7 +167,8 @@ function renderTabBar(props: BottomTabBarProps) {
 
 const screenOptions = { headerShown: false } as const;
 
-const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
+export const HomeTabsStack = (): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const { getTranslation } = useTranslation();
 
   const HomeScreenOptions: BottomTabNavigationOptions = {
@@ -230,5 +229,3 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
     </ErrorBoundary>
   );
 };
-
-export const HomeTabsStack = compose(withPatient)(TabNavigator);

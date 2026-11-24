@@ -1,5 +1,4 @@
 import React, { type ReactElement, useCallback, useMemo } from 'react';
-import { compose } from 'redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StackActions } from '@react-navigation/native';
@@ -17,7 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { Certainty, CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
@@ -38,7 +37,8 @@ const styles = StyleSheet.create({
   ScrollView: { flex: 1 },
 });
 
-export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElement => {
+export const AddIllnessScreen = ({ navigation }): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const { models } = useBackend();
 
   const navigateToHistory = useCallback(() => {
@@ -216,5 +216,3 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
     </FullView>
   );
 };
-
-export const AddIllnessScreen = compose(withPatient)(DumbAddIllnessScreen);
