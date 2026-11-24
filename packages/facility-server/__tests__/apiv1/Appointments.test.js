@@ -118,21 +118,31 @@ describe('Appointments', () => {
     });
 
     const searchPatientNameOrId = query =>
-      userApp.get(`/api/appointments?patientNameOrId=${query}`);
+      userApp.get(`/api/appointments?all=true&patientNameOrId=${encodeURIComponent(query)}`);
+
+    // Other appointments in the test database have random patient names that can share a
+    // fragment with this patient's, so assert on what matched rather than an exact count.
+    const expectSearchToMatch = async query => {
+      const result = await searchPatientNameOrId(query);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(({ id }) => id)).toContain(appointment.id);
+      const lowerCaseQuery = query.toLowerCase();
+      for (const { patient: matchedPatient } of result.body.data) {
+        const fullName = `${matchedPatient.firstName} ${matchedPatient.lastName}`.toLowerCase();
+        const displayId = matchedPatient.displayId.toLowerCase();
+        expect(
+          fullName.includes(lowerCaseQuery) || displayId.includes(lowerCaseQuery),
+        ).toBe(true);
+      }
+    };
 
     // Valid searches
-    const searchById = await searchPatientNameOrId(patient.displayId);
-    const searchByPartialId = await searchPatientNameOrId(patient.displayId.slice(0, 3));
-    const searchByFirstName = await searchPatientNameOrId(patient.firstName);
-    const searchByPartialFirstName = await searchPatientNameOrId(patient.firstName.slice(0, 3));
-    const searchByLastName = await searchPatientNameOrId(patient.lastName);
-    const searchByPartialLastName = await searchPatientNameOrId(patient.lastName.slice(0, 3));
-    expect(searchById.body.count).toBe(1);
-    expect(searchByPartialId.body.count).toBe(1);
-    expect(searchByFirstName.body.count).toBe(1);
-    expect(searchByPartialFirstName.body.count).toBe(1);
-    expect(searchByLastName.body.count).toBe(1);
-    expect(searchByPartialLastName.body.count).toBe(1);
+    await expectSearchToMatch(patient.displayId);
+    await expectSearchToMatch(patient.displayId.slice(0, 3));
+    await expectSearchToMatch(patient.firstName);
+    await expectSearchToMatch(patient.firstName.slice(0, 3));
+    await expectSearchToMatch(patient.lastName);
+    await expectSearchToMatch(patient.lastName.slice(0, 3));
 
     // Invalid searches
     const searchByInvalidString = await searchPatientNameOrId('invalid');
