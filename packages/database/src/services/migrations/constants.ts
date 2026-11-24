@@ -86,6 +86,11 @@ export const NON_LOGGED_TABLES = [
   // websocket broadcast payloads too large for NOTIFY, written by @socket.io/postgres-adapter and
   // cleaned up by it; the table has no updated_at / deleted_at for the changelog to record
   'public.socket_io_attachments',
+
+  // browser telemetry aggregates — operational, rewritten whenever a bucket is rolled up again
+  'public.browser_telemetry_trends',
+  'public.browser_telemetry_slow_events',
+  'public.browser_telemetry_slow_event_requests',
 ];
 
 // Tables with a `table_changed` listener on central: the settings cache and admin SettingsRefresher.
