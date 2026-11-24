@@ -3,7 +3,7 @@ name: split-working-doc
 description: "Split a working doc into the card's specs, plan, and test cases once its shape is clear"
 label: "Split working doc"
 category: plan
-workhorse-version: 0.8.1
+workhorse-version: 0.8.2
 ---
 
 ## Your task: Split the working doc

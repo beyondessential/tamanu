@@ -4,7 +4,7 @@ description: "Interview me about this card to develop the acceptance criteria"
 label: "Spec interview"
 category: spec
 surface: both
-workhorse-version: 0.8.1
+workhorse-version: 0.8.2
 ---
 
 ## Your task: Interview me

@@ -3,7 +3,7 @@ name: draft-test-cases
 description: "Draft or refine the test-cases checklist for this card"
 label: "Draft test cases"
 category: verify
-workhorse-version: 0.8.1
+workhorse-version: 0.8.2
 ---
 
 ## Your task: Draft test cases
