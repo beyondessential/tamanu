@@ -1,4 +1,5 @@
-import { INJECTION_SITE_VALUES, VACCINE_STATUS, type InjectionSite } from '@tamanu/constants';
+import { INJECTION_SITE_VALUES, type InjectionSite } from '@tamanu/constants';
+import { administeredVaccineStatusToHL7Status } from '@tamanu/shared/routes/fhir/patientSummary/utils';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -30,7 +31,7 @@ async function getValuesFromAdministeredVaccine(administeredVaccine: Administere
 
   return {
     lastUpdated: new Date(),
-    status: status(administeredVaccine.status),
+    status: administeredVaccineStatusToHL7Status(administeredVaccine.status),
     vaccineCode: vaccineCode(scheduledVaccine),
     patient: patientReference(patient),
     encounter: encounterReference(encounter),
@@ -41,25 +42,6 @@ async function getValuesFromAdministeredVaccine(administeredVaccine: Administere
     protocolApplied: protocolApplied(scheduledVaccine?.doseLabel),
     resolved: true,
   };
-}
-
-function status(administeredVaccineStatus: string) {
-  switch (administeredVaccineStatus) {
-    case VACCINE_STATUS.GIVEN:
-      return 'completed';
-    case VACCINE_STATUS.RECORDED_IN_ERROR:
-      return 'entered-in-error';
-    case VACCINE_STATUS.NOT_GIVEN:
-    case VACCINE_STATUS.SCHEDULED:
-    case VACCINE_STATUS.MISSED:
-    case VACCINE_STATUS.DUE:
-    case VACCINE_STATUS.UPCOMING:
-    case VACCINE_STATUS.OVERDUE:
-    case VACCINE_STATUS.HISTORICAL:
-    case VACCINE_STATUS.UNKNOWN:
-    default:
-      return 'not-done';
-  }
 }
 
 function vaccineCode(scheduledVaccine?: ScheduledVaccine) {
