@@ -44,7 +44,7 @@ Where there is a choice, responsibility sits with the client. A client holds its
 
 ## The clock
 
-Central holds one number, `currentSyncTick`, in `local_system_facts`. It starts at 1 and only ever goes up.
+Central holds one number, `currentSyncTick`, in `local_system_facts`. It starts at 1 and only ever goes up (i.e. is monotonic).
 
 `tickTockGlobalClock` in `CentralSyncManager.js` adds 2 in a single statement and returns both new values: the tick (the lower) and the tock (the higher, now the stored value). A tick handed out this way belongs to whoever asked for it. Everything central writes on its own account is stamped with the stored value, which is always a tock. So ticks given to clients are even, central's own writes are odd, and no two parties ever hold the same time. That is the whole reason for advancing by two.
 
