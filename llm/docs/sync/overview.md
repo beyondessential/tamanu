@@ -181,7 +181,7 @@ Two things to be careful of:
 
 A patient is marked for sync at a facility in one of two ways. It happens automatically when clinical work happens there, e.g. the patient is created, has an encounter, an appointment, a booking or a program registration XXX [are the last two true? I thought it was simplified down to just being encounters], or is edited on a mobile device. Or a user does it deliberately. This is specified in `specs/sync/marking-patients-for-sync.md`. Marking for sync creates a `patient_facilities` entry, which is a record like any other, and syncs to central.
 
-There is no way to unmark for sync. Removing one by hand in the database is very occasionally done leave the patient's data sitting on the facility with nothing to clean it up, because the removal itself would not sync (see hard deletes, above). It is best avoided.
+There is no way to unmark for sync. Removing one by hand in the database has been very occasionally done leave the patient's data sitting on the facility with nothing to clean it up, because the removal itself would not sync (see hard deletes, above). It is best avoided.
 
 ## The lookup table
 
