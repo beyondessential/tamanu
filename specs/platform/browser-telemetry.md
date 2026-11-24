@@ -63,7 +63,7 @@ Applies to the web clients measuring how the application performs from the user'
 - The table sits in the `logs` schema, alongside the other local-only operational logs, and is local to the receiving server: per facility for the clinical client, and on central for the admin panel and the patient portal.
 - The raw telemetry table does not sync to central and is not recorded in the changelog.
 - A scheduled job on each server holding raw telemetry — facility and central alike — removes rows older than the configured retention period.
-- The retention period applies to raw events only; aggregates rolled up from them are kept separately (see [Browser telemetry aggregation](browser-telemetry-aggregation.md)).
+- The retention period applies to raw events only; the [aggregates rolled up from them](browser-telemetry-aggregation.md) are kept separately.
 
 ## Settings
 
