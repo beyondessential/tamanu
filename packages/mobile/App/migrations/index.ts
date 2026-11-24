@@ -106,6 +106,7 @@ import { replaceFacilityIsSensitiveWithNetwork1789695736425 } from './1789695736
 import { dropLegacySyncSnapshotTable1790807294248 } from './1790807294248-dropLegacySyncSnapshotTable';
 import { addMandatoryConditionEnabledToProgramRegistries1791768682000 } from './1791768682000-addMandatoryConditionEnabledToProgramRegistries';
 import { dropSyncedCentralSettings1791875574000 } from './1791875574000-dropSyncedCentralSettings';
+import { makePatientContactMethodNullable1795482428000 } from './1795482428000-makePatientContactMethodNullable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -215,4 +216,5 @@ export const migrationList = [
   dropLegacySyncSnapshotTable1790807294248,
   addMandatoryConditionEnabledToProgramRegistries1791768682000,
   dropSyncedCentralSettings1791875574000,
+  makePatientContactMethodNullable1795482428000,
 ];

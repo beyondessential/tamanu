@@ -8,7 +8,7 @@ import type { InitOptions, Models } from '../types/model';
 export class PatientContact extends Model {
   declare id: string;
   declare name: string;
-  declare method: string;
+  declare method?: string;
   declare connectionDetails?: Record<string, any>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -19,10 +19,7 @@ export class PatientContact extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        method: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-        },
+        method: DataTypes.TEXT,
         connectionDetails: DataTypes.JSONB,
       },
       {

@@ -13,8 +13,8 @@ export class PatientContact extends BaseModel implements IPatientContact {
   @Column({ nullable: false })
   name: string;
 
-  @Column({ nullable: false })
-  method: string;
+  @Column({ nullable: true })
+  method?: string;
 
   // This is actually JSON
   @Column({ nullable: true })
