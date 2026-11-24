@@ -6,7 +6,8 @@ Work directory (not committed): `/home/rohan/.cache/workhorse-rig/beyondessentia
 
 ## In flight / next
 
-- Round 1: orient done, baseline and rig preflight running.
+- Round 1: conventions, architecture, correctness, neighbours and test-audit lenses reported. The api, security and browser lenses were relaunched after the first attempt lost its rig build; pinned to `a3f73522f7`.
+- Next: collect those three, judge the browser captures for feel, then triage, file and report round 1.
 
 ## Charter
 
@@ -65,5 +66,13 @@ At `594a57e31c`: central `__tests__/admin` 28 files / 356 tests pass; web unit t
 
 | id | round | severity | kind | status | issue | commit | test |
 |---|---|---|---|---|---|---|---|
+| ARC-1 / COR-1 / NEI-1 | 1 | critical | bug | fixed | cursor[bot] `cmwu6vv3x06ei1fmp79t9dynr` | `a3f73522f7` | `packages/web/__tests__/views/administration/reports/EditReportView.test.jsx` |
 
 ## Rounds
+
+### Round 1
+
+- The headline critical was found independently by three of this round's lenses and, separately, by cursor[bot] on the pull request: a rename refetched `['version', id]`, and because `EditReportView` rebuilt the editor's initial values from the new object (with fresh parameter ids from `withParameterIds`), Formik's `enableReinitialize` reset the form and discarded unsaved query, parameter, notes and status edits.
+- Fixed in `a3f73522f7`: the editor's initial values are built once per version loaded, and the read-only name field takes the report's current name as a prop so a rename still shows straight away. The same reset also fired on an ordinary refetch (window focus), so the fix covers more than the rename.
+- Regression test `EditReportView.test.jsx` was checked against the unfixed code and fails there.
+- Rigs and disk: the shared build of `594a57e31c` was collected after the session that was waiting on it ended; relaunched lenses are pinned to `a3f73522f7`. Free 129.8 GB, card 3.0 GB of 10 GB.
