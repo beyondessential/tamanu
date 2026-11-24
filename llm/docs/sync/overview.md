@@ -120,7 +120,7 @@ After the transaction commits, two more things run: `adjustDataPostSyncPush`, wh
 
 Central relies on that later, to avoid sending a device its own changes back (see [Not sending a client its own changes](#not-sending-a-client-its-own-changes)). It is also why the two follow-up steps run after the transaction and not inside it: their changes need a different tick, so that they do go back to the client.
 
-Pushed records are only lightly validated on the way in. Central checks that each one is for a known model, and that the model's sync direction allows pushing. It does not check the shape of the record. If a record is malformed, a database constraint rejects it when it is saved, and the session fails. A few models whose records cause something to happen outside the database (e.g. sending an email, running a report) clean up what was pushed first, using `sanitizeForCentralServer`.
+Pushed records are only lightly validated on the way in. Central checks that each one is for a known model, and that the model's sync direction allows pushing. It does not check the shape of the record. If a record is malformed, a database constraint rejects it when it is saved, and the session fails. A few models whose records cause something to happen outside the database (e.g. sending an email, running a report) clean up what was pushed first, using `sanitizeForCentralServer`. XXX [I don't know what this last sentence is referring to]
 
 ### Building a pull
 
