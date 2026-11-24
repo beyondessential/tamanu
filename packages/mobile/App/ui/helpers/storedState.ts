@@ -52,6 +52,7 @@ export const createStoredState = <T>(storage: StringStorage, key: string): Store
   // Each write waits for the one before it, so changes made in quick succession reach
   // storage in the order they were made
   let lastWrite = Promise.resolve();
+  let writesInFlight = 0;
   let preloaded: Promise<Partial<T> | null> | null = null;
 
   const readFromStorage = async (): Promise<Partial<T> | null> => {
@@ -59,8 +60,14 @@ export const createStoredState = <T>(storage: StringStorage, key: string): Store
     const timeout = new Promise<null>(resolve => {
       timer = setTimeout(resolve, READ_TIMEOUT_MS, null);
     });
+    // A write still in the queue holds the newest state, so the read waits behind it rather
+    // than returning what storage held before it. With nothing in the queue it starts now,
+    // so a read started ahead of time is under way at once.
+    const stored = writesInFlight
+      ? lastWrite.then(() => storage.getItem(key))
+      : storage.getItem(key);
     try {
-      return parseStoredState<T>(await Promise.race([storage.getItem(key), timeout]));
+      return parseStoredState<T>(await Promise.race([stored, timeout]));
     } catch {
       return null;
     } finally {
@@ -82,9 +89,13 @@ export const createStoredState = <T>(storage: StringStorage, key: string): Store
     },
 
     write(state) {
+      writesInFlight += 1;
       lastWrite = lastWrite
         .then(() => storage.setItem(key, JSON.stringify(state)))
-        .catch(() => console.warn(`Could not write ${key} to storage`));
+        .catch(() => console.warn(`Could not write ${key} to storage`))
+        .finally(() => {
+          writesInFlight -= 1;
+        });
       return lastWrite;
     },
   };

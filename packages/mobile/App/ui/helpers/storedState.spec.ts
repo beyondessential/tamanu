@@ -81,6 +81,29 @@ describe('createStoredState', () => {
     expect(await createStoredState(storage, 'persist:auth').read()).toBeNull();
   });
 
+  it('reads what a write still in the queue is storing, not what was there before', async () => {
+    const storage = createStorage();
+    storage.getItem.mockResolvedValue(JSON.stringify({ signedIn: true }));
+    let finishWriting: () => void;
+    storage.setItem.mockReturnValue(
+      new Promise<void>(resolve => {
+        finishWriting = () => {
+          storage.getItem.mockResolvedValue(JSON.stringify({ signedIn: false }));
+          resolve();
+        };
+      }),
+    );
+    const storedState = createStoredState<{ signedIn: boolean }>(storage, 'persist:auth');
+
+    storedState.write({ signedIn: false });
+    const read = storedState.read();
+    await Promise.resolve();
+    expect(storage.getItem).not.toHaveBeenCalled();
+    finishWriting();
+
+    expect(await read).toEqual({ signedIn: false });
+  });
+
   it('reads nothing when storage has not answered after five seconds', async () => {
     jest.useFakeTimers();
     const storage = createStorage();
