@@ -183,8 +183,11 @@ export const LabRequestRecordSampleModal = React.memo(
             specimenTypeId: sampleNotCollected
               ? (labRequest.specimenTypeId ?? labRequest.category?.defaultSpecimenTypeId)
               : labRequest.specimenTypeId,
-            // Default the collector to the current user unless one is already recorded.
-            collectedById: labRequest.collectedById ?? currentUser?.id,
+            // Likewise, only default the collector to the current user when first recording a sample,
+            // so a collector deliberately cleared on an already-collected sample stays blank.
+            collectedById: sampleNotCollected
+              ? (labRequest.collectedById ?? currentUser?.id)
+              : labRequest.collectedById,
             mandateSpecimenType,
           }}
           render={props => (
