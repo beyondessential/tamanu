@@ -63,7 +63,7 @@ It does three things, in order:
 
 1. If the `syncTrigger` local system fact is set to `disabled`, it does nothing and leaves the row's tick alone. Migrations run in this mode (see [Migrations and sync](#migrations-and-sync)).
 2. If the write is setting the tick to `-1`, it stores `-999` instead. This is how a client saves a record it has pulled without that looking like a local edit (see [Flag values](#flag-values)).
-3. Otherwise it reads the current sync tick, takes a lock on that tick value for the rest of the transaction (this is important, and stamps the row with it. Whatever tick the write supplied is thrown away.
+3. Otherwise it reads the current sync tick, takes a lock on that tick value for the rest of the transaction (this is important; see XXXX), and stamps the row with it. Whatever tick the write supplied is thrown away.
 
 Step 3 has two consequences worth knowing:
 
