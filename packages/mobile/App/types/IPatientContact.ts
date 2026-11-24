@@ -4,7 +4,7 @@ import type { IReferenceData } from './IReferenceData';
 export interface IPatientContact {
   id: string;
   name: string;
-  method?: string;
+  method: string;
   connectionDetails?: string;
   patient: IPatient;
   patientId?: string;

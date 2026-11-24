@@ -15,7 +15,7 @@ are provided (e.g. `Main`, `Primary`, `Work`, `Home`), etc.
 {% enddocs %}
 
 {% docs patient_contacts__method %}
-What application the contact uses. Empty when no method is recorded.
+What application the contact uses:
 - `Email`
 - `Sms`
 - `WhatsApp`
