@@ -171,17 +171,25 @@ describe('setTimestampsNotNullOnLoggedTables migration', () => {
   }, 900000);
 
   it('lets a healed row be updated with the changelog recording', async () => {
+    // The backfill's own UPDATE already logged this row, so count the entries the test's update
+    // adds rather than the entries there are.
+    const changelogEntries = async () =>
+      (
+        await query(
+          `SELECT count(*)::int AS count FROM logs.changes
+           WHERE table_name = 'patient_facilities' AND record_id = :id`,
+          { id: PATIENT_FACILITY_ID },
+        )
+      )[0].count;
+
+    const before = await changelogEntries();
     await sequelize.transaction(async () => {
       await sequelize.query(`UPDATE patient_facilities SET updated_at = now() WHERE id = :id`, {
         replacements: { id: PATIENT_FACILITY_ID },
       });
     });
-    const [{ count }] = await query(
-      `SELECT count(*)::int AS count FROM logs.changes
-       WHERE table_name = 'patient_facilities' AND record_id = :id`,
-      { id: PATIENT_FACILITY_ID },
-    );
-    expect(count).toBeGreaterThan(0);
+
+    expect(await changelogEntries()).toEqual(before + 1);
   });
 
   it('refuses an explicit NULL created_at when it is written', async () => {
