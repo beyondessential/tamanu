@@ -166,7 +166,7 @@ For pulls, scope is worked out when the row is copied into the lookup table, not
 
 Two things to be careful of:
 
-- **Empty scope means everyone:** A row with no scope columns goes to every client, so leaving a scope column empty needs to be a deliberate choice. This has gone wrong twice, with data reaching facilities that should not have had it.
+- **Empty scope means everyone:** A row with no scope columns goes to every client, so leaving a scope column empty needs to be a deliberate choice.
 - **Lab requests skip the other scopes:** Lab requests are checked before patient and network scope, so a facility that syncs all lab requests receives lab requests, and the encounters they belong to, from inside a sensitive network it is not part of. The sensitive networks spec states this ordering, but it was carried over when networks were added and not really decided on its merits, so it is best treated as an open question.
 
 There is no list anywhere that defines "reference data" for sync. The tables that sync everywhere are simply the ones whose models set no scope.
