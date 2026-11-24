@@ -60,6 +60,8 @@ Applies to the screen staff use to raise a lab request, the combined test and pa
 ## Recording a sample from the lab request view
 
 - Recording a sample against an existing request from the lab request view uses the same category-grouped sample details, under a "Record sample details" heading, and shows the request's category.
+- Recording a sample pre-fills Collected by with the current user and specimen type with the category's default, where the request has none.
+- Editing an already-collected sample, under an "Edit sample" heading, shows the collection details as recorded, including any left blank.
 
 ## Requesting lab tests on mobile
 
