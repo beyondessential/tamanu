@@ -26,7 +26,7 @@ export class PatientSurveyFormPane {
   }
 
   async answerText(questionText: string, answer: string) {
-    await this.page.getByLabel(questionText, { exact: true }).fill(answer);
+    await this.page.getByLabel(questionText).fill(answer);
   }
 
   async answerYesNo(questionText: string, answer: 'Yes' | 'No') {

@@ -33,20 +33,21 @@ test.describe('Patient portal', () => {
     await expect(portalLoginPage.invalidCodeText).toBeVisible();
   });
 
-  test('[PORTAL-0003] Patient updates their mobile phone number', async ({
+  test('[PORTAL-0003] Patient updates their primary contact number', async ({
     signedInPortalPatient: _signedIn,
     portalDashboardPage,
     portalEditDetailsPage,
   }) => {
-    const mobilePhone = '021 555 0147';
+    const phoneNumber = '021 555 0147';
 
     await portalDashboardPage.editDetailsLink.click();
     await expect(portalEditDetailsPage.title).toBeVisible();
-    await portalEditDetailsPage.detail('Mobile phone').fill(mobilePhone);
+    // The deployment's translations rename Mobile phone, as the default reference data does here
+    await portalEditDetailsPage.detail('Primary contact number').fill(phoneNumber);
     await portalEditDetailsPage.saveButton.click();
 
     await expect(portalDashboardPage.detailsSavedMessage).toBeVisible();
-    await expect(portalDashboardPage.detailsSection).toContainText(mobilePhone);
+    await expect(portalDashboardPage.detailsSection).toContainText(phoneNumber);
   });
 
   test('[PORTAL-0004] Patient fills in and submits a form they were sent', async ({

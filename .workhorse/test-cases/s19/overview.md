@@ -12,5 +12,5 @@ Each case is a Playwright spec in `packages/e2e-tests`; the id in brackets is it
 
 - [x] [PORTAL-0001] A registered patient asks for a code, signs in with it, sees the dashboard greeting them with nothing to do and their patient ID, and logs out to the Log in screen (verifies spec: PPORT)
 - [x] [PORTAL-0002] A wrong code shows "Invalid verification code" and does not sign the patient in (verifies spec: PPORT)
-- [x] [PORTAL-0003] A signed-in patient changes their mobile phone, saves, and sees "Details saved" and the new number in Your details (verifies spec: PPDET)
+- [x] [PORTAL-0003] A signed-in patient changes their mobile phone (labelled Primary contact number by the default reference data's translations), saves, and sees "Details saved" and the new number in Your details (verifies spec: PPDET)
 - [x] [PORTAL-0004] A patient sent a form opens it from To do, is held on a page while a required question is unanswered, submits it, and sees "Form submitted" with To do all up to date (verifies spec: PPORT)
