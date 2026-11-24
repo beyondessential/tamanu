@@ -26,15 +26,20 @@ The Retry upgrade action is gone: Seedling retries a failed gate on its own, and
 
 `helpers.rhai`, `params.rhai` and `gates.rhai` are shared by both bundles, as identical copies. A bundle can only read files beneath its own root, and the Seedling CLI refuses symlinks, so the files can't be shared any other way for now. `scripts/check-seedling-bundles.mjs`, which a workflow runs on every PR that touches `seedling/`, keeps the copies identical. Seedling/S6 looks at sharing code between bundles on Seedling's side.
 
-The draft can't yet be checked without a running Seedling server. Seedling/T6 adds an offline check to the CLI, which Tamanu's CI would run beside the copy check. Seedling/U6 adds URL and version helpers to BSL, which would replace most of `helpers.rhai`.
+The draft can't yet be checked without a running Seedling server. Seedling/T6 adds an offline check to the CLI, which Tamanu's CI would run beside the copy check. Seedling/U6 adds URL helpers to BSL, which would replace `parse_origin` and `socket_dir`; versions already parse with `std::parse_version_semver`.
+
+Both bundles declare `seedling = ">0.12"`: they use gates, `std` helpers and the metadata table, none of which v0.12.0 has, and no later Seedling release exists yet.
+
+The version parameter stays untyped, because a published build that is not a release carries a `sha-…` commit tag, which the `version-semver` kind refuses. Its validator parses the version itself. The frontend version takes the `version-semver` kind on a published definition, since only a release is accepted there.
+
+Publishing writes the build into the `[metadata]` table of each bundle's `seedling.toml`, as `tag` (the image tag) and `version` (the Tamanu version from `package.json`), and the version parameter's default and the minor checks read it through `app.metadata()`.
 
 ### What the draft assumes that doesn't exist yet
 
 Tamanu:
-- **A `CRYPTO_KEY` environment variable** holding the key as 64 hex digits, read in place of `CRYPTO_KEY_FILE`. Today the key is read from a file holding 32 raw bytes (`readKeyFile` in `packages/shared/src/utils/crypto.js`), and Seedling's declared writes take a string, not raw bytes. The Seedling `random` kind generates a 64-hex-digit value, which is the reason for the hex form.
+- **A `CRYPTO_KEY` environment variable** holding the key as 64 hex digits, read in place of `CRYPTO_KEY_FILE`. Today the key is read from a file holding 32 raw bytes (`readKeyFile` in `packages/shared/src/utils/crypto.js`), and Seedling's declared writes take a string or a bundle file, not the Blob `std::decode_hex` returns. The Seedling `random` kind generates a 64-hex-digit value, which is the reason for the hex form.
 - **A `checkReadiness` subcommand** on both servers. It connects with `DATABASE_URL`, decrypts every stored secret with the key, exits non-zero naming which check failed, and never prints the password.
 - **A `SYNC_API_URL` environment variable** on the facility, so the API reaches the sync part. Today the address is in config only (`sync.syncApiConnection`).
 - **A `PATIENT_PORTAL_URL` environment variable** on central. Today it is in config only (`patientPortal.portalUrl`).
-- **A `published-version` file**, written into each bundle when it is published: the image tag on the first line, the Tamanu version it carries on the second. The version parameter's default and the minor check read it.
 
 Trusted proxies: the parts trust `fc00::/7`. Seedling's pods are IPv6 only, within the host's unique local `/48`, and its proxy connects to the parts from its own address in that prefix.

@@ -1,3 +1,5 @@
+seedling = ">0.12"
+
 script = [
     "helpers.rhai",
     "params.rhai",

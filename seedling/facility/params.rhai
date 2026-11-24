@@ -6,9 +6,9 @@ let version = app.param("version")
     .description("Tamanu image tag, such as v2.71.3; changing it upgrades the server, with downtime")
     .validate(|v, all| {
         if published == () { return; }
-        let wanted = release_of.call(published.tag);
+        let wanted = published.release;
         if same_minor.call(release_of.call(v), wanted) { return; }
-        throw `this definition runs releases of ${wanted[0]}.${wanted[1]}; use the definition for the release you want`;
+        throw `this definition runs releases of ${wanted.major()}.${wanted.minor()}; use the definition for the release you want`;
     });
 if published != () {
     version.default_value(published.tag);
@@ -24,12 +24,15 @@ let frontend_version = app.param("frontend-version")
         let server = if "version" in all { all.version } else { published.tag };
         let base = release_of.call(server);
         // The version's own validator refuses a version outside the minor.
-        if !same_minor.call(base, release_of.call(published.tag)) { return; }
-        let given = release_of.call(v);
-        if !same_minor.call(given, base) || given[2] < base[2] {
-            throw `must be a release of ${base[0]}.${base[1]} no older than the version, ${server}; raise it or unset it`;
+        if !same_minor.call(base, published.release) { return; }
+        let given = std::parse_version_semver(v);
+        if !same_minor.call(given, base) || given < base {
+            throw `must be a release of ${base.major()}.${base.minor()} no older than the version, ${server}; raise it or unset it`;
         }
     });
+if published != () {
+    frontend_version.kind("version-semver");
+}
 
 let database_url = app.param("database-url")
     .kind("password")

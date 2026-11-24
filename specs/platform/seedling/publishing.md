@@ -22,7 +22,7 @@ Applies to how Tamanu's build publishes its [Seedling definitions](overview.md) 
 
 ## Published version
 
-- A published definition carries the exact tag of the build it was published with: the release tag for a release build, and the commit tag for any other build. It is never a floating tag, such as a minor's.
+- A published definition carries, in its bundle's metadata, the exact tag of the build it was published with and the Tamanu version that build carries. The tag is the release tag for a release build, and the commit tag for any other build. It is never a floating tag, such as a minor's.
 - That tag is what the definition's [version parameter](upgrades.md#version-parameter) defaults to.
 
 ## From the repository
