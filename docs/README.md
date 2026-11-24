@@ -88,6 +88,7 @@ treated as a hard pre-filter on any suggested action.
 | [facility-restored-from-backup](runbooks/facility-restored-from-backup.md) | Facility restored from backup, sync throwing fkey conflicts | Complete |
 | [fhir-queue-backlog](runbooks/fhir-queue-backlog.md) | FHIR job queue backed up or blocked (`fhir_jobs` check) | Complete |
 | [report-and-error-rows](runbooks/report-and-error-rows.md) | Report / IPS / communication / certificate error-row checks | Complete |
+| [rc-login-fails](runbooks/rc-login-fails.md) | Cannot log in to a release candidate (RC) on Kubernetes; central may be down behind an invalid-credentials error | Complete |
 
 ## SOPs
 
@@ -108,6 +109,7 @@ treated as a hard pre-filter on any suggested action.
 - [id-vs-display-id](reference/id-vs-display-id.md)
 - [glossary](reference/glossary.md)
 - [maintain-tamanu-on-linux](reference/maintain-tamanu-on-linux.md)
+- [rc-deployments](reference/rc-deployments.md)
 
 ## Migration status
 
