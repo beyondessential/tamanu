@@ -101,7 +101,10 @@ export const findSyncSnapshotRecordsOrderByDependency = async (
         raw: true,
       },
     );
-    records.push(...recordsForType);
+    // Spread would hit V8's argument-count limit (~65k) for large batches
+    for (const record of recordsForType) {
+      records.push(record);
+    }
   }
 
   return records.map(r =>
