@@ -46,7 +46,7 @@ Where there is a choice, responsibility sits with the client. A client holds its
 
 Central holds one number, `currentSyncTick`, in `local_system_facts`. It starts at 1 and only ever goes up (i.e. is monotonic).
 
-`tickTockGlobalClock` in `CentralSyncManager.js` adds 2 in a single statement and returns both new values: the tick (the lower) and the tock (the higher, now the stored value). A tick handed out this way belongs to whoever asked for it. Everything central writes on its own account is stamped with the stored value, which is always a tock. So ticks given to clients are even, central's own writes are odd, and no two parties ever hold the same time. That is the whole reason for advancing by two.
+The way this `tickTockGlobalClock` in `CentralSyncManager.js` adds 2 in a single statement and returns both new values: the tick (the lower) and the tock (the higher, now the stored value). A tick handed out this way belongs to whoever asked for it. Everything central writes on its own account is stamped with the stored value, which is always a tock. So ticks given to clients are even, central's own writes are odd, and no two parties ever hold the same time. That is the whole reason for advancing by two.
 
 A client receives one tick per session, at session start, and makes it its own clock at the start of its push. Every local write from then until its next session is stamped with that tick. A client does not tick between sessions, so every edit it makes in that window happens "at the same time", and how late that time is depends on when it last synced, not on when the edit was made. This is coarse on purpose. It makes ordering trivial and unambiguous, and in practice a patient's record is edited at one facility at a time.
 
