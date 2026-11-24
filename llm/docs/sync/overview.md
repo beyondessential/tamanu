@@ -169,7 +169,6 @@ Two things to be careful of:
 - **Empty scope means everyone:** A row with no scope columns goes to every client, so leaving a scope column empty needs to be a deliberate choice.
 - **Lab requests skip the other scopes:** Lab requests are checked before patient and network scope, so a facility that syncs all lab requests receives lab requests, and the encounters they belong to, from inside a sensitive network it is not part of. Changing this is an open question; see Slack.
 
-There is no list anywhere that defines "reference data" for sync. The tables that sync everywhere are simply the ones whose models set no scope.
 
 ### What travels
 
