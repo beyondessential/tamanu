@@ -19,7 +19,7 @@ import { Colors } from '../../../../constants';
 const StyledIconButton = styled(IconButton)`
   padding: 0;
   margin-left: 8px;
-  vertical-align: text-bottom;
+  vertical-align: text-top;
 `;
 
 const StyledEditIcon = styled(EditIcon)`
