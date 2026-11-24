@@ -43,3 +43,7 @@ Tamanu:
 - **A `PATIENT_PORTAL_URL` environment variable** on central. Today it is in config only (`patientPortal.portalUrl`).
 
 Trusted proxies: the parts trust `fc00::/7`. Seedling's pods are IPv6 only, within the host's unique local `/48`, and its proxy connects to the parts from its own address in that prefix.
+
+## Explicitly rejected
+
+- **Deriving the crypto key or authentication secrets from the app seed.** A derived value is withheld from operators and changes when the app is registered afresh, such as on a new host, so a derived crypto key could never be carried to another host and would no longer decrypt the stored secrets. The secrets stay `random`-kind parameters, which an operator generates or enters.
