@@ -5,7 +5,7 @@ import React, { type ReactNode } from 'react';
 import * as Keychain from 'react-native-keychain';
 import { readConfig } from '~/services/config';
 import { Routes } from '~/ui/helpers/routes';
-import { AuthProvider, useAuth } from './AuthContext';
+import { AuthProvider, preloadSession, useAuth } from './AuthContext';
 import { BackendContext } from './BackendContext';
 
 // The real module builds the backend, database and all, as it loads
@@ -148,6 +148,18 @@ describe('AuthProvider', () => {
 
       await act(async () => finishReading({ password: JSON.stringify(signedInSession) }));
 
+      expect(result.current.signedIn).toBe(true);
+      expect(backend.auth.startSession).toHaveBeenCalledWith('token-1', 'refresh-1');
+    });
+
+    it('picks up a session that was read before it mounted', async () => {
+      mockGetStored.mockResolvedValue({ password: JSON.stringify(signedInSession) });
+      preloadSession();
+
+      // Nothing is stored by now, so the session can only have come from the earlier read
+      const { result, backend } = await renderAuth();
+
+      expect(mockGetStored).toHaveBeenCalledTimes(1);
       expect(result.current.signedIn).toBe(true);
       expect(backend.auth.startSession).toHaveBeenCalledWith('token-1', 'refresh-1');
     });

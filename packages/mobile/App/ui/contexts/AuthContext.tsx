@@ -54,6 +54,9 @@ const initialSession: Session = {
 // session an earlier build stored
 const sessionStore = createStoredState<Session>(secureStorage, 'persist:auth');
 
+/** Starts reading the stored session, for `AuthProvider` to pick up when it mounts */
+export const preloadSession = (): void => sessionStore.preload();
+
 interface AuthContextData {
   user: IUser;
   ability: PureAbility;

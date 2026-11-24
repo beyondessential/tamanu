@@ -100,6 +100,7 @@ App state that more than one screen needs lives in a Context.Provider component,
 the methods that change it. Screens read it through the context's hook, such as `useAuth()` or
 `useSelectedPatient()`, which keeps the implementation out of the screens.
 
-State that has to survive the app closing goes through the `useStoredState` hook, which reads it
-from storage when the provider mounts and writes it back on every change. `AuthContext` keeps the
+State that has to survive the app closing goes through the `useStoredState` hook, which takes on
+what is in storage and stores every change after that. The read is started as the app loads, in
+`App/index.tsx`, so it is not still to do when the provider mounts. `AuthContext` keeps the
 signed-in session this way and `SelectedPatientContext` the selected patient.

@@ -81,6 +81,30 @@ describe('createStoredState', () => {
     expect(await createStoredState(storage, 'persist:auth').read()).toBeNull();
   });
 
+  it('starts reading on preload and hands the result to the next read', async () => {
+    const storage = createStorage();
+    storage.getItem.mockResolvedValue(JSON.stringify(session));
+    const storedState = createStoredState(storage, 'persist:auth');
+
+    storedState.preload();
+    storedState.preload();
+    expect(storage.getItem).toHaveBeenCalledTimes(1);
+
+    expect(await storedState.read()).toEqual(session);
+    expect(storage.getItem).toHaveBeenCalledTimes(1);
+  });
+
+  it('goes back to storage for a read after the preloaded one', async () => {
+    const storage = createStorage();
+    storage.getItem.mockResolvedValue(JSON.stringify(session));
+    const storedState = createStoredState(storage, 'persist:auth');
+    storedState.preload();
+    await storedState.read();
+    storage.getItem.mockResolvedValue(JSON.stringify({ ...session, signedIn: false }));
+
+    expect(await storedState.read()).toEqual({ ...session, signedIn: false });
+  });
+
   it('writes plain JSON under its key', async () => {
     const storage = createStorage();
 

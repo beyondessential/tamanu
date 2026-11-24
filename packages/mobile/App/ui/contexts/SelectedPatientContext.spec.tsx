@@ -3,7 +3,11 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import type { IPatient } from '~/types';
 import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
 import queryClient from '~/ui/queryClient';
-import { SelectedPatientProvider, useSelectedPatient } from './SelectedPatientContext';
+import {
+  preloadSelectedPatient,
+  SelectedPatientProvider,
+  useSelectedPatient,
+} from './SelectedPatientContext';
 
 jest.mock('~/ui/queryClient', () => ({
   __esModule: true,
@@ -84,6 +88,20 @@ describe('SelectedPatientProvider', () => {
       expect(result.current.selectedPatient).toEqual(mele);
       getItem.mockRestore();
       setItem.mockRestore();
+    });
+
+    it('picks up a selection that was read before it mounted', async () => {
+      await AsyncStorage.setItem(
+        STORAGE_KEY,
+        asReduxPersistEntry({ patient: { selectedPatient: mele } }),
+      );
+      preloadSelectedPatient();
+      // Nothing is stored after this, so the selection can only have come from the earlier read
+      await AsyncStorage.clear();
+
+      const result = await renderSelectedPatient();
+
+      expect(result.current.selectedPatient).toEqual(mele);
     });
 
     it('restores a stored selection', async () => {

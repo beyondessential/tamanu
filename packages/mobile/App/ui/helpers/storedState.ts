@@ -4,6 +4,11 @@ export interface StringStorage {
 }
 
 export interface StoredState<T> {
+  /**
+   * Starts reading ahead of whoever will ask for the result. The next `read` resolves to
+   * what this finds, in place of going to storage again.
+   */
+  preload(): void;
   /** Resolves to what is stored, or null when nothing readable is */
   read(): Promise<Partial<T> | null>;
   write(state: T): Promise<void>;
@@ -42,14 +47,27 @@ export const createStoredState = <T>(storage: StringStorage, key: string): Store
   // Each write waits for the one before it, so changes made in quick succession reach
   // storage in the order they were made
   let lastWrite = Promise.resolve();
+  let preloaded: Promise<Partial<T> | null> | null = null;
+
+  const readFromStorage = async (): Promise<Partial<T> | null> => {
+    try {
+      return parseStoredState<T>(await storage.getItem(key));
+    } catch {
+      return null;
+    }
+  };
 
   return {
-    async read() {
-      try {
-        return parseStoredState<T>(await storage.getItem(key));
-      } catch {
-        return null;
-      }
+    preload() {
+      preloaded ??= readFromStorage();
+    },
+
+    read() {
+      // A preloaded read is handed over once. Anything that reads again later, such as a
+      // provider that has remounted, gets what is in storage by then.
+      const stored = preloaded ?? readFromStorage();
+      preloaded = null;
+      return stored;
     },
 
     write(state) {

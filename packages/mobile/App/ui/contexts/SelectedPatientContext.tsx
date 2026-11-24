@@ -39,6 +39,7 @@ const rootStore = createStoredState<SelectedPatientState & { patient?: SelectedP
 );
 
 const selectedPatientStore: StoredState<SelectedPatientState> = {
+  preload: rootStore.preload,
   async read() {
     const stored = await rootStore.read();
     // Those earlier builds stored the whole Redux state, with the selection inside its
@@ -47,6 +48,9 @@ const selectedPatientStore: StoredState<SelectedPatientState> = {
   },
   write: rootStore.write,
 };
+
+/** Starts reading the stored selection, for `SelectedPatientProvider` to pick up when it mounts */
+export const preloadSelectedPatient = (): void => selectedPatientStore.preload();
 
 const MAX_STORED_RECENT_PATIENTS = 20;
 
