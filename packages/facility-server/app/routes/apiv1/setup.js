@@ -28,9 +28,10 @@ import { applyBootstrap } from '../../sync/facilityBootstrap';
 // the setup endpoint has to work before the server has any users, so it can't ask for a login. we
 // only accept it from these private and tailscale ranges, so that someone on the public internet
 // can't make the server log in to a host of their choosing or set up a fresh server as their own.
+// the host it names isn't restricted, because central may only be reachable on a private address.
 // it also needs the server to be unconfigured and a central admin's credentials.
 // behind a proxy the server hasn't been told to trust, req.ip is the proxy's address, so this check
-// passes for every caller
+// passes for every caller and only the other two are left
 const TRUSTED_SOURCE_RANGES = {
   ipv4: [
     '127.0.0.0/8',

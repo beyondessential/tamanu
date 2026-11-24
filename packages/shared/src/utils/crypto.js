@@ -238,7 +238,8 @@ async function resolveOrGeneratePsk() {
 
 /**
  * Makes sure there is a settings PSK in the local secrets store, creating one if needed. Only
- * central calls this. Facilities get the PSK from central.
+ * central may call this. A facility has to get its PSK from central, because a key it made itself
+ * couldn't decrypt the secrets central puts in synced settings.
  */
 export async function ensureSettingsPsk(localSystemSecret) {
   if (await localSystemSecret.get(FACT_SETTINGS_PSK)) return;
