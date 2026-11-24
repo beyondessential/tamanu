@@ -122,9 +122,9 @@ Central relies on that later, to avoid sending a device its own changes back (se
 
 Pushed records are only lightly validated on the way in. Central checks that each one is for a known model, and that the model's sync direction allows pushing. It does not check the shape of the record. If a record is malformed, a database constraint rejects it when it is saved, and the session fails. A few models whose records cause something to happen outside the database (e.g. sending an email, running a report) clean up what was pushed first, using `sanitizeForCentralServer`. XXX [I don't know what this last sentence is referring to]
 
-### Building a pull
+### Building a pull XXX [I'm surprised we don't have "building a push"?]
 
-This is `setupSnapshotForPull`, which is a central-side snapshot process, which is a facility-side snapshot process. In order:
+This is `setupSnapshotForPull`, which is a central-side snapshot process, which is a central-side snapshot process, which is a facility-side snapshot process. In order:
 
 1. **Wait for a snapshot slot.** Only a few snapshots are built at once. This is a separate limit from the limit on sessions.
 2. **Tick-tock, and keep the tick.** This becomes `pullUntil`: the cursor the client will store once it has saved the pull.
