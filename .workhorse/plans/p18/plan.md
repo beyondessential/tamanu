@@ -107,9 +107,9 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ### Removal
 
-- [ ] `reactotronRedux()` removed
-- [ ] Seven packages removed from `packages/mobile/package.json`, lockfile updated
-- [ ] Redux removed from `App/ui/README.md`
+- [x] `reactotronRedux()` removed
+- [x] Seven packages removed from `packages/mobile/package.json`, lockfile updated
+- [x] Redux removed from `App/ui/README.md`
 
 ### Guard
 
