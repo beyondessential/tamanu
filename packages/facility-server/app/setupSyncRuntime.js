@@ -42,9 +42,9 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
   return true;
 }
 
-// the wizard request may be handled by a different process to this one, so keep checking whether
+// The wizard request may be handled by a different process to this one, so keep checking whether
 // the server has been configured and wire this process up when it has.
-// `setup` does the wiring: the sync runtime by default, and the API process passes its own
+// `setup` does the wiring: the sync runtime by default, and the API process passes its own.
 export function startSyncRuntimeWhenConfigured(
   context,
   { intervalMs = SETUP_POLL_INTERVAL_MS, setup = setupSyncRuntime } = {},
@@ -60,8 +60,8 @@ export function startSyncRuntimeWhenConfigured(
       for (const facilityId of getServerFacilityIds()) {
         context.settings[facilityId] ??= new ReadSettings(context.models, facilityId);
       }
-      // only stop polling after setup has worked. if it throws (e.g. central can't be reached) we
-      // try again on the next tick
+      // Only stop polling after setup has worked. If it throws (e.g. central can't be reached) we
+      // try again on the next tick.
       await setup(context);
       clearInterval(timer);
       log.info('Setup completed; runtime started');

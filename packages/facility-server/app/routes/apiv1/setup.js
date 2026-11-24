@@ -25,13 +25,13 @@ import {
 import { version } from '../../serverInfo';
 import { applyBootstrap } from '../../sync/facilityBootstrap';
 
-// the setup endpoint has to work before the server has any users, so it can't ask for a login. we
+// The setup endpoint has to work before the server has any users, so it can't ask for a login. We
 // only accept it from these private and tailscale ranges, so that someone on the public internet
 // can't make the server log in to a host of their choosing or set up a fresh server as their own.
-// the host it names isn't restricted, because central may only be reachable on a private address.
-// it also needs the server to be unconfigured and a central admin's credentials.
-// behind a proxy the server hasn't been told to trust, req.ip is the proxy's address, so this check
-// passes for every caller and only the other two are left
+// The host it names isn't restricted, because central may only be reachable on a private address.
+// It also needs the server to be unconfigured and a central admin's credentials.
+// Behind a proxy the server hasn't been told to trust, req.ip is the proxy's address, so this check
+// passes for every caller and only the other two are left.
 const TRUSTED_SOURCE_RANGES = {
   ipv4: [
     '127.0.0.0/8',
@@ -97,10 +97,10 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))];
   const normalisedHost = new URL(host).origin;
 
-  // at boot the integrity check throws if the recorded host differs from the declared one, or if a
-  // recorded facility isn't in the declared list. refuse those here, otherwise setup would succeed
+  // At boot the integrity check throws if the recorded host differs from the declared one, or if a
+  // recorded facility isn't in the declared list. Refuse those here, otherwise setup would succeed
   // and the server would fail the next time it starts.
-  // the error only says what was refused, because the caller hasn't been checked yet
+  // The error only says what was refused, because the caller hasn't been checked yet.
   const declaredHost = getDeclaredHost();
   if (declaredHost && declaredHost !== normalisedHost) {
     return res.status(422).send({
@@ -196,8 +196,8 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   }
 
   const { LocalSystemFact, LocalSystemSecret } = req.models;
-  // take the lock and check again inside it, so that two requests arriving at the same time can't
-  // both configure the server
+  // Take the lock and check again inside it, so that two requests arriving at the same time can't
+  // both configure the server.
   let alreadyConfigured = false;
   await req.db.transaction(async () => {
     await req.db.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:facility-setup'));`);

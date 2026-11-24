@@ -32,10 +32,10 @@ const DEFAULT_TASK_CLASSES = [
   CleanupBrowserTelemetry,
 ];
 
-// the schedules are read once and kept, so a change to them needs a restart.
-// tasks belong to the server rather than a facility, so on a server with several facilities we use
-// the first one's settings, as the mSupply tasks do. a server that started unconfigured has no
-// facility yet and uses the schema defaults until it is restarted
+// The schedules are read once and kept, so a change to them needs a restart.
+// Tasks belong to the server rather than a facility, so on a server with several facilities we use
+// the first one's settings, as the mSupply tasks do. A server that started unconfigured has no
+// facility yet and uses the schema defaults until it is restarted.
 export async function resolveSchedules(context) {
   const [primaryFacilityId] = getServerFacilityIds() ?? [];
   // eslint-disable-next-line require-atomic-updates

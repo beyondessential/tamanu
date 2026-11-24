@@ -90,16 +90,16 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   res.set('Cache-Control', 'no-store').send({ email, password, settingsPsk });
 });
 
-// gives the settings PSK to a facility that has sync credentials but was set up before the PSK
-// existed. this only reads the key: if central doesn't have one yet it returns null, and the
+// Gives the settings PSK to a facility that has sync credentials but was set up before the PSK
+// existed. This only reads the key: if central doesn't have one yet it returns null, and the
 // facility asks again on its next sync.
-// the sync password isn't changed here, so a facility can call this as often as it needs
+// The sync password isn't changed here, so a facility can call this as often as it needs.
 export const getSettingsPsk = asyncHandler(async (req, res) => {
   req.checkPermission('manage', 'all');
 
-  // only a sync user can read the key here. mobile and facility servers both log in with the
+  // Only a sync user can read the key here. Mobile and facility servers both log in with the
   // sync_client scope, and isMobile is sent by the client, so neither tells us the caller is a
-  // facility server. kind is set by central when it creates the account
+  // facility server. `kind` is set by central when it creates the account.
   if (req.user?.kind !== USER_KINDS.SYNC) {
     throw new ForbiddenError('Only a sync user may read the settings PSK');
   }

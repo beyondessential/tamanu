@@ -184,14 +184,14 @@ export function clearSettingsPskCache() {
 // value covers deployments that haven't converged yet, and goes away once the store
 // is guaranteed populated.
 async function resolveSettingsPsk() {
-  // only fall back to config when the store has no value at all. an empty string is returned as it
-  // is, so that it fails the format check in getSettingsPskKeyBuffer
+  // Only fall back to config when the store has no value at all. An empty string is returned as it
+  // is, so that it fails the format check in getSettingsPskKeyBuffer.
   const fromStore = settingsPskSource && (await settingsPskSource());
   if (fromStore != null) return fromStore;
 
   const fromConfig = await getConfigSecret('crypto.settingsPsk');
   // getConfigSecret throws when the key isn't set, so if we get to here the PSK did come from
-  // config
+  // config.
   log.warn('settings PSK resolved from legacy crypto.settingsPsk config');
   return fromConfig;
 }
@@ -205,9 +205,9 @@ export async function getSettingsPskKeyBuffer() {
   if (!settingsPskKeyBufferPromise) {
     settingsPskKeyBufferPromise = (async () => {
       const psk = await resolveSettingsPsk();
-      // check the format before using it. Buffer.from(x, 'hex') stops at the first invalid
+      // Check the format before using it. Buffer.from(x, 'hex') stops at the first invalid
       // character without throwing, so a bad PSK would give a short key and decryption would fail
-      // later with nothing pointing at the PSK
+      // later with nothing pointing at the PSK.
       const expectedHexLength = KEY_LENGTH_BYTES * 2;
       if (
         typeof psk !== 'string' ||

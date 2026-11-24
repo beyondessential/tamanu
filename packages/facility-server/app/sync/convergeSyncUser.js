@@ -9,10 +9,10 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { initServerConfig } from '../serverConfig';
 
-// a facility that was set up from the config file syncs as a person's admin account. central only
+// A facility that was set up from the config file syncs as a person's admin account. Central only
 // gives the settings PSK (the pre-shared key that secret settings are encrypted with) to a sync
 // user, so swap to the sync user it creates for this device.
-// this happens during sync so that a facility that was offline for its upgrade still gets swapped
+// This happens during sync so that a facility that was offline for its upgrade still gets swapped.
 export async function convergeSyncUser({ sequelize, models, centralServer }) {
   // Provisioning rotates the password, so only act on a positive answer: an
   // unknown kind means try again next sync, not rotate now.
@@ -21,9 +21,9 @@ export async function convergeSyncUser({ sequelize, models, centralServer }) {
 
   const { LocalSystemFact, LocalSystemSecret } = models;
 
-  // if the recorded account isn't the one we're logged in as, the swap has already been done and
-  // this process is still using the credentials it read when it started. provisioning again would
-  // rotate the password on every sync
+  // If the recorded account isn't the one we're logged in as, the swap has already been done and
+  // this process is still using the credentials it read when it started. Provisioning again would
+  // rotate the password on every sync.
   const recordedEmail = await LocalSystemFact.get(FACT_SYNC_EMAIL);
   if (recordedEmail && recordedEmail !== authenticatedAs) return;
 
@@ -43,8 +43,8 @@ export async function convergeSyncUser({ sequelize, models, centralServer }) {
     throw new Error('admin/syncCredentials returned no email or password');
   }
 
-  // the response includes the settings PSK as well, but we leave that for pullSettingsPsk, which
-  // runs straight after this and clears the cached key when it stores the new one
+  // The response includes the settings PSK as well, but we leave that for pullSettingsPsk, which
+  // runs straight after this and clears the cached key when it stores the new one.
   await sequelize.transaction(async () => {
     await LocalSystemFact.set(FACT_SYNC_EMAIL, credentials.email);
     await LocalSystemSecret.set(FACT_SYNC_PASSWORD, credentials.password);

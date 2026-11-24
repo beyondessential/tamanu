@@ -19,9 +19,9 @@ const legacySyncConfig = (): LegacySyncConfig => (config as { sync?: LegacySyncC
 export const STEPS: Steps = [
   {
     at: END,
-    // copy the sync credentials from the config file into facts as they are. this doesn't need
+    // Copy the sync credentials from the config file into facts as they are. This doesn't need
     // central, so it works when the facility is offline for its upgrade.
-    // swapping them for a sync user does need central, so convergeSyncUser does that during sync
+    // Swapping them for a sync user does need central, so convergeSyncUser does that during sync.
     async check({ serverType, models: { LocalSystemFact } }: StepArgs) {
       if (serverType !== 'facility') return false;
       const { host, email, password } = legacySyncConfig();
