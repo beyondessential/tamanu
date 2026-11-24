@@ -21,9 +21,8 @@ export const useProgramRegistryGraphDataQuery = (patientId, dataElementId, dateR
     ],
     () =>
       api.get(
-        route('programRegistry/patient/:patientId/graphData/:directory/:dataElementId', {
+        route(`programRegistry/patient/:patientId/graphData/${directory}/:dataElementId`, {
           patientId,
-          directory,
           dataElementId,
         }),
         { startDate, endDate },

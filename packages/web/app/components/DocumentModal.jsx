@@ -71,7 +71,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
 DocumentModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
-  endpoint: PropTypes.string.isRequired,
+  endpoint: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   refreshTable: PropTypes.func.isRequired,
 };
 

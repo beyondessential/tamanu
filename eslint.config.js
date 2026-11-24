@@ -205,6 +205,20 @@ export default [
           message:
             'Do not interpolate path params into the endpoint string. Use route() from @tamanu/api-client: api.get(route("patient/:patientId/allergies", { patientId }), query).',
         },
+        // The same, where the endpoint is held in a variable or passed down as a
+        // prop before it reaches the api call, which the selector above can't see.
+        {
+          selector:
+            'VariableDeclarator[id.name=/[eE]ndpoint$/] > TemplateLiteral.init[expressions.length>0]',
+          message:
+            'Do not interpolate path params into an endpoint string. Use route() from @tamanu/api-client: route("patient/:patientId/allergies", { patientId }).',
+        },
+        {
+          selector:
+            'JSXAttribute[name.name=/[eE]ndpoint$/] > JSXExpressionContainer > TemplateLiteral.expression[expressions.length>0]',
+          message:
+            'Do not interpolate path params into an endpoint prop. Use route() from @tamanu/api-client: route("patient/:patientId/allergies", { patientId }).',
+        },
       ],
     },
   },

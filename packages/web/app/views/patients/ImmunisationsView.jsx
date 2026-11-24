@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { WS_EVENTS, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
+import { route } from '@tamanu/api-client';
 
 import {
   ContentPane,
@@ -106,7 +107,7 @@ export const ImmunisationsView = () => {
   // listen to any updates on the root collection, i.e. the first segment of the endpoint
   // updates at the root level indicate anything below needs to be re-fetched
   const rootCollection = 'upcomingVaccinations';
-  const endpoint = `${rootCollection}/updateStats`;
+  const endpoint = route(`${rootCollection}/updateStats`);
   const updateDetectionChannel = `${WS_EVENTS.DATABASE_MATERIALIZED_VIEW_REFRESHED}:${rootCollection}`;
 
   const { data: updateStats, error } = useAutoUpdatingQuery(endpoint, {}, updateDetectionChannel);

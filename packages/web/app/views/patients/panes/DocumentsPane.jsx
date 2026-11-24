@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { route } from '@tamanu/api-client';
 
 import { OutlinedButton, ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
@@ -32,9 +33,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const isFromEncounter = !!encounter?.id;
 
-  const baseRoute = isFromEncounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
-  const documentMetadataEndpoint = `${baseRoute}/documentMetadata`;
-  const createPatientLetterEndpoint = `${baseRoute}/createPatientLetter`;
+  const documentMetadataEndpoint = isFromEncounter
+    ? route('encounter/:encounterId/documentMetadata', { encounterId: encounter.id })
+    : route('patient/:patientId/documentMetadata', { patientId: patient.id });
+  const createPatientLetterEndpoint = isFromEncounter
+    ? route('encounter/:encounterId/createPatientLetter', { encounterId: encounter.id })
+    : route('patient/:patientId/createPatientLetter', { patientId: patient.id });
 
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
   const openDocumentPreview = useCallback(

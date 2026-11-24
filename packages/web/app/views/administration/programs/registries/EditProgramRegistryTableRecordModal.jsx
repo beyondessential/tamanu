@@ -112,10 +112,7 @@ function usePatchProgramRegistrySubResourceMutation(
   return useMutation({
     mutationKey: [resourceSegment, recordId],
     mutationFn: async body =>
-      await api.patch(
-        route('admin/:resourceSegment/:recordId', { resourceSegment, recordId }),
-        body,
-      ),
+      await api.patch(route(`admin/${resourceSegment}/:recordId`, { recordId }), body),
     onSuccess: (data, variables, context) => {
       notifySuccess(
         <TranslatedText
