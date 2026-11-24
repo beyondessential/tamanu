@@ -38,6 +38,9 @@ const renderSelectedPatient = async () => {
   return result;
 };
 
+/** Lets a write that has been started reach storage, so its absence means something */
+const flushStorage = () => act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+
 const storedSelection = async () => JSON.parse(await AsyncStorage.getItem(STORAGE_KEY));
 const recentlyViewed = async () => JSON.parse(await AsyncStorage.getItem(RECENTLY_VIEWED_KEY));
 
@@ -82,6 +85,16 @@ describe('SelectedPatientProvider', () => {
       const result = await renderSelectedPatient();
 
       expect(result.current.selectedPatient).toBeNull();
+    });
+
+    it('leaves a stored selection it cannot read as it is', async () => {
+      await AsyncStorage.setItem(STORAGE_KEY, '{"selectedPatient":');
+
+      const result = await renderSelectedPatient();
+      await flushStorage();
+
+      expect(result.current.selectedPatient).toBeNull();
+      expect(await AsyncStorage.getItem(STORAGE_KEY)).toBe('{"selectedPatient":');
     });
 
     it('does not count a restored selection as viewed again', async () => {

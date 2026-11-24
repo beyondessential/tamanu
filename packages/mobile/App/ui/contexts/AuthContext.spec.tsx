@@ -93,6 +93,9 @@ const renderAuth = async ({
 
 const lastStoredSession = () => JSON.parse(mockSetStored.mock.calls.at(-1)[1]);
 
+/** Lets a write that has been started reach storage, so its absence means something */
+const flushStorage = () => act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockNetInfoFetch.mockResolvedValue({ isConnected: true });
@@ -159,6 +162,30 @@ describe('AuthProvider', () => {
 
       expect(result.current.signedIn).toBe(false);
       expect(result.current.checkFirstSession()).toBe(true);
+    });
+
+    it('leaves a stored session it cannot read as it is', async () => {
+      await renderAuth({ stored: '{"token":' });
+      await flushStorage();
+
+      expect(mockSetStored).not.toHaveBeenCalled();
+    });
+
+    it('does not store again the session it has just read', async () => {
+      await renderAuth({ stored: asReduxPersistEntry(signedInSession) });
+      await flushStorage();
+
+      expect(mockSetStored).not.toHaveBeenCalled();
+    });
+
+    it('stores the session once it changes', async () => {
+      const { result } = await renderAuth({ stored: asReduxPersistEntry(signedInSession) });
+
+      await act(async () => result.current.signOutClient(true));
+
+      await waitFor(() =>
+        expect(lastStoredSession()).toEqual({ ...signedInSession, signedIn: false }),
+      );
     });
   });
 
