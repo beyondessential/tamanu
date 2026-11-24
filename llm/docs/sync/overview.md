@@ -148,7 +148,7 @@ Every model declares a sync direction, which says whether its table syncs at all
 | Pull from central | Pulled only. Reference data, e.g. users, permissions, surveys, locations, diagnoses, settings. |
 | Push to central | Pushed only; the client keeps its copy. |
 | Push to central then delete | Pushed, then the facility deletes its copy. For records central acts on (attachments, patient communications, certificate notifications), where a second copy would be processed twice or show a stale status. Mobile has no equivalent. |
-| Do not sync | Never leaves the server it is on. The table has no tick column. |
+| Do not sync | Never leaves the server it is on. The table has no tick column. XXX [e.g.] |
 
 ### Scope
 
