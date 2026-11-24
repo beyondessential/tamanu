@@ -239,7 +239,9 @@ export const defineTelegramBotService = async (injector) => {
       } catch (e) {
         log.error('telegram callback query failed', { error: e.message });
       } finally {
-        bot.answerCallbackQuery(query.id);
+        bot
+          .answerCallbackQuery(query.id)
+          .catch((e) => log.warn('telegram answer callback query failed', { error: e.message }));
       }
     });
   }
