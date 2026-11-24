@@ -26,10 +26,10 @@ All passes write into the session's one snapshot table, which also holds the row
 
 For each model, `snapshotChangesForModel` asks the model who should receive its rows.
 
-- If the model declares `buildPatientSyncFilter`, that is called with the number of patients in this pass, the name of the session's table of marked patients, and the session config. A `null` result means there is nothing to send, and no query runs.
+- If the model declares `buildPatientSyncFilter`, that is called with the number of patients in this pass, the name of the session's table of patients marked for sync, and the session config. A `null` result means there is nothing to send, and no query runs.
 - Otherwise the model's `buildSyncFilter()` is called.
 
-The `null` short-circuit matters most in the pass for newly marked patients, where the count is usually zero and every patient-linked model is skipped without touching the database. In the regular pass it fires only for a facility with no marked patients at all.
+The `null` short-circuit matters most in the pass for patients newly marked for sync, where the count is usually zero and every patient-linked model is skipped without touching the database. In the regular pass it fires only for a facility with no patients marked for sync at all.
 
 An empty string is not `null`. It means "no restriction", and the query falls back to its default where clause.
 
@@ -76,7 +76,7 @@ A few are scoped with a plain clause. `PatientFacility` and `ReferenceDrugFacili
 `buildPatientSyncFilterViaPatientId` is the generic builder for a table with its own `patient_id` column. It returns `null` when no patients are in the pass, and otherwise:
 
 ```sql
-WHERE patient_id IN (SELECT patient_id FROM <marked patients table>)
+WHERE patient_id IN (SELECT patient_id FROM <marked for sync patients table>)
   AND updated_at_sync_tick > :since
 ```
 
@@ -84,13 +84,13 @@ WHERE patient_id IN (SELECT patient_id FROM <marked patients table>)
 
 ### Tables reached through an encounter
 
-`buildEncounterLinkedSyncFilter` takes the chain of tables from the model's own up to `encounters`, joins them in order, and requires the encounter's patient to be marked and the model's own tick to be above `since`. Each join column defaults to the singular of the next table plus `_id`; an entry can spell out a different column, or make its join an inner one.
+`buildEncounterLinkedSyncFilter` takes the chain of tables from the model's own up to `encounters`, joins them in order, and requires the encounter's patient to be marked for sync and the model's own tick to be above `since`. Each join column defaults to the singular of the next table plus `_id`; an entry can spell out a different column, or make its join an inner one.
 
 `ImagingRequest` passes its own table and `encounters`. `ImagingResult`, one level deeper, passes its table, `imaging_requests` and `encounters`. About three dozen models use this builder: discharges, diagnoses, triages, vitals, tasks, the invoice tables. Models whose columns do not follow the convention write the joins by hand, as `SurveyResponseAnswer` does through `survey_responses.response_id`.
 
 ### Encounters
 
-`Encounter.buildPatientSyncFilter` is written by hand because of sync-all-lab-requests. An encounter is included if its patient is marked, or, with that setting on, if it has a lab request. For the second case it joins a subquery of encounters with lab requests changed since `since`, grouped by encounter (one encounter can have several lab requests), and leaves out patients already marked, since those encounters are coming anyway.
+`Encounter.buildPatientSyncFilter` is written by hand because of sync-all-lab-requests. An encounter is included if its patient is marked for sync, or, with that setting on, if it has a lab request. For the second case it joins a subquery of encounters with lab requests changed since `since`, grouped by encounter (one encounter can have several lab requests), and leaves out patients already marked for sync, since those encounters are coming anyway.
 
 ### Lab requests
 
@@ -100,9 +100,9 @@ WHERE patient_id IN (SELECT patient_id FROM <marked patients table>)
 
 A note's `record_id` can point at many kinds of record, so `buildNoteLinkedSyncFilter` joins every table a note can attach to, and the encounter for the ones that reach their patient through an encounter (triages, lab requests, imaging requests). It then accepts a note if any of these holds:
 
-- it is on a patient who is marked
-- it is on a triage, lab request or imaging request whose encounter's patient is marked
-- it is on any other kind of record whose own `patient_id` is marked
+- it is on a patient who is marked for sync
+- it is on a triage, lab request or imaging request whose encounter's patient is marked for sync
+- it is on any other kind of record whose own `patient_id` is marked for sync
 
 The record types come from `NOTE_RECORD_TYPE_VALUES` in `@tamanu/constants`, where a comment says that adding a type means changing this builder. The joins pick up a new type by themselves; the conditions are written out per type and do not. Nothing tests that the two stay in step.
 
@@ -110,11 +110,11 @@ The name is misleading. The other generic builders are for tables that hang off 
 
 ## Sync-all-lab-requests on this path
 
-The `sync.syncAllLabRequests` facility setting is read once per session. It is on if any of the session's facilities has it on, and always off for mobile clients and for an initial sync. The pass for newly marked patients never sees it.
+The `sync.syncAllLabRequests` facility setting is read once per session. It is on if any of the session's facilities has it on, and always off for mobile clients and for an initial sync. The pass for patients newly marked for sync never sees it.
 
-With it on, this path sends every lab request changed since `since`, the tests, panel requests and attachments for them, and the encounters they belong to, whether or not the patient is marked.
+With it on, this path sends every lab request changed since `since`, the tests, panel requests and attachments for them, and the encounters they belong to, whether or not the patient is marked for sync.
 
-It also sends every note on a lab request, because `buildNoteLinkedSyncFilter` adds that condition when the setting is on. **The lookup path does not.** There the lab flag is a column on the lookup row, notes never carry it, and a note arrives only if its patient is marked. The same facility gets a different set of notes depending on the path.
+It also sends every note on a lab request, because `buildNoteLinkedSyncFilter` adds that condition when the setting is on. **The lookup path does not.** There the lab flag is a column on the lookup row, notes never carry it, and a note arrives only if its patient is marked for sync. The same facility gets a different set of notes depending on the path.
 
 ## How echoes are removed
 
@@ -156,7 +156,7 @@ One rule exists only in this path's filters and takes effect on neither path. `S
 ## What still uses pieces of it
 
 - **The facility bootstrap.** `buildFacilityBootstrap.js` calls `buildSyncFilter()` on nine models (`ReferenceData`, `SensitiveNetwork`, `Facility`, `User`, `UserFacility`, `Role`, `Permission`, `Setting`, `TranslatedString`) and reads their tables directly. This does not depend on the config key and runs in production for every facility syncing from scratch.
-- **The patient-linked check.** `getPatientLinkedModels` picks out models by whether `buildPatientSyncFilter` exists. The pass for newly marked patients uses it to choose its models, and the lookup query uses it to decide whether a patient clause applies. Only the method's existence matters, not what it returns.
+- **The patient-linked check.** `getPatientLinkedModels` picks out models by whether `buildPatientSyncFilter` exists. The pass for patients newly marked for sync uses it to choose its models, and the lookup query uses it to decide whether a patient clause applies. Only the method's existence matters, not what it returns.
 - **The lookup build.** It imports the join helpers from the filter builder files: `buildEncounterLinkedSyncFilterJoins`, `getPatientIdColumnOfNotes` and `buildNoteLinkedJoins`.
 - **Most central sync tests.** `config/test.json5` and the default config in `__tests__/utilities.js` both turn the lookup table off, so a central sync test runs on this path unless its file turns the lookup table on.
 
