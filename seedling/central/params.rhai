@@ -60,17 +60,24 @@ let crypto_key = app.param("crypto-key")
     .description("Encrypts stored secrets; must be the key they were stored with")
     .validate(|v, all| hex_secret.call(v));
 
-let auth_secret = app.param("auth-secret")
-    .kind("random")
-    .secret(true)
-    .required(true)
-    .description("Signs login tokens; changing it logs everyone out");
+// spec: SDDEF#parameters
+// An unset authentication secret is derived from the app's seed, so it holds
+// until the app is registered afresh or its seed is rotated.
+let or_derived = |param, label| {
+    if param.is_set() { param.value() } else { std::encode_hex(std::random_bytes(label, 32)) }
+};
 
-let refresh_secret = app.param("auth-refresh-secret")
+let auth_secret = or_derived.call(app.param("auth-secret")
     .kind("random")
     .secret(true)
-    .required(true)
-    .description("Signs refresh tokens; changing it logs everyone out when their login next expires");
+    .required(false)
+    .description("Signs login tokens; generated when unset; changing it logs everyone out"), "auth-secret");
+
+let refresh_secret = or_derived.call(app.param("auth-refresh-secret")
+    .kind("random")
+    .secret(true)
+    .required(false)
+    .description("Signs refresh tokens; generated when unset; changing it logs everyone out when their login next expires"), "auth-refresh-secret");
 
 let canonical_url = app.param("canonical-url")
     .required(true)

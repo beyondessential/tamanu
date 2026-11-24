@@ -40,7 +40,9 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 ## Parameters
 
 - Both definitions take the database URL, the server's crypto key and its authentication secrets as secret parameters.
-- An operator installing a new server can generate the crypto key and authentication secrets, or enter an existing deployment's.
+- An operator installing a new server can generate the crypto key, or enter an existing deployment's.
+- The authentication secrets are optional. An operator can enter an existing deployment's, and the definition generates any left unset.
+- A generated authentication secret stays the same until the server is installed afresh, such as on another host, or its app's [seed is rotated](https://github.com/beyondessential/seedling/blob/main/.workhorse/specs/runtime/secrets.md#app-seed-rotation).
 - Both definitions take the server's canonical URL, which is required, and the server's primary timezone, which defaults to UTC.
 - The definition sets the server's canonical host name from its canonical URL.
 - Central also takes an optional patient portal URL. Setting it runs the patient portal, served at that URL.

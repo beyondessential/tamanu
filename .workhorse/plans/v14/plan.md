@@ -42,8 +42,10 @@ Tamanu:
 - **A `SYNC_API_URL` environment variable** on the facility, so the API reaches the sync part. Today the address is in config only (`sync.syncApiConnection`).
 - **A `PATIENT_PORTAL_URL` environment variable** on central. Today it is in config only (`patientPortal.portalUrl`).
 
+Authentication secrets: optional, and derived from the app seed with `std::random_bytes` when unset. Losing one only logs everyone out, so a new host or a seed rotation costs no more than a logout, and rotating the seed becomes the way to rotate them.
+
 Trusted proxies: the parts trust `fc00::/7`. Seedling's pods are IPv6 only, within the host's unique local `/48`, and its proxy connects to the parts from its own address in that prefix.
 
 ## Explicitly rejected
 
-- **Deriving the crypto key or authentication secrets from the app seed.** A derived value is withheld from operators and changes when the app is registered afresh, such as on a new host, so a derived crypto key could never be carried to another host and would no longer decrypt the stored secrets. The secrets stay `random`-kind parameters, which an operator generates or enters.
+- **Deriving the crypto key from the app seed.** A derived value is withheld from operators and changes when the app is registered afresh, such as on a new host, so a derived crypto key could never be carried to another host and would no longer decrypt the stored secrets. It stays a required `random`-kind parameter, which an operator generates or enters.
