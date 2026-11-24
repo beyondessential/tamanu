@@ -18,7 +18,7 @@ Sync is in its current shape because of years of learning from failures on large
 
 ## What sync guarantees
 
-- **Sync is atomic: Each phase lands whole or not at all.** A push is persisted on central in one transaction. A pull is saved on the client in one transaction. Push and pull are separate: a push can succeed and its pull fail, and that is deliberate, because records stranded on a client are a worse outcome than a client that is behind.
+- **Atomic: Each phase lands whole or not at all.** A push is persisted on central in one transaction. A pull is saved on the client in one transaction. Push and pull are separate: a push can succeed and its pull fail, and that is deliberate, because records stranded on a client are a worse outcome than a client that is behind.
 - **Work is done from a snapshot.** Whatever is being sent is first copied at a single point in time, then sent. Nothing is read from live tables page by page while they change underneath.
 - **Order comes from a logical clock that central owns.** Not wall-clock time. See [The clock](#the-clock).
 - **Central is the only place conflicts are resolved.** A client pushes before it pulls so that central sees local changes first, and then takes whatever central gives it without comparing.
