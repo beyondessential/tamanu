@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.8.1
+workhorse-version: 0.8.2
 ---
 
 # Workhorse

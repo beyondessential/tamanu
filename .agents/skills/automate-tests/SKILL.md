@@ -3,7 +3,7 @@ name: automate-tests
 description: "Write automated tests for unticked scenarios in this card's test cases"
 label: "Automate tests"
 category: verify
-workhorse-version: 0.8.1
+workhorse-version: 0.8.2
 ---
 
 ## Your task: Automate tests

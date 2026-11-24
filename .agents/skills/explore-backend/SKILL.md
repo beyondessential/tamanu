@@ -3,7 +3,7 @@ name: explore-backend
 description: "Explore this card's server side directly, in passes, until a full pass finds nothing above low"
 label: "Explore the backend"
 category: verify
-workhorse-version: 0.8.1
+workhorse-version: 0.8.2
 ---
 
 ## Your task: explore the backend

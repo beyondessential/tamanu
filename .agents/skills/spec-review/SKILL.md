@@ -3,7 +3,7 @@ name: spec-review
 description: "Review this card's specs with fresh eyes for gaps, contradictions, and cross-spec impact"
 label: "Review spec"
 category: spec
-workhorse-version: 0.8.1
+workhorse-version: 0.8.2
 ---
 
 ## Your task: Review spec with fresh eyes
