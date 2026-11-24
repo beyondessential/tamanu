@@ -28,6 +28,10 @@
 - The PDF is a new printout in `packages/shared/src/utils/patientCertificates/`, built from the same pieces as `InvoiceRecordPrintout`: `MultiPageHeader`, `LetterheadSection`, `PatientDetails`, the invoice item table styling, a summary pane holding the total balance, and `Footer`
 - The printout is titled "Patient invoice summary" and lists all of the patient's in-progress and finalised invoices, not only the page shown in the table, so it needs its own unpaginated fetch
 - The printout is landscape A4 (`<Page size="A4" orientation="landscape">`, as in `EncounterRecordPrintout`), so its columns have room
-- The printout has an Insurance payments column between Invoice total and Patient subtotal: the total insurance coverage on that invoice (`insuranceCoverageTotal` from `getInvoiceSummary`) shown as a positive amount, and $0.00 where the invoice has no insurance. The on-screen table has no insurance column
+- The printout has two coverage columns between Invoice total and Patient subtotal, each a positive amount and $0.00 where there is none:
+  - NHI payments: the NHI plan's coverage of that invoice, from `getFormattedCoverageAmountPerInsurancePlanForInvoice`
+  - Insurance payments: the invoice's total insurance coverage (`insuranceCoverageTotal` from `getInvoiceSummary`) less the NHI coverage
+- Nothing in the code marks an insurance plan as NHI (`InvoiceInsurancePlan` has only a code and name), so a new setting names the NHI plan. It belongs in the settings schema, not a config file (`llm/project-rules/settings.md`), in whichever scope the printout's data is assembled. When the setting is unset, the NHI payments column is left off the printout and Insurance payments holds all of each invoice's coverage
+- The on-screen table has no coverage columns
 - The printout keeps a Patient payments column, which the on-screen table does not have
 - Every column in the printout, amounts included, is left-aligned, headings and values alike. This differs from `InvoiceRecordPrintout`, whose cost columns are right-aligned (`justifyContent: 'flex-end'`), so don't carry that style across. The first column has no left padding, so dates line up with the table's left edge and the patient details above (`InvoiceRecordPrintout` indents its first column with `paddingLeft: 13`)
