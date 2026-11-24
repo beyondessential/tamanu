@@ -101,7 +101,7 @@ The routes are in `buildSyncRoutes.js`, and the work behind them is in `CentralS
 6. **Pull.** The client downloads that snapshot in pages (`getOutgoingChanges`) into its own staging area. Once it has everything, it saves it all in one transaction, along with its new pull cursor.
 7. **End the session.** The client deletes the session and central drops the snapshot table. If the session errored instead, the table is kept for a day so it can be inspected, then cleaned up.
 
-Central runs as several processes, so "is this background step still running?" cannot be answered from memory. Instead, the process doing the work holds a lock in the database, keyed on the session id, for as long as the step runs (`markSessionAsProcessing`). Any process can check whether that lock is held. If the lock is free but the step never recorded that it finished, central must have restarted part way through, and the session is marked as errored.
+Central runs as several node processes, so "is this background step still running?" cannot be answered from memory inside any one process. Instead, the process doing the work holds a lock in the database, keyed on the session id, for as long as the step runs (`markSessionAsProcessing`). Any process can check whether that lock is held. If the lock is free but the step never recorded that it finished, central must have restarted part way through, and the session is marked as errored.
 
 ### Persisting a push
 
