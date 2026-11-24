@@ -19,12 +19,10 @@ import { theme } from '~/ui/styled/theme';
 import Form from '~/ui/components/Forms/Form';
 import { Button } from '~/ui/components/Button';
 import { TextField } from '~/ui/components/TextField/TextField';
-import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
-import { PATIENT_COMMUNICATION_CHANNELS } from '~/constants/comms';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
@@ -43,7 +41,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
       PatientContact.createAndSaveOne<PatientContact>({
         name: values.reminderContactName,
         relationship: values.reminderContactRelationship,
-        method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
         patient: selectedPatient.id,
       }),
     onSuccess: () => {
@@ -53,19 +50,14 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   const submit = async (values: IFormValues) => {
     const newContact = await createContact(values);
-    afterAddContact(
-      {
-        ...newContact,
-        relationshipId: values.reminderContactRelationship,
-        patientId: selectedPatient.id,
-        patient: newContact.patient as any,
-        relationship: newContact.relationship as any,
-      },
-      true,
-    );
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
-      contactId: newContact.id,
+    afterAddContact({
+      ...newContact,
+      relationshipId: values.reminderContactRelationship,
+      patientId: selectedPatient.id,
+      patient: newContact.patient as any,
+      relationship: newContact.relationship as any,
     });
+    navigation.goBack();
   };
 
   const patientName = joinNames(selectedPatient);
@@ -201,10 +193,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       fontSize={screenPercentageToDP(2, Orientation.Height)}
                       fontWeight={500}
                     >
-                      <TranslatedText
-                        stringId="patient.details.addReminderContact.action.confirm"
-                        fallback="Confirm & connect"
-                      />
+                      <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
                     </StyledText>
                   </Button>
                   <Button

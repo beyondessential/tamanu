@@ -12,7 +12,6 @@ import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
 import { usePatient } from '../../contexts/Patient';
 import { useApi } from '../../api';
-import { PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
 
 const FormHeading = styled(Typography)`
   margin: 7px 0 9px 0;
@@ -29,13 +28,6 @@ const FormSubHeading = styled(Typography)`
   span {
     font-weight: 500;
   }
-`;
-
-const FormFooterText = styled(Typography)`
-  font-size: 14px;
-  line-height: 18px;
-  margin-bottom: 31px;
-  font-weight: 500;
 `;
 
 const StyledFormContainer = styled.div`
@@ -58,7 +50,7 @@ const StyledDivider = styled(Divider)`
   border-top: 1px solid ${Colors.outline};
 `;
 
-export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
+export const AddReminderContact = ({ onClose, onBack }) => {
   const { getTranslation } = useTranslation();
   const api = useApi();
 
@@ -72,12 +64,11 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
     const body = {
       name: values.reminderContactName,
       relationshipId: values.reminderContactRelationship,
-      method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
       patientId: patient.id,
     };
 
-    const newContact = await api.post(`patient/reminderContact`, body);
-    onContinue(newContact);
+    await api.post(`patient/reminderContact`, body);
+    onBack();
   };
 
   return (
@@ -163,13 +154,6 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                 data-testid="localisedfield-2jnt"
               />
             </StyledFormContainer>
-            <FormFooterText data-testid="formfootertext-6chs">
-              <TranslatedText
-                stringId="patient.details.addReminderContact.qrCodeInstruction"
-                fallback="Connect using the QR code on the following screen."
-                data-testid="translatedtext-5mbe"
-              />
-            </FormFooterText>
             <StyledFullWidthContainer data-testid="styledfullwidthcontainer-o6wk">
               <StyledDivider data-testid="styleddivider-gy3h" />
             </StyledFullWidthContainer>
@@ -177,13 +161,6 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
               onBack={onBack}
               onConfirm={submitForm}
               onCancel={onClose}
-              confirmText={
-                <TranslatedText
-                  stringId="patient.details.addReminderContact.action.confirm"
-                  fallback="Confirm & connect"
-                  data-testid="translatedtext-1c51"
-                />
-              }
               data-testid="formconfirmcancelbackrow-4y98"
             />
           </>

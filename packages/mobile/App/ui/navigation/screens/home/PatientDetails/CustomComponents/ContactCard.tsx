@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { type IPatientContact, ReferenceDataType } from '~/types';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
@@ -16,15 +15,7 @@ export const StyledViewWithBorder = styled(StyledView)`
   color: ${theme.colors.MAIN_SUPER_DARK};
 `;
 
-export const ContactCard = (contact: IPatientContact) => {
-  const { name, relationship, method, connectionDetails } = contact;
-  const { isFailedContact } = useReminderContact();
-
-  const getColor = () => {
-    if (connectionDetails) return theme.colors.TEXT_SUPER_DARK;
-    return isFailedContact(contact) ? theme.colors.ALERT : theme.colors.TEXT_SOFT;
-  };
-
+export const ContactCard = ({ name, relationship }: IPatientContact) => {
   return (
     <StyledViewWithBorder>
       <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
@@ -38,7 +29,10 @@ export const ContactCard = (contact: IPatientContact) => {
             fallback="Contact"
           />
         </StyledText>
-        <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
+        <StyledText
+          color={theme.colors.TEXT_SUPER_DARK}
+          fontSize={screenPercentageToDP(2, Orientation.Height)}
+        >
           {name}
         </StyledText>
       </RowView>
@@ -53,43 +47,15 @@ export const ContactCard = (contact: IPatientContact) => {
             fallback="Relationship"
           />
         </StyledText>
-        <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
+        <StyledText
+          color={theme.colors.TEXT_SUPER_DARK}
+          fontSize={screenPercentageToDP(2, Orientation.Height)}
+        >
           <TranslatedReferenceData
             category={ReferenceDataType.ContactRelationship}
             fallback={relationship?.name}
             value={relationship?.id}
           />
-        </StyledText>
-      </RowView>
-      <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
-        <StyledText
-          color={theme.colors.TEXT_SUPER_DARK}
-          fontSize={screenPercentageToDP(2, Orientation.Height)}
-          fontWeight={500}
-        >
-          <TranslatedText
-            stringId="patient.details.reminderContacts.field.contactMethod"
-            fallback="Contact method"
-          />
-        </StyledText>
-        <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
-          {connectionDetails ? (
-            <TranslatedText
-              stringId={`patient.details.reminderContacts.method.${method}`}
-              fallback={method}
-            />
-          ) : isFailedContact(contact) ? (
-            <TranslatedText
-              stringId="patient.details.reminderContacts.status.failed"
-              fallback="Failed"
-            />
-          ) : (
-            <TranslatedText
-              stringId="patient.details.reminderContacts.status.pending"
-              fallback=":method pending"
-              replacements={{ method }}
-            />
-          )}
         </StyledText>
       </RowView>
     </StyledViewWithBorder>

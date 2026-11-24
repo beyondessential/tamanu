@@ -31,7 +31,6 @@ export * from './PhotoCaptureModal';
 export * from './WebcamCaptureModal';
 export * from './QRCodeScannerModal';
 export * from './ReminderContact/AddReminderContact';
-export * from './ReminderContact/ReminderContactQR';
 export * from './ReminderContact/ReminderContactModal';
 export * from './ReminderContact/ReminderContactList';
 export * from './ReminderContact/RemoveReminderContact';

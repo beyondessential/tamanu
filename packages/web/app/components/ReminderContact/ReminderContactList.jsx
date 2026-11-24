@@ -23,26 +23,13 @@ const StyledAddContactButton = styled(Button)`
   }
 `;
 
-export const ReminderContactList = ({
-  onClose,
-  onAddContact,
-  pendingContacts,
-  onRetry,
-  successContactIds,
-  onRemoveContact,
-}) => {
+export const ReminderContactList = ({ onClose, onAddContact, onRemoveContact }) => {
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
   return (
     <>
-      <ContactDetails
-        pendingContacts={pendingContacts}
-        onRetry={onRetry}
-        successContactIds={successContactIds}
-        onRemoveContact={onRemoveContact}
-        data-testid="contactdetails-6in2"
-      />
+      <ContactDetails onRemoveContact={onRemoveContact} data-testid="contactdetails-6in2" />
       {canAddReminderContacts && (
         <StyledAddContactButton
           variant="outlined"
