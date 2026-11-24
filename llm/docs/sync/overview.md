@@ -82,7 +82,7 @@ Most values of `updated_at_sync_tick` are real ticks, but a few are flags with a
 | `0` | The column default on central. | Column default only. |
 | `-2` | A `sync_lookup` row written by a build and not yet stamped. | The lookup build. Only ever in `sync_lookup`. |
 
-The trigger only treats `-1` specially. Every other value, including `-999`, `0` and `-2`, is overwritten with the current tick on the next write. So when someone later edits a row that came from central (sitting at `-999`), it gets a real tick, and that is exactly what marks it as a local edit to push.
+The trigger only treats `-1` specially. Every other value, including `-999`, `0` and `-2`, is overwritten with the current tick on the next write. So when someone later edits a row that came from central (sitting at `-999`), it gets a real tick, which is what marks it as a local edit to push.
 
 ## A session, end to end
 
@@ -115,11 +115,11 @@ This is `persistIncomingChanges`. Everything in the numbered list happens inside
 
 After the transaction commits, two more things run: `adjustDataPostSyncPush`, which lets a model make follow-up changes, and `bumpSyncTickForRepull`, which re-stamps any record a hook changed so that it is sent back to the client that pushed it.
 
-The reason for the two tick-tocks is that T has to be unique to this push. The first tick-tock happens inside the transaction, so until the transaction commits, no other transaction can see T as the current tick. The second moves the clock past T before the commit, so nobody can see it afterwards either. The result is that any row stamped T was definitely written by this push, and by nothing else.
+The reason for the two tick-tocks is that T has to be unique to this push. The first tick-tock happens inside the transaction, so until the transaction commits, no other transaction can see T as the current tick. The second moves the clock past T before the commit, so nobody can see it afterwards either. So any row stamped T can only have been written by this push.
 
 Central relies on that later, to avoid sending a device its own changes back (see [Not sending a client its own changes](#not-sending-a-client-its-own-changes)). It is also why the two follow-up steps run after the transaction and not inside it: their changes need a different tick, so that they do go back to the client.
 
-Pushed records get very little validation on the way in. Central checks that each one is for a known model, and that the model's sync direction allows pushing. It does not check the shape of the record. If a record is malformed, a database constraint rejects it when it is saved, and the session fails. A few models whose records cause something to happen outside the database (e.g. sending an email, running a report) clean up what was pushed first, using `sanitizeForCentralServer`.
+Pushed records are only lightly validated on the way in. Central checks that each one is for a known model, and that the model's sync direction allows pushing. It does not check the shape of the record. If a record is malformed, a database constraint rejects it when it is saved, and the session fails. A few models whose records cause something to happen outside the database (e.g. sending an email, running a report) clean up what was pushed first, using `sanitizeForCentralServer`.
 
 ### Building a pull
 
@@ -131,7 +131,7 @@ This is `setupSnapshotForPull`. In order:
 4. **Work out which patients are newly marked for sync**, by reading `patient_facilities` for marks made since the client's cursor.
 5. **Copy records from the lookup table into the snapshot table.** This happens inside one repeatable read transaction, so that everything is read as at a single moment. There are up to three passes: the full history of newly marked patients; everything changed since the cursor for everyone else; and, for mobile only, any tables it asked to sync again from scratch.
 
-There is no upper limit on what goes into the snapshot. If a row newer than `pullUntil` is visible when the transaction starts, it is sent, and it will be sent again next time. That is harmless, and intended. `pullUntil` means "central is certain you are complete up to here", not "you have nothing newer than this".
+There is no upper limit on what goes into the snapshot. If a row newer than `pullUntil` is visible when the transaction starts, it is sent, and it will be sent again next time. That is fine, and intended. `pullUntil` means "central is certain you are complete up to here", not "you have nothing newer than this".
 
 Note that the client never tells central which patients it wants. Marking a patient for sync is just another record that syncs up, and central works out from it that the patient's history needs to go down.
 
@@ -165,8 +165,8 @@ For pulls, scope is worked out when the row is copied into the lookup table, not
 
 Two things to be careful of:
 
-- **A row with no scope columns goes to every client.** Leaving a scope column empty is a decision, not a safe default. Getting this wrong has sent data to facilities that should not have had it, twice.
-- **Lab requests are checked before patient and network scope.** So a facility that syncs all lab requests receives lab requests, and the encounters they belong to, from inside a sensitive network it is not part of. The sensitive networks spec states this ordering, but nobody decided it on its merits: it was carried over when networks were added. Treat it as an open question, not a designed exception.
+- **A row with no scope columns goes to every client.** So leaving a scope column empty needs to be a deliberate choice. This has gone wrong twice, with data reaching facilities that should not have had it.
+- **Lab requests are checked before patient and network scope.** So a facility that syncs all lab requests receives lab requests, and the encounters they belong to, from inside a sensitive network it is not part of. The sensitive networks spec states this ordering, but it was carried over when networks were added and not really decided on its merits, so it is best treated as an open question.
 
 There is no list anywhere that defines "reference data" for sync. The tables that sync everywhere are simply the ones whose models set no scope.
 
@@ -174,14 +174,14 @@ There is no list anywhere that defines "reference data" for sync. The tables tha
 
 - **Four columns never sync**, on any model: `createdAt`, `updatedAt`, `deletedAt` and `updatedAtSyncTick`. These are each server's own bookkeeping about the row.
 - **Everything else does**, including the whole user row with its password hash, which goes to every client. Logging in while central is unreachable depends on it.
-- **Deletes are soft deletes.** A delete is sent as an `isDeleted` flag alongside the record, and whoever receives it sets or clears `deleted_at` in the same statement as the rest of the record. A hard delete (actually removing the row) is not synced at all, and every other server keeps the row forever. This follows from how sync works: it finds out what changed by reading what each row says about itself, and a row that no longer exists cannot say anything.
+- **Deletes are soft deletes.** A delete is sent as an `isDeleted` flag alongside the record, and whoever receives it sets or clears `deleted_at` in the same statement as the rest of the record. A hard delete (actually removing the row) is not synced at all, and every other server keeps the row. This follows from how sync works: it finds out what changed by reading what each row says about itself, and a row that no longer exists cannot say anything.
 - **A record is identified by a single `id` column.** A few tables have a composite primary key in the database, i.e. a key made of two or more columns. Each of those also has a stored, generated `id` column built from the parts, and that is what sync uses.
 
 ### Marking patients for sync
 
 A patient is marked for sync at a facility in one of two ways. It happens automatically when clinical work happens there, e.g. the patient is created, has an encounter, an appointment, a booking or a program registration, or is edited on a mobile device. Or a user does it deliberately. This is specified in `specs/sync/marking-patients-for-sync.md`. A mark is a record like any other, and syncs to central.
 
-There is no way to unmark a patient. No screen, route or task removes a mark. Removing one by hand in the database would leave the patient's data sitting on the facility with nothing to clean it up, because the removal itself would not sync (see hard deletes, above). Avoid it.
+There is no way to unmark a patient. No screen, route or task removes a mark. Removing one by hand in the database would leave the patient's data sitting on the facility with nothing to clean it up, because the removal itself would not sync (see hard deletes, above). It is best avoided.
 
 ## The lookup table
 
@@ -189,7 +189,7 @@ The expensive part of a pull is working out which rows belong to which client. T
 
 The lookup table takes that work out of the session. `sync_lookup` is a denormalised copy of every record that syncs: the record itself as JSON, the scope columns that say who should receive it, and a tick. A scheduled task keeps it up to date, every 20 seconds by default, and a pull becomes a single indexed query against one table. It is specified in `specs/sync/lookup-table.md`.
 
-The price is a delay. A change on central cannot be pulled until the next build has copied it into the lookup table. One consequence is easy to miss: **the pull in a session does not see what that same session just pushed.**
+The trade-off is a delay. A change on central cannot be pulled until the next build has copied it into the lookup table. One consequence is easy to miss: **the pull in a session does not see what that same session just pushed.**
 
 ### A build
 
@@ -211,7 +211,7 @@ Without some care, everything a client pushed would come straight back to it on 
 
 To avoid it, when a build copies a row, it checks whether the row's tick matches a push recorded in `sync_device_ticks`. If it does, the row was last written by that device's push, and the lookup row records the device (`pushed_by_device_id`). That device's pulls then skip the row. If anything else changes the row later, it gets a different tick, the match no longer holds, and the row goes to everyone again.
 
-This depends completely on a push's tick being unique to that push, which is what the two tick-tocks in [Persisting a push](#persisting-a-push) are for.
+This relies on a push's tick being unique to that push, which is what the two tick-tocks in [Persisting a push](#persisting-a-push) are for.
 
 ### Drift and healing
 
@@ -231,7 +231,7 @@ A conflict is when the same record has been changed in two places between syncs.
 
 It would be natural to assume that the highest tick wins everywhere, since that is what a logical clock is usually for. Outside the field-by-field merge, it does not. A facility that syncs late can overwrite an edit that has a higher tick.
 
-This is known, and has been left alone on purpose. Neither rule knows the real order the edits were made in, so both are arbitrary when there is a genuine conflict, and changing the rule would change behaviour everywhere at once. Do not "correct" it as part of other work.
+This is known, and has been left alone on purpose. Neither rule knows the real order the edits were made in, so both are arbitrary when there is a genuine conflict, and changing the rule would change behaviour everywhere at once. It is not something to "correct" as part of other work.
 
 > [!WARNING]
 > There is a known, open problem here. In a genuine conflict, the lookup table's delay breaks the last step. The client that pushes wins on central, as it should. But the pull in the same session reads the lookup table, which still holds the other side's older version, so the client is sent that and saves it over its own. Central then never sends the client its own version back, because it recognises it as that client's push. The client and central end up holding each other's version. The same happens with the field-by-field merge. See [Dragons](dragons.md).
@@ -282,15 +282,15 @@ A transaction's isolation level controls what it can see of other transactions' 
 
 Snapshots need something stricter. They run at repeatable read, where the whole transaction sees the database as it was at one instant. That way every table is read as at the same moment, and a child record cannot be copied without its parent. The pull snapshot, the lookup build, the facility's push snapshot and the facility bootstrap all work this way.
 
-Inside one of these, only read tables that other things write to. If a repeatable read transaction writes a row that something outside it also writes, the database raises a serialisation failure, and nothing in sync retries those. The session row is the obvious trap, since every poll from the client updates it. That is why updates to the session sit just outside these transactions.
+Inside one of these, only read tables that other things write to. If a repeatable read transaction writes a row that something outside it also writes, the database raises a serialisation failure, and nothing in sync retries those. The session row is the one to watch, since every poll from the client updates it. That is why updates to the session sit just outside these transactions.
 
-Everything else in sync runs at read committed, and pending edits depend on that. At a stricter level, a transaction sees the clock as it was at its first statement, however long it then runs, while the trigger only takes its lock at the first write to a synced table. In between, nothing marks that tick as in use, and a snapshot can go past it. So a transaction at repeatable read or serializable that writes synced rows has to hold the clock itself. The importer runs at serializable and does exactly that, which is the real reason it locks the clock row.
+Everything else in sync runs at read committed, and pending edits depend on that. At a stricter level, a transaction sees the clock as it was at its first statement, however long it then runs, while the trigger only takes its lock at the first write to a synced table. In between, nothing marks that tick as in use, and a snapshot can go past it. So a transaction at repeatable read or serializable that writes synced rows has to hold the clock itself. The importer runs at serializable and does that, which is why it locks the clock row.
 
 ### Advisory lock keys
 
 Advisory locks are shared across the whole database, and identified only by a number. Sync uses plain integers for ticks. Every other use (the lock that marks a session as processing, the lock around creating a session, and several outside sync) gets its number by hashing a string.
 
-Keep to that convention. The two ranges do overlap, and the trigger does not check whether it actually got its lock, so if a hashed key ever matched a tick in use, an edit would go untracked.
+It is worth keeping to that convention. The two ranges do overlap, and the trigger does not check whether it actually got its lock, so if a hashed key ever matched a tick in use, an edit would go untracked.
 
 ### Capacity
 
@@ -376,7 +376,7 @@ Mobile is also missing two of the facility server's safeguards:
 There are two different pull paths, and which one runs depends on whether the device has a pull cursor yet.
 
 - **Initial sync** (no cursor). Each page is saved as it arrives, all inside one transaction, with no staging. The user cannot do anything useful until the first sync finishes anyway, so there is no harm in the database being part-written while it runs, as long as a failure rolls everything back.
-- **Incremental sync** (every sync after that). The pull is staged first, then saved from staging in one transaction. Staging lives in a separate, throwaway SQLite file attached alongside the main database. That is purely for speed, since it keeps the staging writes out of the main database's journal. If anything goes wrong, the file is deleted and the pull is done again.
+- **Incremental sync** (every sync after that). The pull is staged first, then saved from staging in one transaction. Staging lives in a separate, throwaway SQLite file attached alongside the main database. That is just for speed, since it keeps the staging writes out of the main database's journal. If anything goes wrong, the file is deleted and the pull is done again.
 
 On both paths, foreign key checks are deferred until the transaction commits, so it does not matter what order records arrive in. If the commit fails, mobile then works out which record was the problem.
 
@@ -392,7 +392,7 @@ Mobile syncs every five minutes while the app is open. It also syncs straight aw
 
 If a sync is requested while one is running, the request is dropped. Unlike on the facility server, it is not queued.
 
-The screen is kept awake for the length of a sync (`specs/sync/mobile-keep-awake.md`). If the app is killed part way through, the cursors have not moved, so the next sync simply does the work again.
+The screen is kept awake for the length of a sync (`specs/sync/mobile-keep-awake.md`). If the app is killed part way through, the cursors have not moved, so the next sync just does the work again.
 
 ## Migrations and sync
 
