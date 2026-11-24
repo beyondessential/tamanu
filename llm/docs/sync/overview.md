@@ -134,7 +134,7 @@ This is `setupSnapshotForPull`, which is a central-side snapshot process. In ord
 
 There is no upper limit on what goes into the snapshot. If a row newer than `pullUntil` is visible when the transaction starts, it is sent, and it will be sent again next time. That is fine, and intended. `pullUntil` means "central is certain you are complete up to here", not "you have nothing newer than this".
 
-Note that the client never tells central which patients it wants. Marking a patient for sync is just another record that syncs up, and central works out from it that the patient's history needs to go down.
+Note that the client doesn't tells central which patients it wants. Marking a patient for sync is just another record that syncs up, and central works out from it that the patient's history needs to go down.
 
 ## What syncs where
 
