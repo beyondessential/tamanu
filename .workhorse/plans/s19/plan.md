@@ -22,16 +22,19 @@ per surface that later work extends.
   (one form, Health questions); portal specs assign the same survey.
 - **The portal is served from its production build** with `vite preview` on port 5175, proxying
   `/api` to central, like the web frontends.
+- **Portal tokens share one secret per process.** Running the portal specs against a central with
+  no `AUTH_SECRET` (as CI has) showed login signing with a random secret per token while the
+  middleware verified against the unset one, so no session validated. Fixed in the portal router.
 
 ## Checklist
 
-- [ ] Plan and test cases
-- [ ] Portal served in E2E: `e2e-preview` script, Playwright `webServer` entry, `PATIENT_PORTAL_URL`
-- [ ] CI: install and build the portal, `CENTRAL_DATABASE_URL`, mail transport and kiosk demo in setup
-- [ ] `pg` dev dependency and `utils/centralDatabase.ts`
-- [ ] Portal page objects (`pages/patientPortal/`) and fixtures
-- [ ] Portal spec: sign in and out, wrong code, edit details, submit a form
-- [ ] Kiosk: forms on the page object; specs for completing forms, no match, Start over
-- [ ] Local setup docs (README, `.env.example`, `provisioning.local-example.json5`)
-- [ ] `llm/project-rules/playwright-e2e.md`: where kiosk and portal coverage lives
-- [ ] Run the new specs locally against a full stack
+- [x] Plan and test cases
+- [x] Portal served in E2E: `e2e-preview` script, Playwright `webServer` entry, `PATIENT_PORTAL_URL`
+- [x] CI: install and build the portal, `CENTRAL_DATABASE_URL`, mail transport and kiosk demo in setup
+- [x] `pg` dev dependency and `utils/centralDatabase.ts`
+- [x] Portal page objects (`pages/patientPortal/`) and fixtures
+- [x] Portal spec: sign in and out, wrong code, edit details, submit a form
+- [x] Kiosk: forms on the page object; specs for completing forms, no match, Start over
+- [x] Local setup docs (README, `.env.example`, `provisioning.local-example.json5`)
+- [x] `llm/project-rules/playwright-e2e.md`: where kiosk and portal coverage lives
+- [x] Run the new specs locally against a full stack
