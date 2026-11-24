@@ -67,33 +67,42 @@ export const findSyncSnapshotRecordsOrderByDependency = async (
   const sortedModels = sortInDependencyOrder(modelsForPull as Models);
 
   const { sortOrder: lastRecordTypeOrder, id: lastId } = fromId ? JSON.parse(atob(fromId)) : {};
+  const hasCursor = Boolean(lastRecordTypeOrder && lastId);
 
-  const records = await sequelize.query(
-    `
-      WITH priority(record_type, sort_order) AS (
-        VALUES
-          ${sortedModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
-      )
-      SELECT * FROM ${tableName}
-      JOIN priority ON ${tableName}.record_type = priority.record_type
-      WHERE true
-      ${lastRecordTypeOrder && lastId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
-      AND direction = :direction
-      ${additionalWhere ? `AND ${additionalWhere}` : ''}
-      ORDER BY priority.sort_order, id
-      LIMIT :limit;
-    `,
-    {
-      replacements: {
-        lastRecordTypeOrder,
-        lastId,
-        direction,
-        limit,
+  // One record type at a time, so each query can use the (direction, record_type, id) index
+  const records: Record<string, unknown>[] = [];
+  for (const [index, model] of sortedModels.entries()) {
+    const sortOrder = index + 1;
+    if (hasCursor && sortOrder < lastRecordTypeOrder) continue;
+
+    const remaining = limit - records.length;
+    if (remaining <= 0) break;
+
+    const isCursorRecordType = hasCursor && sortOrder === lastRecordTypeOrder;
+    const recordsForType = await sequelize.query<Record<string, unknown>>(
+      `
+        SELECT *, :sortOrder AS sort_order FROM ${tableName}
+        WHERE direction = :direction
+        AND record_type = :recordType
+        ${isCursorRecordType ? 'AND id > :lastId' : ''}
+        ${additionalWhere ? `AND ${additionalWhere}` : ''}
+        ORDER BY id
+        LIMIT :remaining;
+      `,
+      {
+        replacements: {
+          sortOrder,
+          direction,
+          recordType: model.tableName,
+          lastId,
+          remaining,
+        },
+        type: QueryTypes.SELECT,
+        raw: true,
       },
-      type: QueryTypes.SELECT,
-      raw: true,
-    },
-  );
+    );
+    records.push(...recordsForType);
+  }
 
   return records.map(r =>
     Object.fromEntries(Object.entries(r).map(([key, value]) => [camel(key), value])),
