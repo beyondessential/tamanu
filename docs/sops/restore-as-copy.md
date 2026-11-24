@@ -2,8 +2,8 @@
 
 Use this to stand up or refresh a clone or test environment from another
 server's backup. A restored database holds the source server's sync host, sync
-credentials, device identity and integration credentials (email, Telegram,
-DHIS2, mSupply), so a copy that skips these steps can sync, report and send
+credentials, device identity and integration credentials (email, DHIS2,
+mSupply), so a copy that skips these steps can sync, report and send
 messages as the server it came from. This is **mutating**, so **dev-OTS** by
 default. Run it on the copy only: on a live server it removes that server's sync
 setup and integration credentials.

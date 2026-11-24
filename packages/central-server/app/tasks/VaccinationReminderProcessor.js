@@ -1,6 +1,6 @@
 import {
   COMMUNICATION_STATUSES,
-  PATIENT_COMMUNICATION_CHANNELS,
+  PATIENT_COMMUNICATION_CHANNELS_VALUES,
   PATIENT_COMMUNICATION_TYPES,
 } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -64,7 +64,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
         'dueDate', uv.due_date
       ) vars
       FROM upcoming_vaccinations uv
-      join patient_contacts pc on pc.patient_id = uv.patient_id and pc.method = :communicationChannel and pc.connection_details->>'chatId' is not null and pc.deleted_at is null
+      join patient_contacts pc on pc.patient_id = uv.patient_id and pc.method in (:communicationChannels) and pc.connection_details->>'chatId' is not null and pc.deleted_at is null
       join scheduled_vaccines sv on sv.id = uv.scheduled_vaccine_id
       join reference_data rd on rd.id = sv.vaccine_id and rd."type" = 'drug'
       join patients p on p.id = uv.patient_id
@@ -88,7 +88,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
     `,
         {
           replacements: {
-            communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+            communicationChannels: PATIENT_COMMUNICATION_CHANNELS_VALUES,
             communicationStatus: COMMUNICATION_STATUSES.QUEUED,
             communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
             language,

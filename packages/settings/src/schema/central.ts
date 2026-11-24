@@ -78,7 +78,7 @@ export const centralSettings = {
       },
     },
     patientCommunication: {
-      description: 'Settings for patient communications (emails, telegram)',
+      description: 'Settings for patient communications',
       properties: {
         retryThreshold: {
           description: 'Maximum number of send retries before a queued message is given up on',
@@ -485,34 +485,6 @@ export const centralSettings = {
             requireClientHeaders: requireClientHeaders(),
           },
         },
-        telegram: {
-          description: 'Telegram bot integration settings',
-          properties: {
-            apiToken: {
-              description: 'Telegram bot API token (enables the bot when set)',
-              type: yup.string(),
-              secret: true,
-            },
-            webhook: {
-              description:
-                'Webhook settings; when a URL is set the bot uses webhooks instead of polling',
-              properties: {
-                url: {
-                  description:
-                    'External webhook URL, e.g. https://central.example.com/api/public/telegram-webhook',
-                  type: urlSchema,
-                  defaultValue: '',
-                },
-                secret: {
-                  description:
-                    'Secret token Telegram includes on webhook requests, used to verify them',
-                  type: yup.string(),
-                  secret: true,
-                },
-              },
-            },
-          },
-        },
         ips: {
           description: 'International Patient Summary (IPS) settings',
           properties: {
@@ -802,10 +774,6 @@ export const centralSettings = {
           limitProperty(10),
         ),
         portalCommunicationProcessor: scheduledTaskSchema(
-          { schedule: '*/30 * * * * *' },
-          batchingProperties(100, 50),
-        ),
-        patientTelegramCommunicationProcessor: scheduledTaskSchema(
           { schedule: '*/30 * * * * *' },
           batchingProperties(100, 50),
         ),
