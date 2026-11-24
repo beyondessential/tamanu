@@ -159,8 +159,8 @@ For pulls, scope is worked out when the row is copied into the lookup table, not
 | Scope | Which clients receive the row | How |
 | --- | --- | --- |
 | Everywhere | All. | No scope columns set. Reference data, users, surveys, and every `patients` row. |
-| Patient | Those with the patient marked for sync. | `patient_id` column set. Patient found column set. Patient detected directly or through the row's encounter. |
-| Facility | Those serving that facility. | `facility_id`. Only for records that genuinely belong to one facility: settings, `patient_facilities`, appointments. |
+| Patient | Those with the patient marked for sync. | `patient_id` column set. Patient found column set. Patient found column set. Patient detected directly or through the row's encounter. |
+| Facility | Those serving that facility. | `facility_id` column set. Only for records that genuinely belong to one facility: settings, `patient_facilities`, appointments. |
 | Sensitive network | Those whose facilities are in the same network. | `sensitive_network_id`, carried by every encounter-linked model. Specified in `specs/sync/sensitive-networks.md`. |
 | Lab request | Also any facility with `sync.syncAllLabRequests` on. | `is_lab_request`. For a facility that runs the lab for others, without marking every patient in the country. |
 
