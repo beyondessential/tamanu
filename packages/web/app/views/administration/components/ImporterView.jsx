@@ -256,7 +256,7 @@ export const ImporterView = memo(
         setIsLoading(true);
         try {
           const intermediateResult = await api.postWithFileUpload(
-            route(`admin/import/${endpoint}`),
+            route('admin/import/:endpoint', { endpoint }),
             file,
             data,
           );
@@ -299,11 +299,7 @@ export const ImporterView = memo(
           formType={FORM_TYPES.CREATE_FORM}
           validationSchema={yup.object().shape({
             includedDataTypes: dataTypesSelectable
-              ? yup
-                  .array()
-                  .of(yup.string())
-                  .required()
-                  .min(1)
+              ? yup.array().of(yup.string()).required().min(1)
               : undefined,
             file: yup
               .string()

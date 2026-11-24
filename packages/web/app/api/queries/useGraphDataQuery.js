@@ -31,8 +31,9 @@ export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, is
     ],
     () =>
       api.get(
-        route(`encounter/:encounterId/graphData/${directory}/:vitalDataElementId`, {
+        route('encounter/:encounterId/graphData/:directory/:vitalDataElementId', {
           encounterId,
+          directory,
           vitalDataElementId,
         }),
         { startDate, endDate },

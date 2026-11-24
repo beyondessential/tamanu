@@ -61,7 +61,7 @@ export const ExporterView = memo(
         const saved = await saveFile({
           defaultFileName: `${title} export ${getCurrentDateTime()}`,
           getData: async () =>
-            await api.download(route(`admin/export/${endpoint}`), queryParameters),
+            await api.download(route('admin/export/:endpoint', { endpoint }), queryParameters),
           extension: 'xlsx',
         });
         if (saved) {

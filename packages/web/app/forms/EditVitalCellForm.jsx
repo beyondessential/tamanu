@@ -187,7 +187,10 @@ export const EditVitalCellForm = ({
     // The survey response answer might not exist
     if (dataPoint.answerId) {
       await api.put(
-        route(`surveyResponseAnswer/${directory}/:answerId`, { answerId: dataPoint.answerId }),
+        route('surveyResponseAnswer/:directory/:answerId', {
+          directory,
+          answerId: dataPoint.answerId,
+        }),
         {
           facilityId,
           ...newShapeData,
@@ -200,7 +203,7 @@ export const EditVitalCellForm = ({
         encounterId: encounter?.id,
         recordedDate: dataPoint.recordedDate,
       };
-      await api.post(route(`surveyResponseAnswer/${directory}`), {
+      await api.post(route('surveyResponseAnswer/:directory', { directory }), {
         facilityId,
         ...newVitalData,
       });

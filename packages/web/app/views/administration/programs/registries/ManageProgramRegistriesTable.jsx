@@ -91,7 +91,10 @@ const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
 function ManageProgramRegistriesTable({ columns, endpointSuffix, noDataMessage, dataTestId }) {
   const { programRegistryId } = useParams();
   const endpoint = programRegistryId
-    ? route(`admin/programRegistry/:programRegistryId/${endpointSuffix}`, { programRegistryId })
+    ? route('admin/programRegistry/:programRegistryId/:endpointSuffix', {
+        programRegistryId,
+        endpointSuffix,
+      })
     : '';
 
   return (
