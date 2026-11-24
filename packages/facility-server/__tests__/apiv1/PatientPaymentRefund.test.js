@@ -218,7 +218,7 @@ describe('Patient Payment Refund', () => {
     expect(refundOfRefund.body.error.message).toBe('This payment is a refund of another payment');
   });
 
-  describe('patientPaymentStatus update on refund', () => {
+  describe('patientPaymentStatus update', () => {
     const createPaymentUrl = invoiceId => `/api/invoices/${invoiceId}/patientPayments`;
 
     const createInvoiceWithItem = async (encounterId, itemPrice) => {
@@ -228,6 +228,38 @@ describe('Patient Payment Refund', () => {
       await models.InvoiceItem.create(
         fake(models.InvoiceItem, {
           invoiceId: invoice.id,
+          quantity: 1,
+          priceFinal: itemPrice,
+          orderedByUserId: user.id,
+        }),
+      );
+      return invoice;
+    };
+
+    // An invoice with one insurable item that an attached plan covers at coveragePercentage
+    const createInsuredInvoiceWithItem = async (encounterId, itemPrice, coveragePercentage) => {
+      const invoice = await createInvoice(encounterId, {
+        status: INVOICE_STATUSES.FINALISED,
+      });
+      const plan = await models.InvoiceInsurancePlan.create(
+        fake(models.InvoiceInsurancePlan, { defaultCoverage: 0 }),
+      );
+      await models.InvoicesInvoiceInsurancePlan.create({
+        invoiceId: invoice.id,
+        invoiceInsurancePlanId: plan.id,
+      });
+      const product = await models.InvoiceProduct.create(
+        fake(models.InvoiceProduct, { insurable: true }),
+      );
+      await models.InvoiceInsurancePlanItem.create({
+        invoiceInsurancePlanId: plan.id,
+        invoiceProductId: product.id,
+        coverageValue: coveragePercentage,
+      });
+      await models.InvoiceItem.create(
+        fake(models.InvoiceItem, {
+          invoiceId: invoice.id,
+          productId: product.id,
           quantity: 1,
           priceFinal: itemPrice,
           orderedByUserId: user.id,
@@ -292,6 +324,42 @@ describe('Patient Payment Refund', () => {
       const payment = await createPaymentViaApi(invoice.id, 100);
       expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL);
 
+      const refund = await app
+        .post(refundUrl(invoice.id, payment.id))
+        .send({ methodId: refundMethod.id });
+      expect(refund).toHaveSucceeded();
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID);
+    });
+
+    it('should set status to paid when the patient pays their share of an insured invoice', async () => {
+      const encounter = await createEncounter();
+      const invoice = await createInsuredInvoiceWithItem(encounter.id, 225, 50);
+
+      await createPaymentViaApi(invoice.id, 112.5);
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PAID);
+    });
+
+    it('should reject a payment above the patient share of an insured invoice', async () => {
+      const encounter = await createEncounter();
+      const invoice = await createInsuredInvoiceWithItem(encounter.id, 225, 50);
+
+      const result = await app.post(createPaymentUrl(invoice.id)).send({
+        date: '2024-01-15',
+        amount: 112.51,
+        receiptNumber: generateReceiptNumber(),
+        methodId: paymentMethod.id,
+      });
+
+      expect(result).toBeForbidden();
+    });
+
+    it('should set status to unpaid when the patient share of an insured invoice is refunded', async () => {
+      const encounter = await createEncounter();
+      const invoice = await createInsuredInvoiceWithItem(encounter.id, 225, 50);
+
+      const payment = await createPaymentViaApi(invoice.id, 112.5);
       const refund = await app
         .post(refundUrl(invoice.id, payment.id))
         .send({ methodId: refundMethod.id });
