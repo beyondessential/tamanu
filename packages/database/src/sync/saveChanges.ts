@@ -42,7 +42,7 @@ export const saveCreates = async (model: typeof Model, records: IncomingRecord[]
 export const saveUpdates = async (
   model: typeof Model,
   incomingRecords: IncomingRecord[],
-  idToExistingRecord: Record<string, IncomingRecord>,
+  idToExistingRecord: ReadonlyMap<string, IncomingRecord>,
   isCentralServer: boolean,
 ) => {
   const recordsToSave = isCentralServer
@@ -54,7 +54,7 @@ export const saveUpdates = async (
         // present when saveChangesForModel attached a delete/restore decision — it strips any value
         // the client sent — so that decision is written as-is.
         const { deletedAt, ...incomingFields } = incoming;
-        const merged = mergeRecord(idToExistingRecord[incoming.id]!, incomingFields);
+        const merged = mergeRecord(idToExistingRecord.get(incoming.id)!, incomingFields);
         return 'deletedAt' in incoming ? { ...merged, deletedAt } : merged;
       })
     : // on the facility server, trust the resolved central server version

@@ -96,6 +96,27 @@ describe('saveChangesForModel', () => {
       expect(Number.parseInt(newRecordInDb.updatedAtSyncTick, 10)).toBe(currentSyncTick);
     });
 
+    describe.each(['__proto__', 'constructor', 'entries', 'hasOwn', 'is', 'toString', 'values'])(
+      'when a new record’s ID is ‘%s’',
+      id => {
+        it.each([false, true])('should create it (isDeleted: %s)', async isDeleted => {
+          // setup test data
+          const newRecord = { id, text: 'new_record_name' };
+          const changes = [{ data: newRecord, isDeleted }];
+          // act
+          await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+          // assertions
+          expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
+          expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
+          const newRecordInDb = await models.SurveyScreenComponent.findByPk(id, {
+            paranoid: false,
+          });
+          expect(newRecordInDb.text).toEqual(newRecord.text);
+          expect(newRecordInDb.deletedAt === null).toBe(!isDeleted);
+        });
+      },
+    );
+
     it('soft deletes a duplicated create when any copy is deleted, whichever sorts first', async () => {
       // e.g. with syncAllLabRequests on, an encounter can arrive twice in one batch: once for a
       // marked-for-sync patient and once because it has a lab request attached
@@ -145,6 +166,23 @@ describe('saveChangesForModel', () => {
       expect(updatedRecordInDb).toBeDefined();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
     });
+
+    it.each(['__proto__', 'constructor', 'entries', 'hasOwn', 'is', 'toString', 'values'])(
+      'should update (not create) an existing record whose ID is ‘%s’',
+      async id => {
+        // setup test data
+        await models.SurveyScreenComponent.create({ id, text: 'historical' });
+        const newRecord = { id, text: 'current' };
+        const changes = [{ data: newRecord, isDeleted: false }];
+        // act
+        await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+        // assertions
+        expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
+        expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
+        const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(id);
+        expect(updatedRecordInDb.text).toEqual(newRecord.text);
+      },
+    );
 
     it('should update soft deleted records', async () => {
       // setup test data
