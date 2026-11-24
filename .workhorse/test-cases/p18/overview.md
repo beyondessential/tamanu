@@ -12,6 +12,8 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [x] An entry written by redux-persist is unwrapped, including nested state and null values
 - [x] A missing entry, an entry that does not parse, and an entry that is not an object all read as nothing stored
 - [x] Writes land in the order the changes were made, and a failed write does not block the next
+- [x] A read started ahead of time is handed to the next read, and the read after that goes to storage again
+- [x] A read that storage has not answered after five seconds reads as nothing stored
 
 ### Session (`contexts/AuthContext.spec.tsx`, verifies spec: MSESS)
 
@@ -20,7 +22,10 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [x] A session stored by an earlier build through redux-persist opens signed in the same way
 - [x] Stored tokens are handed to the central server when nobody is signed in to the screens
 - [x] A user who last signed in offline reopens with their permissions loaded (the one behaviour change)
-- [x] A stored session that cannot be read starts signed out
+- [x] A stored session that cannot be read starts signed out, and is left in storage as it is
+- [x] Nothing renders, reaches the central server or is stored until the session has been read
+- [x] A session read before the provider mounted is picked up without a second read
+- [x] The session just read is not stored again, and is stored once it changes
 - [x] Signing in online sets the user without their password, both tokens and the settings, starts a sync, and stores the session
 - [x] Signing in offline sets the user and leaves the stored tokens as they were
 - [x] Signing in before a facility is linked does not start a sync
@@ -38,6 +43,9 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [x] A stored selection is restored
 - [x] A selection stored by an earlier build through redux-persist is restored, including an empty one
 - [x] Restoring a selection does not count as viewing the patient again
+- [x] A stored selection that cannot be read starts with no patient selected, and is left in storage as it is
+- [x] Nothing renders or is stored until the selection has been read
+- [x] A selection read before the provider mounted is picked up
 - [x] Selecting a patient stores the selection, and selecting another replaces it
 - [x] Clearing the selection stores that it is empty
 - [x] Selecting a patient puts them at the top of recently viewed and refreshes the list
@@ -49,7 +57,7 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 
 - [x] Submitting a form for the selected patient reloads the selection (`hooks/useSurveySubmitMutation.spec.tsx`)
 - [x] Submitting for another patient, an unsaved submission, and a patient who can no longer be found all leave the selection alone
-- [x] The new patient screen shows the patient just registered, and keeps showing them after the selection is cleared (`registerPatient/NewPatientScreen.spec.tsx`)
+- [x] The new patient screen shows a patient selected in the same tick as the navigation to it, and keeps showing them after the selection is cleared (`registerPatient/NewPatientScreen.spec.tsx`)
 - [x] Patient search still navigates and scans as before (`stacks/SearchPatientTabs.spec.tsx`)
 
 ## On a device
@@ -63,7 +71,7 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 ### Session
 
 - [ ] Sign in online on a fresh install: facility selection shows, then the welcome introduction, then the home screen
-- [ ] Close the app fully and reopen it: it opens signed in on the home screen with no password asked for
+- [ ] Close the app fully and reopen it: it opens signed in on the home screen with no password asked for, and the sync that starts at launch completes
 - [ ] Log out from the More screen: the log in screen shows. Sign in again: the home screen shows without the welcome introduction
 - [ ] Sign in offline (aeroplane mode) as a user who has signed in online before
 - [ ] After logging out, sign in offline, close the app and reopen it: screens that check permissions (patient home, program registry, lab requests) open without error (the one behaviour change)

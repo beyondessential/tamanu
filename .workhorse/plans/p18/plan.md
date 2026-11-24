@@ -37,9 +37,12 @@ With one `user`, `ability` is restored whenever a user is. Decided with Tom: let
 
 ## Reading storage at launch
 
-- Each provider reads its own stored state once on mount and renders nothing until that read settles, which is what `PersistGate loading={null}` does today. `BackendProvider` has already shown its loading screen by this point, so the gap is not visible.
-- A read that fails or finds nothing starts from the initial state (signed out, welcome introduction not shown, no patient), as redux-persist does.
-- After the first read, each provider writes its state back whenever it changes, from an effect. This is the external-store case the coding rules allow an effect for, and it means no setter can forget to persist.
+- Each provider renders nothing until its stored state has been read, which is what `PersistGate loading={null}` does today.
+- Both reads start as the app loads, from `App/index.tsx`, and each provider picks up the result when it mounts. redux-persist read at module load too, so the reads ran alongside the backend starting. The notes first had each provider start its own read on mount, which put the two reads one after the other behind the backend, and left the launch sync, which starts with the backend, further ahead of the stored tokens reaching the central server connection than it is today.
+- A preloaded read is handed over once. A provider that mounts again, as it does when `BackendProvider` re-initialises, reads storage afresh.
+- A read that fails, finds nothing, or has not settled after five seconds starts from the initial state (signed out, welcome introduction not shown, no patient), as redux-persist does.
+- After the read, each provider stores its state whenever it changes, from an effect. This is the external-store case the coding rules allow an effect for, and it means no setter can forget to persist.
+- The restored state itself is not stored again. redux-persist wrote it back straight after rehydrating, which replaced an entry it had failed to read with the initial state. Leaving the entry alone until something changes means a passing storage error, or an entry from an earlier build that this reader gets wrong, does not cost the device its session.
 - Writes go through a small queue in the storage helper so two changes in quick succession land in order. redux-persist serialises its writes, and Keychain writes are slow enough that an out-of-order pair is possible without it.
 - Both providers do this through one hook, `useStoredState`, over a `createStoredState(storage, key)` helper that owns the parse and the write queue.
 - `store/secureStorage.ts` moves to `helpers/secureStorage.ts` as a plain helper, without the redux-persist `Storage` type.
@@ -53,7 +56,7 @@ Decided with Tom: keep the storage keys, write plain JSON, and have the reader a
 - redux-persist's format is a JSON object whose values are each a JSON string, plus a `_persist` entry. For the session that is `token`, `refreshToken`, `user`, `signedIn` and `isFirstTime`. For the root entry it is a single `patient` value holding `{ selectedPatient }`.
 - The reader tells the two apart by the `_persist` entry. With it present, each other value is parsed a second time and `_persist` is dropped. Without it, the object is used as read.
 - The plain shapes are the session object as held in state, and `{ selectedPatient }`.
-- State is written back once as soon as it has been read, as redux-persist does after rehydrating, so the first launch after an update replaces the old format with the plain one. The legacy branch still has to stay in the reader for as long as devices can update from a build that used Redux.
+- An entry in the old format is replaced with the plain one the first time the state changes after an update, not at launch. The legacy branch has to stay in the reader for as long as devices can update from a build that used Redux.
 - The parse is a pure function with its own unit tests for both formats, a missing entry, and an entry that does not parse.
 - Downgrade is not a concern. Android will not install an older build over a newer one without an uninstall, which clears both stores.
 
@@ -64,7 +67,7 @@ Decided with Tom: keep the storage keys, write plain JSON, and have the reader a
 - `withPatient(Component)` becomes a `useSelectedPatient()` call in the component body, and the `compose` wrapper goes with it. All 35 are function components, so none needs restructuring.
 - `useSelector(state => state.patient)` becomes the hook in the 10 files that use it.
 - `NewPatientScreen` keeps its mount-time snapshot, taken from the hook: `useState(selectedPatient)`. The snapshot exists so that clearing the selection on the way back does not blank this screen while its stack is still mounted.
-- That snapshot depends on the screen mounting after the selection is set. Registration calls `setSelectedPatient` and then `navigation.navigate` in the same tick, after an `await`. Navigation state lives in a `useSyncExternalStore`, which React renders at sync priority, while the selection is ordinary state set at default priority. React 19 renders both priorities in one pass, so the screen mounts with the patient already selected. Checked with a throwaway jest experiment against the installed React, with a transition-priority update as the control that does split.
+- That snapshot depends on the screen mounting after the selection is set. Registration calls `setSelectedPatient` and then `navigation.navigate` in the same tick, after an `await`. Navigation state lives in a `useSyncExternalStore`, which React renders at sync priority, while the selection is ordinary state set at default priority. React 19 renders both priorities in one pass, so the screen mounts with the patient already selected. `NewPatientScreen.spec.tsx` covers this with the real provider under a navigator, and fails when the selection is moved to transition priority.
 - `useSurveySubmitMutation` reads the selected patient's id and the setter from the hook. Its reload after a submit calls the setter, so it re-enters recently viewed as it does today (a no-op when the patient is already first).
 - `SearchPatientTabs` calls the hook like every other caller, and its spec mocks the hook the way it already mocks the settings and translation hooks. The notes first kept a props-taking `DumbSearchPatientTabs` for the spec; that split existed only because a connected component could not be rendered under jest.
 - `setSelectedPatient` accepts the `Patient` model as well as `IPatient`. The model is meant to implement the interface but is not assignable to it, because the two disagree on the type of `village.visibilityStatus`. Callers passed models through untyped props before, so typing the setter as `IPatient` alone would have added type errors at each of them.
@@ -117,8 +120,8 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ### Checks
 
-- [x] Typecheck shows no errors beyond the ones already on the base (480 on the base, 476 now, none new)
-- [x] Mobile jest suite passes (65 suites, 466 tests, run with three workers)
+- [x] Typecheck shows no errors beyond the ones already on the base (480 on the base, 477 now with main merged in, none from this card)
+- [x] Mobile jest suite passes (65 suites, 474 tests, run with three workers)
 - [x] Lint passes on the mobile package with no errors
 - [x] Android JavaScript bundle builds, so every import resolves under Metro, with no Redux package in it
 - [ ] Run on a device or emulator, including the upgrade from the previous build
@@ -131,9 +134,12 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 - `SelectedPatientProvider`: set, clear, restore, the recently viewed update, and what is written.
 - `useSurveySubmitMutation.spec.tsx` drops its `react-redux` mock for a mock of the hook. The note in that file about react-redux resolving a second copy of React no longer applies.
 - `SearchPatientTabs.spec.tsx` drops its `containers/Patient` mock.
+- `NewPatientScreen.spec.tsx` renders a navigator, which needs jest to resolve one copy of React: navigation's dependencies are hoisted to the repository root, where the web app's older React sits. `jest.config.js` maps `react` to the mobile package's copy.
 - On a device: the card's test focus list, with the upgrade check done by installing this build over the previous one while signed in with a patient selected.
 
 ## Left as it is
 
+- A log in the central server refuses signs the device out even from the log in screen, so a wrong password on a device that was signed out by inactivity discards its tokens and stops its sync. The Mobile app session spec now says so.
+- The launch sync can still start before the stored tokens reach the central server connection, as it can today. It fails on authentication and the next scheduled sync picks up.
 - A token refreshed mid-session is not written back to storage.
 - Scheduled sync does not restart after a log out and log in within one run. Recorded on the card as an issue needing its own card.
