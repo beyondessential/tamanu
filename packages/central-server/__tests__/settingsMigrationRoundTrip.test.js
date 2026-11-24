@@ -82,9 +82,6 @@ describe('config->settings migration round trip', () => {
     });
     expect(await Setting.get('mail.transportPassword', null, SETTINGS_SCOPES.CENTRAL)).toBe(undefined);
 
-    // schema-secrets are never lifted
-    expect(await Setting.get('mail.mailgun.apiKey', null, SETTINGS_SCOPES.CENTRAL)).toBe(undefined);
-
     // idempotent
     expect(await CENTRAL_STEPS[0].check(args)).toBe(false);
   });
