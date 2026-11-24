@@ -177,10 +177,11 @@ Two things to be careful of:
 - **One `id` per record:** A record is identified by a single `id` column. A few tables have a composite primary key in the database, i.e. a key made of two or more columns XXX [but this is never done in the strict composite primary key fashion]. Each of those also has a stored, generated `id` column built from the parts, and that is what sync uses.
 - XXX [changelogs]
 - XXX [changelogs]
+- XXX [changelogs]
 
 ### Marking patients for sync
 
-A patient is marked for sync at a facility in one of two ways. It happens automatically when clinical work happens there, e.g. the patient is created, has an encounter, an appointment, a booking or a program registration, or is edited on a mobile device. Or a user does it deliberately. This is specified in `specs/sync/marking-patients-for-sync.md`. A mark is a record like any other, and syncs to central.
+A patient is marked for sync at a facility in one of two ways. It happens automatically when clinical work happens there, e.g. the patient is created, has an encounter, an appointment, a booking or a program registration XXX [are the last two true? I thought it was simplified down, or is edited on a mobile device. Or a user does it deliberately. This is specified in `specs/sync/marking-patients-for-sync.md`. A mark is a record like any other, and syncs to central.
 
 There is no way to unmark a patient. No screen, route or task removes a mark. Removing one by hand in the database would leave the patient's data sitting on the facility with nothing to clean it up, because the removal itself would not sync (see hard deletes, above). It is best avoided.
 
