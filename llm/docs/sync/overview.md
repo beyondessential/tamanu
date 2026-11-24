@@ -39,7 +39,7 @@ Where there is a choice, responsibility sits with the client. A client holds its
 | Cursor | A tick a client has stored: "I have pushed everything up to here" or "I have pulled everything up to here". |
 | Snapshot table | A per-session table in the `sync_snapshots` schema holding the records in flight. An ordinary table, not a temporary one. |
 | Lookup table | `sync_lookup` on central: a copy of every syncable record with the columns that decide who receives it. Pulls read from it. |
-| Marked for sync | A patient with a `patient_facilities` row for a facility. That facility holds the patient's full record. |
+| Marked for sync | A patient with a `patient_facilities` row for a facility. That facility holds the patient's full record, and it is kept in sync with changes elsewhere in the system. |
 | Multi-facility server | A facility server that serves several facilities (historically "omni server"). It sends several facility ids. |
 
 ## The clock
