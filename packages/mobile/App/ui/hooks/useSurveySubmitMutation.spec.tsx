@@ -4,6 +4,7 @@ import React, { type ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Patient } from '~/models/Patient';
 import { type IPatient, SurveyTypes } from '~/types';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useBackend } from '~/ui/hooks';
 import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
@@ -16,6 +17,10 @@ jest.mock('~/models/Patient', () => ({
 
 jest.mock('~/ui/hooks', () => ({
   useBackend: jest.fn(),
+}));
+
+jest.mock('~/ui/contexts/AuthContext', () => ({
+  useAuth: jest.fn(),
 }));
 
 // The patient duck imports these for its recently-viewed side effect; not exercised here
@@ -39,6 +44,7 @@ jest.mock('react-redux', () => ({
 jest.useRealTimers();
 
 const mockFindOne = Patient.findOne as jest.Mock;
+const mockUseAuth = useAuth as jest.Mock;
 const mockUseBackend = useBackend as jest.Mock;
 const mockUseDispatch = useDispatch as unknown as jest.Mock;
 const mockUseSelector = useSelector as unknown as jest.Mock;
@@ -84,12 +90,10 @@ beforeEach(() => {
   mockSubmitSurveyResponse.mockResolvedValue(submittedResponse);
   mockSubmitReferral.mockResolvedValue(submittedResponse);
   mockFindOne.mockResolvedValue(selectedPatient);
+  mockUseAuth.mockReturnValue({ user: { id: USER_ID } });
   mockUseDispatch.mockReturnValue(mockDispatch);
   mockUseSelector.mockImplementation((selector: (state: ReduxStoreProps) => unknown) =>
-    selector({
-      patient: { selectedPatient },
-      auth: { user: { id: USER_ID } },
-    } as ReduxStoreProps),
+    selector({ patient: { selectedPatient } } as ReduxStoreProps),
   );
 });
 

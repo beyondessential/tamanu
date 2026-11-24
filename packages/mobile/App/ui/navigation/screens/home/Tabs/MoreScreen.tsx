@@ -2,7 +2,6 @@ import React, { type ReactElement, useMemo } from 'react';
 import { Linking, TouchableHighlight } from 'react-native';
 import { getUniqueId } from 'react-native-device-info';
 import { FlatList } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -14,7 +13,6 @@ import { CameraOutlineIcon, LaunchIcon } from '/components/Icons';
 import { Separator } from '/components/Separator';
 import { UserAvatar } from '/components/UserAvatar';
 import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
-import { authUserSelector } from '/helpers/selectors';
 import { version as AppVersion } from '/root/package.json';
 import { CenterView, FullView, RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -95,8 +93,7 @@ const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
 export const MoreScreen = (): ReactElement => {
   const { getLocalisation } = useLocalisation();
   const supportDeskUrl = getLocalisation('supportDeskUrl');
-  const authCtx = useAuth();
-  const user = useSelector(authUserSelector);
+  const { user, signOut } = useAuth();
   const { facilityName, facilityId } = useFacility();
   const settings = useMemo(
     () => [
@@ -148,7 +145,7 @@ export const MoreScreen = (): ReactElement => {
           width={screenPercentageToDP(29.19, Orientation.Width)}
           height={screenPercentageToDP(6.07, Orientation.Height)}
           buttonText={<TranslatedText stringId="auth.action.logout" fallback="Log out" />}
-          onPress={authCtx.signOut}
+          onPress={signOut}
           outline
           borderColor={theme.colors.PRIMARY_MAIN}
         />

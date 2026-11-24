@@ -14,7 +14,7 @@ A behaviour-preserving refactor of `packages/mobile`. The auth session moves int
 
 - `AuthProvider` holds the persisted session as one state object: `token`, `refreshToken`, `user`, `signedIn`, `isFirstTime`. One object rather than five `useState` calls so a sign-in that sets three fields is one state change and one write to storage.
 - There is one `user`, the one in the session. The provider's second copy goes.
-- `ability` is built from that user and `backend.permissions.data` when the session is restored and at each sign-in. It stays as state set at those two moments instead of being derived in render, because `permissions.data` is a plain property on a service that a remote sign-in replaces, and a memo keyed on it would be relying on a value React does not track.
+- `ability` is derived from that user and `backend.permissions.data` with a memo, so it exists whenever a user does. `permissions.data` is a plain property on a service, not something React tracks, but a remote sign-in replaces it just before the provider sets the new user, so rebuilding when the user changes picks it up. The notes first had `ability` as state set at restore and sign-in; the memo does the same with no second piece of state to keep in step.
 - `settings`, `resetPasswordLastEmailUsed` and `preventSignOutOnFailure` stay as they are: separate, in memory only.
 - The context keeps its current names (`checkFirstSession`, `setUserFirstSignIn`, `isUserAuthenticated` and the rest), so the thirty existing `useAuth()` callers are untouched. `SignIn.tsx` reads `checkFirstSession()` in place of `authSelector`.
 - `useSelector(authUserSelector)` becomes `useAuth().user` in the twelve files that use it.
@@ -41,7 +41,9 @@ With one `user`, `ability` is restored whenever a user is. Decided with Tom: let
 - A read that fails or finds nothing starts from the initial state (signed out, welcome introduction not shown, no patient), as redux-persist does.
 - After the first read, each provider writes its state back whenever it changes, from an effect. This is the external-store case the coding rules allow an effect for, and it means no setter can forget to persist.
 - Writes go through a small queue in the storage helper so two changes in quick succession land in order. redux-persist serialises its writes, and Keychain writes are slow enough that an out-of-order pair is possible without it.
-- `store/secureStorage.ts` moves beside its only caller as a plain helper, without the redux-persist `Storage` type.
+- Both providers do this through one hook, `useStoredState`, over a `createStoredState(storage, key)` helper that owns the parse and the write queue.
+- `store/secureStorage.ts` moves to `helpers/secureStorage.ts` as a plain helper, without the redux-persist `Storage` type.
+- The provider's effect that hands tokens to the central server waits for the read, so it does not clear the connection's tokens on mount and set them again a moment later.
 
 ## Storage format and the update path
 
@@ -51,7 +53,7 @@ Decided with Tom: keep the storage keys, write plain JSON, and have the reader a
 - redux-persist's format is a JSON object whose values are each a JSON string, plus a `_persist` entry. For the session that is `token`, `refreshToken`, `user`, `signedIn` and `isFirstTime`. For the root entry it is a single `patient` value holding `{ selectedPatient }`.
 - The reader tells the two apart by the `_persist` entry. With it present, each other value is parsed a second time and `_persist` is dropped. Without it, the object is used as read.
 - The plain shapes are the session object as held in state, and `{ selectedPatient }`.
-- The first write after an update replaces the old format with the plain one. Until a device's state changes it keeps the old entry, so the legacy branch has to stay in the reader for as long as devices can update from a build that used Redux.
+- State is written back once as soon as it has been read, as redux-persist does after rehydrating, so the first launch after an update replaces the old format with the plain one. The legacy branch still has to stay in the reader for as long as devices can update from a build that used Redux.
 - The parse is a pure function with its own unit tests for both formats, a missing entry, and an entry that does not parse.
 - Downgrade is not a concern. Android will not install an older build over a newer one without an uninstall, which clears both stores.
 
@@ -76,6 +78,46 @@ One pull request, built in commits that each leave the app building and its test
 4. A `no-restricted-imports` entry for the Redux packages in the mobile block of `eslint.config.js`, so they do not come back.
 
 The root `react-redux` override in the top-level `package.json` stays. The web app still depends on it until H17 lands.
+
+## Checklist
+
+### Auth
+
+- [x] `storedState` helper: parse both formats, queued writes
+- [x] `useStoredState` hook
+- [x] `secureStorage` moved out of the store folder
+- [x] Session state, storage and memoised value in `AuthProvider`
+- [x] `authUserSelector` and `authSelector` callers onto `useAuth()`
+- [x] `withAuth`, the auth duck and `helpers/selectors.ts` removed; store left with the patient slice
+- [x] Specs: `storedState`, `AuthProvider`, `useSurveySubmitMutation` updated
+
+### Selected patient
+
+- [ ] `SelectedPatientContext` with provider and `useSelectedPatient()`
+- [ ] Provider mounted in `Root.tsx`
+- [ ] `withPatient` callers onto the hook
+- [ ] `useSelector(state => state.patient)` callers onto the hook
+- [ ] `NewPatientScreen` and `useSurveySubmitMutation` onto the hook
+- [ ] Prop types that extended the store's types
+- [ ] Specs: `SelectedPatientProvider`, `useSurveySubmitMutation`, `SearchPatientTabs`
+
+### Removal
+
+- [ ] Store, `Provider` and `PersistGate` gone from `Root.tsx`
+- [ ] `containers/Patient.tsx`, `interfaces/ReduxStoreProps.ts`, `store/` deleted
+- [ ] `reactotronRedux()` and `createEnhancer` removed
+- [ ] Seven packages removed from `packages/mobile/package.json`, lockfile updated
+- [ ] Redux removed from `App/ui/README.md`
+
+### Guard
+
+- [ ] `no-restricted-imports` for the Redux packages in the mobile lint block
+
+### Checks
+
+- [ ] Typecheck shows no errors beyond the ones already on the base
+- [ ] Mobile jest suite passes
+- [ ] Lint passes on changed files
 
 ## Testing
 

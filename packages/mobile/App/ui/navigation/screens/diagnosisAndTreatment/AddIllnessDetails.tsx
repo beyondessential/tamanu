@@ -1,6 +1,5 @@
 import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { compose } from 'redux';
-import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StackActions } from '@react-navigation/native';
@@ -15,6 +14,7 @@ import * as Yup from 'yup';
 
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
 import { withPatient } from '~/ui/containers/Patient';
@@ -22,7 +22,6 @@ import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/Autoco
 import { Certainty, CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '~/ui/helpers/constants';
@@ -48,7 +47,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
     navigation.dispatch(StackActions.replace(Routes.HomeStack.HistoryVitalsStack.Index));
   }, [navigation]);
 
-  const user = useSelector(authUserSelector);
+  const { user } = useAuth();
 
   const queryClient = useQueryClient();
   const { mutateAsync: recordIllness } = useMutation({

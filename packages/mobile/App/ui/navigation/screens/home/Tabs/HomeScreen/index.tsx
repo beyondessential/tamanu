@@ -11,7 +11,6 @@ import { ConditionalRegisterPatientButton } from './RegisterPatientButton';
 import { SearchIcon, TamanuComboMark } from '/components/Icons';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { UserAvatar } from '/components/UserAvatar';
-import { withAuth } from '/containers/Auth';
 import { useDisableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
@@ -47,9 +46,9 @@ const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElemen
   </StyledTouchableOpacity>
 );
 
-const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps): ReactElement => {
+const BaseHomeScreen = ({ navigation, setSelectedPatient }: BaseAppProps): ReactElement => {
   useDisableAndroidBackButton();
-  const { checkFirstSession, setUserFirstSignIn } = useAuth();
+  const { user, checkFirstSession, setUserFirstSignIn } = useAuth();
   const { facilityName, facilityId } = useFacility();
 
   useEffect(() => {
@@ -135,4 +134,4 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
   );
 };
 
-export const HomeScreen = compose(withPatient(compose(withAuth)(BaseHomeScreen)));
+export const HomeScreen = compose(withPatient)(BaseHomeScreen);

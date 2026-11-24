@@ -3,15 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import type { FormikProps } from 'formik';
 import React, { type FC, useMemo } from 'react';
 import { ScrollView } from 'react-native';
-import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { Database } from '~/infra/db';
 import type { ScheduledVaccine } from '~/models/ScheduledVaccine';
 import type { InjectionSiteType } from '~/types';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { SETTING_KEYS } from '../../../../constants';
 import Form from '../Form';
@@ -86,7 +85,7 @@ export const VaccineForm = ({
   patientId,
 }: VaccineFormProps) => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
-  const user = useSelector(authUserSelector);
+  const { user } = useAuth();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
 

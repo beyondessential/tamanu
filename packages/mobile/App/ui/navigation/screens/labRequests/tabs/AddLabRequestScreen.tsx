@@ -3,15 +3,14 @@ import { Formik } from 'formik';
 import { customAlphabet } from 'nanoid/non-secure';
 import React, { type ReactElement, useCallback } from 'react';
 import { ToastAndroid } from 'react-native';
-import { useSelector } from 'react-redux';
 import { compose } from 'redux';
 import * as Yup from 'yup';
 import type { IPatient } from '~/types';
 import type { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
 import { withPatient } from '~/ui/containers/Patient';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
 import { getCombinedDateString } from '/helpers/date';
@@ -62,7 +61,7 @@ export const DumbAddLabRequestScreen = ({
     });
   }, [navigation]);
 
-  const user = useSelector(authUserSelector);
+  const { user } = useAuth();
 
   const { models } = useBackend();
 

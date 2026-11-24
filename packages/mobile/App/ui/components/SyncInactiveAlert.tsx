@@ -1,12 +1,10 @@
 import { useNetInfo } from '@react-native-community/netinfo';
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-native-modal';
-import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { CentralConnectionStatus } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { useBackend } from '../hooks';
@@ -29,11 +27,10 @@ type AuthenticationValues = {
 
 const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps) => {
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
-  const user = useSelector(authUserSelector);
-  const authCtx = useAuth();
+  const { user, reconnectWithPassword } = useAuth();
   const handleSignIn = async (payload: AuthenticationValues): Promise<void> => {
     try {
-      await authCtx.reconnectWithPassword(payload);
+      await reconnectWithPassword(payload);
       onClose();
     } catch (err) {
       setErrorMessage(err.message);

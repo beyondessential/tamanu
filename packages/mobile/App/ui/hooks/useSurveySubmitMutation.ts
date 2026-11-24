@@ -4,7 +4,7 @@ import { Patient } from '~/models/Patient';
 import type { Referral } from '~/models/Referral';
 import type { SurveyResponse } from '~/models/SurveyResponse';
 import { type GenericFormValues, type ISurveyScreenComponent, SurveyTypes } from '~/types';
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useBackend } from '~/ui/hooks';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { actions } from '~/ui/store/ducks/patient';
@@ -48,7 +48,7 @@ export default function useSurveySubmitMutation<T extends SurveyTypes>({
   surveyType: T;
 }) {
   const { models } = useBackend();
-  const user = useSelector(authUserSelector);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const selectedPatientId = useSelector(

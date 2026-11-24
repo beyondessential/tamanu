@@ -14,7 +14,6 @@ import { StackHeader } from '~/ui/components/StackHeader';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helpers/navigators';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { joinNames } from '~/ui/helpers/user';
 import { patientKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
@@ -32,7 +31,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
   const navigation = useNavigation();
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
   const canReadRegistration = ability.can('read', 'PatientProgramRegistration');
   const { currentScreenIndex, onNavigatePrevious, setCurrentScreenIndex } = useCurrentScreen();
   const { getTranslation } = useTranslation();
@@ -64,8 +63,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     error: padError,
     isPending: isPadLoading,
   } = usePatientAdditionalDataRecordQuery(selectedPatient.id);
-
-  const user = useSelector(authUserSelector);
 
   const {
     data: patientProgramRegistration,

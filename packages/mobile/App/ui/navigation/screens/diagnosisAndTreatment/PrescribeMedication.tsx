@@ -5,7 +5,6 @@ import { Formik } from 'formik';
 import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
 import { compose } from 'redux';
 import * as Yup from 'yup';
 import {
@@ -33,7 +32,6 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getDefaultIdealTimes } from '~/ui/helpers/medicationHelpers';
 import { Routes } from '~/ui/helpers/routes';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
@@ -71,8 +69,7 @@ const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => (
 
 export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
-  const { ability } = useAuth();
-  const user = useSelector(authUserSelector);
+  const { ability, user } = useAuth();
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
