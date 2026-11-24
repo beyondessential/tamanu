@@ -145,7 +145,7 @@ Every model declares a sync direction, which says whether its table syncs at all
 | Direction | Meaning |
 | --- | --- |
 | Bidirectional | Pushed and pulled. Most clinical data. |
-| Pull from central | Pulled only. Reference data, users, permissions, surveys, locations, settings. |
+| Pull from central | Pulled only. Reference datausers, permissions, surveys, locations, settings. |
 | Push to central | Pushed only; the client keeps its copy. |
 | Push to central then delete | Pushed, then the facility deletes its copy. For records central acts on (attachments, patient communications, certificate notifications), where a second copy would be processed twice or show a stale status. Mobile has no equivalent. |
 | Do not sync | Never leaves the server it is on. The table has no tick column. |
