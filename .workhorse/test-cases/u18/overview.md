@@ -11,11 +11,17 @@ Server cases are covered in `packages/central-server/__tests__/admin/reports/rep
 - [x] Submit a name another report uses; it is rejected with "Report name already exists" (verifies spec: REPORTS)
 - [x] Submit a name a deleted report still uses; it is rejected with "A deleted report is still using this name" (verifies spec: REPORTS)
 - [x] Rename a report ID that doesn't exist; the response is not found
-- [ ] With the reporting schema enabled, a user without permission to edit the raw schema tries to rename a raw-schema report; it is rejected (verifies spec: REPORTS)
+- [x] A user without permission to edit the raw schema tries to rename a raw-schema report; it is rejected, and the same user can rename a reporting-schema report (verifies spec: REPORTS)
+- [x] With the reporting schemas failed to initialise, a user without permission to edit the raw schema is still refused a raw-schema report, and a reporting-schema report still renames (verifies spec: REPORTS)
+- [x] Submit a name made only of zero-width characters; it is rejected as blank and the name is unchanged (verifies spec: REPORTS)
+- [x] Submit a name holding a control character, such as a NUL or a newline; it is rejected and the name is unchanged (verifies spec: REPORTS)
+- [x] Submit a name of 255 characters; it is saved, and a name of 256 characters is rejected
 
 ## Permissions
 
 - [x] A user without permission to write report definitions calls the rename endpoint; it is forbidden and the name is unchanged (verifies spec: REPORTS)
+- [x] A user whose permission to write report definitions is scoped to another report tries to rename this one; it is forbidden and the name is unchanged (verifies spec: REPORTS)
+- [x] A user whose permission to write report definitions is scoped to the report they are renaming; the rename succeeds (verifies spec: REPORTS)
 - [x] A user without permission to write report definitions opens a report's edit screen; no rename button shows beside the name (verifies spec: REPORTS)
 
 ## Rename dialog
