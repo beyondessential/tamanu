@@ -169,7 +169,6 @@ Two things to be careful of:
 - **Empty scope means everyone:** A row with no scope columns goes to every client, so leaving a scope column empty needs to be a deliberate choice.
 - **Lab requests skip the other scopes:** Lab requests are checked before patient and network scope, so a facility that syncs all lab requests receives lab requests, and the encounters they belong to, from inside a sensitive network it is not part of. Changing this is an open question; see Slack.
 
-
 ### What travels
 
 - **Bookkeeping columns stay put:** Four columns never sync, on any model: `createdAt`, `updatedAt`, `deletedAt` and `updatedAtSyncTick`. These are each server's own bookkeeping about the row.
