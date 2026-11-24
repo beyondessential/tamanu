@@ -40,10 +40,11 @@ Where there is a choice, responsibility sits with the client. A client holds its
 | Cursor | A tick a client has stored: "I have pushed everything up to here" or "I have pulled everything up to here". |
 | Snapshot table | A per-session table in the `sync_snapshots` schema holding the records in flight. An ordinary table, not a temporary one. |
 | Lookup table | `sync_lookup` on central: a copy of every syncable record with the columns that decide who receives it. Pulls read from it. |
+| In-flight lock | The lock a write takes on the tick it is stamping with, held until its transaction ends. It is how sync knows a tick still has uncommitted writes. |
 | Marked for sync | A patient with a `patient_facilities` row for a facility. That facility holds the patient's full record, and it is kept in sync with changes elsewhere in the system. |
 | Omni-server / Multi-facility server | A facility server that serves several facilities. It sends several facility ids. |
 
-### The clock
+## The clock
 
 Central holds one number, `currentSyncTick`, in `local_system_facts`. It starts at 1 and only ever goes up (i.e. is monotonic).
 
@@ -111,11 +112,11 @@ This is `persistIncomingChanges`. Everything in the numbered list happens inside
 3. **Run incoming sync hooks.** A model can declare `incomingSyncHook` to adjust records before they are saved. Two models do. `Patient` renames clashing display ids, so that two facilities registering the same id does not fail the whole push on a unique constraint. `AppointmentSchedule` removes later appointments when a schedule has been cancelled.
 4. **Save the records** (`saveIncomingChanges`). Models are saved in dependency order, i.e. a table is saved after the tables its foreign keys point to. Constraints are deferred until the end of the transaction. Sequelize hooks are switched off, so that saving one record cannot trigger side effects on another.
 5. **Record that this device pushed at T**, as a row in `sync_device_ticks`.
-6. **Tick-tock again**, so that nothing written after this point can be stamped T.
+6. **Tick-tock again**, so that nothing written after this point can be stamped T (this is important; see "the two tick-tocks" below).
 
 After the transaction commits, two more things run: `adjustDataPostSyncPush`, which lets a model make follow-up changes, and `bumpSyncTickForRepull`, which re-stamps any record a hook changed so that it is sent back to the client that pushed it.
 
-The reason for the two tick-tocks is that T has to be unique to this push. The first tick-tock happens inside the transaction, so until the transaction commits, no other transaction can see T as the current tick. The second moves the clock past T before the commit, so nobody can see it afterwards either. So any row stamped T can only have been written by this push.
+**The two tick-tocks:** T has to be unique to this push. The first tick-tock happens inside the transaction, so until the transaction commits, no other transaction can see T as the current tick. The second moves the clock past T before the commit, so nobody can see it afterwards either. So any row stamped T can only have been written by this push.
 
 Central relies on that later, to avoid sending a device its own changes back (see [Not sending a client its own changes](#not-sending-a-client-its-own-changes)). It is also why the two follow-up steps run after the transaction and not inside it: their changes need a different tick, so that they do go back to the client.
 
@@ -165,17 +166,17 @@ For pulls, scope is worked out when the row is copied into the lookup table, not
 
 Two things to be careful of:
 
-- **A row with no scope columns goes to every client.** So leaving a scope column empty needs to be a deliberate choice. This has gone wrong twice, with data reaching facilities that should not have had it.
-- **Lab requests are checked before patient and network scope.** So a facility that syncs all lab requests receives lab requests, and the encounters they belong to, from inside a sensitive network it is not part of. The sensitive networks spec states this ordering, but it was carried over when networks were added and not really decided on its merits, so it is best treated as an open question.
+- **Empty scope means everyone:** A row with no scope columns goes to every client, so leaving a scope column empty needs to be a deliberate choice. This has gone wrong twice, with data reaching facilities that should not have had it.
+- **Lab requests skip the other scopes:** Lab requests are checked before patient and network scope, so a facility that syncs all lab requests receives lab requests, and the encounters they belong to, from inside a sensitive network it is not part of. The sensitive networks spec states this ordering, but it was carried over when networks were added and not really decided on its merits, so it is best treated as an open question.
 
 There is no list anywhere that defines "reference data" for sync. The tables that sync everywhere are simply the ones whose models set no scope.
 
 ### What travels
 
-- **Four columns never sync**, on any model: `createdAt`, `updatedAt`, `deletedAt` and `updatedAtSyncTick`. These are each server's own bookkeeping about the row.
-- **Everything else does**, including the whole user row with its password hash, which goes to every client. Logging in while central is unreachable depends on it.
-- **Deletes are soft deletes.** A delete is sent as an `isDeleted` flag alongside the record, and whoever receives it sets or clears `deleted_at` in the same statement as the rest of the record. A hard delete (actually removing the row) is not synced at all, and every other server keeps the row. This follows from how sync works: it finds out what changed by reading what each row says about itself, and a row that no longer exists cannot say anything.
-- **A record is identified by a single `id` column.** A few tables have a composite primary key in the database, i.e. a key made of two or more columns. Each of those also has a stored, generated `id` column built from the parts, and that is what sync uses.
+- **Bookkeeping columns stay put:** Four columns never sync, on any model: `createdAt`, `updatedAt`, `deletedAt` and `updatedAtSyncTick`. These are each server's own bookkeeping about the row.
+- **Everything else travels:** That includes the whole user row with its password hash, which goes to every client. Logging in while central is unreachable depends on it.
+- **Soft deletes only:** A delete is sent as an `isDeleted` flag alongside the record, and whoever receives it sets or clears `deleted_at` in the same statement as the rest of the record. A hard delete (actually removing the row) is not synced at all, and every other server keeps the row. This follows from how sync works: it finds out what changed by reading what each row says about itself, and a row that no longer exists cannot say anything.
+- **One `id` per record:** A record is identified by a single `id` column. A few tables have a composite primary key in the database, i.e. a key made of two or more columns. Each of those also has a stored, generated `id` column built from the parts, and that is what sync uses.
 
 ### Marking patients for sync
 
@@ -197,7 +198,7 @@ A build is one run of the scheduled task. `updateLookupTable` in `CentralSyncMan
 
 1. **Tick-tock, then wait for pending edits** below that tick. The tick becomes the build's new cursor. After the wait, every source row up to that tick is committed and visible.
 2. **Copy what has changed**, in one repeatable read transaction. For each model, every source row changed since the previous cursor is inserted or updated in the lookup table, with its tick set to `-2` for now. The same transaction rebuilds rows for patients flagged after a merge, heals rows flagged as drifted (see [Drift and healing](#drift-and-healing)), and stores the new cursor.
-3. **Stamp the new rows**, in a second, short transaction after the first has committed: tick-tock, and set every `-2` row to that tick.
+3. **Stamp the new rows**, in a second, short transaction after the first has committed: tick-tock, and set every `-2` row to that tick (the separate step is important; see below).
 
 Step 3 is separate for a reason. A lookup row needs a tick that is later than any `pullUntil` central has already handed out, otherwise a client whose cursor has moved past it would never be sent it. But a build can run for a long time, and has no way of knowing in advance when it will commit. So it writes its rows with a placeholder, and gives them their real tick right at the end, in a transaction that holds the clock for only a moment. The alternative would be to hold the clock for the whole build, which would stop every session from starting.
 
@@ -217,17 +218,17 @@ This relies on a push's tick being unique to that push, which is what the two ti
 
 The lookup table is a copy, and a copy can drift from its source. A build only looks at rows whose tick has moved, so anything that changes a row without moving its tick is a risk. There are three cases:
 
-- **Writes made while the trigger is off**, i.e. migrations. On central, a second trigger notices these and flags the lookup row as needing a rebuild. Each build then heals flagged rows. A healed row keeps its existing tick, so clients that already hold the record do not pull it again. An upgrade does not finish while any row is still flagged.
-- **Hard deletes.** The lookup row is flagged in the same way, and removed by the next build.
-- **Changes that move who should receive a row, without touching the row.** A patient merge is the example: the records under the merged patient now belong to a different patient, but their own rows have not changed. Neither trigger sees this. The merge flags the patients involved for a rebuild, and a migration can flag a whole model.
+- **Writes with the trigger off:** These are migrations. On central, a second trigger notices these and flags the lookup row as needing a rebuild. Each build then heals flagged rows. A healed row keeps its existing tick, so clients that already hold the record do not pull it again. An upgrade does not finish while any row is still flagged.
+- **Hard deletes:** The lookup row is flagged in the same way, and removed by the next build.
+- **Scope changed from elsewhere:** Some changes move who should receive a row without touching the row itself. A patient merge is the example: the records under the merged patient now belong to a different patient, but their own rows have not changed. Neither trigger sees this. The merge flags the patients involved for a rebuild, and a migration can flag a whole model.
 
 ## Conflict resolution
 
 A conflict is when the same record has been changed in two places between syncs. The two versions only ever meet in one place: on central, when it saves a push and finds the record already exists.
 
-- **For most records, the last push wins.** Central takes the incoming record and replaces what it had. It does not compare ticks.
-- **For one model, fields are merged individually.** A model can carry `updatedAtByField`, which records the tick each field was last changed at. Central then merges the two versions field by field, keeping whichever has the higher tick for each. Only `patient_additional_data` does this. It was built as a trial, and has not been extended, because conflicts have not caused enough trouble to justify the extra cost on every write.
-- **Clients never resolve conflicts.** When a client saves a pull, it overwrites what it has with what central sent. There is one safeguard: before saving, a facility server checks whether any record it is about to overwrite has been edited locally since its push snapshot was taken. If so, it abandons the whole session. Next session that edit is pushed, central resolves it, and the facility pulls the result.
+- **Last push wins:** For most records, central takes the incoming record and replaces what it had. It does not compare ticks.
+- **Field-by-field merge:** For one model, fields are merged individually. A model can carry `updatedAtByField`, which records the tick each field was last changed at. Central then merges the two versions field by field, keeping whichever has the higher tick for each. Only `patient_additional_data` does this. It was built as a trial, and has not been extended, because conflicts have not caused enough trouble to justify the extra cost on every write.
+- **Clients take central's answer:** A client never resolves a conflict itself. When a client saves a pull, it overwrites what it has with what central sent. There is one safeguard: before saving, a facility server checks whether any record it is about to overwrite has been edited locally since its push snapshot was taken. If so, it abandons the whole session. Next session that edit is pushed, central resolves it, and the facility pulls the result.
 
 It would be natural to assume that the highest tick wins everywhere, since that is what a logical clock is usually for. Outside the field-by-field merge, it does not. A facility that syncs late can overwrite an edit that has a higher tick.
 
@@ -266,9 +267,9 @@ Described under [Persisting a push](#persisting-a-push): a tick that only one tr
 
 This solves a specific problem. Suppose a transaction stamps a row with tick 7, and then stays open for a while. A pull comes along with a `pullUntil` of 10. It cannot see the uncommitted row, so it does not send it, and the client records that it is complete up to 10. Then the transaction commits. The row is at tick 7, behind the client's cursor, and will never be sent. Imports made this a real problem, because they run for a long time and commit everything at once.
 
-The fix is the lock the trigger takes in its third step. It is an advisory lock (a lock on an arbitrary number, not on a row or a table), taken in shared mode and keyed on the tick being stamped. It lasts until the transaction ends.
+The fix is the in-flight lock the trigger takes in its third step. It is an advisory lock (a lock on an arbitrary number, not on a row or a table), taken in shared mode and keyed on the tick being stamped. It lasts until the transaction ends.
 
-Anything that is about to treat "everything up to tick T" as complete first looks up which ticks below T have such a lock held, and waits for each one to be released (`waitForPendingEdits`). Once they are, every transaction that stamped a row with an earlier tick has finished. Central waits like this before a lookup build and before a pull snapshot. A facility server does the same before its push snapshot.
+Anything that is about to treat "everything up to tick T" as complete first looks up which ticks below T have an in-flight lock held, and waits for each one to be released (`waitForPendingEdits`). Once they are, every transaction that stamped a row with an earlier tick has finished. Central waits like this before a lookup build and before a pull snapshot. A facility server does the same before its push snapshot.
 
 The pull still needs this wait even though it reads from the lookup table, because it also reads `patient_facilities` directly to find newly marked patients. Without the wait, a patient marked in a slow transaction could be missed permanently.
 
@@ -284,13 +285,13 @@ Snapshots need something stricter. They run at repeatable read, where the whole 
 
 Inside one of these, only read tables that other things write to. If a repeatable read transaction writes a row that something outside it also writes, the database raises a serialisation failure, and nothing in sync retries those. The session row is the one to watch, since every poll from the client updates it. That is why updates to the session sit just outside these transactions.
 
-Everything else in sync runs at read committed, and pending edits depend on that. At a stricter level, a transaction sees the clock as it was at its first statement, however long it then runs, while the trigger only takes its lock at the first write to a synced table. In between, nothing marks that tick as in use, and a snapshot can go past it. So a transaction at repeatable read or serializable that writes synced rows has to hold the clock itself. The importer runs at serializable and does that, which is why it locks the clock row.
+Everything else in sync runs at read committed, and pending edits depend on that. At a stricter level, a transaction sees the clock as it was at its first statement, however long it then runs, while the trigger only takes its in-flight lock at the first write to a synced table. In between, nothing marks that tick as in use, and a snapshot can go past it. So a transaction at repeatable read or serializable that writes synced rows has to hold the clock itself. The importer runs at serializable and does that, which is why it locks the clock row.
 
 ### Advisory lock keys
 
-Advisory locks are shared across the whole database, and identified only by a number. Sync uses plain integers for ticks. Every other use (the lock that marks a session as processing, the lock around creating a session, and several outside sync) gets its number by hashing a string.
+Advisory locks are shared across the whole database, and identified only by a number. In-flight locks use the tick itself as the number, so plain integers belong to them. Every other use (the lock that marks a session as processing, the lock around creating a session, and several outside sync) gets its number by hashing a string.
 
-It is worth keeping to that convention. The two ranges do overlap, and the trigger does not check whether it actually got its lock, so if a hashed key ever matched a tick in use, an edit would go untracked.
+It is worth keeping to that convention. The two ranges do overlap, and the trigger does not check whether it actually got its in-flight lock, so if a hashed key ever matched a tick in use, an edit would go untracked.
 
 ### Capacity
 
@@ -329,8 +330,8 @@ Step 7 happens before the pull starts, and is not inside any transaction. So a p
 
 Two details in step 4 exist to stop pulled records being mistaken for local edits and pushed back to central:
 
-- Pulled rows are written with a tick of `-1`, which the trigger stores as `-999`.
-- Deletes and restores are written in the same statement as the rest of the record. A separate delete statement would not carry the `-1`, so the trigger would stamp it as a local edit.
+- **Incoming tick:** Pulled rows are written with a tick of `-1`, which the trigger stores as `-999`.
+- **Deletes ride along:** Deletes and restores are written in the same statement as the rest of the record. A separate delete statement would not carry the `-1`, so the trigger would stamp it as a local edit.
 
 The cursor is stored inside the same transaction as the records for a similar reason. If it were stored separately and that failed, the records would be pulled and saved a second time.
 
@@ -359,8 +360,8 @@ Pulled records are a deliberate exception. They are written with hand-built SQL 
 
 Mobile is also missing two of the facility server's safeguards:
 
-- **No wait for pending edits** before the push snapshot. In principle, a save that reads the tick just before the push swaps it could be written with the old tick after the snapshot was taken, and never be pushed. The window is small, because mobile has a single database connection, but nothing closes it.
-- **No check for local edits since the push.** If a record is edited locally between the push snapshot and the pull being saved, the pulled version overwrites it.
+- **No wait for pending edits:** Mobile takes its push snapshot without waiting. In principle, a save that reads the tick just before the push swaps it could be written with the old tick after the snapshot was taken, and never be pushed. The window is small, because mobile has a single database connection, but nothing closes it.
+- **No check for local edits since the push:** If a record is edited locally between the push snapshot and the pull being saved, the pulled version overwrites it.
 
 ### What it sends and receives
 
@@ -375,8 +376,8 @@ Mobile is also missing two of the facility server's safeguards:
 
 There are two different pull paths, and which one runs depends on whether the device has a pull cursor yet.
 
-- **Initial sync** (no cursor). Each page is saved as it arrives, all inside one transaction, with no staging. The user cannot do anything useful until the first sync finishes anyway, so there is no harm in the database being part-written while it runs, as long as a failure rolls everything back.
-- **Incremental sync** (every sync after that). The pull is staged first, then saved from staging in one transaction. Staging lives in a separate, throwaway SQLite file attached alongside the main database. That is just for speed, since it keeps the staging writes out of the main database's journal. If anything goes wrong, the file is deleted and the pull is done again.
+- **Initial sync (no cursor):** Each page is saved as it arrives, all inside one transaction, with no staging. The user cannot do anything useful until the first sync finishes anyway, so there is no harm in the database being part-written while it runs, as long as a failure rolls everything back.
+- **Incremental sync (every sync after that):** The pull is staged first, then saved from staging in one transaction. Staging lives in a separate, throwaway SQLite file attached alongside the main database. That is just for speed, since it keeps the staging writes out of the main database's journal. If anything goes wrong, the file is deleted and the pull is done again.
 
 On both paths, foreign key checks are deferred until the transaction commits, so it does not matter what order records arrive in. If the commit fails, mobile then works out which record was the problem.
 
@@ -402,10 +403,10 @@ The reason is that every server runs the same migrations. If a data migration is
 
 A few things follow from this:
 
-- **A data migration has to be deterministic.** If its result depends on something that differs between servers, the servers will quietly end up disagreeing.
-- **Central's lookup table has to end up holding the migrated version.** A facility that marks a patient for sync next week will pull that patient's history from the lookup table, and it needs to match what the migration produced. Writes made while the trigger is off flag the lookup rows they touch, and the next build heals them (see [Drift and healing](#drift-and-healing)). If a migration changes who should receive a row without writing to the row itself, it has to flag the model or the patients for a rebuild.
-- **If a batch of migrations fails, the trigger stays off** until a later batch succeeds. A server in that state does not stamp anything it writes.
-- **Mobile has its own migrations and no trigger.** See [Schema changes](#schema-changes).
+- **Deterministic only:** A data migration has to give the same result everywhere. If its result depends on something that differs between servers, the servers will quietly end up disagreeing.
+- **The lookup table has to match:** Central's lookup table has to end up holding the migrated version. A facility that marks a patient for sync next week will pull that patient's history from the lookup table, and it needs to match what the migration produced. Writes made while the trigger is off flag the lookup rows they touch, and the next build heals them (see [Drift and healing](#drift-and-healing)). If a migration changes who should receive a row without writing to the row itself, it has to flag the model or the patients for a rebuild.
+- **A failed batch leaves the trigger off:** It stays off until a later batch succeeds, and a server in that state does not stamp anything it writes.
+- **Mobile is separate:** It has its own migrations and no trigger. See [Schema changes](#schema-changes).
 
 ## Where things are
 
