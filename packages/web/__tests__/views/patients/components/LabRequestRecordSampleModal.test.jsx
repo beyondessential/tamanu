@@ -4,7 +4,8 @@
  * The category's default specimen type should pre-fill only when recording a sample for the first
  * time ("Record sample details"). When editing an already-collected sample ("Edit sample"), the
  * modal must keep the recorded specimen type as-is — including a blank value that the user
- * deliberately cleared on the request form — rather than re-applying the default.
+ * deliberately cleared on the request form — rather than re-applying the default. The collector
+ * follows the same rule: it defaults to the current user only when first recording a sample.
  *
  * Clearing the collection time clears the fields it gates, and those blanks are submitted as null
  * so the server clears them too rather than keeping the old values.
@@ -94,6 +95,7 @@ const renderModal = (labRequest, { updateLabReq = async () => {} } = {}) =>
   );
 
 const specimenTypeValue = () => screen.getByTestId('value-specimenTypeId').textContent;
+const collectedByValue = () => screen.getByTestId('value-collectedById').textContent;
 
 describe('LabRequestRecordSampleModal specimen type default', () => {
   it("pre-fills the category default when first recording a sample", () => {
@@ -125,6 +127,34 @@ describe('LabRequestRecordSampleModal specimen type default', () => {
     });
 
     expect(specimenTypeValue()).toBe('specimen-type-recorded');
+  });
+});
+
+describe('LabRequestRecordSampleModal collected by default', () => {
+  it('pre-fills the current user when first recording a sample', () => {
+    renderModal({ status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED });
+
+    expect(collectedByValue()).toBe('current-user-1');
+  });
+
+  it('does not re-apply the current user when editing a collected sample whose collector was cleared', () => {
+    renderModal({
+      status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      sampleTime: '2023-06-12 10:00',
+      collectedById: null,
+    });
+
+    expect(collectedByValue()).toBe('');
+  });
+
+  it('keeps the recorded collector when editing a collected sample', () => {
+    renderModal({
+      status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      sampleTime: '2023-06-12 10:00',
+      collectedById: 'collector-1',
+    });
+
+    expect(collectedByValue()).toBe('collector-1');
   });
 });
 
