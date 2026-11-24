@@ -130,9 +130,7 @@ describe('Appointments', () => {
       for (const { patient: matchedPatient } of result.body.data) {
         const fullName = `${matchedPatient.firstName} ${matchedPatient.lastName}`.toLowerCase();
         const displayId = matchedPatient.displayId.toLowerCase();
-        expect(
-          fullName.includes(lowerCaseQuery) || displayId.includes(lowerCaseQuery),
-        ).toBe(true);
+        expect(fullName.includes(lowerCaseQuery) || displayId.includes(lowerCaseQuery)).toBe(true);
       }
     };
 
