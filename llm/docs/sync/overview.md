@@ -50,7 +50,7 @@ The way this goes up is not attached to wall clock time. Whenever a client syncs
 
 A client receives one tick per session, at session start, and makes it its own clock at the start of its push. Every local write from then until its next session is stamped with that tick. A client does not tick between sessions, so every edit it makes in that window happens "at the same time", and how late that time is depends on when it last synced, not on when the edit was made. This is coarse on purpose. It makes ordering trivial and unambiguous, and in practice a patient's record is edited at one facility at a time.
 
-Central tick-tocks at several other points in a session and in each lookup build, for its own purposes. Each is described where it happens. None is spare, but in the later ones the tick is 
+Central tick-tocks at several other points in a session and in each lookup build, for its own purposes. Each is described where it happens. None is spare, but in the later ones the tick goes unused - the sync client only uses the one from that first tick-tock at the start of the session.
 
 ### The trigger
 
