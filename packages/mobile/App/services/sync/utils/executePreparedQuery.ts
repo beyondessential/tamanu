@@ -38,10 +38,14 @@ export const executePreparedInsert = async (
     INSERT INTO ${tableName} (${columnNames})
     VALUES ${getValuePlaceholdersForRows(chunkRows.length, columns.length)}
   `;
-    const parameters = chunkRows.flatMap(row => columns.map(col => row[col]));
+    // NitroSQLite rejects undefined; a column the server left out is null there
+    const parameters = chunkRows.flatMap(row => columns.map(col => row[col] ?? null));
     try {
       await repository.query(query, parameters);
-    } catch {
+    } catch (bulkError: any) {
+      console.warn(
+        `executePreparedInsert: bulk insert into ${tableName} failed, falling back to row by row: ${bulkError.message}`,
+      );
       // `Promise.all` doesn’t abort other in-flight promises if one throws, so we do this
       // sequentially. (Concurrent queries still share the same SQLite connection, racing against
       // the transaction's ROLLBACK.

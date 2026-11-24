@@ -46,6 +46,23 @@ describe('executePreparedQuery', () => {
       expect(getEffectiveBatchSize).toHaveBeenCalledWith(500, 3);
     });
 
+    it('binds null for columns missing from some rows', async () => {
+      const repository = makeRepository();
+      const editedTime = new Date().toISOString();
+      const rows = [
+        { id: '1', name: 'Dog Man' },
+        { id: '2', name: 'Muffin Man', editedTime },
+      ];
+
+      await executePreparedInsert(repository, rows as any, 500, progress);
+
+      expect(repository.query).toHaveBeenCalledTimes(1);
+      const [, params] = repository.query.mock.calls[0];
+      expect(params).toEqual(['1', 'Dog Man', null, '2', 'Muffin Man', editedTime]);
+      expect(params).not.toContain(undefined);
+      expect(repository.insert).not.toHaveBeenCalled();
+    });
+
     it('falls back to repository.insert when raw query fails', async () => {
       const repository = makeRepository();
       repository.query.mockRejectedValue(new Error('raw insert failed'));
