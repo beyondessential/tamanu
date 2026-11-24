@@ -210,9 +210,9 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
     // Password encrypted at rest, out of local_system_facts and the raw reporting role.
     await LocalSystemSecret.set(FACT_SYNC_PASSWORD, syncCredentials.password);
-    // Deployment-wide settings PSK (the pre-shared key that secret settings are encrypted
-    // with), pulled from central. Absent when talking to
-    // an older central that doesn't serve it yet; a later sync/upgrade fills it.
+    // The settings PSK (the pre-shared key that secret settings are encrypted with) comes back
+    // with the sync credentials. An older central doesn't send it, and pullSettingsPsk picks it
+    // up on a later sync.
     if (syncCredentials.settingsPsk) {
       await LocalSystemSecret.setIfAbsent(FACT_SETTINGS_PSK, syncCredentials.settingsPsk);
       // The server keeps running after setup: drop any key buffer cached from the

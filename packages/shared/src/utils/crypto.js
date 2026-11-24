@@ -156,10 +156,8 @@ export async function getConfigSecret(name) {
 // The settings PSK is the pre-shared key that secret settings are encrypted with. There is one
 // for the whole deployment, so that every server can decrypt the settings it syncs.
 //
-// Resolves the deployment-wide settings PSK as a hex string. Registered once
-// per process where the database (and so the LocalSystemSecret model) is
-// available — see setSettingsPskSource, wired from initDatabase. Kept out of
-// this module directly because shared/ must not import database models.
+// This is the function that reads it from the local secrets store, as a hex string. The database
+// sets it with setSettingsPskSource when it starts, because shared/ can't import database models.
 let settingsPskSource = null;
 
 /**
