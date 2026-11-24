@@ -20,7 +20,7 @@ Sync is in its current shape because of years of learning from failures on large
 
 - **Atomic: Each phase lands whole or not at all.** A push is persisted on central in one transaction. A pull is saved on the client in one transaction. Push and pull are separate: a push can succeed and its pull fail, and that is deliberate, because records stranded on a client are a worse outcome than a client that is behind.
 - **Coherent: Work is done from a snapshot.** Whatever is being sent is first copied at a single point in time, then sent. Nothing is read from live tables page by page while they change underneath.
-- **Ordered: Order comes from a logical clock that central owns.** Not wall-clock time. See [The clock](#the-clock).
+- **Conflict-free order: Order comes from a logical clock that central owns.** Not wall-clock time. See [The clock](#the-clock).
 - **Central is the only place conflicts are resolved.** A client pushes before it pulls so that central sees local changes first, and then takes whatever central gives it without comparing.
 - **Each client holds a subset.** Everything a client needs to run, plus the full records of the patients marked for sync at its facilities.
 - **Changes are detected by database triggers, not ORM hooks.** A write made by raw SQL in a psql session is tracked the same as one made by a model. This holds on the servers. Mobile is the exception, described in its own section.
