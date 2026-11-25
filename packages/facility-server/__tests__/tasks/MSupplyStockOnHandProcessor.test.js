@@ -1,7 +1,10 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import { createTestContext } from '../utilities';
-import { MSupplyStockOnHandProcessor } from '../../app/tasks/MSupplyStockOnHandProcessor';
+import {
+  ITEMS_PAGE_SIZE,
+  MSupplyStockOnHandProcessor,
+} from '../../app/tasks/MSupplyStockOnHandProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import { getServerFacilityIds } from '../../app/serverConfig';
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
@@ -41,16 +44,16 @@ function mockAuthResponse(token = 'test-token') {
   });
 }
 
-function mockStockLinesResponse(nodes) {
+function mockItemsResponse(nodes, totalCount = nodes.length) {
   fetchWithRetryBackoff.mockResolvedValueOnce({
     json: () =>
       Promise.resolve({
-        data: { stockLines: { nodes } },
+        data: { items: { totalCount, nodes } },
       }),
   });
 }
 
-function mockStockLinesErrorResponse(errorMessage) {
+function mockItemsErrorResponse(errorMessage) {
   fetchWithRetryBackoff.mockResolvedValueOnce({
     json: () =>
       Promise.resolve({
@@ -58,16 +61,6 @@ function mockStockLinesErrorResponse(errorMessage) {
         errors: [{ message: errorMessage }],
       }),
   });
-}
-
-function makeStockLine({ code, availableNumberOfPacks, totalNumberOfPacks, packSize }) {
-  return {
-    id: `stock-${Math.random().toString(36).slice(2)}`,
-    item: { code },
-    availableNumberOfPacks,
-    totalNumberOfPacks,
-    packSize,
-  };
 }
 
 describe('MSupplyStockOnHandProcessor', () => {
@@ -204,91 +197,42 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
   });
 
-  describe('stock line query errors', () => {
+  describe('items query errors', () => {
     it('throws when the GraphQL response contains errors', async () => {
       mockAuthResponse();
-      mockStockLinesErrorResponse('Store not found');
+      mockItemsErrorResponse('Store not found');
 
       const task = new MSupplyStockOnHandProcessor(context);
-      await expect(task.run()).rejects.toThrow('mSupply stockLines query failed: Store not found');
+      await expect(task.run()).rejects.toThrow('mSupply items query failed: Store not found');
     });
   });
 
   describe('stock aggregation', () => {
-    it('aggregates multiple stock lines for the same item code', () => {
+    it('aggregates multiple items with the same code', () => {
       const task = new MSupplyStockOnHandProcessor(context);
-      const stockLines = [
-        makeStockLine({
-          code: 'MED-001',
-          availableNumberOfPacks: 5,
-          totalNumberOfPacks: 10,
-          packSize: 10,
-        }),
-        makeStockLine({
-          code: 'MED-001',
-          availableNumberOfPacks: 3,
-          totalNumberOfPacks: 5,
-          packSize: 10,
-        }),
-        makeStockLine({
-          code: 'MED-002',
-          availableNumberOfPacks: 2,
-          totalNumberOfPacks: 2,
-          packSize: 20,
-        }),
+      const items = [
+        { code: 'MED-001', availableStockOnHand: 50 },
+        { code: 'MED-001', availableStockOnHand: 30 },
+        { code: 'MED-002', availableStockOnHand: 40 },
       ];
 
-      const result = task.aggregateStockByCode(stockLines);
+      const result = task.aggregateStockByCode(items);
 
       expect(result.get('MED-001')).toBe(80);
       expect(result.get('MED-002')).toBe(40);
     });
 
-    it('skips stock lines without an item code', () => {
+    it('skips items without a code', () => {
       const task = new MSupplyStockOnHandProcessor(context);
-      const stockLines = [
-        makeStockLine({
-          code: 'MED-001',
-          availableNumberOfPacks: 5,
-          totalNumberOfPacks: 10,
-          packSize: 10,
-        }),
-        makeStockLine({
-          code: null,
-          availableNumberOfPacks: 3,
-          totalNumberOfPacks: 5,
-          packSize: 10,
-        }),
-        {
-          id: 'no-item',
-          item: null,
-          availableNumberOfPacks: 1,
-          totalNumberOfPacks: 1,
-          packSize: 1,
-        },
+      const items = [
+        { code: 'MED-001', availableStockOnHand: 50 },
+        { code: null, availableStockOnHand: 30 },
       ];
 
-      const result = task.aggregateStockByCode(stockLines);
+      const result = task.aggregateStockByCode(items);
 
       expect(result.size).toBe(1);
       expect(result.get('MED-001')).toBe(50);
-    });
-
-    it('treats missing packSize as 1', () => {
-      const task = new MSupplyStockOnHandProcessor(context);
-      const stockLines = [
-        {
-          id: 's1',
-          item: { code: 'MED-001' },
-          availableNumberOfPacks: 5,
-          totalNumberOfPacks: 10,
-          packSize: null,
-        },
-      ];
-
-      const result = task.aggregateStockByCode(stockLines);
-
-      expect(result.get('MED-001')).toBe(5);
     });
   });
 
@@ -351,19 +295,9 @@ describe('MSupplyStockOnHandProcessor', () => {
       ]);
 
       mockAuthResponse();
-      mockStockLinesResponse([
-        makeStockLine({
-          code: drugCode1,
-          availableNumberOfPacks: 10,
-          totalNumberOfPacks: 10,
-          packSize: 5,
-        }),
-        makeStockLine({
-          code: drugCode2,
-          availableNumberOfPacks: 0,
-          totalNumberOfPacks: 0,
-          packSize: 1,
-        }),
+      mockItemsResponse([
+        { code: drugCode1, availableStockOnHand: 50 },
+        { code: drugCode2, availableStockOnHand: 0 },
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -395,14 +329,7 @@ describe('MSupplyStockOnHandProcessor', () => {
       ]);
 
       mockAuthResponse();
-      mockStockLinesResponse([
-        makeStockLine({
-          code: drugCode1,
-          availableNumberOfPacks: 2,
-          totalNumberOfPacks: 2,
-          packSize: 5,
-        }),
-      ]);
+      mockItemsResponse([{ code: drugCode1, availableStockOnHand: 10 }]);
 
       const task = new MSupplyStockOnHandProcessor(context);
       await task.run();
@@ -425,19 +352,9 @@ describe('MSupplyStockOnHandProcessor', () => {
       ]);
 
       mockAuthResponse();
-      mockStockLinesResponse([
-        makeStockLine({
-          code: 'NON-EXISTENT-CODE',
-          availableNumberOfPacks: 99,
-          totalNumberOfPacks: 99,
-          packSize: 1,
-        }),
-        makeStockLine({
-          code: drugCode1,
-          availableNumberOfPacks: 3,
-          totalNumberOfPacks: 3,
-          packSize: 1,
-        }),
+      mockItemsResponse([
+        { code: 'NON-EXISTENT-CODE', availableStockOnHand: 99 },
+        { code: drugCode1, availableStockOnHand: 3 },
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -451,7 +368,36 @@ describe('MSupplyStockOnHandProcessor', () => {
       expect(allStock[0].quantity).toBe(3);
     });
 
-    it('skips stock lines without an item code', async () => {
+    it('leaves medications that mSupply does not list as unknown', async () => {
+      await models.ReferenceDrugFacility.bulkCreate([
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
+        {
+          referenceDrugId: referenceDrugId2,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
+      ]);
+
+      mockAuthResponse();
+      mockItemsResponse([{ code: drugCode1, availableStockOnHand: 5 }]);
+
+      const task = new MSupplyStockOnHandProcessor(context);
+      await task.run();
+
+      const stock = await models.ReferenceDrugFacility.findOne({
+        where: { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID },
+      });
+      expect(stock.quantity).toBeNull();
+      expect(stock.stockStatus).toBe(DRUG_STOCK_STATUSES.UNKNOWN);
+    });
+
+    it('skips items without a code', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
         {
           referenceDrugId: referenceDrugId1,
@@ -462,19 +408,9 @@ describe('MSupplyStockOnHandProcessor', () => {
       ]);
 
       mockAuthResponse();
-      mockStockLinesResponse([
-        makeStockLine({
-          code: null,
-          availableNumberOfPacks: 50,
-          totalNumberOfPacks: 50,
-          packSize: 1,
-        }),
-        makeStockLine({
-          code: drugCode1,
-          availableNumberOfPacks: 7,
-          totalNumberOfPacks: 7,
-          packSize: 1,
-        }),
+      mockItemsResponse([
+        { code: null, availableStockOnHand: 50 },
+        { code: drugCode1, availableStockOnHand: 7 },
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -487,7 +423,7 @@ describe('MSupplyStockOnHandProcessor', () => {
       expect(allStock[0].quantity).toBe(7);
     });
 
-    it('aggregates multiple stock lines for the same drug', async () => {
+    it('aggregates multiple items with the same code', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
         {
           referenceDrugId: referenceDrugId1,
@@ -498,19 +434,9 @@ describe('MSupplyStockOnHandProcessor', () => {
       ]);
 
       mockAuthResponse();
-      mockStockLinesResponse([
-        makeStockLine({
-          code: drugCode1,
-          availableNumberOfPacks: 4,
-          totalNumberOfPacks: 4,
-          packSize: 10,
-        }),
-        makeStockLine({
-          code: drugCode1,
-          availableNumberOfPacks: 6,
-          totalNumberOfPacks: 6,
-          packSize: 10,
-        }),
+      mockItemsResponse([
+        { code: drugCode1, availableStockOnHand: 40 },
+        { code: drugCode1, availableStockOnHand: 60 },
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -523,9 +449,9 @@ describe('MSupplyStockOnHandProcessor', () => {
       expect(stock.stockStatus).toBe(DRUG_STOCK_STATUSES.IN_STOCK);
     });
 
-    it('handles empty stock lines response gracefully', async () => {
+    it('handles empty items response gracefully', async () => {
       mockAuthResponse();
-      mockStockLinesResponse([]);
+      mockItemsResponse([]);
 
       const task = new MSupplyStockOnHandProcessor(context);
       await task.run();
@@ -534,6 +460,55 @@ describe('MSupplyStockOnHandProcessor', () => {
         where: { facilityId: FACILITY_ID },
       });
       expect(allStock).toHaveLength(0);
+    });
+
+    it('pages through items until totalCount is reached', async () => {
+      await models.ReferenceDrugFacility.bulkCreate([
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
+        {
+          referenceDrugId: referenceDrugId2,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
+      ]);
+
+      const totalCount = ITEMS_PAGE_SIZE + 1;
+      const otherItems = Array.from({ length: ITEMS_PAGE_SIZE - 1 }, (_, index) => ({
+        code: `NOT-IN-TAMANU-${index}`,
+        availableStockOnHand: 1,
+      }));
+      mockAuthResponse();
+      mockItemsResponse([...otherItems, { code: drugCode1, availableStockOnHand: 7 }], totalCount);
+      mockItemsResponse([{ code: drugCode2, availableStockOnHand: 0 }], totalCount);
+
+      const task = new MSupplyStockOnHandProcessor(context);
+      await task.run();
+
+      const requestedPages = fetchWithRetryBackoff.mock.calls
+        .slice(1) // the first call authenticates
+        .map(([, { body }]) => JSON.parse(body).variables.page);
+      expect(requestedPages).toEqual([
+        { first: ITEMS_PAGE_SIZE, offset: 0 },
+        { first: ITEMS_PAGE_SIZE, offset: ITEMS_PAGE_SIZE },
+      ]);
+
+      const stock1 = await models.ReferenceDrugFacility.findOne({
+        where: { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID },
+      });
+      expect(stock1.quantity).toBe(7);
+      expect(stock1.stockStatus).toBe(DRUG_STOCK_STATUSES.IN_STOCK);
+
+      const stock2 = await models.ReferenceDrugFacility.findOne({
+        where: { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID },
+      });
+      expect(stock2.quantity).toBe(0);
+      expect(stock2.stockStatus).toBe(DRUG_STOCK_STATUSES.OUT_OF_STOCK);
     });
   });
 });
