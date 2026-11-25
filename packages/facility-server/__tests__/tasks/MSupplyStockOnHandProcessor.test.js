@@ -399,9 +399,9 @@ describe('MSupplyStockOnHandProcessor', () => {
         ]),
         FACILITY_ID,
       );
-      // Sequelize quotes the table name, raw SQL may not
+      // Sequelize passes its own statements as { query }, with the table name quoted
       const updateStatements = querySpy.mock.calls.filter(([sql]) =>
-        /UPDATE "?reference_drug_facilities"?\s/.test(String(sql)),
+        /UPDATE "?reference_drug_facilities"?\s/.test(sql.query ?? sql),
       );
       querySpy.mockRestore();
 
