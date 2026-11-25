@@ -13,6 +13,7 @@ Applies to the tablet at a facility where patients check themselves in for today
 - Where the kiosk is turned off for the facility, the kiosk address shows only a short message that the kiosk is unavailable, without the kiosk header.
 - The kiosk keeps its staff sign-in alive while it is open, so it does not sign itself out between patients.
 - The kiosk can be open in one browser tab while Tamanu is open in another. Tamanu's limit of one open tab doesn't apply to kiosk tabs, so a kiosk tab neither blocks Tamanu nor is blocked by it.
+- Keeping the kiosk signed in leaves Tamanu's sign-in in other tabs as those tabs last set it: logging out of Tamanu, or signing in with another account, holds across a reload while the kiosk stays open.
 - Every kiosk action is limited to the facility the tablet is signed in to; the kiosk cannot be pointed at another facility.
 - The kiosk has its own permission, to run the kiosk, and needs no other: with it an account can find today's appointments, load their forms and check patients in from the kiosk. An account kept for the tablet can be given only this permission, so leaving the kiosk for the rest of Tamanu shows it no patient records.
 - The Self check-in kiosk item in Facility admin is shown only to accounts with permission to run the kiosk, and the kiosk address tells an account without it that it can't run the kiosk.

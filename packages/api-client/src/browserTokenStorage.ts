@@ -204,6 +204,38 @@ export async function writePersistedAuthToken(
 }
 
 /**
+ * Store a renewed token in place of `currentToken`, only while the stored token is still
+ * `currentToken`. Storage is shared by every tab, and another tab may have logged out or signed in
+ * as someone else since this one stored its token; a renewal must not undo that. The stored value
+ * is checked again just before writing, so a change made while the renewal was encrypting is kept.
+ * Returns whether the stored token was replaced.
+ */
+export async function renewPersistedAuthToken(
+  storageKey: string,
+  currentToken: string,
+  renewedToken: string,
+  deviceId: string,
+  namespace: TokenStorageNamespace,
+  storage: AuthTokenStorage = localStorage,
+  origin: string = defaultOrigin(),
+): Promise<boolean> {
+  const stored = storage.getItem(storageKey);
+  const keyMaterial = buildTokenStorageKeyMaterial(deviceId, origin, namespace);
+  if ((await unpackPersistedToken(stored, keyMaterial)) !== currentToken) {
+    return false;
+  }
+  // Without Web Crypto the token is stored as cleartext, as in writePersistedAuthToken
+  const packed = globalThis.crypto?.subtle
+    ? await packPersistedToken(renewedToken, keyMaterial)
+    : renewedToken;
+  if (storage.getItem(storageKey) !== stored) {
+    return false;
+  }
+  storage.setItem(storageKey, packed);
+  return true;
+}
+
+/**
  * Read and decrypt a stored token. Removes the key if ciphertext is present but invalid.
  * Legacy cleartext values are migrated to encrypted form on first successful read when Web Crypto is available.
  * Returns only `{ token }` so the pre-migration storage string is never part of the public return value.
