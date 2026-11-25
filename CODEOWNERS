@@ -9,7 +9,6 @@
 # See Slack discussion:
 # https://beyondessential.slack.com/archives/GE9NHB95F/p1649711118757929
 #
-/packages/shared/src/sync/                              @edmofro @chris-bes @rohan-bes @dannash100 @passcod
 /packages/facility-server/app/sync/                     @edmofro @chris-bes @rohan-bes @dannash100 @passcod
 /packages/central-server/app/sync/                      @edmofro @chris-bes @rohan-bes @dannash100 @passcod
 /packages/mobile/App/services/sync/                     @edmofro @chris-bes @rohan-bes @dannash100 @passcod
@@ -22,16 +21,16 @@
 #
 /packages/central-server/config/default.json5   @beyondessential/tamanu-deployment-team
 /packages/facility-server/config/default.json5  @beyondessential/tamanu-deployment-team
-/packages/settings/schema/facility.ts           @beyondessential/tamanu-deployment-team
-/packages/settings/schema/central.ts            @beyondessential/tamanu-deployment-team
-/packages/settings/schema/global.ts             @beyondessential/tamanu-deployment-team
-/packages/settings/schema/definitions/*/*.ts    @beyondessential/tamanu-deployment-team
+/packages/settings/src/schema/facility.ts      @beyondessential/tamanu-deployment-team
+/packages/settings/src/schema/central.ts       @beyondessential/tamanu-deployment-team
+/packages/settings/src/schema/global.ts        @beyondessential/tamanu-deployment-team
+/packages/settings/src/schema/definitions/*.ts @beyondessential/tamanu-deployment-team
 
 #
 # Kamaka needs to be across changes to the PM2 config files, as they're critical
 # to the deployment process on Windows.
 #
-pm2*.config.js  @beyondessential/kamaka
+pm2*.config.cjs @beyondessential/kamaka
 
 #
 # Kamaka gates the deployment workflows (Tailscale, Pulumi, release & deploy

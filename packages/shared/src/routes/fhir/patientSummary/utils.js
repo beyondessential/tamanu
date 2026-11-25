@@ -28,6 +28,7 @@ export function administeredVaccineStatusToHL7Status(status) {
     case VACCINE_STATUS.DUE:
     case VACCINE_STATUS.UPCOMING:
     case VACCINE_STATUS.OVERDUE:
+    case VACCINE_STATUS.HISTORICAL:
     case VACCINE_STATUS.UNKNOWN:
       return 'not-done';
     default:
