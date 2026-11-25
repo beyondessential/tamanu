@@ -34,6 +34,8 @@ export async function initServerConfig({ context }) {
 
   resolved = { sync: { host, email, password }, facilityIds };
 
+  // Log which keys still come from the config file, so that servers that haven't moved to facts can
+  // be found before the config fallback is removed.
   const fromConfig = ['host', 'email', 'password'].filter(
     key => env[key] == null && facts[key] == null && resolved.sync[key] != null,
   );
