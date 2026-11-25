@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 # Establishing card context outside Workhorse
@@ -16,7 +16,7 @@ Follow this process whenever a skill directs you here.
 
 ## Establishing context
 
-When you have no card context, ask the user to establish it before you start the skill's work. Offer two paths:
+When you have no card context, ask the user to establish it before you start the skill's work, as `.agents/docs/asking-questions.md` says. Offer two paths:
 
 1. **From the team's tracker** — the user names the card in whatever tracks the team's work, and you read it there. That may be Workhorse itself, read with the Workhorse MCP's `get_card`, or another tracker such as Linear, Jira or GitHub Issues, read through its own MCP. Read whatever detail helps the task at hand — at minimum the card's title and description. If the tracker's MCP is not connected, walk the user through connecting it
 2. **Paste** — the user pastes the card's title and description directly into the chat

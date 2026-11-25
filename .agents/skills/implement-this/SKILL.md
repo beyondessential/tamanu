@@ -3,7 +3,7 @@ name: implement-this
 description: "Implement this card, or carry on from the changes just discussed"
 label: "Implement"
 category: build
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Implement
@@ -41,9 +41,9 @@ The card may have test cases at `.workhorse/test-cases/{card-id}/`: the scenario
 
 ### Spec ambiguity
 
-If while implementing you find the spec is unclear, contradictory, or missing something you need, don't guess. Surface it in chat and propose a spec edit before continuing. Prefer editing the existing spec over creating a new one (see `.agents/docs/spec-format.md`).
+If while implementing you find the spec is unclear, contradictory, or missing something you need, don't guess. Surface it in chat and propose a spec edit before continuing, asking for any decision it needs as `.agents/docs/asking-questions.md` says. Prefer editing the existing spec over creating a new one (see `.agents/docs/spec-format.md`).
 
-If there's no spec and the description/conversation is thin, say so and ask rather than inventing behaviour.
+If there's no spec and the description/conversation is thin, say so and ask rather than inventing behaviour (see `.agents/docs/asking-questions.md`).
 
 ### Last step: the progress summary
 

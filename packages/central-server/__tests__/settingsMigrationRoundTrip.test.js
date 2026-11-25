@@ -3,6 +3,7 @@ import { FACT_FACILITY_IDS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { STEPS as CENTRAL_STEPS } from '../../upgrade/src/steps/1785000000000-migrateCentralConfigToSettings';
 import { STEPS as FACILITY_STEPS } from '../../upgrade/src/steps/1785000000001-migrateFacilityConfigToSettings';
+import { STEPS as LATE_FACILITY_STEPS } from '../../upgrade/src/steps/1792370000000-migrateLateFacilityConfigToSettings';
 import { applyFacilitySettingMigrations } from '../../database/src/sync/applyFacilitySettingMigrations';
 import config from 'config';
 import { cloneDeep, merge } from 'es-toolkit/compat';
@@ -25,6 +26,7 @@ const LEGACY_CONFIG = {
     mSupplyMed: { medDispenseEnabled: true, username: 'msu', password: 'mspw' },
   },
   tasking: { upcomingTasksTimeFrame: 9, upcomingTasksShouldBeGeneratedTimeFrame: 96 },
+  sync: { schedule: '*/5 * * * *', backoff: { maxAttempts: 20 } },
 };
 
 describe('config->settings migration round trip', () => {
@@ -123,5 +125,35 @@ describe('config->settings migration round trip', () => {
     expect(await Setting.get('tasking.upcomingTasksTimeFrame', f1.id, SETTINGS_SCOPES.FACILITY)).toBe(9);
     expect(await Setting.get('tasking.upcomingTasksTimeFrame', f2.id, SETTINGS_SCOPES.FACILITY)).toBe(4);
     expect((await Setting.get('integrations.mSupplyMed', f1.id, SETTINGS_SCOPES.FACILITY)).username).toBe('msu');
+  });
+
+  it('late facility step + central apply: sync timing round trip', async () => {
+    const carried = await models.Facility.create(fake(models.Facility));
+    const operatorSet = await models.Facility.create(fake(models.Facility));
+    await models.LocalSystemFact.set(
+      FACT_FACILITY_IDS,
+      JSON.stringify([carried.id, operatorSet.id]),
+    );
+    await Setting.set('sync.schedule', '*/2 * * * *', SETTINGS_SCOPES.FACILITY, operatorSet.id);
+
+    const args = { models, serverType: 'facility', toVersion: '9.9.9', log: logStub };
+    expect(await LATE_FACILITY_STEPS[0].check(args)).toBe(true);
+    await LATE_FACILITY_STEPS[0].run(args);
+    expect(await LATE_FACILITY_STEPS[0].check(args)).toBe(false);
+
+    const rows = await models.FacilitySettingMigration.findAll({
+      where: { facilityId: [carried.id, operatorSet.id] },
+    });
+    await applyFacilitySettingMigrations(models, rows.map(r => r.id));
+
+    expect(await Setting.get('sync.schedule', carried.id, SETTINGS_SCOPES.FACILITY)).toBe(
+      '*/5 * * * *',
+    );
+    expect(await Setting.get('sync.backoff', carried.id, SETTINGS_SCOPES.FACILITY)).toMatchObject({
+      maxAttempts: 20,
+    });
+    expect(await Setting.get('sync.schedule', operatorSet.id, SETTINGS_SCOPES.FACILITY)).toBe(
+      '*/2 * * * *',
+    );
   });
 });

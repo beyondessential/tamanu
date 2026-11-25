@@ -3,7 +3,7 @@ name: qa-loop
 description: "Run an adversarial QA loop over this card's changes, fixing and re-checking until no bugs, edge cases or UI roughness are left"
 label: "QA loop"
 category: verify
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: QA loop
@@ -47,7 +47,7 @@ This runs best in a conversation on the user's device, where Bash is unrestricte
 
 ### Reporting the run
 
-Report as `.agents/docs/running-loops.md` "Reporting a run" says, with `report_round` and `loop` `qa_loop` once per round, after the round's triage is set. File each confirmed finding with `file_issue` and a `severity` as you confirm it (blocker and high are `critical`, medium is `suggestion`, low is `nit`), once it has reproduced where it was only traced, and set its disposition with `set_issue_disposition` as the fixer fixes it or you decide it. When a round files five or more issues, call `set_triage` before any fix is started. Use `stopped` only if the user told you to stop.
+Report as `.agents/docs/running-loops.md` "Reporting a run" says, with `report_round` and `loop` `qa_loop` once per round, after the round's triage is set. File each confirmed finding with `file_issue` and a `severity` as you confirm it (blocker and high are `critical`, medium is `suggestion`, low is `nit`), once it has reproduced where it was only traced, and set its disposition with `set_issue_disposition` as the fixer fixes it or you decide it. A finding that does not reproduce is filed and skipped as wrong, and one the card's rejections match is dropped, as that doc says. When a round files five or more issues, call `set_triage` before any fix is started. Use `stopped` only if the user told you to stop.
 
 ### 0. Orient, once
 

@@ -3,7 +3,7 @@ name: review-testing-notes
 description: "Review the post-implementation testing notes for how thoroughly they cover the card's requirements and risk, and whether regression-worthy cases are automated at the right level of the test hierarchy"
 label: "Review testing notes"
 category: verify
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Review testing notes
@@ -20,7 +20,7 @@ Before reviewing anything, work out what the card is required to do. By this sta
 
 - Reconcile three inputs: the card's latest description in the team's tracker, any comments there that update the requirements in a way that drifts from that description, and the committed spec changes on the card's branch (diff the branch against the card's base as `.agents/docs/bases-and-dependencies.md` says, scoped to `specs/`)
 - Treat the committed specs as the source of truth. Specs that have moved *ahead* of the card's description are fine — they are simply more current
-- Where the card's description or comments describe behaviour that is **missing from the specs**, the silence is ambiguous — ask the user which case applies, then act on it:
+- Where the card's description or comments describe behaviour that is **missing from the specs**, the silence is ambiguous — ask the user which case applies, as `.agents/docs/asking-questions.md` says, then act on it:
 - **If the missing behaviour was deliberately dropped or superseded** — the specs are already correct (they don't document absences); only the card's description is stale. Treat the specs as the source of truth and carry on. If another spec relied on the dropped behaviour, raise that as a finding — it doesn't block the review
 - **If the missing behaviour is still required** — the specs need to catch up. For a small, scoped gap, reconcile it inline (pin down the intended behaviour with the user): treat the confirmed behaviour as part of the source of truth (reviewed for coverage and automation in steps 3 and 4 like any spec criterion), raise the spec update as a top finding, offer to draft it, and continue. For a substantial gap, pause and ask for the specs to be brought up to date first and implemented/tested/reviewed again — there's no sound baseline otherwise
 - A single run should deliver a full review wherever possible; stopping is the exception

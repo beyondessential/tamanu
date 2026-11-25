@@ -167,7 +167,11 @@ const toStoredDateTime = (date: Date) => format(date, 'yyyy-MM-dd HH:mm:ss');
 
 export const createTodayOutpatientAppointmentViaApi = async (
   api: APIRequestContext,
-  { patientId, facilityId }: { patientId: string; facilityId: string },
+  {
+    patientId,
+    facilityId,
+    appointmentTypeId = 'appointmentType-other',
+  }: { patientId: string; facilityId: string; appointmentTypeId?: string },
 ) => {
   const user = await getUser(api);
   const now = new Date();
@@ -179,7 +183,7 @@ export const createTodayOutpatientAppointmentViaApi = async (
       patientId,
       clinicianId: user.id,
       locationGroupId: OUTPATIENT_LOCATION_GROUP_ID,
-      appointmentTypeId: 'appointmentType-other',
+      appointmentTypeId,
       startTime: toStoredDateTime(now),
       endTime: toStoredDateTime(end),
     },

@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 
@@ -109,14 +109,11 @@ const StyledQuantityTextInput = styled(NumberInput)`
   }
 `;
 
-export const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-  return <StyledQuantityTextInput {...props} value={value} onChange={handleChange} />;
-});
+// Shows the row's quantity rather than a copy of what was typed, so a quantity changed elsewhere
+// (Modify prescription) shows straight away, and a typed decimal shows as the whole number saved.
+export const QuantityInput = memo(({ value, onChange, ...props }) => (
+  <StyledQuantityTextInput {...props} value={value} onChange={onChange} />
+));
 
 export const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`
   .MuiInputBase-input {

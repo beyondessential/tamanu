@@ -1,8 +1,8 @@
-import config from 'config';
 import { chunk, groupBy } from 'es-toolkit/compat';
 import { log } from '@tamanu/shared/services/logging';
 import {
   getModelsForPull,
+  getSyncTuning,
   saveChangesForModel,
   SYNC_TICK_FLAGS,
   withDeferredSyncSafeguards,
@@ -28,7 +28,7 @@ export async function applyBootstrap({ sequelize, models }, records) {
         // as a pulled record is: never pushed back to central on account of the bootstrap
         data: { ...record.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
       }));
-      for (const batch of chunk(changes, config.sync.persistedCacheBatchSize)) {
+      for (const batch of chunk(changes, getSyncTuning().persistedCacheBatchSize)) {
         await saveChangesForModel(model, batch, false, log);
       }
     }

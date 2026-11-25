@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 # Building a surface to a reference standard

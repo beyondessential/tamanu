@@ -1,6 +1,7 @@
 import { test as base, APIRequestContext, Page } from '@playwright/test';
 
 import { createPatient, createApiContext, createHospitalAdmissionEncounterViaAPI, createClinicEncounterViaApi, createTriageEncounterViaApi } from '../utils/apiHelpers';
+import { createPortalPatient, issuePortalLoginCode, PortalPatient } from '../utils/centralDatabase';
 import {
   DashboardPage,
   LoginPage,
@@ -27,6 +28,10 @@ import {
   PatientDataAdminPage,
   ReferenceDataAdminPage,
   UserProfilesAdminPage,
+  PatientSurveyFormPane,
+  PortalDashboardPage,
+  PortalEditDetailsPage,
+  PortalLoginPage,
 } from '../pages';
 
 type BaseFixtures = {
@@ -60,6 +65,12 @@ type BaseFixtures = {
   patientDataAdminPage: PatientDataAdminPage;
   referenceDataAdminPage: ReferenceDataAdminPage;
   userProfilesAdminPage: UserProfilesAdminPage;
+  portalPatient: PortalPatient;
+  signedInPortalPatient: PortalPatient;
+  portalLoginPage: PortalLoginPage;
+  portalDashboardPage: PortalDashboardPage;
+  portalEditDetailsPage: PortalEditDetailsPage;
+  patientSurveyFormPane: PatientSurveyFormPane;
 };
 export const test = base.extend<BaseFixtures>({
   // Define `__name` in every browser context. Specs and page objects import @tamanu
@@ -212,6 +223,38 @@ export const test = base.extend<BaseFixtures>({
 
   userProfilesAdminPage: async ({ page }, use) => {
     await use(new UserProfilesAdminPage(page));
+  },
+
+  // A patient with a registered portal account, arranged on central where the portal reads.
+  // Playwright requires the destructuring pattern even for a fixture that depends on none.
+  // eslint-disable-next-line no-empty-pattern
+  portalPatient: async ({}, use) => {
+    await use(await createPortalPatient());
+  },
+
+  // The same patient, signed in to the portal through its Log in screens
+  signedInPortalPatient: async ({ portalPatient, portalLoginPage, portalDashboardPage }, use) => {
+    await portalLoginPage.goto();
+    await portalLoginPage.requestCode(portalPatient.email);
+    await portalLoginPage.enterCode(await issuePortalLoginCode(portalPatient.portalUserId));
+    await portalDashboardPage.greeting(portalPatient.firstName).waitFor();
+    await use(portalPatient);
+  },
+
+  portalLoginPage: async ({ page }, use) => {
+    await use(new PortalLoginPage(page));
+  },
+
+  portalDashboardPage: async ({ page }, use) => {
+    await use(new PortalDashboardPage(page));
+  },
+
+  portalEditDetailsPage: async ({ page }, use) => {
+    await use(new PortalEditDetailsPage(page));
+  },
+
+  patientSurveyFormPane: async ({ page }, use) => {
+    await use(new PatientSurveyFormPane(page));
   },
 });
 

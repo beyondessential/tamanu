@@ -4,7 +4,7 @@ description: "Workshop the shape of this project — audience, components, ambig
 label: "Workshop project"
 category: plan
 surface: project
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Workshop project
@@ -21,7 +21,7 @@ Things to push on:
 
 Methodology:
 
-- Ask focused questions, one or two at a time. Number them so the user can reply by number, and keep a question's number if you ask it again
+- Ask focused questions as `.agents/docs/asking-questions.md` says. In prose, ask one or two at a time, numbered so the user can reply by number, and keep a question's number if you ask it again
 - Take what the user says at face value first, then probe the implications
 - Don't draft the PRD during this skill; capture material in conversation. `Draft PRD` is the next step
 - If the user gives you enough to start sketching structure (component-led, feature-led, mixed), say which shape you'd recommend and why, but leave the draft to **Draft PRD**

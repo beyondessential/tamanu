@@ -3,7 +3,7 @@ name: build-loop
 description: "Build this card from its specs to a working feature, then refine it in rounds until a full round finds nothing to add, change or cut"
 label: "Build loop"
 category: build
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: build the feature, then refine it in rounds
@@ -40,7 +40,7 @@ If you don't already have this card's context, establish it first by following `
 - **Test the backend as hard as the screens.** A feature's server side (its entry points, access checks, data model, migrations and background work) gets its own exploratory rounds, run against the rig with seeded edge-case data, not only the per-package lenses and the walkthroughs that reach it through the UI. Once polish findings are only at the edges (a tap target, a hyphen), stop polishing and spend the time on the backend.
 - **Every substantive finding becomes an automated test,** wherever it was found: a package check, a backend round, a walkthrough or a critique. The rule in `.agents/docs/running-loops.md` "Finding, fixing and re-checking" applies to all of them: a test at the lowest level that would have caught it, failing before the fix and passing after, committed with the fix. A fix without one is not finished.
 - **Write less code.** Before writing a component, function or helper, look for one the codebase already has. Track the branch's line count in the plan as the run goes. Shrinking it afterwards is the refactor loop's job, so leave the code readable and do not golf it.
-- **Ask once, at the start, without stopping.** The only question you ask is for references (step 1), when the work needs design, together with anything that truly blocks. After that, decide, and record each decision and its reason in the plan, where the user can overrule it later.
+- **Ask once, at the start, without stopping.** The only question you ask is for references (step 1), when the work needs design, together with anything that truly blocks, in prose as `.agents/docs/asking-questions.md` says, so the run is not parked. After that, decide, and record each decision and its reason in the plan, where the user can overrule it later.
 
 ### Reporting: rounds, findings and the stop rule
 
