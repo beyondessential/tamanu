@@ -25,7 +25,8 @@ export const buildRoutes = ctx => {
       req.flagPermissionChecked();
       const { facilityId } = z.object({ facilityId: z.string().optional() }).parse(req.query);
       if (!facilityId) {
-        // The admin panel's session has no facility: same payload as /login.
+        // The admin panel's session has no facility. This is the payload /login gives any
+        // signed-in user, so being signed in is the only permission it needs.
         res.send({ settings: await req.settings.getFrontEndSettings() });
         return;
       }
