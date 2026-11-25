@@ -69,9 +69,10 @@ cause, because each kind has a different owner.
   build. **[dev-OTS]**
 - Do not hand-patch the workload or delete the RC's namespace, database or Application
   (`../ruled-out-actions.md`); Argo CD reverts patches.
-- After the rollout settles, confirm: every pod ready, Application `Synced` and
-  `Healthy`, central and both facilities accept a login, and each facility `sync` log
-  shows `completedSession` with `pulling since=` rising.
+- After the rollout settles, confirm: every non-Job pod ready and every hook Job
+  `Completed`, Application `Synced` and `Healthy`, central and both facilities accept a
+  login, and each facility `sync` log shows `completedSession` with `pulling since=`
+  rising.
 
 ## 6. Escalate
 
