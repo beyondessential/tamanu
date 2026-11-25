@@ -747,10 +747,11 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
     if (preview) preview.style.height = `${body.querySelector('.x19-set-list').offsetHeight}px`;
 
     body.querySelectorAll('[data-set]').forEach(button => button.addEventListener('click', () => {
-      const set = MEDICATION_SETS[button.dataset.set];
-      modal.selectedSet = { key: button.dataset.set, name: set.name, meds: set.meds.map((med, i) => ({ ...med, id: i })) };
-      modal.isDirty = false;
-      renderModal();
+      const key = button.dataset.set;
+      if (modal.selectedSet?.key === key) return;
+      // Choosing another set is what loses edits made on the review screen, so it asks first.
+      if (modal.isDirty) { modal.pendingSetKey = key; go('discard'); return; }
+      selectSet(key);
     }));
     $('#x19-back').addEventListener('click', backToDiagnosis);
     $('#x19-skip').addEventListener('click', closeModal);
@@ -807,7 +808,7 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
       modal.editingMed = set.meds.find(m => m.id === Number(button.dataset.remove));
       go('remove');
     }));
-    $('#x19-back').addEventListener('click', () => (modal.isDirty ? go('discard') : backToSelect()));
+    $('#x19-back').addEventListener('click', () => go('selectSet'));
     $('#x19-cancel').addEventListener('click', () => go('cancelSet'));
     $('#x19-finalise').addEventListener('click', finalise);
     $('#x19-finalise-print').addEventListener('click', finalise);
@@ -819,7 +820,12 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
     go('diagnosis');
   }
 
-  function backToSelect() { modal.selectedSet = null; modal.isDirty = false; go('selectSet'); }
+  function selectSet(key) {
+    const set = MEDICATION_SETS[key];
+    modal.selectedSet = { key, name: set.name, meds: set.meds.map((med, i) => ({ ...med, id: i })) };
+    modal.isDirty = false;
+    go('selectSet');
+  }
 
   function finalise() {
     modal.selectedSet.meds.forEach(med => encounterMedications.push({ ...med, date: TODAY_SHORT, prescriber: CURRENT_USER }));
@@ -915,10 +921,10 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
   }
 
   function renderDiscardScreen(body) {
-    renderMessageScreen(body, 'Going back will loose any changes made to the medication set prescriptions. Are you sure you would like to go back and discard changes?', {
+    renderMessageScreen(body, `Selecting another medication set will lose the changes made to ${escapeHtml(modal.selectedSet.name)}. Are you sure you would like to discard them?`, {
       confirmText: 'Discard changes',
-      onConfirm: backToSelect,
-      onCancel: () => go('review'),
+      onConfirm: () => selectSet(modal.pendingSetKey),
+      onCancel: () => go('selectSet'),
     });
   }
 
