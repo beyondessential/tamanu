@@ -41,7 +41,8 @@ Applies to the web clients measuring how the application performs from the user'
 - A navigation event records its outcome: settled normally, abandoned, or capped.
 - Each event records the interface it came from (clinical web, admin, or patient portal), the application version, the device, and the time it occurred. The interface is determined by the receiving server's ingest endpoint — each is reached by exactly one interface — rather than reported by the client.
 - The device is identified by the client's stable per-workstation identifier, which persists across logins and sessions on that browser, so a consistently slow machine or location can be isolated independently of which user was signed in.
-- An event records the user and session once a user has signed in; an event produced before sign-in is attributed to the device alone.
+- An event records the user and session once a user has signed in; an event produced before sign-in, or after signing out, is attributed to the device alone.
+- A session lasts for one sign-in: each sign-in starts a new session, even for the same user on the same page load.
 - Parameter values, including query parameters, are recorded as-is; no patient-identifying information is stripped in the browser.
 
 > [!NOTE]
