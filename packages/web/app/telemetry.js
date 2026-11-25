@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, matchPath } from 'react-router';
 import { useSelector } from 'react-redux';
-import { v4 as uuidv4 } from 'uuid';
 
 import { initBrowserTelemetry } from '@tamanu/ui-components';
 
@@ -17,12 +16,6 @@ import { LOCAL_STORAGE_KEYS } from './constants';
 // route listener below starts a navigation on each route change.
 
 let telemetry = null;
-
-// One id per page load, standing in for the browser session. Uses `uuid` rather
-// than `crypto.randomUUID`, which needs a secure context: the clinical app is
-// sometimes served over HTTP via a LAN IP (e.g. Iti). `uuid` prefers randomUUID
-// and falls back to `crypto.getRandomValues`.
-const SESSION_ID = `web-session-${uuidv4()}`;
 
 function readTelemetryEnabled() {
   try {
@@ -44,7 +37,8 @@ export function initWebTelemetry(api) {
     getContextAttributes: () => ({
       deviceId: getDeviceId(),
       appVersion: FULL_VERSION,
-      sessionId: SESSION_ID,
+      // The user and session are only known once signed in, and change with each sign-in.
+      sessionId: api?.signInId ? `web-session-${api.signInId}` : null,
       userId: api?.user?.id ?? null,
     }),
   });

@@ -220,6 +220,8 @@ export const checkIsFacilitySelected = ({ auth }) => !!auth.facilityId;
 const defaultState = {
   loading: false,
   user: null,
+  // Outlives sign-out, so the login screen can tell the same user returning from a different one.
+  lastUserEmail: null,
   ability: null,
   error: null,
   token: null,
@@ -269,6 +271,7 @@ const actionHandlers = {
   [LOGIN_SUCCESS]: action => ({
     loading: false,
     user: action.user,
+    lastUserEmail: action.user.email,
     primaryTimeZone: action.primaryTimeZone,
     ability: action.ability,
     availableFacilities: action.availableFacilities,
