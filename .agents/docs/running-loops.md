@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 # Running a loop of agents
@@ -21,6 +21,11 @@ A usage limit or a session ending stops every agent still running, so everything
 - Every brief tells its agent to commit per item and to write its findings to its report file as it goes.
 - Relaunch a stopped agent from its last commit: "a previous run was cut off; check `git log` and `git status` and build on what is there".
 - Run work you are waiting on as a foreground agent rather than ending your turn on a background one.
+- Those per-item commits are the loop's record. In a Workhorse turn, the commit Workhorse makes when the turn ends holds only what is still uncommitted, such as the log's last lines, and there is none when nothing is (see `.agents/docs/checkout.md`). Push after each round's checkpoint so the card's branch shows where the run stands.
+
+## Scope
+
+A loop over the card's changes takes them as the card's branch against its base, not against the default branch: on a card based on a parent card, the default branch would take in the parent's work too. Find the base and diff against it as `.agents/docs/bases-and-dependencies.md` says, and add anything uncommitted in the worktree.
 
 ## Before the first round: prerequisites
 
@@ -41,6 +46,15 @@ Each run of a loop is a run on the card: its row in the card's Loops bar, its ro
 - **Triage a big round.** When a round files five or more issues, call `set_triage` before acting on any of them: the triage rule applies to a loop's issues as to any others.
 - **The severity scale** is the hosted review's, so clean means the same in every loop: **critical** (must be fixed), **suggestion** (worth fixing, not critical) and **nit** (minor). The QA loop's blocker and high are critical, medium is suggestion and low is nit; the design loop's major is critical, moderate is suggestion and minor is nit.
 
+### Outside a Workhorse turn
+
+A turn begins a run by running the loop's skill. A session outside Workhorse begins one itself, through the Workhorse MCP, where the tools above take the card as an argument.
+
+- Call `start_loop` with the loop and the card before round 1. It returns the run's name and its cap. It is refused while another loop runs on the card, naming that loop; say so to the user rather than waiting.
+- Run `workhorse-local keep-alive <card>` in the background for as long as the run goes on. It keeps the run, and its hold on the pull request, alive. If it exits saying the run ended, the run is over: tell the user, and start another only if they want the work to go on.
+- `report_round` reports to the run you started. When it is refused because someone stopped the run from the card, stop and tell the user.
+- Where the Workhorse MCP is not available, run the loop without reporting, and give the rounds and findings in your report instead.
+
 ## Rigour
 
 The card's rigour says how hard a loop tries. Your turn names it, with its sentence and your loop's cap. Each level sets the same four things for every loop:
@@ -53,11 +67,33 @@ The card's rigour says how hard a loop tries. Your turn names it, with its sente
 
 Clean is judged on what survived triage. Fresh eyes are agents given neither the ledger nor the earlier findings. For the refactor loop a round is a survey and its clean rounds are clean surveys; for the review loop a round is one pass of its reviewers. A level changes how many clean rounds end the run, what clean allows, the cap and which model judges; the capture, fixing and mechanical jobs keep the models each skill's own table gives them.
 
+## Finding, fixing and re-checking
+
+The loops that hunt for defects (the QA loop, the review loop, and the build loop's package checks) share one shape. Each skill names its own lenses, roles and models.
+
+- **Roles are never merged.** Finders (adversaries or reviewers) report and do not fix. Fixers fix one batch of findings. Whoever re-checks a fix is never the agent that made it. You brief, triage, decide and keep the log, and fix inline only a one-line change.
+- **Briefs.** Every brief carries the working directory and where the repository's guidance is, the scope, the agent's lens, the ledger so far (so it does not report what is known, and does try to break what was fixed), the report path and the shape of a finding, and a reply of ten lines at most with counts by severity. Tell each finder its job is to find something, and that a report with nothing in it lists what it tried. Never tell one the code is probably fine.
+- **A finding is real before it is fixed.** A finding that was only traced, or only claimed, is a hypothesis: before anything above a nit is fixed, confirm it against the code or reproduce it. One that does not hold is closed with the attempt recorded, and the reason goes into the next round's briefs so it is not raised again.
+- **Triage.** Merge duplicates, rank, and decide each finding: fix now, skip or won't fix (with the reason), follow-up (separate work, recorded as needing a card), or needs decision (something only the user can settle, collected for the report rather than stopping the run). Group the fix-now items by area so no two fixers touch the same files.
+- **A defect's fix comes with a test.** The fixer writes the test first, at the lowest level that would have caught the defect, watches it fail, fixes, and watches it pass, then commits per finding in the repository's own style. Never delete, skip or loosen a test to get a fix through. A fix that removes a safeguard to save cost, such as a check, a revalidation or a retry, is re-checked before it lands.
+- **A fix is not a feature.** A finding that is really a request for something new goes on the backlog and into the report, not into the code.
+- **Checkpoint.** After every round, a `haiku` agent runs the repository's checks (its tests, and its typecheck, lint and build where it has them) and reports only failures. Fix what the round broke. Rerun a known flake rather than fixing it, and fix a flake you introduced. Update the log and push.
+
+### When it is done
+
+- A round is clean by the card's rigour (see "Rigour"), judged on what survived triage, with every report listing what it tried. A **cold** round is one run by fresh agents given neither the ledger nor the earlier findings.
+- The number of rounds is not the measure. Running out of ideas does not end a run; only the skill's stop rule and the cap do.
+- **The same area keeps producing findings:** stop patching it. Treat it as a design problem: review the area's design, then rework it or record it as a follow-up.
+- **A round's fixes cause more findings than they close:** stop and review the approach before the next round.
+- **A finding comes back after it was skipped:** the finder has no memory of the decision, so put the reason in its brief rather than changing the code to quieten it.
+- **The cap is reached without the clean rounds the rigour asks for:** report that round as `going`, since Workhorse ends the run at its cap, and say in the report where it stands.
+- In the report, say what the evidence is. Clean rounds, and cold ones more so, are strong evidence that nothing is left these lenses can find. They are not proof that nothing is left.
+
 ## The rig
 
 `.agents/docs/browser-rig.md` has the detail. In short:
 
-- **Lease, never build.** Commit the work under test, then every agent that needs the running app takes its own lease with `workhorse-local rig lease --holder <loop>/<role> --holder-pid parent` and releases it before it reports. The first lease at a commit builds it once and every other agent reuses that build. No agent builds its own copy, copies `node_modules`, or starts its own database or server; a fake service it must run binds to `127.0.0.1`. Throwaway checkouts come from `workhorse-local rig scratch`.
+- **Lease, never build.** Commit the work under test, then every agent that needs the running app takes its own lease with `workhorse-local rig lease --holder <loop>/<role> --holder-pid parent` and releases it before it reports. The first lease at a commit builds it once and every other agent reuses that build. No agent builds its own copy, copies dependencies, or starts its own database or server; a fake service it must run binds to `127.0.0.1`. Throwaway checkouts come from `workhorse-local rig scratch`.
 - **Long runs renew.** A lease ends when its time runs out even while its holder is alive, so an agent that may run longer than an hour leases with `--ttl 4h` or renews with `workhorse-local rig renew <lease>`.
 - **No recipe, write one.** If the lease fails with `no-recipe`, write the recipe (browser rig, "When the repository has no rig recipe"), commit it, and carry on.
 - **Disk is part of the loop.** Run `workhorse-local rig gc --card <card>` at the start of every round, never the plain machine-wide form, and keep a "rigs and disk" line in the log: free space, leases outstanding, the card's use against its budget, and the rigs' memory against the cap (`workhorse-local rig status`). A build refused for low disk, or a lease refused because rig memory stayed full, is a result to report, not an obstacle to work around.

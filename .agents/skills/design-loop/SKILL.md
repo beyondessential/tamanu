@@ -3,7 +3,7 @@ name: design-loop
 description: "Design this card's UI in loops, from references and three directions to a refined build, until fresh critiques find nothing above minor"
 label: "Design loop"
 category: design
-workhorse-version: 0.7.15
+workhorse-version: 0.8.0
 ---
 
 ## Your task: design a UI in loops until it is refined
@@ -26,9 +26,10 @@ If you don't already have this card's context, establish it first by following `
 
 ### Reporting the run
 
-- **File each confirmed defect with `file_issue` as you confirm it,** with a `severity` on the scale the hosted review uses: a major finding is `critical`, a moderate one is `suggestion`, a minor one is `nit`. It is filed under this run and the round you are in, and left open for the QA loop or the agent to fix, since polish rounds only subtract and correct. A change a critique names that you make yourself is a finding too: file it, then set its disposition with `set_issue_disposition` as you make it (in progress, then fixed with the commit's sha, or skipped with the reason). Taste calls, measurements and the taste ledger stay in the log and are not filed.
-- **When a round files five or more issues, call `set_triage` before acting on any of them:** the triage rule applies to a loop's issues as it does to any others.
-- **Call `report_round` once per round** (a round is one full critique of the build against the reference and the chosen mockup, with the changes it led to): `loop` `design_loop`, the `round` you have just finished counting from 1, the `cap` this card's rigour gives (the turn names it), `found` as the round's critical, suggestion and nit counts from the critique, a one-line `summary`, and `status`: `going` while another round follows, `done` when the stop rule in step 3 is met, and `stopped` only if the user told you to stop. If the tool refuses because the conversation has no open run of the loop, say so and do not report again.
+Report as `.agents/docs/running-loops.md` "Reporting a run" says, with `report_round` and `loop` `design_loop` once per round. A round is one full critique of the build against the reference and the chosen mockup, with the changes it led to, and `status` `done` means the stop rule in step 3 is met. Use `stopped` only if the user told you to stop.
+
+- **File each confirmed defect with `file_issue` as you confirm it,** with a `severity`: a major finding is `critical`, a moderate one is `suggestion`, a minor one is `nit`. Leave it open for the QA loop or the agent to fix, since polish rounds only subtract and correct. A change a critique names that you make yourself is a finding too: file it, then set its disposition with `set_issue_disposition` as you make it. Taste calls, measurements and the taste ledger stay in the log and are not filed.
+- **When a round files five or more issues, call `set_triage` before acting on any of them.**
 
 ### 0. Whether the card needs design
 
@@ -38,7 +39,7 @@ If the card needs no design, call `report_round` with `loop` `design_loop`, `sta
 
 ### 1. References
 
-1. Ask whether a product does this well, in prose, then carry on working: the user may already have gone, and a question panel would park the run. Name the screens and states you would capture, each with the decision it settles, and explain how to capture them. If the answer is Linear and a `match-linear` skill is present, follow it from here.
+1. Ask whether a product does this well, in prose, then carry on working: the user may already have gone, and a question panel would park the run. Name the screens and states you would capture, each with the decision it settles, and explain how to capture them. If the workspace has a skill for capturing that product, such as `match-linear` for Linear, follow it from here.
 2. Screenshot the app's own best neighbouring surfaces from the rig. They are the reference for consistency, and the only reference if no product one comes.
 3. Do not commit to a visual direction without a reference unless the user has said there is none. Do the work that does not depend on one while you wait.
 
