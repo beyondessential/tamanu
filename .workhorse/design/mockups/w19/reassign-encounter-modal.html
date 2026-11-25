@@ -1,10 +1,10 @@
 <!-- from snapshot: Patient screen (patient-screen.html, captured 2026-10-19) -->
-<!-- W19: Move encounter record dialog, opened from Move in the encounter actions menu -->
+<!-- W19: Reassign encounter dialog, opened from Reassign encounter in the encounter actions menu -->
 <!DOCTYPE html>
 <html lang="en" style="--toastify-color-info:#3498db;--toastify-color-success:#07bc0c;--toastify-color-warning:#f1c40f;--toastify-color-error:#e74c3c;">
 <head>
 <meta charset="utf-8">
-<title>Move encounter record, both NHNs entered</title>
+<title>Reassign encounter, both NHNs entered</title>
 <style>
 .MuiSvgIcon-root { fill: currentcolor; width: 1em; height: 1em; display: inline-block; font-size: 1.5rem; transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; user-select: none; }
 .MuiSvgIcon-fontSizeSmall { font-size: 1.25rem; }
@@ -391,7 +391,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .hVVVjV { font-weight: 400; font-size: 11px; line-height: 15px; text-transform: none; text-decoration: underline; color: rgb(255, 255, 255); margin-left: 10px; min-height: 0px; min-width: 0px; padding-left: 0px; padding-right: 0px; }
 .gKOsot { margin-bottom: 5px; }
 
-/* W19: Move encounter record modal (BaseModal md, mirrors DeleteEncounterForm) */
+/* W19: Reassign encounter modal (BaseModal md, mirrors DeleteEncounterForm) */
 .w19-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 1300; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 32px; }
 .w19-modal { width: 100%; max-width: 830px; background: #ffffff; /* white */ border-radius: 3px; box-shadow: 0 11px 15px -7px rgba(0,0,0,0.2), 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12); font-family: Roboto, Helvetica, Arial, sans-serif; color: #444444; /* darkestText */ overflow: hidden; }
 .w19-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 14px 32px; border-bottom: 1px solid #ebebeb; /* softOutline */ }
@@ -428,7 +428,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 <div class="w19-backdrop">
   <div class="w19-modal" role="dialog" aria-labelledby="w19-modal-title">
     <div class="w19-modal-header">
-      <span class="w19-modal-title" id="w19-modal-title">Move encounter record</span>
+      <span class="w19-modal-title" id="w19-modal-title">Reassign encounter</span>
       <button class="w19-modal-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button>
     </div>
     <div class="w19-modal-body">
@@ -447,9 +447,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
         </div></div>
       </div>
       <div class="w19-warning">
-        <div class="w19-warning-title">Confirm encounter move</div>
-        <p class="w19-paragraph">This action will move the encounter record and all its corresponding data to another patient. This includes all notes, diagnoses, procedures and all other information associated with this encounter.</p>
-        <p class="w19-paragraph">To make sure you have selected the correct encounter and patient, enter the NHN for this patient, then the NHN of the patient you are moving the encounter to.</p>
+        <div class="w19-warning-title">Confirm encounter reassignment</div>
+        <p class="w19-paragraph">This action will reassign the encounter record and all its corresponding data to another patient. This includes all notes, diagnoses, procedures and all other information associated with this encounter.</p>
+        <p class="w19-paragraph">To make sure you have selected the correct encounter and patient, enter the NHN for this patient, then the NHN of the patient you are reassigning the encounter to.</p>
         <div class="w19-fields">
           <div class="w19-field">
             <span class="w19-field-label">Current patient NHN<span class="w19-field-req">*</span></span>
