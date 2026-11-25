@@ -9,6 +9,7 @@ describe('Sync routes for an unavailable session', () => {
   let baseApp;
   let models;
   let token;
+  let user;
 
   const deviceId = 'unavailable-session-test-device';
 
@@ -17,7 +18,7 @@ describe('Sync routes for an unavailable session', () => {
     baseApp = ctx.baseApp;
     ({ models } = ctx.store);
 
-    const user = await models.User.create(
+    user = await models.User.create(
       fake(models.User, { password: 'password', role: 'admin' }),
     );
     await models.Device.create(
@@ -57,6 +58,7 @@ describe('Sync routes for an unavailable session', () => {
         startTime: completedAt,
         lastConnectionTime: completedAt,
         completedAt,
+        parameters: { userId: user.id, deviceId },
       });
     });
 

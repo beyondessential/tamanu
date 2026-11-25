@@ -5,7 +5,7 @@ import * as z from 'zod';
 
 import { DEVICE_SCOPES } from '@tamanu/constants';
 import { completeSyncSession } from '@tamanu/database/sync';
-import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
+import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 import { CentralSyncManager } from './CentralSyncManager';
@@ -198,7 +198,7 @@ export const buildSyncRoutes = ctx => {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
       }
       if (!syncSession) {
-        throw new Error(`Sync session '${params.sessionId}' not found`);
+        throw new NotFoundError(`Sync session '${params.sessionId}' not found`);
       }
 
       // spec: SYNC#pulling
