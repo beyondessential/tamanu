@@ -129,4 +129,27 @@ test.describe('Self check-in kiosk', () => {
 
     await context.close();
   });
+
+  test('[KIOSK-0004] Signing in to Tamanu with another account holds while the kiosk stays open', async ({
+    browser,
+  }) => {
+    const kiosk = await openKioskBesideTamanu(browser);
+    const { context, staffPage, sidebarPage } = kiosk;
+
+    await sidebarPage.logOutButton.click();
+    const { email, password } = testData.receptionUser;
+    await new LoginPage(staffPage).login(email, password);
+
+    expect(await didKioskRenewalChangeStoredSignIn(kiosk)).toBe(false);
+
+    // Reception can't run the kiosk, so no kiosk item shows it is still the account signed in
+    await staffPage.reload();
+    await expect(sidebarPage.userAndFacilityName).toBeVisible();
+    if (await sidebarPage.facilityAdminSection.isVisible()) {
+      await sidebarPage.openFacilityAdmin();
+    }
+    await expect(sidebarPage.kioskItem).toHaveCount(0);
+
+    await context.close();
+  });
 });
