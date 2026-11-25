@@ -777,35 +777,29 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           await Promise.all([
             Patient.create(fake(Patient, { firstName: 'Bob_by' })),
             Patient.create(fake(Patient, { firstName: 'Bobby' })),
+            Patient.create(fake(Patient, { firstName: '50% off' })),
+            Patient.create(fake(Patient, { firstName: 'Back\\' })),
           ]);
         });
 
+        // Each search finds exactly one patient: an unescaped wildcard would find more, and an
+        // over-escaped value none
         it.each([
-          ['given:contains', '_'],
-          ['given:starts-with', 'Bob_'],
-          ['given:ends-with', '_by'],
-          ['given', 'Bob_'],
-        ])('matches an underscore literally for %s', async (param, value) => {
+          ['given:contains', '_', 'Bob_by'],
+          ['given:starts-with', 'Bob_', 'Bob_by'],
+          ['given:ends-with', '_by', 'Bob_by'],
+          ['given', 'Bob_', 'Bob_by'],
+          ['given:contains', '%', '50% off'],
+          ['given:starts-with', '50%', '50% off'],
+          ['given:contains', '\\', 'Back\\'],
+          // Unescaped, a trailing backslash is a dangling escape character and the query fails
+          ['given:ends-with', '\\', 'Back\\'],
+        ])('matches %s=%s literally', async (param, value, expectedGivenName) => {
           const response = await searchByGiven(param, value);
 
           expect(response).toHaveSucceeded();
           expect(response.body.total).toBe(1);
-          expect(response.body.entry[0].name[0].given[0]).toBe('Bob_by');
-        });
-
-        it('matches a percent sign literally', async () => {
-          const response = await searchByGiven('given:contains', '%');
-
-          expect(response).toHaveSucceeded();
-          expect(response.body.total).toBe(0);
-        });
-
-        it('matches a backslash literally', async () => {
-          // Unescaped, a trailing backslash is a dangling escape character and the query fails
-          const response = await searchByGiven('given:ends-with', '\\');
-
-          expect(response).toHaveSucceeded();
-          expect(response.body.total).toBe(0);
+          expect(response.body.entry[0].name[0].given[0]).toBe(expectedGivenName);
         });
       });
 
