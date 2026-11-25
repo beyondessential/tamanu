@@ -173,10 +173,24 @@ function defaultOrigin(): string {
 }
 
 /**
- * Encrypt and store an API token, or remove the key when `token` is empty.
- * Falls back to cleartext storage when Web Crypto is unavailable (plain HTTP, non-localhost) — the
- * session is already transmitted unencrypted in that case, so cleartext localStorage is no worse.
+ * Encrypt a token for storage, falling back to cleartext when Web Crypto is unavailable (plain
+ * HTTP, non-localhost) — the session is already transmitted unencrypted in that case, so cleartext
+ * localStorage is no worse.
  */
+async function packTokenForStorage(token: string, keyMaterial: string): Promise<string> {
+  if (!globalThis.crypto?.subtle) {
+    // Web Crypto is only available in secure contexts (HTTPS or localhost).
+    // On plain HTTP (e.g. local-network ITI access), fall back to cleartext rather than
+    // blocking login entirely.
+    console.warn(
+      '[Tamanu] Web Crypto API unavailable; storing auth token as cleartext. Use HTTPS for encrypted token storage.',
+    );
+    return token;
+  }
+  return packPersistedToken(token, keyMaterial);
+}
+
+/** Encrypt and store an API token, or remove the key when `token` is empty. */
 export async function writePersistedAuthToken(
   storageKey: string,
   token: string,
@@ -187,17 +201,7 @@ export async function writePersistedAuthToken(
 ): Promise<void> {
   const keyMaterial = buildTokenStorageKeyMaterial(deviceId, origin, namespace);
   if (token) {
-    if (!globalThis.crypto?.subtle) {
-      // Web Crypto is only available in secure contexts (HTTPS or localhost).
-      // On plain HTTP (e.g. local-network ITI access), fall back to cleartext rather than
-      // blocking login entirely.
-      console.warn(
-        '[Tamanu] Web Crypto API unavailable; storing auth token as cleartext. Use HTTPS for encrypted token storage.',
-      );
-      storage.setItem(storageKey, token);
-    } else {
-      storage.setItem(storageKey, await packPersistedToken(token, keyMaterial));
-    }
+    storage.setItem(storageKey, await packTokenForStorage(token, keyMaterial));
   } else {
     storage.removeItem(storageKey);
   }
@@ -224,10 +228,7 @@ export async function renewPersistedAuthToken(
   if ((await unpackPersistedToken(stored, keyMaterial)) !== currentToken) {
     return false;
   }
-  // Without Web Crypto the token is stored as cleartext, as in writePersistedAuthToken
-  const packed = globalThis.crypto?.subtle
-    ? await packPersistedToken(renewedToken, keyMaterial)
-    : renewedToken;
+  const packed = await packTokenForStorage(renewedToken, keyMaterial);
   if (storage.getItem(storageKey) !== stored) {
     return false;
   }
