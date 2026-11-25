@@ -38,7 +38,7 @@ Laboratory columns map to Tamanu as:
 - **Reference range**: the lab test's own reference range where it has one, otherwise the test type's range for the patient's sex, or its range text
 - **Interpretation**: the lab request's results interpretation, the conclusion SENAITE sends on its diagnostic report. It is free text and belongs to the whole request, so it sits on a panel row rather than on the panel's tests, and on the row of a test requested alone. Blank where the lab sent none
 
-A panel shows as a shaded row carrying the panel's status, date and performer, with its tests beneath it, indented. A test requested on its own is a single row.
+The lab table groups its rows the way Tamanu's lab results table and lab results printout do, under bold full-width rows: a Panels row with every panel beneath it, then an Individual tests row with every test requested on its own. Each panel is a bold row carrying the panel's status, date, performer and interpretation, with its tests indented beneath it. A group with nothing in it is left out. The lab results printout's section rows (`getRowSectionLabel` in `Table.jsx`) are the pattern to reuse, though they label each panel by name rather than gathering panels under one Panels row.
 
 "Most recent" is per test type: each test appears once, with its latest result from the last 12 months, whether it came in a panel or alone. A panel row shows only the tests whose latest result came from that panel, and is left out when none did. Which lab and imaging statuses count (only Published and Completed, or interim results too) is still open.
 
