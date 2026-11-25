@@ -16,6 +16,7 @@ Servers reject a client below their minimum supported version and include the ad
 - Other clients are still turned away at sign-in, where being out of date can be reported plainly rather than failing every call that follows.
 - Any rejection of the mobile app for being below the minimum supported version starts the download, wherever the app is and whatever the user is doing.
 - Staff stay signed in and carry on working. The screen they are on is undisturbed, and nothing they have part-filled is lost.
+- A device not yet linked to a facility cannot list facilities while out of date, so the facility selection screen shows the update in place of the list, with the same messages and actions as the Sync tab.
 - Signing in does not clear an outstanding update, since the server accepts the sign-in whatever version the app is on. Only a sync it accepts does.
 - Sync is paused for as long as the update is outstanding, since the server rejects this version. Changes recorded while it is paused are held on the device.
 - While sync is paused, the app keeps trying to sync in the background. The server turns each attempt away on its first request, before any records are sent, so the app always knows what the server wants now.
