@@ -35,18 +35,19 @@ if published != () {
 }
 
 let database_url = app.param("database-url")
+    .kind("url")
     .secret(true)
     .required(true)
     .description("PostgreSQL URL; a socket URL (?host=/dir) also needs the database-socket volume mapped")
     .validate(|v, all| {
-        if !v.starts_with("postgres://") && !v.starts_with("postgresql://") {
+        if v.scheme != "postgres" && v.scheme != "postgresql" {
             throw "must be a postgres:// or postgresql:// URL";
         }
     });
 
 // Seedling faults an app whose external volume is unmapped, so the socket's
 // volume is declared only when the URL connects through a socket.
-let database_socket = if database_url.is_set() { socket_dir.call(database_url.value()) } else { () };
+let database_socket = if database_url.is_set() { socket_dir.call(database_url.parsed()) } else { () };
 let database_socket_volume = if database_socket != () {
     app.external_volume("database-socket").description("PostgreSQL socket directory")
 } else {

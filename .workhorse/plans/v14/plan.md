@@ -26,7 +26,7 @@ The Retry upgrade action is gone: Seedling retries a failed gate on its own, and
 
 `helpers.rhai`, `params.rhai` and `gates.rhai` are shared by both bundles, as identical copies. A bundle can only read files beneath its own root, and the Seedling CLI refuses symlinks, so the files can't be shared any other way for now. `scripts/check-seedling-bundles.mjs`, which a workflow runs on every PR that touches `seedling/`, keeps the copies identical. Seedling/S6 looks at sharing code between bundles on Seedling's side.
 
-The draft can't yet be checked without a running Seedling server. Seedling/T6 adds an offline check to the CLI, which Tamanu's CI would run beside the copy check. The canonical URLs take Seedling's `url-origin` kind. The database URL is a secret text parameter, not the `url` kind, because the URL parser behind that kind refuses the `user@/db?host=/dir` socket form Tamanu accepts, so `socket_dir` reads the socket directory itself.
+The draft can't yet be checked without a running Seedling server. Seedling/T6 adds an offline check to the CLI, which Tamanu's CI would run beside the copy check. The canonical URLs take Seedling's `url-origin` kind. The database URL takes the `url` kind, which accepts the `user@/db?host=/dir` socket form Tamanu accepts, and `socket_dir` reads the socket directory from its parsed query.
 
 Both bundles declare `seedling = ">0.12"`: they use gates, `std` helpers and the metadata table, none of which v0.12.0 has, and no later Seedling release exists yet.
 

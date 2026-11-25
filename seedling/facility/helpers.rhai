@@ -30,14 +30,12 @@ let hex_secret = |v| {
 };
 
 // spec: SDDEF#database
-// The socket directory a PostgreSQL URL names as its host, such as
+// The socket directory a parsed PostgreSQL URL names as its host, such as
 // "/var/run/postgresql" in "postgresql://tamanu@/tamanu?host=/var/run/postgresql",
-// or () for a URL that connects over TCP. std::parse_url can't read it, since
-// the URL parser refuses a user with no host.
+// or () for a URL that connects over TCP.
 let socket_dir = |url| {
-    let query_start = url.index_of("?");
-    if query_start < 0 { return (); }
-    for pair in url.sub_string(query_start + 1).split("&") {
+    if !("query" in url) { return (); }
+    for pair in url.query.split("&") {
         if pair.starts_with("host=/") { return pair.sub_string(5); }
     }
     ()
