@@ -238,3 +238,42 @@ describe('Patient Portal Auth', () => {
     });
   });
 });
+
+describe('Patient Portal Auth without a configured secret', () => {
+  let baseApp;
+  let store;
+  let close;
+  let originalSecret;
+
+  beforeAll(async () => {
+    // The portal router settles its secret when the app is built, so clear it beforehand
+    originalSecret = config.auth.secret;
+    config.auth.secret = null;
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    close = ctx.close;
+    store = ctx.store;
+    const { Patient, PortalUser, Setting } = store.models;
+
+    await Setting.set('features.patientPortal', true);
+    const patient = await Patient.create(fake(Patient));
+    await PortalUser.create({
+      email: 'nosecret@test.com',
+      patientId: patient.id,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    });
+  });
+
+  afterAll(async () => {
+    config.auth.secret = originalSecret;
+    await close();
+  });
+
+  it('Should accept the token it issued at login', async () => {
+    const authToken = await getPatientAuthToken(baseApp, store.models, 'nosecret@test.com');
+    const response = await baseApp
+      .get('/api/portal/me')
+      .set('Authorization', `Bearer ${authToken}`);
+    expect(response).toHaveSucceeded();
+  });
+});
