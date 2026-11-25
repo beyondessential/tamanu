@@ -62,4 +62,38 @@ test.describe('Self check-in kiosk', () => {
 
     await context.close();
   });
+
+  test('[KIOSK-0003] Logging out of Tamanu holds while the kiosk stays open in another tab', async ({
+    browser,
+  }) => {
+    const { context, page: staffPage } = await signInAs(browser, testData.practitionerUser);
+    // The kiosk renews its sign-in every five minutes; a fake clock lets the test skip ahead
+    await context.clock.install();
+
+    const sidebarPage = new SidebarPage(staffPage);
+    await sidebarPage.openFacilityAdmin();
+    const [kioskTab] = await Promise.all([
+      context.waitForEvent('page'),
+      sidebarPage.kioskItem.click(),
+    ]);
+    await expect(new KioskPage(kioskTab).startButton).toBeVisible();
+
+    await sidebarPage.logOutButton.click();
+    const loginPage = new LoginPage(staffPage);
+    await expect(loginPage.loginButton).toBeVisible();
+
+    await Promise.all([
+      kioskTab.waitForResponse(response => response.url().endsWith('/api/refresh')),
+      context.clock.runFor('05:01'),
+    ]);
+    // The renewal encrypts its token before storing it, and a store left as it was can't be
+    // waited for, so give a renewal that would store its token time to do so
+    await staffPage.waitForTimeout(2_000);
+
+    await staffPage.reload();
+    await expect(loginPage.loginButton).toBeVisible();
+    await expect(sidebarPage.userAndFacilityName).toHaveCount(0);
+
+    await context.close();
+  });
 });
