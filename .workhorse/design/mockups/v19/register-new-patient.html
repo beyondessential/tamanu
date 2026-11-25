@@ -1,243 +1,537 @@
 <!-- spec: none yet (card V19, patient profile photo) -->
+<!-- from snapshot: New lab request (new-lab-request.html, captured 2026-10-23) -->
 <!DOCTYPE html>
-<html lang="en-AU">
+<html lang="en" style="--toastify-color-info:#3498db;--toastify-color-success:#07bc0c;--toastify-color-warning:#f1c40f;--toastify-color-error:#e74c3c;">
 <head>
 <meta charset="utf-8">
-<title>Add new patient, with profile photo</title>
+<title>Add new patient modal, with profile photo</title>
 <style>
-/* Field, radio and heading values follow the captured patient details form (same GenericPrimaryDetailsLayout). */
-*{box-sizing:border-box;}
-html{-webkit-font-smoothing:antialiased;}
-body{margin:0;font-family:Roboto,Helvetica,Arial,sans-serif;color:#444444;background:#f3f5f7;}
+.MuiCollapse-root { height: 0px; overflow: hidden; transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+.MuiCollapse-entered { height: auto; overflow: visible; }
+.MuiCollapse-hidden { visibility: hidden; }
+.MuiCollapse-wrapper { display: flex; }
+.MuiCollapse-wrapperInner { width: 100%; }
+.MuiTouchRipple-root { inset: 0px; z-index: 0; overflow: hidden; position: absolute; border-radius: inherit; pointer-events: none; }
+.MuiButtonBase-root { color: inherit; border: 0px; cursor: pointer; margin: 0px; display: inline-flex; outline: 0px; padding: 0px; position: relative; align-items: center; user-select: none; border-radius: 0px; vertical-align: middle; justify-content: center; text-decoration: none; background-color: transparent; appearance: none; -webkit-tap-highlight-color: transparent; }
+.MuiButtonBase-root.Mui-disabled { cursor: default; pointer-events: none; }
+.MuiIconButton-root { flex: 0 0 auto; color: rgba(0, 0, 0, 0.54); padding: 12px; overflow: visible; font-size: 1.5rem; text-align: center; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; }
+.MuiIconButton-root:hover { background-color: rgba(0, 0, 0, 0.04); }
+.MuiIconButton-root.Mui-disabled { color: rgba(0, 0, 0, 0.26); background-color: transparent; }
+.MuiIconButton-edgeEnd { margin-right: -12px; }
+.MuiIconButton-colorPrimary { color: rgb(50, 102, 153); }
+.MuiIconButton-colorPrimary:hover { background-color: rgba(50, 102, 153, 0.04); }
+.MuiIconButton-colorSecondary { color: rgb(255, 204, 36); }
+.MuiIconButton-colorSecondary:hover { background-color: rgba(255, 204, 36, 0.04); }
+.MuiIconButton-label { width: 100%; display: flex; align-items: inherit; justify-content: inherit; }
+.MuiAvatar-root { width: 40px; height: 40px; display: flex; overflow: hidden; position: relative; font-size: 1.25rem; align-items: center; flex-shrink: 0; font-family: Roboto; line-height: 1; user-select: none; border-radius: 50%; justify-content: center; }
+.MuiAvatar-colorDefault { color: rgb(243, 245, 247); background-color: rgb(189, 189, 189); }
+.jss2 { flex: 1 1 0%; }
+.jss3 { display: flex; justify-content: space-between; }
+.jss4 { display: flex; justify-content: space-between; }
+.jss101 { font-weight: 500; margin-bottom: 20px; }
+.jss102 { margin-top: 12px; font-weight: 500; margin-bottom: 12px; }
+.MuiTypography-root { margin: 0px; }
+.MuiTypography-body1 { font-size: 1rem; font-family: Roboto; font-weight: 400; line-height: 1.5; }
+.MuiTypography-h3 { font-size: 3rem; font-family: Roboto; font-weight: 400; line-height: 1.167; }
+.MuiTypography-h6 { font-size: 1.25rem; font-family: Roboto; font-weight: 500; line-height: 1.6; }
+.MuiTypography-colorTextSecondary { color: rgb(102, 102, 102); }
+.MuiBreadcrumbs-ol { margin: 0px; display: flex; padding: 0px; flex-wrap: wrap; list-style: none; align-items: center; }
+.MuiBreadcrumbs-separator { display: flex; margin-left: 8px; user-select: none; margin-right: 8px; }
+.MuiButton-root { color: rgb(68, 68, 68); padding: 6px 16px; font-size: 0.875rem; min-width: 64px; box-sizing: border-box; transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border 250ms cubic-bezier(0.4, 0, 0.2, 1); font-family: Roboto; font-weight: 500; line-height: 1.75; border-radius: 3px; text-transform: uppercase; }
+.MuiButton-root:hover { text-decoration: none; background-color: rgba(68, 68, 68, 0.04); }
+.MuiButton-label { width: 100%; display: inherit; align-items: inherit; justify-content: inherit; }
+.MuiButton-text { padding: 6px 8px; }
+.MuiButton-textPrimary { color: rgb(50, 102, 153); }
+.MuiButton-textPrimary:hover { background-color: rgba(50, 102, 153, 0.04); }
+.MuiButton-outlined { border: 1px solid rgba(0, 0, 0, 0.23); padding: 5px 15px; }
+.MuiButton-outlinedPrimary { color: rgb(50, 102, 153); border: 1px solid rgba(50, 102, 153, 0.5); }
+.MuiButton-outlinedPrimary:hover { border: 1px solid rgb(50, 102, 153); background-color: rgba(50, 102, 153, 0.04); }
+.MuiButton-contained { color: rgba(0, 0, 0, 0.87); box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px; background-color: rgb(224, 224, 224); }
+.MuiButton-contained:hover { box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px; background-color: rgb(213, 213, 213); }
+.MuiButton-contained:active { box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 5px -3px, rgba(0, 0, 0, 0.14) 0px 8px 10px 1px, rgba(0, 0, 0, 0.12) 0px 3px 14px 2px; }
+.MuiButton-containedPrimary { color: rgb(255, 255, 255); background-color: rgb(50, 102, 153); }
+.MuiButton-containedPrimary:hover { background-color: rgb(47, 67, 88); }
+.MuiButton-outlinedSizeSmall { padding: 3px 9px; font-size: 0.8125rem; }
+.MuiButton-containedSizeSmall { padding: 4px 10px; font-size: 0.8125rem; }
+.MuiButton-startIcon { display: inherit; margin-left: -4px; margin-right: 8px; }
+.MuiButton-endIcon { display: inherit; margin-left: 8px; margin-right: -4px; }
+.MuiButton-iconSizeMedium > :first-child { font-size: 20px; }
+.jss92 { padding: 9px; }
+.jss95 { top: 0px; left: 0px; width: 100%; cursor: inherit; height: 100%; margin: 0px; opacity: 0; padding: 0px; z-index: 1; position: absolute; }
+.MuiCheckbox-root { color: rgb(102, 102, 102); }
+.MuiCheckbox-colorPrimary.Mui-checked { color: rgb(50, 102, 153); }
+.MuiCheckbox-colorPrimary.Mui-disabled { color: rgba(0, 0, 0, 0.26); }
+.MuiCheckbox-colorPrimary.Mui-checked:hover { background-color: rgba(50, 102, 153, 0.04); }
+html { text-wrap: pretty; box-sizing: border-box; interpolate-size: allow-keywords; -webkit-font-smoothing: antialiased; }
+*, ::before, ::after { box-sizing: inherit; }
+body { color: rgb(68, 68, 68); margin: 0px; font-size: 0.875rem; font-family: Roboto; font-weight: 400; line-height: 1.43; background-color: rgb(243, 245, 247); }
+body::backdrop { background-color: rgb(243, 245, 247); }
+fieldset { border: 0px; margin: 0px; padding: 0px; min-width: 0px; }
+button { font: inherit; }
+:where(button, figcaption, h1, h2, h3, h4, h5, h6, label) { text-wrap: balance; }
+:where(button, input, textarea, select) { touch-action: manipulation; }
+:where(hr) { margin: 0px; inline-size: 100%; border-inline: 0px; border-block-end: 1px solid rgb(222, 222, 222); border-block-start: 0px; }
+:where(ol, ul)[role="list"] { margin-block: 0px; list-style-type: none; padding-inline-start: 0px; }
+:where(table, time) { font-variant-numeric: lining-nums slashed-zero tabular-nums; }
+:where(table) { border-collapse: collapse; }
+:where(td, th) { padding: 0px; text-wrap-style: balance; }
+:where(th) { text-align: start; }
+.MuiDialog-scrollPaper { display: flex; align-items: center; justify-content: center; }
+.MuiDialog-container { height: 100%; outline: 0px; }
+.MuiDialog-paper { margin: 32px; position: relative; overflow-y: auto; }
+.MuiDialog-paperScrollPaper { display: flex; max-height: calc(100% - 64px); flex-direction: column; }
+.MuiDialog-paperWidthSm { max-width: 600px; }
+.MuiDialog-paperFullWidth { width: calc(100% - 64px); }
+.MuiDivider-root { border-width: medium; border-style: none; border-color: currentcolor; border-image: none; height: 1px; margin: 0px; flex-shrink: 0; background-color: rgb(222, 222, 222); }
+@-webkit-keyframes mui-auto-fill { 
+}
+@-webkit-keyframes mui-auto-fill-cancel { 
+}
+.MuiInputBase-root { color: rgb(68, 68, 68); cursor: text; display: inline-flex; position: relative; font-size: 1rem; box-sizing: border-box; align-items: center; font-family: Roboto; font-weight: 400; line-height: 1.1876em; }
+.MuiInputBase-multiline { padding: 6px 0px 7px; }
+.MuiInputBase-fullWidth { width: 100%; }
+.MuiInputBase-input { font: inherit; color: currentcolor; width: 100%; border: 0px; height: 1.1876em; margin: 0px; display: block; padding: 6px 0px 7px; min-width: 0px; background: none; box-sizing: content-box; animation-name: mui-auto-fill-cancel; letter-spacing: inherit; animation-duration: 10ms; -webkit-tap-highlight-color: transparent; }
+.MuiInputBase-input::-webkit-input-placeholder { color: currentcolor; opacity: 0.42; transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+.MuiInputBase-input:focus { outline: 0px; }
+.MuiInputBase-input::-webkit-search-decoration { appearance: none; }
+.MuiInputBase-input:-webkit-autofill { animation-name: mui-auto-fill; animation-duration: 5000s; }
+.MuiInputBase-inputMultiline { height: auto; resize: none; padding: 0px; }
+.MuiFormControl-root { border: 0px; margin: 0px; display: inline-flex; padding: 0px; position: relative; min-width: 0px; flex-direction: column; vertical-align: top; }
+.MuiFormControl-fullWidth { width: 100%; }
+.MuiFormControlLabel-root { cursor: pointer; display: inline-flex; align-items: center; margin-left: -11px; margin-right: 16px; vertical-align: middle; -webkit-tap-highlight-color: transparent; }
+.MuiInputAdornment-root { height: 0.01em; display: flex; max-height: 2em; align-items: center; white-space: nowrap; }
+.MuiInputAdornment-positionStart { margin-right: 8px; }
+.MuiInputAdornment-positionEnd { margin-left: 8px; }
+.MuiList-root { margin: 0px; padding: 0px; position: relative; list-style: none; }
+.MuiList-padding { padding-top: 8px; padding-bottom: 8px; }
+.MuiListItem-root { width: 100%; display: flex; position: relative; box-sizing: border-box; text-align: left; align-items: center; padding-top: 8px; padding-bottom: 8px; justify-content: flex-start; text-decoration: none; }
+.MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover { background-color: rgba(0, 0, 0, 0.08); }
+.MuiListItem-gutters { padding-left: 16px; padding-right: 16px; }
+.MuiListItem-button { transition: none; }
+.MuiListItem-button:hover { text-decoration: none; background-color: rgb(244, 249, 255); }
+.MuiListItemText-root { flex: 1 1 auto; min-width: 0px; margin-top: 4px; margin-bottom: 4px; }
+.jss88 { inset: -5px 0px 0px; margin: 0px; padding: 0px 8px; overflow: hidden; position: absolute; border-style: solid; border-width: 1px; border-radius: inherit; pointer-events: none; }
+.jss89 { padding: 0px; text-align: left; transition: width 150ms cubic-bezier(0, 0, 0.2, 1); line-height: 11px; }
+.MuiOutlinedInput-root { position: relative; border-radius: 3px; }
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: rgb(68, 68, 68); }
+.MuiOutlinedInput-adornedStart { padding-left: 14px; }
+.MuiOutlinedInput-adornedEnd { padding-right: 14px; }
+.MuiOutlinedInput-multiline { padding: 18.5px 14px; }
+.MuiOutlinedInput-notchedOutline { border-color: rgb(222, 222, 222); }
+.MuiOutlinedInput-input { padding: 18.5px 14px; }
+.MuiOutlinedInput-input:-webkit-autofill { border-radius: inherit; }
+.MuiOutlinedInput-inputMultiline { padding: 0px; }
+.MuiOutlinedInput-inputAdornedStart { padding-left: 0px; }
+.MuiOutlinedInput-inputAdornedEnd { padding-right: 0px; }
+.MuiTable-root { width: 100%; display: table; border-spacing: 0px; border-collapse: collapse; }
+.MuiTableBody-root { display: table-row-group; }
+.MuiTableCell-root { display: table-cell; padding: 16px; font-size: 0.875rem; text-align: left; font-family: Roboto; font-weight: 400; line-height: 1.43; border-bottom: 1px solid rgb(222, 222, 222); vertical-align: inherit; }
+.MuiTableCell-head { color: rgb(68, 68, 68); font-weight: 500; line-height: 1.5rem; }
+.MuiTableCell-body { color: rgb(68, 68, 68); }
+.MuiTableCell-alignLeft { text-align: left; }
+.MuiTableCell-alignCenter { text-align: center; }
+.MuiTableHead-root { display: table-header-group; }
+.MuiToolbar-root { display: flex; position: relative; align-items: center; }
+.MuiToolbar-gutters { padding-left: 16px; padding-right: 16px; }
+.MuiToolbar-gutters { padding-left: 24px; padding-right: 24px; }
+.MuiToolbar-regular { min-height: 56px; }
+.MuiToolbar-regular { min-height: 48px; }
+.MuiToolbar-regular { min-height: 64px; }
+.MuiTableRow-root { color: inherit; display: table-row; outline: 0px; vertical-align: middle; }
+.MuiTableSortLabel-root { cursor: pointer; display: inline-flex; align-items: center; flex-direction: inherit; justify-content: flex-start; }
+.MuiTableSortLabel-root:focus { color: rgb(102, 102, 102); }
+.MuiTableSortLabel-root:hover { color: rgb(102, 102, 102); }
+.MuiTableSortLabel-root.MuiTableSortLabel-active { color: rgb(68, 68, 68); }
+.MuiTableSortLabel-root.MuiTableSortLabel-active.MuiTableSortLabel-root.MuiTableSortLabel-active .MuiTableSortLabel-icon { color: rgb(102, 102, 102); opacity: 1; }
+.MuiTableSortLabel-root:hover .MuiTableSortLabel-icon { opacity: 0.5; }
+.MuiTableSortLabel-icon { opacity: 0; font-size: 18px; transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 200ms cubic-bezier(0.4, 0, 0.2, 1); margin-left: 4px; user-select: none; margin-right: 4px; }
+.MuiTableSortLabel-iconDirectionDesc { transform: rotate(0deg); }
+.css-q7mezt { user-select: none; width: 1em; height: 1em; display: inline-block; flex-shrink: 0; transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1); fill: currentcolor; font-size: 1.5rem; }
+.css-7pg0cj-a11yText { z-index: 9999; border: 0px; clip: rect(1px, 1px, 1px, 1px); height: 1px; width: 1px; position: absolute; overflow: hidden; padding: 0px; white-space: nowrap; }
+.css-1hwfws3 { -webkit-box-align: center; align-items: center; display: flex; flex: 1 1 0%; flex-wrap: wrap; padding: 2px 8px; position: relative; overflow: hidden; box-sizing: border-box; }
+.css-1wy0on6 { -webkit-box-align: center; align-items: center; align-self: stretch; display: flex; flex-shrink: 0; box-sizing: border-box; }
+.css-auoq4t { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; background-color: transparent; outline: 0px; border: 0px; margin: 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; text-align: center; flex: 0 0 auto; font-size: 1.5rem; padding: 8px; border-radius: 50%; color: rgba(0, 0, 0, 0.54); transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); --IconButton-hoverBg: rgba(0, 0, 0, 0.04); }
+.css-auoq4t:hover { background-color: var(--IconButton-hoverBg); }
+.css-1s63ceu { display: inherit; margin-right: 8px; margin-left: -4px; }
+.css-1s63ceu > :nth-of-type(1) { font-size: 20px; }
+.css-881xks { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: 0px; margin: 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; font-family: Roboto; border: 0px; border-radius: 3px; transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1); background-color: var(--variant-textBg); --variant-textColor: #326699; --variant-outlinedColor: #326699; --variant-outlinedBorder: rgba(50, 102, 153, 0.5); --variant-containedColor: #fff; --variant-containedBg: #326699; font-weight: 500; line-height: 16px; text-transform: none; box-shadow: none; min-width: 100px; color: rgb(91, 132, 173); font-size: 1rem; min-block-size: auto; min-inline-size: auto; padding: 0px; }
+.css-881xks:hover { text-decoration: none; }
+.css-881xks:hover { --variant-containedBg: #2f4358; --variant-textBg: rgba(50, 102, 153, 0.04); --variant-outlinedBorder: #326699; --variant-outlinedBg: rgba(50, 102, 153, 0.04); }
+.css-881xks:hover { background: transparent; color: rgb(35, 71, 107); font-weight: 500; }
+.css-q5bog7 { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: 0px; margin: 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; font-family: Roboto; border: 0px; border-radius: 3px; transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1); color: var(--variant-containedColor); background-color: var(--variant-containedBg); --variant-textColor: #326699; --variant-outlinedColor: #326699; --variant-outlinedBorder: rgba(50, 102, 153, 0.5); --variant-containedColor: #fff; --variant-containedBg: #326699; font-weight: 500; font-size: 14px; line-height: 16px; text-transform: none; padding: 11px 18px 12px; box-shadow: none; min-width: 100px; }
+.css-q5bog7:hover { text-decoration: none; }
+.css-q5bog7:hover { box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px; }
+.css-q5bog7:active { box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 5px -3px, rgba(0, 0, 0, 0.14) 0px 8px 10px 1px, rgba(0, 0, 0, 0.12) 0px 3px 14px 2px; }
+.css-q5bog7:hover { --variant-containedBg: #2f4358; --variant-textBg: rgba(50, 102, 153, 0.04); --variant-outlinedBorder: #326699; --variant-outlinedBg: rgba(50, 102, 153, 0.04); }
+.css-yxqbup { display: flex; max-height: 2em; -webkit-box-align: center; align-items: center; white-space: nowrap; color: rgba(0, 0, 0, 0.54); margin-left: 8px; }
+.css-kuswl6 { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; background-color: transparent; outline: 0px; border: 0px; margin: 0px -4px 0px 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; text-align: center; flex: 0 0 auto; font-size: 1.5rem; border-radius: 50%; color: rgba(0, 0, 0, 0.54); transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); --IconButton-hoverBg: rgba(0, 0, 0, 0.04); padding: 2px; }
+.css-kuswl6:hover { background-color: var(--IconButton-hoverBg); }
+.css-nr5bo9 { user-select: none; width: 1em; height: 1em; display: inline-block; flex-shrink: 0; transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1); fill: currentcolor; font-size: 1.15rem; color: rgb(50, 102, 153); }
+.css-13f28f6 { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: 0px; margin: 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; font-family: Roboto; border-radius: 3px; transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1); border-width: 1px; border-style: solid; border-image: none; border-color: var(--variant-outlinedBorder, currentColor); background-color: var(--variant-outlinedBg); color: var(--variant-outlinedColor); --variant-textColor: #326699; --variant-outlinedColor: #326699; --variant-outlinedBorder: rgba(50, 102, 153, 0.5); --variant-containedColor: #fff; --variant-containedBg: #326699; font-weight: 500; font-size: 14px; line-height: 16px; text-transform: none; padding: 11px 18px 12px; box-shadow: none; min-width: 100px; }
+.css-13f28f6:hover { text-decoration: none; }
+.css-13f28f6:hover { --variant-containedBg: #2f4358; --variant-textBg: rgba(50, 102, 153, 0.04); --variant-outlinedBorder: #326699; --variant-outlinedBg: rgba(50, 102, 153, 0.04); }
+.css-13f28f6.MuiButton-outlinedPrimary:not(.Mui-disabled) { border-color: rgb(50, 102, 153); }
+.css-17qa0m8 { display: inline-flex; flex-direction: column; position: relative; min-width: 0px; padding: 0px; margin: 0px; border: 0px; vertical-align: top; width: 100%; }
+.css-2b097c-container { position: relative; box-sizing: border-box; }
+.css-y4yyoz-control { -webkit-box-align: center; align-items: center; background-color: rgb(255, 255, 255); border-color: rgb(222, 222, 222); border-radius: 3px; border-style: solid; border-width: 1px; box-shadow: none; cursor: default; display: flex; flex-wrap: wrap; -webkit-box-pack: justify; justify-content: space-between; min-height: 38px; position: relative; transition: 100ms; box-sizing: border-box; padding: 4.3px 42px 5px 5px; font-size: 15px; outline: 0px !important; }
+.css-y4yyoz-control:hover { border-color: rgb(179, 179, 179); }
+.css-16vl0re-placeholder { color: rgb(184, 184, 184); margin-left: 2px; margin-right: 2px; position: absolute; top: 50%; transform: translateY(-50%); box-sizing: border-box; }
+.css-1g6gooi { margin: 2px; padding-bottom: 2px; padding-top: 2px; visibility: visible; color: rgb(51, 51, 51); box-sizing: border-box; }
+.css-1hyfx7x { display: none; }
+.css-1okebmr-indicatorSeparator { align-self: stretch; background-color: rgb(204, 204, 204); margin-bottom: 8px; margin-top: 8px; width: 1px; box-sizing: border-box; }
+.css-118ch2k { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: 0px; margin: 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; font-family: Roboto; border: 0px; border-radius: 3px; transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1); background-color: var(--variant-textBg); --variant-textColor: #326699; --variant-outlinedColor: #326699; --variant-outlinedBorder: rgba(50, 102, 153, 0.5); --variant-containedColor: #fff; --variant-containedBg: #326699; font-weight: 500; line-height: 16px; text-transform: none; box-shadow: none; min-width: 100px; min-block-size: auto; min-inline-size: auto; padding: 0px 8px 0px 0px; color: rgb(50, 102, 153); font-size: 12px; }
+.css-118ch2k:hover { text-decoration: none; }
+.css-118ch2k:hover { --variant-containedBg: #2f4358; --variant-textBg: rgba(50, 102, 153, 0.04); --variant-outlinedBorder: #326699; --variant-outlinedBg: rgba(50, 102, 153, 0.04); }
+.css-118ch2k:hover { background: transparent; color: rgb(35, 71, 107); font-weight: 500; }
+.css-118ch2k .MuiButton-startIcon { margin-left: 0px; }
+.css-118ch2k svg { font-size: 20px; }
+.css-2l8cf2-singleValue { color: rgb(68, 68, 68); margin-left: 2px; margin-right: 2px; max-width: calc(100% - 8px); overflow: visible; position: absolute; text-overflow: ellipsis; white-space: nowrap; top: 50%; transform: translateY(-50%); box-sizing: border-box; display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: justify; justify-content: space-between; width: 100%; cursor: text; }
+.css-171q95r { overflow: hidden; min-height: 48px; display: flex; }
+.css-i8yde5 { overflow: auto hidden; scrollbar-width: none; }
+.css-i8yde5::-webkit-scrollbar { display: none; }
+.css-jb8z7h { position: relative; display: inline-block; flex: 1 1 auto; white-space: nowrap; scrollbar-width: none; overflow: auto hidden; }
+.css-jb8z7h::-webkit-scrollbar { display: none; }
+.css-162tvoi { display: flex; }
+.css-1jk4goo { position: absolute; height: 2px; bottom: 0px; width: 100%; transition: 300ms cubic-bezier(0.4, 0, 0.2, 1); background-color: rgb(50, 102, 153); }
+.css-1x0337i { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: 0px; margin: 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; font-family: Roboto; border: 0px; border-radius: 3px; transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1); color: var(--variant-containedColor); background-color: var(--variant-containedBg); --variant-textColor: #326699; --variant-outlinedColor: #326699; --variant-outlinedBorder: rgba(50, 102, 153, 0.5); --variant-containedColor: #fff; --variant-containedBg: #326699; font-weight: 500; font-size: 14px; line-height: 16px; text-transform: none; padding: 11px 18px 12px; box-shadow: none; min-width: 100px; }
+.css-1x0337i:hover { text-decoration: none; }
+.css-1x0337i:hover { box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px; }
+.css-1x0337i:active { box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 5px -3px, rgba(0, 0, 0, 0.14) 0px 8px 10px 1px, rgba(0, 0, 0, 0.12) 0px 3px 14px 2px; }
+.css-1x0337i:hover { --variant-containedBg: #2f4358; --variant-textBg: rgba(50, 102, 153, 0.04); --variant-outlinedBorder: #326699; --variant-outlinedBg: rgba(50, 102, 153, 0.04); }
+.css-1x0337i.MuiButton-sizeSmall { padding-inline: 14px; }
+.css-4mb1j7 { overflow: hidden; pointer-events: none; position: absolute; z-index: 0; inset: 0px; border-radius: inherit; }
+.css-bcwuds { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: 0px; margin: 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; font-family: Roboto; border-radius: 3px; transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1); border-width: 1px; border-style: solid; border-image: none; border-color: var(--variant-outlinedBorder, currentColor); background-color: var(--variant-outlinedBg); color: var(--variant-outlinedColor); --variant-textColor: #326699; --variant-outlinedColor: #326699; --variant-outlinedBorder: rgba(50, 102, 153, 0.5); --variant-containedColor: #fff; --variant-containedBg: #326699; font-weight: 500; font-size: 14px; line-height: 16px; text-transform: none; padding: 11px 18px 12px; box-shadow: none; min-width: 100px; }
+.css-bcwuds:hover { text-decoration: none; }
+.css-bcwuds:hover { --variant-containedBg: #2f4358; --variant-textBg: rgba(50, 102, 153, 0.04); --variant-outlinedBorder: #326699; --variant-outlinedBg: rgba(50, 102, 153, 0.04); }
+.css-bcwuds.MuiButton-sizeSmall { padding-inline: 14px; }
+.css-bcwuds.MuiButton-outlinedPrimary:not(.Mui-disabled) { border-color: rgb(50, 102, 153); }
+.css-ym3cbw { display: inline-flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: relative; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: 0px; margin: 0px; cursor: pointer; user-select: none; vertical-align: middle; appearance: none; text-decoration: none; font-family: Roboto; border-radius: 3px; transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1); border-width: 1px; border-style: solid; border-image: none; border-color: var(--variant-outlinedBorder, currentColor); background-color: var(--variant-outlinedBg); color: var(--variant-outlinedColor); --variant-textColor: #326699; --variant-outlinedColor: #326699; --variant-outlinedBorder: rgba(50, 102, 153, 0.5); --variant-containedColor: #fff; --variant-containedBg: #326699; font-weight: 500; font-size: 14px; line-height: 16px; text-transform: none; padding: 11px 18px 12px; box-shadow: none; min-width: 100px; }
+.css-ym3cbw:hover { text-decoration: none; }
+.css-ym3cbw:hover { --variant-containedBg: #2f4358; --variant-textBg: rgba(50, 102, 153, 0.04); --variant-outlinedBorder: #326699; --variant-outlinedBg: rgba(50, 102, 153, 0.04); }
+.css-ym3cbw.MuiButton-outlinedPrimary:not(.Mui-disabled) { border-color: rgb(50, 102, 153); }
+.css-1egf66k { position: fixed; z-index: 1300; inset: 0px; }
+.css-14dl35y { position: fixed; display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; inset: 0px; background-color: rgba(0, 0, 0, 0.5); -webkit-tap-highlight-color: transparent; z-index: -1; }
+.css-8azq84 { height: 100%; outline: 0px; display: flex; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; }
+.css-1o5p5l9 { background-color: rgb(255, 255, 255); color: rgb(68, 68, 68); transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1); border-radius: 3px; box-shadow: var(--Paper-shadow); background-image: var(--Paper-overlay); margin: 32px; position: relative; overflow-y: auto; display: flex; flex-direction: column; max-height: calc(100% - 64px); width: calc(100% - 64px); }
+.css-jk5htt { margin: 0px; font-family: Roboto; font-weight: 500; font-size: 1.25rem; line-height: 1.6; padding: 16px 24px; flex: 0 0 auto; }
+.css-cpeavv-control { -webkit-box-align: center; align-items: center; background-color: rgb(255, 255, 255); border-color: rgb(222, 222, 222); border-radius: 3px; border-style: solid; border-width: 1px; box-shadow: none; cursor: pointer; display: flex; flex-wrap: wrap; -webkit-box-pack: justify; justify-content: space-between; min-height: 36px; position: relative; transition: 100ms; box-sizing: border-box; height: 36px; outline: 0px !important; }
+.css-cpeavv-control:hover { border-color: rgb(222, 222, 222); }
+.css-txlm7c { -webkit-box-align: center; align-items: center; display: flex; flex: 1 1 0%; flex-wrap: wrap; padding: 0px 12px 0px 7px; position: relative; overflow: hidden; box-sizing: border-box; }
+.css-wxzpjk-placeholder { color: rgb(102, 102, 102); position: absolute; top: 50%; transform: translateY(-50%); box-sizing: border-box; margin: 0px; font-size: 14px; font-weight: 500; }
+.css-62g3xt-dummyInput { background: 0px center; border: 0px; font-size: inherit; outline: 0px; padding: 0px; width: 1px; color: transparent; left: -100px; opacity: 0; position: relative; transform: scale(0); }
+.css-1sa1jfd-indicatorContainer { color: rgb(204, 204, 204); display: flex; padding: 0px 12px 0px 4px; transition: color 150ms; box-sizing: border-box; }
+.css-1sa1jfd-indicatorContainer:hover { color: rgb(153, 153, 153); }
+.css-1l6e05h { user-select: none; width: 1em; height: 1em; display: inline-block; flex-shrink: 0; transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1); fill: currentcolor; font-size: inherit; }
+:root { --toastify-color-light: #fff; --toastify-color-dark: #121212; --toastify-color-info: #3498db; --toastify-color-success: #07bc0c; --toastify-color-warning: #f1c40f; --toastify-color-error: #e74c3c; --toastify-color-transparent: rgba(255, 255, 255, .7); --toastify-icon-color-info: var(--toastify-color-info); --toastify-icon-color-success: var(--toastify-color-success); --toastify-icon-color-warning: var(--toastify-color-warning); --toastify-icon-color-error: var(--toastify-color-error); --toastify-toast-width: 320px; --toastify-toast-background: #fff; --toastify-toast-min-height: 64px; --toastify-toast-max-height: 800px; --toastify-font-family: sans-serif; --toastify-z-index: 9999; --toastify-text-color-light: #757575; --toastify-text-color-dark: #fff; --toastify-text-color-info: #fff; --toastify-text-color-success: #fff; --toastify-text-color-warning: #fff; --toastify-text-color-error: #fff; --toastify-spinner-color: #616161; --toastify-spinner-color-empty-area: #e0e0e0; --toastify-color-progress-light: linear-gradient( to right, #4cd964, #5ac8fa, #007aff, #34aadc, #5856d6, #ff2d55 ); --toastify-color-progress-dark: #bb86fc; --toastify-color-progress-info: var(--toastify-color-info); --toastify-color-progress-success: var(--toastify-color-success); --toastify-color-progress-warning: var(--toastify-color-warning); --toastify-color-progress-error: var(--toastify-color-error); }
+@font-face { font-family: Roboto; font-style: normal; font-display: swap; font-weight: 400; src: local("Roboto Regular "), local("Roboto-Regular"), url("../../assets/3e253b66056519aa065b00a453bac37ac5ed8f3e6fe7b542e93a9dcdcc11d0bc.woff2") format("woff2"), url("../../assets/1570f866bf6eae82041e407280894a86ad2b8b275e01908ae156914dc693a4ed.woff") format("woff"); }
+@font-face { font-family: Roboto; font-style: normal; font-display: swap; font-weight: 500; src: local("Roboto Medium "), local("Roboto-Medium"), url("../../assets/5a8c1e7681318caa29e9f44e8a6e271f6a4067a2703e9916dfd4fe9099241db7.woff2") format("woff2"), url("../../assets/3bfe46bb1ca35b205306c5ec664e99e4a816f48a417b6b42e77a1f43f0bc4e7a.woff") format("woff"); }
+@font-face { font-family: Roboto; font-style: normal; font-display: swap; font-weight: 700; src: local("Roboto Bold "), local("Roboto-Bold"), url("../../assets/1d5b7c64458f4af91dcfee0354be47adde1f739b5aded03a7ab6068a1bb6ca97.woff2") format("woff2"), url("../../assets/468e579fe1210fa55525b1c470ed2d1958404512a2dd4fb972cac5ce0ff00b1f.woff") format("woff"); }
+.fas, .far { -webkit-font-smoothing: antialiased; display: inline-block; font-style: normal; font-variant: normal; text-rendering: auto; line-height: 1; }
+.fa-check-square::before { content: ""; }
+.fa-square::before { content: ""; }
+@font-face { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: 400; font-display: block; src: url("../../assets/e42a88444448ac3d60549cc7c1ff2c8a9cac721034c073d80a14a44e79730cca.woff2") format("woff2"), url("../../assets/cb9e9e693192413cde2b1f21c1dc1d44b6fe7b27cc2b458e8b359d18f9ff8f4e.woff") format("woff"), url("../../assets/e8711bbb871afd8e9dea60e16d30f00c7e4837bbc9807065017475b849fa2313.ttf") format("truetype"); }
+.far { font-family: "Font Awesome 5 Free"; font-weight: 400; }
+@font-face { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: 900; font-display: block; src: url("../../assets/9834b82ad26e2a37583d22676a12dd2eb0fe7c80356a2114d0db1aa8b3899537.woff2") format("woff2"), url("../../assets/3f6d3488cf65374f6f676c315340b0ac2be832bd55240c809448e36ef9b96326.woff") format("woff"), url("../../assets/af6397503fcefbd613976c21ad5c1e37298c18bbe07d096db03ccd3af6e05ba8.ttf") format("truetype"); }
+.fas { font-family: "Font Awesome 5 Free"; font-weight: 900; }
+html { font-family: Roboto, Helvetica, Arial, sans-serif; }
+.fHsCki:not(:active, :focus-visible, :focus-within) { border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: 0px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px; }
+.iVXoYX { color: rgb(247, 104, 83); margin-inline-start: 0.2em; }
+.iVXoYX::before { content: "*"; }
+.fmJEhw { display: inline-block; margin-bottom: 4px; color: rgb(102, 102, 102); font-weight: 500; font-size: 14px; line-height: 16px; letter-spacing: 0px; }
+.hQbJBg .MuiInputBase-root { background: rgb(255, 255, 255); font-size: 15px; }
+.hQbJBg .MuiInputBase-input { color: rgb(68, 68, 68); padding-block: 13px; padding-inline: 15px 12px; line-height: 18px; font-size: inherit; }
+.hQbJBg .MuiInputBase-input::placeholder { color: rgb(184, 184, 184); opacity: 1; }
+.hQbJBg .MuiOutlinedInput-root:not(.Mui-disabled):not(.Mui-error):hover .MuiOutlinedInput-notchedOutline { border-color: rgb(189, 189, 189); }
+.hQbJBg .MuiInputBase-input:focus::-webkit-input-placeholder { color: rgb(136, 136, 136); }
+.hQbJBg .MuiOutlinedInput-multiline { padding-inline: 0px; padding-block: 0px 5px; }
+.hQbJBg .MuiInputAdornment-positionStart { margin-right: 0px; }
+.hQbJBg .MuiOutlinedInput-notchedOutline legend { user-select: none; }
+.hbyGur { transform: rotate(0deg); transition: transform 184ms ease-in-out; }
+.bFuImz { display: flex; flex-direction: column; }
+.fRpmcr { padding: 5px; position: absolute; right: 23px; }
+.jWoZqI { color: rgb(102, 102, 102); }
+.elonCH { position: absolute; right: 12px; }
+.fxAaHM { appearance: none; background-color: unset; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; color: inherit; font-family: inherit; font-size: inherit; font-style: inherit; line-height: inherit; padding: 0px; text-align: inherit; text-decoration-thickness: from-font; touch-action: manipulation; }
+.grDnvL { display: flex; align-items: stretch; justify-content: flex-end; margin-top: 10px; width: 100%; grid-column: 1 / -1; }
+.grDnvL > :where(button, div, .MuiSkeleton-root):not(:first-child) { margin-left: 20px; }
+.etNyKu .MuiDialog-paperWidthSm { max-width: 600px; }
+.etNyKu .MuiDialog-paper { overflow: clip; }
+.hapxjC { flex: 1 1 auto; padding-block: 18px; padding-inline: 32px; }
+.dLaTmh { background-color: rgb(243, 245, 247); overflow: auto; min-height: 0px; }
+.jXxreO { align-items: center; border-bottom: 1px solid rgb(235, 235, 235); display: flex; flex-wrap: wrap; padding-block: 14px; padding-inline: 32px 14px; }
+.ZlFNZ.MuiDialogTitle-root { padding: 0px; max-inline-size: 100%; line-height: 1.2; flex: 1 1 0px; min-inline-size: 0px; }
+.hmvwiL { align-items: center; display: flex; flex-direction: row-reverse; gap: 8px; margin-inline-start: auto; }
+.ebbjHU { margin-inline-start: 0px; }
+.iomYDi { transform: rotate(0deg); transition: transform 184ms ease-in-out; }
+.eBKOYc { padding: 5px; }
+.hNlCUJ { cursor: pointer; color: rgb(102, 102, 102); }
+.dFeoXf .MuiInputBase-root { background: rgb(255, 255, 255); }
+.fWdLoY { display: grid; margin-top: 0.3rem; gap: 1.2rem 0.7rem; grid-template-columns: repeat(1, 1fr); align-items: start; }
+.fWdLoX { display: grid; margin-top: 0.3rem; gap: 1.2rem 0.7rem; grid-template-columns: repeat(2, 1fr); align-items: start; }
+.kRYsGo { margin: 30px; }
+.PQLuJ { background-color: rgb(255, 255, 255); border-radius: 0.1875rem; font-size: 1rem; line-height: 0.875rem; margin: 0.0625rem 0px; }
+.PQLuJ.fa-square { color: rgb(184, 184, 184); }
+.girZMt { padding-top: 0px; padding-bottom: 0px; margin-left: 3px; width: max-content; }
+.hMZcQJ .MuiSvgIcon-root { color: rgb(184, 184, 184); font-size: 18px; }
+.gGkyeD .MuiInputBase-root { padding-left: 10px; }
+.gGkyeD .MuiInputBase-input { padding-left: 5px; }
+.gMMwce .react-select__indicator-separator { display: none; }
+.evalJV { transform: rotate(180deg); }
+.iYVwjY { overflow: auto; width: 100%; box-shadow: rgba(0, 0, 0, 0.1) 2px 2px 25px; border-radius: 5px; background: white; border: 1px solid rgb(222, 222, 222); }
+.iTfEaM { padding: 15px; font-size: 14px; line-height: 1.3; }
+.iTfEaM.MuiTableCell-body { padding: 20px 15px; }
+.iTfEaM:first-child { padding-left: 20px; }
+.iTfEaM:last-child { padding-right: 20px; }
+.jyTmfh { border-collapse: unset; }
+.jyTmfh:last-child { border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; }
+.kjXNOD { background: rgb(243, 245, 247); white-space: nowrap; }
+.kjXNOD .MuiTableCell-head { background: rgb(243, 245, 247); }
+.fZBwXn { color: rgb(68, 68, 68) !important; }
+.cTYrYq { color: rgb(136, 136, 136) !important; }
+.iAixrQ.MuiTableCell-body { padding: 60px; border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; }
+.bJJBIT { align-items: center; display: flex; gap: 10px; justify-content: flex-end; margin-block-end: 18px; }
+.cdEjDj { font-size: 14px; line-height: 18px; }
+.nPypH { display: block; grid-column: 1 / -1; }
+.jujWVJ { display: inline-block; width: auto; height: 31px; }
+.XBRnC { flex: 1 1 0%; font-size: 18px; font-weight: 400; line-height: 24px; letter-spacing: 0px; color: rgb(68, 68, 68); min-width: 250px; }
+.gIqPkL { position: sticky; height: 66px; top: 0px; z-index: 9; flex-grow: 1; background-color: rgb(255, 255, 255); }
+.jqeIrr { display: flex; align-items: center; justify-content: space-between; padding-inline: 25px; }
+.javLsj { height: 15px; width: 15px; background-color: rgb(71, 202, 128); border-radius: 50%; margin-right: 10px; flex-shrink: 0; }
+.iQYiVn { display: flex; align-items: center; flex: 0 1 0%; padding-left: 5px; justify-content: end; }
+.bcXsDX { position: relative; z-index: 1; }
+.eVuIGM { margin: 20px 24px 24px; }
+.fXcSBl { align-items: center; color: rgb(50, 102, 153); display: flex; flex-flow: wrap; gap: 0.625rem; }
+.hSpEVk { margin-left: auto; padding: 7px; }
+.fAYLSk { white-space: nowrap; max-height: 40px; }
+.efzhuE { margin-right: -7px; }
+.bNWcOl { display: flex; gap: 10px; }
+.cJAQWG { display: flex; align-items: center; padding: 0.2rem 0px; min-height: 30px; }
+.goDvhh { display: flex; align-items: center; cursor: pointer; }
+.jIcVgR { display: flex; align-items: center; cursor: default; }
+.usjAf { padding: 0px; margin: 0px 8px 0px 3px; }
+.usjAf i { font-size: 16px; line-height: 18px; color: rgb(204, 204, 204); }
+.usjAf i.fa-check-square { color: rgb(50, 102, 153); }
+.kXSmPV { display: inline-flex; align-items: center; margin: 0px 8px 0px 3px; }
+.kXSmPV .sc-iKqsjz { margin: 0px; }
+.ixhwsb { position: relative; display: inline-flex; }
+.ixhwsb i.fas { color: rgb(235, 235, 235); }
+.ixhwsb i.far { position: absolute; top: 0px; left: 0px; color: rgb(222, 222, 222); }
+.kLYFJx { font-size: 14px; line-height: 18px; color: rgb(68, 68, 68); }
+.jkwWH { font-size: 14px; line-height: 18px; margin-left: 6px; color: rgb(136, 136, 136); }
+.jtZBId { display: flex; align-items: center; justify-content: center; width: 20px; color: rgb(184, 184, 184); cursor: pointer; }
+.jtZBId svg { font-size: 20px; }
+.jFwShP { display: inline-block; width: 20px; }
+.cAOUx { font-size: 11px; line-height: 15px; color: rgb(136, 136, 136); padding: 5px 0px 5px 20px; border-bottom: 1px solid rgb(222, 222, 222); border-top: 1px solid rgb(222, 222, 222); margin-bottom: 2px; margin-right: 1.3rem; }
+.cAOUx:first-child { border-top-width: medium; border-top-style: none; border-top-color: currentcolor; }
+.bszurI { display: flex; flex-direction: column; gap: 2px; background: rgb(255, 255, 255); border: 1px solid rgb(222, 222, 222); border-radius: 3px; }
+.eyflGd { font-size: 11px; line-height: 15px; color: rgb(136, 136, 136); padding: 5px 8px; border-bottom: 1px solid rgb(222, 222, 222); }
+.gWUQAy { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid rgb(222, 222, 222); }
+.gWUQAy:last-child { border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; }
+.jnMysK { font-size: 14px; line-height: 18px; color: rgb(68, 68, 68); }
+.bispaz { padding: 0px; flex-shrink: 0; }
+.bispaz svg { font-size: 12px; color: rgb(136, 136, 136); }
+.dJVnYw { display: flex; width: 100%; height: clamp(359px, -540px + 100vh, 500px); border: 1px solid rgb(222, 222, 222); border-radius: 3px; }
+.kUeLhN { display: flex; flex-direction: column; min-width: 0px; padding: 0.5rem 0.5rem 1rem; }
+.koaeBb { background: rgb(255, 255, 255); flex: 62 1 0%; }
+.bCdJjT { flex: 38 1 0%; background: rgb(249, 250, 251); }
+.fEuNKD { border-left: 1px solid rgb(222, 222, 222); height: 100%; }
+.jawwza { display: flex; align-items: center; gap: 8px; margin-right: 1.3rem; height: 52px; box-sizing: border-box; border-bottom: 1px solid rgb(222, 222, 222); }
+.ddHOkH { flex: 1 1 0%; margin-left: 5px; }
+.ddHOkH .MuiInputBase-root { padding-left: 0px; height: 36px; }
+.ddHOkH .MuiInputBase-input { font-size: 14px; }
+.ddHOkH .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline { border-width: medium; border-style: none; border-color: currentcolor; border-image: none; }
+.encgvK { width: 156px; flex-shrink: 0; }
+.kwdnDj { display: flex; flex-direction: column; overflow-y: auto; flex: 1 1 0%; }
+.pFgjp { display: flex; justify-content: space-between; align-items: center; height: 52px; box-sizing: border-box; margin-bottom: 8px; border-bottom: 1px solid rgb(222, 222, 222); }
+.eCXpYR { font-size: 15px; line-height: 18px; color: rgb(68, 68, 68); }
+.YBUXM { color: rgb(136, 136, 136); }
+.kquiJq { font-size: 14px; line-height: 18px; font-weight: 400; text-transform: none; text-decoration: underline; color: rgb(68, 68, 68); }
+.kquiJq:hover { text-decoration: underline; }
+.iYOENb { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.bwXDIL .MuiDialog-paper { max-width: 894px; }
+.lljAZL { position: relative; max-width: 1050px; display: flex; gap: 50px; }
+.cWuwea { display: flex; align-items: baseline; font-size: 14px; line-height: 18px; position: relative; color: rgb(136, 136, 136); white-space: nowrap; }
+.bKlRMU { display: flex; align-items: baseline; font-size: 14px; line-height: 18px; position: relative; color: rgb(136, 136, 136); white-space: normal; }
+.chdmhc { position: relative; top: 2px; margin-right: 10px; }
+.hxaBce { white-space: nowrap; color: rgb(102, 102, 102); }
+.cRgNUk { font-weight: 500; color: rgb(68, 68, 68); width: 100%; vertical-align: bottom; }
+.jTnNEU { background: white; box-shadow: none; border-bottom: 1px solid rgb(235, 235, 235); padding: 0px 25px 25px; }
+.jTnNEU .sc-beSSEr { margin-right: 5px; }
+.jTnNEU .sc-beSSEr:first-child::after { content: ":"; }
+.jTnNEU .sc-iOjliw { display: inline-block; }
+.iZzboO { max-width: 100%; }
+.fpBeyq { display: flex; flex-direction: column; gap: 10px; width: 40%; }
+.Wwygk { width: 60%; }
+.cLuqcm { color: rgb(68, 68, 68); font-size: 14px; line-height: 18px; }
+.ezHszF { text-decoration: underline; margin-left: 4px; }
+.iRxWRr { font-weight: 400; }
+.cCPoaK { color: rgb(50, 102, 153); cursor: pointer; }
+.cCPoaK:hover { text-decoration: underline; }
+.cznQjy { width: 100%; background: rgb(255, 255, 255); display: flex; z-index: 9; position: sticky; top: 0px; height: 50px; align-items: center; padding-left: 30px; padding-right: 30px; border-bottom: 1px solid rgb(235, 235, 235); flex-shrink: 0; }
+.jSzShM { margin-left: 30px; margin-right: 30px; border-left: 1px solid rgb(235, 235, 235); height: 100%; }
+.keaPCE { font-size: 12px; }
+.keaPCE .MuiBreadcrumbs-separator { color: rgb(184, 184, 184); }
+.keaPCE .MuiBreadcrumbs-li:last-child { font-weight: 500; pointer-events: none; }
+.kZumCR { color: rgb(50, 102, 153); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500; margin-block: 0px; }
+.bFBQ { align-items: baseline; display: grid; gap: 1rem; grid-template-columns: max-content auto max-content; margin-block-start: 30px; margin-inline: 30px; }
+.epRVka { height: fit-content; }
+.Aujue { display: flex; flex-direction: column; overflow: hidden; }
+.flKtMd { background: rgb(255, 255, 255); border-block-end: 1px solid rgb(222, 222, 222); padding-inline: 24px; }
+.flKtMd .MuiTabs-indicator { background-color: rgb(50, 102, 153); }
+.flKtMd .MuiTabs-scroller { border-block-end: 0px; }
+.eLtXcR { color: rgb(136, 136, 136); font-weight: 500; padding-block: 1.25rem; padding-inline: 12px; position: relative; cursor: pointer !important; }
+.eLtXcR:hover { background-color: rgb(244, 249, 255); }
+.eLtXcR[aria-selected="true"] { color: rgb(50, 102, 153); }
+.DgCFW { min-width: 0px; }
+.liYatX { box-shadow: rgba(0, 0, 0, 0.1) 2px 2px 25px; border-radius: 5px; border: 1px solid rgb(222, 222, 222); background: white; }
+.cpEdRm { display: flex; background: rgb(249, 250, 251); }
+.edjFDT { height: 100dvh; overflow: auto; flex: 1 1 0%; }
+.heIXCw { margin: 1rem 0px; }
+.gVtRbN { color: rgb(50, 102, 153); display: flex; flex-direction: row; justify-content: space-between; align-items: center; border-bottom: 1px solid rgb(235, 235, 235); padding-bottom: 0.5rem; }
+.eoigBT { font-weight: 500; font-size: 14px; line-height: 18px; }
+.cMuefu { text-transform: none; }
+.cMuefu .MuiButton-label { font-weight: 400; font-size: 14px; line-height: 18px; letter-spacing: 0px; color: rgb(50, 102, 153); }
+.cMuefu .MuiSvgIcon-root { color: rgb(255, 204, 36); }
+.fxawLZ { margin: 0.5rem 0px; padding: 0px; }
+.issQMZ { background: rgb(50, 102, 153); color: rgb(255, 255, 255); text-transform: uppercase; width: 46px; height: 46px; }
+.klZeAw { display: block; width: 100%; padding: 25px 35px 35px 25px; text-align: left; }
+.klZeAw:hover { background: rgb(244, 249, 255); }
+.dWOntt { align-self: flex-start; color: rgb(136, 136, 136); font-size: 11px; line-height: 15px; margin-bottom: 20px; }
+.iwJtwd { font-size: 24px; line-height: 32px; text-transform: capitalize; }
+.jQOXjq { display: flex; justify-content: space-between; align-items: center; }
+.iMmVwr { display: grid; grid-template-columns: 2fr 3.5fr; border-bottom: 1px solid rgb(235, 235, 235); border-top: 1px solid rgb(235, 235, 235); padding-left: 10px; }
+.cLZXkb { padding: 10px 15px; }
+.cLZXkb:first-of-type { border-right: 1px solid rgb(235, 235, 235); }
+.RCmHy { color: rgb(136, 136, 136); font-size: 14px; line-height: 18px; }
+.coNsbY { color: rgb(102, 102, 102); font-size: 14px; line-height: 18px; font-weight: 500; text-transform: capitalize; }
+.eHDwdS { padding: 20px 10px 12px; }
+.gbHovz { background: rgb(50, 102, 153); color: rgb(255, 255, 255); font-weight: 600; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; border-radius: 3px; }
+.dqMNCf { font-weight: 500; font-size: 14px; line-height: 18px; }
+.CcTNV { color: rgb(136, 136, 136); font-size: 14px; font-weight: 400; text-transform: none; }
+.kyoQIz { color: rgb(50, 102, 153); font-weight: 500; font-size: 14px; line-height: 18px; text-align: right; cursor: pointer; padding-top: 10px; margin-top: auto; }
+.kyoQIz:hover { text-decoration: underline; }
+.jcbDng { display: flex; flex-direction: column; position: relative; background: rgb(255, 255, 255); box-shadow: rgba(0, 0, 0, 0.1) 1px 0px 3px; z-index: 10; overflow: auto; }
+.ddhktV { display: flex; flex-direction: column; flex: 1 0 auto; padding: 5px 25px 25px; }
+.dbpINd { display: flex; flex-direction: column; gap: 16px; }
+.hELllg { display: grid; grid-template-columns: 20rem auto; height: 100%; }
+.bdAYXC { overflow: auto; background-color: initial; }
+.gLrwkZ { min-width: 650px; }
+.dmBBxp { border-radius: 4px; padding-top: 2px; padding-bottom: 2px; padding-right: 10px; margin-bottom: 5px; }
+.dmBBxp .MuiSvgIcon-root { position: relative; top: -1px; opacity: 0.9; font-size: 22px; }
+.dmBBxp.Mui-selected { background: none; transition: background 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+.dmBBxp:hover, .dmBBxp.Mui-selected:hover { background: oklch(1 0 0 / 0.15); }
+.jDhfcA { padding-left: 10px; font-size: 14px; line-height: 18px; font-weight: 500; letter-spacing: 0px; transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1), max-height 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+.kflWFp { transition: rotate 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+.Mui-selected .sc-cfKVUY { rotate: x 0.5turn; }
+.JjUBd { padding: 0px 0px 4px; }
+.juaopZ { background-color: rgba(255, 255, 255, 0.2); margin: 2px 10px 2px 16px; transition: margin 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+.dKyphM { position: relative; margin-bottom: 2px; padding: 2px 0px 2px 48px; border-radius: 4px; }
+.dKyphM:hover, .dKyphM.Mui-selected, .dKyphM.Mui-selected:hover { background: rgba(255, 255, 255, 0.15); }
+.bFqSLN { font-size: 14px; line-height: 18px; font-weight: 400; letter-spacing: 0px; }
+.clcyKu { width: 7px; height: 7px; border-radius: 50%; background: rgb(17, 114, 209); margin-right: 14px; }
+.kcWFuN { width: 7px; height: 7px; border-radius: 50%; background: rgb(25, 147, 78); margin-right: 14px; }
+.bXpRpz { width: 7px; height: 7px; border-radius: 50%; background: rgb(241, 127, 22); margin-right: 14px; }
+.dtAWJJ { width: 7px; height: 7px; border-radius: 50%; background: rgb(249, 186, 91); margin-right: 14px; }
+.hYXOuA { background: rgb(231, 176, 145); font-weight: 500; font-size: 16px; margin-right: 12px; margin-top: 5px; text-transform: uppercase; position: relative; transition: background 0.3s; }
+.hiDSfT { border-radius: 4px; margin-block-end: 5px; padding-block: 2px; padding-inline-end: 10px; }
+.hiDSfT:hover { background: rgba(255, 255, 255, 0.15); }
+.bBGhOK { width: 22px; height: 22px; }
+.ecfDVp { padding-left: 10px; font-size: 14px; line-height: 18px; font-weight: 500; letter-spacing: 0px; transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1), max-height 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+.kwcdMX { color: white; align-self: start; position: relative; right: -22px; }
+.hkUeAC { display: flex; flex-direction: column; background: rgb(47, 67, 88); min-width: 260px; max-width: 280px; padding: 0px 15px; box-shadow: rgba(0, 0, 0, 0.15) 1px 0px 4px; color: rgb(255, 255, 255); overflow: hidden auto; height: 100vh; transition: min-width 300ms cubic-bezier(0.4, 0, 0.2, 1), max-width 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+.fPJprD { display: flex; flex-direction: row; align-items: center; justify-content: space-between; height: 72px; padding: 16px 0px 14px 13px; }
+.jPyUZs { padding: 8px; background-color: rgb(47, 67, 88); }
+.jPyUZs.MuiIconButton-root:hover { background-color: rgb(78, 95, 113); }
+.dfykbN { margin-top: auto; padding-bottom: 3px; padding-right: 10px; }
+.cXEOUY { display: flex; color: white; min-height: 65px; align-items: center; transition: justify-content 300ms cubic-bezier(0.4, 0, 0.2, 1); margin-top: 5px; margin-bottom: 5px; }
+.mQhOy { margin-top: 8px; }
+.eJBcgF { background-color: rgba(255, 255, 255, 0.2); transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1); margin-left: 5px; }
+.cTFwZE { font-weight: 500; font-size: 14px; line-height: 18px; }
+.iQEzAr { font-weight: 400; font-size: 11px; line-height: 15px; }
+.dNNljo { margin-right: 12px; cursor: default; }
+.iVCOsC { font-size: 9px; line-height: 15px; font-weight: 400; margin-top: 6px; color: rgb(184, 184, 184); }
+.cTIjmy { font-weight: 400; font-size: 11px; line-height: 15px; text-transform: none; text-decoration: underline; color: rgb(255, 255, 255); margin-left: 10px; min-height: 0px; min-width: 0px; padding-left: 0px; padding-right: 0px; }
+.cwlVfI { margin-bottom: 5px; }
+[data-rbd-drag-handle-context-id="0"] { -webkit-tap-highlight-color: rgba(0, 0, 0, 0); touch-action: manipulation; }
+[data-rbd-droppable-context-id="0"] { overflow-anchor: none; }
+[data-rbd-drag-handle-context-id="0"] { cursor: grab; }
 
-/* Backdrop standing in for the All patients listing */
-.backdrop{min-height:100vh;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:flex-start;padding:32px 16px 96px;}
+/* ---- From the captured patient details form (same field components) ---- */
+.MuiSvgIcon-root { fill: currentcolor; width: 1em; height: 1em; display: inline-block; font-size: 1.5rem; transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; user-select: none; }
+.cjss23 { padding: 9px; }
+.cjss26 { top: 0px; left: 0px; width: 100%; cursor: inherit; height: 100%; margin: 0px; opacity: 0; padding: 0px; z-index: 1; position: absolute; }
+.MuiFormGroup-root { display: flex; flex-flow: column wrap; }
+.cjss19 { inset: -5px 0px 0px; margin: 0px; padding: 0px 8px; overflow: hidden; position: absolute; border-style: solid; border-width: 1px; border-radius: inherit; pointer-events: none; }
+.cjss20 { padding: 0px; text-align: left; transition: width 150ms cubic-bezier(0, 0, 0.2, 1); line-height: 11px; }
+.cjss31 { display: flex; position: relative; }
+.cjss31.cjss33 .cjss32 { transform: scale(1); transition: transform 150ms cubic-bezier(0, 0, 0.2, 1); }
+.cjss32 { left: 0px; position: absolute; transform: scale(0); transition: transform 150ms cubic-bezier(0.4, 0, 1, 1); }
+.MuiRadio-root { color: rgb(102, 102, 102); }
+.MuiRadio-colorSecondary.Mui-checked { color: rgb(255, 204, 36); }
+.MuiRadio-colorSecondary.Mui-checked:hover { background-color: rgba(255, 204, 36, 0.04); }
+.IbcaV { display: flex; flex-direction: column; margin-top: 2px; }
+.fbUFIC { display: flex; align-items: stretch; justify-content: flex-start; flex-direction: row; }
+.cjgaeL { margin: 0px 10px 0px 0px; border-radius: 3px; padding: 12px 20px; border: 1px solid rgb(50, 102, 153); justify-content: center; background: rgb(255, 255, 255); }
+.cjgaeL .MuiButtonBase-root { padding: 0px; margin-left: -5px; color: rgb(50, 102, 153); }
+.cjgaeL .MuiButtonBase-root svg { font-size: 18px; }
+.cjgaeL .MuiTypography-root { font-size: 14px; line-height: 16px; padding: 0px 0px 0px 5px; color: rgb(68, 68, 68); }
+.iilPX { margin: 0px 10px 0px 0px; border-radius: 3px; padding: 12px 20px; border: 1px solid rgb(222, 222, 222); justify-content: center; background: rgb(255, 255, 255); }
+.iilPX:last-child { margin-right: 0px; }
+.iilPX .MuiButtonBase-root { padding: 0px; margin-left: -5px; color: rgb(222, 222, 222); }
+.iilPX .MuiButtonBase-root svg { font-size: 18px; }
+.iilPX .MuiTypography-root { font-size: 14px; line-height: 16px; padding: 0px 0px 0px 5px; color: rgb(102, 102, 102); }
+.sNrHg .MuiFormControlLabel-root { justify-content: flex-start; padding-inline-start: 15px; }
+.ftKqvw { font-weight: 500; font-size: 16px; color: rgb(102, 102, 102); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
 
-/* BaseModal, width sm */
-.modal{background:#ffffff;border-radius:4px;box-shadow:0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12);width:600px;max-width:100%;overflow:hidden;}
-.modal-header{display:flex;align-items:center;min-height:68px;padding:14px 14px 14px 32px;border-bottom:1px solid #ebebeb; /* softOutline */}
-.modal-title{flex:1;font-size:16px;font-weight:500;color:#444444;margin:0;}
-.icon-button{width:40px;height:40px;border:0;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#666666;cursor:pointer;padding:0;}
-.icon-button:hover{background:rgba(0,0,0,.04);}
-.icon-button svg{width:24px;height:24px;fill:currentColor;}
-.modal-content{background:#f3f5f7; /* background */ padding:18px 32px;}
+/* ---- From source: styled components with no capture (values as in the code) ---- */
+/* ModalActionRow.jsx makeModalRow + BaseModal FullWidthRow */
+.v19-full-width-row { grid-column: 1 / -1; margin-inline: -32px; }
+.v19-modal-row { border-top: 1px solid #dedede; /* outline */ padding: 30px 32px 0 0; grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+/* FileChooserField.jsx FieldButtonRow, HintText, ClearButton */
+.v19-field-button-row { width: 100%; display: grid; margin-top: 0.5rem; grid-template-columns: max-content auto; grid-gap: 1rem; }
+.v19-field-button-row.has-camera { grid-template-columns: max-content max-content auto; }
+.v19-hint-text { font-size: 11px; color: #666666; /* darkText */ }
+.v19-hint-strong { font-weight: 500; }
+.v19-box-flex { display: flex; align-items: center; }
+.v19-clear-button.MuiIconButton-root { margin-inline-start: 5px; padding: 5px; }
+/* MUI v6 Button icon sizing */
+.MuiButton-iconSizeMedium > *:nth-of-type(1) { font-size: 20px; }
 
-/* FormGrid */
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem 0.7rem;align-items:start;margin-top:0.3rem;}
-.full{grid-column:1 / -1;}
+/* NewPatientForm.jsx IdBannerContainer, StyledRadioField, AdditionalInformationRow, StyledIconButton */
+.v19-id-banner-container { margin: -20px -32px 0 -32px; grid-column: 1 / -1; }
+.v19-styled-radio-field { margin-top: 10px; margin-bottom: 10px; grid-column: 1 / -1; }
+.v19-additional-information-row { grid-column: 1 / -1; border-top: 1px solid #dedede; /* outline */ margin-top: 30px; margin-bottom: 20px; padding: 10px 0; display: flex; flex-direction: row; justify-content: space-between; }
+.v19-additional-information-row div { font-weight: 500; font-size: 17px; color: #444444; /* darkestText */ }
+.v19-additional-information-row button { padding: 0; color: #326699; /* primary */ }
+.v19-additional-information-row div span { font-weight: 200; font-size: 14px; color: #999999; }
+.v19-styled-icon-button { margin-inline-end: 5px; }
+/* IdBanner.jsx IdFieldContainer, IdFieldTitle */
+.v19-id-field-container { background: #326699; /* primary */ padding: 33px; }
+.v19-id-field-container svg, .v19-id-field-container p { color: #ffffff; }
+.v19-id-field-title { color: #ffffff; font-weight: 500; font-size: 18px; margin-bottom: 20px; }
+/* IdField.jsx IdControl, Id (InvertedDisplayIdLabel), ScanButton (QRCodeIconButton), RegenerateId, Text */
+.v19-id-control { display: flex; color: #2f4358; /* primaryDark */ }
+.v19-id { background: #326699; color: #ffffff; padding: 10px; border: 1px solid #ffffff; border-radius: 3px; display: block; font-weight: 600; height: max-content; width: max-content; margin-right: 15px; }
+.v19-scan-button.MuiIconButton-root { height: 44px; width: 44px; margin: 0 15px 0 0; border: 1px solid #ffffff; color: #326699; border-radius: 3px; }
+.v19-regenerate-id { display: flex; padding: 10px; cursor: pointer; }
+.v19-regenerate-id svg { padding: 0; margin-right: 5px; }
+.v19-regenerate-text { margin: 0; padding: 0; align-self: flex-end; }
+/* Photo field sits full width in the General information FormGrid */
+.v19-span-full { grid-column: 1 / -1; }
+/* Mockup only: which photo field state shows */
+.v19-when-chosen { display: none; }
+body[data-state="chosen"] .v19-when-chosen { display: grid; }
+body[data-state="chosen"] .v19-when-empty { display: none; }
 
-/* IdBanner */
-.id-banner{margin:-18px -32px 0;background:#326699; /* primary */ padding:33px;color:#ffffff;}
-.id-banner-title{font-weight:500;font-size:18px;margin-bottom:20px;}
-.id-control{display:flex;align-items:center;}
-.id-value{display:block;font-weight:600;padding:10px;margin-right:15px;border:1px solid #ffffff;border-radius:3px;font-size:16px;}
-.qr-button{height:44px;width:44px;margin-right:15px;border:1px solid #ffffff;border-radius:3px;background:none;color:#ffffff;display:flex;align-items:center;justify-content:center;}
-.qr-button svg{width:22px;height:22px;fill:currentColor;}
-.regenerate{display:flex;align-items:flex-end;padding:10px;font-size:16px;}
-.regenerate svg{width:24px;height:24px;fill:#ffffff;margin-right:5px;}
+/* ---- Mockup only: state switcher ---- */
+.v19-states { position: fixed; right: 16px; bottom: 16px; z-index: 2000; background: #2f4358; color: #ffffff; border-radius: 4px; padding: 10px 12px; font: 12px Roboto, Helvetica, Arial, sans-serif; display: flex; gap: 6px; align-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
+.v19-states span { opacity: 0.7; margin-right: 4px; }
+.v19-states button { font: inherit; color: #ffffff; background: transparent; border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 3px; padding: 4px 8px; cursor: pointer; }
+.v19-states button[aria-pressed="true"] { background: #ffffff; color: #2f4358; }
 
-/* Labels */
-.label{display:inline-block;margin-bottom:4px;color:#666666;font-weight:500;font-size:14px;line-height:16px;}
-.required{color:#f76853; /* alert */ margin-inline-start:0.2em;}
-
-/* Text inputs */
-.input{position:relative;display:flex;align-items:center;background:#ffffff;border:1px solid #dedede; /* outline */ border-radius:3px;font-size:15px;}
-.input input{flex:1;min-width:0;border:0;background:none;font:inherit;color:#444444;padding:13px 12px 13px 15px;line-height:18px;outline:none;}
-.input input::placeholder{color:#b8b8b8;opacity:1;}
-.input .adorn{display:flex;align-items:center;padding-right:12px;color:#666666;}
-.input .adorn svg{width:24px;height:24px;fill:currentColor;}
-
-/* Radio boxes */
-.radio-group{display:flex;flex-direction:row;margin-top:2px;}
-.radio-box{display:inline-flex;align-items:center;margin:0 10px 0 0;border-radius:3px;padding:12px 20px;border:1px solid #dedede;background:#ffffff;font-size:14px;line-height:16px;color:#666666;cursor:pointer;}
-.radio-box.checked{border-color:#326699;color:#444444;}
-.radio-box .dot{width:18px;height:18px;margin-left:-5px;margin-right:5px;color:#dedede;}
-.radio-box.checked .dot{color:#326699;}
-.radio-box .dot svg{width:18px;height:18px;fill:currentColor;}
-.radio-wide{margin:10px 0;}
-
-/* Section heading */
-.section-heading{font-weight:500;font-size:16px;color:#666666;margin-bottom:30px;margin-top:10px;}
-
-/* Photo field (PhotoField / FileChooserInput) */
-.button-row{display:grid;grid-template-columns:max-content max-content auto;gap:1rem;align-items:center;margin-top:0.5rem;}
-.outlined-button{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 20px;background:#ffffff;border:1px solid #326699;border-radius:3px;color:#326699;font:500 14px/18px Roboto,Helvetica,Arial,sans-serif;cursor:pointer;}
-.outlined-button:hover{background:#f4f9ff;}
-.outlined-button svg{width:20px;height:20px;fill:currentColor;}
-.hint{font-size:11px;line-height:15px;color:#666666;}
-.hint strong{font-weight:500;}
-
-/* Selected photo */
-.photo-value{display:flex;align-items:center;gap:12px;margin-top:0.5rem;}
-.photo-thumb{width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid #dedede;background:#ebf0f5;}
-.photo-thumb svg{display:block;width:100%;height:100%;}
-.file-name{font-size:14px;line-height:18px;color:#444444;}
-.clear-button{width:30px;height:30px;padding:5px;border:0;background:none;border-radius:50%;color:#666666;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-inline-start:-7px;}
-.clear-button:hover{background:rgba(0,0,0,.04);}
-.clear-button svg{width:20px;height:20px;}
-
-/* Additional information row */
-.additional{grid-column:1 / -1;border-top:1px solid #dedede;margin-top:30px;margin-bottom:20px;padding:10px 0;display:flex;align-items:center;font-weight:500;font-size:17px;color:#444444;}
-.additional .icon-button{width:auto;height:auto;padding:0;margin-inline-end:5px;color:#326699;}
-.additional .muted{font-weight:200;font-size:14px;color:#999999;margin-left:4px;}
-
-/* ModalFormActionRow */
-.action-row{grid-column:1 / -1;margin:0 -32px;border-top:1px solid #dedede;padding:30px 32px 0 0;display:flex;justify-content:flex-end;gap:16px;}
-.btn{font:500 14px/16px Roboto,Helvetica,Arial,sans-serif;padding:11px 18px 12px;min-width:100px;border-radius:3px;border:1px solid transparent;cursor:pointer;}
-.btn-primary{background:#326699;color:#ffffff;border-color:#326699;}
-.btn-outlined{background:transparent;color:#326699;border-color:#326699;}
-
-/* State switching (mockup only) */
-.state-photo{display:none;}
-body.has-photo .state-photo{display:flex;}
-body.has-photo .state-empty{display:none;}
-
-.mockup-states{position:fixed;right:16px;bottom:16px;background:#2f4358;color:#ffffff;border-radius:4px;padding:10px 12px;font-size:12px;display:flex;gap:6px;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.25);}
-.mockup-states span{opacity:.7;margin-right:4px;}
-.mockup-states button{font:inherit;color:#ffffff;background:transparent;border:1px solid rgba(255,255,255,.4);border-radius:3px;padding:4px 8px;cursor:pointer;}
-.mockup-states button[aria-pressed="true"]{background:#ffffff;color:#2f4358;}
 </style>
 </head>
-<body>
-
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <symbol id="placeholder-photo" viewBox="0 0 56 56">
-      <rect width="56" height="56" fill="#c2d2e1"/>
-      <circle cx="28" cy="22" r="10" fill="#ebf0f5"/>
-      <path d="M8 56c2-12 10-18 20-18s18 6 20 18z" fill="#ebf0f5"/>
-    </symbol>
-  </defs>
-</svg>
-
-<div class="backdrop">
-  <div class="modal" role="dialog" aria-labelledby="modal-title">
-    <header class="modal-header">
-      <h2 class="modal-title" id="modal-title">Add new patient</h2>
-      <button class="icon-button" type="button" aria-label="Close">
-        <svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-      </button>
-    </header>
-
-    <div class="modal-content">
-      <form class="form-grid" novalidate>
-        <div class="full">
-          <div class="id-banner">
-            <div class="id-banner-title">National Health Number:</div>
-            <div class="id-control">
-              <span class="id-value">KGVL504183</span>
-              <span class="qr-button" aria-label="Scan QR code">
-                <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3zm2-6h4v4H5zM3 21h8v-8H3zm2-6h4v4H5zm8-12v8h8V3zm6 6h-4V5h4zm0 10h2v2h-2zm-6-6h2v2h-2zm2 2h2v2h-2zm-2 2h2v2h-2zm2 2h2v2h-2zm2-2h2v2h-2zm0-4h2v2h-2zm2 2h2v2h-2z"/></svg>
-              </span>
-              <span class="regenerate">
-                <svg viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26"/></svg>
-                Regenerate
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div class="full radio-wide">
-          <div class="radio-group" role="radiogroup" aria-label="New patient action">
-            <label class="radio-box checked"><span class="dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg></span>Add new patient</label>
-            <label class="radio-box"><span class="dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg></span>Register birth</label>
-          </div>
-        </div>
-
-        <div class="full section-heading">General information</div>
-
-        <div>
-          <label class="label" for="first-name">First name<span class="required">*</span></label>
-          <div class="input"><input id="first-name" value="Mele"></div>
-        </div>
-        <div>
-          <label class="label" for="middle-name">Middle name</label>
-          <div class="input"><input id="middle-name"></div>
-        </div>
-        <div>
-          <label class="label" for="last-name">Last name<span class="required">*</span></label>
-          <div class="input"><input id="last-name" value="Tupou"></div>
-        </div>
-        <div>
-          <label class="label" for="cultural-name">Cultural/traditional name</label>
-          <div class="input"><input id="cultural-name"></div>
-        </div>
-        <div>
-          <label class="label" for="dob">Date of birth<span class="required">*</span></label>
-          <div class="input"><input id="dob" placeholder="dd/mm/yyyy" value="14/02/1988"><span class="adorn"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></span></div>
-        </div>
-        <div>
-          <label class="label" for="village">Village</label>
-          <div class="input"><input id="village" placeholder="Search…"><span class="adorn"><svg viewBox="0 0 24 24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div>
-        </div>
-        <div>
-          <span class="label">Sex<span class="required">*</span></span>
-          <div class="radio-group" role="radiogroup" aria-label="Sex">
-            <label class="radio-box"><span class="dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg></span>Male</label>
-            <label class="radio-box checked"><span class="dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg></span>Female</label>
-          </div>
-        </div>
-        <div>
-          <label class="label" for="email">Email address</label>
-          <div class="input"><input id="email" type="email"></div>
-        </div>
-
-        <!-- New: profile photo, full width at the end of General information -->
-        <div class="full">
-          <span class="label">Profile photo</span>
-
-          <div class="button-row state-empty">
-            <button type="button" class="outlined-button">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5"/></svg>
-              Take photo with camera
-            </button>
-            <button type="button" class="outlined-button">
-              <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5zm0-10h4v6h6v-6h4l-7-7z"/></svg>
-              Upload image
-            </button>
-            <div class="hint"><strong>Max. 10&nbsp;MB</strong><br>Supported file types: jpg or jpeg</div>
-          </div>
-
-          <div class="photo-value state-photo">
-            <div class="photo-thumb"><svg><use href="#placeholder-photo"/></svg></div>
-            <span class="file-name">IMG_20261125_104312.jpg</span>
-            <button type="button" class="clear-button" aria-label="Clear">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="additional">
-          <button type="button" class="icon-button" aria-label="Expand">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill:none"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
-          </button>
-          Add additional information <span class="muted">(religion, occupation, blood type…)</span>
-        </div>
-
-        <div class="action-row">
-          <button type="button" class="btn btn-outlined">Cancel</button>
-          <button type="button" class="btn btn-primary">Create new patient</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div class="mockup-states" aria-label="Mockup state">
-  <span>State</span>
-  <button type="button" data-state="" aria-pressed="true">No photo</button>
-  <button type="button" data-state="has-photo" aria-pressed="false">Photo selected</button>
-</div>
-
-<script>
-  document.querySelectorAll('.mockup-states button').forEach(function (button) {
-    button.addEventListener('click', function () {
-      document.body.className = button.dataset.state;
-      document.querySelectorAll('.mockup-states button').forEach(function (other) {
-        other.setAttribute('aria-pressed', String(other === button));
-      });
-    });
-  });
-</script>
+<body style="overflow: hidden;">
+<div id="root"></div><div role="presentation" data-testid="dialog-g9qi" class="MuiDialog-root sc-jsJBEP etNyKu MuiModal-root css-1egf66k "><div aria-hidden="true" class="MuiBackdrop-root MuiModal-backdrop css-14dl35y" style="opacity: 1;"></div><div tabindex="0" data-testid="sentinelStart"></div><div class="MuiDialog-container MuiDialog-scrollPaper css-8azq84" role="presentation" tabindex="-1" style="opacity: 1;"><div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm MuiDialog-paperFullWidth css-1o5p5l9" role="dialog" aria-labelledby="modal-title" aria-modal="true" style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"><header class="sc-iHGNWf jXxreO"><h2 class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root sc-dtBdUo ZlFNZ css-jk5htt" id="modal-title" data-testid="modaltitle-ojhf">Add new patient</h2><div data-testid="actions-okdu" class="sc-kOHTFB hmvwiL"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-auoq4t" tabindex="0" type="button" data-testid="iconbutton-eull" style="--IconButton-hoverBg:rgba(0, 0, 0, 0.04);"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-q7mezt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CloseIcon"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg><span class="sc-imWYAI fHsCki">Close</span></button></div></header><div data-testid="modalcontainer-uc2n" class="sc-koXPp dLaTmh"><div data-testid="modalcontent-bk4w" class="sc-eeDRCY hapxjC"><form class="sc-guJBdh jDDcyz" novalidate="" data-testid="styledform-5o5i"><div class="v19-id-banner-container" data-testid="idbannercontainer-0ghp"><div class="v19-id-field-container" data-testid="idfieldcontainer-fd2l"><div class="v19-id-field-title" data-testid="idfieldtitle-pcqe">National Health Number:</div><div class="v19-id-control" data-testid="idcontrol-460s"><span class="v19-id" data-test-class="id-field-div" data-testid="id-8niy">KGVL504183</span><button class="MuiButtonBase-root MuiIconButton-root v19-scan-button" tabindex="0" type="button" aria-label="Scan QR code" data-testid="qr-scanner-button-displayId"><span class="MuiIconButton-label"><svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 28 28" aria-hidden="true" fill="none"><path d="M6.89432 13.2779H13.1154V7.57521H6.89432V13.2779ZM8.15432 8.73005H11.8554V12.1227H8.15432V8.73005ZM20.9125 20.4251H14.2025V18.6108H15.4625V19.2703H16.9281V18.6108H18.1881V19.2703H19.6526V18.6108H20.9126L20.9127 20.4251H20.9125ZM15.4625 17.2357H14.2025V14.2745H18.6797V15.4295H15.4625V17.2357ZM24.0798 7.14192V11.6179H22.8198V7.14192C22.8198 6.46585 22.2192 5.91568 21.4811 5.91568H16.5982V4.76068H21.4811C22.9139 4.76068 24.0798 5.82891 24.0798 7.14192ZM5.17985 11.6179H3.91985V7.14192C3.91985 5.82888 5.08578 4.7607 6.5186 4.7607H11.4014V5.9157H6.5186C5.78045 5.9157 5.17985 6.46569 5.17985 7.14194V11.6179ZM6.5186 22.0844H11.4014V23.2394H6.5186C5.08578 23.2394 3.91985 22.1708 3.91985 20.8572V16.3822H5.17985V20.8572C5.17985 21.534 5.78045 22.0844 6.5186 22.0844ZM22.8198 16.3822H24.0798V20.8572C24.0798 22.1708 22.9139 23.2394 21.4811 23.2394H16.5982V22.0844H21.4811C22.2192 22.0844 22.8198 21.5339 22.8198 20.8572V16.3822ZM6.89432 20.4249H13.1154V14.7224H6.89432V20.4249ZM8.15432 15.8773H11.8554V19.2699H8.15432V15.8773ZM20.9125 7.57505H14.6914V13.2777H20.9125V7.57505ZM19.6525 12.1227H15.9514V8.72989H19.6525V12.1227ZM16.4353 16.658H20.9125V17.813H16.4353V16.658ZM20.9125 15.5111H19.6525V14.2741H20.9125V15.5111ZM9.40435 17.0232H10.6054V18.1241H9.40435V17.0232ZM9.40435 9.87584H10.6054V10.9768H9.40435V9.87584ZM18.4025 10.9768H17.2015V9.87584H18.4025V10.9768Z" fill="currentColor"></path></svg></span></button><div class="v19-regenerate-id" data-testid="regenerateid-ksy8"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-q7mezt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="AutorenewIcon"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26"></path></svg><p class="v19-regenerate-text" data-testid="text-o0rh">Regenerate</p></div></div></div></div><div class="v19-styled-radio-field" data-testid="styledradiofield-rxta"><div class="MuiFormControl-root sc-kzqdkY IbcaV sc-ktPPKK sNrHg" form="[object Object]" data-testid="styledformcontrol-67x0"><div class="MuiFormGroup-root sc-bDpDS fbUFIC sc-ktPPKK sNrHg" role="radiogroup" length="2" aria-label="newPatient" form="[object Object]" required="" data-testid="translatedenumfield-qh1t-styledradiogroup"><label class="MuiFormControlLabel-root sc-bVHCgj cjgaeL" theme="[object Object]" data-testid="controllabel-kkx2-male"><span class="MuiButtonBase-root MuiIconButton-root cjss23 MuiRadio-root MuiRadio-colorSecondary cjss24 Mui-checked MuiIconButton-colorSecondary" aria-disabled="false" data-testid="radio-il3t-male"><span class="MuiIconButton-label"><input class="cjss26" name="newPatient" type="radio" value="male" checked=""><div class="cjss31 cjss33"><svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg><svg class="MuiSvgIcon-root cjss32" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"></path></svg></div></span><span class="MuiTouchRipple-root"></span></span><span class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1">Add new patient</span></label><label class="MuiFormControlLabel-root sc-bVHCgj iilPX" theme="[object Object]" data-testid="controllabel-kkx2-female"><span class="MuiButtonBase-root MuiIconButton-root cjss23 MuiRadio-root MuiRadio-colorSecondary MuiIconButton-colorSecondary" aria-disabled="false" data-testid="radio-il3t-female"><span class="MuiIconButton-label"><input class="cjss26" name="newPatient" type="radio" value="female"><div class="cjss31"><svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg><svg class="MuiSvgIcon-root cjss32" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"></path></svg></div></span><span class="MuiTouchRipple-root"></span></span><span class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1">Register birth</span></label></div></div></div><div data-testid="patientdetailsheading-3ftw" class="sc-knefzF ftKqvw">General information</div><div data-testid="formgrid-y53s" class="sc-hZDyAQ fWdLoX"><div data-testid="localisedfield-cqua"><label for=":r1s:" class="sc-dhKdcB fmJEhw label-field">First name<span class="sc-jXbUNg iVXoYX"><span class="sc-imWYAI fHsCki">Required</span></span></label><div class="MuiFormControl-root MuiTextField-root sc-jlZhew hQbJBg MuiFormControl-fullWidth" form="[object Object]"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl"><input aria-invalid="false" id=":r1s:" name="firstName" required="" type="text" data-testid="localisedfield-cqua-input" class="MuiInputBase-input MuiOutlinedInput-input" value="Mele"><fieldset aria-hidden="true" class="cjss19 MuiOutlinedInput-notchedOutline" style="padding-left: 8px;"><legend class="cjss20" style="width: 0.01px;"><span>​</span></legend></fieldset></div></div></div><div data-testid="localisedfield-l6hc"><label for=":r1t:" class="sc-dhKdcB fmJEhw label-field">Middle name</label><div class="MuiFormControl-root MuiTextField-root sc-jlZhew hQbJBg MuiFormControl-fullWidth" form="[object Object]"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl"><input aria-invalid="false" id=":r1t:" name="middleName" type="text" data-testid="localisedfield-l6hc-input" class="MuiInputBase-input MuiOutlinedInput-input" value=""><fieldset aria-hidden="true" class="cjss19 MuiOutlinedInput-notchedOutline" style="padding-left: 8px;"><legend class="cjss20" style="width: 0.01px;"><span>​</span></legend></fieldset></div></div></div><div data-testid="localisedfield-41un"><label for=":r1u:" class="sc-dhKdcB fmJEhw label-field">Last name<span class="sc-jXbUNg iVXoYX"><span class="sc-imWYAI fHsCki">Required</span></span></label><div class="MuiFormControl-root MuiTextField-root sc-jlZhew hQbJBg MuiFormControl-fullWidth" form="[object Object]"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl"><input aria-invalid="false" id=":r1u:" name="lastName" required="" type="text" data-testid="localisedfield-41un-input" class="MuiInputBase-input MuiOutlinedInput-input" value="Tupou"><fieldset aria-hidden="true" class="cjss19 MuiOutlinedInput-notchedOutline" style="padding-left: 8px;"><legend class="cjss20" style="width: 0.01px;"><span>​</span></legend></fieldset></div></div></div><div data-testid="localisedfield-ew4s"><label for=":r1v:" class="sc-dhKdcB fmJEhw label-field">Cultural/traditional name</label><div class="MuiFormControl-root MuiTextField-root sc-jlZhew hQbJBg MuiFormControl-fullWidth" form="[object Object]"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl"><input aria-invalid="false" id=":r1v:" name="culturalName" type="text" data-testid="localisedfield-ew4s-input" class="MuiInputBase-input MuiOutlinedInput-input" value=""><fieldset aria-hidden="true" class="cjss19 MuiOutlinedInput-notchedOutline" style="padding-left: 8px;"><legend class="cjss20" style="width: 0.01px;"><span>​</span></legend></fieldset></div></div></div><div data-testid="localisedfield-oafl"><label for=":r20:" class="sc-dhKdcB fmJEhw label-field">Date of birth<span class="sc-jXbUNg iVXoYX"><span class="sc-imWYAI fHsCki">Required</span></span></label><div class="MuiFormControl-root MuiTextField-root sc-jlZhew hQbJBg MuiFormControl-fullWidth" form="[object Object]" sx="[object Object],"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiOutlinedInput-adornedEnd"><input aria-invalid="false" autocomplete="off" id=":r20:" name="dateOfBirth" placeholder="dd/mm/yyyy" required="" type="text" inputmode="text" data-testid="localisedfield-oafl-input" class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiOutlinedInput-inputAdornedEnd" value="14/02/1988"><div class="MuiInputAdornment-root MuiInputAdornment-positionEnd css-yxqbup"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-kuswl6" tabindex="0" type="button" aria-label="Choose date, selected date is Feb 14, 1988" style="--IconButton-hoverBg:rgba(0, 0, 0, 0.04);"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-nr5bo9" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CalendarIcon"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"></path></svg></button></div><fieldset aria-hidden="true" class="cjss19 MuiOutlinedInput-notchedOutline" style="padding-left: 8px;"><legend class="cjss20" style="width: 0.01px;"><span>​</span></legend></fieldset></div></div></div><div role="combobox" aria-haspopup="listbox" aria-owns="react-autowhatever-1" aria-expanded="false" class="react-autosuggest__container"><div class="" data-testid="localisedfield-rpma-input-outerlabelfieldwrapper"><label for=":r22:" class="sc-dhKdcB fmJEhw label-field">Village</label><div class="MuiFormControl-root MuiTextField-root sc-jlZhew sc-cfxfcM hQbJBg dFeoXf MuiFormControl-fullWidth" aria-autocomplete="list" aria-controls="react-autowhatever-1"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiOutlinedInput-adornedEnd" data-testid="localisedfield-rpma-input"><input aria-invalid="false" autocomplete="off" id=":r22:" name="villageId" placeholder="Search…" type="text" class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiOutlinedInput-inputAdornedEnd" value=""><div class="MuiInputAdornment-root sc-tagGq ebbjHU MuiInputAdornment-positionEnd"><svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" data-testid="localisedfield-rpma-input-expandmoreicon" class="sc-esYiGF iomYDi"><path d="M4.99992 5.85523C4.84367 5.85523 4.69398 5.79242 4.58367 5.67992L0.171797 1.20555C-0.0572656 0.972422 -0.0572656 0.595234 0.171797 0.362422C0.401484 0.129609 0.775234 0.129609 1.00367 0.362422L4.99992 4.41555L8.99523 0.362109C9.22523 0.129297 9.59836 0.129297 9.82773 0.362109C10.0571 0.594609 10.0571 0.972422 9.82773 1.20555L5.41617 5.68055C5.30523 5.79242 5.15555 5.85523 4.99992 5.85523Z" fill="#666666"></path></svg></div><fieldset aria-hidden="true" class="cjss19 MuiOutlinedInput-notchedOutline" style="padding-left: 8px;"><legend class="cjss20" style="width: 0.01px;"><span>​</span></legend></fieldset></div></div></div></div><div class="sc-ktPPKK sNrHg" data-testid="outerlabelfieldwrapper-ce71"><label class="sc-dhKdcB fmJEhw label-field">Sex<span class="sc-jXbUNg iVXoYX"><span class="sc-imWYAI fHsCki">Required</span></span></label><div class="MuiFormControl-root sc-kzqdkY IbcaV sc-ktPPKK sNrHg" form="[object Object]" data-testid="styledformcontrol-67x0"><div class="MuiFormGroup-root sc-bDpDS fbUFIC sc-ktPPKK sNrHg" role="radiogroup" length="2" aria-label="sex" form="[object Object]" required="" data-testid="translatedenumfield-qh1t-styledradiogroup"><label class="MuiFormControlLabel-root sc-bVHCgj iilPX" theme="[object Object]" data-testid="controllabel-kkx2-male"><span class="MuiButtonBase-root MuiIconButton-root cjss23 MuiRadio-root MuiRadio-colorSecondary MuiIconButton-colorSecondary" aria-disabled="false" data-testid="radio-il3t-male"><span class="MuiIconButton-label"><input class="cjss26" name="sex" type="radio" value="male"><div class="cjss31"><svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg><svg class="MuiSvgIcon-root cjss32" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"></path></svg></div></span><span class="MuiTouchRipple-root"></span></span><span class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1">Male</span></label><label class="MuiFormControlLabel-root sc-bVHCgj cjgaeL" theme="[object Object]" data-testid="controllabel-kkx2-female"><span class="MuiButtonBase-root MuiIconButton-root cjss23 MuiRadio-root MuiRadio-colorSecondary cjss24 Mui-checked MuiIconButton-colorSecondary" aria-disabled="false" data-testid="radio-il3t-female"><span class="MuiIconButton-label"><input class="cjss26" name="sex" type="radio" value="female" checked=""><div class="cjss31 cjss33"><svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg><svg class="MuiSvgIcon-root cjss32" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"></path></svg></div></span><span class="MuiTouchRipple-root"></span></span><span class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1">Female</span></label></div></div></div><div data-testid="localisedfield-j8v5"><label for=":r23:" class="sc-dhKdcB fmJEhw label-field">Email address</label><div class="MuiFormControl-root MuiTextField-root sc-jlZhew hQbJBg MuiFormControl-fullWidth" form="[object Object]"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl"><input aria-invalid="false" id=":r23:" name="email" type="email" data-testid="localisedfield-j8v5-input" class="MuiInputBase-input MuiOutlinedInput-input" value=""><fieldset aria-hidden="true" class="cjss19 MuiOutlinedInput-notchedOutline" style="padding-left: 8px;"><legend class="cjss20" style="width: 0.01px;"><span>​</span></legend></fieldset></div></div></div><div class="v19-span-full" data-testid="outerlabelfieldwrapper-uc1o"><label class="sc-dhKdcB fmJEhw label-field">Profile photo</label><div class="v19-field-button-row has-camera v19-when-empty" data-testid="fieldbuttonrow-snj9"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-13f28f6" tabindex="0" type="button" data-testid="button-webcam" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-q7mezt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CameraAltIcon"><circle cx="12" cy="12" r="3"></circle><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5"></path></svg></span>Take photo with camera</button><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-13f28f6" tabindex="0" type="button" data-testid="button-1mo9" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-q7mezt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="FileUploadIcon"><path d="M5 20h14v-2H5zM5 10h4v6h6v-6h4l-7-7z"></path></svg></span>Upload image</button><div class="v19-hint-text" data-testid="hinttext-oxv8"><span class="v19-hint-strong">Max. 10&nbsp;MB</span><br>Supported file types: jpg or jpeg</div></div><div class="v19-field-button-row has-value has-camera v19-when-chosen" data-testid="fieldbuttonrow-snj9"><div class="v19-box-flex">IMG_20261125_104312.jpg<button class="MuiButtonBase-root MuiIconButton-root v19-clear-button" tabindex="0" type="button" data-testid="removeselectionbutton-yt3j"><span class="MuiIconButton-label"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x" style="color: rgb(102, 102, 102);"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg><span class="sc-imWYAI fHsCki">Clear</span></span></button></div></div></div></div><div class="v19-additional-information-row" data-testid="additionalinformationrow-ab5o"><div><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-auoq4t v19-styled-icon-button" tabindex="0" type="button" data-testid="styledimagebutton-8ihm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg><span class="sc-imWYAI fHsCki">Expand</span></button>Add additional information<span> (religion, occupation, blood type…)</span></div></div><div class="v19-full-width-row" data-testid="fullwidthrow-6g6y"><div data-testid="row-atzb" class="sc-fHjqPf grDnvL v19-modal-row"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-13f28f6" tabindex="0" type="button" data-testid="outlinedbutton-8rnr" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Cancel</button><button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-q5bog7 v19-confirm " tabindex="0" type="submit" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Create new patient</button></div></div></form></div></div></div></div><div tabindex="0" data-testid="sentinelEnd"></div></div><div class="v19-states" aria-label="Mockup state"><span>State</span><button type="button" data-state="empty">No photo</button><button type="button" data-state="chosen">Photo selected</button></div><script>(function(){var b=document.querySelectorAll(".v19-states button");function show(s){document.body.dataset.state=s;document.querySelectorAll(".v19-confirm.v19-needs-photo").forEach(function(c){var off=s!=="chosen";c.disabled=off;c.classList.toggle("Mui-disabled",off);});b.forEach(function(x){x.setAttribute("aria-pressed",String(x.dataset.state===s));});}b.forEach(function(x){x.addEventListener("click",function(){show(x.dataset.state);});});show(location.hash.slice(1)||"empty");})();</script>
 </body>
 </html>
