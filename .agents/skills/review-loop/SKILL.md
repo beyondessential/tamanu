@@ -3,7 +3,7 @@ name: review-loop
 description: "Review this card's changes the way the hosted Review Hero does, fix what it finds, and review again, until a round comes back clean"
 label: "Review loop"
 category: verify
-workhorse-version: 0.8.0
+workhorse-version: 0.8.2
 ---
 
 ## Your task: review loop
@@ -27,6 +27,8 @@ Check them first, per `.agents/docs/running-loops.md`. A branch with no changes 
 The scope is what the card's branch changed against its base, as `.agents/docs/running-loops.md` "Scope" says, plus anything uncommitted. Test files and generated code are in the diff but are not what the reviewers look at: they ignore lockfiles, build output, generated clients, snapshots and vendored files, and anything the repository's Review Hero configuration lists under `ignore_patterns`.
 
 A repository can also have decided that a class of finding is noise, in `.github/review-hero/suppressions.yml`, as rules written in prose. Read it from the base branch with the rest of that configuration and apply it in triage, before anything is filed: a finding a rule matches is dropped, noted in the log with the rule that dropped it, and is not a finding of the round. It is not filed and does not count, which is what the hosted review does with it, so a repository that leans on its suppressions can still reach a clean round. Without this the loop fixes what the hosted review would have dropped, which is the opposite of predicting it.
+
+The card's own rejections, the findings it has already skipped as wrong, dismissed or recorded as needing a card, are applied on the same footing, as `.agents/docs/running-loops.md` "Reporting a run" says: read them with `read_rejections`, brief the reviewers with them, and drop a finding one matches in triage. The hosted review reads the same list before it reviews, so the two drop the same findings.
 
 ### Ground rules
 
@@ -54,7 +56,7 @@ A repository can also have decided that a class of finding is noise, in `.github
 
 ### Reporting the run
 
-Report as `.agents/docs/running-loops.md` "Reporting a run" says, with `report_round` and `loop` `review_loop` once per round, after the round's triage is set. File each confirmed finding with `file_issue` and a `severity` as you confirm it: `critical` for bugs, security issues and data loss, `suggestion` for a meaningful improvement, `nit` for a minor convention. A finding you skip is filed too and skipped with its reason, so the round's counts say what the reviewers found; a suppressed finding is the one exception, neither filed nor counted (see "Scope"). Set each disposition with `set_issue_disposition`. When a round files five or more issues, call `set_triage` before any fix is started. Use `stopped` only if the user told you to stop.
+Report as `.agents/docs/running-loops.md` "Reporting a run" says, with `report_round` and `loop` `review_loop` once per round, after the round's triage is set. File each confirmed finding with `file_issue` and a `severity` as you confirm it: `critical` for bugs, security issues and data loss, `suggestion` for a meaningful improvement, `nit` for a minor convention. A finding you skip is filed too and skipped with its reason, so the round's counts say what the reviewers found. One that does not hold is filed and skipped as wrong, and is not counted in the round: it was never a finding of the code, and it becomes a rejection the next round and the hosted review do not raise again. A suppressed finding, and one a rejection matches, are neither filed nor counted (see "Scope"). Set each disposition with `set_issue_disposition`. When a round files five or more issues, call `set_triage` before any fix is started. Use `stopped` only if the user told you to stop.
 
 ### 1. A round
 

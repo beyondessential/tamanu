@@ -3,7 +3,7 @@ name: bug-review
 description: "Review code changes on this card for likely bugs, regressions, and missed edges"
 label: "Bug review"
 category: verify
-workhorse-version: 0.8.0
+workhorse-version: 0.8.2
 ---
 
 ## Your task: Bug review
@@ -21,4 +21,4 @@ Be specific and actionable. Don't flag stylistic preferences as bugs. Real bugs 
 
 Record the findings as `.agents/docs/card-issues.md` "Recording an audit's findings" says, with the summary grouped by severity, real bugs first.
 
-If you go on to fix what you found and the fixing takes more than one turn, hold the pull request while you do (see `.agents/docs/pull-requests.md`). A review that only reports needs no hold.
+If you go on to fix what you found and the fixing takes more than one turn, hold the pull request until the card's issues are handled, with `hold_pr` and `untilIssuesHandled` (see `.agents/docs/pull-requests.md`). A review that only reports needs no hold.

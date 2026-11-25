@@ -3,7 +3,7 @@ name: draft-spec-changes
 description: "Draft edits to existing specs (or a new spec if no existing one fits) from the card description"
 label: "Draft spec changes"
 category: spec
-workhorse-version: 0.8.0
+workhorse-version: 0.8.2
 ---
 
 ## Your task: Draft spec changes

@@ -99,6 +99,7 @@ pre-filter on any suggested action.
 - [id-vs-display-id](reference/id-vs-display-id.md)
 - [glossary](reference/glossary.md)
 - [maintain-tamanu-on-linux](reference/maintain-tamanu-on-linux.md)
+- [rc-deployments](reference/rc-deployments.md)
 
 ## Migration status
 

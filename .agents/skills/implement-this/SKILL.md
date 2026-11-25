@@ -3,7 +3,7 @@ name: implement-this
 description: "Implement this card, or carry on from the changes just discussed"
 label: "Implement"
 category: build
-workhorse-version: 0.8.0
+workhorse-version: 0.8.2
 ---
 
 ## Your task: Implement

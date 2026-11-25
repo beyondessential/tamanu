@@ -1,4 +1,9 @@
+import React, { useState } from 'react';
 import { describe, it, expect } from 'vitest';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import { SettingsContext } from '@tamanu/ui-components';
 
 import {
   buildInstructionText,
@@ -6,8 +11,10 @@ import {
   getDispensedMedication,
   getDispensedPrescription,
   isDispenseModifiedByPharmacy,
+  QuantityInput,
   resolvePresetLabelText,
 } from '../../app/utils/medications';
+import { renderElementWithTranslatedText } from '../helpers';
 
 // Mirror the real translation helpers closely enough for formatting assertions:
 // getTranslation falls back to the provided English, getEnumTranslation resolves
@@ -180,5 +187,56 @@ describe('getDispensedPrescription', () => {
     expect(getDispensedPrescription({ pharmacyOrderPrescription: { prescription } })).toBe(
       prescription,
     );
+  });
+});
+
+describe('QuantityInput', () => {
+  const withSettings = element => (
+    <SettingsContext.Provider value={{ getSetting: () => undefined }}>
+      {element}
+    </SettingsContext.Provider>
+  );
+  const getQuantityBox = () => screen.getByTestId('dispense-quantity-input');
+
+  // Holds the quantity the way the dispense modals hold a row's, parsed to a whole number.
+  const DispenseRowQuantity = ({ initialQuantity }) => {
+    const [quantity, setQuantity] = useState(initialQuantity);
+    const handleQuantityChange = ({ target: { value: rawValue } }) =>
+      setQuantity(rawValue === '' ? '' : parseInt(rawValue, 10));
+    return (
+      <QuantityInput
+        value={quantity}
+        onChange={handleQuantityChange}
+        data-testid="dispense-quantity"
+      />
+    );
+  };
+
+  it('shows a new quantity when it is changed from outside the box', () => {
+    const { rerender } = renderElementWithTranslatedText(
+      withSettings(
+        <QuantityInput value={30} onChange={() => {}} data-testid="dispense-quantity" />,
+      ),
+    );
+    expect(getQuantityBox().value).toBe('30');
+
+    rerender(
+      withSettings(
+        <QuantityInput value={20} onChange={() => {}} data-testid="dispense-quantity" />,
+      ),
+    );
+    expect(getQuantityBox().value).toBe('20');
+  });
+
+  it('shows the whole number the row holds after a decimal is typed', async () => {
+    const user = userEvent.setup();
+    renderElementWithTranslatedText(withSettings(<DispenseRowQuantity initialQuantity={1} />));
+
+    // One change per keystroke. jsdom can't hold '2.', so the '.' reports '2' here; a browser
+    // reports '' (bad input). Either way, the '5' sets the row to 2 and the box shows it.
+    await user.clear(getQuantityBox());
+    await user.type(getQuantityBox(), '2.5');
+
+    expect(getQuantityBox().value).toBe('2');
   });
 });
