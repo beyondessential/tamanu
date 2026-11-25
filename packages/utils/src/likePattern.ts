@@ -10,9 +10,8 @@ export function likePattern(
   literals: TemplateStringsArray,
   ...values: (string | number)[]
 ): string {
-  const escapedValues = values.map(value => value.toString().replace(/[\\%_]/g, '\\$&'));
-  // String.raw interleaves the strings it is given as `raw` with the values, changing neither
-  return String.raw({ raw: literals }, ...escapedValues);
+  const escaped = values.map(value => value.toString().replace(/[\\%_]/g, '\\$&'));
+  return String.raw({ raw: literals }, ...escaped);
 }
 
 /** Declares likePattern's escape character, for SQL dialects without a default one (SQLite). */
