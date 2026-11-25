@@ -8,6 +8,7 @@ import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { initWebTelemetry } from './telemetry';
 import { registerYup } from './utils/errorMessages';
+import { LOCAL_STORAGE_KEYS } from './constants';
 import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
 import { systemErrorStore } from './state/systemErrorStore';
@@ -68,6 +69,9 @@ async function start() {
   });
 
   API.setVersionIncompatibleHandler((isTooLow, minVersion, maxVersion) => {
+    // This logs the user out without the sign-in error that clears the saved session, and
+    // telemetry reads its enablement from the saved settings
+    window.localStorage.removeItem(LOCAL_STORAGE_KEYS.SETTINGS);
     store.dispatch(versionIncompatible(isTooLow, minVersion, maxVersion));
   });
 
