@@ -341,6 +341,34 @@ describe('MSupplyStockOnHandProcessor', () => {
       expect(stock.stockStatus).toBe(DRUG_STOCK_STATUSES.IN_STOCK);
     });
 
+    it('only writes stock entries that have changed', async () => {
+      await models.ReferenceDrugFacility.bulkCreate([
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: 10,
+          stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
+        },
+        {
+          referenceDrugId: referenceDrugId2,
+          facilityId: FACILITY_ID,
+          quantity: 0,
+          stockStatus: DRUG_STOCK_STATUSES.OUT_OF_STOCK,
+        },
+      ]);
+
+      const task = new MSupplyStockOnHandProcessor(context);
+      const { updated } = await task.updateStockForFacility(
+        new Map([
+          [drugCode1, 10],
+          [drugCode2, 5],
+        ]),
+        FACILITY_ID,
+      );
+
+      expect(updated).toBe(1);
+    });
+
     it('skips medications without a matching reference data code', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
         {

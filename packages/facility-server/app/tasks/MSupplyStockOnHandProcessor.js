@@ -1,3 +1,4 @@
+import { QueryTypes } from 'sequelize';
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -117,29 +118,41 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     );
 
     const skipped = codes.length - matchingDrugs.length;
+    if (matchingDrugs.length === 0) return { updated: 0, skipped };
 
-    const records = matchingDrugs.map(drug => {
-      const quantity = stockByCode.get(drug.code);
-      return {
-        referenceDrugId: drug.referenceDrug.id,
-        facilityId,
-        quantity,
-        stockStatus: computeStockStatus(quantity),
-      };
-    });
+    const quantities = matchingDrugs.map(drug => stockByCode.get(drug.code));
 
-    if (records.length > 0) {
-      await Promise.all(
-        records.map(({ referenceDrugId, facilityId, quantity, stockStatus }) =>
-          this.models.ReferenceDrugFacility.update(
-            { quantity, stockStatus },
-            { where: { referenceDrugId, facilityId } },
-          ),
-        ),
-      );
-    }
+    // One statement for every drug, writing only rows whose stock has changed,
+    // so an unchanged drug adds nothing to the changelog
+    const updated = await this.context.sequelize.query(
+      `
+        UPDATE reference_drug_facilities
+        SET quantity = stock.quantity, stock_status = stock.stock_status
+        FROM unnest(
+          ARRAY[:referenceDrugIds]::uuid[],
+          ARRAY[:quantities]::integer[],
+          ARRAY[:stockStatuses]::text[]
+        ) AS stock (reference_drug_id, quantity, stock_status)
+        WHERE reference_drug_facilities.reference_drug_id = stock.reference_drug_id
+          AND reference_drug_facilities.facility_id = :facilityId
+          AND reference_drug_facilities.deleted_at IS NULL
+          AND (
+            reference_drug_facilities.quantity IS DISTINCT FROM stock.quantity
+            OR reference_drug_facilities.stock_status IS DISTINCT FROM stock.stock_status
+          )
+      `,
+      {
+        replacements: {
+          referenceDrugIds: matchingDrugs.map(drug => drug.referenceDrug.id),
+          quantities,
+          stockStatuses: quantities.map(computeStockStatus),
+          facilityId,
+        },
+        type: QueryTypes.BULKUPDATE,
+      },
+    );
 
-    return { updated: records.length, skipped };
+    return { updated, skipped };
   }
 
   async run() {
