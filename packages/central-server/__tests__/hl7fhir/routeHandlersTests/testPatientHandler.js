@@ -764,6 +764,51 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         expect(response.body.total).toBe(2);
       });
 
+      describe('wildcard characters in string searches', () => {
+        const searchByGiven = (param, value) =>
+          app
+            .get(
+              `/api/integration/${integrationName}/Patient?${param}=${encodeURIComponent(value)}`,
+            )
+            .set(requestHeaders);
+
+        beforeEach(async () => {
+          const { Patient } = ctx.store.models;
+          await Promise.all([
+            Patient.create(fake(Patient, { firstName: 'Bob_by' })),
+            Patient.create(fake(Patient, { firstName: 'Bobby' })),
+          ]);
+        });
+
+        it.each([
+          ['given:contains', '_'],
+          ['given:starts-with', 'Bob_'],
+          ['given:ends-with', '_by'],
+          ['given', 'Bob_'],
+        ])('matches an underscore literally for %s', async (param, value) => {
+          const response = await searchByGiven(param, value);
+
+          expect(response).toHaveSucceeded();
+          expect(response.body.total).toBe(1);
+          expect(response.body.entry[0].name[0].given[0]).toBe('Bob_by');
+        });
+
+        it('matches a percent sign literally', async () => {
+          const response = await searchByGiven('given:contains', '%');
+
+          expect(response).toHaveSucceeded();
+          expect(response.body.total).toBe(0);
+        });
+
+        it('matches a backslash literally', async () => {
+          // Unescaped, a trailing backslash is a dangling escape character and the query fails
+          const response = await searchByGiven('given:ends-with', '\\');
+
+          expect(response).toHaveSucceeded();
+          expect(response.body.total).toBe(0);
+        });
+      });
+
       it('filters patients by combining params and modifiers (all need to match)', async () => {
         const { Patient } = ctx.store.models;
         const firstName = 'Jane';
