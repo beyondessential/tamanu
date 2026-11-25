@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { settingsCache } from '@tamanu/settings';
 import { createTestContext } from '../utilities';
@@ -22,7 +23,7 @@ describe('Front-end settings', () => {
 
   afterEach(async () => {
     await models.Setting.destroy({
-      where: { key: ['telemetry.enabled', 'auth.restrictUsersToFacilities'] },
+      where: { key: ['telemetry.enabled', 'auth.restrictUsersToFacilities', 'facilityTimeZone'] },
     });
     settingsCache.reset();
   });
@@ -38,12 +39,19 @@ describe('Front-end settings', () => {
 
   it("serves a facility's settings when one is given", async () => {
     await models.Setting.set('telemetry.enabled', true);
-    settingsCache.reset();
     const facility = await models.Facility.create(fake(models.Facility));
+    await models.Setting.set(
+      'facilityTimeZone',
+      'Pacific/Fiji',
+      SETTINGS_SCOPES.FACILITY,
+      facility.id,
+    );
+    settingsCache.reset();
 
     const res = await userApp.get(ENDPOINT).query({ facilityId: facility.id });
     expect(res).toHaveSucceeded();
     expect(res.body.settings.telemetry.enabled).toBe(true);
+    expect(res.body.settings.facilityTimeZone).toBe('Pacific/Fiji');
   });
 
   it('rejects a facility the user cannot access', async () => {
