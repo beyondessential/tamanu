@@ -24,36 +24,6 @@ let release_of = |tag| {
 // Comparing a version with () throws, so a missing release is found by its type.
 let same_minor = |a, b| type_of(a) != "()" && a.major() == b.major() && a.minor() == b.minor();
 
-// spec: SDDEF#canonical-urls
-// A single trailing slash is accepted as the root path, since a URL copied from
-// a browser carries one.
-let parse_origin = |url| {
-    let scheme = if url.starts_with("https://") {
-        "https"
-    } else if url.starts_with("http://") {
-        "http"
-    } else {
-        throw `must use http or https, not "${url}"`;
-    };
-    let authority = url.sub_string(scheme.len() + 3);
-    if authority.ends_with("/") { authority = authority.sub_string(0, authority.len() - 1); }
-    if authority.contains("/") { throw `must not carry a path: "${url}"`; }
-    if authority.contains("?") { throw `must not carry a query: "${url}"`; }
-    if authority.contains("#") { throw `must not carry a fragment: "${url}"`; }
-    if authority.contains("@") { throw `must not carry credentials: "${url}"`; }
-    if authority.len() == 0 { throw `must name a hostname: "${url}"`; }
-
-    let default_port = if scheme == "https" { 443 } else { 80 };
-    let colon = authority.index_of(":");
-    if colon < 0 {
-        return #{ scheme: scheme, host: authority, port: default_port };
-    }
-    let host = authority.sub_string(0, colon);
-    let port = parse_int(authority.sub_string(colon + 1));
-    if port < 1 || port > 65535 { throw `must name a port from 1 to 65535: "${url}"`; }
-    #{ scheme: scheme, host: host, port: port }
-};
-
 let hex_secret = |v| {
     if v.len() != 64 { throw "must be 64 hexadecimal digits"; }
     try { std::decode_hex(v); } catch { throw "must be 64 hexadecimal digits"; }
@@ -62,7 +32,8 @@ let hex_secret = |v| {
 // spec: SDDEF#database
 // The socket directory a PostgreSQL URL names as its host, such as
 // "/var/run/postgresql" in "postgresql://tamanu@/tamanu?host=/var/run/postgresql",
-// or () for a URL that connects over TCP.
+// or () for a URL that connects over TCP. std::parse_url can't read it, since
+// the URL parser refuses a user with no host.
 let socket_dir = |url| {
     let query_start = url.index_of("?");
     if query_start < 0 { return (); }

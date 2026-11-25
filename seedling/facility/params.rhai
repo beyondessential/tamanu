@@ -25,8 +25,8 @@ let frontend_version = app.param("frontend-version")
         let base = release_of.call(server);
         // The version's own validator refuses a version outside the minor.
         if !same_minor.call(base, published.release) { return; }
-        let given = std::parse_version_semver(v);
-        if !same_minor.call(given, base) || given < base {
+        // Published, so v comes parsed by the version-semver kind.
+        if !same_minor.call(v, base) || v < base {
             throw `must be a release of ${base.major()}.${base.minor()} no older than the version, ${server}; raise it or unset it`;
         }
     });
@@ -35,7 +35,7 @@ if published != () {
 }
 
 let database_url = app.param("database-url")
-    .kind("password")
+    .secret(true)
     .required(true)
     .description("PostgreSQL URL; a socket URL (?host=/dir) also needs the database-socket volume mapped")
     .validate(|v, all| {
@@ -79,10 +79,11 @@ let refresh_secret = or_derived.call(app.param("auth-refresh-secret")
     .required(false)
     .description("Signs refresh tokens; generated when unset; changing it logs everyone out when their login next expires"), "auth-refresh-secret");
 
+// spec: SDDEF#canonical-urls
 let canonical_url = app.param("canonical-url")
+    .kind("url-origin")
     .required(true)
-    .description("URL the server is reached at; sets its ingress, with TLS for https")
-    .validate(|v, all| { parse_origin.call(v); });
+    .description("URL the server is reached at; sets its ingress, with TLS for https");
 
 let timezone = app.param("timezone")
     .required(false)
@@ -91,7 +92,7 @@ let timezone = app.param("timezone")
 
 // A parameter can be unset while the definition is first registered, so nothing
 // below throws on an unset one.
-let canonical = if canonical_url.is_set() { parse_origin.call(canonical_url.value()) } else { () };
+let canonical = if canonical_url.is_set() { canonical_url.parsed() } else { () };
 
 let image = |name| `ghcr.io/beyondessential/tamanu-${name}:${version.value()}`;
 let frontend_image = |name| {

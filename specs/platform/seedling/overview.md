@@ -50,7 +50,8 @@ Applies to the Seedling definitions that run a Tamanu central server and a Taman
 ### Canonical URLs
 
 - The canonical URL and the patient portal URL each name an origin: an `http` or `https` scheme, a hostname, and optionally a port.
-- A URL with any other scheme, or with a path, query or fragment, is refused, naming what it carries.
+- A URL with any other scheme, or with credentials, a path, a query or a fragment, is refused, with a reason saying which.
+- A URL whose host is an IP address is refused, since an ingress is declared on a hostname.
 
 ### Changing a parameter
 
