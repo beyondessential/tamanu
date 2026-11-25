@@ -630,7 +630,7 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
 
     const input = $('#x19-diagnosis');
     const list = $('#x19-diagnosis-options');
-    const recordedNames = encounterDiagnoses.filter(d => d !== modal.editing).map(d => d.name);
+    const recordedNames = encounterDiagnoses.filter(d => d !== modal.editing && d !== modal.diagnosis).map(d => d.name);
     let activeIndex = -1;
 
     const matches = () => DIAGNOSES.filter(d => !recordedNames.includes(d.name) && d.name.toLowerCase().includes(input.value.trim().toLowerCase()));
@@ -692,16 +692,18 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
       closeModal();
       return;
     }
-    const diagnosis = { name: form.diagnosis, isPrimary: form.isPrimary, certainty: form.certainty, date: form.date, clinician: form.clinician };
-    encounterDiagnoses.push(diagnosis);
+    const values = { name: form.diagnosis, isPrimary: form.isPrimary, certainty: form.certainty, date: form.date, clinician: form.clinician };
+    // Coming Back from the medication set step updates the diagnosis this flow already recorded.
+    const previousName = modal.diagnosis?.name;
+    if (modal.diagnosis) Object.assign(modal.diagnosis, values);
+    else { modal.diagnosis = values; encounterDiagnoses.push(values); }
     renderDiagnoses();
 
     // The new step: offered only when the diagnosis has medication sets linked to it.
-    const linkedSets = DIAGNOSES.find(d => d.name === diagnosis.name).sets;
+    const linkedSets = DIAGNOSES.find(d => d.name === values.name).sets;
     if (!linkedSets.length) { closeModal(); return; }
-    modal.diagnosis = diagnosis;
     modal.linkedSets = linkedSets;
-    modal.selectedSet = null;
+    if (values.name !== previousName) modal.selectedSet = null;
     go('selectSet');
   }
 
@@ -731,6 +733,9 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
       </div>
       <hr class="x19-divider">
       <div class="x19-row">
+        <div class="x19-row-left">
+          <button class="x19-btn x19-btn-outlined" type="button" id="x19-back">Back</button>
+        </div>
         <div class="x19-row-right">
           <button class="x19-btn x19-btn-outlined" type="button" id="x19-skip">Skip</button>
           <button class="x19-btn x19-btn-primary" type="button" id="x19-continue"${selected ? '' : ' disabled'}>Continue</button>
@@ -747,6 +752,7 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
       modal.isDirty = false;
       renderModal();
     }));
+    $('#x19-back').addEventListener('click', backToDiagnosis);
     $('#x19-skip').addEventListener('click', closeModal);
     $('#x19-continue').addEventListener('click', () => go('review'));
   }
@@ -805,6 +811,12 @@ select.x19-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
     $('#x19-cancel').addEventListener('click', () => go('cancelSet'));
     $('#x19-finalise').addEventListener('click', finalise);
     $('#x19-finalise-print').addEventListener('click', finalise);
+  }
+
+  function backToDiagnosis() {
+    const d = modal.diagnosis;
+    modal.form = { diagnosis: d.name, isPrimary: d.isPrimary, certainty: d.certainty, date: d.date, clinician: d.clinician };
+    go('diagnosis');
   }
 
   function backToSelect() { modal.selectedSet = null; modal.isDirty = false; go('selectSet'); }
