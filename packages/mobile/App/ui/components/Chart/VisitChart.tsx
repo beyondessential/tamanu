@@ -35,12 +35,7 @@ const CustomGrid = ({ x, data }: CustomGridProps) => (
   </G>
 );
 
-const DateRangeIndexes = [
-  { startDate: 0, endDate: 6 },
-  { startDate: 7, endDate: 13 },
-  { startDate: 14, endDate: 20 },
-  { startDate: 21, endDate: 27 },
-] as const;
+const weekStartIndexes = [0, 7, 14, 21] as const;
 
 interface DateRangeLabelsProps {
   data: BarChartData[];
@@ -50,10 +45,10 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
   const { formatStringDate } = useDateFormatter();
   const dateIntervalArray = useMemo(
     () =>
-      DateRangeIndexes.map((dateRange, index) => ({
-        start: data[dateRange.startDate].date,
-        end: data[dateRange.endDate].date,
-        key: index,
+      weekStartIndexes.map(startIndex => ({
+        start: data[startIndex].date,
+        end: data[startIndex + 6].date,
+        key: startIndex,
       })),
     [data],
   );
