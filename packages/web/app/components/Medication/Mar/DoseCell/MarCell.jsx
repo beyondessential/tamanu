@@ -58,6 +58,7 @@ export default function MarCell({
               selectedDate={selectedDate}
               timeSlot={subSlot}
               parentTimeSlot={timeSlot}
+              dosesPerSlot={dosesPerSlot}
               marInfo={marInfos[i] ?? null}
               nextMarInfo={nextMarInfo}
               medication={medication}

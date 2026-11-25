@@ -151,6 +151,9 @@ export const PaginatedForm = ({
     .flat();
   const maxIndex = formScreenReactElements.length - 1;
   const isLast = screenIndex === maxIndex;
+  // A single-screen form has nothing to step between, so the stepper would draw one full-width
+  // bar that looks clickable and goes nowhere.
+  const hasMultipleScreens = formScreenReactElements.length > 1;
 
   return (
     <Form
@@ -166,7 +169,7 @@ export const PaginatedForm = ({
 
           return (
             <>
-              {showStepper && (
+              {showStepper && hasMultipleScreens && (
                 <FormStepper
                   screenIndex={screenIndex}
                   handleStep={handleStep}

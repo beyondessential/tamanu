@@ -78,16 +78,25 @@ export class User extends Model {
     this.password = await User.hashPassword(pw);
   }
 
+  // Normalisation preserves case (trim only); comparisons are case-insensitive (see emailMatches).
+  static normaliseEmail(email: string) {
+    return email.trim();
+  }
+
   static async sanitizeForInsert(values: any) {
-    const { password, ...otherValues } = values;
-    if (!password) return values;
+    const sanitizedValues = { ...values };
 
-    // Only hash if the password is not already hashed (to avoid rehashing when syncing)
-    const hashedPassword = User.isPasswordHashed(password)
-      ? password
-      : await User.hashPassword(password);
+    if (typeof sanitizedValues.email === 'string') {
+      sanitizedValues.email = User.normaliseEmail(sanitizedValues.email);
+    }
 
-    return { ...otherValues, password: hashedPassword };
+    const { password } = sanitizedValues;
+    // Only hash if the password is set and not already hashed (to avoid rehashing when syncing)
+    if (password && !User.isPasswordHashed(password)) {
+      sanitizedValues.password = await User.hashPassword(password);
+    }
+
+    return sanitizedValues;
   }
 
   static async update(values: any, options: any): Promise<any> {
@@ -110,14 +119,20 @@ export class User extends Model {
     return super.upsert(sanitizedValues, ...args);
   }
 
+  // Emails are matched case- and whitespace-insensitively, so an account is found for login or
+  // flagged as a duplicate regardless of the case or stray whitespace of the stored or entered
+  // value. Stored emails keep their original case; the case is reconciled here at comparison time.
+  static emailMatches(email: string) {
+    return Sequelize.where(
+      Sequelize.fn('lower', Sequelize.fn('trim', Sequelize.col('email'))),
+      User.normaliseEmail(email).toLowerCase(),
+    );
+  }
+
   static async getForAuthByEmail(email: string) {
     const user = await this.scope('withPassword').findOne({
       where: {
-        // email addresses are case insensitive so compare them as such
-        email: Sequelize.where(
-          Sequelize.fn('lower', Sequelize.col('email')),
-          Sequelize.fn('lower', email),
-        ),
+        email: this.emailMatches(email),
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
@@ -180,6 +195,13 @@ export class User extends Model {
         indexes: [{ fields: ['email'] }],
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         hooks: {
+          beforeSave(user: User) {
+            // Normalise on instance writes too; the static create/update/upsert/bulkCreate paths
+            // already normalise via sanitizeForInsert.
+            if (typeof user.email === 'string') {
+              user.email = User.normaliseEmail(user.email);
+            }
+          },
           async beforeUpdate(user: User) {
             if (user.changed('password')) {
               // Only hash if the password is not already hashed (to avoid rehashing when syncing)
