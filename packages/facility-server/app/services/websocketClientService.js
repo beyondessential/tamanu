@@ -5,6 +5,7 @@ import { keepSocketConnected } from '@tamanu/utils/keepSocketConnected';
 
 import { getSyncConfig } from '../serverConfig';
 import { CentralServerConnection } from '../sync/CentralServerConnection';
+import { getSyncSettings } from '../sync/syncSettings';
 
 const NOOP_CLIENT_SERVICE = {
   getClient: () => null,
@@ -15,7 +16,7 @@ const NOOP_CLIENT_SERVICE = {
 
 /**
  *
- * @param {{config: import('config').IConfig, deviceId: string, websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('@tamanu/database/models')}} injector
+ * @param {{deviceId: string, websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('@tamanu/database/models')}} injector
  */
 export const defineWebsocketClientService = injector => {
   // No host until the server is configured — nothing to connect to, so no-op.
@@ -29,7 +30,7 @@ export const defineWebsocketClientService = injector => {
   const centralServer = new CentralServerConnection({ deviceId: injector.deviceId });
   const logIn = async () => {
     try {
-      await centralServer.connect(false, injector.config.sync.timeout);
+      await centralServer.connect(false, getSyncSettings().timeout);
     } catch (error) {
       log.warn(`Could not get a token for the central websocket: ${error}`);
     }

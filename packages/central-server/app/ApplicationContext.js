@@ -1,11 +1,9 @@
-import config from 'config';
-import { omit } from 'es-toolkit/compat';
 import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';
 import { settingsCache } from '@tamanu/settings/cache';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
-import { initBugsnag, log } from '@tamanu/shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { readConfigKeyFile } from '@tamanu/shared/utils/crypto';
 import { initReporting } from '@tamanu/database/services/reporting';
 import {
@@ -20,7 +18,6 @@ import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 import { AIService } from './services/AIService';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
-import { VERSION } from './middleware/versionCompatibility';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
@@ -71,16 +68,6 @@ export class ApplicationContext {
 
   async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
     this.appType = appType;
-    if (config.errors?.enabled) {
-      if (config.errors.type === 'bugsnag') {
-        await initBugsnag({
-          ...omit(config.errors, ['enabled', 'type']),
-          appVersion: [VERSION, process.env.REVISION].filter(Boolean).join('-'),
-          appType,
-        });
-      }
-    }
-
     // Fails before anything is served when the key is missing or refused, rather than at the
     // first secret read.
     await readConfigKeyFile();

@@ -1,4 +1,3 @@
-import config from 'config';
 import defineExpress from 'express';
 import helmet from 'helmet';
 
@@ -59,7 +58,6 @@ export async function createApiApp({
     app: express,
   });
   const websocketClientService = defineWebsocketClientService({
-    config,
     deviceId,
     websocketService,
     models,
@@ -71,7 +69,7 @@ export async function createApiApp({
       strictTransportSecurity: false,
     }),
   );
-  const { errorMiddleware } = addFacilityMiddleware(express);
+  addFacilityMiddleware(express);
 
   // Release the connection back to the pool when the server is closed
   server.on('close', () => {
@@ -144,9 +142,6 @@ export async function createApiApp({
     res.status(404).end();
   });
 
-  if (errorMiddleware) {
-    express.use(errorMiddleware);
-  }
   express.use(errorHandler);
 
   return {

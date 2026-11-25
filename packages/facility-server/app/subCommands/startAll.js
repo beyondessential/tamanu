@@ -13,7 +13,7 @@ import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
-import { getServerFacilityIds } from '../serverConfig';
+import { getServerFacilityIds, getSyncApiConnection } from '../serverConfig';
 import { setupSyncRuntime, startSyncRuntimeWhenConfigured } from '../setupSyncRuntime';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
@@ -43,7 +43,7 @@ async function startApiSyncAndTasks(context) {
   await listenForSyncBindAddresses({
     server: syncServer,
     app: syncExpress,
-    port: config.sync.syncApiConnection.port,
+    port: getSyncApiConnection().port,
   });
 
   const cancelTasks = await startScheduledTasks(context);

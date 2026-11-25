@@ -16,7 +16,12 @@ import { initTimesync } from '../services/initTimesync';
 import { resolveSchedules } from '../tasks';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
-import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
+import {
+  getServerFacilityIds,
+  getSyncApiConnection,
+  getSyncConfig,
+  isServerConfigured,
+} from '../serverConfig';
 import {
   setupSyncRuntime,
   startSyncRuntimeWhenConfigured,
@@ -97,7 +102,7 @@ const startApp =
         await listenForSyncBindAddresses({
           server,
           app: express,
-          port: config.sync.syncApiConnection.port,
+          port: getSyncApiConnection().port,
           isStandalone: true,
         });
 
