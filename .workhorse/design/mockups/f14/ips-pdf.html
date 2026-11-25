@@ -11,6 +11,7 @@ html, body { margin: 0; }
 body { background: #525659; padding: 24px 0 48px; font-family: Helvetica, Arial, sans-serif; color: #222222; }
 
 /* A4 page, in points to match react-pdf (styles.page: padding 30 30 0 30) */
+.page + .page { margin-top: 24px; }
 .page { position: relative; box-sizing: border-box; width: 595pt; min-height: 842pt; margin: 0 auto; padding: 30pt 30pt 60pt; background: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
 
 /* LetterheadSection */
@@ -44,11 +45,12 @@ th { font-weight: 700; }
 .footer { position: absolute; left: 50pt; right: 50pt; bottom: 25pt; display: flex; justify-content: space-between; border-top: 1px solid #888888; padding-top: 2pt; color: #888888; font-size: 8pt; }
 .footer b { font-weight: 700; }
 
-/* Printing to PDF drops the viewer surround and keeps the page to one A4 sheet */
+/* Printing to PDF drops the viewer surround and keeps each page to one A4 sheet */
 @page { size: A4; margin: 0; }
 @media print {
   body { background: none; padding: 0; }
-  .page { margin: 0; height: 842pt; min-height: 0; box-shadow: none; overflow: hidden; }
+  .page, .page + .page { margin: 0; height: 842pt; min-height: 0; box-shadow: none; overflow: hidden; break-after: page; }
+  .page:last-child { break-after: auto; }
 }
 </style>
 </head>
@@ -148,7 +150,35 @@ PO Box 1234, Suva</p>
 
   <div class="footer">
     <span><b>Print date &amp; time: </b>11/11/2026 2:15 PM | <b>Printed by: </b>Initial Admin</span>
-    <span>1 of 1</span>
+    <span>1 of 2</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="content">
+    <div class="section">
+      <p class="table-title">Vitals</p>
+      <table>
+        <thead><tr><th style="width: 50%">Vital sign</th><th>Value</th><th>Date recorded</th></tr></thead>
+        <tbody>
+          <tr><td>Blood pressure panel</td><td>138/86 mmHg</td><td>28/10/2026</td></tr>
+          <tr><td>Systolic BP</td><td>138 mmHg</td><td>28/10/2026</td></tr>
+          <tr><td>Diastolic BP</td><td>86 mmHg</td><td>28/10/2026</td></tr>
+          <tr><td>Heart rate</td><td>78 bpm</td><td>28/10/2026</td></tr>
+          <tr><td>Respiratory rate</td><td>16 breaths/min</td><td>28/10/2026</td></tr>
+          <tr><td>Body temperature</td><td>36.8 °C</td><td>28/10/2026</td></tr>
+          <tr><td>Oxygen saturation</td><td>97%</td><td>28/10/2026</td></tr>
+          <tr><td>Body height</td><td>176 cm</td><td>02/09/2026</td></tr>
+          <tr><td>Body weight</td><td>84.2 kg</td><td>28/10/2026</td></tr>
+          <tr><td>BMI</td><td>27.2 kg/m²</td><td>28/10/2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>Print date &amp; time: </b>11/11/2026 2:15 PM | <b>Printed by: </b>Initial Admin</span>
+    <span>2 of 2</span>
   </div>
 </div>
 </body>
