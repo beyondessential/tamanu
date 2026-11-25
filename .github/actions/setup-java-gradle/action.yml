@@ -1,0 +1,17 @@
+name: Set up Java and Gradle
+description: Install a JDK, then set up Gradle (which also validates the Gradle wrapper)
+inputs:
+  java-version:
+    description: JDK major version to install
+    default: '17'
+runs:
+  using: composite
+  steps:
+    - name: Install Java
+      uses: actions/setup-java@v5
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: temurin
+
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v6

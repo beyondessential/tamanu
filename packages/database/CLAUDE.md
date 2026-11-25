@@ -82,6 +82,19 @@ export async function down(query: QueryInterface): Promise<void> {
 
 This helps developers understand the consequences of rolling back a migration.
 
+### Mark Backward-Incompatible Up Functions
+
+Migrations should stay backward compatible with earlier releases where they can, so an operator can move a server back to an older release without reverting them (see `specs/platform/releases.md`). When a migration's `up` breaks an earlier release, add a `// BACKWARD INCOMPATIBLE:` comment saying what an earlier release trips on:
+
+```typescript
+export async function up(query: QueryInterface): Promise<void> {
+  // BACKWARD INCOMPATIBLE: earlier releases still read users.display_name and fail without it
+  await query.renameColumn('users', 'display_name', 'preferred_name');
+}
+```
+
+Like `DESTRUCTIVE`, the marker is a first pass for whoever reads the migrations in a range, not a guarantee either way.
+
 ## Update the dbt Source Models After Schema Changes
 
 Schema changes (added/removed/changed tables or columns) must be reflected in

@@ -1,4 +1,5 @@
-import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
+import { Op } from 'sequelize';
+import { FHIR_RESOURCE_TYPES, VACCINE_STATUS } from '@tamanu/constants';
 import { formatFhirDate } from '../../../../utils/fhir';
 
 import { escapeHtml, getEntryResourceSubject, administeredVaccineStatusToHL7Status } from '../utils';
@@ -7,6 +8,9 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
   const administeredVaccines = await models.AdministeredVaccine.findAll({
     where: {
       '$encounter.patient_id$': patient.id,
+      // HISTORICAL marks a NOT_GIVEN record superseded by a later GIVEN dose, so leave it out
+      // rather than reporting the dose as both given and not done
+      status: { [Op.not]: VACCINE_STATUS.HISTORICAL },
     },
     include: [
       {

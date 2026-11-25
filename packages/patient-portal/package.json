@@ -16,6 +16,7 @@
     "clean-build": "npm run clean && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "e2e-preview": "TAMANU_VITE_TARGET=http://localhost:3000 vite preview --port 5175 --strictPort",
     "test": "vitest run",
     "test-watch": "vitest watch"
   },

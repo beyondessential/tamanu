@@ -52,7 +52,7 @@ Applies to how the facility server handles a mutating request a client sends mor
 - Mutating requests (`POST`, `PUT`, `PATCH`, `DELETE`) across the facility API's clinical and reference-data endpoints are eligible for idempotent handling when they carry a key.
 - A mutating endpoint added to the facility API is handled idempotently without needing to be listed anywhere.
 - Authentication and token-issuing requests — login, token refresh, facility selection, password reset, password change, first-run setup, and role impersonation — are handled normally and their responses are never replayed from a recorded key.
-- Streaming and sync endpoints are handled normally and are never wrapped for idempotency.
+- Sync endpoints are handled normally and are never wrapped for idempotency.
 - Endpoints whose primary effect is an outbound call that a database transaction cannot roll back or de-duplicate — the AI summary endpoints — are handled normally.
 - An endpoint is only exempt if it is recorded as an exception together with the reason it cannot be covered, and an exemption that no longer corresponds to a real endpoint is not carried indefinitely.
 

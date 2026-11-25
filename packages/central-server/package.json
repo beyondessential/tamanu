@@ -92,7 +92,7 @@
     "nanoid": "^3.3.8",
     "node-cache": "^5.1.2",
     "node-telegram-bot-api": "^0.65.1",
-    "nodemailer": "^8.0.5",
+    "nodemailer": "^10.1.4",
     "pg": "^8.5.1",
     "prompts": "^2.0.0",
     "qrcode": "^1.5.0",

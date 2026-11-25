@@ -5,7 +5,7 @@ import {
   invalidTokenMessage,
   OutdatedVersionError,
 } from '../error';
-import { CentralServerConnection } from './CentralServerConnection';
+import { CentralServerConnection, CentralWakingError } from './CentralServerConnection';
 import axios from 'axios';
 import { sleepAsync } from './utils';
 import { ERROR_TYPE } from '@tamanu/errors';
@@ -24,6 +24,8 @@ jest.mock('./utils', () => ({
 }));
 
 jest.mock('axios');
+// the automock would stub the real header class that the waking-central cases need
+const { AxiosHeaders } = jest.requireActual<typeof import('axios')>('axios');
 
 jest.mock('uuid', () => ({
   v4: jest.fn().mockReturnValue('test-device-id'),
@@ -86,6 +88,49 @@ describe('CentralServerConnection', () => {
       expect(pollUntilTrueSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId));
       expect(getSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), {});
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
+    });
+  });
+  // spec: SYNCHK#while-central-wakes
+  describe('waking central', () => {
+    // axios hands the rejection's headers over as an AxiosHeaders instance
+    const wakingResponse = (retryAfter?: string): object => ({
+      response: {
+        status: 503,
+        headers: new AxiosHeaders(retryAfter === undefined ? {} : { 'retry-after': retryAfter }),
+      },
+    });
+    const startSession = () =>
+      centralServerConnection.startSyncSession({ urgent: false, lastSyncedTick: 3 });
+
+    it('waits in line at session start, as a queued sync does', async () => {
+      mockAxiosRequest.mockRejectedValueOnce(wakingResponse('4'));
+
+      await expect(startSession()).resolves.toEqual({ status: 'centralWaking' });
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it('waits in line when central is waking as the token refreshes before the session', async () => {
+      centralServerConnection.setToken('test-token');
+      centralServerConnection.setRefreshToken('test-refresh-token');
+      mockAxiosRequest
+        .mockRejectedValueOnce({
+          response: {
+            data: { status: 401, type: ERROR_TYPE.AUTH_TOKEN_INVALID, title: 'Invalid token' },
+          },
+        })
+        .mockRejectedValueOnce(wakingResponse('4'));
+
+      await expect(startSession()).resolves.toEqual({ status: 'centralWaking' });
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(2);
+    });
+
+    it.each([
+      ['without Retry-After', undefined],
+      ['whose Retry-After is empty', '  '],
+    ])('does not treat a 503 %s as central waking', async (_, retryAfter) => {
+      mockAxiosRequest.mockRejectedValueOnce(wakingResponse(retryAfter));
+
+      await expect(startSession()).rejects.not.toBeInstanceOf(CentralWakingError);
     });
   });
   describe('initiatePull', () => {

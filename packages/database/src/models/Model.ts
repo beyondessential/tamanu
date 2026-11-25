@@ -195,13 +195,16 @@ export class Model<
 
   // Called once per sync batch, before any per-record sanitize call, so a model that
   // needs data resolved asynchronously (e.g. a settings lookup) can do it once up front
-  // rather than per record.
-  static async prepareSanitizeContext(_changes: unknown[]): Promise<unknown> {
+  // rather than per record. The session is the sync session the batch belongs to.
+  static async prepareSanitizeContext(_changes: unknown[], _sessionId?: string): Promise<unknown> {
     // implement on the specific model if needed
     return undefined;
   }
 
-  static sanitizeForCentralServer(values: ModelSanitizeArgs, _context?: unknown): ModelSanitizeArgs {
+  static sanitizeForCentralServer(
+    values: ModelSanitizeArgs,
+    _context?: unknown,
+  ): ModelSanitizeArgs {
     // implement on the specific model if needed
     return values;
   }

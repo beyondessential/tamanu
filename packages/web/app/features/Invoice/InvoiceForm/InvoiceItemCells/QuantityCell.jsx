@@ -25,7 +25,9 @@ export const QuantityCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS 
             name={`invoiceItems.${index}.quantity`}
             component={NumberField}
             min={1}
-            max={99}
+            max={9999}
+            // 4 digits need 4ch, and the browser's spin buttons beside them about another 2ch
+            minValueWidth="7ch"
             onInput={event => {
               if (!event.target.validity.valid) {
                 event.target.value = '';

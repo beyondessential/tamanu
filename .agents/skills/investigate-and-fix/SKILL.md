@@ -3,7 +3,7 @@ name: investigate-and-fix
 description: "Diagnose and fix the bug described on this card"
 label: "Investigate and fix"
 category: build
-workhorse-version: 0.7.15
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Investigate and fix
@@ -19,4 +19,4 @@ The card describes a bug. Diagnose the cause and apply the fix.
 5. **Decide about the spec** — bug fixes usually don't require spec updates, but if the bug existed because the spec was unclear, wrong, or missing, update the spec first so it reflects the intended behaviour, then fix the code to match (see `.agents/docs/spec-format.md`)
 6. **Summarise the diagnosis and the fix** in the conversation — short, specific, with file references
 
-If the description is too thin to diagnose confidently, ask the user for the missing reproduction details before guessing.
+If the description is too thin to diagnose confidently, ask the user for the missing reproduction details before guessing (see `.agents/docs/asking-questions.md`).

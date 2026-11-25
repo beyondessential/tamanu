@@ -362,8 +362,8 @@ export class Encounter extends Model {
     sessionConfig: SessionConfig,
   ) {
     const { syncAllLabRequests } = sessionConfig;
-    const joins = [];
-    const encountersToIncludeClauses = [];
+    const joins: string[] = [];
+    const encountersToIncludeClauses: string[] = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
 
     if (patientCount > 0) {

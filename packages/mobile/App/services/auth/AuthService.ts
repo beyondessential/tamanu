@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import { Raw } from 'typeorm';
 
 import type { MODELS_MAP } from '~/models/modelsMap';
 import type { IUser, SyncConnectionParameters } from '~/types';
@@ -77,9 +78,12 @@ export class AuthService {
 
     console.log('Signing in locally as', email);
     const { User } = this.models;
+    // Match email case-insensitively and ignore surrounding whitespace, so an account whose email
+    // was stored in a different case (or with stray whitespace) can still log in offline.
+    const normalisedEmail = email.trim().toLowerCase();
     const user = await User.findOne({
       where: {
-        email,
+        email: Raw(alias => `LOWER(TRIM(${alias})) = :normalisedEmail`, { normalisedEmail }),
         visibilityStatus: VisibilityStatus.Current,
       },
     });

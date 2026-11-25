@@ -7,6 +7,7 @@ import Divider from '@material-ui/core/Divider';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
+import { FormattedNoteContent } from './FormattedNoteContent';
 
 const StyledDivider = styled(Divider)`
   margin-top: 10px;
@@ -28,7 +29,11 @@ const StyledNoteChangeLogInfoWrapper = styled.div`
   margin-top: 5px;
 `;
 
-const NoteChangeLogMain = ({ note }) => <span>{note.content} </span>;
+const NoteChangeLogMain = ({ note }) => (
+  <span>
+    <FormattedNoteContent content={note.content} />{' '}
+  </span>
+);
 
 const NoteChangeLogInfo = ({ note }) => (
   <StyledNoteChangeLogInfoWrapper data-testid="stylednotechangeloginfowrapper-zbh3">
