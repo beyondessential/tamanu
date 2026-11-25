@@ -14,6 +14,54 @@ const signInAs = async (browser: Browser, { email, password }: { email: string; 
   return { context, page };
 };
 
+const STORED_SIGN_IN_KEY = 'apiToken';
+
+/**
+ * Signs in and opens the kiosk from the sidebar in a new tab. The kiosk renews its sign-in every
+ * five minutes, so the context gets a fake clock to skip ahead to the renewal.
+ */
+const openKioskBesideTamanu = async (browser: Browser) => {
+  const { context, page: staffPage } = await signInAs(browser, testData.practitionerUser);
+  await context.clock.install();
+
+  const sidebarPage = new SidebarPage(staffPage);
+  await sidebarPage.openFacilityAdmin();
+  const [kioskTab] = await Promise.all([
+    context.waitForEvent('page'),
+    sidebarPage.kioskItem.click(),
+  ]);
+  await expect(new KioskPage(kioskTab).startButton).toBeVisible();
+
+  return { context, staffPage, kioskTab, sidebarPage };
+};
+
+/**
+ * Runs the kiosk's sign-in renewal and reports whether it changed the stored sign-in. A renewal
+ * stores its token only after encrypting it, and a stored sign-in left as it was can't be waited
+ * for, so it is watched for a while after the renewal, returning as soon as it changes.
+ */
+const didKioskRenewalChangeStoredSignIn = async ({
+  context,
+  staffPage,
+  kioskTab,
+}: Awaited<ReturnType<typeof openKioskBesideTamanu>>) => {
+  const readStoredSignIn = () =>
+    staffPage.evaluate(key => localStorage.getItem(key), STORED_SIGN_IN_KEY);
+  const storedBefore = await readStoredSignIn();
+
+  await Promise.all([
+    kioskTab.waitForResponse(response => response.url().endsWith('/api/refresh')),
+    context.clock.runFor('05:01'),
+  ]);
+
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    if ((await readStoredSignIn()) !== storedBefore) return true;
+    await staffPage.waitForTimeout(250);
+  }
+  return false;
+};
+
 test.describe('Self check-in kiosk', () => {
   test('[KIOSK-0001] Staff with permission to run the kiosk check a patient in', async ({
     browser,
@@ -66,29 +114,14 @@ test.describe('Self check-in kiosk', () => {
   test('[KIOSK-0003] Logging out of Tamanu holds while the kiosk stays open in another tab', async ({
     browser,
   }) => {
-    const { context, page: staffPage } = await signInAs(browser, testData.practitionerUser);
-    // The kiosk renews its sign-in every five minutes; a fake clock lets the test skip ahead
-    await context.clock.install();
-
-    const sidebarPage = new SidebarPage(staffPage);
-    await sidebarPage.openFacilityAdmin();
-    const [kioskTab] = await Promise.all([
-      context.waitForEvent('page'),
-      sidebarPage.kioskItem.click(),
-    ]);
-    await expect(new KioskPage(kioskTab).startButton).toBeVisible();
+    const kiosk = await openKioskBesideTamanu(browser);
+    const { context, staffPage, sidebarPage } = kiosk;
 
     await sidebarPage.logOutButton.click();
     const loginPage = new LoginPage(staffPage);
     await expect(loginPage.loginButton).toBeVisible();
 
-    await Promise.all([
-      kioskTab.waitForResponse(response => response.url().endsWith('/api/refresh')),
-      context.clock.runFor('05:01'),
-    ]);
-    // The renewal encrypts its token before storing it, and a store left as it was can't be
-    // waited for, so give a renewal that would store its token time to do so
-    await staffPage.waitForTimeout(2_000);
+    expect(await didKioskRenewalChangeStoredSignIn(kiosk)).toBe(false);
 
     await staffPage.reload();
     await expect(loginPage.loginButton).toBeVisible();
