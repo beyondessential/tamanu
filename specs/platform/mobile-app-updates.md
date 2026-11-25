@@ -13,6 +13,7 @@ Installing closes the app, and Android does not reopen it, so the moment is left
 Servers reject a client below their minimum supported version and include the address the client should update from, taken from the `metaServer.updateUrls.mobile` setting with the minimum version substituted into it. Syncing is where an out-of-date mobile app is turned away; signing in is not, so staff can get into a device that is mid-update and work offline on it.
 
 - A mobile app below the minimum supported version can still sign in, and the rejection that starts its update comes from its next sync.
+- A mobile app from before in-app updates (below 2.70.0) is still turned away at sign-in, since only the sign-in alert offers it the update link and it cannot update itself.
 - Other clients are still turned away at sign-in, where being out of date can be reported plainly rather than failing every call that follows.
 - Any rejection of the mobile app for being below the minimum supported version starts the download, wherever the app is and whatever the user is doing.
 - Staff stay signed in and carry on working. The screen they are on is undisturbed, and nothing they have part-filled is lost.

@@ -247,10 +247,12 @@ describe('Auth - Login', () => {
 
     const errorMessage = response => JSON.parse(response.error.text).error.message;
 
-    it('Should let an out-of-date mobile app log in, so it can update while staff work', async () => {
+    // Letting a self-updating app in below the minimum is covered by buildVersionCompatibilityCheck's
+    // tests: this central's minimum is the first self-updating release, so no such version exists here
+    it('Should reject a mobile app from before in-app updates at login, where it is offered the update link', async () => {
       const response = await login(SERVER_TYPES.MOBILE, '0.0.1');
-      expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('token');
+      expect(response).not.toHaveSucceeded();
+      expect(errorMessage(response)).toEqual(VERSION_COMPATIBILITY_ERRORS.LOW);
     });
 
     it('Should still reject the same out-of-date mobile app beyond login', async () => {

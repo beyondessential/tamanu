@@ -17,7 +17,7 @@ vi.mock('../../src/services/logging', () => ({
 function makeReq(headers = {}, path = '/api/sync/pull') {
   return {
     path,
-    header: (name) => headers[name],
+    header: name => headers[name],
   };
 }
 
@@ -189,10 +189,10 @@ describe('buildVersionCompatibilityCheck', () => {
     expect(next).toHaveBeenCalledWith();
   });
   describe('the mobile login exemption', () => {
-    const MOBILE = { 'X-Version': '0.1.0', 'X-Tamanu-Client': 'Tamanu Mobile' };
+    const MOBILE = { 'X-Version': '2.70.0', 'X-Tamanu-Client': 'Tamanu Mobile' };
 
     it('lets an out-of-date mobile app log in, so staff can work while it updates', () => {
-      const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
+      const check = buildVersionCompatibilityCheck('2.71.0', '2.71.999');
       const req = makeReq(MOBILE, '/api/login');
       const res = makeRes();
       const next = vi.fn();
@@ -203,8 +203,19 @@ describe('buildVersionCompatibilityCheck', () => {
     });
 
     it('still turns that app away from every other route, which is what starts its update', () => {
-      const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
+      const check = buildVersionCompatibilityCheck('2.71.0', '2.71.999');
       const req = makeReq(MOBILE, '/api/sync/pull');
+      const res = makeRes();
+
+      expect(() => check(req, res, vi.fn())).toThrow(ClientIncompatibleError);
+    });
+
+    it('does not exempt a mobile app too old to update itself, which only offers the update link at login', () => {
+      const check = buildVersionCompatibilityCheck('2.71.0', '2.71.999');
+      const req = makeReq(
+        { 'X-Version': '2.69.5', 'X-Tamanu-Client': 'Tamanu Mobile' },
+        '/api/login',
+      );
       const res = makeRes();
 
       expect(() => check(req, res, vi.fn())).toThrow(ClientIncompatibleError);

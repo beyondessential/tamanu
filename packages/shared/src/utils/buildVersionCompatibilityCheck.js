@@ -24,14 +24,22 @@ function getUpdateInformation(req, minVersion, updateUrls) {
   return {};
 }
 
+// The first mobile release that can download and install its own update. Earlier apps only offer
+// the update link from the alert shown when login is refused, so they must still be refused there.
+const FIRST_SELF_UPDATING_MOBILE_VERSION = '2.70.0';
+
 /**
  * An out-of-date mobile app updates itself while staff keep working offline, so turning it away at
  * login would strand anyone who signed out mid-update. It is let in to log in and told to update by
- * the next sync instead. Other clients are still turned away at login, where they can be told
- * plainly rather than failing every call afterwards.
+ * the next sync instead. Other clients, and mobile apps too old to update themselves, are still
+ * turned away at login, where they can be told plainly rather than failing every call afterwards.
  */
-function isExemptFromMinimumVersion(req) {
-  return isMobileClient(req) && (req.path ?? '').endsWith('/login');
+function isExemptFromMinimumVersion(req, clientVersion) {
+  return (
+    isMobileClient(req) &&
+    (req.path ?? '').endsWith('/login') &&
+    semver.compare(clientVersion, FIRST_SELF_UPDATING_MOBILE_VERSION) >= 0
+  );
 }
 
 export const buildVersionCompatibilityCheck = (min, max, updateUrls) => (req, res, next) => {
@@ -51,7 +59,11 @@ export const buildVersionCompatibilityCheck = (min, max, updateUrls) => (req, re
     return;
   }
 
-  if (min && semver.compare(clientVersion, min) < 0 && !isExemptFromMinimumVersion(req)) {
+  if (
+    min &&
+    semver.compare(clientVersion, min) < 0 &&
+    !isExemptFromMinimumVersion(req, clientVersion)
+  ) {
     throw new ClientIncompatibleError(VERSION_COMPATIBILITY_ERRORS.LOW).withExtraData({
       ...getUpdateInformation(req, min, updateUrls),
       [VERSION_MINIMUM_PROBLEM_KEY]: min,
