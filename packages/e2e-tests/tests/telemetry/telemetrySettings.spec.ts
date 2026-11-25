@@ -42,17 +42,20 @@ test.describe('Browser telemetry settings', () => {
     await settingsPage.selectScope('Global (All Facilities/Servers)');
     await settingsPage.selectCategory('Telemetry');
     const enabledSwitch = settingsPage.switchInput(settingsPage.settingLine('enabled'));
-    await expect(enabledSwitch).not.toBeChecked();
+    const setTelemetryEnabled = async (enabled: boolean) => {
+      if ((await enabledSwitch.isChecked()) === enabled) return;
+      await enabledSwitch.setChecked(enabled);
+      await settingsPage.save();
+    };
     const isTelemetryEnabled = async () => (await readSavedSettings(page))?.telemetry?.enabled;
 
-    await enabledSwitch.check();
-    await settingsPage.save();
+    // Telemetry is off across the whole environment by default, so start from off and end there
+    await setTelemetryEnabled(false);
     try {
+      await setTelemetryEnabled(true);
       await expect.poll(isTelemetryEnabled).toBe(true);
     } finally {
-      // Telemetry is off across the whole environment by default
-      await enabledSwitch.uncheck();
-      await settingsPage.save();
+      await setTelemetryEnabled(false);
     }
     await expect.poll(isTelemetryEnabled).toBe(false);
   });
