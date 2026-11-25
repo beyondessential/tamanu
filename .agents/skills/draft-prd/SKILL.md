@@ -4,7 +4,7 @@ description: "Interview me about this project to develop the PRD"
 label: "PRD interview"
 category: plan
 surface: project
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 ## Your task: PRD interview
@@ -13,7 +13,7 @@ Produce or refine the project's PRD at `.workhorse/projects/{hash}-{slug}/prd.md
 
 Work as an interview that writes as it goes, rather than a single drafting pass. Draft first and ask second: produce a sensible structure from the project description and conversation history straight away, so the user has something concrete to react to, then interview them to develop it.
 
-Do not open with a list of questions. Once a draft exists, ask about the parts of it you are least sure of, one or two at a time, and fold each answer back into the PRD as it arrives.
+Do not open with a list of questions. Once a draft exists, ask about the parts of it you are least sure of, as `.agents/docs/asking-questions.md` says, and fold each answer back into the PRD as it arrives.
 
 ### Default scaffolding
 

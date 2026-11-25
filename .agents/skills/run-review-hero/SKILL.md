@@ -3,7 +3,7 @@ name: run-review-hero
 description: "Drive the card's Review Hero loop by hand — trigger a review, address its comments, rerun until clean, then merge. Use in an external tool (Claude Code, Cursor) where Workhorse's automated loop isn't running."
 label: "Run Review Hero"
 category: verify
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Run Review Hero
@@ -53,7 +53,7 @@ Read every comment from this round — Review Hero's and any other reviewer's (h
 Assess each against your understanding from the specs, the codebase, and the card:
 
 - **Actionable** (bugs, missed edges, logic errors, style issues) — make the fix, commit, and push to the branch
-- **Spec-level** — a comment that questions intended behaviour rather than the implementation. Don't act unilaterally; flag it to the user and let them decide
+- **Spec-level** — a comment that questions intended behaviour rather than the implementation. Don't act unilaterally; put it to the user and let them decide (see `.agents/docs/asking-questions.md`)
 - **Non-actionable** (praise, acknowledgements, questions aimed at the PR author) — note that you're skipping it and why
 
 Do not reply to the comments on GitHub — push fixes silently, as Workhorse's own handling of review comments does. Avoid circular fix cycles: if a later round re-raises something you deliberately left, hold your ground rather than thrashing.

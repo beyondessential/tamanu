@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 # Reconciling a branch
@@ -22,7 +22,7 @@ A branch that holds merge commits of its own is brought up by merging, not rebas
 
 - **Hard conflicts:** resolve them one at a time. On a card, use its specs, description and conversation to decide which side to favour. Where the two sides cannot be reconciled, say so rather than guess.
 - **Soft conflicts:** always look for them, even when git finished cleanly. Read what came in against the local specs, code and docs for assumptions it has made wrong. Keep the check brief when the local changes are small, and thorough when they are large.
-- Apply straightforward resolutions yourself. Ask the user about ambiguous ones.
+- Apply straightforward resolutions yourself. Ask the user about ambiguous ones, as `.agents/docs/asking-questions.md` says.
 - A rebase that cannot be saved is aborted (`git rebase --abort`) and explained, never left part-way.
 
 ## Push
