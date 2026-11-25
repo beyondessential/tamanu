@@ -38,10 +38,12 @@ cause, because each kind has a different owner.
 3. **What it logged.** `kubectl --context main -n <ns> logs <pod> --previous`. A server
    killed before its first log line was still loading.
 4. **Whether it was starved.** `kubectl --context main top pod -n <ns>` and the CPU
-   request in the pod spec. A pod that is not ready and uses a few percent of a core was
-   waiting for CPU, not computing (inside the container, CPU time over uptime from
-   `/proc/1/stat`, fields 14 and 15 in hundredths of a second, says the same). Node load
-   is in Prometheus (`../reference/rc-deployments.md#reading-resource-use`).
+   request in the pod spec. Low use together with a probe kill and no error in the log
+   says the pod was waiting for CPU, not computing; low use alone does not, since a pod
+   blocked on the database, DNS or another service looks the same. Inside the container,
+   CPU time is fields 14 and 15 of `/proc/1/stat` (hundredths of a second); divide it by
+   the container's run time from `describe`. Node load is in Prometheus
+   (`../reference/rc-deployments.md#reading-resource-use`).
 5. **Pods not created or not pulled.** `ContainerCreating` for minutes, or
    `ImagePullBackOff`: `kubectl ... get events --field-selector involvedObject.name=<pod>`.
 
