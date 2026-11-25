@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { DietSummaryModal } from './DietSummaryModal';
@@ -21,13 +21,13 @@ export const DietSummaryButton = React.memo(({ area }) => {
   return (
     <>
       <PrintActionButton
-        startIcon={<InsertChartOutlinedIcon htmlColor={Colors.primary} />}
+        startIcon={<FastfoodIcon htmlColor={Colors.primary} />}
         onClick={handleDietSummaryButtonClick}
         data-testid="dietsummarybutton-x3qa"
       >
         <TranslatedText
-          stringId="bedManagement.search.dietSummary.button.label"
-          fallback="Diet summary"
+          stringId="bedManagement.search.dietReport.button.label"
+          fallback="Diet report"
           data-testid="translatedtext-dietsummary"
         />
       </PrintActionButton>

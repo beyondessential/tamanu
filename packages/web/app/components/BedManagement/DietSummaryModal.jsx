@@ -30,7 +30,7 @@ export const DietSummaryModal = React.memo(({ area: areaId, ...props }) => {
   const modalTitle = (
     <TranslatedText
       stringId="bedManagement.modal.dietSummary.title"
-      fallback="Diet summary sheet :date"
+      fallback="Diet summary sheet | :date"
       replacements={{ date: formatShortest(getCurrentDate()) }}
       data-testid="translatedtext-dietsummary-title"
     />

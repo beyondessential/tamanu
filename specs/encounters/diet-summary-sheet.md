@@ -8,13 +8,13 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 
 ## Printing the sheet
 
-- A **Diet summary** button sits in the Bed management search bar beside Handover notes, and is available whether or not an Area is selected.
-- Selecting it opens the sheet in a PDF preview modal with a print action.
+- A **Diet report** button sits in the Bed management search bar beside Handover notes, and is available whether or not an Area is selected.
+- Selecting it opens the sheet in a PDF preview modal titled "Diet summary sheet | {date}", with a print action.
 - The sheet covers the facility the user is logged in to. With no Area applied in the search bar it covers every ward in that facility; with an Area applied it covers that ward alone.
 - Of the Bed management filters, Area is the one that narrows the sheet.
 - The sheet is a snapshot of the facility at the moment it is opened, and the footer carries the print date and time.
 - Printing it is available to anyone who can list patients and read encounters, locations and areas.
-- The **Diet summary** button appears whether or not the user holds those permissions.
+- The **Diet report** button appears whether or not the user holds those permissions.
 - A user without them sees a no-permission message in place of the preview, with an action to close the modal, and the print action is not offered.
 - Where the sheet cannot otherwise be loaded, the preview is replaced by a message saying so, and the print action is not offered.
 

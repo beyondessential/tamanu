@@ -99,6 +99,15 @@ describe('DietSummaryModal', () => {
     expect(printButton()).toBeNull();
   });
 
+  // The translation stub returns the fallback as written, with the date still a placeholder.
+  it('separates the sheet’s name from the date in the modal title', async () => {
+    mockGet.mockResolvedValue({ columns: [], hospitalTotals: {}, areas: [] });
+
+    renderModal();
+
+    expect(await screen.findByText(/^Diet summary sheet \| /)).toBeDefined();
+  });
+
   it('shows the preview and offers the print action once the sheet loads', async () => {
     mockGet.mockResolvedValue({ columns: [], hospitalTotals: {}, areas: [] });
 
