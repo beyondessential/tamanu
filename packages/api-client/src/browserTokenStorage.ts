@@ -173,10 +173,24 @@ function defaultOrigin(): string {
 }
 
 /**
- * Encrypt and store an API token, or remove the key when `token` is empty.
- * Falls back to cleartext storage when Web Crypto is unavailable (plain HTTP, non-localhost) — the
- * session is already transmitted unencrypted in that case, so cleartext localStorage is no worse.
+ * Encrypt a token for storage, falling back to cleartext when Web Crypto is unavailable (plain
+ * HTTP, non-localhost) — the session is already transmitted unencrypted in that case, so cleartext
+ * localStorage is no worse.
  */
+async function packTokenForStorage(token: string, keyMaterial: string): Promise<string> {
+  if (!globalThis.crypto?.subtle) {
+    // Web Crypto is only available in secure contexts (HTTPS or localhost).
+    // On plain HTTP (e.g. local-network ITI access), fall back to cleartext rather than
+    // blocking login entirely.
+    console.warn(
+      '[Tamanu] Web Crypto API unavailable; storing auth token as cleartext. Use HTTPS for encrypted token storage.',
+    );
+    return token;
+  }
+  return packPersistedToken(token, keyMaterial);
+}
+
+/** Encrypt and store an API token, or remove the key when `token` is empty. */
 export async function writePersistedAuthToken(
   storageKey: string,
   token: string,
@@ -187,20 +201,44 @@ export async function writePersistedAuthToken(
 ): Promise<void> {
   const keyMaterial = buildTokenStorageKeyMaterial(deviceId, origin, namespace);
   if (token) {
-    if (!globalThis.crypto?.subtle) {
-      // Web Crypto is only available in secure contexts (HTTPS or localhost).
-      // On plain HTTP (e.g. local-network ITI access), fall back to cleartext rather than
-      // blocking login entirely.
-      console.warn(
-        '[Tamanu] Web Crypto API unavailable; storing auth token as cleartext. Use HTTPS for encrypted token storage.',
-      );
-      storage.setItem(storageKey, token);
-    } else {
-      storage.setItem(storageKey, await packPersistedToken(token, keyMaterial));
-    }
+    storage.setItem(storageKey, await packTokenForStorage(token, keyMaterial));
   } else {
     storage.removeItem(storageKey);
   }
+}
+
+/**
+ * Store a renewed token in place of `currentToken`, only while the stored token is still
+ * `currentToken`. Storage is shared by every tab, and another tab may have logged out or signed in
+ * as someone else since this one stored its token; a renewal must not undo that. The stored value
+ * is checked again just before writing, so a change made while the renewal was encrypting is kept.
+ * Returns whether the stored token was replaced or, for an empty `renewedToken`, removed.
+ */
+export async function renewPersistedAuthToken(
+  storageKey: string,
+  currentToken: string,
+  renewedToken: string,
+  deviceId: string,
+  namespace: TokenStorageNamespace,
+  storage: AuthTokenStorage = localStorage,
+  origin: string = defaultOrigin(),
+): Promise<boolean> {
+  const stored = storage.getItem(storageKey);
+  const keyMaterial = buildTokenStorageKeyMaterial(deviceId, origin, namespace);
+  if ((await unpackPersistedToken(stored, keyMaterial)) !== currentToken) {
+    return false;
+  }
+  // An empty renewal removes the stored token, as writePersistedAuthToken does
+  const packed = renewedToken ? await packTokenForStorage(renewedToken, keyMaterial) : null;
+  if (storage.getItem(storageKey) !== stored) {
+    return false;
+  }
+  if (packed === null) {
+    storage.removeItem(storageKey);
+  } else {
+    storage.setItem(storageKey, packed);
+  }
+  return true;
 }
 
 /**
