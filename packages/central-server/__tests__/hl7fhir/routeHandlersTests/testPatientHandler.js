@@ -764,6 +764,45 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         expect(response.body.total).toBe(2);
       });
 
+      describe('wildcard characters in string searches', () => {
+        const searchByGiven = (param, value) =>
+          app
+            .get(
+              `/api/integration/${integrationName}/Patient?${param}=${encodeURIComponent(value)}`,
+            )
+            .set(requestHeaders);
+
+        beforeEach(async () => {
+          const { Patient } = ctx.store.models;
+          await Promise.all([
+            Patient.create(fake(Patient, { firstName: 'Bob_by' })),
+            Patient.create(fake(Patient, { firstName: 'Bobby' })),
+            Patient.create(fake(Patient, { firstName: '50% off' })),
+            Patient.create(fake(Patient, { firstName: 'Back\\' })),
+          ]);
+        });
+
+        // Each search finds exactly one patient: an unescaped wildcard would find more, and an
+        // over-escaped value none
+        it.each([
+          ['given:contains', '_', 'Bob_by'],
+          ['given:starts-with', 'Bob_', 'Bob_by'],
+          ['given:ends-with', '_by', 'Bob_by'],
+          ['given', 'Bob_', 'Bob_by'],
+          ['given:contains', '%', '50% off'],
+          ['given:starts-with', '50%', '50% off'],
+          ['given:contains', '\\', 'Back\\'],
+          // Unescaped, a trailing backslash is a dangling escape character and the query fails
+          ['given:ends-with', '\\', 'Back\\'],
+        ])('matches %s=%s literally', async (param, value, expectedGivenName) => {
+          const response = await searchByGiven(param, value);
+
+          expect(response).toHaveSucceeded();
+          expect(response.body.total).toBe(1);
+          expect(response.body.entry[0].name[0].given[0]).toBe(expectedGivenName);
+        });
+      });
+
       it('filters patients by combining params and modifiers (all need to match)', async () => {
         const { Patient } = ctx.store.models;
         const firstName = 'Jane';

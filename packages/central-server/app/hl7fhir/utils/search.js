@@ -3,6 +3,7 @@ import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
 import { base64ToJson, jsonToBase64 } from '@tamanu/utils/encodings';
 import { InvalidParameterError } from '@tamanu/errors';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { stringSearchPatterns } from '../hl7Parameters';
 import { endOfDay, endOfMonth, endOfYear, parseISO, startOfDay, startOfMonth, startOfYear, isMatch } from 'date-fns';
 import __cjs_date_fns_tz from 'date-fns-tz';
 const { zonedTimeToUtc } = __cjs_date_fns_tz;
@@ -31,7 +32,8 @@ export function getParamAndModifier(fullParam) {
 
 export function getDefaultOperator(type) {
   if (type === FHIR_SEARCH_PARAMETERS.STRING) {
-    return Op.startsWith;
+    // A starts-with search: getQueryObject builds the pattern
+    return Op.like;
   }
   if (type === FHIR_SEARCH_PARAMETERS.DATE) {
     return Op.between;
@@ -46,8 +48,10 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
   if (parameterType === FHIR_SEARCH_PARAMETERS.STRING && modifier !== 'exact') {
     // Perform case insensitive search by using SQL function UPPER
     // and modifying the string to be uppercase.
+    // No modifier is a starts-with search.
+    const toPattern = stringSearchPatterns[modifier ?? 'starts-with'];
     return Sequelize.where(Sequelize.fn('upper', Sequelize.col(columnName)), {
-      [operator]: value.toUpperCase(),
+      [operator]: toPattern(value.toUpperCase()),
     });
   }
 
