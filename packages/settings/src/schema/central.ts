@@ -781,7 +781,6 @@ export const centralSettings = {
           { schedule: '*/30 * * * * *' },
           limitProperty(100),
         ),
-        vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
         patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),
         // spec: BTEL — central holds telemetry from the admin panel and the
         // patient portal, so it prunes on the same terms as a facility server.
