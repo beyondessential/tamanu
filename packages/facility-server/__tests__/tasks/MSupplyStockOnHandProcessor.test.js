@@ -356,6 +356,10 @@ describe('MSupplyStockOnHandProcessor', () => {
           stockStatus: DRUG_STOCK_STATUSES.OUT_OF_STOCK,
         },
       ]);
+      const changedStockWhere = { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID };
+      const changedStockBefore = await models.ReferenceDrugFacility.findOne({
+        where: changedStockWhere,
+      });
 
       const task = new MSupplyStockOnHandProcessor(context);
       const { updated } = await task.updateStockForFacility(
@@ -367,11 +371,10 @@ describe('MSupplyStockOnHandProcessor', () => {
       );
 
       expect(updated).toBe(1);
-      const changedStock = await models.ReferenceDrugFacility.findOne({
-        where: { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID },
-      });
+      const changedStock = await models.ReferenceDrugFacility.findOne({ where: changedStockWhere });
       expect(changedStock.quantity).toBe(5);
       expect(changedStock.stockStatus).toBe(DRUG_STOCK_STATUSES.IN_STOCK);
+      expect(changedStock.updatedAt).not.toEqual(changedStockBefore.updatedAt);
     });
 
     it('writes every changed stock entry in a single statement', async () => {

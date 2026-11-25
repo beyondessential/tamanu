@@ -7,8 +7,8 @@ import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
 import { MSupplyClient } from '../utils/MSupplyClient';
 import { getServerFacilityIds } from '../serverConfig';
 
-// mSupply caps a page of items at 5000
-export const ITEMS_PAGE_SIZE = 1000;
+// The most items mSupply returns in one page
+export const ITEMS_PAGE_SIZE = 5000;
 
 // Sourced from items rather than stockLines: an item never stocked in the store
 // has no stock lines, so stockLines leaves it out, while items reports it with
