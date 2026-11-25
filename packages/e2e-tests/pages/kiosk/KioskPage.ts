@@ -42,7 +42,7 @@ export class KioskPage extends BasePage {
       "The account signed in here doesn't have permission to run the self check-in kiosk.",
     );
     this.noMatchTitle = page.getByText("We couldn't find your appointment");
-    this.noMatchSearchedDetails = page.getByRole('definition');
+    this.noMatchSearchedDetails = page.locator('dl').getByRole('definition');
     this.editDetailsButton = page.getByRole('button', { name: 'Edit details' });
     this.readyToCheckInTitle = page.getByText("You're ready to check in");
     this.startOverButton = page.locator('header').getByRole('button', { name: 'Start over' });
