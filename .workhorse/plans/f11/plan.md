@@ -24,13 +24,14 @@ Kitchen and ward staff use the sheet to see how many meals of each diet to prepa
 - The ward is the encounter's area (location group), and the bed is its location. Every bed belongs to an area
 - Wards with no admitted patients are left off the sheet
 - Patients are identified by name and NHN (display ID)
+- Each patient's age follows their name in brackets, e.g. "Sione Tupou (42 years)", in the same format as the patient details pane: the `ageDisplayFormat` setting through `getDisplayAge`, so young patients read in days, weeks or months ("Sami Vea (3 weeks)")
 
 ### Layout
 
 - Landscape A4, with letterhead, title ("Diet summary sheet | {print date}") and a footer showing print date and time and page numbers
 - Page 1 opens with a single **Hospital total** row under the diet column headers. There's no separate per-ward summary table: each ward's counts live in the Sub total row of its own table
 - Per-ward detail starts directly below the Hospital total on page 1 and runs on from page to page. A ward that breaks across a page continues under "{Ward} (continued)" with the column headers repeated
-- Each ward section is a patient × diet grid: patient name, NHN and bed, then a tick under each of the patient's diets. A **Sub total** row at the top of each ward table carries that ward's counts, matching the Hospital total's total-first layout
+- Each ward section is a patient × diet grid: patient name with age, NHN and bed, then a tick under each of the patient's diets. A **Sub total** row at the top of each ward table carries that ward's counts, matching the Hospital total's total-first layout
 - Patients are ordered by bed within a ward
 - Patient and diet columns keep fixed widths, so a facility with only a handful of diets leaves the grid short of the page width. A single blank column on the right takes up the slack, so the table still rules across the full width on either sheet. Mocked up at `.workhorse/design/mockups/f11/diet-summary-few-diet-columns.html`
 
