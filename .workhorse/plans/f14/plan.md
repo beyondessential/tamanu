@@ -18,9 +18,11 @@ So downloading the PDF has to do what sending the email does first: generate the
 
 ### Vitals in the PDF
 
-The PDF has a Vitals table listing the most recent value of each of these, recorded in the last 12 months: blood pressure panel, systolic BP, diastolic BP, heart rate, respiratory rate, body temperature, oxygen saturation, body height, body weight and BMI. Each row carries its own date recorded, so height can come from an earlier visit than the rest. A vital with nothing recorded in the last 12 months is left out.
+The PDF has a Vitals table listing the most recent value of each of these, recorded in the last 12 months: blood pressure panel, systolic BP, diastolic BP, heart rate, respiratory rate, body temperature, oxygen saturation, body height, body weight and BMI. Each row carries its observation code beside the vital sign's name, and its own date recorded, so height can come from an earlier visit than the rest. A vital with nothing recorded in the last 12 months is left out.
 
 The IPS bundle gains a Vital Signs section (LOINC 8716-3) holding the same observations, so the PDF, the QR code's IPS and the emailed IPS all carry the same vitals. Vitals come from the vitals survey's fixed data elements, which cover everything listed except BMI.
+
+Each vital's observation code is held in reference data. Which reference data type holds it is still to be confirmed: no type in the importable reference data on this branch or on main carries vitals codes, and the codes appear nowhere in the codebase. The mockup shows each vital's LOINC code.
 
 BMI is calculated from the most recent height and weight in the last 12 months, rather than read from a deployment's own calculated BMI question, so every deployment shows it. Its date recorded is the later of the two readings'. With no height or no weight in that window, BMI is left out.
 
@@ -31,7 +33,7 @@ A Diagnostic results section follows Vitals, with a Laboratory table and a Radio
 Laboratory columns map to Tamanu as:
 
 - **Status**: the lab request's status
-- **Test name** and **Observation code**: the lab test type's name and code, or the lab test panel's name and code for a panel row
+- **Test name** and **Observation code**: the lab test type's name and external code, or the lab test panel's name and external code for a panel row. The external code is the one FHIR lab results already match on; the plain code is Tamanu's own
 - **Date sample collected**: the lab request's sample time
 - **Performed by**: the lab test's laboratory officer
 - **Result**: the lab test's result, with the test type's unit when the result is numeric
