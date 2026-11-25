@@ -653,6 +653,7 @@ jobs:
       ref: ${{ needs.config.outputs.ref }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      INFRA_SSH: ${{ secrets.INFRA_SSH }}
 
   deploy-down:
     needs: config
@@ -669,6 +670,7 @@ jobs:
       options: ${{ matrix.options }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      INFRA_SSH: ${{ secrets.INFRA_SSH }}
 
   # `%synthetic` is Pulumi config, so on its own it only takes effect when the
   # deploy above finishes, a full `pulumi up` to scale one Deployment. Argo

@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import express from 'express';
 import {
   getSurvey,
@@ -31,9 +32,12 @@ const passthrough = (_req, _res, next) => next();
 export const patientPortalApi = ({ authLimiter } = {}) => {
   const limiter = authLimiter ?? passthrough;
   const router = express.Router();
+  // Portal tokens are signed at login and verified by the middleware, so both must use the same
+  // secret. Without a configured one, that is a secret for the life of this process.
+  const secret = getAuthSecret() ?? crypto.randomUUID();
 
   // Auth routes
-  router.post('/login', limiter, login({ secret: getAuthSecret() }));
+  router.post('/login', limiter, login({ secret }));
   router.post('/request-login-token', limiter, requestLoginToken);
   router.post('/verify-registration', limiter, register);
 
@@ -43,7 +47,7 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
   router.post('/public/telemetry', portalTelemetryIngest);
 
   // Portal auth middleware
-  router.use(patientPortalMiddleware({ secret: getAuthSecret() }));
+  router.use(patientPortalMiddleware({ secret }));
 
   // Patient data routes
   router.get('/me', getPatient);

@@ -229,6 +229,43 @@ export const centralSettings = {
           type: yup.number().integer().min(1),
           defaultValue: 1000,
         },
+        numberConcurrentPullSnapshots: {
+          name: 'Concurrent pull snapshots',
+          description:
+            'How many sync sessions can build their pull snapshot at the same time. Each one holds a database connection, so keep it well below the connection pool size.',
+          type: yup.number().integer().min(1),
+          defaultValue: 4,
+        },
+      },
+    },
+    facilitySync: {
+      description:
+        "Sync tuning that facility servers fetch from central on login and token refresh. It overrides the sync values in a facility server's config file, and only a SYNC_* env var on the facility server overrides it",
+      exposedToWeb: true,
+      highRisk: true,
+      properties: {
+        persistedCacheBatchSize: {
+          description: 'The number of records to persist in a single batch',
+          type: yup.number().integer().min(1),
+          defaultValue: 10000,
+        },
+        pauseBetweenPersistedCacheBatchesInMilliseconds: {
+          description: 'The pause between batches of persisted records',
+          type: yup.number().integer().min(0),
+          defaultValue: 50,
+          unit: 'ms',
+        },
+        pauseBetweenCacheBatchInMilliseconds: {
+          description: 'The pause between batches of pulled records',
+          type: yup.number().integer().min(0),
+          defaultValue: 50,
+          unit: 'ms',
+        },
+        persistUpdateWorkerPoolSize: {
+          description: 'The number of concurrent workers persisting updated records',
+          type: yup.number().integer().min(1),
+          defaultValue: 5,
+        },
       },
     },
     mobileSync: {
@@ -787,6 +824,9 @@ export const centralSettings = {
         // Retention horizon lives in the global `telemetry.retentionDays` setting,
         // read by the cleanup task; this entry only controls the schedule.
         cleanupBrowserTelemetry: scheduledTaskSchema({ schedule: '31 3 * * *' }),
+        // spec: BTAG. Rolls closed buckets of raw telemetry up into aggregates; the
+        // bucket size and slow-event settings live in the global `telemetry` group.
+        rollupBrowserTelemetry: scheduledTaskSchema({ schedule: '*/15 * * * *' }),
         certificateNotificationProcessor: scheduledTaskSchema(
           { schedule: '*/30 * * * * *' },
           limitProperty(10),

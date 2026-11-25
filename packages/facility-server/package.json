@@ -32,8 +32,6 @@
     "vitest": "^4.1.8"
   },
   "dependencies": {
-    "@bugsnag/js": "^7.22.4",
-    "@bugsnag/plugin-express": "^7.19.0",
     "@casl/ability": "^6.8.0",
     "@opentelemetry/api": "^1.9.0",
     "@passcod/faith": "^1.0.1",

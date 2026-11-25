@@ -4,7 +4,8 @@ import config from 'config';
 import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
-import { SETTING_KEYS } from '@tamanu/constants';
+import { SERVER_TYPES, SETTING_KEYS, SETTINGS_SCOPES } from '@tamanu/constants';
+import { settingsCache } from '@tamanu/settings';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
@@ -163,6 +164,39 @@ describe('Auth - Login', () => {
       expect(response.body).not.toHaveProperty('user.hashedPassword');
     });
 
+    it('Should match the email case-insensitively', async () => {
+      const response = await baseApp.post('/api/login').send({
+        email: TEST_EMAIL.toUpperCase(),
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('user.email', TEST_EMAIL);
+    });
+
+    it('Should match an account whose stored email has stray whitespace', async () => {
+      const { User, Device } = store.models;
+      const paddedUser = await User.create({
+        email: 'padded@bes.au',
+        password: TEST_PASSWORD,
+        displayName: 'Padded BES',
+      });
+      await Device.create({ id: 'padded-device-id', registeredById: paddedUser.id });
+      // Simulate legacy data written before emails were trimmed, bypassing model normalisation.
+      await User.sequelize.query('UPDATE users SET email = :email WHERE id = :id', {
+        replacements: { email: '  Padded@bes.au  ', id: paddedUser.id },
+      });
+
+      const response = await baseApp.post('/api/login').send({
+        email: 'padded@bes.au',
+        password: TEST_PASSWORD,
+        deviceId: 'padded-device-id',
+      });
+
+      expect(response).toHaveSucceeded();
+    });
+
     it('Should return localised field settings in the login response', async () => {
       const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
@@ -175,6 +209,28 @@ describe('Auth - Login', () => {
         'settings.fields.displayId',
         expect.objectContaining({ pattern: '[\\s\\S]*' }),
       );
+    });
+
+    it('Should send a facility server its sync tuning in the login response', async () => {
+      const key = 'facilitySync.persistUpdateWorkerPoolSize';
+      await store.models.Setting.set(key, 2, SETTINGS_SCOPES.CENTRAL);
+      settingsCache.reset();
+      try {
+        const response = await baseApp
+          .post('/api/login')
+          .set({ 'X-Tamanu-Client': SERVER_TYPES.FACILITY })
+          .send({
+            email: TEST_EMAIL,
+            password: TEST_PASSWORD,
+            deviceId: TEST_DEVICE_ID,
+          });
+
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveProperty(`settings.${key}`, 2);
+      } finally {
+        await store.models.Setting.destroy({ where: { key }, force: true });
+        settingsCache.reset();
+      }
     });
 
     it('Should reject an empty credential', async () => {

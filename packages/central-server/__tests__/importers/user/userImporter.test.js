@@ -147,4 +147,62 @@ describe('User import', () => {
       expect(user.deviceRegistrationQuota).toEqual(2);
     });
   });
+
+  describe('Case-variant email import', () => {
+    const OTHER_USER_ID = 'users-test-other';
+    const EMAIL_ERROR = 'is already used by another user (letter case is ignored)';
+
+    const createUser = (id, email) =>
+      models.User.create({ ...fake(models.User), id, email, displayName: `Display ${id}` });
+
+    beforeEach(async () => {
+      await models.User.destroy({ where: { id: [TEST_USER_ID, OTHER_USER_ID] }, force: true });
+    });
+
+    it('rejects a new user whose email differs only in case from an existing user', async () => {
+      await createUser(OTHER_USER_ID, 'case.variant@bes.au');
+
+      const { didntSendReason, errors } = await doImport({
+        file: 'user-email-upper-case',
+        dryRun: false,
+      });
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainValidationError('user', 2, EMAIL_ERROR);
+      expect(await models.User.findByPk(TEST_USER_ID)).toBeNull();
+    });
+
+    it('lets an existing user be re-imported with their own email in a different case', async () => {
+      await createUser(TEST_USER_ID, 'case.variant@bes.au');
+
+      const { errors, stats } = await doImport({ file: 'user-email-upper-case', dryRun: false });
+
+      expect(errors).toHaveLength(0);
+      expect(stats).toEqual({
+        User: { created: 0, updated: 1, errored: 0, deleted: 0, restored: 0, skipped: 0 },
+      });
+      const user = await models.User.findByPk(TEST_USER_ID);
+      expect(user.email).toEqual('CASE.VARIANT@BES.AU');
+    });
+
+    it('rejects two rows in one sheet whose emails differ only in case', async () => {
+      const { didntSendReason, errors } = await doImport({
+        file: 'user-email-case-variant-rows',
+        dryRun: false,
+      });
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainValidationError('user', 2, EMAIL_ERROR);
+      expect(errors).toContainValidationError('user', 3, EMAIL_ERROR);
+    });
+
+    it('still re-imports case-variant duplicates that already exist', async () => {
+      await createUser(TEST_USER_ID, 'case.variant@bes.au');
+      await createUser(OTHER_USER_ID, 'Case.Variant@BES.AU');
+
+      const { errors } = await doImport({ file: 'user-email-case-variant-rows', dryRun: false });
+
+      expect(errors).toHaveLength(0);
+    });
+  });
 });

@@ -18,6 +18,8 @@ on:
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
+      INFRA_SSH:
+        required: false
 
 permissions:
   contents: read
@@ -34,6 +36,7 @@ jobs:
         uses: ./.github/actions/setup-cd
         with:
           with-infra: true
+          infra-ssh-key: ${{ secrets.INFRA_SSH }}
           tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}

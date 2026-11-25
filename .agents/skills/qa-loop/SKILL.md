@@ -3,7 +3,7 @@ name: qa-loop
 description: "Run an adversarial QA loop over this card's changes, fixing and re-checking until no bugs, edge cases or UI roughness are left"
 label: "QA loop"
 category: verify
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 ## Your task: QA loop
