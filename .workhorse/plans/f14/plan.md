@@ -52,3 +52,7 @@ Radiology columns map to Tamanu as:
 - **Imaging date**: the imaging result's completed date
 - **Reported by**: the user who completed the imaging result
 - **Results**: the imaging result's description
+
+### Allergies in the PDF
+
+The Allergies and intolerances table shows each allergy with its reaction and date recorded, from the patient allergy's reaction and recorded date. Either is blank where the allergy has none. The IPS bundle's allergy entries carry neither yet, so they gain both (the AllergyIntolerance's `reaction.manifestation` and `recordedDate`), keeping the PDF and the QR code's IPS in step.
