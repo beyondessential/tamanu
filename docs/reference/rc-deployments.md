@@ -77,8 +77,8 @@ Use `/query_range` with `start`, `end` and `step` for a series. Useful series:
 `container_cpu_usage_seconds_total` (labels `namespace`, `pod`, `container`, and `instance`
 as the node name), `kube_pod_container_resource_requests{resource="cpu"}`, and
 `node_cpu_seconds_total` (node-exporter, whose `instance` is the node's IP and port).
-Most server containers request only `5m` CPU and carry no CPU limit, so CFS throttling
-series stay empty even for a starved pod.
+A container with no CPU limit has no CFS throttling series, so a pod starved of CPU by
+its neighbours shows low use and a small request, not throttling.
 
 ## Infra repository
 

@@ -80,7 +80,7 @@ pre-filter on any suggested action.
 | [fhir-queue-backlog](runbooks/fhir-queue-backlog.md)                       | FHIR job queue backed up or blocked (`fhir_jobs` check)                  | Complete |
 | [report-and-error-rows](runbooks/report-and-error-rows.md)                 | Report / IPS / communication / certificate error-row checks              | Complete |
 | [rc-login-fails](runbooks/rc-login-fails.md)                               | Cannot log in to a release candidate (central down behind a login error) | Complete |
-| [rc-pods-not-starting](runbooks/rc-pods-not-starting.md)                   | RC pods stay not ready or keep restarting during a rollout               | Complete |
+| [rc-pods-not-starting](runbooks/rc-pods-not-starting.md)                   | RC workloads stay not ready or keep restarting during a rollout          | Complete |
 
 ## SOPs
 

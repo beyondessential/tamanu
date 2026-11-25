@@ -1,19 +1,19 @@
-# Runbook: RC pods stay not ready or keep restarting during a rollout
+# Runbook: RC workloads stay not ready or keep restarting during a rollout
 
-After a deploy or a renderer promotion on a release candidate (RC), central or facility
-`api` and `sync` pods stay `0/1`, or restart every minute or two, and the Argo CD
-Application sits at `Progressing` or `Degraded`. How RCs are deployed, and how to read
-their resource use, is in `../reference/rc-deployments.md`.
+After a deploy or a renderer promotion on a release candidate (RC), workloads stay
+`0/1`, or restart again and again, and the Argo CD Application sits at `Progressing` or
+`Degraded`. How RCs are deployed, and how to read their resource use, is in
+`../reference/rc-deployments.md`.
 
 Every action is tagged with its class from the ladder in `../README.md`. Check
 `../ruled-out-actions.md` before running anything mutating.
 
 ## 1. When this applies
 
-An RC whose pods are alive but never become ready, or that restart repeatedly with little
-or nothing in their logs. An RC rolls several times in a row after a merge (the image
-build and a renderer promotion each trigger a sync, and each sync quiesces the workloads,
-runs the migrators, then resumes), so judge it only after the last roll has settled.
+An RC with workloads that do not become ready, or that restart repeatedly. An RC rolls
+several times in a row after a merge (the image build and a renderer promotion each start
+a sync, and each sync quiesces the workloads, runs the migrators, then resumes), so judge
+it only after the last roll has settled.
 
 Not for a crash with a clear error line (`rc-login-fails.md`), nor for one facility that
 stopped syncing (`sync-facility-stale.md`, `sync-restart-loop.md`).
@@ -25,51 +25,52 @@ Namespace `tamanu-release-<major>-<minor>` on kubectl context `main`
 
 ## 3. Investigate
 
-All steps **[diagnose]**.
+All steps **[diagnose]**. The aim is to name the kind of failure before looking for its
+cause, because each kind has a different owner.
 
-1. **Pods.** `kubectl --context main -n <ns> get pods`: note restart counts and which
-   pods are not ready.
-2. **How each restart happened.** `kubectl --context main -n <ns> describe pod <pod>`:
-   under `Last State`, an exit code of 137 after about 90 seconds is a startup probe
-   killing the container (60 one-second tries, then the termination grace period). A
-   liveness kill shows `Liveness probe failed` in the events instead.
-3. **What the logs say.** `kubectl --context main -n <ns> logs <pod> --previous`. A pod
-   killed before it prints `Starting ... server version` was still loading modules.
-4. **Whether it is starved.** `kubectl --context main top pod -n <ns>` shows CPU use. A
-   pod that is not ready and uses a few percent of a core was waiting for CPU, not
-   computing: CPU time over uptime from `/proc/1/stat` (fields 14 and 15, in hundredths
-   of a second) inside the container says the same. Node load is in Prometheus
-   (`../reference/rc-deployments.md#reading-resource-use`).
-5. **Pods in `ContainerCreating` for minutes.** `kubectl ... get events --field-selector
-   involvedObject.name=<pod>`: a `Pulling` event without a `Pulled` means the node is
-   still fetching that image tag, which every node must do once per tag.
+1. **Pods.** `kubectl --context main -n <ns> get pods`: which are not ready, their status
+   and restart counts.
+2. **Why each one stopped.** `kubectl --context main -n <ns> describe pod <pod>`: the
+   `Last State` reason and exit code, how long it ran, and the events. A kill by a probe
+   shows `Startup probe failed` or `Liveness probe failed`; a crash shows an error exit
+   with a log; exit 137 without a log line is a kill.
+3. **What it logged.** `kubectl --context main -n <ns> logs <pod> --previous`. A server
+   killed before its first log line was still loading.
+4. **Whether it was starved.** `kubectl --context main top pod -n <ns>` and the CPU
+   request in the pod spec. A pod that is not ready and uses a few percent of a core was
+   waiting for CPU, not computing (inside the container, CPU time over uptime from
+   `/proc/1/stat`, fields 14 and 15 in hundredths of a second, says the same). Node load
+   is in Prometheus (`../reference/rc-deployments.md#reading-resource-use`).
+5. **Pods not created or not pulled.** `ContainerCreating` for minutes, or
+   `ImagePullBackOff`: `kubectl ... get events --field-selector involvedObject.name=<pod>`.
 
 ## 4. Interpret
 
-| Evidence | Diagnosis | Action |
+| Evidence | Kind of failure | Next step |
 | --- | --- | --- |
-| Exit 137 at about 90s, empty logs, CPU request `5m` on the container | Starved at start-up on a crowded node, then killed by the startup probe, which restarts the same slow boot | Fixed in the infra renderer (50m CPU and a five-minute startup budget for the API and sync servers, infra PRs #82 and #85). Needs that renderer promoted to the RC's channel (below) |
-| `Liveness probe failed` on a `central-api` during a large pull | Probe allowed one second and two failures while a sync page kept the server busy | Same renderer fix (five seconds, six failures) |
-| `ComparisonError` naming `central-seed-top-up-*` and an immutable `spec.template` | An older renderer named that Job by the image alone, so a changed pod spec cannot be applied to the existing Job | Fixed in the renderer (the name now follows the pod spec). On an older render, delete the completed Job so Argo recreates it **[dev-OTS]**; it reruns the top-up once |
-| `ImagePullBackOff`, `NotFound` on `tamanu-synthetic-tests:sha-...` | The image for that commit is still being built by CD | Retries by itself; check the Tamanu `CD Synthetic Tests` run |
-| Other `ImagePullBackOff` | Infra pack `docs/runbooks/image-pull-backoff.md` | |
-| Application `OutOfSync` with hook Jobs running | A sync is mid-flight (quiesce, migrate, resume) | Wait for it; `Progressing` is expected |
+| Killed by a probe, little or no log, low CPU use against a small CPU request | Resource contention at start-up: the pod is starved on a crowded node and its probe budget runs out before it can boot, and each kill restarts the same slow boot | The fix is the pod's CPU request or probe budget in the infra renderer, not the application. Raise it there and promote (section 5); infra pack `docs/spec/kubernetes/tamanu/deployment-rollout.md#server-health` states the intended budgets |
+| Killed by a liveness probe while the server was busy (large sync, migration) | A probe stricter than the work the server does | Same place: the renderer's probe settings |
+| Application `ComparisonError` naming an immutable field of a Job | A Job rendered as an ordinary resource keeps its name while the render changes its pod template, and a Job's template cannot change in place | A render must give the Job a new name when its template changes; until the renderer does, delete the completed Job so Argo recreates it **[dev-OTS]** |
+| `ImagePullBackOff` with `NotFound` | The image for that tag is not built yet, or the build failed | Check the CD run for that commit; a build in progress retries by itself. Other pull failures: infra pack `docs/runbooks/image-pull-backoff.md` |
+| `ContainerCreating` for minutes, then starts | The node is pulling that tag for the first time | Wait; many tags and many busy nodes make rollouts slow |
+| Application `OutOfSync` with hook Jobs running | A sync is mid-flight | Wait for it; `Progressing` is expected |
+| Pods `0/0`, or `downscaler/force-downtime` set | Deployment is hibernated | Infra pack `docs/sops/wake-deployment.md` |
 
 ## 5. Resolve
 
-- A renderer change reaches the RC only once the `stable` channel is promoted and the
-  Application re-rendered (infra pack: `docs/sops/promote-renderer-channel.md`). Promote
-  with the commit left empty to take the latest renderer build from `main`; the run waits
-  for that build. **[dev-OTS]**
-- Do not hand-patch the Deployment or delete the RC's namespace, database or Application
+- A fix in the renderer reaches the RC only once the `stable` channel is promoted and the
+  Application re-rendered (infra pack: `docs/sops/promote-renderer-channel.md`). Leave the
+  commit empty to take the latest renderer build from `main`; the run waits for that
+  build. **[dev-OTS]**
+- Do not hand-patch the workload or delete the RC's namespace, database or Application
   (`../ruled-out-actions.md`); Argo CD reverts patches.
-- After the promote, wait for the whole chain to settle, then confirm: every pod ready,
-  Application `Synced` and `Healthy`, central and both facilities accept a login, and the
-  facility `sync` logs show `completedSession` with `pulling since=` rising.
+- After the rollout settles, confirm: every pod ready, Application `Synced` and
+  `Healthy`, central and both facilities accept a login, and each facility `sync` log
+  shows `completedSession` with `pulling since=` rising.
 
 ## 6. Escalate
 
-Escalate when pods still restart on a renderer that has the fixes above, or when nodes are
-overloaded rather than the pods under-requesting (more than 100 pods on a 2 vCPU node).
-Hand over: the RC and version, `describe` output for one restarting pod (exit code,
-duration, events), its CPU request, and the Application's sync and health status.
+Escalate when workloads still fail on a renderer that has the right requests and probe
+budgets, or when the nodes are overloaded rather than the pods under-requesting. Hand
+over: the RC and version, `describe` output for one failing pod (exit code, run time,
+events), its CPU request and use, and the Application's sync and health status.
