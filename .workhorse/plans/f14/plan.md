@@ -40,7 +40,9 @@ Laboratory columns map to Tamanu as:
 
 The lab table groups its rows the way Tamanu's lab results table and lab results printout do, under bold full-width rows: a Panels row with every panel beneath it, then an Individual tests row with every test requested on its own. Each panel is a bold row carrying the panel's status, date, performer and interpretation, with its tests indented beneath it. A group with nothing in it is left out. The lab results printout's section rows (`getRowSectionLabel` in `Table.jsx`) are the pattern to reuse, though they label each panel by name rather than gathering panels under one Panels row.
 
-"Most recent" is per test type: each test appears once, with its latest result from the last 12 months, whether it came in a panel or alone. A panel row shows only the tests whose latest result came from that panel, and is left out when none did. Which lab and imaging statuses count (only Published and Completed, or interim results too) is still open.
+"Most recent" is per test type: each test appears once, with its latest result from the last 12 months, whether it came in a panel or alone. A panel row shows only the tests whose latest result came from that panel, and is left out when none did.
+
+Interim results are included as well as final ones, with the Status column showing which. For labs that is any request with a result recorded whose status is Interim results, To be verified, Verified or Published. For radiology it is any request with a result recorded, whether still In progress or Completed, since an imaging result can be added before the request is completed. A request with no result yet (Reception pending, Results pending, or imaging Pending) is left out, as are cancelled, deleted and entered-in-error requests.
 
 Radiology columns map to Tamanu as:
 
