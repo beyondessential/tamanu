@@ -544,7 +544,9 @@ body.v19-no-photo .v19-photo, body:not(.v19-no-photo) .v19-avatar .v19-initials 
   var currentPhotoName = currentPhoto ? 'IMG_20260312_091522.jpg' : null;
   if (!currentPhoto) document.body.classList.add('v19-no-photo');
 
-  function setSave() { var off = !field.v19Value || Boolean(field.v19Value.existing); save.disabled = off; save.classList.toggle('Mui-disabled', off); }
+  // Save is available when the question differs from the current photo: a new photo chosen, or an existing photo cleared
+  function isChanged() { return field.v19Value ? !field.v19Value.existing : Boolean(currentPhoto); }
+  function setSave() { var off = !isChanged(); save.disabled = off; save.classList.toggle('Mui-disabled', off); }
   field.addEventListener('v19-change', setSave);
 
   document.querySelector('.v19-edit').addEventListener('click', function () {
@@ -556,11 +558,19 @@ body.v19-no-photo .v19-photo, body:not(.v19-no-photo) .v19-avatar .v19-initials 
     var button = event.target.closest('[data-action]');
     if (!button || button.closest('[data-photo-field]')) return;
     if (button.dataset.action === 'dismiss') modal.hidden = true;
-    if (button.dataset.action === 'save' && field.v19Value && !field.v19Value.existing) {
-      currentPhoto = field.v19Value.url;
-      currentPhotoName = field.v19Value.name;
-      photo.src = currentPhoto;
-      document.body.classList.remove('v19-no-photo');
+    if (button.dataset.action === 'save' && isChanged()) {
+      if (field.v19Value) {
+        currentPhoto = field.v19Value.url;
+        currentPhotoName = field.v19Value.name;
+        photo.src = currentPhoto;
+        document.body.classList.remove('v19-no-photo');
+      } else {
+        // Saving with the question cleared removes the photo, and the initials return
+        currentPhoto = null;
+        currentPhotoName = null;
+        photo.removeAttribute('src');
+        document.body.classList.add('v19-no-photo');
+      }
       modal.hidden = true;
     }
   });
