@@ -90,8 +90,16 @@ export class SettingsPage extends BasePage {
     return setting.getByTestId('switch-b88q').locator('input');
   }
 
+  // Waits for the save request rather than the "Settings saved" toast, which lingers long enough
+  // for a second save to show two of them
   async save(): Promise<void> {
+    const saved = this.page.waitForResponse(
+      response =>
+        response.request().method() === 'PUT' &&
+        new URL(response.url()).pathname.endsWith('/admin/settings') &&
+        response.ok(),
+    );
     await this.page.getByTestId('button-s1z4').click();
-    await this.page.getByText('Settings saved').waitFor();
+    await saved;
   }
 }
