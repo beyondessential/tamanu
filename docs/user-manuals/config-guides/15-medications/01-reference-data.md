@@ -55,10 +55,10 @@ Where \* is a required field.
 | unitConversion        | Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set.                                                                                                                                                                                                                                                                     |
 | notes                 | A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed. Leave blank if no default is required.                                                                                                                                                           |
 | isSensitive           | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](03-permissions.md#sensitive-medications).                                                                                                                      |
-| doseMin               | The lowest expected dose, in the drug's `dosingUnit`. Must be 0 or more, and no greater than `doseMax`. Leave blank for no minimum. See [Dose and dispensing quantity limits](#dose-and-dispensing-quantity-limits).                                                                                                                                                  |
-| doseMax               | The highest expected dose, in the drug's `dosingUnit`. Must be 0 or more, and no less than `doseMin`. Leave blank for no maximum.                                                                                                                                                                                                                                     |
-| dispensingQuantityMin | The lowest expected dispensing quantity, in the drug's `dispensingUnit`. Must be a whole number of 0 or more, and no greater than `dispensingQuantityMax`. Leave blank for no minimum.                                                                                                                                                                                |
-| dispensingQuantityMax | The highest expected dispensing quantity, in the drug's `dispensingUnit`. Must be a whole number of 0 or more, and no less than `dispensingQuantityMin`. Leave blank for no maximum.                                                                                                                                                                                  |
+| doseMin               | The lowest expected dose, in the drug's `dosingUnit`. Must be greater than 0, and no greater than `doseMax`. Leave blank for no minimum. See [Dose and dispensing quantity limits](#dose-and-dispensing-quantity-limits).                                                                                                                                             |
+| doseMax               | The highest expected dose, in the drug's `dosingUnit`. Must be greater than 0, and no less than `doseMin`. Leave blank for no maximum.                                                                                                                                                                                                                                |
+| dispensingQuantityMin | The lowest expected dispensing quantity, in the drug's `dispensingUnit`. Must be a whole number of 1 or more, and no greater than `dispensingQuantityMax`. Leave blank for no minimum.                                                                                                                                                                                |
+| dispensingQuantityMax | The highest expected dispensing quantity, in the drug's `dispensingUnit`. Must be a whole number of 1 or more, and no less than `dispensingQuantityMin`. Leave blank for no maximum.                                                                                                                                                                                  |
 
 Stock levels are recorded in additional columns, one per facility, as described below.
 
@@ -103,11 +103,19 @@ fields of the same names in the drug's details.
 An import fails on a row whose limits break the rules in the table above, and the **Manage** tab will
 not save a drug whose limits break them.
 
+A `Drug` sheet without one of the limit columns leaves that limit as it is, so re-importing a sheet
+made before the limits existed keeps them. To remove a limit by import, include its column and leave
+the cell blank.
+
 When a dose or dispensing quantity is outside its range, a warning appears below it, such as **Above
 expected max of 2 tablets** or **Below expected min of 1 tablet**. A value equal to a limit is within
 range, and an empty field never shows a warning. The warning does not stop the user saving, and the
 value is saved as entered. A variable dose has no dose amount, so only its dispensing quantity is
 checked.
+
+The warning gives the limit in the drug's current `dosingUnit` or `dispensingUnit`. A prescription
+keeps the unit it was written in, so after a drug's unit changes, an older prescription can show its
+dose in the old unit with the warning in the new one.
 
 | Where                                                                     | Dose checked | Dispensing quantity checked |
 | :------------------------------------------------------------------------ | :----------- | :-------------------------- |

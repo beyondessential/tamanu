@@ -405,16 +405,28 @@ describe('getDoseLimitBreach and getDispensingQuantityLimitBreach', () => {
     doseMax: '2',
     dispensingQuantityMin: 10,
     dispensingQuantityMax: 100,
+    dosingUnit: 'Tablet',
+    dispensingUnit: 'Pack',
   };
 
-  it('checks a dose against the dose limits only', () => {
+  it('checks a dose against the dose limits only, in the dosing unit', () => {
     expect(getDoseLimitBreach({ doseAmount: 3 }, referenceDrug)).toEqual({
       type: DRUG_LIMIT_BREACHES.ABOVE_MAX,
       limit: 2,
+      unit: 'Tablet',
     });
     expect(getDoseLimitBreach({ doseAmount: 50 }, referenceDrug)).toEqual({
       type: DRUG_LIMIT_BREACHES.ABOVE_MAX,
       limit: 2,
+      unit: 'Tablet',
+    });
+  });
+
+  it("gives the limit in the drug's unit, whatever unit the prescription was written in", () => {
+    expect(getDoseLimitBreach({ doseAmount: 500, dosingUnit: 'mg' }, referenceDrug)).toEqual({
+      type: DRUG_LIMIT_BREACHES.ABOVE_MAX,
+      limit: 2,
+      unit: 'Tablet',
     });
   });
 
@@ -422,10 +434,11 @@ describe('getDoseLimitBreach and getDispensingQuantityLimitBreach', () => {
     expect(getDoseLimitBreach({ doseAmount: 50, isVariableDose: true }, referenceDrug)).toBeNull();
   });
 
-  it('checks a quantity against the dispensing quantity limits only', () => {
+  it('checks a quantity against the dispensing quantity limits only, in the dispensing unit', () => {
     expect(getDispensingQuantityLimitBreach(2, referenceDrug)).toEqual({
       type: DRUG_LIMIT_BREACHES.BELOW_MIN,
       limit: 10,
+      unit: 'Pack',
     });
     expect(getDispensingQuantityLimitBreach(50, referenceDrug)).toBeNull();
   });
@@ -489,7 +502,7 @@ describe('validateDrugLimits', () => {
     expect(validateDrugLimits({})).toEqual([]);
     expect(
       validateDrugLimits({
-        doseMin: 0,
+        doseMin: 0.5,
         doseMax: '2.5',
         dispensingQuantityMin: 1,
         dispensingQuantityMax: '100',
@@ -502,10 +515,14 @@ describe('validateDrugLimits', () => {
     expect(validateDrugLimits({ doseMin: 1, doseMax: 1 })).toEqual([]);
   });
 
-  it('rejects a negative limit', () => {
-    expect(validateDrugLimits({ doseMin: -1 })).toEqual(['doseMin must be 0 or more']);
+  it('rejects a limit of 0 or less', () => {
+    expect(validateDrugLimits({ doseMin: -1 })).toEqual(['doseMin must be greater than 0']);
+    expect(validateDrugLimits({ doseMax: 0 })).toEqual(['doseMax must be greater than 0']);
     expect(validateDrugLimits({ dispensingQuantityMax: -5 })).toEqual([
-      'dispensingQuantityMax must be 0 or more',
+      'dispensingQuantityMax must be greater than 0',
+    ]);
+    expect(validateDrugLimits({ dispensingQuantityMin: '0' })).toEqual([
+      'dispensingQuantityMin must be greater than 0',
     ]);
   });
 

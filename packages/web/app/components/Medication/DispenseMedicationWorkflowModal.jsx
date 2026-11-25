@@ -673,7 +673,6 @@ export const DispenseMedicationWorkflowModal = memo(
                           quantity,
                           effectivePrescription?.medication?.referenceDrug,
                         ),
-                        dispensingUnit,
                       )
                 }
               />

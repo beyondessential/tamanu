@@ -177,7 +177,6 @@ const getColumns = (
           {/* spec: DQLIM#sending-to-pharmacy */}
           {renderLimitWarning(
             getDoseLimitBreach({ doseAmount, isVariableDose }, medication?.referenceDrug),
-            dosingUnit,
           )}
         </>
       ),
@@ -292,7 +291,6 @@ const getColumns = (
             ) : (
               renderLimitWarning(
                 getDispensingQuantityLimitBreach(quantity, medication?.referenceDrug),
-                dispensingUnit,
               )
             )
           }

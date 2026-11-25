@@ -634,7 +634,13 @@ patientRoute.get(
           include: {
             model: models.ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['referenceDataId', 'isSensitive', ...DRUG_LIMIT_FIELDS],
+            attributes: [
+              'referenceDataId',
+              'isSensitive',
+              'dosingUnit',
+              'dispensingUnit',
+              ...DRUG_LIMIT_FIELDS,
+            ],
             include: facilityId
               ? [
                   {
@@ -908,7 +914,13 @@ patientRoute.get(
           include: {
             model: ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['referenceDataId', 'isSensitive', ...DRUG_LIMIT_FIELDS],
+            attributes: [
+              'referenceDataId',
+              'isSensitive',
+              'dosingUnit',
+              'dispensingUnit',
+              ...DRUG_LIMIT_FIELDS,
+            ],
             required: false,
           },
         },
@@ -964,7 +976,14 @@ patientRoute.get(
     const referenceDrugs = await ReferenceDrug.findAll({
       where: { referenceDataId: { [Op.in]: medicationIds } },
       // spec: DQLIM#dispensing
-      attributes: ['id', 'isSensitive', 'referenceDataId', ...DRUG_LIMIT_FIELDS],
+      attributes: [
+        'id',
+        'isSensitive',
+        'referenceDataId',
+        'dosingUnit',
+        'dispensingUnit',
+        ...DRUG_LIMIT_FIELDS,
+      ],
       include: {
         model: ReferenceDrugFacility,
         as: 'facilities',

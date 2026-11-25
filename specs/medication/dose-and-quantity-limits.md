@@ -14,9 +14,10 @@ Applies to the accepted range a drug can carry for its dose amount and for its d
 - Limits are set per drug and apply at every facility.
 - Limits are set on the Drug reference data, either through the import spreadsheet or on the drug's record in the admin panel's reference data management.
 - The Drug tab of the import spreadsheet holds the limits in the columns `doseMin`, `doseMax`, `dispensingQuantityMin` and `dispensingQuantityMax`, and a blank cell, including one holding only spaces, leaves that limit unset.
+- A Drug tab without one of the limit columns leaves that limit as it is, so re-importing a sheet from before the limits existed keeps the drugs' limits.
 - Clearing a limit on the drug's record in reference data management unsets it.
 - Exporting drugs includes the four limit columns, with a blank cell for each unset limit.
-- A limit is invalid when it is not a plain number, when it is negative, when it is a dispensing quantity limit that is not a whole number, or when it is a minimum greater than its matching maximum.
+- A limit is invalid when it is not a plain number, when it is 0 or less, when it is a dispensing quantity limit that is not a whole number, or when it is a minimum greater than its matching maximum.
 - The importer rejects a Drug row holding an invalid limit, and saving a drug in reference data management rejects it the same way.
 
 > [!NOTE]
@@ -37,6 +38,7 @@ Applies to the accepted range a drug can carry for its dose amount and for its d
 - The warning is a single line of small text led by an orange warning icon, and the field keeps its normal appearance rather than showing as an error.
 - The warning updates as the user types: it appears as soon as the value goes out of range, and clears once the value is back in range or the field is empty.
 - The warning names the limit crossed and its value in the drug's unit, for example "Above expected max of 2 tablets" or "Below expected min of 1 tablet".
+- The unit named is the drug's current unit, even where a prescription was written in a unit the drug has since changed from.
 - The warning does not stop the user saving, and the value is saved as entered.
 
 > [!NOTE]

@@ -16,18 +16,19 @@ import {
 const renderWarning = element =>
   renderElementWithTranslatedText(element, undefined, createTranslationContextWithReplacements());
 
-const aboveMax = limit => ({ type: DRUG_LIMIT_BREACHES.ABOVE_MAX, limit });
-const belowMin = limit => ({ type: DRUG_LIMIT_BREACHES.BELOW_MIN, limit });
+// A breach carries the drug's unit with the limit, as getDoseLimitBreach and its sibling give it.
+const aboveMax = (limit, unit) => ({ type: DRUG_LIMIT_BREACHES.ABOVE_MAX, limit, unit });
+const belowMin = (limit, unit) => ({ type: DRUG_LIMIT_BREACHES.BELOW_MIN, limit, unit });
 
 // spec: DQLIM#the-inline-warning
 describe('MedicationLimitWarning', () => {
   it.each([
-    [aboveMax(2), DRUG_UNITS.tablet, 'Above expected max of 2 tablets'],
-    [belowMin(1), DRUG_UNITS.tablet, 'Below expected min of 1 tablet'],
-    [aboveMax(3), DRUG_UNITS.blisterPack, 'Above expected max of 3 blister packs'],
-    [aboveMax(500), DRUG_UNITS.ml, 'Above expected max of 500 mL'],
-  ])('names the limit crossed in the drug unit', (breach, unit, text) => {
-    renderWarning(<MedicationLimitWarning breach={breach} unit={unit} />);
+    [aboveMax(2, DRUG_UNITS.tablet), 'Above expected max of 2 tablets'],
+    [belowMin(1, DRUG_UNITS.tablet), 'Below expected min of 1 tablet'],
+    [aboveMax(3, DRUG_UNITS.blisterPack), 'Above expected max of 3 blister packs'],
+    [aboveMax(500, DRUG_UNITS.ml), 'Above expected max of 500 mL'],
+  ])('names the limit crossed in the drug unit', (breach, text) => {
+    renderWarning(<MedicationLimitWarning breach={breach} />);
 
     expect(screen.getByTestId('medication-limit-warning').textContent.trim()).toBe(text);
   });
@@ -41,7 +42,7 @@ describe('MedicationLimitWarning', () => {
   });
 
   it('renders nothing when the value is in range', () => {
-    renderWarning(<MedicationLimitWarning breach={null} unit="Tablet" />);
+    renderWarning(<MedicationLimitWarning breach={null} />);
 
     expect(screen.queryByTestId('medication-limit-warning')).toBeNull();
   });
@@ -49,12 +50,12 @@ describe('MedicationLimitWarning', () => {
 
 describe('renderLimitWarning', () => {
   it('renders the warning for a limit crossed', () => {
-    renderWarning(<div>{renderLimitWarning(aboveMax(2), DRUG_UNITS.tablet)}</div>);
+    renderWarning(<div>{renderLimitWarning(aboveMax(2, DRUG_UNITS.tablet))}</div>);
 
     expect(screen.getByText('Above expected max of 2 tablets')).toBeTruthy();
   });
 
   it('gives nothing, so a helper text slot stays empty, when the value is in range', () => {
-    expect(renderLimitWarning(null, DRUG_UNITS.tablet)).toBeUndefined();
+    expect(renderLimitWarning(null)).toBeUndefined();
   });
 });

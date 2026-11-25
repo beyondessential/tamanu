@@ -443,6 +443,36 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
       });
     });
 
+    it('keeps the limits when re-imported from a sheet without the limit columns', async () => {
+      const limits = { doseMin: 1, doseMax: 2, dispensingQuantityMin: 1, dispensingQuantityMax: 4 };
+      await doImport(buildDrugWorkbookBuffer(limitHeaders, [drugRow(limits)]));
+
+      const headersWithoutLimits = ['id', 'code', 'name', 'dosingUnit', 'dispensingUnit'];
+      const { errors } = await doImport(
+        buildDrugWorkbookBuffer(headersWithoutLimits, [drugRow({ name: 'Renamed Drug' })]),
+      );
+
+      expect(errors).toHaveLength(0);
+      expect(await findLimits('drug-limits')).toEqual(limits);
+    });
+
+    it('checks an imported limit against the kept limit it pairs with', async () => {
+      await doImport(buildDrugWorkbookBuffer(limitHeaders, [drugRow({ doseMax: 2 })]));
+
+      const { errors } = await doImport(
+        buildDrugWorkbookBuffer(
+          ['id', 'code', 'name', 'dosingUnit', 'dispensingUnit', 'doseMin'],
+          [drugRow({ doseMin: 3 })],
+        ),
+      );
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toBe(
+        'Drug "drug-limits": doseMin must not be greater than doseMax. on drug at row 2',
+      );
+      expect(await findLimits('drug-limits')).toMatchObject({ doseMin: null, doseMax: 2 });
+    });
+
     it('accepts a minimum equal to its maximum', async () => {
       const rows = [drugRow({ doseMin: 1, doseMax: 1 })];
       const { errors } = await doImport(buildDrugWorkbookBuffer(limitHeaders, rows));
@@ -464,7 +494,12 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
         { dispensingQuantityMax: true },
         'dispensingQuantityMax must be a number',
       ],
-      ['a negative limit', { doseMin: -1 }, 'doseMin must be 0 or more'],
+      ['a negative limit', { doseMin: -1 }, 'doseMin must be greater than 0'],
+      [
+        'a limit of 0',
+        { dispensingQuantityMax: 0 },
+        'dispensingQuantityMax must be greater than 0',
+      ],
       [
         'a dispensing quantity limit that is not a whole number',
         { dispensingQuantityMax: 2.5 },

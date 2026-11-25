@@ -335,7 +335,6 @@ export const EditMedicationDispenseModal = memo(
                           quantity,
                           dispensedPrescription?.medication?.referenceDrug,
                         ),
-                        dispensingUnit,
                       )
                 }
               />

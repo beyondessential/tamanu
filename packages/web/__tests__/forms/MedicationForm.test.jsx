@@ -331,6 +331,8 @@ describe('MedicationForm dose and dispensing quantity limits', () => {
               doseMax: '2',
               dispensingQuantityMin: 1,
               dispensingQuantityMax: 4,
+              dosingUnit: 'Tablet',
+              dispensingUnit: 'Pack',
             },
           },
           medicationId: 'drug-1',

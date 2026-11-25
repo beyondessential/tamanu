@@ -733,18 +733,31 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
   } = item;
   const rows = [];
 
+  let existingDrug;
+  if (drugId) {
+    existingDrug = await models.ReferenceDrug.findOne({
+      where: { referenceDataId: drugId },
+    });
+  }
+
   // spec: DQLIM#configuring-limits
-  // Like an invalid unit, an invalid limit rejects the row. A blank cell leaves the limit unset, and
-  // each limit is saved as the number it was read as.
-  const limitErrors = validateDrugLimits(item);
+  // Only the limit columns the sheet has are written, so re-importing a sheet from before the limits
+  // existed keeps them; in a column the sheet has, a blank cell unsets the limit. A kept limit is
+  // checked with the imported ones, and like an invalid unit, an invalid limit rejects the row.
+  const sheetColumns = new Set(header.map(column => column.trim()));
+  const importedLimitFields = DRUG_LIMIT_FIELDS.filter(field => sheetColumns.has(field));
+  const limitErrors = validateDrugLimits({
+    ...Object.fromEntries(DRUG_LIMIT_FIELDS.map(field => [field, existingDrug?.[field]])),
+    ...Object.fromEntries(importedLimitFields.map(field => [field, item[field]])),
+  });
   if (limitErrors.length > 0) {
     for (const message of limitErrors) {
       pushError(`Drug "${drugId}": ${message}.`);
     }
     return [];
   }
-  const limits = Object.fromEntries(
-    DRUG_LIMIT_FIELDS.map(field => [field, parseDrugLimit(item[field])]),
+  const importedLimits = Object.fromEntries(
+    importedLimitFields.map(field => [field, parseDrugLimit(item[field])]),
   );
 
   const validDrugUnits = Object.values(DRUG_UNITS);
@@ -761,13 +774,6 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
     return [];
   }
 
-  let existingDrug;
-  if (drugId) {
-    existingDrug = await models.ReferenceDrug.findOne({
-      where: { referenceDataId: drugId },
-    });
-  }
-
   const referenceDrugId = existingDrug?.id || crypto.randomUUID();
   const newDrug = {
     id: referenceDrugId,
@@ -778,7 +784,7 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
     unitConversion,
     notes,
     isSensitive: !!isSensitive,
-    ...limits,
+    ...importedLimits,
   };
   rows.push({
     model: 'ReferenceDrug',

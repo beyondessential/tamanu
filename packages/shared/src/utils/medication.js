@@ -218,21 +218,35 @@ export const getLimitBreach = (value, min, max) => {
 };
 
 /**
- * A prescription's dose against its drug's dose limits. `referenceDrug` holds the drug's limit
- * fields, and is absent until a drug is chosen, in which case nothing is out of range. A variable
- * dose has no amount, so it is never out of range.
+ * A breach with the unit its limit is in, which is the drug's own unit. A prescription keeps the
+ * unit it was written in, which can differ once the drug's unit has changed, so the limit is never
+ * labelled with the prescription's unit.
+ */
+const withUnit = (breach, unit) => (breach ? { ...breach, unit } : null);
+
+/**
+ * A prescription's dose against its drug's dose limits, as `{ type, limit, unit }` in the drug's
+ * dosing unit. `referenceDrug` holds the drug's limits and units, and is absent until a drug is
+ * chosen, in which case nothing is out of range. A variable dose has no amount, so it is never out
+ * of range.
  */
 export const getDoseLimitBreach = ({ doseAmount, isVariableDose }, referenceDrug) =>
   isVariableDose
     ? null
-    : getLimitBreach(doseAmount, referenceDrug?.doseMin, referenceDrug?.doseMax);
+    : withUnit(
+        getLimitBreach(doseAmount, referenceDrug?.doseMin, referenceDrug?.doseMax),
+        referenceDrug?.dosingUnit,
+      );
 
-/** A dispensing quantity against a drug's dispensing quantity limits. */
+/** A dispensing quantity against its drug's dispensing quantity limits, in its dispensing unit. */
 export const getDispensingQuantityLimitBreach = (quantity, referenceDrug) =>
-  getLimitBreach(
-    quantity,
-    referenceDrug?.dispensingQuantityMin,
-    referenceDrug?.dispensingQuantityMax,
+  withUnit(
+    getLimitBreach(
+      quantity,
+      referenceDrug?.dispensingQuantityMin,
+      referenceDrug?.dispensingQuantityMax,
+    ),
+    referenceDrug?.dispensingUnit,
   );
 
 /**
@@ -278,8 +292,8 @@ export const validateDrugLimits = limits => {
     if (number === null) return;
     if (!Number.isFinite(number)) {
       errors.push(`${field} must be a number`);
-    } else if (number < 0) {
-      errors.push(`${field} must be 0 or more`);
+    } else if (number <= 0) {
+      errors.push(`${field} must be greater than 0`);
     } else if (isWholeNumber && !Number.isInteger(number)) {
       errors.push(`${field} must be a whole number`);
     }

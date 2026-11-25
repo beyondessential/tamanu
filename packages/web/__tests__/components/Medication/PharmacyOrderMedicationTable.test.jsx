@@ -17,7 +17,13 @@ const buildRow = overrides => ({
   medication: {
     id: 'drug-aluminium600',
     name: 'Aluminium 600mg Tablets',
-    referenceDrug: { doseMin: '1', doseMax: '2', dispensingQuantityMax: 100 },
+    referenceDrug: {
+      doseMin: '1',
+      doseMax: '2',
+      dispensingQuantityMax: 100,
+      dosingUnit: 'Tablet',
+      dispensingUnit: 'Tablet',
+    },
   },
   doseAmount: '10',
   dosingUnit: 'Tablet',
@@ -53,6 +59,14 @@ describe('PharmacyOrderMedicationTable dose and quantity limits', () => {
     const row = within(getRow('Aluminium 600mg Tablets'));
     expect(row.getByText('Above expected max of 2 tablets')).toBeTruthy();
     expect(row.getByText('Above expected max of 100 tablets')).toBeTruthy();
+  });
+
+  // spec: DQLIM#the-inline-warning
+  it("names the drug's current unit when the prescription was written in another", () => {
+    renderTable([buildRow({ doseAmount: '500', dosingUnit: 'mg', quantity: 1 })]);
+
+    const row = within(getRow('Aluminium 600mg Tablets'));
+    expect(row.getByText('Above expected max of 2 tablets')).toBeTruthy();
   });
 
   it('shows no warning for values in range, or for a variable dose', () => {

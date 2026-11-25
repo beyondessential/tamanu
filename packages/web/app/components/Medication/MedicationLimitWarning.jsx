@@ -36,15 +36,16 @@ const WarningIcon = styled(CircleAlert)`
 /**
  * spec: DQLIM#the-inline-warning
  * Names the limit a value crossed, in the drug's unit, e.g. "Above expected max of 2 tablets".
- * `breach` comes from getLimitBreach and its wrappers; renders nothing when it is null.
+ * `breach` comes from getDoseLimitBreach or getDispensingQuantityLimitBreach, which carry the
+ * drug's unit with the limit; renders nothing when it is null.
  */
-export const MedicationLimitWarning = ({ breach, unit, ...props }) => {
+export const MedicationLimitWarning = ({ breach, ...props }) => {
   const { getEnumTranslation } = useTranslation();
   if (!breach) return null;
 
   // Lowercase each ordinary word ("Blister Packs" -> "blister packs"); "mL" and "IU" keep theirs.
-  const unitLabel = unit
-    ? getDrugUnitLabel(unit, breach.limit, getEnumTranslation)
+  const unitLabel = breach.unit
+    ? getDrugUnitLabel(breach.unit, breach.limit, getEnumTranslation)
         .split(' ')
         .map(lowercaseFirstLetter)
         .join(' ')
@@ -75,5 +76,5 @@ export const MedicationLimitWarning = ({ breach, unit, ...props }) => {
  * The warning when there is a limit to warn about, otherwise nothing. Used for an input's helper
  * text slot, which takes space whenever it is given anything, and below a dose shown as text.
  */
-export const renderLimitWarning = (breach, unit) =>
-  breach ? <MedicationLimitWarning breach={breach} unit={unit} /> : undefined;
+export const renderLimitWarning = breach =>
+  breach ? <MedicationLimitWarning breach={breach} /> : undefined;

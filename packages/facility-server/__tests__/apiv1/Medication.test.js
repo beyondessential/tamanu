@@ -1604,11 +1604,16 @@ describe('Medication', () => {
     it('should return the limits of both the prescribed and the dispensed drug', async () => {
       const { dispenseId, medication, substitute } = await arrangeModifiedDispense();
       await models.ReferenceDrug.update(
-        { doseMax: 2, dispensingQuantityMax: 100 },
+        { doseMax: 2, dispensingQuantityMax: 100, dosingUnit: 'Tablet', dispensingUnit: 'Pack' },
         { where: { referenceDataId: medication.id } },
       );
       await models.ReferenceDrug.update(
-        { doseMin: 1, dispensingQuantityMin: 5 },
+        {
+          doseMin: 1,
+          dispensingQuantityMin: 5,
+          dosingUnit: 'Capsule',
+          dispensingUnit: 'Blister Pack',
+        },
         { where: { referenceDataId: substitute.id } },
       );
 
@@ -1621,6 +1626,12 @@ describe('Medication', () => {
       expect(prescribedDrug.dispensingQuantityMax).toBe(100);
       expect(Number(row.medication.referenceDrug.doseMin)).toBe(1);
       expect(row.medication.referenceDrug.dispensingQuantityMin).toBe(5);
+      // A warning gives the limit in the drug's current units.
+      expect(prescribedDrug).toMatchObject({ dosingUnit: 'Tablet', dispensingUnit: 'Pack' });
+      expect(row.medication.referenceDrug).toMatchObject({
+        dosingUnit: 'Capsule',
+        dispensingUnit: 'Blister Pack',
+      });
     });
 
     // The dispensed medication details window reads the prescription type from this field.
@@ -1921,11 +1932,16 @@ describe('Medication', () => {
       const { medication: substitute } = await createDrug();
       const modifyReason = await createModifyReason();
       await models.ReferenceDrug.update(
-        { doseMax: 2, dispensingQuantityMax: 100 },
+        { doseMax: 2, dispensingQuantityMax: 100, dosingUnit: 'Tablet', dispensingUnit: 'Pack' },
         { where: { referenceDataId: asPrescribed.medication.id } },
       );
       await models.ReferenceDrug.update(
-        { doseMin: 1, dispensingQuantityMin: 5 },
+        {
+          doseMin: 1,
+          dispensingQuantityMin: 5,
+          dosingUnit: 'Capsule',
+          dispensingUnit: 'Blister Pack',
+        },
         { where: { referenceDataId: substitute.id } },
       );
 
@@ -1962,6 +1978,12 @@ describe('Medication', () => {
       const modifiedRow = result.body.data.find(d => d.id === modifiedResult.body[0].id);
       expect(Number(modifiedRow.medication.referenceDrug.doseMin)).toBe(1);
       expect(modifiedRow.medication.referenceDrug.dispensingQuantityMin).toBe(5);
+      // A warning gives the limit in the drug's current units.
+      expect(prescribedDrug).toMatchObject({ dosingUnit: 'Tablet', dispensingUnit: 'Pack' });
+      expect(modifiedRow.medication.referenceDrug).toMatchObject({
+        dosingUnit: 'Capsule',
+        dispensingUnit: 'Blister Pack',
+      });
     });
 
     // The dispensed medication details window reads the prescription type from this field.
@@ -2090,7 +2112,14 @@ describe('Medication', () => {
     it('should return the drug limits with each ongoing prescription', async () => {
       const arranged = await arrangeOngoingPrescription();
       await models.ReferenceDrug.update(
-        { doseMin: 1, doseMax: 2, dispensingQuantityMin: 1, dispensingQuantityMax: 30 },
+        {
+          doseMin: 1,
+          doseMax: 2,
+          dispensingQuantityMin: 1,
+          dispensingQuantityMax: 30,
+          dosingUnit: 'Tablet',
+          dispensingUnit: 'Pack',
+        },
         { where: { referenceDataId: arranged.ongoingPrescription.medicationId } },
       );
 
@@ -2100,6 +2129,7 @@ describe('Medication', () => {
       expect(Number(referenceDrug.doseMax)).toBe(2);
       expect(referenceDrug.dispensingQuantityMin).toBe(1);
       expect(referenceDrug.dispensingQuantityMax).toBe(30);
+      expect(referenceDrug).toMatchObject({ dosingUnit: 'Tablet', dispensingUnit: 'Pack' });
     });
 
     const sendToPharmacy = async ({ localPatient, ongoingPrescription }) => {
@@ -2380,7 +2410,13 @@ describe('Medication', () => {
         patientId: localPatient.id,
       });
       await models.ReferenceDrug.update(
-        { doseMax: 2, dispensingQuantityMin: 1, dispensingQuantityMax: 100 },
+        {
+          doseMax: 2,
+          dispensingQuantityMin: 1,
+          dispensingQuantityMax: 100,
+          dosingUnit: 'Tablet',
+          dispensingUnit: 'Pack',
+        },
         { where: { referenceDataId: medication.id } },
       );
 
@@ -2396,6 +2432,7 @@ describe('Medication', () => {
       expect(Number(referenceDrug.doseMax)).toBe(2);
       expect(referenceDrug.dispensingQuantityMin).toBe(1);
       expect(referenceDrug.dispensingQuantityMax).toBe(100);
+      expect(referenceDrug).toMatchObject({ dosingUnit: 'Tablet', dispensingUnit: 'Pack' });
     });
 
     it('should not list a prescription whose drug has no reference drug record', async () => {

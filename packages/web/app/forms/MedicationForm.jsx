@@ -1034,10 +1034,7 @@ export const MedicationForm = ({
                     ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation)
                     : undefined
                 }
-                helperText={renderLimitWarning(
-                  getDoseLimitBreach(values, referenceDrug),
-                  values.dosingUnit,
-                )}
+                helperText={renderLimitWarning(getDoseLimitBreach(values, referenceDrug))}
                 data-testid="medication-field-doseAmount-3t6w"
               />
               <Field
@@ -1271,7 +1268,6 @@ export const MedicationForm = ({
                 }
                 helperText={renderLimitWarning(
                   getDispensingQuantityLimitBreach(values.quantity, referenceDrug),
-                  dispensingUnit,
                 )}
                 data-testid="medication-field-quantity-6j9m"
               />

@@ -563,7 +563,13 @@ encounterRelations.get(
           include: {
             model: models.ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['referenceDataId', 'isSensitive', ...DRUG_LIMIT_FIELDS],
+            attributes: [
+              'referenceDataId',
+              'isSensitive',
+              'dosingUnit',
+              'dispensingUnit',
+              ...DRUG_LIMIT_FIELDS,
+            ],
             include: facilityId
               ? [
                   {

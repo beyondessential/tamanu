@@ -226,10 +226,7 @@ const getColumns = (
         {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
         {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
         {/* spec: DQLIM#adding-ongoing-medications-to-an-encounter */}
-        {renderLimitWarning(
-          getDoseLimitBreach(data, data.medication?.referenceDrug),
-          data.dosingUnit,
-        )}
+        {renderLimitWarning(getDoseLimitBreach(data, data.medication?.referenceDrug))}
       </Box>
     ),
   },
@@ -281,7 +278,6 @@ const getColumns = (
               ? fieldError
               : renderLimitWarning(
                   getDispensingQuantityLimitBreach(value, data.medication?.referenceDrug),
-                  data.dispensingUnit,
                 )
           }
         />

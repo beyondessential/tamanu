@@ -258,10 +258,7 @@ export const ModifyPrescriptionModal = ({
                   : undefined
               }
               // spec: DQLIM#dispensing
-              helperText={renderLimitWarning(
-                getDoseLimitBreach(values, values.referenceDrug),
-                values.dosingUnit,
-              )}
+              helperText={renderLimitWarning(getDoseLimitBreach(values, values.referenceDrug))}
               data-testid="modify-prescription-dose"
             />
             <FrequencyField
@@ -311,7 +308,6 @@ export const ModifyPrescriptionModal = ({
               }
               helperText={renderLimitWarning(
                 getDispensingQuantityLimitBreach(values.quantity, values.referenceDrug),
-                values.dispensingUnit,
               )}
               data-testid="modify-prescription-quantity"
             />

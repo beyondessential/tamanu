@@ -143,10 +143,7 @@ const DispensingQuantityField = ({ medicationId, dispensingUnit, referenceDrug, 
       required={isSentToPharmacy}
       disabled={disabled}
       // spec: DQLIM#discharging
-      helperText={renderLimitWarning(
-        getDispensingQuantityLimitBreach(quantity, referenceDrug),
-        dispensingUnit,
-      )}
+      helperText={renderLimitWarning(getDispensingQuantityLimitBreach(quantity, referenceDrug))}
       data-testid="field-ksmf"
     />
   );
@@ -184,10 +181,7 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
           .join(', ')}
       </Box>
       {/* spec: DQLIM#discharging */}
-      {renderLimitWarning(
-        getDoseLimitBreach(medication, medicationReferenceData.referenceDrug),
-        medication.dosingUnit,
-      )}
+      {renderLimitWarning(getDoseLimitBreach(medication, medicationReferenceData.referenceDrug))}
     </Box>
   );
 };
