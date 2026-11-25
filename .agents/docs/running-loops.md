@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 # Running a loop of agents
@@ -32,7 +32,7 @@ A loop over the card's changes takes them as the card's branch against its base,
 Check that the loop can do its job before spending a round on it. Each skill names what it needs; the checks are the same in every loop and end one of three ways:
 
 - **Nothing to do.** The loop cannot run or has no work: a QA loop on a branch with no changes, a refactor loop with no product code in scope. Call `report_round` with `status` `done`, `round` 1, `found` all zero and a `summary` that begins "Nothing to do" and gives the reason, then finish with a short note and do no more work, so the loops queued behind this one start without waiting.
-- **Ask first.** The loop can run, but what it has to go on is thin or it looks premature: a card description too sparse to build or judge against, no specs where the loop would test against them, a design loop with no idea what the UI is for. Put the choice to the user with the question tool, naming the options and what each costs ("Start with a spec interview first, or go ahead with what the card says?"), and carry on with their answer. If they pick something other than this loop, end the run as `stopped` and say what to run instead. Ask only when the answer would change what you do, and ask once, before round 1: a loop asks nothing once it is going, and decides and records its assumption in the plan instead.
+- **Ask first.** The loop can run, but what it has to go on is thin or it looks premature: a card description too sparse to build or judge against, no specs where the loop would test against them, a design loop with no idea what the UI is for. Put the choice to the user with the question tool as `.agents/docs/asking-questions.md` says, naming the options and what each costs ("Start with a spec interview first, or go ahead with what the card says?"), and carry on with their answer. If they pick something other than this loop, end the run as `stopped` and say what to run instead. Ask only when the answer would change what you do, and ask once, before round 1: a loop asks nothing once it is going, and decides and records its assumption in the plan instead.
 - **Go.** Everything it needs is there. Say nothing about it.
 
 A loop picking up straight after another one (the next in a queue, or started in the conversation the last loop just finished in) does not ask: the person has just been through this card with the loop before, so it takes the option it would have recommended and records the assumption and why in the plan. A prerequisite it cannot assume past is a "Nothing to do" exit.

@@ -4,7 +4,7 @@ description: "Fresh-eyes review of the project's PRD for gaps, contradictions, v
 label: "Review PRD"
 category: plan
 surface: project
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Review PRD with fresh eyes

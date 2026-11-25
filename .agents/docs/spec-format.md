@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 # Spec format and information architecture
@@ -166,7 +166,7 @@ Because the number isn't in the file, it can't be text-searched — "see section
 - **No point-in-time language.** Don't document transitions ("we used to do X, now we do Y", "this replaces Z"). Each spec is a snapshot of the desired system, not a changelog.
 - **No stacking adjectives.** Don't describe behaviour with chains of near-synonyms ("seamless, invisible, frictionless"). Use one precise word or describe the concrete behaviour.
 - **No exact measurements in prose.** Pixel widths, animation durations, and precise benchmarks belong in mockups or the design system, not in acceptance criteria. Describe the intent ("compact", "fast enough to feel instant") rather than the number.
-- **Open questions must be resolved before a spec is considered done.** A spec with open questions is a draft. Nail them down with the user before committing.
+- **Open questions must be resolved before a spec is considered done.** A spec with open questions is a draft. Nail them down with the user before committing, asking as `.agents/docs/asking-questions.md` says.
 - **Australian/NZ English spelling** (colour, organisation, finalise).
 
 ## When a change warrants a spec update
