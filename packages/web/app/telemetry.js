@@ -51,25 +51,38 @@ export function initWebTelemetry(api) {
   return telemetry;
 }
 
-// The only navigation routes that carry ids are the patient drill-downs, all
-// defined (with named params) in PATIENT_PATHS — the app's own route table. Every
-// other page is a static path and groups as itself. Ordered most-specific first
-// and matched as a prefix, so a deeper or unlisted sub-path collapses to its
-// nearest id-bearing ancestor rather than ever recording a raw id.
+// Every navigation route that carries an id, with the named params of the app's
+// own route definitions: PATIENT_PATHS for the patient drill-downs, and the
+// route files under routes/ (and the admin registry tabs) for the rest. Every
+// other page is a static path and groups as itself, so a new id-bearing route
+// must be added here. Ordered most-specific first and matched as a prefix, so a
+// deeper or unlisted sub-path collapses to its nearest id-bearing ancestor
+// rather than ever recording a raw id.
 const NAV_ROUTE_PATTERNS = [
   PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
   PATIENT_PATHS.LAB_REQUEST,
   PATIENT_PATHS.IMAGING_REQUEST,
+  `${PATIENT_PATHS.ENCOUNTER}/programs/:surveyResponseId/edit`,
   PATIENT_PATHS.SUMMARY,
   PATIENT_PATHS.MAR,
   PATIENT_PATHS.PROGRAM_REGISTRY,
   PATIENT_PATHS.ENCOUNTER,
+  `${PATIENT_PATHS.PATIENT}/programs/:surveyResponseId/edit`,
   PATIENT_PATHS.PATIENT,
+  '/program-registry/:programRegistryId',
+  '/admin/programs/forms/manage/:programId',
+  '/admin/programs/registries/:programRegistryId/statuses',
+  '/admin/programs/registries/:programRegistryId/conditions',
+  '/admin/programs/registries/:programRegistryId/conditionCategories',
+  '/admin/programs/registries/:programRegistryId',
+  '/admin/reports/:reportId/versions/:versionId/edit',
+  '/admin/users/rolesAndDesignations/roles/delete/:id',
+  '/admin/users/rolesAndDesignations/designations/delete/:id',
 ];
 
 // Resolve a concrete pathname to a route pattern and its named params by matching
 // the app's own route definitions — never by inferring which segments are ids.
-function resolveNavigationRoute(pathname) {
+export function resolveNavigationRoute(pathname) {
   for (const pattern of NAV_ROUTE_PATTERNS) {
     const match = matchPath({ path: pattern, end: false }, pathname);
     if (match) return { route: pattern, pathParams: match.params };
