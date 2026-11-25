@@ -34,4 +34,20 @@ describe('initDeviceId', () => {
     expect(ctx.deviceId).toBe(testDeviceId);
     expect(deviceId).toBe(testDeviceId);
   });
+
+  it('seeds from TAMANU_DEVICE_ID and rejects a mismatch with the recorded id', async () => {
+    process.env.TAMANU_DEVICE_ID = 'facility-from-env';
+    try {
+      await models.LocalSystemFact.destroy({ where: { key: FACT_DEVICE_ID }, force: true });
+      await initDeviceId({ context: ctx, deviceType: DEVICE_TYPES.FACILITY_SERVER });
+      expect(await models.LocalSystemFact.get(FACT_DEVICE_ID)).toBe('facility-from-env');
+
+      process.env.TAMANU_DEVICE_ID = 'facility-other';
+      await expect(
+        initDeviceId({ context: ctx, deviceType: DEVICE_TYPES.FACILITY_SERVER }),
+      ).rejects.toThrow('Device ID mismatch');
+    } finally {
+      delete process.env.TAMANU_DEVICE_ID;
+    }
+  });
 });

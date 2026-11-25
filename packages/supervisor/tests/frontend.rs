@@ -224,7 +224,7 @@ async fn paths() {
 			&[],
 			Want {
 				status: StatusCode::OK,
-				body: "window.env = {\"BUGSNAG_API_KEY\":null,\"NODE_ENV\":\"production\",\"REVISION\":\"abc123\"};\n",
+				body: "window.env = {\"NODE_ENV\":\"production\",\"REVISION\":\"abc123\"};\n",
 				headers: &[
 					("content-type", Some("text/javascript; charset=utf-8")),
 					("cache-control", Some("no-cache")),

@@ -12,7 +12,7 @@ Applies to the supervisor, Tamanu's own server at the front of a Tamanu server, 
 - A path that names a file of the built frontend gets that file. Any other path gets the frontend's index page, so the app's own routes open directly.
 - A file stored beside precompressed copies of itself is sent in the best encoding the browser accepts, preferring zstd, then Brotli, then gzip. Text that has no precompressed copy is compressed as it is sent.
 - The index page, `/env.js` and the app's manifest, `/tamanu-manifest.json` or the web app's `/shared/tamanu-manifest.json`, are never cached without the browser checking again. The index page carries a tag for that check, so a browser that holds the release's index has it confirmed rather than sent again.
-- `/env.js` gives the app the deployment's environment name, Bugsnag key and revision, written as data, so no value can change what the script does.
+- `/env.js` gives the app the deployment's environment name and revision, written as data, so no value can change what the script does.
 - Requests other than `GET` and `HEAD` are refused.
 - A response with an error status carries Tamanu's error page for that status, where the frontend has one.
 
@@ -43,7 +43,7 @@ Applies to the supervisor, Tamanu's own server at the front of a Tamanu server, 
 > The camera is allowed because the web app scans codes and takes photos with it. `Strict-Transport-Security` is left out because deployments served over plain HTTP, locally or on a private network, would be sent to HTTPS. `Cross-Origin-Embedder-Policy` is left out because it only serves cross-origin isolation, which neither app uses, and would block any image or font from another origin.
 
 - Every response also carries a content security policy written for the web app and the patient portal, as `Content-Security-Policy-Report-Only`: the browser reports in its console whatever the policy would block, and blocks nothing.
-- The policy allows the app's own files, inline styles, images and fonts from `data:` addresses, workers, frames and images from `blob:` addresses, connections to the server itself and to Bugsnag, and nothing from any other origin. It allows no inline scripts, no plugins, and no framing by another site.
+- The policy allows the app's own files, inline styles, images and fonts from `data:` addresses, workers, frames and images from `blob:` addresses, connections to the server itself, and nothing from any other origin. It allows no inline scripts, no plugins, and no framing by another site.
 
 > [!NOTE]
 > The policy is reported before it is enforced because a source it misses would break the app for every deployment at once. Its reports are read while the release is tested.
@@ -64,7 +64,6 @@ Applies to the supervisor, Tamanu's own server at the front of a Tamanu server, 
 | `FRONTEND_ROOT` | `/app`, or `C:\app` on Windows | Directory of the built frontend |
 | `TAMANU_SUPERVISOR_LOG` | `info` | Which log lines are written, in [tracing's filter syntax](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives) |
 | `NODE_ENV` | `production` | The environment name `/env.js` gives the app |
-| `BUGSNAG_API_KEY` | none | The Bugsnag key `/env.js` gives the app |
 | `REVISION` | none | The revision `/env.js` gives the app |
 
 - `:port` listens on IPv6 and IPv4 alike, or on IPv4 alone where IPv6 is switched off.
