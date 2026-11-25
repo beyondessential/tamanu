@@ -23,3 +23,30 @@ The PDF has a Vitals table listing the most recent value of each of these, recor
 The IPS bundle gains a Vital Signs section (LOINC 8716-3) holding the same observations, so the PDF, the QR code's IPS and the emailed IPS all carry the same vitals. Vitals come from the vitals survey's fixed data elements, which cover everything listed except BMI.
 
 BMI is calculated from the most recent height and weight in the last 12 months, rather than read from a deployment's own calculated BMI question, so every deployment shows it. Its date recorded is the later of the two readings'. With no height or no weight in that window, BMI is left out.
+
+### Diagnostic results in the PDF
+
+A Diagnostic results section follows Vitals, with a Laboratory table and a Radiology table, each holding the most recent results recorded in the last 12 months. Like vitals, these belong in the IPS bundle too, as its Results section (LOINC 30954-2).
+
+Laboratory columns map to Tamanu as:
+
+- **Status**: the lab request's status
+- **Test name** and **Observation code**: the lab test type's name and code, or the lab test panel's name and code for a panel row
+- **Date sample collected**: the lab request's sample time
+- **Performed by**: the lab test's laboratory officer
+- **Result**: the lab test's result, with the test type's unit when the result is numeric
+- **Reference range**: the lab test's own reference range where it has one, otherwise the test type's range for the patient's sex, or its range text
+- **Interpretation**: the lab request's results interpretation, the conclusion SENAITE sends on its diagnostic report. It is free text and belongs to the whole request, so it sits on a panel row rather than on the panel's tests, and on the row of a test requested alone. Blank where the lab sent none
+
+A panel shows as a shaded row carrying the panel's status, date and performer, with its tests beneath it, indented. A test requested on its own is a single row.
+
+"Most recent" is per test type: each test appears once, with its latest result from the last 12 months, whether it came in a panel or alone. A panel row shows only the tests whose latest result came from that panel, and is left out when none did. Which lab and imaging statuses count (only Published and Completed, or interim results too) is still open.
+
+Radiology columns map to Tamanu as:
+
+- **Status**: the imaging request's status
+- **Imaging type**: the request's imaging type
+- **Area to be imaged** and **Observation code**: the request's areas and each area's external code, one line per area
+- **Imaging date**: the imaging result's completed date
+- **Reported by**: the user who completed the imaging result
+- **Results**: the imaging result's description

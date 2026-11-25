@@ -41,6 +41,15 @@ th { font-weight: 700; }
 /* IPS QR code: the same SMART Health Link the IPS email attaches */
 .qr-image { display: block; width: 78pt; height: 78pt; margin: 6pt 0 3pt; }
 
+/* Diagnostic results: wide tables set smaller to fit the page */
+.sub-title { font-size: 10pt; font-weight: 700; margin: 6pt 0 3pt; }
+table.compact { font-size: 8pt; }
+table.compact th, table.compact td { padding: 2pt 3pt; }
+tr.panel td { font-weight: 700; background: #f3f5f7; }
+td.in-panel { padding-left: 10pt; }
+table.lab td:nth-child(n+3):not(:last-child) { white-space: nowrap; }
+table.lab td:last-child { font-weight: 400; }
+
 /* Footer */
 .footer { position: absolute; left: 50pt; right: 50pt; bottom: 25pt; display: flex; justify-content: space-between; border-top: 1px solid #888888; padding-top: 2pt; color: #888888; font-size: 8pt; }
 .footer b { font-weight: 700; }
@@ -171,6 +180,31 @@ PO Box 1234, Suva</p>
           <tr><td>Body height</td><td>176 cm</td><td>02/09/2026</td></tr>
           <tr><td>Body weight</td><td>84.2 kg</td><td>28/10/2026</td></tr>
           <tr><td>BMI</td><td>27.2 kg/m²</td><td>28/10/2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <p class="table-title">Diagnostic results</p>
+      <p class="sub-title">Laboratory</p>
+      <table class="compact lab">
+        <thead><tr><th>Status</th><th>Test name</th><th>Observation code</th><th>Date sample collected</th><th>Performed by</th><th>Result</th><th>Reference range</th><th>Interpretation</th></tr></thead>
+        <tbody>
+          <tr class="panel"><td>Published</td><td>Full blood count</td><td>58410-2</td><td>28/10/2026</td><td>Mere Tuilau</td><td></td><td></td><td>Within normal limits</td></tr>
+          <tr><td></td><td class="in-panel">Haemoglobin</td><td>718-7</td><td></td><td></td><td>148 g/L</td><td>130–180 g/L</td><td></td></tr>
+          <tr><td></td><td class="in-panel">White cell count</td><td>6690-2</td><td></td><td></td><td>7.2 ×10⁹/L</td><td>4.0–11.0 ×10⁹/L</td><td></td></tr>
+          <tr><td></td><td class="in-panel">Platelet count</td><td>777-3</td><td></td><td></td><td>265 ×10⁹/L</td><td>150–400 ×10⁹/L</td><td></td></tr>
+          <tr><td>Published</td><td>HbA1c</td><td>4548-4</td><td>28/10/2026</td><td>Mere Tuilau</td><td>7.8%</td><td>4.0–6.0%</td><td>Above target, suggesting suboptimal glycaemic control</td></tr>
+          <tr><td>Published</td><td>Creatinine</td><td>2160-0</td><td>28/10/2026</td><td>Mere Tuilau</td><td>92 µmol/L</td><td>60–110 µmol/L</td><td>Normal renal function</td></tr>
+          <tr><td>Published</td><td>Hepatitis B surface antigen</td><td>5196-1</td><td>02/09/2026</td><td>Josefa Vula</td><td>Not detected</td><td>Not detected</td><td>No evidence of hepatitis B infection</td></tr>
+        </tbody>
+      </table>
+      <p class="sub-title">Radiology</p>
+      <table class="compact">
+        <thead><tr><th>Status</th><th>Imaging type</th><th>Area to be imaged</th><th>Observation code</th><th>Imaging date</th><th>Reported by</th><th style="width: 34%">Results</th></tr></thead>
+        <tbody>
+          <tr><td>Completed</td><td>X-Ray</td><td>Chest</td><td>36643-5</td><td>14/10/2026</td><td>Dr Sione Tupou</td><td>No focal consolidation. Heart size normal. No pleural effusion.</td></tr>
+          <tr><td>Completed</td><td>Ultrasound</td><td>Liver<br>Kidneys</td><td>24558-9<br>24604-1</td><td>02/09/2026</td><td>Dr Ana Ratu</td><td>Mild fatty infiltration of the liver. Both kidneys normal in size with no hydronephrosis.</td></tr>
         </tbody>
       </table>
     </div>
