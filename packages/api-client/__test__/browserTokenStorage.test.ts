@@ -54,6 +54,22 @@ describe('renewPersistedAuthToken', () => {
     expect(await read(storage)).toBe('other user');
   });
 
+  it('removes the stored token when the renewal is empty', async () => {
+    const storage = createStorage();
+    await write(storage, 'first');
+
+    expect(await renew(storage, 'first', '')).toBe(true);
+    expect(storage.getItem(KEY)).toBeNull();
+  });
+
+  it('keeps a sign-in made in another tab when the renewal is empty', async () => {
+    const storage = createStorage();
+    await write(storage, 'other user');
+
+    expect(await renew(storage, 'first', '')).toBe(false);
+    expect(await read(storage)).toBe('other user');
+  });
+
   it('keeps a logout made while the renewed token is being encrypted', async () => {
     const storage = createStorage();
     await write(storage, 'first');

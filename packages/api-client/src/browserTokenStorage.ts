@@ -212,7 +212,7 @@ export async function writePersistedAuthToken(
  * `currentToken`. Storage is shared by every tab, and another tab may have logged out or signed in
  * as someone else since this one stored its token; a renewal must not undo that. The stored value
  * is checked again just before writing, so a change made while the renewal was encrypting is kept.
- * Returns whether the stored token was replaced.
+ * Returns whether the stored token was replaced or, for an empty `renewedToken`, removed.
  */
 export async function renewPersistedAuthToken(
   storageKey: string,
@@ -228,11 +228,16 @@ export async function renewPersistedAuthToken(
   if ((await unpackPersistedToken(stored, keyMaterial)) !== currentToken) {
     return false;
   }
-  const packed = await packTokenForStorage(renewedToken, keyMaterial);
+  // An empty renewal removes the stored token, as writePersistedAuthToken does
+  const packed = renewedToken ? await packTokenForStorage(renewedToken, keyMaterial) : null;
   if (storage.getItem(storageKey) !== stored) {
     return false;
   }
-  storage.setItem(storageKey, packed);
+  if (packed === null) {
+    storage.removeItem(storageKey);
+  } else {
+    storage.setItem(storageKey, packed);
+  }
   return true;
 }
 
