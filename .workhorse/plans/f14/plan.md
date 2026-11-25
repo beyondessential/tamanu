@@ -10,6 +10,10 @@ The modal is the one #W11 adds for invoicing: the Details tab's sections, fields
 
 The IPS form's patient email is set when the IPS modal opens. Saving a new email address in the patient details modal does not change the address already in the IPS form.
 
+### PDF section order
+
+After the patient details and summary details, the PDF's sections run: Active problems, Allergies and intolerances, Medication summary, Immunisations, Diagnostic results, then Vitals.
+
 ### QR code in the PDF
 
 The PDF carries the same QR code the IPS email attaches, beside the summary details. That QR code does not hold the IPS JSON itself, which is far too large for a QR code. It holds a SMART Health Link: the IPS viewer's address, followed by a payload naming where the encrypted IPS bundle sits in S3 and the key that decrypts it (`IPSRequestProcessor` on the central server builds it).
