@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { createMemoryRouter, RouterProvider, useLocation, useNavigate } from 'react-router';
-import { createStore } from 'redux';
+import { combineReducers, createStore } from 'redux';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { TranslationContext } from '@tamanu/ui-components';
@@ -14,20 +14,12 @@ vi.mock('../../app/forms/NoteForm', () => ({ NoteForm: () => <div>Note form</div
 
 import { NoteModal } from '../../app/components/NoteModal/NoteModal';
 import { NoteModalProvider, useNoteModal } from '../../app/contexts/NoteModal';
-import { checkIsLoggedIn } from '../../app/store/auth';
+import { authReducer, checkIsLoggedIn, idleTimeout } from '../../app/store/auth';
 
 const ENCOUNTER_PATH = '/patients/all/patient-1/encounter/encounter-1';
 
-const authReducer = (state = { auth: { user: { id: 'user-1' } } }, action) => {
-  switch (action.type) {
-    case 'LOGIN':
-      return { auth: { user: { id: 'user-1' } } };
-    case 'LOGOUT':
-      return { auth: { user: null } };
-    default:
-      return state;
-  }
-};
+// The login thunk needs a live server, so sign in with the action it settles on.
+const loginSuccess = () => ({ type: 'LOGIN_SUCCESS', user: { id: 'user-1' } });
 
 // Stands in for the patient routes: the note modal and its actions, then the auth provider's
 // cleanup, which ends the session and redirects in the same tick.
@@ -44,7 +36,7 @@ const PatientArea = () => {
       <button
         type="button"
         onClick={() => {
-          dispatch({ type: 'LOGOUT' });
+          dispatch(idleTimeout());
           navigate('/');
         }}
       >
@@ -65,7 +57,7 @@ const Layout = () => {
       {isUserLoggedIn ? (
         <PatientArea />
       ) : (
-        <button type="button" onClick={() => dispatch({ type: 'LOGIN' })}>
+        <button type="button" onClick={() => dispatch(loginSuccess())}>
           Log in
         </button>
       )}
@@ -80,7 +72,8 @@ const translationContext = {
 };
 
 const renderAtEncounter = () => {
-  const store = createStore(authReducer);
+  const store = createStore(combineReducers({ auth: authReducer }));
+  store.dispatch(loginSuccess());
   const router = createMemoryRouter([{ path: '*', element: <Layout /> }], {
     initialEntries: [ENCOUNTER_PATH],
   });
