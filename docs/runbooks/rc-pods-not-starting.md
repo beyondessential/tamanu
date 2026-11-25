@@ -15,8 +15,10 @@ several times in a row after a merge (the image build and a renderer promotion e
 a sync, and each sync quiesces the workloads, runs the migrators, then resumes), so judge
 it only after the last roll has settled.
 
-Not for a crash with a clear error line (`rc-login-fails.md`), nor for one facility that
-stopped syncing (`sync-facility-stale.md`, `sync-restart-loop.md`).
+Not for a pod that crashes with a clear error line in its log: `rc-login-fails.md` is the
+worked example of following one back to its cause, and its method is not specific to
+login. Nor for one facility that stopped syncing (`sync-facility-stale.md`,
+`sync-restart-loop.md`).
 
 ## 2. Establish context
 
