@@ -28,6 +28,7 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - Patients whose location has no area are grouped under a **No area** section, which follows the named wards.
 - Wards with no patients on the sheet are left off it.
 - Patients are identified by name and NHN.
+- Each patient's age follows their name in brackets, in the units Tamanu shows ages in elsewhere, so an infant's age reads in days, weeks or months. A patient with no date of birth recorded is shown by name alone.
 - A patient whose bed has been deleted does not appear on the sheet.
 - A patient whose ward has been deleted appears under **No area**.
 - A patient in a bed whose visibility status is not current still appears, even where Bed management's own list hides that bed.

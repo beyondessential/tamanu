@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { prepareDietSummary } from '../../src/utils/dietSummary/prepareDietSummary';
 
 // Mirrors the PDF language context: a seeded translation wins, otherwise the fallback shows.
@@ -107,19 +107,73 @@ describe('prepareDietSummary', () => {
       expect(wardNamesOf(wardSections)).toEqual(['Beta Ward', 'Zulu Ward']);
     });
 
-    it('carries each area through untouched beside its resolved name', () => {
+    it('carries each area through beside its resolved name', () => {
       const area = {
         id: 'ward-a',
         name: 'Alpha Ward',
         subTotals: { regular: 1 },
-        patients: [{ encounterId: 'enc-1' }],
+        patients: [{ encounterId: 'enc-1', firstName: 'Sione', lastName: 'Tupou' }],
       };
       const { wardSections } = prepareDietSummary({
         areas: [area],
         getTranslation: makeGetTranslation(),
       });
 
-      expect(wardSections).toEqual([{ area, wardName: 'Alpha Ward' }]);
+      expect(wardSections).toEqual([
+        {
+          area: { ...area, patients: [{ ...area.patients[0], label: 'Sione Tupou' }] },
+          wardName: 'Alpha Ward',
+        },
+      ]);
+    });
+  });
+
+  describe('patient labels', () => {
+    const ageDisplayFormat = [
+      {
+        as: 'weeks',
+        range: {
+          min: { duration: { days: 8 } },
+          max: { duration: { months: 1 }, exclusive: true },
+        },
+      },
+      { as: 'years', range: { min: { duration: { years: 2 } } } },
+    ];
+
+    const labelsFor = (patients) => {
+      const { wardSections } = prepareDietSummary({
+        areas: [{ id: 'ward-a', name: 'Alpha Ward', patients }],
+        getTranslation: makeGetTranslation(),
+        ageDisplayFormat,
+      });
+      return wardSections[0].area.patients.map(({ label }) => label);
+    };
+
+    beforeAll(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-11-26T12:00:00'));
+    });
+
+    afterAll(() => {
+      vi.useRealTimers();
+    });
+
+    it('follows each name with the patient’s age in brackets', () => {
+      expect(
+        labelsFor([{ firstName: 'Sione', lastName: 'Tupou', dateOfBirth: '1984-03-02' }]),
+      ).toEqual(['Sione Tupou (42 years)']);
+    });
+
+    it('gives an infant’s age in the unit the deployment shows it in', () => {
+      expect(
+        labelsFor([{ firstName: 'Sami', lastName: 'Vea', dateOfBirth: '2026-11-05' }]),
+      ).toEqual(['Sami Vea (3 weeks)']);
+    });
+
+    it('prints the name alone where no date of birth is recorded', () => {
+      expect(labelsFor([{ firstName: 'Mele', lastName: 'Fifita', dateOfBirth: null }])).toEqual([
+        'Mele Fifita',
+      ]);
     });
   });
 

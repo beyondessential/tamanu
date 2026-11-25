@@ -165,11 +165,12 @@ describe('Diet summary', () => {
     expect(areas.map(area => area.name)).toEqual(['Cardiology', 'Maternity', null]);
     expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 2', 'Bed 10']);
     expect(areas[2].id).toBe(null);
-    // spec: DIETSUM#who-appears-on-the-sheet — patients are identified by name and NHN.
+    // spec: DIETSUM#who-appears-on-the-sheet — patients are identified by name, age and NHN.
     expect(areas[0].patients[0]).toMatchObject({
       displayId: patient.displayId,
       firstName: patient.firstName,
       lastName: patient.lastName,
+      dateOfBirth: patient.dateOfBirth,
     });
   });
 

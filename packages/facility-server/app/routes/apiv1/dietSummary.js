@@ -49,6 +49,7 @@ const buildQuery = hasArea => `
     patients.display_id,
     patients.first_name,
     patients.last_name,
+    patients.date_of_birth,
     diets.id AS diet_id,
     diets.name AS diet_name
   FROM encounters
@@ -152,6 +153,7 @@ dietSummary.get(
           displayId: row.display_id,
           firstName: row.first_name,
           lastName: row.last_name,
+          dateOfBirth: row.date_of_birth,
           bed: row.bed,
           dietKeys: new Set(),
         };

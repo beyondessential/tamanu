@@ -230,7 +230,7 @@ const HospitalTotalTable = ({ dietColumns, columnWidth, hasFillColumn, hospitalT
 const PatientRow = ({ patient, dietColumns, columnWidth, hasFillColumn }) => (
   <View style={styles.row} wrap={false}>
     <View style={[styles.cell, { width: NAME_WIDTH }]}>
-      <Text style={styles.cellText}>{`${patient.firstName} ${patient.lastName}`}</Text>
+      <Text style={styles.cellText}>{patient.label}</Text>
     </View>
     <View style={[styles.cell, { width: NHN_WIDTH }]}>
       <Text style={styles.cellText}>{patient.displayId}</Text>
@@ -356,6 +356,7 @@ const DietSummaryPDFComponent = ({
   logoSrc,
   letterheadConfig,
   printedBy,
+  getSetting,
 }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortest, getCurrentDate } = useDateTime();
@@ -365,7 +366,12 @@ const DietSummaryPDFComponent = ({
     'Diet summary sheet',
   )} | ${formatShortest(getCurrentDate())}`;
 
-  const { dietColumns, wardSections } = prepareDietSummary({ columns, areas, getTranslation });
+  const { dietColumns, wardSections } = prepareDietSummary({
+    columns,
+    areas,
+    getTranslation,
+    ageDisplayFormat: getSetting('ageDisplayFormat'),
+  });
   const { columnWidth, hasFillColumn } = getDietColumnLayout(dietColumns.length);
 
   return (

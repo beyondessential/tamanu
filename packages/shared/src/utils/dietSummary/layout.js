@@ -4,10 +4,11 @@
 // heading at the foot of a page again. Declared here so the two move together.
 
 export const COLUMN_HEADER_HEIGHT = 72;
-export const NAME_WIDTH = 115;
+// Wide enough to keep an ordinary name and the age after it on one line.
+export const NAME_WIDTH = 140;
 export const CELL_PADDING_VERTICAL = 4;
-// Average glyph advance in a name at the cell's 8pt, which is what tells the estimate when a name
-// wraps its column.
+// Average glyph advance at the cell's 8pt, which is what tells the estimate when a patient's name
+// and age wrap their column.
 export const NAME_CHAR_WIDTH = 4.4;
 
 export const NHN_WIDTH = 60;

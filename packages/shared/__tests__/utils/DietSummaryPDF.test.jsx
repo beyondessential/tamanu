@@ -22,6 +22,7 @@ const sheet = {
           displayId: 'TEST001',
           firstName: 'Sione',
           lastName: 'Tupou',
+          dateOfBirth: '1984-03-02',
           bed: 'Bed 1',
           dietKeys: ['regular'],
         },
@@ -30,6 +31,7 @@ const sheet = {
           displayId: 'TEST002',
           firstName: 'Mele',
           lastName: 'Fifita',
+          dateOfBirth: null,
           bed: 'Bed 2',
           dietKeys: ['diet-soft'],
         },
@@ -38,18 +40,24 @@ const sheet = {
   ],
 };
 
+const settings = {
+  ageDisplayFormat: [{ as: 'years', range: { min: { duration: { days: 0 } } } }],
+};
+
 const renderSheetText = async props => {
   const buffer = await renderToBuffer(
     <DietSummaryPDF
       {...sheet}
       letterheadConfig={{}}
-      getSetting={() => undefined}
+      getSetting={key => settings[key]}
       primaryTimeZone="Pacific/Palau"
       {...props}
     />,
   );
   return readPdf(buffer).allText;
 };
+
+const countOf = (text, phrase) => text.split(phrase).length - 1;
 
 describe('DietSummaryPDF', () => {
   it('opens a whole-facility sheet with the Hospital total row', async () => {
@@ -65,5 +73,34 @@ describe('DietSummaryPDF', () => {
     expect(text).not.toContain('Hospital total');
     expect(text).toContain('Sub total');
     expect(text).toContain('Sione Tupou');
+  });
+
+  it('keeps a ward that fits its page under its own name alone', async () => {
+    const text = await renderSheetText();
+
+    expect(text).not.toContain('(continued)');
+    expect(countOf(text, 'Patient name')).toBe(1);
+  });
+
+  it('continues a ward past a page break under its name, with the column headers repeated', async () => {
+    const [ward] = sheet.areas;
+    const patients = Array.from({ length: 60 }, (_, index) => ({
+      ...ward.patients[0],
+      encounterId: `encounter-${index}`,
+    }));
+
+    const text = await renderSheetText({ areas: [{ ...ward, patients }] });
+
+    expect(text).toContain('Ward 1 (continued)');
+    expect(countOf(text, 'Patient name')).toBeGreaterThan(1);
+    expect(countOf(text, 'Soft')).toBeGreaterThan(2);
+  });
+
+  it('prints each patient’s age after their name', async () => {
+    const text = await renderSheetText();
+
+    expect(text).toMatch(/Sione Tupou \(\d+ years\)/);
+    expect(text).toContain('Mele Fifita');
+    expect(text).not.toContain('Mele Fifita (');
   });
 });
