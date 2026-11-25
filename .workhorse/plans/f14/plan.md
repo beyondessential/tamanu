@@ -18,7 +18,7 @@ After the patient details and summary details, the PDF's sections run: Active pr
 
 The PDF carries the same QR code the IPS email attaches, beside the summary details. That QR code does not hold the IPS JSON itself, which is far too large for a QR code. It holds a SMART Health Link: the IPS viewer's address, followed by a payload naming where the encrypted IPS bundle sits in S3 and the key that decrypts it (`IPSRequestProcessor` on the central server builds it).
 
-So downloading the PDF has to do what sending the email does first: generate the bundle, encrypt it, upload it to S3 and build the link. The email path does that in a queued central server task, while a download needs it on demand and the user is waiting for the file. The download therefore goes through the central server, and how it behaves when the facility cannot reach the central server needs settling before build. Each download also leaves a new long-term link in S3, as each email does.
+So downloading the PDF has to do what sending the email does first: generate the bundle, encrypt it, upload it to S3 and build the link. The email path does that in a queued central server task, while a download needs it on demand and the user is waiting for the file. The download therefore goes through the central server. When the facility cannot reach it the download does not start, and the user is told the IPS cannot be downloaded until the connection returns. Download PDF does not depend on the email fields. Each download also leaves a new long-term link in S3, as each email does.
 
 ### Vitals in the PDF
 
