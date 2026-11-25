@@ -206,7 +206,7 @@ export const useAppUpdate = (): AppUpdateState => {
 
     // The package can download while the device is still being set up to install it, so the
     // permission is only asked for once there is something waiting to be installed.
-    if (status.hasCompletedDownload) {
+    if (status.hasInstallableDownload) {
       setStage(status.canInstallPackages ? UPDATE_STAGE.READY : UPDATE_STAGE.NEEDS_PERMISSION);
       return;
     }
@@ -256,8 +256,8 @@ export const useAppUpdate = (): AppUpdateState => {
   const install = useCallback(async () => {
     // A package found stale or unreadable since it downloaded has been discarded, so trying again
     // fetches a fresh one rather than failing on the missing file
-    const { hasCompletedDownload } = await Updater.getStatus();
-    if (!hasCompletedDownload) {
+    const { hasInstallableDownload } = await Updater.getStatus();
+    if (!hasInstallableDownload) {
       setStage(UPDATE_STAGE.CHECKING);
       return;
     }

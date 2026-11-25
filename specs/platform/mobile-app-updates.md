@@ -56,6 +56,7 @@ The meta server serves the Android package for a given version and branding at i
 - The endpoint supports resuming a partial download from a byte offset.
 - The endpoint serves exactly the release requested, since central names the release its devices must run.
 - A request for a version or branding the meta server has no package for is refused, and the app treats it as a failure it cannot retry its way out of, until it is reopened or the server names a different release.
+- A download that is not an installable package newer than the installed app, such as a web page served in its place, is treated the same way: it is never offered as ready to install.
 - The package is served over an encrypted connection.
 
 ## The update banner

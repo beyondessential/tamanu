@@ -4,7 +4,7 @@ export interface UpdaterStatus {
   /** Whether Tamanu may post the notification that brings the user back after an install. */
   canPostNotifications: boolean;
   /** Whether a complete package is already downloaded and ready to install. */
-  hasCompletedDownload: boolean;
+  hasInstallableDownload: boolean;
   /** Bytes already on disk, whether from a partial download or a complete one. */
   downloadedBytes: number;
 }

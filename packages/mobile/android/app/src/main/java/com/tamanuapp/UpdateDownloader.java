@@ -44,6 +44,10 @@ public class UpdateDownloader {
         PackageUnavailableException(int status) {
             super("Update server has no package at this address (" + status + ")");
         }
+
+        PackageUnavailableException(String message) {
+            super(message);
+        }
     }
 
     private static final String DOWNLOAD_DIRECTORY = "update";
@@ -130,19 +134,19 @@ public class UpdateDownloader {
      * left over from an update already installed, or is unreadable, so it is discarded rather than
      * offered again. This holds even if the clean-up after an install never ran.
      */
-    public boolean hasCompletedDownload() {
+    public boolean hasInstallableDownload() {
         File complete = completeFile();
         if (!complete.exists()) {
             return false;
         }
-        if (isNewerThanInstalled(complete)) {
+        if (isInstallableUpdate(complete)) {
             return true;
         }
         complete.delete();
         return false;
     }
 
-    private boolean isNewerThanInstalled(File packageFile) {
+    private boolean isInstallableUpdate(File packageFile) {
         PackageManager packageManager = context.getPackageManager();
         PackageInfo downloaded = packageManager.getPackageArchiveInfo(packageFile.getPath(), 0);
         if (downloaded == null) {
@@ -206,7 +210,7 @@ public class UpdateDownloader {
     public File download(String url, ProgressListener listener) throws IOException {
         cancelled.set(false);
 
-        if (hasCompletedDownload()) {
+        if (hasInstallableDownload()) {
             File complete = completeFile();
             listener.onProgress(complete.length(), complete.length());
             return complete;
@@ -289,6 +293,13 @@ public class UpdateDownloader {
                 throw new IOException("Could not move the downloaded package into place");
             }
             partialSourceFile().delete();
+
+            // A web page or other file served in place of the package would otherwise read as ready,
+            // then be discarded at install and downloaded again without end
+            if (!isInstallableUpdate(complete)) {
+                complete.delete();
+                throw new PackageUnavailableException("Update server sent something other than a newer package");
+            }
             return complete;
         } finally {
             connection.disconnect();

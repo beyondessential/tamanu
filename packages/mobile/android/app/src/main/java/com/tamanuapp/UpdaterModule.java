@@ -65,7 +65,7 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
             status.putBoolean("canInstallPackages", canInstallPackages());
             status.putBoolean("canPostNotifications",
                 UpdateNotifications.canPostNotifications(getReactApplicationContext()));
-            status.putBoolean("hasCompletedDownload", downloader.hasCompletedDownload());
+            status.putBoolean("hasInstallableDownload", downloader.hasInstallableDownload());
             status.putDouble("downloadedBytes", downloader.downloadedBytes());
             promise.resolve(status);
         } catch (Exception e) {
@@ -176,7 +176,7 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void installDownloadedPackage(Promise promise) {
         File packageFile = downloader.completeFile();
-        if (!downloader.hasCompletedDownload()) {
+        if (!downloader.hasInstallableDownload()) {
             promise.reject("NO_PACKAGE", "There is no downloaded package to install");
             return;
         }
