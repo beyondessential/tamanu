@@ -76,6 +76,7 @@ The Sync tab is where staff go when sync looks wrong, so it says why sync is pau
 - While downloading, it reads "Downloading a Tamanu update (:percent%)."
 - Once downloaded, it reads "Tamanu needs to update before it can sync." and offers Install update.
 - Where the device does not yet allow Tamanu to install apps, it reads "Tamanu needs permission to update before it can sync." and offers Allow, which opens the Android settings screen that grants it.
+- Where the update has stopped and cannot continue on its own (not enough space, no package for this server, or an update the server did not accept), it says which, rather than reading as still downloading.
 - Install update is available on the Sync tab whether or not the home screen banner has been closed.
 - The time of the last successful sync stays visible, so staff can see how long the device has been held back.
 
