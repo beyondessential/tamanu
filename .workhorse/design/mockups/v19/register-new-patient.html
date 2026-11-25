@@ -1,0 +1,243 @@
+<!-- spec: none yet (card V19, patient profile photo) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Add new patient, with profile photo</title>
+<style>
+/* Field, radio and heading values follow the captured patient details form (same GenericPrimaryDetailsLayout). */
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;font-family:Roboto,Helvetica,Arial,sans-serif;color:#444444;background:#f3f5f7;}
+
+/* Backdrop standing in for the All patients listing */
+.backdrop{min-height:100vh;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:flex-start;padding:32px 16px 96px;}
+
+/* BaseModal, width sm */
+.modal{background:#ffffff;border-radius:4px;box-shadow:0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12);width:600px;max-width:100%;overflow:hidden;}
+.modal-header{display:flex;align-items:center;min-height:68px;padding:14px 14px 14px 32px;border-bottom:1px solid #ebebeb; /* softOutline */}
+.modal-title{flex:1;font-size:16px;font-weight:500;color:#444444;margin:0;}
+.icon-button{width:40px;height:40px;border:0;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#666666;cursor:pointer;padding:0;}
+.icon-button:hover{background:rgba(0,0,0,.04);}
+.icon-button svg{width:24px;height:24px;fill:currentColor;}
+.modal-content{background:#f3f5f7; /* background */ padding:18px 32px;}
+
+/* FormGrid */
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem 0.7rem;align-items:start;margin-top:0.3rem;}
+.full{grid-column:1 / -1;}
+
+/* IdBanner */
+.id-banner{margin:-18px -32px 0;background:#326699; /* primary */ padding:33px;color:#ffffff;}
+.id-banner-title{font-weight:500;font-size:18px;margin-bottom:20px;}
+.id-control{display:flex;align-items:center;}
+.id-value{display:block;font-weight:600;padding:10px;margin-right:15px;border:1px solid #ffffff;border-radius:3px;font-size:16px;}
+.qr-button{height:44px;width:44px;margin-right:15px;border:1px solid #ffffff;border-radius:3px;background:none;color:#ffffff;display:flex;align-items:center;justify-content:center;}
+.qr-button svg{width:22px;height:22px;fill:currentColor;}
+.regenerate{display:flex;align-items:flex-end;padding:10px;font-size:16px;}
+.regenerate svg{width:24px;height:24px;fill:#ffffff;margin-right:5px;}
+
+/* Labels */
+.label{display:inline-block;margin-bottom:4px;color:#666666;font-weight:500;font-size:14px;line-height:16px;}
+.required{color:#f76853; /* alert */ margin-inline-start:0.2em;}
+
+/* Text inputs */
+.input{position:relative;display:flex;align-items:center;background:#ffffff;border:1px solid #dedede; /* outline */ border-radius:3px;font-size:15px;}
+.input input{flex:1;min-width:0;border:0;background:none;font:inherit;color:#444444;padding:13px 12px 13px 15px;line-height:18px;outline:none;}
+.input input::placeholder{color:#b8b8b8;opacity:1;}
+.input .adorn{display:flex;align-items:center;padding-right:12px;color:#666666;}
+.input .adorn svg{width:24px;height:24px;fill:currentColor;}
+
+/* Radio boxes */
+.radio-group{display:flex;flex-direction:row;margin-top:2px;}
+.radio-box{display:inline-flex;align-items:center;margin:0 10px 0 0;border-radius:3px;padding:12px 20px;border:1px solid #dedede;background:#ffffff;font-size:14px;line-height:16px;color:#666666;cursor:pointer;}
+.radio-box.checked{border-color:#326699;color:#444444;}
+.radio-box .dot{width:18px;height:18px;margin-left:-5px;margin-right:5px;color:#dedede;}
+.radio-box.checked .dot{color:#326699;}
+.radio-box .dot svg{width:18px;height:18px;fill:currentColor;}
+.radio-wide{margin:10px 0;}
+
+/* Section heading */
+.section-heading{font-weight:500;font-size:16px;color:#666666;margin-bottom:30px;margin-top:10px;}
+
+/* Photo field (PhotoField / FileChooserInput) */
+.button-row{display:grid;grid-template-columns:max-content max-content auto;gap:1rem;align-items:center;margin-top:0.5rem;}
+.outlined-button{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 20px;background:#ffffff;border:1px solid #326699;border-radius:3px;color:#326699;font:500 14px/18px Roboto,Helvetica,Arial,sans-serif;cursor:pointer;}
+.outlined-button:hover{background:#f4f9ff;}
+.outlined-button svg{width:20px;height:20px;fill:currentColor;}
+.hint{font-size:11px;line-height:15px;color:#666666;}
+.hint strong{font-weight:500;}
+
+/* Selected photo */
+.photo-value{display:flex;align-items:center;gap:12px;margin-top:0.5rem;}
+.photo-thumb{width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid #dedede;background:#ebf0f5;}
+.photo-thumb svg{display:block;width:100%;height:100%;}
+.file-name{font-size:14px;line-height:18px;color:#444444;}
+.clear-button{width:30px;height:30px;padding:5px;border:0;background:none;border-radius:50%;color:#666666;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-inline-start:-7px;}
+.clear-button:hover{background:rgba(0,0,0,.04);}
+.clear-button svg{width:20px;height:20px;}
+
+/* Additional information row */
+.additional{grid-column:1 / -1;border-top:1px solid #dedede;margin-top:30px;margin-bottom:20px;padding:10px 0;display:flex;align-items:center;font-weight:500;font-size:17px;color:#444444;}
+.additional .icon-button{width:auto;height:auto;padding:0;margin-inline-end:5px;color:#326699;}
+.additional .muted{font-weight:200;font-size:14px;color:#999999;margin-left:4px;}
+
+/* ModalFormActionRow */
+.action-row{grid-column:1 / -1;margin:0 -32px;border-top:1px solid #dedede;padding:30px 32px 0 0;display:flex;justify-content:flex-end;gap:16px;}
+.btn{font:500 14px/16px Roboto,Helvetica,Arial,sans-serif;padding:11px 18px 12px;min-width:100px;border-radius:3px;border:1px solid transparent;cursor:pointer;}
+.btn-primary{background:#326699;color:#ffffff;border-color:#326699;}
+.btn-outlined{background:transparent;color:#326699;border-color:#326699;}
+
+/* State switching (mockup only) */
+.state-photo{display:none;}
+body.has-photo .state-photo{display:flex;}
+body.has-photo .state-empty{display:none;}
+
+.mockup-states{position:fixed;right:16px;bottom:16px;background:#2f4358;color:#ffffff;border-radius:4px;padding:10px 12px;font-size:12px;display:flex;gap:6px;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.mockup-states span{opacity:.7;margin-right:4px;}
+.mockup-states button{font:inherit;color:#ffffff;background:transparent;border:1px solid rgba(255,255,255,.4);border-radius:3px;padding:4px 8px;cursor:pointer;}
+.mockup-states button[aria-pressed="true"]{background:#ffffff;color:#2f4358;}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="placeholder-photo" viewBox="0 0 56 56">
+      <rect width="56" height="56" fill="#c2d2e1"/>
+      <circle cx="28" cy="22" r="10" fill="#ebf0f5"/>
+      <path d="M8 56c2-12 10-18 20-18s18 6 20 18z" fill="#ebf0f5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="backdrop">
+  <div class="modal" role="dialog" aria-labelledby="modal-title">
+    <header class="modal-header">
+      <h2 class="modal-title" id="modal-title">Add new patient</h2>
+      <button class="icon-button" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </header>
+
+    <div class="modal-content">
+      <form class="form-grid" novalidate>
+        <div class="full">
+          <div class="id-banner">
+            <div class="id-banner-title">National Health Number:</div>
+            <div class="id-control">
+              <span class="id-value">KGVL504183</span>
+              <span class="qr-button" aria-label="Scan QR code">
+                <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3zm2-6h4v4H5zM3 21h8v-8H3zm2-6h4v4H5zm8-12v8h8V3zm6 6h-4V5h4zm0 10h2v2h-2zm-6-6h2v2h-2zm2 2h2v2h-2zm-2 2h2v2h-2zm2 2h2v2h-2zm2-2h2v2h-2zm0-4h2v2h-2zm2 2h2v2h-2z"/></svg>
+              </span>
+              <span class="regenerate">
+                <svg viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26"/></svg>
+                Regenerate
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="full radio-wide">
+          <div class="radio-group" role="radiogroup" aria-label="New patient action">
+            <label class="radio-box checked"><span class="dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg></span>Add new patient</label>
+            <label class="radio-box"><span class="dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg></span>Register birth</label>
+          </div>
+        </div>
+
+        <div class="full section-heading">General information</div>
+
+        <div>
+          <label class="label" for="first-name">First name<span class="required">*</span></label>
+          <div class="input"><input id="first-name" value="Mele"></div>
+        </div>
+        <div>
+          <label class="label" for="middle-name">Middle name</label>
+          <div class="input"><input id="middle-name"></div>
+        </div>
+        <div>
+          <label class="label" for="last-name">Last name<span class="required">*</span></label>
+          <div class="input"><input id="last-name" value="Tupou"></div>
+        </div>
+        <div>
+          <label class="label" for="cultural-name">Cultural/traditional name</label>
+          <div class="input"><input id="cultural-name"></div>
+        </div>
+        <div>
+          <label class="label" for="dob">Date of birth<span class="required">*</span></label>
+          <div class="input"><input id="dob" placeholder="dd/mm/yyyy" value="14/02/1988"><span class="adorn"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></span></div>
+        </div>
+        <div>
+          <label class="label" for="village">Village</label>
+          <div class="input"><input id="village" placeholder="Search…"><span class="adorn"><svg viewBox="0 0 24 24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span></div>
+        </div>
+        <div>
+          <span class="label">Sex<span class="required">*</span></span>
+          <div class="radio-group" role="radiogroup" aria-label="Sex">
+            <label class="radio-box"><span class="dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg></span>Male</label>
+            <label class="radio-box checked"><span class="dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg></span>Female</label>
+          </div>
+        </div>
+        <div>
+          <label class="label" for="email">Email address</label>
+          <div class="input"><input id="email" type="email"></div>
+        </div>
+
+        <!-- New: profile photo, full width at the end of General information -->
+        <div class="full">
+          <span class="label">Profile photo</span>
+
+          <div class="button-row state-empty">
+            <button type="button" class="outlined-button">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5"/></svg>
+              Take photo with camera
+            </button>
+            <button type="button" class="outlined-button">
+              <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5zm0-10h4v6h6v-6h4l-7-7z"/></svg>
+              Upload image
+            </button>
+            <div class="hint"><strong>Max. 10&nbsp;MB</strong><br>Supported file types: jpg or jpeg</div>
+          </div>
+
+          <div class="photo-value state-photo">
+            <div class="photo-thumb"><svg><use href="#placeholder-photo"/></svg></div>
+            <span class="file-name">IMG_20261125_104312.jpg</span>
+            <button type="button" class="clear-button" aria-label="Clear">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="additional">
+          <button type="button" class="icon-button" aria-label="Expand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill:none"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+          </button>
+          Add additional information <span class="muted">(religion, occupation, blood type…)</span>
+        </div>
+
+        <div class="action-row">
+          <button type="button" class="btn btn-outlined">Cancel</button>
+          <button type="button" class="btn btn-primary">Create new patient</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="mockup-states" aria-label="Mockup state">
+  <span>State</span>
+  <button type="button" data-state="" aria-pressed="true">No photo</button>
+  <button type="button" data-state="has-photo" aria-pressed="false">Photo selected</button>
+</div>
+
+<script>
+  document.querySelectorAll('.mockup-states button').forEach(function (button) {
+    button.addEventListener('click', function () {
+      document.body.className = button.dataset.state;
+      document.querySelectorAll('.mockup-states button').forEach(function (other) {
+        other.setAttribute('aria-pressed', String(other === button));
+      });
+    });
+  });
+</script>
+</body>
+</html>
