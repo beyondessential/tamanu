@@ -67,8 +67,10 @@ cause, because each kind has a different owner.
   Application re-rendered (infra pack: `docs/sops/promote-renderer-channel.md`). Leave the
   commit empty to take the latest renderer build from `main`; the run waits for that
   build. **[dev-OTS]**
-- Do not hand-patch the workload or delete the RC's namespace, database or Application
-  (`../ruled-out-actions.md`); Argo CD reverts patches.
+- Do not hand-patch the workload as the fix: Argo CD reverts it, and a patch is only a
+  short-lived diagnostic, **[dev-OTS]**. Never delete or recreate the RC's namespace,
+  database or Application: it is long-lived (`../reference/rc-deployments.md#where-it-lives`),
+  and destroying a database is on the ruled-out list (`../ruled-out-actions.md`).
 - After the rollout settles, confirm: every non-Job pod ready and every hook Job
   `Completed`, Application `Synced` and `Healthy`, central and both facilities accept a
   login, and each facility `sync` log shows `completedSession` with `pulling since=`
