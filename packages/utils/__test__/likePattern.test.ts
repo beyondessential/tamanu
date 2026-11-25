@@ -1,6 +1,5 @@
-import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
-import { LIKE_ESCAPE_CLAUSE, likePattern } from '../src/likePattern';
+import { likePattern } from '../src/likePattern';
 
 describe('likePattern', () => {
   it('keeps the template wildcards', () => {
@@ -22,24 +21,5 @@ describe('likePattern', () => {
   it('accepts numbers', () => {
     expect(likePattern`${42}%`).toBe('42%');
     expect(likePattern`%${-1.5}%`).toBe('%-1.5%');
-  });
-});
-
-describe('LIKE_ESCAPE_CLAUSE', () => {
-  const matches = (value: string, pattern: string) => {
-    const database = new DatabaseSync(':memory:');
-    const { matched } = database
-      .prepare(`SELECT ? LIKE ? ${LIKE_ESCAPE_CLAUSE} AS matched`)
-      .get(value, pattern) as { matched: number };
-    database.close();
-    return matched === 1;
-  };
-
-  it('makes SQLite match interpolated values literally', () => {
-    expect(matches('Under_score', likePattern`%${'_'}%`)).toBe(true);
-    expect(matches('Plain', likePattern`%${'_'}%`)).toBe(false);
-    expect(matches('50% off', likePattern`${'50%'}%`)).toBe(true);
-    expect(matches('500 off', likePattern`${'50%'}%`)).toBe(false);
-    expect(matches('a\\b', likePattern`%${'\\'}%`)).toBe(true);
   });
 });

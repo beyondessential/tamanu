@@ -3,8 +3,8 @@
  * interpolated value literally: likePattern`%${search}%` finds `search` anywhere, even when it
  * holds `%`, `_` or `\`.
  *
- * Values are escaped with a backslash, Postgres' default LIKE escape character. SQLite has no
- * default, so a SQLite query follows each LIKE using the pattern with {@link LIKE_ESCAPE_CLAUSE}.
+ * Postgres only: values are escaped with a backslash, Postgres' default LIKE escape character.
+ * SQLite has no default, so there the backslashes would be matched as literal characters.
  */
 export function likePattern(
   literals: TemplateStringsArray,
@@ -13,6 +13,3 @@ export function likePattern(
   const escaped = values.map(value => value.toString().replace(/[\\%_]/g, '\\$&'));
   return String.raw({ raw: literals }, ...escaped);
 }
-
-/** Declares likePattern's escape character, for SQL dialects without a default one (SQLite). */
-export const LIKE_ESCAPE_CLAUSE = "ESCAPE '\\'";
