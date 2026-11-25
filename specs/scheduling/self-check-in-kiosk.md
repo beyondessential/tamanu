@@ -50,15 +50,15 @@ Applies to the tablet at a facility where patients check themselves in for today
 - Matches for more than one patient show "Select your details" with a tile per appointment, with copy making clear the matches are different patients. No tile is preselected, unless the patient is coming back from their forms to the tile they chose, and Continue is unavailable until the patient chooses one. "None of these are me" shows the no-match screen.
 - One patient with more than one appointment today instead chooses between their own appointments: their details are shown once, and each appointment is offered by its time and clinician. Nothing about their record is hidden from them.
 - Tiles shown for several patients carry only the appointment time (no clinician), and show the patient ID's first four characters with the rest as asterisks. The full patient ID and clinician are never sent to the tablet until a single patient is chosen.
-- No match shows the details that were searched and directs the patient to reception, with Close (back to the landing page) and Edit details (back to the search with their entries kept).
-- A patient whose appointment has already moved past Confirmed (for example Arrived or Seen) sees that they are already checked in and is directed to take a seat, without repeating their forms. Check-in only ever moves an appointment from Confirmed to Arrived.
+- No match shows the details that were searched and asks the patient to check them, with "My details are correct" and "Re-enter details" (back to the search with their entries kept). "My details are correct" directs the patient to reception, with Close session, which ends the session and returns to the landing page.
+- A patient whose appointment has already moved past Confirmed (for example Arrived or Seen) sees that they are already checked in, with the appointment time and clinician, and is directed to take a seat, without repeating their forms. Done, or a short wait, returns to the landing page. Check-in only ever moves an appointment from Confirmed to Arrived.
 - Dates of birth are shown with the month as a word, for example 14 March 1986. Appointment times are shown in the facility's timezone.
 
 ## Forms
 
 - The forms a patient completes are set by the kiosk setting, per appointment type for outpatient appointments and per booking type for location bookings. Forms that have been retired are left out. A type with no forms goes straight to Ready to check in.
-- Forms can be completed in any order. A "Your forms" list beside the open form shows each form's status (Completed, In progress with its current page where it has more than one, Not started) and how many are complete; tapping a form opens it.
-- After the patient confirms who they are, the first form opens.
+- Forms are completed one after another, in the order the setting lists them. A "Your forms" list beside the open form shows the sequence, numbered, and how many are complete: completed forms are ticked and say Completed, and the form the patient is up to shows its current page. The list can't be tapped.
+- After the patient confirms who they are, the first form not yet submitted opens.
 - The open form shows its own page progress ("Page 2 of 3") with a progress bar.
 - When a page is longer than the screen, the questions scroll while the form title, page progress and Back and Next stay in place.
 - Form questions use the question types that patient-facing forms support. Questions of other types are left out of the kiosk, as are questions that draw on a program registry, which a patient checking in is not within.
@@ -66,22 +66,22 @@ Applies to the tablet at a facility where patients check themselves in for today
 - Required questions are marked with a red asterisk. Tapping Next with required questions unanswered keeps the patient on the page, scrolls to the first unanswered required question, and shows "This question is required" under each one.
 - A question's validation message clears as soon as it has a valid answer.
 - Multi-line text answers grow taller as the patient types past their height. Single-line answers stay one line.
-- Next on a form's last page completes the form and opens the next form that is not complete; when all are complete, the main panel shows Ready to check in.
-- Answers are kept on the tablet while the patient moves between forms and pages, so a completed form can be reopened and changed until the patient checks in. A form reopened from the forms list opens at its first page and is in progress again until the patient reaches its end.
-- Back from a form's first page returns to the previous form, which keeps the status it had.
-- Every form must be complete before the patient can check in.
+- Next on a form's last page submits the form and opens the next one; when all are submitted, the main panel shows Ready to check in. A form that can't be submitted stays open with its answers, and the patient is told to try again or go to reception.
+- A submitted form is saved as a form response for the patient straight away and can't be changed from the kiosk; staff make any changes in Tamanu. It stays submitted if the patient starts over and finds their appointment again.
+- Back from a form's first page shows the previous form at its last page, read only under "This form has been submitted and can't be changed.", where Back and Next move through its pages without checking them. Next on its last page returns to the form the patient is up to. A form submitted before the patient started over isn't shown again, as the tablet no longer holds its answers.
+- Every form must be submitted before the patient can check in.
 
 ## Checking in
 
-- Ready to check in shows the appointment time and clinician, and the Check in button.
-- Check in saves every completed form as a form response for the patient, recorded at this facility, and marks the appointment Arrived. Either all of these are saved or none are, and an appointment can only be checked in once.
-- Form responses are recorded against the staff account the kiosk is signed in with, each timed from when the patient opened that form to when they completed it.
+- Ready to check in shows the appointment time and clinician, and the Check in button. Where the appointment has no forms, it says there are no forms to fill in today.
+- Check in marks the appointment Arrived, once every form has been submitted. An appointment can only be checked in once.
+- An appointment's form responses are recorded together in one new encounter at this facility, against the staff account the kiosk is signed in with, each timed from when the patient opened that form to when they finished it. A form can be submitted only once per appointment.
 - Each patient record the kiosk puts on screen is recorded in the access audit, so the staff account the tablet is signed in with can be answered for.
-- If check-in fails, the patient is told to go to reception and their answers are kept so they or staff can try again.
+- If check-in fails, the patient is told to go to reception. Their submitted forms are kept.
 - After check-in, "You're checked in" asks the patient to take a seat. Done, or a short wait, returns to the landing page.
 
 ## Help, Start over and inactivity
 
 - Help opens a popup directing the patient to reception, with Close.
-- Start over asks for confirmation, warning that any information entered will be lost (Cancel / Start over). Confirming clears the session and returns to the landing page.
+- Start over asks for confirmation, warning that answers in any unfinished form will be lost (Cancel / Start over). Confirming clears the session and returns to the landing page.
 - After a period without interaction during a session, the kiosk asks "Are you still there?" with a countdown, Start over and "I'm still here". When the countdown ends, the session is cleared and the kiosk returns to the landing page. The idle period and countdown are set by the kiosk setting.

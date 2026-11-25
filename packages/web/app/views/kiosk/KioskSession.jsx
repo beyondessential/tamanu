@@ -27,9 +27,12 @@ export const initialSession = {
   /** True when the matches are different patients, rather than one patient's own appointments. */
   isSeveralPatients: false,
   appointment: null,
-  /** Form progress keyed by survey ID: `{ status, pageIndex, values }`. Kept on the tablet until check-in. */
+  /**
+   * Form progress keyed by survey ID: `{ status, pageIndex, values }`. A completed form has been
+   * submitted, and keeps its answers only so the patient can look back at them.
+   */
   formProgress: {},
-  /** The survey open in the forms panel; null opens the first unfinished form, false shows Ready to check in. */
+  /** A completed form the patient has gone back to look at; null shows the form they're up to. */
   openFormId: null,
 };
 

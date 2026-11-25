@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 
 import { TranslatedText } from '../../../components';
+import { AppointmentSummary } from '../AppointmentSummary';
 import { CheckIcon } from '../KioskIcons';
 import { Lead, Panel, SecondaryButton, StateIcon, Title } from '../kioskStyles';
 
 const RETURN_TO_START_MS = 15 * 1000;
 
-export const CheckedInMessage = ({ title, onDone }) => {
+export const CheckedInMessage = ({ title, appointment, onDone }) => {
   // Return to the landing page on its own, ready for the next patient
   useEffect(() => {
     const timeout = setTimeout(onDone, RETURN_TO_START_MS);
@@ -25,6 +26,7 @@ export const CheckedInMessage = ({ title, onDone }) => {
           fallback="Please take a seat. We'll call you when it's time."
         />
       </Lead>
+      {appointment && <AppointmentSummary appointment={appointment} />}
       <SecondaryButton $wide onClick={onDone} data-testid="kiosk-done">
         <TranslatedText stringId="general.action.done" fallback="Done" />
       </SecondaryButton>

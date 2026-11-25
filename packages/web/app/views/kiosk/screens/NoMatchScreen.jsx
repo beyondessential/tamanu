@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { formatLongDate } from '@tamanu/ui-components';
 
@@ -6,6 +6,7 @@ import { TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { toDateOfBirth } from '../kioskDates';
 import { AlertIcon } from '../KioskIcons';
+import { GoToReceptionDialog } from '../KioskModals';
 import { useKioskSession } from '../KioskSession';
 import {
   CentredActions,
@@ -21,6 +22,7 @@ import {
 export const NoMatchScreen = ({ onEndSession }) => {
   const { session, dispatch } = useKioskSession();
   const { getTranslation } = useTranslation();
+  const [isGoToReceptionOpen, setIsGoToReceptionOpen] = useState(false);
   const { search } = session;
   const dateOfBirth = toDateOfBirth(search);
 
@@ -37,8 +39,8 @@ export const NoMatchScreen = ({ onEndSession }) => {
       </Title>
       <Lead>
         <TranslatedText
-          stringId="kiosk.noMatch.text"
-          fallback="Check your details below. If they're correct, please go to reception."
+          stringId="kiosk.noMatch.checkDetails"
+          fallback="Please check the details below are correct."
         />
       </Lead>
       <SummaryList>
@@ -59,13 +61,17 @@ export const NoMatchScreen = ({ onEndSession }) => {
         </div>
       </SummaryList>
       <CentredActions>
-        <SecondaryButton $wide onClick={onEndSession}>
-          <TranslatedText stringId="general.action.close" fallback="Close" />
+        <SecondaryButton $wide onClick={() => setIsGoToReceptionOpen(true)}>
+          <TranslatedText
+            stringId="kiosk.noMatch.detailsCorrect"
+            fallback="My details are correct"
+          />
         </SecondaryButton>
         <PrimaryButton $wide onClick={() => dispatch({ type: 'editSearch' })}>
-          <TranslatedText stringId="kiosk.noMatch.edit" fallback="Edit details" />
+          <TranslatedText stringId="kiosk.noMatch.reEnter" fallback="Re-enter details" />
         </PrimaryButton>
       </CentredActions>
+      {isGoToReceptionOpen && <GoToReceptionDialog onCloseSession={onEndSession} />}
     </Panel>
   );
 };
