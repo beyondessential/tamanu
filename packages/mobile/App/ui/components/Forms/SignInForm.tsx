@@ -96,7 +96,8 @@ export const SignInForm: FunctionComponent<any> = ({ initialErrorMessage = '', o
         if (!existingHost && !values.server) {
           throw new Error('Please select a server to connect to');
         }
-        await signIn(values);
+        // Keyboards often add a trailing space after an autocomplete suggestion
+        await signIn({ ...values, email: values.email.trim() });
         onSuccess();
       } catch (error) {
         // Without an update address the app is too new for its server, which no update can fix
@@ -131,6 +132,7 @@ export const SignInForm: FunctionComponent<any> = ({ initialErrorMessage = '', o
       validateOnBlur={false}
       validationSchema={Yup.object().shape({
         email: Yup.string()
+          .trim()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
           .required(getTranslation('validation.required.inline', '*Required')),
         password: Yup.string().required(getTranslation('validation.required.inline', '*Required')),

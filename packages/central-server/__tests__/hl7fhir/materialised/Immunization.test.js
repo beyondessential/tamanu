@@ -184,6 +184,23 @@ describe(`Materialised FHIR - Immunization`, () => {
       });
     });
 
+    it('materialises a HISTORICAL vaccine as not-done', async () => {
+      const { FhirImmunization } = ctx.store.models;
+      const { administeredVaccine } = await createAdministeredVaccineHierarchy(ctx.store.models);
+      administeredVaccine.status = 'HISTORICAL';
+      await administeredVaccine.save();
+      const mat = await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
+      const response = await app.get(path);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toMatchObject({
+        resourceType: 'Immunization',
+        status: 'not-done',
+      });
+    });
+
     it('returns a list of immunizations when passed no query params', async () => {
       const { FhirImmunization } = ctx.store.models;
 
