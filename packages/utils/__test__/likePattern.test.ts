@@ -19,9 +19,9 @@ describe('likePattern', () => {
     expect(likePattern`${'O_Brien'}`).toBe('O\\_Brien');
   });
 
-  it('stringifies non-string values', () => {
-    expect(likePattern`%${['a', 'b']}%`).toBe('%a,b%');
+  it('accepts numbers', () => {
     expect(likePattern`${42}%`).toBe('42%');
+    expect(likePattern`%${-1.5}%`).toBe('%-1.5%');
   });
 });
 
