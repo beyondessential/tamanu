@@ -10,10 +10,12 @@ export abstract class LocalDataService {
 
   auth: AuthService;
   data: any;
+  /** Settles once the data stored on the device has been read */
+  loaded: Promise<void>;
 
   constructor(auth: AuthService) {
     this.auth = auth;
-    this._readDataFromConfig();
+    this.loaded = this._readDataFromConfig();
     this.auth.emitter.on('remoteSignIn', payload => {
       this.data = this.extractDataFromPayload(payload);
       // write to config first to make sure it is stringifiable
@@ -28,9 +30,15 @@ export abstract class LocalDataService {
     // do nothing on the parent class
   }
 
-  async _readDataFromConfig(): Promise<any> {
+  async _readDataFromConfig(): Promise<void> {
     const strData = await readConfig((this.constructor as typeof LocalDataService).CONFIG_KEY);
-    this.data = JSON.parse(strData);
+    try {
+      this.data = JSON.parse(strData);
+    } catch (e) {
+      // Startup waits on this read, so an unreadable value is treated as nothing stored
+      console.warn(e);
+      this.data = null;
+    }
     this.onDataLoaded();
   }
 

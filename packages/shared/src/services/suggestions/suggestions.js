@@ -22,16 +22,22 @@ import {
   NOTE_TYPES,
   DRUG_STOCK_STATUSES,
   USER_KINDS,
+  ENCOUNTER_TYPE_PATIENT_STATUSES,
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 import { buildAvailableFacilitiesFilter } from '@tamanu/shared/utils/availableFacilities';
+import { likePattern } from '@tamanu/utils/likePattern';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
   ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
+  ['dischargeLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
+  ['dischargeDepartment']: OTHER_REFERENCE_TYPES.DEPARTMENT,
+  ['dischargingClinician']: 'practitioner',
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
   ['patientLabTestTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
@@ -128,7 +134,7 @@ function createSuggesterRoute(
       delete query.noLimit;
 
       const searchQuery = (query.q || '').trim().toLowerCase();
-      const search = `%${searchQuery}%`;
+      const search = likePattern`%${searchQuery}%`;
       const positionQuery = literal(
         `POSITION(LOWER($positionMatch) in LOWER(${translationCoalesce(endpoint, modelName, searchColumn)})) > 1`,
       );
@@ -179,7 +185,7 @@ function createSuggesterRoute(
         bind: {
           positionMatch: searchQuery,
           language,
-          searchQuery: `%${searchQuery}%`,
+          searchQuery: search,
           ...extraReplacementsBuilder(query),
         },
         limit: noLimit ? undefined : DEFAULT_LIMIT,
@@ -950,6 +956,70 @@ createSuggester(
   },
 );
 
+// The ids a column holds across the discharges listed by the recently discharged patients view:
+// encounters at the facility with a patient status, ended no more than 24 hours ago. Kept in step
+// with the listing's own query in the facility server's recentlyDischargedPatients route.
+// spec: RDISCH#which-discharges-are-listed
+const recentDischargesSubquery = column => {
+  const listedEncounterTypes = Object.keys(ENCOUNTER_TYPE_PATIENT_STATUSES)
+    .map(encounterType => `'${encounterType}'`)
+    .join(', ');
+  return Sequelize.literal(`(
+    SELECT ${column}
+    FROM encounters
+      JOIN locations
+        ON locations.id = encounters.location_id
+      JOIN patients
+        ON patients.id = encounters.patient_id
+      LEFT JOIN discharges
+        ON discharges.encounter_id = encounters.id AND discharges.deleted_at IS NULL
+    WHERE encounters.end_date >= ((NOW() - INTERVAL '24 hours') AT TIME ZONE $primary_time_zone)::date_time_string
+      AND encounters.deleted_at IS NULL
+      AND patients.deleted_at IS NULL
+      AND locations.facility_id = $facility_id
+      AND encounters.encounter_type IN (${listedEncounterTypes})
+  )`);
+};
+
+// Suggests what was recorded on the facility's recent discharges rather than what is current, so
+// an area or department since made historical, or a clinician since deactivated, can still be
+// searched for. Which discharges happened is patient activity, so listing patients is required too.
+// spec: RDISCH#search
+const createRecentDischargesSuggester = (endpoint, modelName, column, options) =>
+  createSuggester(
+    endpoint,
+    modelName,
+    ({ req, ...args }) => {
+      req.checkPermission('list', 'Patient');
+      return {
+        ...DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
+        id: { [Op.in]: recentDischargesSubquery(column) },
+      };
+    },
+    {
+      mapper: ({ name, id }) => ({ name, id }),
+      extraReplacementsBuilder: query => ({
+        facility_id: query.facilityId ?? null,
+        primary_time_zone: getPrimaryTimeZone(),
+      }),
+      ...options,
+    },
+  );
+
+createRecentDischargesSuggester(
+  'dischargeLocationGroup',
+  'LocationGroup',
+  'locations.location_group_id',
+);
+createRecentDischargesSuggester('dischargeDepartment', 'Department', 'encounters.department_id');
+createRecentDischargesSuggester('dischargingClinician', 'User', 'discharges.discharger_id', {
+  mapper: ({ id, displayName }) => ({
+    id,
+    name: displayName,
+  }),
+  searchColumn: 'display_name',
+});
+
 // Remove whitespace from the start and end of each string then combine with a space in between
 // E.g. 'William ' + 'Horoto' => 'William Horoto'
 const trimAndConcat = (col1, col2) =>
@@ -975,7 +1045,7 @@ createSuggester(
     orderBuilder: req => {
       const searchQuery = (req.query.q || '').trim().toLowerCase();
       const escapedQuery = req.db.escape(searchQuery);
-      const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
+      const escapedPartialMatch = req.db.escape(likePattern`${searchQuery}%`);
       return Sequelize.literal(`
           CASE
             WHEN LOWER(display_id) = ${escapedQuery} THEN 0
@@ -1309,7 +1379,7 @@ function buildDateSearchConditions(searchQuery) {
   if (!sq) return conditions;
 
   // 1) Direct string search (matches full timestamp/date substrings)
-  conditions.push({ startDate: { [Op.iLike]: `%${sq.replaceAll('/', '-')}%` } });
+  conditions.push({ startDate: { [Op.iLike]: likePattern`%${sq.replaceAll('/', '-')}%` } });
 
   // Normalize delimiter detection
   const hasDash = sq.includes('-');
@@ -1327,14 +1397,14 @@ function buildDateSearchConditions(searchQuery) {
   if (parts.length === 2) {
     const [a, b] = parts;
     // Interpret as DD-MM and MM-DD (ambiguous)
-    const ddmm = `%-${zp(b)}-${zp(a)} %`;
-    const mmdd = `%-${zp(a)}-${zp(b)} %`;
+    const ddmm = likePattern`%-${zp(b)}-${zp(a)} %`;
+    const mmdd = likePattern`%-${zp(a)}-${zp(b)} %`;
     conditions.push({ startDate: { [Op.iLike]: ddmm } });
     conditions.push({ startDate: { [Op.iLike]: mmdd } });
 
     // Interpret as YYYY-MM where applicable (only when first segment is 4 digits)
     if (/^\d{4}$/.test(a)) {
-      conditions.push({ startDate: { [Op.iLike]: `${a}-${zp(b)}-%` } });
+      conditions.push({ startDate: { [Op.iLike]: likePattern`${a}-${zp(b)}-%` } });
     }
     return conditions;
   }
@@ -1344,13 +1414,13 @@ function buildDateSearchConditions(searchQuery) {
 
     if (/^\d{4}$/.test(p1)) {
       // YYYY-MM-DD (or YYYY/MM/DD)
-      conditions.push({ startDate: { [Op.iLike]: `${p1}-${zp(p2)}-${zp(p3)}%` } });
+      conditions.push({ startDate: { [Op.iLike]: likePattern`${p1}-${zp(p2)}-${zp(p3)}%` } });
     } else {
       // DD-MM-YYYY and MM-DD-YYYY (ambiguous when last is year)
-      conditions.push({ startDate: { [Op.iLike]: `${p3}%-${zp(p2)}-${zp(p1)}%` } });
+      conditions.push({ startDate: { [Op.iLike]: likePattern`${p3}%-${zp(p2)}-${zp(p1)}%` } });
       // Interpret as DD-MM-YYYY
       // Interpret as MM-DD-YYYY
-      conditions.push({ startDate: { [Op.iLike]: `${p3}%-${zp(p1)}-${zp(p2)}%` } });
+      conditions.push({ startDate: { [Op.iLike]: likePattern`${p3}%-${zp(p1)}-${zp(p2)}%` } });
     }
     return conditions;
   }

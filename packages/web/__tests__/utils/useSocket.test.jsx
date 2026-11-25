@@ -58,7 +58,30 @@ describe('useSocket', () => {
     const { WS_PATH } = await import('@tamanu/constants');
     renderHook(() => useSocket());
 
-    expect(io).toHaveBeenCalledWith('', { path: WS_PATH, transports: ['websocket'] });
+    expect(io).toHaveBeenCalledWith('', {
+      path: WS_PATH,
+      transports: ['websocket'],
+      auth: expect.any(Function),
+    });
+  });
+
+  it('sends the current API token with each connection attempt', async () => {
+    const { ApiContext } = await import('@tamanu/ui-components');
+    const api = { getToken: vi.fn(() => 'first-token') };
+    renderHook(() => useSocket(), {
+      wrapper: ({ children }) => <ApiContext.Provider value={api}>{children}</ApiContext.Provider>,
+    });
+    const [[, { auth }]] = io.mock.calls;
+    const sendToken = vi.fn();
+
+    auth(sendToken);
+    api.getToken.mockReturnValue('refreshed-token');
+    auth(sendToken);
+
+    expect(sendToken.mock.calls).toEqual([
+      [{ token: 'first-token' }],
+      [{ token: 'refreshed-token' }],
+    ]);
   });
 
   it('keeps the socket connected while another consumer is still mounted', () => {

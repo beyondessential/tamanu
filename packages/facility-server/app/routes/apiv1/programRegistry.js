@@ -164,7 +164,7 @@ programRegistry.get(
       ),
       makeFilter(
         filterParams.currentlyIn,
-        'mrr.village_id = :currentlyIn OR mrr.facility_id = :currentlyIn',
+        '(mrr.village_id = :currentlyIn OR mrr.facility_id = :currentlyIn)',
       ),
       makeFilter(
         filterParams.programRegistryCondition,

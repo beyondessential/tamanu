@@ -406,10 +406,10 @@ patientRelations.get(
     const testIds = toArrayParam(query.testIds);
 
     // A picked category, or picked tests/panels, drive a grouped view the frontend assembles from
-    // the `groups` metadata returned below (panels first, then individual tests). Picks take
-    // precedence: once tests or panels are picked the table shows only those, whether or not a
-    // category is also picked. With no filter at all (the initial load that checks whether the
-    // patient has any results), every published result is returned.
+    // the `groups` metadata returned below (panels first, then individual tests). Once tests or
+    // panels are picked the table shows only those, and a picked category still scopes them, so a
+    // picked panel shows only its members in that category. With no filter at all (the initial
+    // load that checks whether the patient has any results), every published result is returned.
     let selectionClause = '';
     // The same filter, expressed against lab_tests/lab_requests, narrows the changelog scan in the
     // edited-entry CTE to just the tests being displayed instead of the patient's whole history.
@@ -448,7 +448,6 @@ patientRelations.get(
       selectionClause = 'AND lab_test_types.id IN (:testTypeIds)';
       cteSelectionClause = 'AND lab_tests.lab_test_type_id IN (:testTypeIds)';
     } else if (categoryId) {
-      replacements.categoryId = categoryId;
       // Group the category's panels the patient has a published, sampled lab request ordered under;
       // the frontend shows the category's remaining resulted tests as individual tests.
       const orderedPanels = await db.query(
@@ -471,9 +470,14 @@ patientRelations.get(
       if (orderedPanelIds.length) {
         panelMembers = await fetchPanelMembers(orderedPanelIds);
       }
-      selectionClause = 'AND lab_test_types.lab_test_category_id = :categoryId';
-      cteSelectionClause =
-        'AND lab_tests.lab_test_type_id IN (SELECT id FROM lab_test_types WHERE lab_test_category_id = :categoryId)';
+    }
+
+    // spec: LABR
+    if (categoryId) {
+      replacements.categoryId = categoryId;
+      selectionClause += ' AND lab_test_types.lab_test_category_id = :categoryId';
+      cteSelectionClause +=
+        ' AND lab_tests.lab_test_type_id IN (SELECT id FROM lab_test_types WHERE lab_test_category_id = :categoryId)';
     }
 
     const results = await db.query(

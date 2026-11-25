@@ -1,4 +1,5 @@
 import { get as getAtPath, set as setAtPath } from 'es-toolkit/compat';
+import { LIKE_ESCAPE_CLAUSE, likePattern } from '@tamanu/utils';
 import { Brackets, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { readConfig } from '~/services/config';
 import { parseOrKeep } from '~/utils/parseOrKeep';
@@ -35,7 +36,9 @@ export class Setting extends BaseModel {
       .createQueryBuilder('setting')
       .where(
         new Brackets(qb => {
-          qb.where('key = :key', { key }).orWhere('key LIKE :keyLike', { keyLike: `${key}.%` });
+          qb.where('key = :key', { key }).orWhere(`key LIKE :keyLike ${LIKE_ESCAPE_CLAUSE}`, {
+            keyLike: likePattern`${key}.%`,
+          });
         }),
       )
       .andWhere(

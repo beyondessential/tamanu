@@ -134,17 +134,24 @@ const PatientDetailsSection = ({ patient }) => {
         label={getTranslation('general.name.label', 'Name')}
         value={getName(patient)}
       />
-      {/* Like the ID card printouts, use the deployment's short name for these fields. Each call
-          keeps the same literal fallback as theirs: the default-translation scraper reads them
-          and rejects a second, different default for the same string ID */}
+      {/* Like the A4 layout's patient details, use the deployment's own name for these fields
+          where it has set one. The localised field lookups carry no literal fallback, because
+          the default-translation scraper rejects a second, different default for a string ID */}
       <LabelledValue
         isLabelBold
-        label={getTranslation('general.localisedField.dateOfBirth.label.short', 'DOB')}
+        label={
+          getTranslation('general.localisedField.dateOfBirth.label.short') ||
+          getTranslation('general.localisedField.dateOfBirth.label', 'Date of birth')
+        }
         value={getDob(patient, { getTranslation, formatShort })}
       />
       <LabelledValue
         isLabelBold
-        label={getTranslation('general.localisedField.displayId.label.short', 'NHN')}
+        label={
+          getTranslation('general.localisedField.displayId.label.short') ||
+          getTranslation('general.localisedField.displayId.label') ||
+          getTranslation('general.patientId.label', 'Patient ID')
+        }
         value={patient.displayId}
       />
     </Section>

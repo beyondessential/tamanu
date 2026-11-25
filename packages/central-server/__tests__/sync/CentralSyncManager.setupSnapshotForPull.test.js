@@ -77,6 +77,8 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       resolveMockedQueryPromise = async () => resolve([[{ maxId: null, count: 100 }]]);
     });
     const MockedPullOnlyModel = {
+      // The pull reads the snapshot one record type at a time, by table name
+      tableName: 'mocked_pull_only_models',
       syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       associations: [],
       getAttributes() {

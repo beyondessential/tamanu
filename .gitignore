@@ -39,6 +39,9 @@ lints.md
 **/config/local.*
 !**/config/local.example
 
+# Development key files, generated on first use
+**/config/dev-secret.key*
+
 # Hidden files
 *.aes
 .env

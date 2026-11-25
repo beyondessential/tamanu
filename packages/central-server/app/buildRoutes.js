@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
 import { AuthPermissionError } from '@tamanu/errors';
 import { ReadSettings } from '@tamanu/settings';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
 import { buildSyncRoutes } from './sync';
 import { attachmentRoutes } from './attachment';
@@ -19,9 +20,19 @@ export const buildRoutes = ctx => {
 
   routes.get(
     '/settings/frontEnd',
+    ensurePermissionCheck,
     asyncHandler(async (req, res) => {
       req.flagPermissionChecked();
-      const { facilityId } = z.object({ facilityId: z.string() }).parse(req.query);
+      const { facilityId } = z
+        .object({ facilityId: z.string().min(1).optional() })
+        .parse(req.query);
+      if (!facilityId) {
+        // The admin panel's session has no facility. This is the payload /login gives any
+        // signed-in user, so being signed in is the only permission it needs.
+        res.send({ settings: await req.settings.getFrontEndSettings() });
+        return;
+      }
+
       const userInstance = await req.models.User.findByPk(req.user.id);
       const hasAccess = await userInstance.canAccessFacility(facilityId);
       if (!hasAccess) {

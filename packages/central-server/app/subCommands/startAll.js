@@ -2,6 +2,7 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 import { JOB_TOPICS } from '@tamanu/constants';
+import { checkConfigKey } from '@tamanu/upgrade';
 
 import pkg from '../../package.json';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
@@ -23,6 +24,8 @@ export const serveAll = async ({ skipMigrationCheck }) => {
     const { store } = await new ApplicationContext().init({
       appType: CENTRAL_SERVER_APP_TYPES.MIGRATE,
     });
+    // Migrating on startup skips the upgrade, which moves stored secrets onto the configured key.
+    await checkConfigKey(store.sequelize);
     await store.sequelize.migrate('up', { serverVersion: pkg.version });
   }
 

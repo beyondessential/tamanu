@@ -18,6 +18,7 @@ import {
 import { isGeneratedDisplayId, isGeneratedIdFromPattern } from '@tamanu/utils/generateId';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
+import { likePattern } from '@tamanu/utils/likePattern';
 import {
   createPatientFilters,
   createAdditionalSearchFilters,
@@ -355,7 +356,7 @@ patientRoute.get(
           return {
             ...acc,
             [`exactMatchSort${filter}`]: filterParams[filter].toUpperCase(),
-            [`beginsWithSort${filter}`]: `${filterParams[filter].toUpperCase()}%`,
+            [`beginsWithSort${filter}`]: likePattern`${filterParams[filter].toUpperCase()}%`,
           };
         }, {});
 

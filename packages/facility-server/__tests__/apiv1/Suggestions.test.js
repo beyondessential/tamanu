@@ -9,13 +9,13 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REGISTRATION_STATUSES,
+  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
   createDummyEncounter,
   createDummyPatient,
   createLabTestTypes,
-  randomRecords,
   randomLabRequest,
   randomDate,
   splitIds,
@@ -86,6 +86,23 @@ describe('Suggestions', () => {
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should match LIKE wildcards in the search literally', async () => {
+      const underscorePatient = await models.Patient.create(
+        await createDummyPatient(models, { firstName: 'Under_score', lastName: 'Wildcard' }),
+      );
+
+      const underscoreResult = await userApp.get('/api/suggestions/patient').query({ q: '_' });
+      expect(underscoreResult).toHaveSucceeded();
+      expect(underscoreResult.body.map(patient => patient.id)).toContain(underscorePatient.id);
+      underscoreResult.body.forEach(({ firstName, lastName, displayId }) => {
+        expect(`${firstName} ${lastName} ${displayId}`).toContain('_');
+      });
+
+      const percentResult = await userApp.get('/api/suggestions/patient').query({ q: '%' });
+      expect(percentResult).toHaveSucceeded();
+      expect(percentResult.body).toHaveLength(0);
     });
 
     it('should get a patient by combined first then last name', async () => {
@@ -201,20 +218,94 @@ describe('Suggestions', () => {
     });
   });
 
+  describe('Encounters', () => {
+    let patient;
+    let februaryEncounter;
+    let julyEncounter;
+
+    const searchPatientEncounters = q =>
+      userApp.get('/api/suggestions/encounter').query({ q, patientId: patient.id });
+
+    beforeAll(async () => {
+      const facility = await models.Facility.create(
+        fake(models.Facility, { name: 'Encounter Search Facility' }),
+      );
+      const location = await models.Location.create(
+        fake(models.Location, { name: 'Encounter Search Ward', facilityId: facility.id }),
+      );
+      patient = await models.Patient.create(await createDummyPatient(models));
+      februaryEncounter = await models.Encounter.create(
+        await createDummyEncounter(models, {
+          patientId: patient.id,
+          locationId: location.id,
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          startDate: '2023-02-01 10:00:00',
+          endDate: '2023-02-01 11:00:00',
+        }),
+      );
+      julyEncounter = await models.Encounter.create(
+        await createDummyEncounter(models, {
+          patientId: patient.id,
+          locationId: location.id,
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          startDate: '2023-07-15 09:30:00',
+          endDate: '2023-07-15 10:30:00',
+        }),
+      );
+    });
+
+    it.each(['2023-02-01', '01/02/2023', '01/02'])(
+      'should find an encounter by its start date with %s',
+      async q => {
+        const result = await searchPatientEncounters(q);
+        expect(result).toHaveSucceeded();
+        expect(result.body.map(encounter => encounter.id)).toStrictEqual([februaryEncounter.id]);
+      },
+    );
+
+    it('should find every encounter of the patient by a shared start date fragment', async () => {
+      const result = await searchPatientEncounters('2023');
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(encounter => encounter.id)).toStrictEqual([
+        julyEncounter.id,
+        februaryEncounter.id,
+      ]);
+    });
+
+    it.each(['_', '%', '02_01', '02%01'])(
+      'should match LIKE wildcards in %s literally',
+      async q => {
+        const result = await searchPatientEncounters(q);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveLength(0);
+      },
+    );
+  });
+
   // Locations suggester has specialised functionality for determining location availability
   describe('Locations', () => {
+    // Suggestions come back a page at a time, sorted by name, among whatever locations earlier
+    // test files left in the database, so these share a prefix the test searches for.
+    const namePrefix = 'Availability check';
+    let freeLocation;
     let occupiedLocation;
     let reservedLocation;
     let unrestrictedLocation;
 
     beforeAll(async () => {
-      [occupiedLocation, reservedLocation, unrestrictedLocation] = await randomRecords(
-        models,
-        'Location',
-        3,
-      );
-
-      await unrestrictedLocation.update({ maxOccupancy: null });
+      const facility = await models.Facility.findOne({ order: [['createdAt', 'ASC']] });
+      const createLocation = (name, maxOccupancy) =>
+        models.Location.create(
+          fake(models.Location, {
+            name: `${namePrefix} ${name}`,
+            facilityId: facility.id,
+            maxOccupancy,
+          }),
+        );
+      freeLocation = await createLocation('free', 1);
+      occupiedLocation = await createLocation('occupied', 1);
+      reservedLocation = await createLocation('reserved', 1);
+      unrestrictedLocation = await createLocation('unrestricted', null);
 
       // An encounter requires a patient
       const patient = await models.Patient.create(
@@ -244,15 +335,14 @@ describe('Suggestions', () => {
       );
     });
 
-    afterAll(async () => {
-      await unrestrictedLocation.update({ maxOccupancy: 1 });
-    });
-
     it('should calculate location availability and return it with suggestion list', async () => {
-      const result = await userApp.get('/api/suggestions/location');
+      const result = await userApp.get('/api/suggestions/location').query({ q: namePrefix });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
+
+      const freeResult = body.find(x => x.id === freeLocation.id);
+      expect(freeResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
 
       const occupiedResult = body.find(x => x.id === occupiedLocation.id);
       expect(occupiedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.OCCUPIED);
@@ -265,13 +355,6 @@ describe('Suggestions', () => {
         'availability',
         LOCATION_AVAILABILITY_STATUS.AVAILABLE,
       );
-
-      const otherResults = body.filter(
-        x => ![occupiedLocation.id, reservedLocation.id, unrestrictedLocation.id].includes(x.id),
-      );
-      for (const location of otherResults) {
-        expect(location).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
-      }
     });
 
     it('should filter locations by location group', async () => {
@@ -639,7 +722,9 @@ describe('Suggestions', () => {
           type: 'labTestCategory',
         });
         const [sensitiveType] = await createLabTestTypes(models, categoryId, { isSensitive: true });
-        const { id: sensitivePanelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+        const { id: sensitivePanelId } = await models.LabTestPanel.create(
+          fake(models.LabTestPanel),
+        );
         await models.LabTestPanelLabTestTypes.create({
           labTestPanelId: sensitivePanelId,
           labTestTypeId: sensitiveType.id,

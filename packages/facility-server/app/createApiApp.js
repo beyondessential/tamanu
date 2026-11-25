@@ -58,7 +58,12 @@ export async function createApiApp({
     models,
     app: express,
   });
-  const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
+  const websocketClientService = defineWebsocketClientService({
+    config,
+    deviceId,
+    websocketService,
+    models,
+  });
 
   express.use(
     helmet({

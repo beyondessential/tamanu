@@ -32,6 +32,45 @@ describe('Lab request logs', () => {
     expect(response.body).toBeNull();
   });
 
+  it('does not treat a verified-only lab request as published', async () => {
+    const user = await app.get('/api/user/me');
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const response = await app
+      .put(`/api/labRequest/${requestId}`)
+      .send({ status: LAB_REQUEST_STATUSES.VERIFIED, userId: user.body.id });
+    expect(response).toHaveSucceeded();
+
+    const latestPublished = await app.get(
+      `/api/labRequestLog/labRequest/${requestId}/latest-published`,
+    );
+    expect(latestPublished).toHaveSucceeded();
+    expect(latestPublished.body).toBeNull();
+  });
+
+  it('returns the publishing user for a published lab request', async () => {
+    const user = await app.get('/api/user/me');
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    for (const status of [LAB_REQUEST_STATUSES.VERIFIED, LAB_REQUEST_STATUSES.PUBLISHED]) {
+      const response = await app
+        .put(`/api/labRequest/${requestId}`)
+        .send({ status, userId: user.body.id });
+      expect(response).toHaveSucceeded();
+    }
+
+    const latestPublished = await app.get(
+      `/api/labRequestLog/labRequest/${requestId}/latest-published`,
+    );
+    expect(latestPublished).toHaveSucceeded();
+    expect(latestPublished.body).toMatchObject({
+      status: LAB_REQUEST_STATUSES.PUBLISHED,
+      updatedBy: { displayName: user.body.displayName },
+    });
+  });
+
   it('should throw an error if no userId is provided when updating a lab request', async () => {
     const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),

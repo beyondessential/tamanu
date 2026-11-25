@@ -36,7 +36,11 @@ import {
   createPharmacyOrderForPrescription,
   getLastOrderedAtForOngoingPrescriptions,
 } from '../../utils/medication';
-import { mapQueryFilters } from '../../database/utils';
+import {
+  caseInsensitiveContainsFilter,
+  caseInsensitiveStartsWithFilter,
+  mapQueryFilters,
+} from '../../database/utils';
 import {
   ENCOUNTER_MEDICATION_INPUT_SCHEMA,
   MEDICATION_INPUT_SCHEMA,
@@ -1739,17 +1743,6 @@ medication.get(
   }),
 );
 
-const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
-  [fieldName]: {
-    [Op.iLike]: `${value}%`,
-  },
-});
-
-const caseInsensitiveFilter = (fieldName, _operator, value) => ({
-  [fieldName]: {
-    [Op.iLike]: `%${value}%`,
-  },
-});
 
 medication.get(
   '/medication-requests',
@@ -1776,7 +1769,7 @@ medication.get(
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
-      { key: 'displayId', mapFn: caseInsensitiveFilter },
+      { key: 'displayId', mapFn: caseInsensitiveContainsFilter },
     ]);
     // Patient association
     const patient = {
@@ -2179,7 +2172,7 @@ medication.get(
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
-      { key: 'displayId', mapFn: caseInsensitiveFilter },
+      { key: 'displayId', mapFn: caseInsensitiveContainsFilter },
     ]);
     // Patient association
     const patient = {
@@ -2199,7 +2192,7 @@ medication.get(
     const pharmacyOrderPrescriptionFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestNumber',
-        mapFn: (_fieldName, operator, value) => caseInsensitiveFilter('displayId', operator, value),
+        mapFn: (_fieldName, operator, value) => caseInsensitiveContainsFilter('displayId', operator, value),
       },
     ]);
 

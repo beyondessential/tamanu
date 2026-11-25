@@ -4,7 +4,12 @@ import express from 'express';
 import Decimal from 'decimal.js';
 
 import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/errors';
-import { getInvoicePatientPaymentStatus, round, getInvoiceSummary } from '@tamanu/utils/invoice';
+import {
+  getInvoicePatientPaymentStatus,
+  round,
+  getInvoiceSummary,
+  withInsurancePlanItems,
+} from '@tamanu/utils/invoice';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 const createPatientPaymentSchema = z
@@ -33,13 +38,16 @@ const refundPatientPaymentSchema = z
   })
   .strip();
 
+// The invoice as a plain object whose items carry their insurance plan rows, so its summary
+// counts insurance coverage when working out what the patient owes
 async function getInvoiceWithDetails(req, encounterId) {
   const invoicePriceListId =
     await req.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
-  return await req.models.Invoice.findOne({
+  const invoice = await req.models.Invoice.findOne({
     where: { encounterId },
     include: req.models.Invoice.getFullReferenceAssociations(invoicePriceListId),
   });
+  return invoice && withInsurancePlanItems(invoice.get({ plain: true }));
 }
 
 const validateInvoiceExists = async (req, invoiceId) => {

@@ -53,23 +53,18 @@ describe('App while the facility is setting up', () => {
     render(<App />);
   };
 
-  it('asks a logged-out user to log in', () => {
+  it('holds a logged-out visitor on the setting-up screen ahead of login', () => {
     renderApp({ isSettingUp: true, isLoggedIn: false });
-    expect(screen.getByText('Login view')).toBeTruthy();
-  });
-
-  it('holds a logged-in user on the setting-up screen ahead of facility selection', () => {
-    renderApp({ isSettingUp: true, isLoggedIn: true });
     expect(screen.getByText('Setting up')).toBeTruthy();
   });
 
-  it('holds a user whose only facility was selected at login', () => {
+  it('holds a browser that still holds a session on the setting-up screen', () => {
     renderApp({ isSettingUp: true, isLoggedIn: true, isFacilitySelected: true });
     expect(screen.getByText('Setting up')).toBeTruthy();
   });
 
-  it('carries on to facility selection once the first sync completes', () => {
-    renderApp({ isSettingUp: false, isLoggedIn: true });
-    expect(screen.getByText('Facility selection view')).toBeTruthy();
+  it('carries on to login once the first sync completes', () => {
+    renderApp({ isSettingUp: false, isLoggedIn: false });
+    expect(screen.getByText('Login view')).toBeTruthy();
   });
 });
