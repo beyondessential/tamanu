@@ -50,6 +50,7 @@ table.lab tr.group td { font-weight: 700; background: #f3f5f7; }
 tr.panel td { font-weight: 700; }
 td.in-group { padding-left: 9pt; }
 td.in-panel { padding-left: 17pt; }
+table.meds td:nth-child(3), table.meds td:nth-child(7) { white-space: nowrap; }
 table.lab td:nth-child(n+3):not(:last-child) { white-space: nowrap; }
 table.lab td:last-child { font-weight: 400; }
 
@@ -113,12 +114,12 @@ PO Box 1234, Suva</p>
 
     <div class="section">
       <p class="table-title">Medications</p>
-      <table>
-        <thead><tr><th style="width: 34%">Medication</th><th>Dose</th><th>Frequency</th><th>Route</th><th>Start date</th></tr></thead>
+      <table class="compact meds">
+        <thead><tr><th style="width: 20%">Medication</th><th>Code</th><th>Dose</th><th>Frequency</th><th>Frequency schedule</th><th>Route</th><th>Start date</th><th style="width: 17%">Notes</th></tr></thead>
         <tbody>
-          <tr><td>Amlodipine 5 mg tablet</td><td>5 mg</td><td>Daily</td><td>Oral</td><td>02/09/2026</td></tr>
-          <tr><td>Metformin 500 mg tablet</td><td>500 mg</td><td>Twice daily</td><td>Oral</td><td>02/09/2026</td></tr>
-          <tr><td>Salbutamol 100 microgram inhaler</td><td>2 puffs</td><td>Four times daily</td><td>Inhaled</td><td>14/10/2026</td></tr>
+          <tr><td>Amlodipine 5 mg tablet</td><td>AMLO5TAB</td><td>5 mg</td><td>Daily</td><td>8:00 AM</td><td>Oral</td><td>02/09/2026</td><td></td></tr>
+          <tr><td>Metformin 500 mg tablet</td><td>METF500TAB</td><td>500 mg</td><td>Two times daily</td><td>8:00 AM<br>8:00 PM</td><td>Oral</td><td>02/09/2026</td><td>Take with food</td></tr>
+          <tr><td>Salbutamol 100 microgram inhaler</td><td>SALB100INH</td><td>2 puffs</td><td>Four times daily</td><td>6:00 AM<br>12:00 PM<br>6:00 PM<br>10:00 PM</td><td>Inhaled</td><td>14/10/2026</td><td>Use with a spacer</td></tr>
         </tbody>
       </table>
     </div>

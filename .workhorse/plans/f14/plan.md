@@ -58,3 +58,16 @@ Radiology columns map to Tamanu as:
 ### Allergies in the PDF
 
 The Allergies and intolerances table shows each allergy with its reaction and date recorded, from the patient allergy's reaction and recorded date. Either is blank where the allergy has none. The IPS bundle's allergy entries carry neither yet, so they gain both (the AllergyIntolerance's `reaction.manifestation` and `recordedDate`), keeping the PDF and the QR code's IPS in step.
+
+### Medications in the PDF
+
+The Medications table's columns map to Tamanu as:
+
+- **Medication** and **Code**: the drug's name and reference data code, the same code the IPS bundle's medication statements already carry
+- **Dose**: the prescription's dose amount and dosing unit
+- **Frequency**: the prescription's frequency, in Tamanu's own labels (Daily, Two times daily, and so on)
+- **Frequency schedule**: the prescription's administration times, one per line, as set when it was prescribed (for example 8:00 AM and 8:00 PM for Two times daily). Blank for a frequency with no set times, such as Immediately or As directed
+- **Route** and **Start date**: the prescription's route and start date
+- **Notes**: the prescription's notes. Pharmacy notes are not included
+
+The IPS bundle builds its dosage from the morning, lunch, evening and night quantities rather than the frequency and administration times. To keep the PDF and the QR code's IPS in step, the bundle's dosage gains the frequency, the administration times (as the timing's times of day) and the notes.
