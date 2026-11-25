@@ -32,8 +32,9 @@ cause, because each kind has a different owner.
    and restart counts.
 2. **Why each one stopped.** `kubectl --context main -n <ns> describe pod <pod>`: the
    `Last State` reason and exit code, how long it ran, and the events. A kill by a probe
-   shows `Startup probe failed` or `Liveness probe failed`; a crash shows an error exit
-   with a log; exit 137 without a log line is a kill.
+   shows `Reason: Error`, exit code 137 and a `Startup probe failed` or `Liveness probe
+   failed` event; an out-of-memory kill shows `Reason: OOMKilled`; a crash shows an error
+   exit with a log.
 3. **What it logged.** `kubectl --context main -n <ns> logs <pod> --previous`. A server
    killed before its first log line was still loading.
 4. **Whether it was starved.** `kubectl --context main top pod -n <ns>` and the CPU
@@ -50,6 +51,7 @@ cause, because each kind has a different owner.
 | --- | --- | --- |
 | Killed by a probe, little or no log, low CPU use against a small CPU request | Resource contention at start-up: the pod is starved on a crowded node and its probe budget runs out before it can boot, and each kill restarts the same slow boot | The fix is the pod's CPU request or probe budget in the infra renderer, not the application. Raise it there and promote (section 5); infra pack `docs/spec/kubernetes/tamanu/deployment-rollout.md#server-health` states the intended budgets |
 | Killed by a liveness probe while the server was busy (large sync, migration) | A probe stricter than the work the server does | Same place: the renderer's probe settings |
+| `Last State` reason `OOMKilled` | The container went over its memory limit | The memory request and limit in the renderer, or a leak in the application: compare `kubectl top pod` with the container's peak memory in Prometheus before choosing |
 | Application `ComparisonError` naming an immutable field of a Job | A Job rendered as an ordinary resource keeps its name while the render changes its pod template, and a Job's template cannot change in place | A render must give the Job a new name when its template changes; until the renderer does, delete the completed Job so Argo recreates it **[dev-OTS]** |
 | `ImagePullBackOff` with `NotFound` | The image for that tag is not built yet, or the build failed | Check the CD run for that commit; a build in progress retries by itself. Other pull failures: infra pack `docs/runbooks/image-pull-backoff.md` |
 | `ContainerCreating` for minutes, then starts | The node is pulling that tag for the first time | Wait; many tags and many busy nodes make rollouts slow |
