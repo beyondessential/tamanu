@@ -21,7 +21,9 @@ describe('Front-end settings', () => {
   afterAll(async () => ctx.close());
 
   afterEach(async () => {
-    await models.Setting.destroy({ where: { key: 'telemetry.enabled' } });
+    await models.Setting.destroy({
+      where: { key: ['telemetry.enabled', 'auth.restrictUsersToFacilities'] },
+    });
     settingsCache.reset();
   });
 
@@ -42,6 +44,20 @@ describe('Front-end settings', () => {
     const res = await userApp.get(ENDPOINT).query({ facilityId: facility.id });
     expect(res).toHaveSucceeded();
     expect(res.body.settings.telemetry.enabled).toBe(true);
+  });
+
+  it('rejects a facility the user cannot access', async () => {
+    await models.Setting.set('auth.restrictUsersToFacilities', true);
+    settingsCache.reset();
+    const facility = await models.Facility.create(fake(models.Facility));
+
+    const res = await userApp.get(ENDPOINT).query({ facilityId: facility.id });
+    expect(res).toHaveRequestError();
+  });
+
+  it('rejects an unauthenticated request', async () => {
+    const res = await baseApp.get(ENDPOINT);
+    expect(res).toHaveRequestError();
   });
 
   it('rejects an empty facility', async () => {
