@@ -40,6 +40,8 @@ button { font-family: inherit; }
 /* Field (OuterLabelFieldWrapper + SelectField) */
 .field + .field { margin-top: 16px; }
 .field[hidden] { display: none; }
+.field + .field.has-intro { margin-top: 24px; }
+.modal-body .field-intro { margin: 0 0 12px; }
 .field-label { display: block; font-size: 14px; font-weight: 500; line-height: 16px; color: #444444; margin-bottom: 4px; }
 .select { position: relative; }
 .control { display: flex; align-items: center; background: #ffffff; border: 1px solid #dedede; /* outline */ border-radius: 3px; min-height: 44px; padding: 0 0 0 15px; font-size: 15px; cursor: text; }
@@ -108,7 +110,8 @@ button { font-family: inherit; }
             <div class="menu" role="listbox" hidden></div>
           </div>
         </div>
-        <div class="field" id="copay-field" hidden>
+        <div class="field has-intro" id="copay-field" hidden>
+          <p class="field-intro">If another insurer will cover the patient's copayment, select it below.</p>
           <label class="field-label" for="copay-input">Copayment insurer</label>
           <div class="select" data-select="copay">
             <div class="control">
