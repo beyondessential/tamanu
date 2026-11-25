@@ -1,0 +1,342 @@
+<!-- spec: invoicing/encounter-type-sections.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insurance plan prototype, single select with NHI copayment insurer</title>
+<style>
+@font-face { font-family: Roboto; font-style: normal; font-display: swap; font-weight: 400; src: local("Roboto Regular "), local("Roboto-Regular"), url("../../assets/3e253b66056519aa065b00a453bac37ac5ed8f3e6fe7b542e93a9dcdcc11d0bc.woff2") format("woff2"), url("../../assets/1570f866bf6eae82041e407280894a86ad2b8b275e01908ae156914dc693a4ed.woff") format("woff"); }
+@font-face { font-family: Roboto; font-style: normal; font-display: swap; font-weight: 500; src: local("Roboto Medium "), local("Roboto-Medium"), url("../../assets/5a8c1e7681318caa29e9f44e8a6e271f6a4067a2703e9916dfd4fe9099241db7.woff2") format("woff2"), url("../../assets/3bfe46bb1ca35b205306c5ec664e99e4a816f48a417b6b42e77a1f43f0bc4e7a.woff") format("woff"); }
+
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-family: Roboto, Helvetica, Arial, sans-serif; color: #444444; background: #f3f5f7; line-height: 1.4; }
+button { font-family: inherit; }
+
+/* Prototype controls (not product UI) */
+.proto { max-width: 720px; margin: 40px auto; background: #ffffff; border: 1px solid #dedede; border-radius: 5px; padding: 24px 28px; }
+.proto h1 { font-size: 18px; font-weight: 500; margin: 0 0 16px; }
+.proto-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid #ebebeb; }
+.proto-row:first-of-type { border-top: none; }
+.proto-name { font-size: 14px; font-weight: 500; }
+.proto-applied { font-size: 13px; color: #666666; margin-top: 2px; }
+.proto-reset { margin-top: 16px; background: none; border: none; color: #326699; font-size: 13px; padding: 0; cursor: pointer; text-decoration: underline; }
+
+/* Modal backdrop and BaseModal, width sm */
+.backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: none; align-items: flex-start; justify-content: center; padding-top: 10vh; z-index: 10; }
+.backdrop.is-open { display: flex; }
+.modal { background: #ffffff; border-radius: 3px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18); width: 600px; max-width: calc(100vw - 32px); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 14px 32px; border-bottom: 1px solid #ebebeb; /* soft-outline */ }
+.modal-title { font-size: 16px; font-weight: 500; color: #444444; /* darkest */ }
+.modal-close { width: 28px; height: 28px; border: none; background: none; color: #888888; font-size: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.modal-close:hover { background: #f3f5f7; }
+.modal-content { background: #f3f5f7; /* bg */ padding: 18px 32px; border-radius: 0 0 3px 3px; }
+
+/* InvoiceInsuranceModal ModalBody */
+.modal-body { margin: 20px 0 50px; }
+.modal-body p { font-size: 14px; margin: 0 0 16px; }
+
+/* Field (OuterLabelFieldWrapper + SelectField) */
+.field + .field { margin-top: 16px; }
+.field[hidden] { display: none; }
+.field-label { display: block; font-size: 14px; font-weight: 500; line-height: 16px; color: #444444; margin-bottom: 4px; }
+.select { position: relative; }
+.control { display: flex; align-items: center; background: #ffffff; border: 1px solid #dedede; /* outline */ border-radius: 3px; min-height: 44px; padding: 0 0 0 15px; font-size: 15px; cursor: text; }
+.control:hover { border-color: #bdbdbd; }
+.control.is-focused, .control.is-focused:hover { border-color: #326699; /* primary */ }
+.control input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; color: #444444; padding: 0; height: 42px; }
+.control input::placeholder { color: #b8b8b8; /* soft */ }
+.control.has-value input::placeholder { color: #444444; }
+.control .clear { border: none; background: none; color: #888888; font-size: 16px; padding: 0 6px; line-height: 1; cursor: pointer; }
+.control .clear[hidden] { display: none; }
+.control .chevron { width: 36px; height: 42px; border: none; background: none; display: flex; align-items: center; justify-content: center; color: #888888; cursor: pointer; padding: 0; }
+.control .chevron svg { width: 12px; height: 12px; }
+.menu { position: absolute; left: 0; right: 0; top: 100%; background: #ffffff; border: 1px solid #dedede; border-radius: 0 0 3px 3px; z-index: 2; padding: 4px 0; max-height: 220px; overflow-y: auto; }
+.menu[hidden] { display: none; }
+.option { display: block; width: 100%; text-align: left; border: none; background: #ffffff; padding: 8px 15px; font-size: 14px; color: #444444; cursor: pointer; }
+.option.is-focused { background: #f3f5f7; /* hoverGrey */ }
+.no-options { padding: 8px 15px; font-size: 14px; color: #888888; text-align: center; }
+
+/* ModalActionRow (ConfirmCancelRow) */
+.action-row { border-top: 1px solid #dedede; padding-top: 30px; display: flex; justify-content: flex-end; gap: 16px; }
+.btn { font: 500 14px/16px Roboto, Helvetica, Arial, sans-serif; padding: 11px 18px 12px; min-width: 100px; border-radius: 3px; border: 1px solid #326699; cursor: pointer; }
+.btn-outlined { background: #ffffff; color: #326699; }
+.btn-outlined:hover { background: #ebf0f5; /* primary10 */ }
+.btn-primary { background: #326699; /* primary */ color: #ffffff; }
+.btn-primary:hover { background: #2f4358; border-color: #2f4358; /* primary-dark */ }
+</style>
+</head>
+<body>
+
+<div class="proto">
+  <h1>Insurance plan prototype</h1>
+  <div class="proto-row">
+    <div>
+      <div class="proto-name">Emergency section</div>
+      <div class="proto-applied" data-applied="emergency"></div>
+    </div>
+    <button class="btn btn-outlined" data-open="emergency">Insurance plan</button>
+  </div>
+  <div class="proto-row">
+    <div>
+      <div class="proto-name">Inpatient section</div>
+      <div class="proto-applied" data-applied="inpatient"></div>
+    </div>
+    <button class="btn btn-outlined" data-open="inpatient">Insurance plan</button>
+  </div>
+  <button class="proto-reset" id="reset">Reset</button>
+</div>
+
+<div class="backdrop" id="backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Insurance plan</span>
+      <button class="modal-close" id="close" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="modal-content">
+      <div class="modal-body">
+        <p id="intro"></p>
+        <div class="field" id="plan-field">
+          <label class="field-label" for="plan-input">Insurance plan</label>
+          <div class="select" data-select="plan">
+            <div class="control">
+              <input id="plan-input" autocomplete="off" placeholder="Select">
+              <button class="clear" type="button" aria-label="Clear" hidden>&#10005;</button>
+              <button class="chevron" type="button" tabindex="-1" aria-label="Open"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+            </div>
+            <div class="menu" role="listbox" hidden></div>
+          </div>
+        </div>
+        <div class="field" id="copay-field" hidden>
+          <label class="field-label" for="copay-input">Copayment insurer</label>
+          <div class="select" data-select="copay">
+            <div class="control">
+              <input id="copay-input" autocomplete="off" placeholder="Select">
+              <button class="clear" type="button" aria-label="Clear" hidden>&#10005;</button>
+              <button class="chevron" type="button" tabindex="-1" aria-label="Open"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+            </div>
+            <div class="menu" role="listbox" hidden></div>
+          </div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-outlined" id="cancel">Cancel</button>
+        <button class="btn btn-primary" id="confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// The patient's recorded insurance plans (demo data).
+const PATIENT_PLANS = [
+  { id: 'nhi', name: 'NHI', isNhi: true },
+  { id: 'calvos', name: "Calvo's SelectCare" },
+  { id: 'moylans', name: "Moylan's Insurance" },
+  { id: 'netcare', name: 'NetCare Health' },
+];
+const SECTIONS = {
+  emergency: { name: 'Emergency', allowsNhi: false },
+  inpatient: { name: 'Inpatient', allowsNhi: true },
+};
+
+const planById = id => PATIENT_PLANS.find(plan => plan.id === id);
+const emptyApplied = () => ({
+  emergency: { planId: null, copayInsurerId: null },
+  inpatient: { planId: null, copayInsurerId: null },
+});
+
+let applied = emptyApplied();
+let openSectionKey = null;
+let draft = { planId: null, copayInsurerId: null };
+
+// Which options each field offers, given the section and the draft.
+const optionsFor = key => {
+  if (key === 'plan') {
+    return PATIENT_PLANS.filter(plan => !plan.isNhi || SECTIONS[openSectionKey].allowsNhi);
+  }
+  return PATIENT_PLANS.filter(plan => !plan.isNhi);
+};
+const draftKey = key => (key === 'plan' ? 'planId' : 'copayInsurerId');
+
+// ---- Select behaviour, after react-select ----
+const selects = {};
+document.querySelectorAll('[data-select]').forEach(root => {
+  const key = root.dataset.select;
+  const control = root.querySelector('.control');
+  const input = root.querySelector('input');
+  const clear = root.querySelector('.clear');
+  const chevron = root.querySelector('.chevron');
+  const menu = root.querySelector('.menu');
+  let focusedIndex = 0;
+  let visibleOptions = [];
+
+  const renderValue = () => {
+    const plan = planById(draft[draftKey(key)]);
+    input.value = '';
+    input.placeholder = plan ? plan.name : 'Select';
+    control.classList.toggle('has-value', Boolean(plan));
+    clear.hidden = !plan;
+  };
+
+  const renderMenu = () => {
+    const query = input.value.trim().toLowerCase();
+    visibleOptions = optionsFor(key).filter(plan => plan.name.toLowerCase().includes(query));
+    focusedIndex = Math.min(focusedIndex, Math.max(visibleOptions.length - 1, 0));
+    menu.innerHTML = '';
+    if (visibleOptions.length === 0) {
+      menu.innerHTML = '<div class="no-options">No options</div>';
+      return;
+    }
+    visibleOptions.forEach((plan, index) => {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'option' + (index === focusedIndex ? ' is-focused' : '');
+      option.setAttribute('role', 'option');
+      option.textContent = plan.name;
+      option.addEventListener('mousedown', event => event.preventDefault());
+      option.addEventListener('mouseenter', () => { focusedIndex = index; highlight(); });
+      option.addEventListener('click', () => choose(plan.id));
+      menu.appendChild(option);
+    });
+  };
+
+  const highlight = () => {
+    menu.querySelectorAll('.option').forEach((option, index) => {
+      option.classList.toggle('is-focused', index === focusedIndex);
+      if (index === focusedIndex) option.scrollIntoView({ block: 'nearest' });
+    });
+  };
+
+  const openMenu = () => {
+    closeAllMenus(key);
+    focusedIndex = 0;
+    renderMenu();
+    const selectedIndex = visibleOptions.findIndex(plan => plan.id === draft[draftKey(key)]);
+    if (selectedIndex >= 0) { focusedIndex = selectedIndex; renderMenu(); }
+    menu.hidden = false;
+    control.classList.add('is-focused');
+  };
+  const closeMenu = () => {
+    menu.hidden = true;
+    input.value = '';
+  };
+  const isOpen = () => !menu.hidden;
+
+  const choose = id => {
+    setDraft(key, id);
+    closeMenu();
+    renderValue();
+    input.focus();
+  };
+
+  control.addEventListener('mousedown', event => {
+    if (event.target === clear) return;
+    event.preventDefault();
+    input.focus();
+    isOpen() ? closeMenu() : openMenu();
+  });
+  input.addEventListener('focus', () => control.classList.add('is-focused'));
+  input.addEventListener('blur', () => {
+    control.classList.remove('is-focused');
+    closeMenu();
+  });
+  input.addEventListener('input', () => {
+    if (!isOpen()) openMenu();
+    focusedIndex = 0;
+    renderMenu();
+  });
+  input.addEventListener('keydown', event => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!isOpen()) { openMenu(); return; }
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      if (visibleOptions.length === 0) return;
+      focusedIndex = (focusedIndex + step + visibleOptions.length) % visibleOptions.length;
+      highlight();
+    } else if (event.key === 'Enter') {
+      if (isOpen() && visibleOptions[focusedIndex]) {
+        event.preventDefault();
+        choose(visibleOptions[focusedIndex].id);
+      }
+    } else if (event.key === 'Escape' && isOpen()) {
+      event.stopPropagation();
+      closeMenu();
+    } else if (event.key === 'Backspace' && !input.value && draft[draftKey(key)]) {
+      choose(null);
+    }
+  });
+  clear.addEventListener('click', () => choose(null));
+
+  selects[key] = { renderValue, closeMenu };
+});
+
+const closeAllMenus = exceptKey => {
+  Object.entries(selects).forEach(([key, select]) => { if (key !== exceptKey) select.closeMenu(); });
+};
+
+// The copayment insurer belongs to NHI, so it goes when NHI does.
+const setDraft = (key, id) => {
+  draft[draftKey(key)] = id;
+  if (key === 'plan' && !planById(id)?.isNhi) draft.copayInsurerId = null;
+  renderConditional();
+};
+const renderConditional = () => {
+  const copayField = document.getElementById('copay-field');
+  copayField.hidden = !planById(draft.planId)?.isNhi;
+  selects.copay.renderValue();
+};
+
+// ---- Modal ----
+const backdrop = document.getElementById('backdrop');
+const openModal = sectionKey => {
+  openSectionKey = sectionKey;
+  draft = { ...applied[sectionKey] };
+  document.getElementById('intro').textContent =
+    `Select the insurance plan you would like to apply to the ${SECTIONS[sectionKey].name} items on this patient invoice.`;
+  selects.plan.renderValue();
+  renderConditional();
+  backdrop.classList.add('is-open');
+  document.getElementById('plan-input').focus();
+};
+const closeModal = () => {
+  closeAllMenus();
+  backdrop.classList.remove('is-open');
+  openSectionKey = null;
+};
+
+document.querySelectorAll('[data-open]').forEach(button => {
+  button.addEventListener('click', () => openModal(button.dataset.open));
+});
+document.getElementById('close').addEventListener('click', closeModal);
+document.getElementById('cancel').addEventListener('click', closeModal);
+document.getElementById('confirm').addEventListener('click', () => {
+  applied[openSectionKey] = { ...draft };
+  closeModal();
+  renderApplied();
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && backdrop.classList.contains('is-open')) closeModal();
+});
+document.getElementById('reset').addEventListener('click', () => {
+  applied = emptyApplied();
+  renderApplied();
+});
+
+// ---- What each section holds ----
+const renderApplied = () => {
+  Object.keys(SECTIONS).forEach(sectionKey => {
+    const { planId, copayInsurerId } = applied[sectionKey];
+    const plan = planById(planId);
+    const copayInsurer = planById(copayInsurerId);
+    let text = 'No insurance plan';
+    if (plan) text = plan.name;
+    if (copayInsurer) text += `, copayment by ${copayInsurer.name}`;
+    document.querySelector(`[data-applied="${sectionKey}"]`).textContent = text;
+  });
+};
+renderApplied();
+</script>
+</body>
+</html>
