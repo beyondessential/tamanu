@@ -124,8 +124,10 @@ export const ReportScreen = (): ReactElement => {
   // Default to the first survey until the user picks one
   const selectedSurveyId = userSelectedSurveyId ?? reportOptions?.[0]?.value;
 
+  // Keyed by date so a new day is a new query, rather than reusing yesterday’s memoised report
+  const currentDate = format(new Date(), 'yyyy-MM-dd');
   const { data: report } = useQuery({
-    queryKey: reportKeys.encounterSummary(selectedSurveyId),
+    queryKey: reportKeys.encounterSummary(selectedSurveyId, currentDate),
     queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
     enabled: selectedSurveyId !== undefined,
     placeholderData: keepPreviousData,
