@@ -23,7 +23,9 @@ export const buildRoutes = ctx => {
     ensurePermissionCheck,
     asyncHandler(async (req, res) => {
       req.flagPermissionChecked();
-      const { facilityId } = z.object({ facilityId: z.string().optional() }).parse(req.query);
+      const { facilityId } = z
+        .object({ facilityId: z.string().min(1).optional() })
+        .parse(req.query);
       if (!facilityId) {
         // The admin panel's session has no facility. This is the payload /login gives any
         // signed-in user, so being signed in is the only permission it needs.

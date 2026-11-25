@@ -43,4 +43,9 @@ describe('Front-end settings', () => {
     expect(res).toHaveSucceeded();
     expect(res.body.settings.telemetry.enabled).toBe(true);
   });
+
+  it('rejects an empty facility', async () => {
+    const res = await userApp.get(ENDPOINT).query({ facilityId: '' });
+    expect(res).toHaveRequestError();
+  });
 });
