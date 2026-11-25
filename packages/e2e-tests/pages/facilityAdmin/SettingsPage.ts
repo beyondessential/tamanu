@@ -85,6 +85,11 @@ export class SettingsPage extends BasePage {
     return setting.getByTestId('styledtextinput-fpam').locator('input');
   }
 
+  // boolean settings render a switch
+  switchInput(setting: Locator): Locator {
+    return setting.getByTestId('switch-b88q').locator('input');
+  }
+
   async save(): Promise<void> {
     await this.page.getByTestId('button-s1z4').click();
     await this.page.getByText('Settings saved').waitFor();
