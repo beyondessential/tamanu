@@ -255,6 +255,7 @@ const resetState = {
   availableFacilities: defaultState.availableFacilities,
   facilityId: defaultState.facilityId,
   primaryTimeZone: defaultState.primaryTimeZone,
+  settings: defaultState.settings,
   error: defaultState.error,
   token: null,
   impersonatingRole: null,

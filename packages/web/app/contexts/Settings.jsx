@@ -22,9 +22,7 @@ export const SettingsProvider = ({ children }) => {
 
   useEffect(() => {
     setSettings(reduxSettings);
-    if (reduxSettings) {
-      setIsSettingsLoaded(true);
-    }
+    setIsSettingsLoaded(Boolean(reduxSettings));
   }, [reduxSettings]);
 
   const getSetting = useCallback(path => get(settings, path), [settings]);
