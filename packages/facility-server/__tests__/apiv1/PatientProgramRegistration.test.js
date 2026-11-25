@@ -217,6 +217,24 @@ describe('PatientProgramRegistration', () => {
       });
       expect(createdRegistration.facilityId).toBe(currentFacility.id);
     });
+
+    it('creates a registration for a patient already linked to the facility', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const programRegistry = await createProgramRegistry();
+      const existing = await models.PatientFacility.create({ patientId: patient.id, facilityId });
+
+      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
+        programRegistryId: programRegistry.id,
+        clinicianId: app.user.id,
+        registeringFacilityId: facilityId,
+      });
+
+      expect(result).toHaveSucceeded();
+      const patientFacility = await models.PatientFacility.findOne({
+        where: { patientId: patient.id, facilityId },
+      });
+      expect(patientFacility.createdAt).toEqual(existing.createdAt);
+    });
   });
 
   describe('Updating program registrations', () => {

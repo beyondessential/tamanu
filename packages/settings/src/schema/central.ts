@@ -229,28 +229,6 @@ export const centralSettings = {
           type: yup.number().integer().min(1),
           defaultValue: 1000,
         },
-        streaming: {
-          properties: {
-            enabled: {
-              description: 'Use streaming endpoints',
-              type: yup.boolean(),
-              defaultValue: false,
-              exposedToWeb: true,
-            },
-            databasePollBatchSize: {
-              description:
-                'The number of records to poll in a single batch for a streaming endpoint',
-              type: yup.number().positive().integer().min(1),
-              defaultValue: 100,
-            },
-            databasePollInterval: {
-              description: 'The interval in milliseconds to poll the database for a streaming wait',
-              type: yup.number().positive().integer().min(10),
-              defaultValue: 1000,
-              unit: 'ms',
-            },
-          },
-        },
       },
     },
     mobileSync: {
@@ -842,6 +820,9 @@ export const centralSettings = {
         // Retention horizon lives in the global `telemetry.retentionDays` setting,
         // read by the cleanup task; this entry only controls the schedule.
         cleanupBrowserTelemetry: scheduledTaskSchema({ schedule: '31 3 * * *' }),
+        // spec: BTAG. Rolls closed buckets of raw telemetry up into aggregates; the
+        // bucket size and slow-event settings live in the global `telemetry` group.
+        rollupBrowserTelemetry: scheduledTaskSchema({ schedule: '*/15 * * * *' }),
         certificateNotificationProcessor: scheduledTaskSchema(
           { schedule: '*/30 * * * * *' },
           limitProperty(10),
