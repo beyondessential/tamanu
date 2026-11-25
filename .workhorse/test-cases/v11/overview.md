@@ -17,8 +17,12 @@ notification have no meaningful emulation in unit tests.
       clearing it (verifies spec: MUPD)
 - [ ] The Sync tab shows the pause rather than a sync error, after the sync that discovers the app
       is out of date (verifies spec: MUPD)
-- [ ] Sync stops running while an update is outstanding, rather than retrying into the same
-      rejection (verifies spec: MUPD)
+- [ ] While an update is outstanding, sync keeps trying in the background and is turned away on its
+      first request, with no records sent (verifies spec: MUPD)
+- [ ] Where the server names a new update address during the pause, the next rejected sync moves the
+      update to it (verifies spec: MUPD)
+- [ ] Where the server accepts the app's version again during the pause, the next sync succeeds, the
+      banner goes and sync resumes (verifies spec: MUPD)
 - [ ] Closing and reopening the app resumes the outstanding update rather than losing it (verifies
       spec: MUPD)
 - [ ] An app rejected for being above the server's maximum version shows the incompatible-version
