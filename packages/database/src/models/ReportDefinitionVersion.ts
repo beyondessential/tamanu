@@ -1,4 +1,4 @@
-import { QueryTypes, DataTypes, Sequelize } from 'sequelize';
+import { QueryTypes, DataTypes } from 'sequelize';
 import * as yup from 'yup';
 import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
@@ -153,11 +153,7 @@ export class ReportDefinitionVersion extends Model {
   }
 
   async dataGenerator(
-    {
-      sequelize,
-      reportSchemaStores,
-      facilityId,
-    }: { sequelize: Sequelize; reportSchemaStores: any; facilityId: string },
+    { reportSchemaStores, facilityId }: { reportSchemaStores: any; facilityId: string },
     parameters: any,
   ) {
     const reportQuery = this.get('query');
@@ -173,9 +169,8 @@ export class ReportDefinitionVersion extends Model {
 
     const definition = await (this as any).getReportDefinition();
 
-    const instance = reportSchemaStores
-      ? reportSchemaStores[definition.dbSchema]?.sequelize
-      : sequelize;
+    // Report SQL only ever runs as an unprivileged reporting role, never on the app's own connection.
+    const instance = reportSchemaStores?.[definition.dbSchema]?.sequelize;
     if (!instance) {
       throw new Error(`No reporting instance found for ${definition.dbSchema}`);
     }
