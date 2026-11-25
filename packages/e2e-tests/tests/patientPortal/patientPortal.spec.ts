@@ -24,6 +24,7 @@ test.describe('Patient portal', () => {
   test('[PORTAL-0002] A wrong code does not sign the patient in', async ({
     portalPatient,
     portalLoginPage,
+    portalDashboardPage,
   }) => {
     await portalLoginPage.goto();
     await portalLoginPage.requestCode(portalPatient.email);
@@ -31,6 +32,9 @@ test.describe('Patient portal', () => {
 
     await portalLoginPage.enterCode('000000');
     await expect(portalLoginPage.invalidCodeText).toBeVisible();
+
+    await portalDashboardPage.goto();
+    await expect(portalLoginPage.title).toBeVisible();
   });
 
   test('[PORTAL-0003] Patient updates their primary contact number', async ({
