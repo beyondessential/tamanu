@@ -367,6 +367,46 @@ describe('MSupplyStockOnHandProcessor', () => {
       );
 
       expect(updated).toBe(1);
+      const changedStock = await models.ReferenceDrugFacility.findOne({
+        where: { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID },
+      });
+      expect(changedStock.quantity).toBe(5);
+      expect(changedStock.stockStatus).toBe(DRUG_STOCK_STATUSES.IN_STOCK);
+    });
+
+    it('writes every changed stock entry in a single statement', async () => {
+      await models.ReferenceDrugFacility.bulkCreate([
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
+        {
+          referenceDrugId: referenceDrugId2,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
+      ]);
+
+      const task = new MSupplyStockOnHandProcessor(context);
+      const querySpy = vi.spyOn(context.sequelize, 'query');
+      const { updated } = await task.updateStockForFacility(
+        new Map([
+          [drugCode1, 10],
+          [drugCode2, 0],
+        ]),
+        FACILITY_ID,
+      );
+      // Sequelize quotes the table name, raw SQL may not
+      const updateStatements = querySpy.mock.calls.filter(([sql]) =>
+        /UPDATE "?reference_drug_facilities"?\s/.test(String(sql)),
+      );
+      querySpy.mockRestore();
+
+      expect(updated).toBe(2);
+      expect(updateStatements).toHaveLength(1);
     });
 
     it('skips medications without a matching reference data code', async () => {
