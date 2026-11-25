@@ -96,10 +96,10 @@ Applies to the care plans recorded against a patient and listed in the patient s
 
 | Change | Entry shows |
 | --- | --- |
-| Edit to the text or the problem list | The whole text as saved and, for the main care plan, the problem list beneath the subheading Problem list with each item's tick |
+| Edit to the text or the problem list | The whole text as saved and, for the main care plan, the problem list beneath the subheading Problem list, each item led by its checkbox |
 | Edit to On behalf of or Date Recorded alone | The change on its own, such as "On behalf of changed from Adeline Young to Mele Tupou", "Date recorded changed from 11/11/2026 05:12 PM to 10/11/2026 09:00 AM", "On behalf of set to Adeline Young" or "On behalf of removed (was Adeline Young)" |
 | Edit to both | The changes to On behalf of or Date Recorded first, then the whole text and problem list |
-| Ticks on the main care plan | One line per item whose tick changed, such as "Ticked: Refer to dietitian" or "Unticked: Foot examination at every visit" |
+| Ticks on the main care plan | One line per item whose tick changed, led by its checkbox as it now stands, such as "Checked: Refer to dietitian" or "Unchecked: Foot examination at every visit" |
 | A note deleted | On the main care plan's change log, "Deleted note:" followed by the deleted note's text |
 
 ### When ticks are recorded

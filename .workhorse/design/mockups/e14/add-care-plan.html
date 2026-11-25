@@ -564,8 +564,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .e14-cl-change + .e14-cl-content { display: block; margin-top: 6px; }
 .e14-cl-subheading { display: block; margin-top: 10px; font-weight: 500; color: #666666; /* Colors.darkText, as the card's Problem list heading */ }
 .e14-cl-items { margin: 4px 0 0; padding: 0; list-style: none; }
-.e14-cl-items li { display: flex; gap: 8px; align-items: baseline; white-space: normal; }
-.e14-cl-items i { font-size: 13px; color: #888888; /* Colors.midText */ }
+.e14-cl-items li { display: flex; gap: 8px; align-items: flex-start; white-space: normal; }
+.e14-cl-items i { font-size: 16px; line-height: 18px; color: #cccccc; /* as the main care plan card's unchecked box */ }
 .e14-cl-items i.fa-check-square { color: #326699; /* Colors.primary */ }
 .e14-cl-divider { width: calc(100% + 64px); margin-block: 30px; margin-inline: -32px; }
 #e14-changelog .grDnvL { margin-top: 0; }
@@ -1119,7 +1119,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     items.length === 0
       ? ''
       : `<span class="e14-cl-subheading">Problem list</span><ul class="e14-cl-items">${items
-          .map(item => `<li><i class="far ${item.done ? 'fa-check-square' : 'fa-square'}" aria-label="${item.done ? 'Ticked' : 'Not ticked'}"></i>${escapeHtml(item.text)}</li>`)
+          .map(item => `<li><i class="far ${item.done ? 'fa-check-square' : 'fa-square'}" aria-label="${item.done ? 'Checked' : 'Unchecked'}"></i>${escapeHtml(item.text)}</li>`)
           .join('')}</ul>`;
   const openChangeLog = target => {
     const isMain = target === 'main';
@@ -1138,8 +1138,11 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       .reverse()
       .map(entry => {
         if (entry.kind === 'ticks') {
-          const lines = entry.changes.map(change => `<span class="e14-cl-change">${change.done ? 'Ticked' : 'Unticked'}: ${escapeHtml(change.text)}</span>`);
-          return changeLogEntry(`Initial Admin ${entry.date}`, lines.join(''));
+          const lines = entry.changes.map(
+            change =>
+              `<li><i class="far ${change.done ? 'fa-check-square' : 'fa-square'}" aria-hidden="true"></i>${change.done ? 'Checked' : 'Unchecked'}: ${escapeHtml(change.text)}</li>`,
+          );
+          return changeLogEntry(`Initial Admin ${entry.date}`, `<ul class="e14-cl-items">${lines.join('')}</ul>`);
         }
         if (entry.kind === 'noteDeleted') {
           return changeLogEntry(`Initial Admin ${entry.date}`, `Deleted note: ${escapeHtml(entry.text)}`);
