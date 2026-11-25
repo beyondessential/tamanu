@@ -6,7 +6,7 @@ import {
   BOOTSTRAP_TRANSLATION_STRING_IDS,
 } from '@tamanu/constants';
 import { COLUMNS_EXCLUDED_FROM_SYNC, repeatableReadTransaction } from '@tamanu/database/sync';
-import { escapeLikeWildcards } from '@tamanu/utils/escapeLikeWildcards';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 // spec: FBOOT#contents
 // Just enough for a facility's ordinary login path to work before its first sync completes: who
@@ -69,7 +69,7 @@ const queryModelRecords = async (model, facilityIds) => {
         facilityIds,
         stringIds: BOOTSTRAP_TRANSLATION_STRING_IDS,
         stringIdPatterns: BOOTSTRAP_TRANSLATION_STRING_ID_PREFIXES.map(
-          prefix => `${escapeLikeWildcards(prefix)}%`,
+          prefix => likePattern`${prefix}%`,
         ),
       },
     },

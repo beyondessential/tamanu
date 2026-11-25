@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { escapeLikeWildcards } from '@tamanu/utils/escapeLikeWildcards';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 // Prefixes supported by Tamanu with the corresponding
 // sequelize operators.
@@ -25,12 +25,12 @@ export const hl7ParameterTypes = /** @type {const} */ ({
   special: 'special',
 });
 
-// LIKE patterns for the string modifiers that match part of a value. The value is escaped so its
-// own `%`, `_` and `\` are matched literally rather than read as wildcards.
+// LIKE patterns for the string modifiers that match part of a value. likePattern escapes the value
+// so its own `%`, `_` and `\` are matched literally rather than read as wildcards.
 export const stringSearchPatterns = /** @type {const} */ ({
-  contains: value => `%${escapeLikeWildcards(value)}%`,
-  'starts-with': value => `${escapeLikeWildcards(value)}%`,
-  'ends-with': value => `%${escapeLikeWildcards(value)}`,
+  contains: value => likePattern`%${value}%`,
+  'starts-with': value => likePattern`${value}%`,
+  'ends-with': value => likePattern`%${value}`,
 });
 
 // Modifiers supported by Tamanu with the corresponding
