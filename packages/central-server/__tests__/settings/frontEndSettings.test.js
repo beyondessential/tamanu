@@ -54,6 +54,16 @@ describe('Front-end settings', () => {
     expect(res.body.settings.facilityTimeZone).toBe('Pacific/Fiji');
   });
 
+  it('serves a facility the user is linked to when access is restricted', async () => {
+    await models.Setting.set('auth.restrictUsersToFacilities', true);
+    settingsCache.reset();
+    const facility = await models.Facility.create(fake(models.Facility));
+    await models.UserFacility.create({ facilityId: facility.id, userId: userApp.user.id });
+
+    const res = await userApp.get(ENDPOINT).query({ facilityId: facility.id });
+    expect(res).toHaveSucceeded();
+  });
+
   it('rejects a facility the user cannot access', async () => {
     await models.Setting.set('auth.restrictUsersToFacilities', true);
     settingsCache.reset();
