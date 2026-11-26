@@ -205,8 +205,8 @@ ORDER BY fj.errored_at DESC;
 ### 3.5 Has RIS/PACS posted a study/result back?
 
 **[diagnose]** Columns confirmed in `database/model/public/imaging_results.yml`
-(`imaging_request_id`, `completed_at`, `external_code`, `result_image_url`,
-`created_at`). There is **no** `imaging_studies` table — results land in
+(`imaging_request_id`, `completed_at`, `completed_by_id`, `external_code`,
+`result_image_url`, `created_at`). There is **no** `imaging_studies` table — results land in
 `imaging_results`.
 
 ```sql
@@ -215,6 +215,7 @@ SELECT ir.id, ir.display_id,
        ir.updated_at    AS request_updated_at,
        ires.id          AS result_id,
        ires.completed_at,
+       ires.completed_by_id,
        ires.external_code,
        ires.result_image_url,
        ires.created_at  AS result_created_at
@@ -226,9 +227,12 @@ WHERE ir.display_id = 'IMAGING_REQUEST_DISPLAY_ID';
 No `imaging_results` row = RIS/PACS has not returned a result — either it has not
 processed the request yet, or it is not reading the `ServiceRequest`. A row is
 not proof RIS/PACS returned anything: staff can also enter a result by hand. A
-result posted by RIS/PACS has `completed_by_id IS NULL` and an `external_code`,
-a `result_image_url`, or both; a manual one has neither and usually names the
-user (see 3.6). To check
+result RIS/PACS posted has an `external_code`, a `result_image_url`, or both; a
+result entered by hand has neither of those columns set (see 3.6). A row that
+has a `result_image_url` and also names a user in `completed_by_id` is a
+hand-entered result that RIS/PACS wrote over: older releases let a study without
+an accession number update any result on the request, so its `description` is
+the RIS/PACS text, not the clinician's. To check
 whether RIS/PACS is actually **polling** the FHIR route at all, use the shared
 **Is the integration polling? — Caddy log** check in
 `../reference/query-cookbook.md` (attribute RIS/PACS vs SENAITE traffic by
@@ -241,7 +245,7 @@ Use this when the complaint is "image links / reports not appearing in Tamanu"
 rather than a single missing request. The return path is: RIS/PACS posts a FHIR
 `ImagingStudy` to central, central creates an `imaging_results` row (link in
 `result_image_url`, report in `description`) and completes the request
-(`packages/database/src/models/fhir/FhirImagingStudy.ts:184-234`), the row syncs
+(`packages/database/src/models/fhir/FhirImagingStudy.ts:184-235`), the row syncs
 to the facility, and the facility renders the link when the request is opened
 (`packages/facility-server/app/routes/apiv1/imaging.js:20-56`).
 
@@ -267,10 +271,8 @@ auth). Run on the facility or central. **[diagnose]**
 WITH r AS (
   SELECT ir.id, ir.imaging_type,
          date_trunc('week', ir.created_at) AS wk,
-         bool_or(
-           res.completed_by_id IS NULL
-           AND (res.external_code IS NOT NULL OR res.result_image_url IS NOT NULL)
-         ) AS has_pacs_result
+         bool_or(res.external_code IS NOT NULL OR res.result_image_url IS NOT NULL)
+           AS has_pacs_result
   FROM imaging_requests ir
   LEFT JOIN imaging_results res
          ON res.imaging_request_id = ir.id AND res.deleted_at IS NULL
