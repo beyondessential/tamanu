@@ -185,9 +185,9 @@ export class FhirImagingStudy extends FhirResource {
     imagingRequest: ImagingRequest,
     dataDicts: ReturnType<typeof getFhirDataDictionaries>,
   ) {
-    const imagingAccessCode = this.identifier?.find(
-      i => i?.system === dataDicts.imagingStudyAccessionId,
-    )?.value;
+    // A blank accession number counts as none, so `||` rather than `??`
+    const imagingAccessCode =
+      this.identifier?.find(i => i?.system === dataDicts.imagingStudyAccessionId)?.value || null;
     const resultImageUrl = this.contained?.[0]?.address;
     if (!imagingAccessCode && !resultImageUrl) {
       throw new Invalid('Need to have Accession Number identifier or contained Endpoint', {
