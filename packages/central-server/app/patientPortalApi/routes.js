@@ -57,7 +57,7 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
   router.use(patientPortalMiddleware({ secret }));
 
   router.get('/profiles', getProfiles);
-  router.post('/profiles/:portalUserId/select', selectProfile({ secret: getAuthSecret() }));
+  router.post('/profiles/:portalUserId/select', selectProfile({ secret }));
 
   // Patient data routes
   router.get('/me', getPatient);

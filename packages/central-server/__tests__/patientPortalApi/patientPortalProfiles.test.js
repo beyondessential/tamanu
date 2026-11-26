@@ -5,7 +5,7 @@ import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { fake } from '@tamanu/fake-data/fake';
 import { settingsCache } from '@tamanu/settings';
-import { getCanonicalHostName } from '@tamanu/shared/utils';
+import { getAuthSecret, getCanonicalHostName } from '@tamanu/shared/utils';
 import { buildToken } from '../../app/auth/utils';
 import { createTestContext } from '../utilities';
 import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
@@ -160,7 +160,7 @@ describe('Patient Portal profiles', () => {
   });
 
   it('lists the profiles for a session token that carries no email', async () => {
-    const token = await buildToken({ portalUserId: parentPortalUser.id }, undefined, {
+    const token = await buildToken({ portalUserId: parentPortalUser.id }, getAuthSecret(), {
       expiresIn: '1h',
       audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
       issuer: getCanonicalHostName(),
