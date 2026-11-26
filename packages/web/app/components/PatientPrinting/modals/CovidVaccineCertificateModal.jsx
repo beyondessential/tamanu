@@ -17,7 +17,7 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const { localisation } = useLocalisation();
+  const { getLocalisation } = useLocalisation();
   const { getCurrentDate, primaryTimeZone } = useDateTime();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
@@ -86,7 +86,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
           signingSrc={footerImg}
           printedBy={printedBy}
           printedDate={getCurrentDate()}
-          localisation={localisation}
+          getLocalisation={getLocalisation}
           getSetting={getSetting}
           primaryTimeZone={primaryTimeZone}
           data-testid="covidvaccinecertificate-s2dc"

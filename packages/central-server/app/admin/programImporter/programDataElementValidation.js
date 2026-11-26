@@ -10,6 +10,15 @@ import {
 } from '@tamanu/constants';
 import { validateVisualisationConfig } from './visualisationConfigValidation';
 
+// A check that fails for one question, naming the sheet and question it was found on.
+export class DataElementValidationError extends Error {
+  constructor(sheetName, dataElementCode, reason) {
+    super(`sheetName: ${sheetName}, code: '${dataElementCode}', ${reason}`);
+    this.dataElementCode = dataElementCode;
+    this.reason = reason;
+  }
+}
+
 // Checks complex chart core question config individually
 function validateComplexChartCoreQuestion(programDataElementRecord, surveyScreenComponentRecord) {
   const { id, type } = programDataElementRecord.values;
@@ -53,15 +62,19 @@ function validateChartingFirstQuestion(programDataElementRecords, sheetName, sta
   const hasWrongType = type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME;
 
   if (hasWrongId) {
-    const error = new Error(
-      `sheetName: ${sheetName}, code: '${code}', First question should have '${CHARTING_DATA_ELEMENT_IDS.dateRecorded}' as ID`,
+    const error = new DataElementValidationError(
+      sheetName,
+      code,
+      `First question should have '${CHARTING_DATA_ELEMENT_IDS.dateRecorded}' as ID`,
     );
     updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
     errors.push(error);
   }
   if (hasWrongType) {
-    const error = new Error(
-      `sheetName: ${sheetName}, code: '${code}', First question should be DateTime type`,
+    const error = new DataElementValidationError(
+      sheetName,
+      code,
+      'First question should be DateTime type',
     );
     updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
     errors.push(error);
@@ -111,7 +124,7 @@ export async function validateProgramDataElementRecords(
         validateComplexChartCoreQuestion(programDataElementRecord, surveyScreenComponentRecord);
       }
     } catch (e) {
-      const error = new Error(`sheetName: ${sheetName}, code: '${dataElementCode}', ${e.message}`);
+      const error = new DataElementValidationError(sheetName, dataElementCode, e.message);
       newErrors.push(error);
     }
 

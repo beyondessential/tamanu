@@ -8,6 +8,7 @@ import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
 import { usePatient } from '../../contexts/Patient';
 import { joinNames } from '../../utils/user';
+import { escapeHtml } from '../../utils/escapeHtml';
 import { DataFetchingTable, Table } from '../Table';
 
 const StyledText = styled(Typography)`
@@ -217,7 +218,7 @@ export const ContactDetails = ({ onRemoveContact, selectedContact, isRemoveModal
             __html: getTranslation(
               'patient.details.reminderContacts.noContacts',
               'There are no contacts registered to receive reminders for :patientName.',
-              { replacements: { patientName: `<span>${patientName}</span>` } },
+              { replacements: { patientName: `<span>${escapeHtml(patientName)}</span>` } },
             ),
           }}
           data-testid="styledtext-r6fj"
@@ -228,7 +229,7 @@ export const ContactDetails = ({ onRemoveContact, selectedContact, isRemoveModal
             __html: getTranslation(
               'patient.details.reminderContacts.description',
               'The below contact list is registered to receive reminders for :patientName.',
-              { replacements: { patientName: `<span>${patientName}</span>` } },
+              { replacements: { patientName: `<span>${escapeHtml(patientName)}</span>` } },
             ),
           }}
           data-testid="styledtext-rxy4"

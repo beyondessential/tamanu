@@ -11,7 +11,7 @@ const renderEditDetails = ({
   features = {},
 }: {
   patient?: ReturnType<typeof fakePatient>;
-  fields?: Record<string, { required?: boolean; hidden?: boolean }>;
+  fields?: Record<string, { requiredPatientData?: boolean; hidden?: boolean }>;
   features?: { enablePatientInsurer?: boolean };
 } = {}) => {
   stubTranslations();
@@ -39,7 +39,7 @@ describe('EditPatientDetailsView', () => {
   });
 
   it('holds the save while a required detail is blank', async () => {
-    const { api } = renderEditDetails({ fields: { cityTown: { required: true } } });
+    const { api } = renderEditDetails({ fields: { cityTown: { requiredPatientData: true } } });
     await userEvent.type(await screen.findByLabelText(/^Street address/), '12 Reef Road');
     await save();
 
