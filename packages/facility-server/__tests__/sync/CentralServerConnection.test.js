@@ -16,6 +16,7 @@ import {
   ValidationError,
 } from '@tamanu/errors';
 import * as jose from 'jose';
+import { getSyncTuning, setSyncTuningFromCentral } from '@tamanu/database/sync';
 
 const { CentralServerConnection } = (await vi.importActual('../../app/sync/CentralServerConnection'));
 
@@ -87,7 +88,7 @@ describe('CentralServerConnection', () => {
       },
       settings: {
         sync: {
-          streaming: false,
+          urgentIntervalInSeconds: 10,
         },
       },
     });    
@@ -226,9 +227,48 @@ describe('CentralServerConnection', () => {
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
       expect((await centralServer.loginData()).settings).toMatchObject({
         sync: {
-          streaming: false,
+          urgentIntervalInSeconds: 10,
         },
       });
+    });
+
+    it("applies central's sync tuning on login", async () => {
+      const { settings, ...body } = await (await authSuccess).json();
+      fetch
+        .mockReturnValueOnce(
+          fakeSuccess({
+            ...body,
+            settings: { ...settings, facilitySync: { persistUpdateWorkerPoolSize: 2 } },
+          }),
+        )
+        .mockReturnValueOnce(meSuccess);
+      try {
+        await centralServer.connect();
+        expect(getSyncTuning().persistUpdateWorkerPoolSize).toBe(2);
+      } finally {
+        setSyncTuningFromCentral(undefined);
+      }
+    });
+
+    it("applies central's sync tuning on token refresh", async () => {
+      const { settings, ...body } = await (await authSuccess).json();
+      fetch
+        .mockReturnValueOnce(fakeSuccess({ ...body, refreshToken: 'first-refresh', settings }))
+        .mockReturnValueOnce(meSuccess)
+        .mockReturnValueOnce(
+          fakeSuccess({
+            token: validTestToken,
+            refreshToken: 'second-refresh',
+            settings: { ...settings, facilitySync: { persistUpdateWorkerPoolSize: 3 } },
+          }),
+        );
+      try {
+        await centralServer.connect();
+        await centralServer.connect();
+        expect(getSyncTuning().persistUpdateWorkerPoolSize).toBe(3);
+      } finally {
+        setSyncTuningFromCentral(undefined);
+      }
     });
 
     it('retrieves user data', async () => {

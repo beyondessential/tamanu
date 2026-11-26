@@ -110,7 +110,6 @@ const SurveyFormPage = ({ survey }: { survey: SurveyWithComponents }) => {
     submitSurveyResponse({
       surveyId: survey.id,
       startTime,
-      patientId: patient.id,
       endTime: getCurrentDateTime(),
       answers: (await getAnswersFromData(getVisibleAnswers(form, values), survey)) as Record<
         string,

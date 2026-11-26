@@ -62,7 +62,7 @@ export class BaseCommunicationProcessor extends ScheduledTask {
     });
 
     // Validate the address before sending: the patient's own email is stored as entered, and a
-    // record queued before sync validated destinations may carry an invalid one.
+    // destination saved without validation may not be an address at all.
     if (toAddress && !isEmailAddress(toAddress)) {
       return this.handleEmailResult(email, emailPlain, {
         status: COMMUNICATION_STATUSES.BAD_FORMAT,

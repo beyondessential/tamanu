@@ -290,6 +290,16 @@ describe('Imaging requests', () => {
       );
     });
 
+    it('should key C-arm areas under the C-arm imaging type', async () => {
+      const cArmArea = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.C_ARM_IMAGING_AREA }),
+      );
+
+      const result = await app.get('/api/imagingRequest/areas');
+      expect(result).toHaveSucceeded();
+      expect(result.body.cArm).toEqual([expect.objectContaining({ id: cArmArea.id })]);
+    });
+
     it('should respect visibilityStatus', async () => {
       const hiddenArea = await models.ReferenceData.create(
         fake(models.ReferenceData, {
@@ -597,6 +607,21 @@ describe('Imaging requests', () => {
           expect(ir.status).toBe(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
         });
       });
+    });
+
+    it.each([
+      ['lastName', '_'],
+      ['firstName', '%'],
+      ['displayId', '%'],
+    ])('should treat %s %s as a literal character, not a wildcard', async (field, value) => {
+      await makeRequestAtFacility(facilityId);
+
+      const result = await app.get('/api/imagingRequest').query({
+        allFacilities: true,
+        [field]: value,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(0);
     });
 
     describe('Pagination', () => {

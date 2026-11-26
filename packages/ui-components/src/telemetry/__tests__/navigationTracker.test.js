@@ -21,8 +21,9 @@ function makeTracer() {
         setAttribute(key, value) {
           this.attributes[key] = value;
         },
-        end() {
+        end(endTime) {
           this.ended = true;
+          this.endTime = endTime;
         },
       };
       spans.push(span);
@@ -60,7 +61,7 @@ function makeTimers() {
   };
 }
 
-function makeTracker(tracer, timers) {
+function makeTracker(tracer, timers, clock = { ms: 0 }) {
   return new TelemetryNavigationTracker({
     tracer,
     quietWindowMs: QUIET_MS,
@@ -73,8 +74,18 @@ function makeTracker(tracer, timers) {
     }),
     scheduleTimer: timers.scheduleTimer.bind(timers),
     cancelTimer: timers.cancelTimer.bind(timers),
+    now: () => clock.ms,
   });
 }
+
+const foregroundRequest = id => ({
+  phase: 'start',
+  id,
+  endpoint: `patient/${id}`,
+  query: {},
+  method: 'GET',
+  background: false,
+});
 
 describe('TelemetryNavigationTracker', () => {
   let tracer;
@@ -261,6 +272,16 @@ describe('TelemetryNavigationTracker', () => {
 
     expect(first.ended).toBe(true);
     expect(first.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.ABANDONED);
+
+    // The request still in flight is cut off with the navigation, and marked so.
+    const request = tracer.spans[1];
+    expect(request.ended).toBe(true);
+    expect(request.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.ABANDONED);
+    expect(request.attributes[SPAN_ATTR.STATUS_CODE]).toBeUndefined();
+
+    // Its late settle is ignored rather than overwriting the cut-off span.
+    tracker.onRequestSettle({ phase: 'settle', id: 3, status: 200 });
+    expect(request.attributes[SPAN_ATTR.STATUS_CODE]).toBeUndefined();
   });
 
   it('caps a navigation that never goes quiet', () => {
@@ -279,5 +300,105 @@ describe('TelemetryNavigationTracker', () => {
 
     expect(nav.ended).toBe(true);
     expect(nav.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.CAPPED);
+    expect(tracer.spans[1].attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.CAPPED);
+  });
+
+  it('stamps a navigational request with its navigation route, and a standalone one with none', () => {
+    tracker.startNavigation('/patients/:patientId', { patientId: 'p1' }, {});
+    tracker.onRequestStart({
+      phase: 'start',
+      id: 5,
+      endpoint: 'patient/p1',
+      query: {},
+      method: 'GET',
+      background: false,
+    });
+    tracker.onRequestSettle({ phase: 'settle', id: 5, status: 200 });
+    timers.fireByMs(QUIET_MS);
+
+    tracker.onRequestStart({
+      phase: 'start',
+      id: 6,
+      endpoint: 'suggestions/icd10',
+      query: {},
+      method: 'GET',
+      background: false,
+    });
+    tracker.onRequestSettle({ phase: 'settle', id: 6, status: 200 });
+
+    const [, navigational, standalone] = tracer.spans;
+    expect(navigational.attributes[SPAN_ATTR.NAVIGATION_ROUTE]).toBe('/patients/:patientId');
+    expect(navigational.attributes[SPAN_ATTR.OUTCOME]).toBeUndefined();
+    expect(standalone.attributes[SPAN_ATTR.NAVIGATION_ROUTE]).toBeUndefined();
+  });
+
+  describe('page-load time', () => {
+    let clock;
+
+    beforeEach(() => {
+      clock = { ms: 1000 };
+      tracker = makeTracker(tracer, timers, clock);
+    });
+
+    it('ends a page with no requests where it started, not after the quiet window', () => {
+      tracker.startNavigation('/login-submit', {}, {});
+      clock.ms += QUIET_MS;
+      timers.fireByMs(QUIET_MS);
+
+      const [nav] = tracer.spans;
+      expect(nav.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.SETTLED);
+      expect(nav.endTime).toBe(1000);
+    });
+
+    it('ends a settled page when its last request settled', () => {
+      tracker.startNavigation('/patients', {}, {});
+      tracker.onRequestStart(foregroundRequest(1));
+      tracker.onRequestStart(foregroundRequest(2));
+      clock.ms = 1100;
+      tracker.onRequestSettle({ phase: 'settle', id: 1, status: 200 });
+      clock.ms = 1140;
+      tracker.onRequestSettle({ phase: 'settle', id: 2, status: 200 });
+      clock.ms = 1140 + QUIET_MS;
+      timers.fireByMs(QUIET_MS);
+
+      expect(tracer.spans[0].endTime).toBe(1140);
+    });
+
+    it('moves the end to a request made and settled within the quiet window', () => {
+      tracker.startNavigation('/patients', {}, {});
+      tracker.onRequestStart(foregroundRequest(1));
+      clock.ms = 1140;
+      tracker.onRequestSettle({ phase: 'settle', id: 1, status: 200 });
+      clock.ms = 1300;
+      tracker.onRequestStart(foregroundRequest(2));
+      clock.ms = 1400;
+      tracker.onRequestSettle({ phase: 'settle', id: 2, status: 200 });
+      clock.ms = 1400 + QUIET_MS;
+      timers.fireByMs(QUIET_MS);
+
+      expect(tracer.spans[0].endTime).toBe(1400);
+    });
+
+    it('ends capped and abandoned pages at the time they happen', () => {
+      tracker.startNavigation('/imaging', {}, {});
+      tracker.onRequestStart(foregroundRequest(1));
+      clock.ms += CAP_MS;
+      timers.fireByMs(CAP_MS);
+      const capped = tracer.spans[0];
+
+      tracker.startNavigation('/patients', {}, {});
+      tracker.onRequestStart(foregroundRequest(2));
+      tracker.startNavigation('/dashboard', {}, {});
+      const abandoned = tracer.spans.find(
+        span =>
+          span.attributes[SPAN_ATTR.ROUTE] === '/patients' &&
+          span.attributes[SPAN_ATTR.KIND] === TELEMETRY_SPAN_KINDS.NAVIGATION,
+      );
+
+      expect(capped.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.CAPPED);
+      expect(capped.endTime).toBeUndefined();
+      expect(abandoned.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.ABANDONED);
+      expect(abandoned.endTime).toBeUndefined();
+    });
   });
 });

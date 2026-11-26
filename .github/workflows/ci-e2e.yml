@@ -13,6 +13,8 @@ permissions:
 env:
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: e2e
+  AUTH_SECRET: e2e-access-token-secret
+  AUTH_REFRESH_TOKEN_SECRET: e2e-auth-refresh-token-secret
   NODE_MODULES_PATHS: |
     node_modules
     packages/*/node_modules
@@ -67,6 +69,7 @@ jobs:
             --workspace=@tamanu/central-server \
             --workspace=@tamanu/facility-server \
             --workspace=@tamanu/web-frontend \
+            --workspace=@tamanu/patient-portal \
             --workspace=@tamanu/e2e-tests
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
@@ -97,11 +100,12 @@ jobs:
             --include-workspace-root \
             --workspace=@tamanu/central-server \
             --workspace=@tamanu/facility-server \
-            --workspace=@tamanu/web-frontend
+            --workspace=@tamanu/web-frontend \
+            --workspace=@tamanu/patient-portal
 
       - parallel:
-          - name: Build web-frontend
-            run: npm run build --workspace=@tamanu/web-frontend
+          - name: Build web-frontend and patient-portal
+            run: npm run build --workspace=@tamanu/web-frontend --workspace=@tamanu/patient-portal
           - name: Bundle default translations
             # The migrate's upgrade step reads this; generate it from source before the servers migrate.
             run: npm run package-default-translations --workspace @tamanu/upgrade
@@ -131,6 +135,8 @@ jobs:
                 packages/central-server/config/local.json5
                 packages/central-server/provisioning.json5
                 packages/facility-server/config/local.json5
+                packages/central-server/config/dev-secret.key
+                packages/facility-server/config/dev-secret.key
               retention-days: 1
           - name: Upload prepared database snapshot
             uses: actions/upload-artifact@v7
@@ -150,6 +156,9 @@ jobs:
     env:
       FACILITY_FRONTEND_URL: http://localhost:5173
       ADMIN_FRONTEND_URL: http://localhost:5174
+      PATIENT_PORTAL_URL: http://localhost:5175
+      # Patient portal specs arrange their patients here (packages/e2e-tests/utils/centralDatabase.ts)
+      CENTRAL_DATABASE_URL: postgres://tamanu:tamanu@localhost:5432/central
       LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS: true
       IS_PLAYWRIGHT_TEST: true
       TEST_EMAIL: admin@tamanu.io
@@ -188,7 +197,8 @@ jobs:
                 --workspace=@tamanu/central-server \
                 --workspace=@tamanu/e2e-tests \
                 --workspace=@tamanu/facility-server \
-                --workspace=@tamanu/web-frontend
+                --workspace=@tamanu/web-frontend \
+                --workspace=@tamanu/patient-portal
           - name: Setup postgres dbs
             run: |
               source .github/scripts/install-postgres-ubuntu.sh 18

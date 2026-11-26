@@ -1,7 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import { DEFAULT_LANGUAGE_CODE, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
-
-const EXCLUDE_REFERENCE_DATA_CLAUSE = `AND string_id NOT LIKE '${REFERENCE_DATA_TRANSLATION_PREFIX}.%'`;
+import { likePattern } from '@tamanu/utils/likePattern';
 
 // Sort languages so that the default language is first
 const sortLanguages = ({ language: a }, { language: b }) => {
@@ -41,7 +40,7 @@ export const queryTranslatedStringsByLanguage = async ({
       FROM
           translated_strings
       WHERE deleted_at IS NULL
-      ${includeReferenceData ? '' : EXCLUDE_REFERENCE_DATA_CLAUSE}
+      ${includeReferenceData ? '' : 'AND string_id NOT LIKE $referenceDataPattern'}
       GROUP BY
           string_id
       ORDER BY
@@ -52,6 +51,9 @@ export const queryTranslatedStringsByLanguage = async ({
         ...Object.fromEntries(
           sortedLanguages.map(({ language }, index) => [`lang${index}`, language]),
         ),
+        ...(includeReferenceData
+          ? {}
+          : { referenceDataPattern: likePattern`${REFERENCE_DATA_TRANSLATION_PREFIX}.%` }),
       },
       type: QueryTypes.SELECT,
     },

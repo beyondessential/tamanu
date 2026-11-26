@@ -116,15 +116,16 @@ export const setFacilityId = facilityId => async (dispatch, getState, { api }) =
 
 export const refreshSettings = () => async (dispatch, getState, { api }) => {
   // Best-effort: the next change event or login will reconcile if this fails.
-  const facilityIdAtStart = getState().auth.facilityId;
-  if (!facilityIdAtStart) return;
+  // The admin panel's session has no facility, and reads central's settings.
+  const { user: userAtStart, facilityId: facilityIdAtStart } = getState().auth;
   try {
     const settings = await api.fetchFrontEndSettings(facilityIdAtStart);
     if (!settings) return;
-    // If the user switched facility (or logged out) while the request was in flight,
-    // the response is for the previous facility - drop it so we don't clobber the
-    // freshly-loaded settings in redux/localStorage.
-    if (getState().auth.facilityId !== facilityIdAtStart) return;
+    // If the user switched facility or logged out while the request was in flight,
+    // the response is for the previous session - drop it so we don't clobber the
+    // freshly-loaded (or freshly-cleared) settings in redux/localStorage.
+    const { user, facilityId } = getState().auth;
+    if (user !== userAtStart || facilityId !== facilityIdAtStart) return;
     api.persistSettings(settings);
     dispatch({ type: SET_SETTINGS, settings });
   } catch (e) {
@@ -219,6 +220,8 @@ export const checkIsFacilitySelected = ({ auth }) => !!auth.facilityId;
 const defaultState = {
   loading: false,
   user: null,
+  // Outlives sign-out, so the login screen can tell the same user returning from a different one.
+  lastUserEmail: null,
   ability: null,
   error: null,
   token: null,
@@ -254,6 +257,7 @@ const resetState = {
   availableFacilities: defaultState.availableFacilities,
   facilityId: defaultState.facilityId,
   primaryTimeZone: defaultState.primaryTimeZone,
+  settings: defaultState.settings,
   error: defaultState.error,
   token: null,
   impersonatingRole: null,
@@ -267,6 +271,7 @@ const actionHandlers = {
   [LOGIN_SUCCESS]: action => ({
     loading: false,
     user: action.user,
+    lastUserEmail: action.user.email,
     primaryTimeZone: action.primaryTimeZone,
     ability: action.ability,
     availableFacilities: action.availableFacilities,

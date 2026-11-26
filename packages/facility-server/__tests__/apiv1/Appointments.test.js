@@ -118,26 +118,79 @@ describe('Appointments', () => {
     });
 
     const searchPatientNameOrId = query =>
-      userApp.get(`/api/appointments?patientNameOrId=${query}`);
+      userApp.get(`/api/appointments?all=true&patientNameOrId=${encodeURIComponent(query)}`);
+
+    // Other appointments in the test database have random patient names that can share a
+    // fragment with this patient's, so assert on what matched rather than an exact count.
+    const expectSearchToMatch = async query => {
+      const result = await searchPatientNameOrId(query);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toBe(result.body.data.length);
+      expect(result.body.data.map(({ id }) => id)).toContain(appointment.id);
+      const lowerCaseQuery = query.toLowerCase();
+      for (const { patient: matchedPatient } of result.body.data) {
+        const fullName = `${matchedPatient.firstName} ${matchedPatient.lastName}`.toLowerCase();
+        const displayId = matchedPatient.displayId.toLowerCase();
+        expect(
+          fullName.includes(lowerCaseQuery) || displayId.includes(lowerCaseQuery),
+          `query "${query}" matched patient "${matchedPatient.displayId}"`,
+        ).toBe(true);
+      }
+    };
 
     // Valid searches
-    const searchById = await searchPatientNameOrId(patient.displayId);
-    const searchByPartialId = await searchPatientNameOrId(patient.displayId.slice(0, 3));
-    const searchByFirstName = await searchPatientNameOrId(patient.firstName);
-    const searchByPartialFirstName = await searchPatientNameOrId(patient.firstName.slice(0, 3));
-    const searchByLastName = await searchPatientNameOrId(patient.lastName);
-    const searchByPartialLastName = await searchPatientNameOrId(patient.lastName.slice(0, 3));
-    expect(searchById.body.count).toBe(1);
-    expect(searchByPartialId.body.count).toBe(1);
-    expect(searchByFirstName.body.count).toBe(1);
-    expect(searchByPartialFirstName.body.count).toBe(1);
-    expect(searchByLastName.body.count).toBe(1);
-    expect(searchByPartialLastName.body.count).toBe(1);
+    await expectSearchToMatch(patient.displayId);
+    await expectSearchToMatch(patient.displayId.slice(0, 3));
+    await expectSearchToMatch(patient.firstName);
+    await expectSearchToMatch(patient.firstName.slice(0, 3));
+    await expectSearchToMatch(patient.lastName);
+    await expectSearchToMatch(patient.lastName.slice(0, 3));
 
     // Invalid searches
     const searchByInvalidString = await searchPatientNameOrId('invalid');
     expect(searchByInvalidString.body.count).toBe(0);
   });
+
+  it.each([
+    ['_', 'Under_score'],
+    ['%', 'Per%cent'],
+  ])(
+    'should treat patientNameOrId %s as a literal character, not a wildcard',
+    async (wildcard, literalFirstName) => {
+      const createAppointmentForPatient = async patientOverrides => {
+        const appointmentPatient = await models.Patient.create(
+          await createDummyPatient(models, patientOverrides),
+        );
+        return models.Appointment.create({
+          ...fake(models.Appointment),
+          patientId: appointmentPatient.id,
+          status: APPOINTMENT_STATUSES.CONFIRMED,
+          startTime: add(new Date(), { days: 1 }),
+          endTime: add(new Date(), { days: 2 }),
+        });
+      };
+      const unmatchedAppointment = await createAppointmentForPatient({
+        firstName: 'Plain',
+        lastName: 'Name',
+      });
+      const literalMatchAppointment = await createAppointmentForPatient({
+        firstName: literalFirstName,
+        lastName: 'Name',
+      });
+
+      const result = await userApp.get('/api/appointments').query({ patientNameOrId: wildcard });
+      expect(result).toHaveSucceeded();
+
+      const returnedIds = result.body.data.map(({ id }) => id);
+      expect(returnedIds).not.toContain(unmatchedAppointment.id);
+      expect(returnedIds).toContain(literalMatchAppointment.id);
+      for (const { patient: returnedPatient } of result.body.data) {
+        expect(
+          `${returnedPatient.firstName} ${returnedPatient.lastName} ${returnedPatient.displayId}`,
+        ).toContain(wildcard);
+      }
+    },
+  );
 
   describe('outpatient appointments', () => {
     describe('reminder emails', () => {

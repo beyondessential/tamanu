@@ -425,8 +425,8 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     await updateEncounter({
       submittedTime: getCurrentDateTime(),
       startDate,
-      referralSourceId,
       // A cleared select gives undefined, which would drop out of the request body
+      referralSourceId: referralSourceId ?? null,
       patientBillingTypeId: patientBillingTypeId ?? null,
       dietIds,
       reasonForEncounter,

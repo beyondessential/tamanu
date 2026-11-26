@@ -1,14 +1,21 @@
 import { log } from '@tamanu/shared/services/logging';
-import { QueryTypes } from 'sequelize';
-import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
 
-export async function findOrCreateDefinition(name, store) {
+// A report's connection is settled on its definition, and its query is checked against that
+// connection, so a new definition has to take the one the file declares rather than the default.
+export async function findOrCreateDefinition(name, dbSchema, store) {
   const { ReportDefinition } = store.models;
   const [definition, created] = await ReportDefinition.findOrCreate({
     where: { name },
+    defaults: dbSchema ? { dbSchema } : {},
   });
   if (created) {
-    log.info(`Created new report definition ${definition.name}`);
+    log.info(
+      `Created new report definition ${definition.name} on the ${definition.dbSchema} schema`,
+    );
+  } else if (dbSchema && definition.dbSchema !== dbSchema) {
+    throw new Error(
+      `Report ${name} is on the ${definition.dbSchema} schema, so it cannot take a ${dbSchema} version`,
+    );
   }
   return definition;
 }
@@ -17,26 +24,4 @@ export function getLatestVersion(versions, status) {
   return versions
     .sort((a, b) => b.versionNumber - a.versionNumber)
     .find(v => !status || v.status === status);
-}
-
-export async function verifyQuery(query, paramDefinitions = [], store, verbose) {
-  try {
-    const replacements = await getReportQueryReplacements(paramDefinitions);
-
-    // use EXPLAIN instead of PREPARE because we don't want to stuff around deallocating the statement
-    const results = await store.sequelize.query(`EXPLAIN ${query}`, {
-      type: QueryTypes.SELECT,
-      replacements,
-    });
-    if (verbose) {
-      const formattedResults = results.reduce(
-        (a1, x) =>
-          `${a1}\n${Object.entries(x).reduce((a2, [k, v]) => `${a2}\x1b[1m${k}:\x1b[0m ${v}`, '')}`,
-        'Explain output:',
-      );
-      log.info(formattedResults);
-    }
-  } catch (err) {
-    throw new Error(`Invalid query: ${err.message}`);
-  }
 }

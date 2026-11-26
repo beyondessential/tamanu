@@ -78,7 +78,7 @@ export const centralSettings = {
       },
     },
     patientCommunication: {
-      description: 'Settings for patient communications (emails, telegram)',
+      description: 'Settings for patient communications',
       properties: {
         retryThreshold: {
           description: 'Maximum number of send retries before a queued message is given up on',
@@ -229,27 +229,42 @@ export const centralSettings = {
           type: yup.number().integer().min(1),
           defaultValue: 1000,
         },
-        streaming: {
-          properties: {
-            enabled: {
-              description: 'Use streaming endpoints',
-              type: yup.boolean(),
-              defaultValue: false,
-              exposedToWeb: true,
-            },
-            databasePollBatchSize: {
-              description:
-                'The number of records to poll in a single batch for a streaming endpoint',
-              type: yup.number().positive().integer().min(1),
-              defaultValue: 100,
-            },
-            databasePollInterval: {
-              description: 'The interval in milliseconds to poll the database for a streaming wait',
-              type: yup.number().positive().integer().min(10),
-              defaultValue: 1000,
-              unit: 'ms',
-            },
-          },
+        numberConcurrentPullSnapshots: {
+          name: 'Concurrent pull snapshots',
+          description:
+            'How many sync sessions can build their pull snapshot at the same time. Each one holds a database connection, so keep it well below the connection pool size.',
+          type: yup.number().integer().min(1),
+          defaultValue: 4,
+        },
+      },
+    },
+    facilitySync: {
+      description:
+        "Sync tuning that facility servers fetch from central on login and token refresh. It overrides the sync values in a facility server's config file, and only a SYNC_* env var on the facility server overrides it",
+      exposedToWeb: true,
+      highRisk: true,
+      properties: {
+        persistedCacheBatchSize: {
+          description: 'The number of records to persist in a single batch',
+          type: yup.number().integer().min(1),
+          defaultValue: 10000,
+        },
+        pauseBetweenPersistedCacheBatchesInMilliseconds: {
+          description: 'The pause between batches of persisted records',
+          type: yup.number().integer().min(0),
+          defaultValue: 50,
+          unit: 'ms',
+        },
+        pauseBetweenCacheBatchInMilliseconds: {
+          description: 'The pause between batches of pulled records',
+          type: yup.number().integer().min(0),
+          defaultValue: 50,
+          unit: 'ms',
+        },
+        persistUpdateWorkerPoolSize: {
+          description: 'The number of concurrent workers persisting updated records',
+          type: yup.number().integer().min(1),
+          defaultValue: 5,
         },
       },
     },
@@ -505,34 +520,6 @@ export const centralSettings = {
           properties: {
             enabled: integrationEnabled(),
             requireClientHeaders: requireClientHeaders(),
-          },
-        },
-        telegram: {
-          description: 'Telegram bot integration settings',
-          properties: {
-            apiToken: {
-              description: 'Telegram bot API token (enables the bot when set)',
-              type: yup.string(),
-              secret: true,
-            },
-            webhook: {
-              description:
-                'Webhook settings; when a URL is set the bot uses webhooks instead of polling',
-              properties: {
-                url: {
-                  description:
-                    'External webhook URL, e.g. https://central.example.com/api/public/telegram-webhook',
-                  type: urlSchema,
-                  defaultValue: '',
-                },
-                secret: {
-                  description:
-                    'Secret token Telegram includes on webhook requests, used to verify them',
-                  type: yup.string(),
-                  secret: true,
-                },
-              },
-            },
           },
         },
         ips: {
@@ -827,21 +814,19 @@ export const centralSettings = {
           { schedule: '*/30 * * * * *' },
           batchingProperties(100, 50),
         ),
-        patientTelegramCommunicationProcessor: scheduledTaskSchema(
-          { schedule: '*/30 * * * * *' },
-          batchingProperties(100, 50),
-        ),
         surveyCompletionNotifierProcessor: scheduledTaskSchema(
           { schedule: '*/30 * * * * *' },
           limitProperty(100),
         ),
-        vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
         patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),
         // spec: BTEL — central holds telemetry from the admin panel and the
         // patient portal, so it prunes on the same terms as a facility server.
         // Retention horizon lives in the global `telemetry.retentionDays` setting,
         // read by the cleanup task; this entry only controls the schedule.
         cleanupBrowserTelemetry: scheduledTaskSchema({ schedule: '31 3 * * *' }),
+        // spec: BTAG. Rolls closed buckets of raw telemetry up into aggregates; the
+        // bucket size and slow-event settings live in the global `telemetry` group.
+        rollupBrowserTelemetry: scheduledTaskSchema({ schedule: '*/15 * * * *' }),
         certificateNotificationProcessor: scheduledTaskSchema(
           { schedule: '*/30 * * * * *' },
           limitProperty(10),

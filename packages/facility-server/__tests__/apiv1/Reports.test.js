@@ -17,7 +17,8 @@ describe('Reports', () => {
   let ctx;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    // Reports only run on the reporting roles' connections, never the app's own.
+    ctx = await createTestContext({ enableReportInstances: true });
     baseApp = ctx.baseApp;
   });
   afterAll(() => ctx.close());
@@ -78,7 +79,12 @@ describe('Reports', () => {
 
     it('should include the currentFacilityId parameter', async () => {
       const [facilityId] = selectFacilityIds(config);
+      const definition = await ctx.models.ReportDefinition.create({
+        ...fake(ctx.models.ReportDefinition),
+        dbSchema: REPORT_DB_CONNECTIONS.RAW,
+      });
       const def = await ctx.models.ReportDefinitionVersion.create({
+        reportDefinitionId: definition.id,
         versionNumber: 1,
         status: 'published',
         userId: user.id,
@@ -90,6 +96,12 @@ describe('Reports', () => {
       });
       const report = await def.dataGenerator({ ...ctx, facilityId }, {});
       expect(report).toEqual([['id'], [facilityId]]);
+    });
+
+    it('should refuse to run a report when the reporting connections are unavailable', async () => {
+      await expect(
+        reportDefinitionVersion.dataGenerator({ ...ctx, reportSchemaStores: null }, {}),
+      ).rejects.toThrow(/No reporting instance found/);
     });
   });
 

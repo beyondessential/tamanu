@@ -19,15 +19,15 @@ import {
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { getSyncConfig } from '../serverConfig';
+import { getSyncConfig, isSyncEnabled } from '../serverConfig';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
-import { applyBootstrap } from './facilityBootstrap';
-import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
+import { pullIncomingChanges } from './pullIncomingChanges';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
+import { getSyncSettings } from './syncSettings';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -68,8 +68,6 @@ export class FacilitySyncManager {
 
   currentStartTime = 0;
 
-  hasBootstrapped = false;
-
   constructor({ models, sequelize, centralServer }) {
     this.models = models;
     this.sequelize = sequelize;
@@ -86,7 +84,7 @@ export class FacilitySyncManager {
   }
 
   async triggerSync(reason) {
-    if (!this.constructor.config.sync.enabled) {
+    if (!isSyncEnabled(this.constructor.config.sync)) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return { enabled: false };
     }
@@ -190,10 +188,6 @@ export class FacilitySyncManager {
 
     const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
 
-    if (pullSince === -1 && !this.hasBootstrapped) {
-      await this.bootstrap();
-    }
-
     // the first step of sync is to start a session and retrieve the session id
     const {
       status,
@@ -266,22 +260,6 @@ export class FacilitySyncManager {
     return { queued: false, ran: true };
   }
 
-  // spec: FBOOT#when-a-facility-bootstraps
-  // Lets the facility be logged into while its first sync runs. Once per process rather than before
-  // every attempt, as attempts repeat on every scheduled tick while the facility waits in central's
-  // sync queue. A failure is retried on the next attempt, and never holds up the sync itself.
-  async bootstrap() {
-    try {
-      const records = await this.centralServer.fetchBootstrap();
-      await this.sequelize.transaction(() =>
-        applyBootstrap({ sequelize: this.sequelize, models: this.models }, records),
-      );
-      this.hasBootstrapped = true;
-    } catch (error) {
-      log.warn('FacilitySyncManager.bootstrapFailed', { error: error.message });
-    }
-  }
-
   async pushChanges(sessionId, newSyncClockTime) {
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
     const currentSyncClockTime = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
@@ -336,17 +314,14 @@ export class FacilitySyncManager {
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
     await createSnapshotTable(this.sequelize, sessionId);
-    const pull = (await this.centralServer.streaming())
-      ? streamIncomingChanges
-      : pullIncomingChanges;
-    const { totalPulled, pullUntil } = await pull(
+    const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       this.sequelize,
       sessionId,
       pullSince,
     );
 
-    if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
+    if (getSyncSettings().assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
         Object.values(getModelsForPull(this.models)),
         sessionId,

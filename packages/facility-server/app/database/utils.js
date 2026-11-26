@@ -1,4 +1,5 @@
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 /*
 Returns an array with the correct structure to support regular
@@ -54,22 +55,14 @@ export const mapQueryFilters = (params, options) => {
   return {};
 };
 
-/*
-  Returns a function that creates a case insensitive filter by calling the 
-  'UPPER' function from SQL in both the column and the value to match against 
-  using a custom operator. It binds a fields object that maps the model's
-  fieldnames to the actual database column names.
-*/
-export const getCaseInsensitiveFilter = fields => {
-  return (fieldName, operator, value) => {
-    const columnName = fields[fieldName];
-    const filterValue = Sequelize.where(Sequelize.fn('upper', Sequelize.col(columnName)), {
-      [operator]: value.toUpperCase(),
-    });
+// mapFns for mapQueryFilters that match the value literally and case-insensitively
+export const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
+  [fieldName]: { [Op.iLike]: likePattern`${value}%` },
+});
 
-    return { [fieldName]: filterValue };
-  };
-};
+export const caseInsensitiveContainsFilter = (fieldName, _operator, value) => ({
+  [fieldName]: { [Op.iLike]: likePattern`%${value}%` },
+});
 
 /*
   Returns a function that creates an equal comparison filter that maps 

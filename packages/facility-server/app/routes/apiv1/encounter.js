@@ -16,6 +16,7 @@ import {
   SURVEY_TYPES,
   DASHBOARD_ONLY_TASK_TYPES,
   DIAGNOSIS_CERTAINTY,
+  DRUG_LIMIT_FIELDS,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -563,7 +564,13 @@ encounterRelations.get(
           include: {
             model: models.ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['referenceDataId', 'isSensitive'],
+            attributes: [
+              'referenceDataId',
+              'isSensitive',
+              'dosingUnit',
+              'dispensingUnit',
+              ...DRUG_LIMIT_FIELDS,
+            ],
             include: facilityId
               ? [
                   {

@@ -23,12 +23,14 @@ const KNOWN_ERROR_TYPES = new Set(Object.values(ERROR_TYPE));
 // - `auth*` logs the session out and shows a message on the login screen
 // - `forbidden` and `rate-limited` are surfaced by the view that hit them
 // - `validation*` belongs to the form that submitted the request
-// - `not-found` is a normal outcome for the many optional-resource queries
+// - `not-found` is a normal outcome for the many optional-resource queries, and
+//   `gone` is the same outcome for a resource that used to exist
 // - `client-incompatible` already triggers the version-incompatible logout
 //   message from @tamanu/api-client (see `getVersionIncompatibleMessage`)
 const SILENT_ERROR_TYPES = new Set([
   ERROR_TYPE.CLIENT_INCOMPATIBLE,
   ERROR_TYPE.FORBIDDEN,
+  ERROR_TYPE.GONE,
   ERROR_TYPE.NOT_FOUND,
   ERROR_TYPE.RATE_LIMITED,
   ERROR_TYPE.VALIDATION,

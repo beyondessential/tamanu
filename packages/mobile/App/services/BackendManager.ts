@@ -51,6 +51,8 @@ export class BackendManager {
 
   async initialise(): Promise<void> {
     await Database.connect();
+    // Sign-in reads the cached permissions, so they must be in memory before it can happen
+    await this.permissions.loaded;
     await this.auth.initialise();
     await this.startSyncService();
     // Guard against double registration: `initialise()` may be called again (e.g. on remount)

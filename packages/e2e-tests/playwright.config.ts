@@ -48,7 +48,9 @@ module.exports = defineConfig({
     {
       // single project: the setup logs into both frontends and saves one
       // combined session, so specs can drive the facility (:5173) or admin
-      // (:5174) frontend authenticated, including within the same test
+      // (:5174) frontend authenticated, including within the same test. The
+      // patient portal (:5175) has its own origin, so portal specs start signed
+      // out and sign the patient in themselves
       name: 'e2e',
       use: { ...devices['Desktop Chrome'], storageState: resolve(__dirname, '.auth/user.json') },
       dependencies: ['setup'],
@@ -119,6 +121,13 @@ module.exports = defineConfig({
           {
             command: 'npm run e2e-admin-preview --workspace=@tamanu/web-frontend',
             port: 5174,
+            reuseExistingServer: true,
+            timeout: 120 * 1000,
+            stdout: 'pipe',
+          },
+          {
+            command: 'npm run e2e-preview --workspace=@tamanu/patient-portal',
+            port: 5175,
             reuseExistingServer: true,
             timeout: 120 * 1000,
             stdout: 'pipe',

@@ -112,16 +112,12 @@ describe('Paginator record count', () => {
   });
 
   it.each([
-    ['a range of the page and the total', { count: 547 }, 'Showing 1–10 of 547 records'],
-    ['the range when every record fits on one page', { count: 3 }, 'Showing 1–3 of 3 records'],
-    ['the last page up to the total', { page: 54, count: 547 }, 'Showing 541–547 of 547 records'],
-    [
-      'one number when the page holds a single record',
-      { page: 1, count: 11 },
-      'Showing 11 of 11 records',
-    ],
-    ['a single record when the table holds exactly one', { count: 1 }, 'Showing 1 of 1 record'],
-    ['thousands separators', { count: 1204 }, 'Showing 1–10 of 1,204 records'],
+    ['a range of the page and the total', { count: 547 }, 'Showing 1–10 of 547'],
+    ['the range when every record fits on one page', { count: 3 }, 'Showing 1–3 of 3'],
+    ['the last page up to the total', { page: 54, count: 547 }, 'Showing 541–547 of 547'],
+    ['one number when the page holds a single record', { page: 1, count: 11 }, 'Showing 11 of 11'],
+    ['a single record when the table holds exactly one', { count: 1 }, 'Showing 1 of 1'],
+    ['thousands separators', { count: 1204 }, 'Showing 1–10 of 1,204'],
   ])('shows %s', (_, props, expectedText) => {
     renderFooter(props);
     expect(recordCountText()).toBe(expectedText);
@@ -130,7 +126,14 @@ describe('Paginator record count', () => {
   it("formats the numbers for the user's language", () => {
     language.code = 'de';
     renderFooter({ count: 1204 });
-    expect(recordCountText()).toBe('Showing 1–10 of 1.204 records');
+    expect(recordCountText()).toBe('Showing 1–10 of 1.204');
+  });
+
+  it('bolds the numbers and separates the count from the rows per page', () => {
+    renderFooter({ count: 547 });
+    const bold = [...screen.getByTestId('pagerecordcount-m8ne').querySelectorAll('strong')];
+    expect(bold.map(el => el.textContent)).toEqual(['1', '10', '547']);
+    expect(screen.queryByTestId('divider-p4rc')).not.toBeNull();
   });
 
   it('labels the rows per page dropdown with the visible label', () => {
@@ -145,7 +148,7 @@ describe('Paginator translations', () => {
   it.each([
     ['general.table.recordCount.range', { count: 547 }, 'Kitea 1–10 o 547'],
     ['general.table.recordCount.singleRow', { page: 1, count: 11 }, 'Kitea 11 o 11'],
-    ['general.table.recordCount.onlyRecord', { count: 1 }, 'Kitea 1 o 1'],
+    ['general.table.recordCount.singleRow', { count: 1 }, 'Kitea 1 o 1'],
   ])('shows the record count in the translation of %s', (stringId, props, expectedText) => {
     const template = stringId.endsWith('range')
       ? 'Kitea :lowerRange–:upperRange o :count'

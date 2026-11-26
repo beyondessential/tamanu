@@ -1,14 +1,14 @@
-import config from 'config';
-
 import { TamanuApi } from '@tamanu/api-client';
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/constants';
+import { SERVER_TYPES, DEVICE_SCOPES } from '@tamanu/constants';
 
+import { setSyncTuningFromCentral } from '@tamanu/database/sync';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 import { version } from '../serverInfo';
 import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
+import { getSyncSettings } from './syncSettings';
 
 // spec: SYNCHK#while-central-wakes
 // Only a 503 with a Retry-After is a waking central; a bare 503 (overloaded central, empty proxy)
@@ -38,7 +38,7 @@ export class CentralServerConnection extends TamanuApi {
       agentVersion: version,
       deviceId,
       defaultRequestConfig: {
-        timeout: config.sync.timeout,
+        timeout: getSyncSettings().timeout,
         waitForAuth: true,
         backoff: true,
       },
@@ -92,11 +92,15 @@ export class CentralServerConnection extends TamanuApi {
     return this.pollUntilOk(endpoint);
   }
 
-  async connect(backoff = config.sync.backoff, timeout = this.timeout) {
+  async connect(backoff = getSyncSettings().backoff, timeout = this.timeout) {
     try {
-      await this.refreshToken({
+      const { settings } = await this.refreshToken({
         retryAuth: false,
       });
+      if (settings) {
+        this.#loginData = { ...this.#loginData, settings };
+        setSyncTuningFromCentral(settings.facilitySync);
+      }
       return;
     } catch (_) {
       // ignore error
@@ -110,6 +114,7 @@ export class CentralServerConnection extends TamanuApi {
       timeout,
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     }).then(loginData => {
+      setSyncTuningFromCentral(loginData.settings?.facilitySync);
       return (this.#loginData = loginData);
     });
   }
@@ -120,19 +125,6 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     return this.#loginData;
-  }
-
-  async streaming() {
-    return Boolean((await this.loginData())?.settings?.sync?.streaming?.enabled);
-  }
-
-  // spec: FBOOT#when-a-facility-bootstraps
-  async fetchBootstrap() {
-    const { records } = await this.fetch('sync/bootstrap', {
-      method: 'POST',
-      body: { facilityIds: getServerFacilityIds() },
-    });
-    return records;
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
@@ -158,27 +150,8 @@ export class CentralServerConnection extends TamanuApi {
     // then, wait until the sync session is ready
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client
-
-    if (await this.streaming()) {
-      for await (const { kind, message } of this.stream(() => ({
-        endpoint: `sync/${sessionId}/ready/stream`,
-      }))) {
-        handler: switch (kind) {
-          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
-            // still waiting
-            break handler;
-          case SYNC_STREAM_MESSAGE_KIND.END:
-            // includes the new tick from starting the session
-            return { sessionId, ...message };
-          default:
-            log.warn(`Unexpected message kind: ${kind}`);
-        }
-      }
-      throw new Error('Unexpected end of stream');
-    }
-
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
-    // when polling, we need to separately fetch the new tick from starting the session
+    // we need to separately fetch the new tick from starting the session
     const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
     return { sessionId, startedAtTick };
   }
@@ -200,27 +173,8 @@ export class CentralServerConnection extends TamanuApi {
 
     // then, wait for the pull/ready endpoint until we get a valid response;
     // it takes a while for pull/initiate to finish populating the snapshot of changes
-
-    if (await this.streaming()) {
-      for await (const { kind, message } of this.stream(() => ({
-        endpoint: `sync/${sessionId}/pull/ready/stream`,
-      }))) {
-        handler: switch (kind) {
-          case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
-            // still waiting
-            break handler;
-          case SYNC_STREAM_MESSAGE_KIND.END:
-            // includes the metadata for the changes we're about to pull
-            return { sessionId, ...message };
-          default:
-            log.warn(`Unexpected message kind: ${kind}`);
-        }
-      }
-      throw new Error('Unexpected end of stream');
-    }
-
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
-    // when polling, we need to separately fetch the metadata for the changes we're about to pull
+    // we need to separately fetch the metadata for the changes we're about to pull
     return this.fetch(`sync/${sessionId}/pull/metadata`);
   }
 

@@ -34,3 +34,18 @@ export type TelemetryNavOutcome =
 // Upper bound on spans accepted in a single ingest batch, guarding the
 // unauthenticated endpoint against oversized posts.
 export const TELEMETRY_MAX_BATCH_SIZE = 500;
+
+// spec: BTAG
+// Upper bounds (inclusive, in milliseconds) of the duration bands that every
+// aggregated trend row counts its events into, with a final open-ended band for
+// anything slower. This is a permanent storage contract: rows are only
+// combinable (to compute percentiles over any range, facility or release)
+// because every row on every server and version uses the same bands. Never
+// change or reorder these; a new band set needs a new column.
+export const TELEMETRY_HISTOGRAM_BAND_UPPER_BOUNDS_MS = [
+  50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 30000,
+  60000,
+] as const;
+
+// One band per upper bound, plus the open-ended band above the last.
+export const TELEMETRY_HISTOGRAM_BAND_COUNT = TELEMETRY_HISTOGRAM_BAND_UPPER_BOUNDS_MS.length + 1;

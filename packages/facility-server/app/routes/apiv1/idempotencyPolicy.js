@@ -36,7 +36,7 @@ export const IDEMPOTENCY_EXCLUSIONS = [
     pattern: /^\/sync(\/|$)/,
     samplePath: '/sync/run',
     reason:
-      'Sync is a long-running streaming protocol with its own resumption model, and is already replay-safe.',
+      'Sync is a long-running protocol with its own resumption model, and is already replay-safe.',
   },
   {
     pattern: /^\/syncHealth(\/|$)/,
