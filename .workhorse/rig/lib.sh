@@ -5,6 +5,10 @@ if [ "$node_major" != "$wanted_major" ]; then
   exit 1
 fi
 
+# With no NODE_ENV the servers count as a deployment and generate no key file. One per build, so
+# every database cloned from the build's templates is read with the key that wrote it.
+export CRYPTO_KEY_FILE="$RIG_SOURCE/../secret.key"
+
 SERVER_CONFIG='"rateLimit": { "enabled": false }'
 # The servers bind PORT over their config's port, and the rig sets PORT to the lease's.
 unset PORT

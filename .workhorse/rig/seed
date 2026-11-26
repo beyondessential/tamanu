@@ -2,6 +2,8 @@
 set -eu
 . "$RIG_RECIPE_DIR/lib.sh"
 
+[ -f "$CRYPTO_KEY_FILE" ] || head -c 32 /dev/urandom > "$CRYPTO_KEY_FILE"
+
 central upgrade
 central provision "$RIG_RECIPE_DIR/provisioning.json5"
 central rebuildSyncLookup
