@@ -5,6 +5,7 @@ import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 import { showError } from '@tamanu/shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES, FHIR_IMAGING_STUDY_STATUS } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../../utilities';
@@ -350,6 +351,61 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         expect(ires.description).toEqual('This is a fine note\n\nThis is another note');
       }));
 
+    it('leaves the description and link as they were when a study carries neither', () =>
+      showError(async () => {
+        // arrange
+        const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: encounter.id,
+            locationId: resources.location.id,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            priority: 'routine',
+            requestedDate: '2022-03-04 15:30:00',
+          }),
+        );
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        const ires = await ImagingResult.create(
+          fake(ImagingResult, {
+            imagingRequestId: ir.id,
+            externalCode: 'ACCESSION',
+            description: 'Earlier report',
+            resultImageUrl: 'http://example.com/earlier-study',
+          }),
+        );
+
+        // act
+        const response = await app.post(PATH).send({
+          resourceType: 'ImagingStudy',
+          status: 'final',
+          identifier: [
+            {
+              system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+              value: 'ACCESSION',
+            },
+          ],
+          basedOn: [
+            {
+              type: 'ServiceRequest',
+              reference: `ServiceRequest/${mat.id}`,
+            },
+          ],
+        });
+
+        // assert
+        expect(response).toHaveSucceeded();
+        const results = await ImagingResult.findAll({ where: { imagingRequestId: ir.id } });
+        expect(results).toHaveLength(1);
+        await ires.reload();
+        expect(ires.description).toEqual('Earlier report');
+        expect(ires.resultImageUrl).toEqual('http://example.com/earlier-study');
+      }));
+
     it('can set the image result url via a contained Endpoint in an ImagingStudy', () =>
       showError(async () => {
         // arrange
@@ -400,6 +456,345 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         expect(ires.resultImageUrl).toEqual('http://example.com');
         expect(ires.description).toEqual('This is a fine note\n\nThis is another note');
       }));
+
+    describe('ImagingStudy with a contained Endpoint and no Accession Number', () => {
+      const INTEGRATION_NOTE = 'Report from the integration';
+      const INTEGRATION_URL = 'http://example.com/study';
+      const AMENDED_NOTE = 'Amended report from the integration';
+      const AMENDED_URL = 'http://example.com/amended-study';
+
+      const createImagingRequest = async ({
+        status = IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+      } = {}) => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+        const imagingRequest = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: encounter.id,
+            locationId: resources.location.id,
+            status,
+            priority: 'routine',
+            requestedDate: '2022-03-04 15:30:00',
+          }),
+        );
+        await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
+        await imagingRequest.reload();
+        const serviceRequest = await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+        return { imagingRequest, serviceRequest };
+      };
+
+      const postStudyWithLink = (
+        serviceRequest,
+        { url = INTEGRATION_URL, note = INTEGRATION_NOTE, identifier, started } = {},
+      ) =>
+        app.post(PATH).send({
+          resourceType: 'ImagingStudy',
+          status: 'final',
+          ...(identifier && { identifier }),
+          ...(started && { started }),
+          basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequest.id}` }],
+          note: [{ text: note }],
+          contained: [
+            {
+              address: url,
+              resourceType: 'Endpoint',
+              status: 'active',
+              connectionType: { code: 'dicom', display: 'DICOM' },
+              payloadType: [{ code: 'none', display: 'None' }],
+            },
+          ],
+        });
+
+      const findResults = imagingRequest =>
+        ctx.store.models.ImagingResult.findAll({
+          where: { imagingRequestId: imagingRequest.id },
+          order: [['createdAt', 'ASC']],
+        });
+
+      // Each row is a result a link-only study must leave alone. The first is the reported case;
+      // the others each differ from an earlier link-only study's result in one field only, so
+      // each fails if the lookup stops checking that field.
+      it.each([
+        [
+          'entered by hand with a completing clinician',
+          {
+            description: 'Report written by the clinician',
+            resultImageUrl: null,
+            hasCompletingClinician: true,
+            externalCode: null,
+          },
+        ],
+        [
+          // no link
+          'entered by hand without a completing clinician',
+          {
+            description: 'Report written without a clinician',
+            resultImageUrl: null,
+            hasCompletingClinician: false,
+            externalCode: null,
+          },
+        ],
+        [
+          // an accession number
+          'recorded under an Accession Number',
+          {
+            description: 'Report recorded under an accession number',
+            resultImageUrl: 'http://example.com/accession-study',
+            hasCompletingClinician: false,
+            externalCode: 'ACCESSION',
+          },
+        ],
+        [
+          // a completing clinician
+          'with a completing clinician and a link an earlier study wrote onto it',
+          {
+            description: 'Report with a link written by an earlier study',
+            resultImageUrl: 'http://example.com/earlier-study-link',
+            hasCompletingClinician: true,
+            externalCode: null,
+          },
+        ],
+      ])('adds a result alongside one %s', (_, { hasCompletingClinician, ...existingFields }) =>
+        showError(async () => {
+          // arrange
+          const { ImagingResult } = ctx.store.models;
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const existingResultFields = {
+            ...existingFields,
+            completedById: hasCompletingClinician ? resources.practitioner.id : null,
+          };
+          const existingResult = await ImagingResult.create(
+            fake(ImagingResult, { imagingRequestId: imagingRequest.id, ...existingResultFields }),
+          );
+
+          // act
+          const response = await postStudyWithLink(serviceRequest);
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(2);
+
+          await existingResult.reload();
+          expect(existingResult).toMatchObject(existingResultFields);
+
+          const integrationResult = results.find(result => result.id !== existingResult.id);
+          expect(integrationResult).toMatchObject({
+            description: INTEGRATION_NOTE,
+            resultImageUrl: INTEGRATION_URL,
+            completedById: null,
+            externalCode: null,
+          });
+        }),
+      );
+
+      it("does not touch another imaging request's link-only result", () =>
+        showError(async () => {
+          // arrange
+          const { ImagingResult } = ctx.store.models;
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const { imagingRequest: otherImagingRequest } = await createImagingRequest();
+          const otherResultFields = {
+            description: 'Report recorded for another request',
+            resultImageUrl: 'http://example.com/other-request-study',
+            completedById: null,
+            externalCode: null,
+          };
+          const otherResult = await ImagingResult.create(
+            fake(ImagingResult, { imagingRequestId: otherImagingRequest.id, ...otherResultFields }),
+          );
+
+          // act
+          const response = await postStudyWithLink(serviceRequest);
+
+          // assert
+          expect(response).toHaveSucceeded();
+
+          await otherResult.reload();
+          expect(otherResult).toMatchObject(otherResultFields);
+          expect(await findResults(otherImagingRequest)).toHaveLength(1);
+
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(1);
+          expect(results[0]).toMatchObject({
+            description: INTEGRATION_NOTE,
+            resultImageUrl: INTEGRATION_URL,
+          });
+        }));
+
+      it('updates the result an earlier study without an Accession Number recorded', () =>
+        showError(async () => {
+          // arrange
+          const { ImagingResult } = ctx.store.models;
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const manualResult = await ImagingResult.create(
+            fake(ImagingResult, {
+              imagingRequestId: imagingRequest.id,
+              completedById: resources.practitioner.id,
+              description: 'Report written by the clinician',
+            }),
+          );
+          const firstResponse = await postStudyWithLink(serviceRequest);
+          expect(firstResponse).toHaveSucceeded();
+
+          // act
+          const response = await postStudyWithLink(serviceRequest, {
+            url: AMENDED_URL,
+            note: AMENDED_NOTE,
+          });
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(2);
+
+          await manualResult.reload();
+          expect(manualResult.description).toEqual('Report written by the clinician');
+          expect(manualResult.resultImageUrl).toBeNull();
+
+          const integrationResult = results.find(result => result.id !== manualResult.id);
+          expect(integrationResult).toMatchObject({
+            description: AMENDED_NOTE,
+            resultImageUrl: AMENDED_URL,
+          });
+        }));
+
+      it('treats a blank Accession Number as none', () =>
+        showError(async () => {
+          // arrange
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const identifier = [
+            {
+              use: 'usual',
+              system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+              value: '',
+            },
+          ];
+          const firstResponse = await postStudyWithLink(serviceRequest, { identifier });
+          expect(firstResponse).toHaveSucceeded();
+
+          // act
+          const response = await postStudyWithLink(serviceRequest, {
+            identifier,
+            url: AMENDED_URL,
+            note: AMENDED_NOTE,
+          });
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(1);
+          expect(results[0]).toMatchObject({
+            description: AMENDED_NOTE,
+            resultImageUrl: AMENDED_URL,
+            externalCode: null,
+          });
+        }));
+
+      it('updates the newest of several results an earlier study recorded', () =>
+        showError(async () => {
+          // arrange
+          const { ImagingResult } = ctx.store.models;
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const earlierLinkOnlyFields = {
+            completedById: null,
+            externalCode: null,
+          };
+          const olderResultFields = {
+            ...earlierLinkOnlyFields,
+            resultImageUrl: 'http://example.com/older-study',
+            description: 'older report from the integration',
+            createdAt: '2022-03-04 10:00:00',
+          };
+          const newerResultFields = {
+            ...earlierLinkOnlyFields,
+            resultImageUrl: 'http://example.com/newer-study',
+            description: 'newer report from the integration',
+            createdAt: '2022-03-04 11:00:00',
+          };
+          const olderResult = await ImagingResult.create(
+            fake(ImagingResult, { imagingRequestId: imagingRequest.id, ...olderResultFields }),
+          );
+          const newerResult = await ImagingResult.create(
+            fake(ImagingResult, { imagingRequestId: imagingRequest.id, ...newerResultFields }),
+          );
+          await olderResult.reload();
+          await newerResult.reload();
+          expect(olderResult.createdAt.getTime()).toBeLessThan(newerResult.createdAt.getTime());
+
+          // act
+          const response = await postStudyWithLink(serviceRequest);
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(2);
+
+          await olderResult.reload();
+          expect(olderResult).toMatchObject({
+            description: olderResultFields.description,
+            resultImageUrl: olderResultFields.resultImageUrl,
+          });
+
+          await newerResult.reload();
+          expect(newerResult).toMatchObject({
+            description: INTEGRATION_NOTE,
+            resultImageUrl: INTEGRATION_URL,
+          });
+        }));
+
+      it('completes a pending imaging request', () =>
+        showError(async () => {
+          // arrange
+          const { imagingRequest, serviceRequest } = await createImagingRequest({
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          });
+
+          // act
+          const response = await postStudyWithLink(serviceRequest);
+
+          // assert
+          expect(response).toHaveSucceeded();
+          await imagingRequest.reload();
+          expect(imagingRequest.status).toEqual(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+        }));
+
+      it("records the study's start time as when the result was completed", () =>
+        showError(async () => {
+          // arrange
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+
+          // act
+          const response = await postStudyWithLink(serviceRequest, {
+            started: '2022-03-04T09:15:30',
+          });
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(1);
+          expect(results[0].completedAt).toEqual('2022-03-04 09:15:30');
+        }));
+
+      it('records when the study arrived as the completed time when it gives no start time', () =>
+        showError(async () => {
+          // arrange
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+
+          // act
+          const before = getCurrentDateTimeString();
+          const response = await postStudyWithLink(serviceRequest);
+          const after = getCurrentDateTimeString();
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(1);
+          expect(results[0].completedAt >= before).toBe(true);
+          expect(results[0].completedAt <= after).toBe(true);
+        }));
+    });
 
     it('ImagingStudy can cancel a ImagingRequest', () =>
       showError(async () => {

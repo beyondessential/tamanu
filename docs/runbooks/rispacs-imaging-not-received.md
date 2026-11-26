@@ -226,8 +226,8 @@ WHERE ir.display_id = 'IMAGING_REQUEST_DISPLAY_ID';
 No `imaging_results` row = RIS/PACS has not returned a result — either it has not
 processed the request yet, or it is not reading the `ServiceRequest`. A row is
 not proof RIS/PACS returned anything: staff can also enter a result by hand. A
-result posted by RIS/PACS has `completed_by_id IS NULL`; a manual one names the
-user (see 3.6). To check
+result RIS/PACS posted has an `external_code`, a `result_image_url`, or both; a
+result entered by hand is saved with neither. To check
 whether RIS/PACS is actually **polling** the FHIR route at all, use the shared
 **Is the integration polling? — Caddy log** check in
 `../reference/query-cookbook.md` (attribute RIS/PACS vs SENAITE traffic by
@@ -238,9 +238,10 @@ differentiation and the `mSupply` caveat in the same section). **[diagnose]**
 
 Use this when the complaint is "image links / reports not appearing in Tamanu"
 rather than a single missing request. The return path is: RIS/PACS posts a FHIR
-`ImagingStudy` to central, central creates an `imaging_results` row (link in
-`result_image_url`, report in `description`) and completes the request
-(`packages/database/src/models/fhir/FhirImagingStudy.ts:183-227`), the row syncs
+`ImagingStudy` to central, central creates or updates an `imaging_results` row
+(accession number in `external_code`, link in `result_image_url`, report in
+`description`) and completes the request
+(`packages/database/src/models/fhir/FhirImagingStudy.ts:184-235`), the row syncs
 to the facility, and the facility renders the link when the request is opened
 (`packages/facility-server/app/routes/apiv1/imaging.js:20-56`).
 
@@ -266,7 +267,8 @@ auth). Run on the facility or central. **[diagnose]**
 WITH r AS (
   SELECT ir.id, ir.imaging_type,
          date_trunc('week', ir.created_at) AS wk,
-         bool_or(res.id IS NOT NULL AND res.completed_by_id IS NULL) AS has_pacs_result
+         bool_or(res.external_code IS NOT NULL OR res.result_image_url IS NOT NULL)
+           AS has_pacs_result
   FROM imaging_requests ir
   LEFT JOIN imaging_results res
          ON res.imaging_request_id = ir.id AND res.deleted_at IS NULL
@@ -287,7 +289,7 @@ ORDER BY wk, imaging_type;
 `logs.fhir_writes` before handling it, so rejected posts appear there too
 (`packages/shared/src/routes/fhir/handlers.js:25-35`). RIS/PACS may reference the
 request by identifier (the request's uuid or display ID) rather than a
-`ServiceRequest/<id>` reference (`FhirImagingStudy.ts:72-92`), so match all three.
+`ServiceRequest/<id>` reference (`FhirImagingStudy.ts:73-93`), so match all three.
 Run on central; it scans `logs.fhir_writes` once, so narrow the date on a large
 log. **[diagnose]**
 
@@ -316,7 +318,7 @@ ORDER BY 1, 2;
 
 Writes missing for the affected modality and weeks = RIS/PACS is not sending them.
 Writes present but no matching `imaging_results` = central is rejecting them; read
-one `body` against the checks in `FhirImagingStudy.ts:63-181`.
+one `body` against the checks in `FhirImagingStudy.ts:64-196`.
 
 ## 4. Interpret
 
