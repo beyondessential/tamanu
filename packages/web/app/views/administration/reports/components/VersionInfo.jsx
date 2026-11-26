@@ -2,9 +2,13 @@ import React from 'react';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { useDateTime } from '@tamanu/ui-components';
+import { useAuth } from '../../../../contexts/Auth';
+import { RenameReportButton } from './RenameReportModal';
 
 export const VersionInfo = ({ version }) => {
   const { formatShortestDateTime } = useDateTime();
+  const { ability } = useAuth();
+  const canRename = Boolean(ability?.can('write', 'ReportDefinition'));
   return (
     <InfoCard inlineValues data-testid="infocard-czs2">
       <InfoCardItem
@@ -15,7 +19,12 @@ export const VersionInfo = ({ version }) => {
             data-testid="translatedtext-rwrc"
           />
         }
-        value={version.reportDefinition.name}
+        value={
+          <>
+            {version.reportDefinition.name}
+            {canRename && <RenameReportButton report={version.reportDefinition} />}
+          </>
+        }
         data-testid="infocarditem-gfxm"
       />
       <InfoCardItem

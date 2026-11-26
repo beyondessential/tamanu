@@ -127,7 +127,15 @@ const generateDefaultParameter = () => ({
   id: generate(),
 });
 
-const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setFieldValue }) => {
+const ReportEditorForm = ({
+  isSubmitting,
+  values,
+  setValues,
+  dirty,
+  isEdit,
+  reportName,
+  setFieldValue,
+}) => {
   const { ability } = useAuth();
   const api = useApi();
   const setQuery = query => setValues({ ...values, query });
@@ -138,6 +146,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
+
+  // While editing, the name is read-only here and renamed from the info card above,
+  // so it is shown from the report itself rather than from the form's initial values.
+  const nameValueProps = isEdit ? { value: reportName ?? '' } : {};
 
   const { data: schemaOptions = [] } = useQuery(['dbSchemaOptions'], () =>
     api.get(`admin/reports/dbSchemaOptions`),
@@ -159,6 +171,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
             }
             name="name"
             component={TextField}
+            {...nameValueProps}
             data-testid="styledfield-pb9c"
           />
         </Grid>
@@ -336,7 +349,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
 export const withParameterIds = parameters =>
   (parameters ?? []).map(parameter => ({ ...parameter, id: generate() }));
 
-export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
+export const ReportEditor = ({ initialValues, onSubmit, isEdit, reportName }) => {
   const { getTranslation } = useTranslation();
   const handleSubmit = ({ parameters, ...values }, formikHelpers) =>
     onSubmit(
@@ -477,7 +490,12 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
       formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={initialValues}
       render={formikContext => (
-        <ReportEditorForm {...formikContext} isEdit={isEdit} data-testid="reporteditorform-5mmm" />
+        <ReportEditorForm
+          {...formikContext}
+          isEdit={isEdit}
+          reportName={reportName}
+          data-testid="reporteditorform-5mmm"
+        />
       )}
       data-testid="form-v39s"
     />

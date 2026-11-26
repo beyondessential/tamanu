@@ -1,8 +1,13 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import config from 'config';
+import supertest from 'supertest';
 import { REPORT_DB_CONNECTIONS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
+import { JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
+import { createApi } from '../../../app/createApi';
+import { buildToken } from '../../../app/auth/utils';
 import { User } from '@tamanu/database';
 import path from 'path';
 import { uploadDirPath } from '@tamanu/shared/utils/tmpdir';
@@ -371,6 +376,242 @@ describe('reportRoutes', () => {
           where: { reportDefinitionId: testReport.id },
         }),
       ).toBe(0);
+    });
+  });
+
+  describe('PATCH /reports/:id', () => {
+    const createReport = (name, schema = dbSchema) =>
+      models.ReportDefinition.create({ name, dbSchema: schema });
+
+    it('renames a report without creating a version', async () => {
+      const report = await createReport('Rename Me');
+      await models.ReportDefinitionVersion.create({
+        ...getMockReportVersion(1),
+        reportDefinitionId: report.id,
+      });
+
+      const res = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: '  Renamed Report  ' });
+
+      expect(res).toHaveSucceeded();
+      expect(res.body).toEqual({ id: report.id, name: 'Renamed Report' });
+      await report.reload();
+      expect(report.name).toBe('Renamed Report');
+      const versionCount = await models.ReportDefinitionVersion.count({
+        where: { reportDefinitionId: report.id },
+      });
+      expect(versionCount).toBe(1);
+    });
+
+    it('accepts the report keeping its own name', async () => {
+      const report = await createReport('Unchanged Name');
+      const res = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Unchanged Name' });
+      expect(res).toHaveSucceeded();
+      expect(res.body.name).toBe('Unchanged Name');
+    });
+
+    it('rejects a blank name', async () => {
+      const report = await createReport('Blank Rename');
+      const res = await adminApp.patch(`/api/admin/reports/${report.id}`).send({ name: '   ' });
+      expect(res).toHaveRequestError();
+      await report.reload();
+      expect(report.name).toBe('Blank Rename');
+    });
+
+    it('rejects a name another report uses', async () => {
+      const report = await createReport('Duplicate Source');
+      await createReport('Duplicate Target');
+      const res = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Duplicate Target' });
+      expect(res).toHaveRequestError(422);
+      expect(res.body.error.name).toBe('InvalidOperationError');
+      expect(res.body.error.message).toBe('Report name already exists');
+    });
+
+    it('rejects a name a deleted report still uses', async () => {
+      const report = await createReport('Deleted Source');
+      const deletedReport = await createReport('Deleted Target');
+      await deletedReport.destroy();
+      const res = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Deleted Target' });
+      expect(res).toHaveRequestError(422);
+      expect(res.body.error.name).toBe('InvalidOperationError');
+      expect(res.body.error.message).toBe('A deleted report is still using this name');
+    });
+
+    it('returns not found for an unknown report', async () => {
+      const res = await adminApp
+        .patch('/api/admin/reports/no-such-report')
+        .send({ name: 'Anything' });
+      expect(res.status).toBe(404);
+    });
+
+    it('forbids a user without permission to write reports', async () => {
+      const report = await createReport('Forbidden Rename');
+      const baseUserApp = await baseApp.asRole('base');
+      const res = await baseUserApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Should Not Apply' });
+      expect(res).toBeForbidden();
+      await report.reload();
+      expect(report.name).toBe('Forbidden Rename');
+    });
+
+    it('forbids a user whose write permission is for a different report', async () => {
+      const report = await createReport('Scoped Elsewhere Target', REPORT_DB_CONNECTIONS.REPORTING);
+      const grantedReport = await createReport(
+        'Scoped Elsewhere Grant',
+        REPORT_DB_CONNECTIONS.REPORTING,
+      );
+      const scopedApp = await baseApp.asNewRole([['write', 'ReportDefinition', grantedReport.id]]);
+      const res = await scopedApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Scoped Elsewhere Renamed' });
+      expect(res).toBeForbidden();
+      await report.reload();
+      expect(report.name).toBe('Scoped Elsewhere Target');
+    });
+
+    it('allows a user whose write permission is for the report being renamed', async () => {
+      const report = await createReport('Scoped Own Target', REPORT_DB_CONNECTIONS.REPORTING);
+      const scopedApp = await baseApp.asNewRole([['write', 'ReportDefinition', report.id]]);
+      const res = await scopedApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Scoped Own Renamed' });
+      expect(res).toHaveSucceeded();
+      await report.reload();
+      expect(report.name).toBe('Scoped Own Renamed');
+    });
+
+    it('refuses a raw schema report to a user who cannot edit the raw schema', async () => {
+      const report = await createReport('Raw Gate Target', REPORT_DB_CONNECTIONS.RAW);
+      const writerApp = await baseApp.asNewRole([['write', 'ReportDefinition']]);
+      const res = await writerApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Raw Gate Renamed' });
+      expect(res).toHaveRequestError(422);
+      expect(res.body.error.message).toBe(
+        'You do not have permission to rename reports using the raw schema',
+      );
+      await report.reload();
+      expect(report.name).toBe('Raw Gate Target');
+    });
+
+    it('allows a reporting schema report for a user who cannot edit the raw schema', async () => {
+      const report = await createReport('Raw Gate Reporting', REPORT_DB_CONNECTIONS.REPORTING);
+      const writerApp = await baseApp.asNewRole([['write', 'ReportDefinition']]);
+      const res = await writerApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Raw Gate Reporting Renamed' });
+      expect(res).toHaveSucceeded();
+      await report.reload();
+      expect(report.name).toBe('Raw Gate Reporting Renamed');
+    });
+
+    describe('when the reporting schemas failed to initialise', () => {
+      // The raw schema gate is an authorisation rule, so it must hold in the degraded
+      // mode the server runs in when initReporting fails at startup.
+      let degradedExpressApp;
+
+      const asDegradedUser = async user => {
+        const agent = supertest.agent(degradedExpressApp);
+        agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
+        const token = await buildToken({ userId: user.id }, config.auth.secret, {
+          expiresIn: '1d',
+          audience: JWT_TOKEN_TYPES.ACCESS,
+          issuer: config.canonicalHostName,
+        });
+        agent.set('authorization', `Bearer ${token}`);
+        return agent;
+      };
+
+      beforeAll(async () => {
+        const degradedCtx = Object.create(ctx);
+        degradedCtx.reportSchemaStores = null;
+        ({ express: degradedExpressApp } = await createApi(degradedCtx));
+      });
+
+      it('still refuses a raw schema report to a user who cannot edit the raw schema', async () => {
+        const report = await createReport('Degraded Raw Gate Target', REPORT_DB_CONNECTIONS.RAW);
+        const writerApp = await baseApp.asNewRole([['write', 'ReportDefinition']]);
+        const degradedApp = await asDegradedUser(writerApp.user);
+        const res = await degradedApp
+          .patch(`/api/admin/reports/${report.id}`)
+          .send({ name: 'Degraded Raw Gate Renamed' });
+        expect(res).toHaveRequestError(422);
+        expect(res.body.error.message).toBe(
+          'You do not have permission to rename reports using the raw schema',
+        );
+        await report.reload();
+        expect(report.name).toBe('Degraded Raw Gate Target');
+      });
+
+      it('still renames a reporting schema report', async () => {
+        const report = await createReport(
+          'Degraded Reporting Target',
+          REPORT_DB_CONNECTIONS.REPORTING,
+        );
+        const degradedApp = await asDegradedUser(adminApp.user);
+        const res = await degradedApp
+          .patch(`/api/admin/reports/${report.id}`)
+          .send({ name: 'Degraded Reporting Renamed' });
+        expect(res).toHaveSucceeded();
+        await report.reload();
+        expect(report.name).toBe('Degraded Reporting Renamed');
+      });
+    });
+
+    it('rejects a name of only zero width characters', async () => {
+      const report = await createReport('Zero Width Rename');
+      const res = await adminApp.patch(`/api/admin/reports/${report.id}`).send({ name: '​​' });
+      expect(res).toHaveRequestError(422);
+      expect(res.body.error.message).toContain('Report name is required');
+      await report.reload();
+      expect(report.name).toBe('Zero Width Rename');
+    });
+
+    it('rejects a name holding a control character', async () => {
+      const report = await createReport('Control Character Rename');
+      const nulRes = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Control\u0000Character' });
+      expect(nulRes).toHaveRequestError(422);
+      expect(nulRes.body.error.message).toContain(
+        'Report name must not contain control or formatting characters',
+      );
+
+      const newlineRes = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'Control\nCharacter' });
+      expect(newlineRes).toHaveRequestError(422);
+
+      await report.reload();
+      expect(report.name).toBe('Control Character Rename');
+    });
+
+    it('accepts a name of 255 characters and rejects one of 256', async () => {
+      const report = await createReport('Length Boundary Rename');
+      const longestName = 'a'.repeat(255);
+      const acceptedRes = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: longestName });
+      expect(acceptedRes).toHaveSucceeded();
+      expect(acceptedRes.body.name).toBe(longestName);
+
+      const rejectedRes = await adminApp
+        .patch(`/api/admin/reports/${report.id}`)
+        .send({ name: 'b'.repeat(256) });
+      expect(rejectedRes).toHaveRequestError(422);
+      expect(rejectedRes.body.error.message).toContain(
+        'Report name must be no longer than 255 characters',
+      );
+      await report.reload();
+      expect(report.name).toBe(longestName);
     });
   });
 

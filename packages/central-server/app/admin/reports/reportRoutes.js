@@ -1,7 +1,8 @@
 import express from 'express';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Sequelize } from 'sequelize';
+import { QueryTypes, Sequelize, UniqueConstraintError } from 'sequelize';
+import { z } from 'zod';
 import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { capitalize } from 'es-toolkit/compat';
@@ -154,6 +155,87 @@ reportsRouter.post(
       user.id,
     );
     res.send(version);
+  }),
+);
+
+// A report name is a single line of visible text. Control and format characters are
+// refused: zero width characters pass a blank check while reading as an empty name,
+// and a NUL or a newline is stored in a form that does not match what was submitted.
+const CONTROL_OR_FORMAT_CHARACTER = /[\p{Cc}\p{Cf}]/u;
+const ALL_CONTROL_OR_FORMAT_CHARACTERS = /[\p{Cc}\p{Cf}]/gu;
+
+const renameReportSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .max(255, { message: 'Report name must be no longer than 255 characters' })
+    .superRefine((name, ctx) => {
+      if (name.replace(ALL_CONTROL_OR_FORMAT_CHARACTERS, '').length === 0) {
+        ctx.addIssue({ code: 'custom', message: 'Report name is required' });
+        return;
+      }
+      if (CONTROL_OR_FORMAT_CHARACTER.test(name)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Report name must not contain control or formatting characters',
+        });
+      }
+    }),
+});
+
+// spec: REPORTS
+reportsRouter.patch(
+  '/:reportId',
+  asyncHandler(async (req, res) => {
+    // A caller holding no write grant at all is refused before the report is looked up,
+    // so the response cannot tell them whether a report by that id exists.
+    req.checkPermission('write', 'ReportDefinition');
+
+    const { store, params } = req;
+    const { ReportDefinition } = store.models;
+    const { name } = await renameReportSchema.parseAsync(req.body);
+
+    const report = await ReportDefinition.findByPk(params.reportId);
+    if (!report) {
+      throw new NotFoundError(`No report found with id ${params.reportId}`);
+    }
+
+    // Checked again against the record, because a grant can be scoped to a single
+    // report and the noun on its own cannot honour that.
+    req.checkPermission('write', report);
+
+    if (!canEditReportSchema(req) && report.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
+      throw new InvalidOperationError(
+        'You do not have permission to rename reports using the raw schema',
+      );
+    }
+
+    if (name !== report.name) {
+      // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
+      const existingDefinition = await ReportDefinition.findOne({
+        where: { name },
+        attributes: ['id', 'deletedAt'],
+        paranoid: false,
+      });
+      if (existingDefinition) {
+        throw new InvalidOperationError(
+          existingDefinition.deletedAt
+            ? 'A deleted report is still using this name'
+            : 'Report name already exists',
+        );
+      }
+
+      try {
+        await report.update({ name });
+      } catch (err) {
+        if (err instanceof UniqueConstraintError) {
+          throw new InvalidOperationError('Report name already exists');
+        }
+        throw err;
+      }
+    }
+
+    res.send({ id: report.id, name: report.name });
   }),
 );
 
