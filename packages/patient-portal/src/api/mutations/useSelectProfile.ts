@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { route } from '@tamanu/api-client';
 import type { TamanuApi } from '../TamanuApi';
 import { useApi } from '../useApi';
+import { setProfileChoicePending } from '../profileChoice';
 
 export const useSelectProfile = () => {
   const api = useApi() as TamanuApi;
@@ -13,6 +14,7 @@ export const useSelectProfile = () => {
     mutationFn: async portalUserId => {
       const { token } = await api.post(route('profiles/:portalUserId/select', { portalUserId }));
       await api.setToken(token);
+      setProfileChoicePending(false);
     },
     onSuccess: async () => {
       // Everything cached but the email's profile list belongs to the previous patient

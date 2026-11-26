@@ -27,9 +27,10 @@ Applies to the patient portal, where a patient signs in on their own phone or co
 ## Profiles
 
 - Several patients can share one email, such as a parent and their children. Each patient registered with the email is a profile, and the email signs in to all of them. A patient whose registration link hasn't been used, who is deceased, or whose portal access is deactivated is not a profile.
-- After signing in with more than one profile, Select profile lists each by name, date of birth, sex initial and display ID, and the chosen patient opens on the dashboard. With one profile, sign-in goes straight to the dashboard.
+- After signing in with more than one profile, Select profile lists each by name, date of birth (dd/mm/yyyy), sex initial and display ID, and the chosen patient opens on the dashboard. No other signed-in page opens until a profile is chosen. With one profile, sign-in goes straight to the dashboard.
 - Switching profile keeps the session's original expiry, and every portal tab on the device follows the switch.
-- Staff can register a patient with an email another patient already uses.
+- A registration link works whether or not someone is signed in on the device, and the patient it registers joins Select profile straight away.
+- Staff can register a patient with an email another patient already uses. Moving a registered patient to a different email makes them register again from the new email's link. A session on a patient ends once that patient is moved to another email.
 
 ## Dashboard
 

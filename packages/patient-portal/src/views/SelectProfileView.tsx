@@ -5,6 +5,7 @@ import { ChevronRight } from 'lucide-react';
 import { FormErrorMessage, TranslatedText } from '@tamanu/ui-components';
 import { useSelectProfile } from '@api/mutations';
 import { useProfilesQuery } from '@api/queries/useProfilesQuery';
+import { setProfileChoicePending } from '@api/profileChoice';
 import { Loading, PageColumn, Panel, rowLayout } from '@components/layout';
 import { ProfileSummary } from '../features/profiles/ProfileSummary';
 
@@ -53,6 +54,8 @@ export const SelectProfileView = () => {
   } = useSelectProfile();
 
   if (!isPending && !hasLoadFailed && (profiles?.data.length ?? 0) < 2) {
+    // Nothing left to choose between, so the dashboard must not send the patient back here
+    setProfileChoicePending(false);
     return <Navigate to="/" replace />;
   }
 

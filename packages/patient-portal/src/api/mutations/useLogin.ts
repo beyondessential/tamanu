@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type PortalProfiles } from '@tamanu/shared/schemas/patientPortal';
 import type { TamanuApi } from '../TamanuApi';
 import { useApi } from '../useApi';
+import { setProfileChoicePending } from '../profileChoice';
 import { LoginCredentials, LoginResponse } from '../types';
 
 export const useLogin = () => {
@@ -16,6 +17,7 @@ export const useLogin = () => {
       return { ...loginResponse, profiles };
     },
     onSuccess: async ({ user, profiles }) => {
+      setProfileChoicePending((profiles?.data.length ?? 0) > 1);
       if (profiles) {
         queryClient.setQueryData(['profiles'], profiles);
       }

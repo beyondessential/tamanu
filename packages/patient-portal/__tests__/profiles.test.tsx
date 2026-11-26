@@ -1,10 +1,12 @@
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { resolveEndpoint } from '@tamanu/api-client';
 import { LoginView } from '../src/views/LoginView';
 import { SelectProfileView } from '../src/views/SelectProfileView';
+import { RegistrationView } from '../src/views/RegistrationView';
+import { isProfileChoicePending, setProfileChoicePending } from '../src/api/profileChoice';
 import { PrivateRoute } from '../src/routes/PrivateRoute';
 import { createFakeApi, fakePatient, renderPortal, stubTranslations } from './renderPortal';
 
@@ -29,8 +31,13 @@ const profilesOf = (...data: (typeof ANA)[]) => ({ email: 'kamaka.family@example
 const createProfilesApi = (responses: Record<string, unknown>) =>
   Object.assign(createFakeApi(responses), {
     setToken: vi.fn(async () => {}),
+    logout: vi.fn(async () => {}),
     tokenLogin: vi.fn(async () => ({ token: 'login-token', user: fakePatient() })),
   });
+
+const privateDashboard = { path: '/', element: <PrivateRoute element={<p>Dashboard</p>} /> };
+
+afterEach(() => setProfileChoicePending(false));
 
 describe('Select profile', () => {
   it('lists each profile and switches to the one chosen', async () => {
@@ -40,7 +47,7 @@ describe('Select profile', () => {
     renderPortal({ page: <SelectProfileView />, path: '/select-profile', api });
 
     expect(await screen.findByText('Ana Kamaka')).toBeTruthy();
-    expect(screen.getByText(/ • M • KAMAKA02$/)).toBeTruthy();
+    expect(screen.getByText('03/02/2018 • M • KAMAKA02')).toBeTruthy();
     await userEvent.click(screen.getByRole('button', { name: /Tui Kamaka/ }));
 
     expect(await screen.findByText('Dashboard')).toBeTruthy();
@@ -100,6 +107,14 @@ describe('Menu', () => {
     await openMenu(profilesOf(ANA));
     expect(screen.queryByRole('button', { name: 'Switch profile' })).toBeNull();
   });
+
+  it('forgets an unchosen profile on logging out', async () => {
+    await openMenu(profilesOf(ANA, TUI));
+    setProfileChoicePending(true);
+    await userEvent.click(screen.getByRole('button', { name: /Log out/ }));
+    expect(await screen.findByText('Login')).toBeTruthy();
+    expect(isProfileChoicePending()).toBe(false);
+  });
 });
 
 describe('Logging in', () => {
@@ -111,13 +126,14 @@ describe('Logging in', () => {
       responses.me = fakePatient();
       return { token: 'login-token', user: fakePatient() };
     });
-    renderPortal({
+    const { router } = renderPortal({
       page: <LoginView />,
       path: '/login-submit',
       access: 'public',
       api,
       routes: [
         { path: '/select-profile', element: <PrivateRoute element={<SelectProfileView />} /> },
+        privateDashboard,
       ],
     });
     await userEvent.type(
@@ -127,6 +143,7 @@ describe('Logging in', () => {
     await userEvent.type(document.querySelector('input[name="verificationCode"]')!, '123456');
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
     await waitFor(() => expect(api.tokenLogin).toHaveBeenCalled());
+    return { api, router };
   };
 
   it('asks which profile to open when the email has several', async () => {
@@ -138,5 +155,36 @@ describe('Logging in', () => {
   it('goes straight to the dashboard when the email has one', async () => {
     await logIn(profilesOf(ANA));
     expect(await screen.findByText('Dashboard')).toBeTruthy();
+  });
+
+  it('keeps the dashboard from opening until a profile is chosen', async () => {
+    const { api, router } = await logIn(profilesOf(ANA, TUI));
+    await screen.findByText('Select a profile to continue');
+
+    await router.navigate('/');
+    expect(await screen.findByText('Select a profile to continue')).toBeTruthy();
+    expect(screen.queryByText('Dashboard')).toBeNull();
+
+    api.post.mockResolvedValue({ token: 'tui-token' });
+    await userEvent.click(screen.getByRole('button', { name: /Tui Kamaka/ }));
+    expect(await screen.findByText('Dashboard')).toBeTruthy();
+    expect(isProfileChoicePending()).toBe(false);
+  });
+});
+
+describe('Registering', () => {
+  it('registers a patient whose link is opened while someone is signed in', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient(), profiles: profilesOf(ANA) });
+    renderPortal({
+      page: <RegistrationView />,
+      path: '/register/portal-tui.123456',
+      routePath: '/register/:token',
+      access: 'registration',
+      api,
+    });
+
+    expect(await screen.findByText('Account successfully created!')).toBeTruthy();
+    expect(resolveEndpoint(api.post.mock.calls[0][0])).toBe('verify-registration');
   });
 });
