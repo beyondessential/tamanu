@@ -9,6 +9,7 @@ import { getCanonicalHostName } from '@tamanu/shared/utils';
 import { buildToken } from '../../app/auth/utils';
 import { createTestContext } from '../utilities';
 import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
+import { mergePatient } from '../../app/admin/patientMerge/mergePatient';
 
 const SHARED_EMAIL = 'parent@test.com';
 
@@ -221,7 +222,7 @@ describe('Patient Portal profiles', () => {
     expect(response).toHaveRequestError();
   });
 
-  it('keeps the session to the email signed in with after the email changes', async () => {
+  it('ends the session once its patient moves to another email', async () => {
     const otherFamilyEmail = 'other-family@test.com';
     const movingPortalUser = await createPortalUser({
       email: 'moving@test.com',
@@ -234,15 +235,70 @@ describe('Patient Portal profiles', () => {
     const token = await loginAs(movingPortalUser, 'moving@test.com');
     await movingPortalUser.update({ email: otherFamilyEmail });
 
+    const authorised = request => request.set('Authorization', `Bearer ${token}`);
+    expect((await authorised(baseApp.get('/api/portal/me'))).status).toBe(401);
+    expect((await authorised(baseApp.get('/api/portal/profiles'))).status).toBe(401);
+    const select = await authorised(
+      baseApp.post(`/api/portal/profiles/${otherFamilyPortalUser.id}/select`),
+    );
+    expect(select.status).toBe(401);
+  });
+
+  it('ends a switched-to session once that patient moves to another email', async () => {
+    const familyEmail = 'switching-family@test.com';
+    const parent = await createPortalUser({
+      email: familyEmail,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+    const child = await createPortalUser({
+      email: familyEmail,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+    const parentToken = await loginAs(parent, familyEmail);
+    const select = await baseApp
+      .post(`/api/portal/profiles/${child.id}/select`)
+      .set('Authorization', `Bearer ${parentToken}`);
+    expect(select).toHaveSucceeded();
+
+    await child.update({ email: 'elsewhere@test.com' });
+
+    const me = await baseApp
+      .get('/api/portal/me')
+      .set('Authorization', `Bearer ${select.body.token}`);
+    expect(me.status).toBe(401);
+    const parentMe = await baseApp
+      .get('/api/portal/me')
+      .set('Authorization', `Bearer ${parentToken}`);
+    expect(parentMe).toHaveSucceeded();
+  });
+
+  it('lists the kept patient once after two patients on the email are merged', async () => {
+    const { Patient } = store.models;
+    const familyEmail = 'merging-family@test.com';
+    const keep = await createPortalUser({
+      email: familyEmail,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+    const unwanted = await createPortalUser({
+      email: familyEmail,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+    await mergePatient(store.models, keep.patientId, unwanted.patientId);
+
+    const mergedPortalUser = await store.models.PortalUser.findOne({
+      where: { patientId: keep.patientId },
+    });
+    const token = await loginAs(mergedPortalUser, familyEmail);
     const profiles = await baseApp
       .get('/api/portal/profiles')
       .set('Authorization', `Bearer ${token}`);
     expect(profiles).toHaveSucceeded();
-    expect(profiles.body.data).toEqual([]);
-
-    const select = await baseApp
-      .post(`/api/portal/profiles/${otherFamilyPortalUser.id}/select`)
-      .set('Authorization', `Bearer ${token}`);
-    expect(select.status).toBe(404);
+    expect(profiles.body.data.map(({ portalUserId }) => portalUserId)).toEqual([
+      mergedPortalUser.id,
+    ]);
+    expect(await Patient.findByPk(unwanted.patientId, { paranoid: false })).toHaveProperty(
+      'mergedIntoId',
+      keep.patientId,
+    );
   });
 });

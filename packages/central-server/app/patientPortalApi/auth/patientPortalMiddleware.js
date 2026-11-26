@@ -53,6 +53,11 @@ export const patientPortalMiddleware = ({ secret }) =>
       );
     }
 
+    const sessionEmail = contents.payload.email ?? portalUser.email;
+    if (sessionEmail.toLowerCase() !== portalUser.email.toLowerCase()) {
+      throw new BadAuthenticationError('Portal user is no longer on the signed-in email');
+    }
+
     const patient = await portalUser.getPatient({ include: ['additionalData'] });
 
     if (!patient) {
@@ -69,7 +74,7 @@ export const patientPortalMiddleware = ({ secret }) =>
     /* eslint-disable require-atomic-updates */
     req.portalUser = portalUser;
     req.portalSessionExpiresAt = contents.payload.exp;
-    req.portalSessionEmail = contents.payload.email ?? portalUser.email;
+    req.portalSessionEmail = sessionEmail;
     req.patient = patient;
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
