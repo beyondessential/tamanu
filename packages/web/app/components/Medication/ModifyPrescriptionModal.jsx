@@ -12,7 +12,11 @@ import {
   TextField,
   TranslatedText,
 } from '@tamanu/ui-components';
-import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+import {
+  getDispensingQuantityLimitBreach,
+  getDoseLimitBreach,
+  getDrugUnitLabel,
+} from '@tamanu/shared/utils/medication';
 
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -38,6 +42,7 @@ import {
 import { prescriptionClinicalValidation } from './prescriptionValidation';
 import { DispensingQuantityAutocalculator } from './DispensingQuantityAutocalculator';
 import { LabelNotesAutofill } from './LabelNotesAutofill';
+import { renderLimitWarning } from './MedicationLimitWarning';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -181,6 +186,8 @@ export const ModifyPrescriptionModal = ({
           dosingUnit: source.dosingUnit ?? prescription.dosingUnit ?? '',
           dispensingUnit: source.dispensingUnit ?? prescription.dispensingUnit ?? '',
           unitConversion: source.unitConversion ?? prescription.unitConversion ?? 1,
+          // The selected drug's dose and dispensing quantity limits, for the warnings below.
+          referenceDrug: source.medication?.referenceDrug ?? null,
           isVariableDose: source.isVariableDose ?? false,
           doseAmount: source.doseAmount ?? '',
           frequency: source.frequency ?? '',
@@ -221,6 +228,7 @@ export const ModifyPrescriptionModal = ({
                     dosingUnit: referenceDrug?.dosingUnit ?? '',
                     dispensingUnit: referenceDrug?.dispensingUnit ?? '',
                     unitConversion: referenceDrug?.unitConversion ?? 1,
+                    referenceDrug: referenceDrug ?? null,
                   });
                 }}
                 data-testid="modify-prescription-medication"
@@ -252,6 +260,8 @@ export const ModifyPrescriptionModal = ({
                   ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation)
                   : undefined
               }
+              // spec: DQLIM#dispensing
+              helperText={renderLimitWarning(getDoseLimitBreach(values, values.referenceDrug))}
               data-testid="modify-prescription-dose"
             />
             <FrequencyField
@@ -299,6 +309,9 @@ export const ModifyPrescriptionModal = ({
                   ? getDrugUnitLabel(values.dispensingUnit, values.quantity, getEnumTranslation)
                   : undefined
               }
+              helperText={renderLimitWarning(
+                getDispensingQuantityLimitBreach(values.quantity, values.referenceDrug),
+              )}
               data-testid="modify-prescription-quantity"
             />
             <div />

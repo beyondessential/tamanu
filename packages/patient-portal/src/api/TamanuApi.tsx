@@ -32,6 +32,9 @@ export class TamanuApi extends BaseTamanuApi {
   }
 
   #useToken(token: string, refreshToken?: string | null) {
+    // A different token is a different session (signed out, or another tab signed in), so the
+    // patient it belonged to no longer applies until fetched again.
+    if (token !== this.#sessionToken) this.setUser(null);
     super.setToken(token, refreshToken ?? undefined);
     this.#sessionToken = token;
   }
@@ -59,7 +62,7 @@ export class TamanuApi extends BaseTamanuApi {
     await this.setToken(token);
 
     const user = await this.get('me', {}, { ...config, waitForAuth: false });
-    this.user = user;
+    this.setUser(user);
     return { token, user } as LoginResponse;
   }
 
@@ -71,7 +74,7 @@ export class TamanuApi extends BaseTamanuApi {
    */
   async fetchCurrentUser() {
     const user = await this.get('me');
-    this.user = user;
+    this.setUser(user);
     return user;
   }
 

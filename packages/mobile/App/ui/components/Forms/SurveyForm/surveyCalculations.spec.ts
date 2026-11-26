@@ -92,6 +92,34 @@ describe('Survey calculations', () => {
       expect(calculations).toHaveProperty('TEST_BROKEN', null);
       expect(calculations).toHaveProperty('TEST_BROKEN_2', null);
     });
+
+    it.each([
+      ['round(INPUT * 2 / 3, 1)', 3.3],
+      ['max(INPUT, 10) - min(INPUT, 10)', 5],
+      ['INPUT >= 5 ? 1 : 0', 1],
+      ['sum(INPUT, 1, 2) % 4', 0],
+      ['abs(-INPUT) ^ 2', 25],
+      ['pi * 0 + INPUT', 5],
+    ])('should calculate %s', (calculation, expected) => {
+      const survey = makeDummySurvey([{ code: 'TEST', type: FieldTypes.CALCULATED, calculation }]);
+      const calculations = runCalculations(survey, { INPUT: 5 });
+      expect(calculations.TEST).toEqual(expected);
+    });
+
+    it.each([
+      'x = 3',
+      'f(x) = x; f(INPUT)',
+      'INPUT; 1',
+      'INPUT["constructor"]',
+      'evaluate("1 + 1")',
+      'createUnit("thing")',
+      '5 cm',
+      'INPUT cm to mm',
+    ])('should give no value for %s', calculation => {
+      const survey = makeDummySurvey([{ code: 'TEST', type: FieldTypes.CALCULATED, calculation }]);
+      const calculations = runCalculations(survey, { INPUT: 5 });
+      expect(calculations).toHaveProperty('TEST', null);
+    });
   });
 
   describe('Results', () => {

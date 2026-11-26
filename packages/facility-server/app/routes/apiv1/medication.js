@@ -25,6 +25,7 @@ import {
   DRUG_STOCK_STATUSES,
   SYSTEM_USER_UUID,
   PHARMACY_PRESCRIPTION_TYPES,
+  DRUG_LIMIT_FIELDS,
 } from '@tamanu/constants';
 import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
@@ -36,7 +37,11 @@ import {
   createPharmacyOrderForPrescription,
   getLastOrderedAtForOngoingPrescriptions,
 } from '../../utils/medication';
-import { mapQueryFilters } from '../../database/utils';
+import {
+  caseInsensitiveContainsFilter,
+  caseInsensitiveStartsWithFilter,
+  mapQueryFilters,
+} from '../../database/utils';
 import {
   ENCOUNTER_MEDICATION_INPUT_SCHEMA,
   MEDICATION_INPUT_SCHEMA,
@@ -1739,17 +1744,6 @@ medication.get(
   }),
 );
 
-const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
-  [fieldName]: {
-    [Op.iLike]: `${value}%`,
-  },
-});
-
-const caseInsensitiveFilter = (fieldName, _operator, value) => ({
-  [fieldName]: {
-    [Op.iLike]: `%${value}%`,
-  },
-});
 
 medication.get(
   '/medication-requests',
@@ -1776,7 +1770,7 @@ medication.get(
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
-      { key: 'displayId', mapFn: caseInsensitiveFilter },
+      { key: 'displayId', mapFn: caseInsensitiveContainsFilter },
     ]);
     // Patient association
     const patient = {
@@ -2179,7 +2173,7 @@ medication.get(
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
-      { key: 'displayId', mapFn: caseInsensitiveFilter },
+      { key: 'displayId', mapFn: caseInsensitiveContainsFilter },
     ]);
     // Patient association
     const patient = {
@@ -2199,7 +2193,7 @@ medication.get(
     const pharmacyOrderPrescriptionFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestNumber',
-        mapFn: (_fieldName, operator, value) => caseInsensitiveFilter('displayId', operator, value),
+        mapFn: (_fieldName, operator, value) => caseInsensitiveContainsFilter('displayId', operator, value),
       },
     ]);
 
@@ -2422,7 +2416,15 @@ medication.get(
 
     const referenceDrugs = await models.ReferenceDrug.findAll({
       where: { referenceDataId: { [Op.in]: medicationIds } },
-      attributes: ['id', 'isSensitive', 'referenceDataId'],
+      // spec: DQLIM#dispensing
+      attributes: [
+        'id',
+        'isSensitive',
+        'referenceDataId',
+        'dosingUnit',
+        'dispensingUnit',
+        ...DRUG_LIMIT_FIELDS,
+      ],
       include: {
         model: models.ReferenceDrugFacility,
         as: 'facilities',
@@ -2695,7 +2697,13 @@ medication.get(
                 {
                   model: models.ReferenceDrug,
                   as: 'referenceDrug',
-                  attributes: ['id', 'isSensitive'],
+                  attributes: [
+                    'id',
+                    'isSensitive',
+                    'dosingUnit',
+                    'dispensingUnit',
+                    ...DRUG_LIMIT_FIELDS,
+                  ],
                   required: true,
                   include: [
                     {

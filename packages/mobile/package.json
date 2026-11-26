@@ -42,7 +42,7 @@
     "formik": "^2.1.2",
     "get-yarn-workspaces": "^1.0.2",
     "khmer-unicode-converter": "^0.0.6",
-    "mathjs": "^12.1.0",
+    "mathjs": "^15.2.0",
     "mitt": "^2.1.0",
     "nanoid": "^3.3.8",
     "prop-types": "^15.7.2",

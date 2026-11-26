@@ -6,6 +6,8 @@ import { Field } from '~/ui/components/Forms/FormField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
+import { useUpdate } from '~/ui/contexts/UpdateContext';
+import { SyncPausedForUpdate } from '~/ui/components/SyncPausedForUpdate';
 import { useBackend } from '~/ui/hooks';
 import { FacilitySelectField } from './FacilitySelectField';
 import { Button } from '/components/Button';
@@ -117,6 +119,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
 export const SelectFacilityScreen = ({ navigation }: SignInProps) => {
   const { facilityId, assignFacility } = useFacility();
   const { signOut } = useAuth();
+  const { isUpdateOutstanding } = useUpdate();
   const backend = useBackend();
 
   useEffect(
@@ -161,7 +164,14 @@ export const SelectFacilityScreen = ({ navigation }: SignInProps) => {
               />
             </StyledText>
           </View>
-          <SelectFacilityForm onSubmitForm={onSubmitForm} />
+          {/* The server turns an out-of-date app away from the facility list, so it updates first */}
+          {isUpdateOutstanding ? (
+            <StyledView marginTop={screenPercentageToDP(14.7, Orientation.Height)}>
+              <SyncPausedForUpdate />
+            </StyledView>
+          ) : (
+            <SelectFacilityForm onSubmitForm={onSubmitForm} />
+          )}
           <StyledTouchableOpacity onPress={signOut}>
             <StyledText
               width="100%"

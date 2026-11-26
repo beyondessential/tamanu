@@ -2,6 +2,7 @@ import React from 'react';
 import {
   TamanuApi as ApiClient,
   readPersistedAuthToken,
+  renewPersistedAuthToken,
   resolveEndpoint,
   writePersistedAuthToken,
 } from '@tamanu/api-client';
@@ -240,7 +241,11 @@ export class TamanuApi extends ApiClient {
       config,
     );
     const { token } = response;
-    await this.setToken(token);
+    const currentToken = this.getToken();
+    super.setToken(token);
+    // The kiosk renews its sign-in in a tab beside Tamanu, so the stored sign-in may since have
+    // been logged out, or replaced, by another tab
+    await renewPersistedAuthToken(TOKEN, currentToken, token, this.deviceId, 'webapp');
   }
 
   async fetchImpersonatedRole(impersonateRoleId, config) {
@@ -352,7 +357,8 @@ export class TamanuApi extends ApiClient {
   }
 
   async fetchFrontEndSettings(facilityId) {
-    const { settings } = await this.get('settings/frontEnd', { facilityId }, {
+    const query = facilityId ? { facilityId } : {};
+    const { settings } = await this.get('settings/frontEnd', query, {
       showUnknownErrorToast: false,
     });
     return settings ?? null;

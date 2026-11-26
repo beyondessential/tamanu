@@ -3,6 +3,7 @@ import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
 import { SETTING_KEYS } from '~/constants/settings';
+import { clearUpdateState } from '~/services/update/pendingUpdate';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
 import { SYNC_DIRECTIONS } from '../../models/types';
@@ -199,7 +200,14 @@ export class MobileSyncManager {
     const startTime = Date.now();
 
     try {
+      // Still attempted while an update is outstanding. The server turns an out-of-date app away on
+      // the first request, before anything is sent, and each rejection carries the address it
+      // wants the app updated from now, which may have changed since the last.
       await this.runSync({ urgent });
+      // A sync the server accepted proves it accepts this version, so anything remembered about
+      // updating is spent. Left behind, a past install would later be mistaken for the current
+      // version having failed to satisfy the server.
+      await clearUpdateState();
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_SUCCESS);
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });

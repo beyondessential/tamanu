@@ -247,6 +247,7 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
   // numeric data gets formatted
   return {
     result: rawValue,
+    // eslint-disable-next-line no-restricted-syntax -- a displayed percentage
     resultText: `${rawValue.toFixed(0)}%`,
   };
 }
