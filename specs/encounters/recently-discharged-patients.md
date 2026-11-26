@@ -24,6 +24,7 @@ Applies to the listing, under the Facility admin section of the sidebar, of pati
 
 - The view is titled "Recently discharged patients".
 - The table columns are, in order: Patient ID, First name, Last name, DOB, Sex, Encounter type, Area, Department, Clinician, Discharge date.
+- The Patient ID column and search field carry the deployment's short label for the patient's display ID, "NHN" unless translated, as on every other patient list.
 - Encounter type shows the discharged encounter's patient status: Inpatient, Outpatient, or Emergency.
 - Area shows the area of the location the encounter was in when it was discharged, or is blank when that location has no area.
 - Department shows the department the encounter was assigned to when it was discharged.

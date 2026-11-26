@@ -95,8 +95,8 @@ export const RecentlyDischargedPatientsSearchBar = React.memo(({ onSearch, searc
         name="displayId"
         label={
           <TranslatedText
-            stringId="general.patientId.label"
-            fallback="Patient ID"
+            stringId="general.localisedField.displayId.label.short"
+            fallback="NHN"
             data-testid="translatedtext-rdp-patient-id"
           />
         }

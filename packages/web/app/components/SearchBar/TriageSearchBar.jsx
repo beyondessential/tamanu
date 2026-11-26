@@ -135,8 +135,8 @@ export const TriageSearchBar = React.memo(({ onSearch, searchParameters }) => {
         name="displayId"
         label={
           <TranslatedText
-            stringId="patientList.triage.search.patientId.label"
-            fallback="Patient ID"
+            stringId="general.localisedField.displayId.label.short"
+            fallback="NHN"
             data-testid="translatedtext-display-id"
           />
         }
