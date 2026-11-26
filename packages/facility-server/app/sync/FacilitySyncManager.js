@@ -21,7 +21,6 @@ import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getSyncConfig, isSyncEnabled } from '../serverConfig';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
-import { clearLocallyAuthoredSettings } from './clearLocallyAuthoredSettings';
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { pullIncomingChanges } from './pullIncomingChanges';
@@ -332,9 +331,6 @@ export class FacilitySyncManager {
     // Recorded outside the save transaction so it is visible while the save runs
     await this.recordSyncRunProgress(syncRun, { persistStartedAt: new Date() });
     await this.sequelize.transaction(async () => {
-      if (pullSince === -1) {
-        await clearLocallyAuthoredSettings(this.sequelize);
-      }
       if (totalPulled > 0) {
         await pauseAudit(this.sequelize);
         log.info('FacilitySyncManager.savingChanges', { totalPulled });

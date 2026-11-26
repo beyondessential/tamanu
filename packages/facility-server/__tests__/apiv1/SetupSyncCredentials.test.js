@@ -72,6 +72,12 @@ describe('setup wizard sync credentials', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
   });
+
+  const seedGlobalSetting = key =>
+    ctx.sequelize.query(`INSERT INTO settings (id, key, value) VALUES (:id, :key, 'true')`, {
+      replacements: { id: crypto.randomUUID(), key },
+    });
+  const settingExists = async key => Boolean(await models.Setting.findOne({ where: { key } }));
   beforeEach(async () => {
     central.logins.length = 0;
     central.provisions = 0;
@@ -92,6 +98,15 @@ describe('setup wizard sync credentials', () => {
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
     expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBe(MINTED_EMAIL);
+  });
+
+  it('clears global settings the server added before it was set up', async () => {
+    const key = 'features.setupWizardTestSeeded';
+    await seedGlobalSetting(key);
+
+    expect(await submit()).toHaveSucceeded();
+
+    expect(await settingExists(key)).toBe(false);
   });
 
   // isServerConfigured is mocked false throughout, as it is on an API process that did not

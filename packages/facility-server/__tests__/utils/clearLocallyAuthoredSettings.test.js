@@ -4,12 +4,12 @@ import { FACT_CURRENT_SYNC_TICK, FACT_LAST_SUCCESSFUL_SYNC_PULL } from '@tamanu/
 import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 import { createTestContext } from '../utilities';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
-import { clearLocallyAuthoredSettings } from '../../app/sync/clearLocallyAuthoredSettings';
+import { clearLocallyAuthoredSettings } from '../../app/utils/clearLocallyAuthoredSettings';
 
 const HEARTBEAT_KEY = 'fhir.worker.heartbeat';
 const BASELINE_HEARTBEAT_ID = '44fbfb10-3019-44f8-b0c5-d02b860e521e';
 
-describe('FacilitySyncManager settings on first sync', () => {
+describe('clearLocallyAuthoredSettings', () => {
   let ctx;
   let models;
   let sequelize;
@@ -67,13 +67,12 @@ describe('FacilitySyncManager settings on first sync', () => {
     data: { ...setting, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
   });
 
-  const makeSyncManager = ({ pulled = [], isQueued = false } = {}) =>
+  const makeSyncManager = ({ pulled = [] } = {}) =>
     new FacilitySyncManager({
       models,
       sequelize,
       centralServer: {
-        startSyncSession: async () =>
-          isQueued ? { status: 'queued' } : { sessionId: crypto.randomUUID(), startedAtTick: 200 },
+        startSyncSession: async () => ({ sessionId: crypto.randomUUID(), startedAtTick: 200 }),
         endSyncSession: async () => ({}),
         initiatePull: async () => ({ totalToPull: pulled.length, pullUntil: 200 }),
         pull: async () => pulled.map(asSyncRecord),
@@ -84,10 +83,11 @@ describe('FacilitySyncManager settings on first sync', () => {
       },
     });
 
-  it("replaces settings the facility seeded itself with central's on its first pull", async () => {
+  it("lets the first sync save central's copies of settings the server seeded", async () => {
     await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
     const fromCentral = centralHeartbeat();
 
+    await sequelize.transaction(() => clearLocallyAuthoredSettings(sequelize));
     await makeSyncManager({ pulled: [fromCentral] }).runSync();
 
     expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
@@ -95,33 +95,14 @@ describe('FacilitySyncManager settings on first sync', () => {
     ]);
   });
 
-  it('keeps seeded settings when the first pull fails to save', async () => {
-    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
+  it('keeps settings central has already sent', async () => {
+    const fromCentral = centralHeartbeat();
+    await makeSyncManager({ pulled: [fromCentral] }).runSync();
 
-    await expect(
-      makeSyncManager({ pulled: [centralHeartbeat(), centralHeartbeat()] }).runSync(),
-    ).rejects.toThrow();
-
-    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
-      { id: BASELINE_HEARTBEAT_ID, value: '1 minute' },
-    ]);
-  });
-
-  it('clears seeded settings on a first pull that brings no records', async () => {
-    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
-
-    await makeSyncManager().runSync();
-
-    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([]);
-  });
-
-  it('keeps seeded settings when no pull completes', async () => {
-    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
-
-    await makeSyncManager({ isQueued: true }).runSync();
+    await sequelize.transaction(() => clearLocallyAuthoredSettings(sequelize));
 
     expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
-      { id: BASELINE_HEARTBEAT_ID, value: '1 minute' },
+      { id: fromCentral.id, value: '2 minutes' },
     ]);
   });
 
@@ -149,7 +130,7 @@ describe('FacilitySyncManager settings on first sync', () => {
       scope: SETTINGS_SCOPES.CENTRAL,
     });
 
-    await makeSyncManager({ pulled: [centralHeartbeat()] }).runSync();
+    await sequelize.transaction(() => clearLocallyAuthoredSettings(sequelize));
 
     expect(await settingsWithKey('templates.letterhead.title')).toEqual([
       { id: facilitySettingId, value: 'Clinic' },
@@ -158,17 +139,6 @@ describe('FacilitySyncManager settings on first sync', () => {
       { id: centralScopedId, value: 500 },
     ]);
     expect(await models.FacilitySettingMigration.findByPk(carrier.id)).not.toBeNull();
-  });
-
-  it('leaves the settings of a facility that has already pulled alone', async () => {
-    await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, '10');
-    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
-
-    await makeSyncManager().runSync();
-
-    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
-      { id: BASELINE_HEARTBEAT_ID, value: '1 minute' },
-    ]);
   });
 
   it('keeps the cleared settings out of the changelog', async () => {
