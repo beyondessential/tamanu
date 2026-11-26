@@ -123,7 +123,11 @@ The bullet on what an update changes drew a finding in rounds 3, 4 and 5: stated
 
 Re-check of the round 5 test fixes, by the orchestrator: with the line that completes the request removed, the Completed time taken from the clock regardless of the study, and missing values written as null on update, exactly three cases fail, the three that name those rules. With the arrival-time fallback set to a fixed date, exactly one case fails, the one that names it. Model file restored after each.
 
-Checkpoint: eslint and prettier clean; ImagingStudy and transaction bundle tests 40 of 40. The first run of this checkpoint failed before any test ran, on two test workers creating the same database at once; the rerun passed.
+That second check ran under a malformed command: the environment variables were passed as one unsplit string, so the run used a database named after the whole string and did not set the test timezone. Its result is unambiguous (30 pass, the named case fails on the fixed date), but a repeat under the correct command was started and abandoned after ten minutes without output on a loaded machine.
+
+Checkpoint: eslint and prettier clean; ImagingStudy and transaction bundle tests 40 of 40. The first run of this checkpoint used the same malformed command and failed before any test ran, because the over-long database name was the same for both test workers; the rerun under the correct command passed.
+
+The test databases these rounds created on the device's Postgres have been dropped.
 
 The fixes made after round 5 have been re-checked and tested but not reviewed by a further round.
 
