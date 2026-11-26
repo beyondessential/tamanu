@@ -4,7 +4,8 @@ import config from 'config';
 import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
-import { SETTING_KEYS } from '@tamanu/constants';
+import { SERVER_TYPES, SETTING_KEYS, SETTINGS_SCOPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import { settingsCache } from '@tamanu/settings';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
@@ -163,6 +164,39 @@ describe('Auth - Login', () => {
       expect(response.body).not.toHaveProperty('user.hashedPassword');
     });
 
+    it('Should match the email case-insensitively', async () => {
+      const response = await baseApp.post('/api/login').send({
+        email: TEST_EMAIL.toUpperCase(),
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('user.email', TEST_EMAIL);
+    });
+
+    it('Should match an account whose stored email has stray whitespace', async () => {
+      const { User, Device } = store.models;
+      const paddedUser = await User.create({
+        email: 'padded@bes.au',
+        password: TEST_PASSWORD,
+        displayName: 'Padded BES',
+      });
+      await Device.create({ id: 'padded-device-id', registeredById: paddedUser.id });
+      // Simulate legacy data written before emails were trimmed, bypassing model normalisation.
+      await User.sequelize.query('UPDATE users SET email = :email WHERE id = :id', {
+        replacements: { email: '  Padded@bes.au  ', id: paddedUser.id },
+      });
+
+      const response = await baseApp.post('/api/login').send({
+        email: 'padded@bes.au',
+        password: TEST_PASSWORD,
+        deviceId: 'padded-device-id',
+      });
+
+      expect(response).toHaveSucceeded();
+    });
+
     it('Should return localised field settings in the login response', async () => {
       const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
@@ -175,6 +209,28 @@ describe('Auth - Login', () => {
         'settings.fields.displayId',
         expect.objectContaining({ pattern: '[\\s\\S]*' }),
       );
+    });
+
+    it('Should send a facility server its sync tuning in the login response', async () => {
+      const key = 'facilitySync.persistUpdateWorkerPoolSize';
+      await store.models.Setting.set(key, 2, SETTINGS_SCOPES.CENTRAL);
+      settingsCache.reset();
+      try {
+        const response = await baseApp
+          .post('/api/login')
+          .set({ 'X-Tamanu-Client': SERVER_TYPES.FACILITY })
+          .send({
+            email: TEST_EMAIL,
+            password: TEST_PASSWORD,
+            deviceId: TEST_DEVICE_ID,
+          });
+
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveProperty(`settings.${key}`, 2);
+      } finally {
+        await store.models.Setting.destroy({ where: { key }, force: true });
+        settingsCache.reset();
+      }
     });
 
     it('Should reject an empty credential', async () => {
@@ -202,6 +258,45 @@ describe('Auth - Login', () => {
         deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
+    });
+  });
+
+  describe('Client version', () => {
+    const login = (client, version) =>
+      baseApp
+        .post('/api/login')
+        .set({ 'X-Tamanu-Client': client, 'X-Version': version })
+        .send({ email: TEST_EMAIL, password: TEST_PASSWORD, deviceId: TEST_DEVICE_ID });
+
+    const errorMessage = response => JSON.parse(response.error.text).error.message;
+
+    // Letting a self-updating app in below the minimum is covered by buildVersionCompatibilityCheck's
+    // tests: this central's minimum is the first self-updating release, so no such version exists here
+    it('Should reject a mobile app from before in-app updates at login, where it is offered the update link', async () => {
+      const response = await login(SERVER_TYPES.MOBILE, '0.0.1');
+      expect(response).not.toHaveSucceeded();
+      expect(errorMessage(response)).toEqual(VERSION_COMPATIBILITY_ERRORS.LOW);
+    });
+
+    it('Should still reject the same out-of-date mobile app beyond login', async () => {
+      const response = await baseApp.get('/').set({
+        'X-Tamanu-Client': SERVER_TYPES.MOBILE,
+        'X-Version': '0.0.1',
+      });
+      expect(response).not.toHaveSucceeded();
+      expect(errorMessage(response)).toEqual(VERSION_COMPATIBILITY_ERRORS.LOW);
+    });
+
+    it('Should still reject a mobile app above the maximum at login', async () => {
+      const response = await login(SERVER_TYPES.MOBILE, '999.0.0');
+      expect(response).not.toHaveSucceeded();
+      expect(errorMessage(response)).toEqual(VERSION_COMPATIBILITY_ERRORS.HIGH);
+    });
+
+    it('Should still reject other out-of-date clients at login', async () => {
+      const response = await login(SERVER_TYPES.FACILITY, '0.0.1');
+      expect(response).not.toHaveSucceeded();
+      expect(errorMessage(response)).toEqual(VERSION_COMPATIBILITY_ERRORS.LOW);
     });
   });
 

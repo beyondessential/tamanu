@@ -218,7 +218,7 @@ describe('Patient Payment Refund', () => {
     expect(refundOfRefund.body.error.message).toBe('This payment is a refund of another payment');
   });
 
-  describe('patientPaymentStatus update on refund', () => {
+  describe('patientPaymentStatus update', () => {
     const createPaymentUrl = invoiceId => `/api/invoices/${invoiceId}/patientPayments`;
 
     const createInvoiceWithItem = async (encounterId, itemPrice) => {
@@ -234,6 +234,62 @@ describe('Patient Payment Refund', () => {
         }),
       );
       return invoice;
+    };
+
+    // An invoice whose attached plan covers each insurable item at coveragePercentage, either
+    // through the product's own plan item or, with coverVia 'planDefault', through the plan's
+    // default coverage for a product that has no plan item of its own
+    const createInsuredInvoice = async (
+      encounterId,
+      {
+        itemPrices,
+        coveragePercentage,
+        coverVia = 'planItem',
+        status = INVOICE_STATUSES.FINALISED,
+      },
+    ) => {
+      const invoice = await createInvoice(encounterId, { status });
+      const coversByDefault = coverVia === 'planDefault';
+      const plan = await models.InvoiceInsurancePlan.create(
+        fake(models.InvoiceInsurancePlan, {
+          defaultCoverage: coversByDefault ? coveragePercentage : 0,
+        }),
+      );
+      await models.InvoicesInvoiceInsurancePlan.create({
+        invoiceId: invoice.id,
+        invoiceInsurancePlanId: plan.id,
+      });
+
+      const addInsuredItem = async itemPrice => {
+        const product = await models.InvoiceProduct.create(
+          fake(models.InvoiceProduct, { insurable: true }),
+        );
+        if (!coversByDefault) {
+          await models.InvoiceInsurancePlanItem.create({
+            invoiceInsurancePlanId: plan.id,
+            invoiceProductId: product.id,
+            coverageValue: coveragePercentage,
+          });
+        }
+        return models.InvoiceItem.create(
+          fake(models.InvoiceItem, {
+            // fake ids carry a zero version, which the update route's uuid validation rejects
+            id: crypto.randomUUID(),
+            invoiceId: invoice.id,
+            productId: product.id,
+            quantity: 1,
+            priceFinal: itemPrice,
+            orderedByUserId: user.id,
+          }),
+        );
+      };
+
+      const items = [];
+      for (const itemPrice of itemPrices) {
+        items.push(await addInsuredItem(itemPrice));
+      }
+
+      return { invoice, items };
     };
 
     const createPaymentViaApi = async (invoiceId, amount) => {
@@ -298,6 +354,102 @@ describe('Patient Payment Refund', () => {
       expect(refund).toHaveSucceeded();
 
       expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID);
+    });
+
+    it('should set status to paid when the patient pays their share of an insured invoice', async () => {
+      const encounter = await createEncounter();
+      const { invoice } = await createInsuredInvoice(encounter.id, {
+        itemPrices: [225],
+        coveragePercentage: 50,
+      });
+
+      await createPaymentViaApi(invoice.id, 112.5);
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PAID);
+    });
+
+    it('should reject a payment above the patient share of an insured invoice', async () => {
+      const encounter = await createEncounter();
+      const { invoice } = await createInsuredInvoice(encounter.id, {
+        itemPrices: [225],
+        coveragePercentage: 50,
+      });
+
+      const result = await app.post(createPaymentUrl(invoice.id)).send({
+        date: '2024-01-15',
+        amount: 112.51,
+        receiptNumber: generateReceiptNumber(),
+        methodId: paymentMethod.id,
+      });
+
+      expect(result).toBeForbidden();
+    });
+
+    it('should set status to unpaid when the patient share of an insured invoice is refunded', async () => {
+      const encounter = await createEncounter();
+      const { invoice } = await createInsuredInvoice(encounter.id, {
+        itemPrices: [225],
+        coveragePercentage: 50,
+      });
+
+      const payment = await createPaymentViaApi(invoice.id, 112.5);
+      const refund = await app
+        .post(refundUrl(invoice.id, payment.id))
+        .send({ methodId: refundMethod.id });
+      expect(refund).toHaveSucceeded();
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID);
+    });
+
+    it('should count coverage the plan provides through its default coverage', async () => {
+      const encounter = await createEncounter();
+      const { invoice } = await createInsuredInvoice(encounter.id, {
+        itemPrices: [225],
+        coveragePercentage: 50,
+        coverVia: 'planDefault',
+      });
+
+      const overpayment = await app.post(createPaymentUrl(invoice.id)).send({
+        date: '2024-01-15',
+        amount: 112.51,
+        receiptNumber: generateReceiptNumber(),
+        methodId: paymentMethod.id,
+      });
+      expect(overpayment).toBeForbidden();
+
+      await createPaymentViaApi(invoice.id, 112.5);
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PAID);
+    });
+
+    it('should recalculate status against the patient share when the items are updated', async () => {
+      const encounter = await createEncounter();
+      const { invoice, items } = await createInsuredInvoice(encounter.id, {
+        itemPrices: [225, 225],
+        coveragePercentage: 50,
+        status: INVOICE_STATUSES.IN_PROGRESS,
+      });
+
+      // The patient owes half of the $450 of items, so this covers half of their share
+      await createPaymentViaApi(invoice.id, 112.5);
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL);
+
+      // Dropping one item halves what the patient owes, which the payment then covers in full
+      const [keptItem] = items;
+      const result = await app.put(`/api/invoices/${invoice.id}`).send({
+        items: [
+          {
+            id: keptItem.id,
+            orderDate: keptItem.orderDate,
+            orderedByUserId: user.id,
+            productId: keptItem.productId,
+            quantity: 1,
+          },
+        ],
+      });
+      expect(result).toHaveSucceeded();
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PAID);
     });
   });
 });

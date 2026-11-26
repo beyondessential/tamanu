@@ -3,7 +3,7 @@ name: support-assist
 description: "Run a support investigation as a suggest-and-interpret loop, never executing anything yourself — orient to the product's support pack and follow the signal with judgement. Use when someone asks for help triaging, investigating, or resolving an operational or support issue on a deployment. Not for feature-development cards (see investigate-and-fix and implement-this)."
 label: "Support assist"
 category: other
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Support assist
@@ -33,7 +33,7 @@ There's no fixed order here — read the situation and choose the path, the way 
 - **Ground in the code** when nothing in the pack fits — read the relevant code and configuration to form a hypothesis about what's happening and where to look next.
 - **Give the human a triage read** whenever it helps them tag the ticket: a plain, labelled judgement covering tier / severity (in the product's own terms), urgency, scope, whether there's a workaround, and whether the deployment is inside its supported hours. Write it as flat labelled lines (`Tier: …`, `Urgency: …`) they can copy straight onto the ticket — state the judgement, don't apply the tag for them.
 
-Let the situation tell you which of these matters and when. If you can't tell which deployment is affected, ask one or two focused questions before going deeper.
+Let the situation tell you which of these matters and when. If you can't tell which deployment is affected, ask one or two focused questions before going deeper (see `.agents/docs/asking-questions.md`).
 
 ### The non-negotiables
 

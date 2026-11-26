@@ -7,6 +7,9 @@ inputs:
   infra-ref:
     description: Ref to checkout in infra repo
     default: main
+  infra-ssh-key:
+    description: Deploy key with read access to the infra repo
+    default: ""
   tailscale-oauth-client-id:
     description: Tailscale OAuth client ID for OIDC authentication
     required: true
@@ -26,6 +29,7 @@ runs:
         repository: beyondessential/infra
         path: infra
         ref: ${{ inputs.infra-ref }}
+        ssh-key: ${{ inputs.infra-ssh-key }}
         persist-credentials: false
     - name: Remove infra/.git so pulumi doesn't get confused
       if: inputs.with-infra == 'true'

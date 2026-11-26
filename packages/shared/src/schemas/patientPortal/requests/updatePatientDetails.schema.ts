@@ -49,17 +49,30 @@ export type UpdatePatientDetailsRequest = z.infer<typeof UpdatePatientDetailsReq
 
 const INSURANCE_DETAIL_NAMES = ['insurerPolicyNumber'];
 
+/** A patient detail's field setting as the portal and its API read it. */
+export interface PatientDetailFieldSetting {
+  hidden?: boolean;
+  required?: boolean;
+}
+
 /**
- * The deployment's field settings for patient details, with insurance treated as hidden unless the
- * deployment uses it, as on Patient details in Tamanu.
+ * The deployment's field settings for patient details, with a detail required when Patient details
+ * in Tamanu requires it (`requiredPatientData`) and insurance treated as hidden unless the
+ * deployment uses it.
  */
-export const getPatientDetailFieldSettings = <T extends { hidden?: boolean }>(
-  fieldSettings: Record<string, T>,
+export const getPatientDetailFieldSettings = (
+  fieldSettings: Record<string, { hidden?: boolean; requiredPatientData?: boolean }>,
   isPatientInsurerEnabled: boolean,
-): Record<string, T> => {
-  if (isPatientInsurerEnabled) return fieldSettings;
-  const hiddenInsuranceDetails = Object.fromEntries(
-    INSURANCE_DETAIL_NAMES.map(name => [name, { ...fieldSettings[name], hidden: true } as T]),
+): Record<string, PatientDetailFieldSetting> => {
+  const detailSettings = Object.fromEntries(
+    Object.entries(fieldSettings).map(([name, { hidden, requiredPatientData }]) => [
+      name,
+      { hidden, required: requiredPatientData },
+    ]),
   );
-  return { ...fieldSettings, ...hiddenInsuranceDetails };
+  if (isPatientInsurerEnabled) return detailSettings;
+  const hiddenInsuranceDetails = Object.fromEntries(
+    INSURANCE_DETAIL_NAMES.map(name => [name, { ...detailSettings[name], hidden: true }]),
+  );
+  return { ...detailSettings, ...hiddenInsuranceDetails };
 };

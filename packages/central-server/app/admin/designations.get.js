@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 import { getDeletableDesignationOrThrow } from './designations.delete';
 
@@ -16,7 +17,7 @@ export const getDesignations = asyncHandler(async (req, res) => {
 
   const additionalFilters = { type: REFERENCE_TYPES.DESIGNATION };
   // Not matching word boundary; IDs often camel case
-  if (idQuery) additionalFilters.id = { [Op.iLike]: `%${idQuery}%` };
+  if (idQuery) additionalFilters.id = { [Op.iLike]: likePattern`%${idQuery}%` };
   if (nameQuery) additionalFilters.name = { [Op.iRegexp]: `\\m${escapeRegExp(nameQuery)}` };
 
   const response = await getResourceList(req, 'ReferenceData', '', { additionalFilters });

@@ -62,6 +62,7 @@ export const HandoverPatient = ({
                 return (
                   <ValueDisplay
                     key={key}
+                    // eslint-disable-next-line no-restricted-syntax -- a displayed percentage
                     width={`${percentageWidth}%`}
                     title={label}
                     value={value}

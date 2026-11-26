@@ -2,14 +2,18 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
+import {
+  listenForBindAddresses,
+  listenForSyncBindAddresses,
+} from '@tamanu/shared/utils/bindAddress';
+import { sweepStaleUploadDirs } from '@tamanu/shared/utils/tmpdir';
 import { DEVICE_TYPES, JOB_TOPICS } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
-import { getServerFacilityIds } from '../serverConfig';
+import { getServerFacilityIds, getSyncApiConnection } from '../serverConfig';
 import { setupSyncRuntime, startSyncRuntimeWhenConfigured } from '../setupSyncRuntime';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
@@ -29,15 +33,17 @@ async function startApiSyncAndTasks(context) {
   context.syncConnection = new FacilitySyncConnection();
   const isConfigured = await setupSyncRuntime(context);
 
+  await sweepStaleUploadDirs();
   const { express, server } = await createApiApp(context);
 
   listenForBindAddresses({ server, app: express, fallbackPort: config.port, label: 'API Server' });
 
-  const { server: syncServer } = await createSyncApp(context);
+  const { express: syncExpress, server: syncServer } = await createSyncApp(context);
 
-  let { port: syncPort } = config.sync.syncApiConnection;
-  syncServer.listen(syncPort, () => {
-    log.info(`SYNC server is running on port ${syncPort}!`);
+  await listenForSyncBindAddresses({
+    server: syncServer,
+    app: syncExpress,
+    port: getSyncApiConnection().port,
   });
 
   const cancelTasks = await startScheduledTasks(context);

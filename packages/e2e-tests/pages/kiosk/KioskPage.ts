@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../BasePage';
+import { PatientSurveyFormPane } from '../patientForm/PatientSurveyFormPane';
 import { routes } from '../../config/routes';
 
 export class KioskPage extends BasePage {
@@ -16,6 +17,13 @@ export class KioskPage extends BasePage {
   readonly checkedInTitle: Locator;
   readonly alreadyCheckedInTitle: Locator;
   readonly notPermittedText: Locator;
+  readonly noMatchTitle: Locator;
+  readonly noMatchSearchedDetails: Locator;
+  readonly editDetailsButton: Locator;
+  readonly readyToCheckInTitle: Locator;
+  readonly startOverButton: Locator;
+  readonly startOverDialog: Locator;
+  readonly form: PatientSurveyFormPane;
 
   constructor(page: Page) {
     super(page, routes.kiosk);
@@ -33,6 +41,13 @@ export class KioskPage extends BasePage {
     this.notPermittedText = page.getByText(
       "The account signed in here doesn't have permission to run the self check-in kiosk.",
     );
+    this.noMatchTitle = page.getByText("We couldn't find your appointment");
+    this.noMatchSearchedDetails = page.locator('dl').getByRole('definition');
+    this.editDetailsButton = page.getByRole('button', { name: 'Edit details' });
+    this.readyToCheckInTitle = page.getByText("You're ready to check in");
+    this.startOverButton = page.locator('header').getByRole('button', { name: 'Start over' });
+    this.startOverDialog = page.getByRole('dialog', { name: 'Start over?' });
+    this.form = new PatientSurveyFormPane(page);
   }
 
   /** `dateOfBirth` is the patient's stored date, `yyyy-MM-dd`. */
@@ -49,6 +64,11 @@ export class KioskPage extends BasePage {
   async findAndConfirmAppointment(lastName: string, dateOfBirth: string) {
     await this.findAppointment(lastName, dateOfBirth);
     await this.confirmButton.click();
+  }
+
+  async startOver() {
+    await this.startOverButton.click();
+    await this.startOverDialog.getByRole('button', { name: 'Start over' }).click();
   }
 
   async checkIn(lastName: string, dateOfBirth: string) {

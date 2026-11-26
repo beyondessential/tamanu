@@ -13,13 +13,11 @@ import {
   restartPasswordResetFlow,
   validateResetCode,
 } from '../store';
-import { useApi } from '../api';
 
 import { AuthFlowView } from './AuthFlowView';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 export const LoginView = () => {
-  const api = useApi();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -29,6 +27,7 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
+  const lastUserEmail = useSelector(state => state.auth.lastUserEmail);
 
   const rememberEmail = window?.localStorage?.getItem(REMEMBER_EMAIL);
 
@@ -38,7 +37,7 @@ export const LoginView = () => {
 
     // If a different user logs in, clear cached data and navigate to index.
     // Keep the serverAlive query, otherwise the app treats the server as down.
-    if (email !== api.user?.email) {
+    if (email !== lastUserEmail) {
       queryClient.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
       navigate('/');
     }

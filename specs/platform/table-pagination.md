@@ -13,13 +13,14 @@ Applies to the footer every paginated table in the web app shares: what it tells
 
 ## Record count
 
-- The footer states the range of records on the current page and the total, as a sentence: "Showing 1–10 of 547 records"
-- The range runs from the first to the last record on the current page, so the last page shows only the records it holds (e.g. "Showing 541–547 of 547 records")
-- When every record fits on one page, the count still shows the range (e.g. "Showing 1–3 of 3 records")
-- When the current page holds a single record, the range collapses to that one number (e.g. "Showing 11 of 11 records")
-- When the table holds exactly one record, the count reads "Showing 1 of 1 record"
+- The footer states the range of records on the current page and the total, as a sentence: "Showing 1–10 of 547"
+- The range runs from the first to the last record on the current page, so the last page shows only the records it holds (e.g. "Showing 541–547 of 547")
+- When every record fits on one page, the count still shows the range (e.g. "Showing 1–3 of 3")
+- When the current page holds a single record, the range collapses to that one number (e.g. "Showing 11 of 11", or "Showing 1 of 1" for a table holding one record)
+- The numbers in the count are bold, so the range and the total stand out from the words around them
+- A divider separates the count from the rows-per-page choice
 - The count uses the same wording on every table, whatever kind of record the table lists
-- Numbers in the count are formatted for the user's selected language, including thousands separators (e.g. "Showing 1–10 of 1,204 records")
+- Numbers in the count are formatted for the user's selected language, including thousands separators (e.g. "Showing 1–10 of 1,204")
 - The count wording is translatable
 
 ## Rows per page

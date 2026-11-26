@@ -205,6 +205,7 @@ export async function createTestContext({
   });
 
   context.centralServer = centralServer;
+  context.appServer = appServer;
   context.baseApp = baseApp;
   context.settings = settings;
 

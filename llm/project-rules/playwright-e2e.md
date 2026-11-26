@@ -93,6 +93,14 @@ If a util **only** needs `Page` and **one** screen, consider promoting it into *
 
 **Ideal:** specs do not construct raw `Locator`s for core flows; they call page-object methods with meaningful names.
 
+## Kiosk and patient portal
+
+Both have base specs to extend: a change to either comes with E2E coverage of the journey it touches, added to these specs or beside them.
+
+- **Self check-in kiosk** — `tests/scheduling/kiosk.spec.ts`, `pages/kiosk/KioskPage.ts`. The kiosk runs in a new browser context signed in as a staff account with permission to run it; appointments are arranged through the facility API.
+- **Patient portal** — `tests/patientPortal/`, `pages/patientPortal/`. The portal reads only from central, so its patients and the forms sent to them are arranged in central's database (`utils/centralDatabase.ts`). The `signedInPortalPatient` fixture signs a fresh patient in through the Log in screens.
+- **Forms** — both show the shared patient form, driven through `pages/patientForm/PatientSurveyFormPane.ts`. The forms come from the kiosk demo (`generate kioskDemo`), which E2E setup seeds; `testData.kioskDemo` names them.
+
 ## Page Object Model (POM)
 
 - **One class per screen or cohesive sub-area** (e.g. modal, tab pane). Compose larger flows from smaller objects.

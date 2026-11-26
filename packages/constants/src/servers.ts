@@ -7,6 +7,9 @@ export const VERSION_COMPATIBILITY_ERRORS = {
 
 // Size in bytes
 export const DOCUMENT_SIZE_LIMIT = 10000000;
+// The most a multipart upload may write to disk unless its endpoint sets a tighter
+// limit, matching the 50 MB the servers accept for a JSON body.
+export const UPLOAD_SIZE_LIMIT = 50 * 1024 * 1024;
 
 export const SERVER_TYPES = {
   /** @deprecated */

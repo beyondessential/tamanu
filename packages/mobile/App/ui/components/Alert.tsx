@@ -19,7 +19,7 @@ interface SyncInactiveBannerProps {
   onClose: () => void;
 }
 
-const SEVERITY_TO_COLORS = {
+export const SEVERITY_TO_COLORS = {
   info: {
     background: '#dce3ec',
     color: theme.colors.PRIMARY_MAIN,
@@ -48,7 +48,9 @@ export const Alert = ({
     <StyledView padding={screenPercentageToDP(3.6, Orientation.Width)}>
       <StyledView
         width="100%"
-        height={screenPercentageToDP(6, Orientation.Height)}
+        minHeight={screenPercentageToDP(6, Orientation.Height)}
+        paddingTop={screenPercentageToDP(1, Orientation.Height)}
+        paddingBottom={screenPercentageToDP(1, Orientation.Height)}
         background={background}
         borderRadius={3}
         borderWidth={1}
@@ -60,7 +62,11 @@ export const Alert = ({
       >
         {children}
         <StyledView flexGrow={1} />
-        <StyledTouchableOpacity width={20} onPress={onClose}>
+        <StyledTouchableOpacity
+          width={20}
+          marginLeft={screenPercentageToDP(2, Orientation.Width)}
+          onPress={onClose}
+        >
           <CrossIcon fill={color} size={screenPercentageToDP(3, Orientation.Width)} />
         </StyledTouchableOpacity>
       </StyledView>

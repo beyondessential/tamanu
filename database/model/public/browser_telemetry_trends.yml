@@ -1,0 +1,166 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: browser_telemetry_trends
+        description: "{{ doc('table__browser_telemetry_trends') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers:
+              - set_browser_telemetry_trends_updated_at
+              - set_browser_telemetry_trends_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in browser_telemetry_trends."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in browser_telemetry_trends."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in browser_telemetry_trends."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in browser_telemetry_trends."
+          - name: bucket_start
+            data_type: timestamp with time zone
+            description: "{{ doc('browser_telemetry_trends__bucket_start') }}"
+            data_tests:
+              - not_null
+          - name: bucket_minutes
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__bucket_minutes') }}"
+            data_tests:
+              - not_null
+          - name: interface
+            data_type: text
+            description: "{{ doc('browser_telemetry_trends__interface') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: facility_id
+            data_type: text
+            description: "{{ doc('browser_telemetry_trends__facility_id') }}"
+            config:
+              meta:
+                masking: text
+          - name: kind
+            data_type: text
+            description: "{{ doc('browser_telemetry_trends__kind') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: route
+            data_type: text
+            description: "{{ doc('browser_telemetry_trends__route') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: method
+            data_type: text
+            description: "{{ doc('browser_telemetry_trends__method') }}"
+            config:
+              meta:
+                masking: text
+          - name: app_version
+            data_type: text
+            description: "{{ doc('browser_telemetry_trends__app_version') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: event_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__event_count') }}"
+            data_tests:
+              - not_null
+          - name: successful_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__successful_count') }}"
+            data_tests:
+              - not_null
+          - name: client_error_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__client_error_count') }}"
+            data_tests:
+              - not_null
+          - name: server_error_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__server_error_count') }}"
+            data_tests:
+              - not_null
+          - name: no_response_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__no_response_count') }}"
+            data_tests:
+              - not_null
+          - name: cut_off_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__cut_off_count') }}"
+            data_tests:
+              - not_null
+          - name: settled_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__settled_count') }}"
+            data_tests:
+              - not_null
+          - name: capped_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__capped_count') }}"
+            data_tests:
+              - not_null
+          - name: abandoned_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__abandoned_count') }}"
+            data_tests:
+              - not_null
+          - name: timed_count
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__timed_count') }}"
+            data_tests:
+              - not_null
+          - name: total_duration_ms
+            data_type: bigint
+            description: "{{ doc('browser_telemetry_trends__total_duration_ms') }}"
+            data_tests:
+              - not_null
+          - name: duration_histogram
+            data_type: array
+            description: "{{ doc('browser_telemetry_trends__duration_histogram') }}"
+            data_tests:
+              - not_null
+          - name: p50_duration_ms
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__p50_duration_ms') }}"
+          - name: p95_duration_ms
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__p95_duration_ms') }}"
+          - name: p99_duration_ms
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__p99_duration_ms') }}"
+          - name: max_duration_ms
+            data_type: integer
+            description: "{{ doc('browser_telemetry_trends__max_duration_ms') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in browser_telemetry_trends."
+            data_tests:
+              - not_null

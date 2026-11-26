@@ -82,11 +82,7 @@ const initialValues = {
   server: '',
 } as const;
 
-export const SignInForm: FunctionComponent<any> = ({
-  initialErrorMessage = '',
-  onOutdatedVersionError,
-  onSuccess,
-}) => {
+export const SignInForm: FunctionComponent<any> = ({ initialErrorMessage = '', onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
   const passwordRef = useRef(null);
@@ -100,18 +96,24 @@ export const SignInForm: FunctionComponent<any> = ({
         if (!existingHost && !values.server) {
           throw new Error('Please select a server to connect to');
         }
-        await signIn(values);
+        // Keyboards often add a trailing space after an autocomplete suggestion
+        await signIn({ ...values, email: values.email.trim() });
         onSuccess();
       } catch (error) {
-        if (error instanceof OutdatedVersionError) {
-          onOutdatedVersionError(error);
-        } else {
-          const message = getLoginErrorMessage(error);
-          setErrorMessage(message);
+        // Without an update address the app is too new for its server, which no update can fix
+        if (error instanceof OutdatedVersionError && !error.updateUrl) {
+          setErrorMessage(
+            getTranslation(
+              'login.error.incompatibleVersion',
+              'This version of Tamanu is not compatible with your server. Please contact your system administrator.',
+            ),
+          );
+          return;
         }
+        setErrorMessage(getLoginErrorMessage(error));
       }
     },
-    [existingHost, signIn, onOutdatedVersionError, onSuccess],
+    [existingHost, signIn, onSuccess, getTranslation],
   );
 
   useEffect(() => {
@@ -130,6 +132,7 @@ export const SignInForm: FunctionComponent<any> = ({
       validateOnBlur={false}
       validationSchema={Yup.object().shape({
         email: Yup.string()
+          .trim()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
           .required(getTranslation('validation.required.inline', '*Required')),
         password: Yup.string().required(getTranslation('validation.required.inline', '*Required')),
