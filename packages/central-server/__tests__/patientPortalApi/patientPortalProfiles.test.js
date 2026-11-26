@@ -244,6 +244,34 @@ describe('Patient Portal profiles', () => {
     expect(select.status).toBe(401);
   });
 
+  it('ends a session once the patient loses portal access', async () => {
+    const familyEmail = 'removing-family@test.com';
+    const parent = await createPortalUser({
+      email: familyEmail,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+    const child = await createPortalUser({
+      email: familyEmail,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+    const parentToken = await loginAs(parent, familyEmail);
+    const select = await baseApp
+      .post(`/api/portal/profiles/${child.id}/select`)
+      .set('Authorization', `Bearer ${parentToken}`);
+    expect(select).toHaveSucceeded();
+
+    await child.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+
+    const me = await baseApp
+      .get('/api/portal/me')
+      .set('Authorization', `Bearer ${select.body.token}`);
+    expect(me.status).toBe(401);
+    const profiles = await baseApp
+      .get('/api/portal/profiles')
+      .set('Authorization', `Bearer ${parentToken}`);
+    expect(profiles.body.data.map(({ portalUserId }) => portalUserId)).toEqual([parent.id]);
+  });
+
   it('ends a switched-to session once that patient moves to another email', async () => {
     const familyEmail = 'switching-family@test.com';
     const parent = await createPortalUser({

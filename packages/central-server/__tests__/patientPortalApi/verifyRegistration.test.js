@@ -63,6 +63,26 @@ describe('Patient Portal Registration Verification Endpoint', () => {
 
   afterAll(async () => close());
 
+  it('refuses the link of a patient whose portal access was removed', async () => {
+    const { Patient, PortalUser } = store.models;
+    const patient = await Patient.create(fake(Patient));
+    const removedPortalUser = await PortalUser.create({
+      email: 'removed@test.com',
+      patientId: patient.id,
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      status: PORTAL_USER_STATUSES.PENDING,
+    });
+    const { token } = await oneTimeTokenService.createRegisterToken(removedPortalUser.id);
+
+    const response = await baseApp
+      .post(REGISTRATION_URL)
+      .send({ token: `${removedPortalUser.id}.${token}` });
+
+    expect(response).toHaveRequestError();
+    await removedPortalUser.reload();
+    expect(removedPortalUser.status).toBe(PORTAL_USER_STATUSES.PENDING);
+  });
+
   it('Should successfully verify registration with valid token', async () => {
     // Create a registration token
     const { token } = await oneTimeTokenService.createRegisterToken(testPortalUser.id);

@@ -31,6 +31,7 @@ Applies to the patient portal, where a patient signs in on their own phone or co
 - Switching profile keeps the session's original expiry, and every portal tab on the device follows the switch.
 - A registration link works whether or not someone is signed in on the device, and the patient it registers joins Select profile straight away.
 - Staff can register a patient with an email another patient already uses. Moving a registered patient to a different email makes them register again from the new email's link. A session on a patient ends once that patient is moved to another email.
+- Staff can remove a patient's portal access from Patient portal registration. The patient no longer appears for their email, any session on them ends, and their unused registration link stops working. Sending a new registration link gives access again once it is opened.
 
 ## Dashboard
 

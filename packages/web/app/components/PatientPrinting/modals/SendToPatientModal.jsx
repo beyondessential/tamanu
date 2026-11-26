@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
-import { Alert, FormSubmitCancelRow, TranslatedText } from '@tamanu/ui-components';
-import { useRegisterPatientPortal } from '../../../api/mutations';
+import { Alert, FormSubmitCancelRow, TextButton, TranslatedText } from '@tamanu/ui-components';
+import { useRegisterPatientPortal, useRemovePatientPortalAccess } from '../../../api/mutations';
+import { ConfirmModal } from '../../ConfirmModal';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { FormModal } from '../../FormModal';
 import { ModalGenericButtonRow } from '../../ModalActionRow';
@@ -19,6 +20,67 @@ const SubText = styled(Typography)`
   margin: 10px 0 20px;
   font-size: 14px;
 `;
+
+const RemoveAccessButton = styled(TextButton)`
+  margin-block-end: 10px;
+`;
+
+const RemoveAccess = ({ patient, onRemoved }) => {
+  const [isConfirming, setIsConfirming] = useState(false);
+  const { mutate: removeAccess } = useRemovePatientPortalAccess(patient.id, {
+    onSuccess: () => {
+      toast.success(
+        <TranslatedText
+          stringId="patientDetails.resources.patientPortalRegistration.modal.remove.success"
+          fallback="Patient portal access removed"
+        />,
+      );
+      onRemoved();
+    },
+    onError: error => toast.error(error.message),
+  });
+
+  return (
+    <>
+      <RemoveAccessButton onClick={() => setIsConfirming(true)}>
+        <TranslatedText
+          stringId="patientDetails.resources.patientPortalRegistration.modal.remove.action"
+          fallback="Remove portal access"
+        />
+      </RemoveAccessButton>
+      <ConfirmModal
+        open={isConfirming}
+        onCancel={() => setIsConfirming(false)}
+        onConfirm={() => removeAccess()}
+        title={
+          <TranslatedText
+            stringId="patientDetails.resources.patientPortalRegistration.modal.remove.title"
+            fallback="Remove portal access"
+          />
+        }
+        text={
+          <TranslatedText
+            stringId="patientDetails.resources.patientPortalRegistration.modal.remove.text"
+            fallback="Remove this patient's access to the patient portal?"
+          />
+        }
+        subText={
+          <TranslatedText
+            stringId="patientDetails.resources.patientPortalRegistration.modal.remove.subText"
+            fallback="Signing in with :email will no longer show this patient. Send a new registration link to give access again."
+            replacements={{ email: patient.portalUser.email }}
+          />
+        }
+        confirmButtonText={
+          <TranslatedText
+            stringId="patientDetails.resources.patientPortalRegistration.modal.remove.confirm"
+            fallback="Remove access"
+          />
+        }
+      />
+    </>
+  );
+};
 
 export const SendToPatientModal = ({ patient }) => {
   const [open, setOpen] = useState(true);
@@ -75,6 +137,7 @@ export const SendToPatientModal = ({ patient }) => {
         </Text>
       )}
 
+      {patient?.portalUser && <RemoveAccess patient={patient} onRemoved={onClose} />}
       <SubText>
         <TranslatedText
           stringId="patientDetails.resources.patientPortalRegistration.modal.subText"

@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { JWT_TOKEN_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { SERVER_TYPES } from '@tamanu/constants/servers';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError } from '@tamanu/errors';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
@@ -51,6 +52,10 @@ export const patientPortalMiddleware = ({ secret }) =>
       throw new BadAuthenticationError(
         `Portal user specified in token (${portalUserId}) does not exist`,
       );
+    }
+
+    if (portalUser.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new BadAuthenticationError('Portal access has been removed');
     }
 
     const sessionEmail = contents.payload.email ?? portalUser.email;

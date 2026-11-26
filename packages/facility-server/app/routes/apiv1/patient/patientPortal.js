@@ -11,6 +11,7 @@ import {
   COMMUNICATION_STATUSES,
   PORTAL_SURVEY_ASSIGNMENTS_STATUSES,
   PORTAL_USER_STATUSES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { PortalSurveyAssignmentsSchema } from '@tamanu/shared/schemas/facility/responses/portalSurveyAssignments.schema';
 import { SendPortalFormRequestSchema } from '@tamanu/shared/schemas/facility/requests/sendPortalForm.schema';
@@ -34,14 +35,14 @@ const registerPatient = async ({ patientId, email, models }) => {
     return [await models.PortalUser.create({ patientId, email })];
   }
 
-  if (portalUser.email !== email) {
-    // A new address only signs in to this patient once its own registration link is opened
-    if (portalUser.email.toLowerCase() !== email.toLowerCase()) {
-      portalUser.status = PORTAL_USER_STATUSES.PENDING;
-    }
-    portalUser.email = email;
-    await portalUser.save();
+  // A new address, or access that was removed, only signs in once its own registration link is opened
+  const isRemoved = portalUser.visibilityStatus !== VISIBILITY_STATUSES.CURRENT;
+  if (isRemoved || portalUser.email.toLowerCase() !== email.toLowerCase()) {
+    portalUser.status = PORTAL_USER_STATUSES.PENDING;
   }
+  portalUser.visibilityStatus = VISIBILITY_STATUSES.CURRENT;
+  portalUser.email = email;
+  await portalUser.save();
 
   return [portalUser];
 };
@@ -97,7 +98,7 @@ patientPortal.get(
     const patient = await getPatientOrThrow({ models, patientId });
 
     const portalUser = await models.PortalUser.findOne({
-      where: { patientId: patient.id },
+      where: { patientId: patient.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
     if (!portalUser) {
@@ -142,6 +143,28 @@ patientPortal.post(
   }),
 );
 
+patientPortal.delete(
+  '/:id/portal',
+  asyncHandler(async (req, res) => {
+    // Whoever can register a patient can already move them off an email, so removal needs no more
+    req.checkPermission('create', 'PatientPortalRegistration');
+
+    const { models } = req;
+    const { id: patientId } = req.params;
+
+    await getPatientOrThrow({ models, patientId });
+    const portalUser = await models.PortalUser.findOne({
+      where: { patientId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+    if (!portalUser) {
+      throw new NotFoundError('Patient has no portal access');
+    }
+
+    await portalUser.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+    res.send({ hasPortalAccount: false });
+  }),
+);
+
 patientPortal.post(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
@@ -158,7 +181,7 @@ patientPortal.post(
     }
 
     const portalUser = await models.PortalUser.findOne({
-      where: { patientId },
+      where: { patientId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
     // Handle user registration and email sending

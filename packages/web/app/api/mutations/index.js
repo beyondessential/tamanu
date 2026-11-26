@@ -16,6 +16,7 @@ export {
 export { useLocationAssignmentDeleteMutation } from './useLocationAssignmentDeleteMutation';
 export { useDeleteProcedureMutation } from './useDeleteProcedureMutation';
 export { useRegisterPatientPortal } from './useRegisterPatientPortal';
+export { useRemovePatientPortalAccess } from './useRemovePatientPortalAccess';
 export { useTogglePermissionMutation } from './usePermissionMutation';
 export {
   useGenerateAiPatientSummary,
