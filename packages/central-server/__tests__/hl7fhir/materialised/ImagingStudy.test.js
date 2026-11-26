@@ -449,6 +449,9 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           order: [['createdAt', 'ASC']],
         });
 
+      // Each row is a result a link-only study must leave alone. The first is the reported case;
+      // the others each differ from an earlier link-only study's result in one field only, so
+      // each fails if the lookup stops checking that field.
       it.each([
         [
           'entered by hand with a completing clinician',
@@ -460,6 +463,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           },
         ],
         [
+          // no link
           'entered by hand without a completing clinician',
           {
             description: 'Report written without a clinician',
@@ -469,6 +473,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           },
         ],
         [
+          // an accession number
           'recorded under an Accession Number',
           {
             description: 'Report recorded under an accession number',
@@ -478,7 +483,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           },
         ],
         [
-          'completed by a clinician that an earlier study wrote a link onto',
+          // a completing clinician
+          'with a completing clinician and a link an earlier study wrote onto it',
           {
             description: 'Report with a link written by an earlier study',
             resultImageUrl: 'http://example.com/earlier-study-link',
