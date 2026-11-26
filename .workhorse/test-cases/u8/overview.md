@@ -1,6 +1,6 @@
 # Test cases: link-only ImagingStudy and manual imaging results
 
-All cases post a FHIR ImagingStudy with a contained Endpoint and no accession number identifier to central, against a request that already has results. Automated in `packages/central-server/__tests__/hl7fhir/materialised/ImagingStudy.test.js`. Verifies spec: IMGR.
+Cases post a FHIR ImagingStudy to central, most with a contained Endpoint and no accession number identifier, against a request that already has results. Automated in `packages/central-server/__tests__/hl7fhir/materialised/ImagingStudy.test.js`. Verifies spec: IMGR.
 
 ## Manual results are left alone
 
@@ -17,6 +17,13 @@ All cases post a FHIR ImagingStudy with a contained Endpoint and no accession nu
 - [x] A request has a result recorded under an accession number, with a link. Post a link-only study. The accession result keeps its description, link and accession number, and a second result is added.
 - [x] A request has a result recorded under an accession number. Post a study with the same accession number. That result's description is updated (existing test, unchanged behaviour).
 - [x] A request has no results. Post a link-only study. One result is created with the link and notes (existing test, unchanged behaviour).
+
+## What a study records
+
+- [x] A request is pending. Post a study with a link. The request's status becomes Completed.
+- [x] A request has no results. Post a study with a link and a start time. The result's Completed is the study's start time.
+- [x] A request has no results. Post a study with a link and no start time. The result's Completed is the time the study arrived.
+- [x] A request has a result recorded under an accession number, with a description and a link. Post a study with the same accession number and neither report text nor a link. The result keeps its description and link.
 
 ## Manual check on a deployment
 

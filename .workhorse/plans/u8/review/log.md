@@ -88,4 +88,46 @@ Checkpoint: eslint and prettier clean; ImagingStudy and transaction bundle tests
 
 ## Round 4
 
-Security, design, BES Requirements and Integration tests with the ledger. In flight.
+Security, design, BES Requirements and Integration tests with the ledger, head 7a3fae793c. Found after triage: 0 critical, 2 suggestions, 3 nits. Clean. No finding matched a rejection.
+
+| Finding | Raised by | Severity | Decision |
+|---|---|---|---|
+| A study sent again without a note or link writes NULL over the stored description and link | security (as critical) | not counted | Wrong: checked against the database, an undefined value is left out of the UPDATE and the stored value is kept. Rejected. |
+| Spec says an update keeps the earlier description and link, with no test, and falsely for an empty note list | design, BES, Integration tests | suggestion | Fixed in 8d9d7cff04 by cutting the bullet back to what an update replaces. Round 5 found that too thin; see there. |
+| A blank accession number is stored as an empty string, so each re-send adds a duplicate | security (as nit) | suggestion | Fixed in 56c968a253, with a test that failed first (two results where one was expected). Rated up because the diff introduced it. |
+| "Accession number" and "imaging study" undefined in the spec | design | nit | Fixed in 8d9d7cff04: Borrowed terms section, links checked against hl7.org. |
+| No test that an accession study leaves a link-only result alone | Integration tests | nit | Skipped: the accession branch matches as it did before the change. |
+| Link-only block never asserts the request's status | Integration tests | nit | Skipped here on a reason that was wrong (no existing test checks the status). Reopened and fixed in round 5. |
+
+The test for the blank accession number reached the branch one commit before its fix: the turn ended while the fixer was mid-way, and the turn-end commit (d6ec32ba85, titled as a log entry) took the test with it. The fix followed in 56c968a253. Both are pushed; the history was not rewritten.
+
+Checkpoint: eslint and prettier clean; ImagingStudy and transaction bundle tests 36 of 36. Test runs were slow in this round (over ten minutes each for the fixer) because of other cards' test runs on the same machine.
+
+## Round 5
+
+Fresh eyes: all six reviewers, briefed cold with the diff, the base conventions and the purpose of the change, and no ledger, earlier findings or rejections. Head 56c968a253. Found after triage: 0 critical, 2 suggestions, 3 nits. Clean, and the second clean round in a row, so the loop stops here, at its cap of five rounds.
+
+Bugs, performance, BES Requirements and Integration tests came back with nothing.
+
+| Finding | Raised by | Severity | Decision |
+|---|---|---|---|
+| Runbook does not cover results the old lookup already overwrote | security (suggestion) | not counted | Matches the rejection recorded in round 2 as needing a card. Not filed again. The rejected finding carries no file only because it could not be filed at a line an open issue held; its text names the same runbook. |
+| Endpoint address not checked for its scheme | security (nit) | not counted | Matches the rejection recorded in round 1 as needing a card. Not filed again. The reviewer names the schema file where the rejected finding names the line that reads the address; the concern is the same one. |
+| Two spec criteria untested: the result's Completed time, the request becoming Completed | design | suggestion | Fixed in c5b5c96540: three cases. |
+| Spec does not say what an update does when the study carries no link or text | design | suggestion | Fixed in c5b5c96540 (a case) and 1d413c240a (the bullet). The reviewer's claim that the stored value is emptied is the one rejected in round 4; the new case shows it is kept. |
+| Two different link-only studies on one request overwrite each other | security | nit | Skipped: unchanged by this fix, and matching on the stored link would turn an amended study into a duplicate. Put to the user. |
+| Hand-entered guarantee names the description and Completed by but not the link | design | nit | Fixed in 1d413c240a. |
+| Test helper's name and defaults | design | nit | Fixed in c5b5c96540. |
+
+The bullet on what an update changes drew a finding in rounds 3, 4 and 5: stated without a test, then cut back, then found to leave the question open. It now says both halves and a test pins the half that rests on how the ORM treats a missing value. What it still does not cover is a study that sends an empty list of notes, which empties the description; no reviewer in round 5 raised it.
+
+Re-check of the round 5 test fixes, by the orchestrator: with the line that completes the request removed, the Completed time taken from the clock regardless of the study, and missing values written as null on update, exactly three cases fail, the three that name those rules. With the arrival-time fallback set to a fixed date, exactly one case fails, the one that names it. Model file restored after each.
+
+Checkpoint: eslint and prettier clean; ImagingStudy and transaction bundle tests 40 of 40. The first run of this checkpoint failed before any test ran, on two test workers creating the same database at once; the rerun passed.
+
+The fixes made after round 5 have been re-checked and tested but not reviewed by a further round.
+
+## Not verified
+
+- Typecheck. The installed TypeScript rejects the repository's tsconfig (`es2025` for module and lib). Run with those two overridden, the only errors in `FhirImagingStudy.ts` are four unresolved workspace imports that the file had before the change.
+- The manual check on a deployment in the card's test cases.
