@@ -19,7 +19,7 @@ One of:
 - Email
 - Sms
 - WhatsApp
-- Telegram
+- Telegram (older rows only)
 {% enddocs %}
 
 {% docs patient_communications__subject %}
