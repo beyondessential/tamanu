@@ -52,7 +52,8 @@ const renderAuth = async api => {
       </QueryClientProvider>
     ),
   });
-  await waitFor(() => expect(result.current.isRestoring).toBe(false));
+  // Nothing under the provider renders until the stored session is restored
+  await waitFor(() => expect(result.current).not.toBeNull());
   return result;
 };
 
@@ -69,7 +70,19 @@ const endings = [
 ];
 
 describe('AuthProvider', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    // Node's own localStorage global shadows jsdom's, and is undefined without a storage file
+    const items = new Map();
+    vi.stubGlobal('localStorage', {
+      getItem: key => items.get(key) ?? null,
+      setItem: (key, value) => items.set(key, value),
+      removeItem: key => items.delete(key),
+    });
+  });
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
 
   it('restores a stored session, then listens for the server ending it', async () => {
     const api = createApi({ restoreSession: vi.fn(async () => buildLoginInfo()) });

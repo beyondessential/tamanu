@@ -87,18 +87,17 @@ export function resolveNavigationRoute(pathname) {
 // changes. That is usually a path change, but `App` also swaps the login and
 // facility-selection screens in on the *same* URL, so the real page load only
 // begins once those gates clear — without them as dependencies the post-login
-// load would never start a navigation and all its requests would be dropped. While a stored
-// session is being restored, the page being shown isn't known yet, so none starts.
+// load would never start a navigation and all its requests would be dropped.
 export const TelemetryRouteListener = () => {
   const location = useLocation();
-  const { currentUser, facilityId, isRestoring } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const isUserLoggedIn = Boolean(currentUser);
   const isFacilitySelected = Boolean(facilityId);
   useEffect(() => {
-    if (!telemetry || isRestoring) return;
+    if (!telemetry) return;
     const { route, pathParams } = resolveNavigationRoute(location.pathname);
     const query = Object.fromEntries(new URLSearchParams(location.search));
     telemetry.startNavigation(route, pathParams, query);
-  }, [location.pathname, location.search, isUserLoggedIn, isFacilitySelected, isRestoring]);
+  }, [location.pathname, location.search, isUserLoggedIn, isFacilitySelected]);
   return null;
 };

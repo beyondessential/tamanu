@@ -37,7 +37,7 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const { data: serverStatus, isLoading } = useCheckServerAliveQuery();
   const isServerAlive = Boolean(serverStatus);
-  const { currentUser, facilityId, serverType, isRestoring } = useAuth();
+  const { currentUser, facilityId, serverType } = useAuth();
   const isUserLoggedIn = Boolean(currentUser);
   const isFacilitySelected = Boolean(facilityId);
   const location = useLocation();
@@ -73,7 +73,6 @@ export function App({ sidebar, children }) {
   if (serverStatus?.setupRequired) return <SetupWizardView />;
   // spec: FSETUP#setting-up-screen
   if (serverStatus?.isSettingUp) return <SettingUpStatusPage />;
-  if (isRestoring) return <LoadingStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 

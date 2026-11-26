@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { getLoginErrorMessage } from '@tamanu/errors';
@@ -34,6 +40,28 @@ const INITIAL_STATE = {
 const SESSION_EXPIRED_MESSAGE = 'Your session has expired. Please log in again.';
 const IDLE_TIMEOUT_MESSAGE = 'You have been logged out due to inactivity';
 
+// The auth state is read with useSyncExternalStore, so an update renders at sync priority, before
+// code awaiting the step that made it carries on. Code that can't wait for a render at all (a
+// request settling after the session changed, a navigation blocker checked in the same tick as a
+// sign-out) reads the latest state from the store directly.
+const createAuthStore = () => {
+  let state = INITIAL_STATE;
+  const listeners = new Set();
+  return {
+    getState: () => state,
+    subscribe: listener => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    update: changes => {
+      state = { ...state, ...changes };
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+  };
+};
+
 // Match backend logic: when impersonating, retain ability to read/write own User record
 const buildImpersonationAbility = (permissions, userId) =>
   buildAbility([
@@ -47,17 +75,12 @@ export const AuthProvider = ({ children }) => {
   const queries = useQueryClient();
   const navigate = useNavigate();
 
-  const [auth, setAuth] = useState(INITIAL_STATE);
-  // The latest auth state, for reads that can't wait for a re-render: a request that settles after
-  // the session changed, and a navigation blocker checked in the same tick as a sign-out
-  const latestAuth = useRef(INITIAL_STATE);
-  const updateAuth = useCallback(changes => {
-    latestAuth.current = { ...latestAuth.current, ...changes };
-    setAuth(latestAuth.current);
-  }, []);
+  const [store] = useState(createAuthStore);
+  const auth = useSyncExternalStore(store.subscribe, store.getState);
+  const { getState: getAuth, update: updateAuth } = store;
   const [isRestoring, setIsRestoring] = useState(true);
 
-  const checkIsLoggedIn = useCallback(() => Boolean(latestAuth.current.user), []);
+  const checkIsLoggedIn = useCallback(() => Boolean(getAuth().user), [getAuth]);
 
   const selectFacility = useCallback(
     async facilityId => {
@@ -86,10 +109,13 @@ export const AuthProvider = ({ children }) => {
       impersonatedRole,
       primaryTimeZone,
     }) => {
-      const onlyFacilityId = availableFacilities?.length === 1 ? availableFacilities[0].id : null;
-      const facilityIdToSelect = facilityId ?? onlyFacilityId;
-      if (facilityIdToSelect) {
-        await selectFacility(facilityIdToSelect);
+      if (facilityId) {
+        await selectFacility(facilityId);
+      } else {
+        const onlyFacilityId = availableFacilities?.length === 1 ? availableFacilities[0].id : null;
+        if (onlyFacilityId) {
+          await selectFacility(onlyFacilityId);
+        }
       }
 
       if (settings) {
@@ -97,13 +123,11 @@ export const AuthProvider = ({ children }) => {
       }
 
       systemErrorStore.clear();
-      const isImpersonating = Boolean(impersonatedRole) && user.role === 'admin';
       updateAuth({
         user,
         lastUserEmail: user.email,
         primaryTimeZone,
-        ability: isImpersonating ? buildImpersonationAbility(permissions, user.id) : ability,
-        impersonatingRole: isImpersonating ? impersonatedRole : null,
+        ability,
         availableFacilities,
         error: null,
         token,
@@ -111,6 +135,13 @@ export const AuthProvider = ({ children }) => {
         server,
         role,
       });
+
+      if (impersonatedRole && user.role === 'admin') {
+        updateAuth({
+          impersonatingRole: impersonatedRole,
+          ability: buildImpersonationAbility(permissions, user.id),
+        });
+      }
     },
     [selectFacility, updateAuth],
   );
@@ -142,21 +173,21 @@ export const AuthProvider = ({ children }) => {
   const refreshSettings = useCallback(async () => {
     // Best-effort: the next change event or login will reconcile if this fails.
     // The admin panel's session has no facility, and reads central's settings.
-    const { user: userAtStart, facilityId: facilityIdAtStart } = latestAuth.current;
+    const { user: userAtStart, facilityId: facilityIdAtStart } = getAuth();
     try {
       const settings = await api.fetchFrontEndSettings(facilityIdAtStart);
       if (!settings) return;
       // If the user switched facility or logged out while the request was in flight,
       // the response is for the previous session - drop it so we don't clobber the
       // freshly-loaded (or freshly-cleared) settings in state/localStorage.
-      const { user, facilityId } = latestAuth.current;
+      const { user, facilityId } = getAuth();
       if (user !== userAtStart || facilityId !== facilityIdAtStart) return;
       api.persistSettings(settings);
       updateAuth({ settings });
     } catch (e) {
       // ignore
     }
-  }, [api, updateAuth]);
+  }, [api, getAuth, updateAuth]);
 
   // spec: BTEL
   // Every way out of a session (logout, idle timeout, auth failure, incompatible version) ends
@@ -179,19 +210,19 @@ export const AuthProvider = ({ children }) => {
   const startImpersonation = useCallback(
     async role => {
       const { token, permissions } = await api.post('admin/impersonate', { roleId: role.id });
-      const ability = buildImpersonationAbility(permissions, latestAuth.current.user.id);
+      const ability = buildImpersonationAbility(permissions, getAuth().user.id);
       api.setToken(token);
       updateAuth({ impersonatingRole: role, ability });
     },
-    [api, updateAuth],
+    [api, getAuth, updateAuth],
   );
 
   const stopImpersonation = useCallback(async () => {
     const { token, permissions } = await api.post('admin/impersonate', { roleId: null });
-    const ability = buildAbilityForUser(latestAuth.current.user, permissions);
+    const ability = buildAbilityForUser(getAuth().user, permissions);
     api.setToken(token);
     updateAuth({ impersonatingRole: null, ability });
-  }, [api, updateAuth]);
+  }, [api, getAuth, updateAuth]);
 
   useEffect(() => {
     void (async () => {
@@ -245,7 +276,6 @@ export const AuthProvider = ({ children }) => {
       serverType: auth.server?.type,
       settings: auth.settings,
       token: auth.token,
-      isRestoring,
       checkIsLoggedIn,
       login,
       selectFacility,
@@ -259,7 +289,6 @@ export const AuthProvider = ({ children }) => {
     }),
     [
       auth,
-      isRestoring,
       checkIsLoggedIn,
       login,
       selectFacility,
@@ -273,7 +302,12 @@ export const AuthProvider = ({ children }) => {
     ],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {/* Nothing renders until the stored session is restored, so index.html's spinner stays */}
+      {isRestoring ? <div id="temp-loading-container" /> : children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useAuthFromUi();

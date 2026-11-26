@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
+import { useAuth } from '../contexts/Auth';
 import { ContentPane } from './ContentPane';
 import { TranslatedText } from './Translation/TranslatedText';
 
@@ -15,10 +16,15 @@ const DebugInfo = styled.pre`
 `;
 
 export const ErrorView = React.memo(({ error }) => {
+  const auth = useAuth();
   const logError = useCallback(() => {
     // eslint-disable-next-line no-console
     console.log(error);
   }, [error]);
+  const logState = useCallback(() => {
+    // eslint-disable-next-line no-console
+    console.log({ auth });
+  }, [auth]);
 
   return (
     <ContentPane data-testid="contentpane-3cof">
@@ -55,6 +61,16 @@ export const ErrorView = React.memo(({ error }) => {
       </p>
       <DebugInfo onClick={logError} data-testid="debuginfo-dnuz">
         {error.stack}
+      </DebugInfo>
+      <p>
+        <TranslatedText
+          stringId="error.boundary.state"
+          fallback="The contents of the application state are:"
+          data-testid="translatedtext-error-state"
+        />
+      </p>
+      <DebugInfo onClick={logState} data-testid="debuginfo-w6d2">
+        {JSON.stringify({ auth }, null, 2)}
       </DebugInfo>
     </ContentPane>
   );

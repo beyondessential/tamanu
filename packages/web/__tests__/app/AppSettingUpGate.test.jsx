@@ -16,7 +16,6 @@ vi.mock('../../app/contexts/Auth', () => ({
     currentUser: state.isLoggedIn ? { id: 'user-1' } : null,
     facilityId: state.isFacilitySelected ? 'facility-1' : null,
     serverType: SERVER_TYPES.FACILITY,
-    isRestoring: false,
   }),
 }));
 vi.mock('../../app/api/queries/useCheckServerAliveQuery', () => ({
