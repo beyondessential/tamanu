@@ -17,7 +17,6 @@ export * from './usePatientConditionsQuery';
 export * from './usePatientProgramRegistrationQuery';
 export * from './useTranslationsQuery';
 export * from './useTranslationLanguagesQuery';
-export * from './useTelegramBotInfoQuery';
 export * from './useChartSurveysQuery';
 export * from './useEncounterChartsQuery';
 export * from './useSurveyResponseQuery';

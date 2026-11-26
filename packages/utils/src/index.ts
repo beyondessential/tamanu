@@ -19,3 +19,4 @@ export {
   type ProgramRegistryConditionOptions,
 } from './programRegistryConditions';
 export { keepSocketConnected } from './keepSocketConnected';
+export { createCalculationPreparer } from './calculationExpression';
