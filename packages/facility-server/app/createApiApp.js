@@ -1,4 +1,3 @@
-import config from 'config';
 import defineExpress from 'express';
 import helmet from 'helmet';
 
@@ -58,7 +57,11 @@ export async function createApiApp({
     models,
     app: express,
   });
-  const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
+  const websocketClientService = defineWebsocketClientService({
+    deviceId,
+    websocketService,
+    models,
+  });
 
   express.use(
     helmet({

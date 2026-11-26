@@ -40,12 +40,16 @@ Applies to the listing, under the Facility admin section of the sidebar, of pati
 - The search bar shows Patient ID, First name, Last name, and Encounter type, in that order, with Area, Department, and Discharging clinician, in that order, under advanced search.
 - Patient ID, First name, and Last name match any part of the value, ignoring case.
 - Encounter type offers Inpatient, Outpatient, and Emergency, and matches the discharged encounter's patient status.
-- Area matches the area of the location the encounter was in when it was discharged, and suggests areas from the current facility.
-- Department matches the department the encounter was assigned to when it was discharged, and suggests departments from the current facility.
+- Area matches the area of the location the encounter was in when it was discharged.
+- Department matches the department the encounter was assigned to when it was discharged.
 - Discharging clinician matches the clinician recorded as discharging the encounter.
+- Area, Department, and Discharging clinician suggest the values recorded on the discharges in the window, including areas and departments since made inactive and clinicians since deactivated.
 - Search applies to every discharge in the window before each patient's most recent one is picked. A patient whose most recent discharge doesn't match is listed for their most recent earlier discharge in the window that does.
 - Encounter type, Area, Department, and Discharging clinician are remembered for each user at each facility, so they still apply after the user leaves the view, reloads the app, or logs out and back in.
 - Patient ID, First name, and Last name are kept when the user leaves the view and returns to it, and cleared when the app is reloaded or the user logs out, since they look up a single patient.
+
+> [!NOTE]
+> The filters match what was recorded at discharge, so a department, area, or clinician retired after a discharge still has to be selectable for that discharge to be found.
 
 ## Permissions
 

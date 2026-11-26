@@ -143,6 +143,13 @@ interface LoginResponseData {
   serverType?: string;
 }
 
+// Random rather than a UUID: `crypto.randomUUID` needs a secure context, and the clinical app is
+// sometimes served over HTTP via a LAN IP, where `crypto.getRandomValues` still works.
+function mintSignInId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
 export class TamanuApi {
   #host: string;
   #prefix: string;
@@ -156,6 +163,11 @@ export class TamanuApi {
 
   lastRefreshed: number | null = null;
   user: User | null = null;
+  /**
+   * Identifies the current sign-in: minted when a user signs in, kept while they stay signed in,
+   * and cleared on sign-out, so per-session records (browser telemetry) never span two sign-ins.
+   */
+  signInId: string | null = null;
   logger: LoggerType = console;
   fetchImplementation: typeof fetch = fetch;
   telemetrySink?: TelemetrySink;
@@ -285,10 +297,18 @@ export class TamanuApi {
   ): Promise<{ user: User; ability: any }> {
     const user = (await this.get('user/me', {}, { ...config, waitForAuth: false })) as User;
     this.lastRefreshed = Date.now();
-    this.user = user;
+    this.setUser(user);
 
     const ability = buildAbilityForUser(user, permissions);
     return { user, ability };
+  }
+
+  /** Records who is signed in, or `null` on sign-out. */
+  setUser(user: User | null): void {
+    if (user?.id !== this.user?.id) {
+      this.signInId = user ? mintSignInId() : null;
+    }
+    this.user = user;
   }
 
   async requestPasswordReset(email: string): Promise<any> {
@@ -327,6 +347,10 @@ export class TamanuApi {
 
   hasToken(): boolean {
     return Boolean(this.#authToken);
+  }
+
+  getToken(): string | undefined {
+    return this.#authToken;
   }
 
   async fetch(

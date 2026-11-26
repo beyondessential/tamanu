@@ -6,27 +6,28 @@ import {
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
 } from '@tamanu/constants';
-import { omit } from 'es-toolkit';
-import { COLUMNS_EXCLUDED_FROM_SYNC } from '@tamanu/database/sync';
-import { fake } from '@tamanu/fake-data/fake';
 
-// A central that accepts the administrator, mints a sync user, and serves whatever bootstrap the
-// test sets. Subclassed rather than replaced, so the test context's own connection still builds.
-const central = vi.hoisted(() => ({ logins: [], provisions: 0, serveBootstrap: null }));
+// A central that accepts the administrator and mints a sync user, and accepts that sync user's
+// login unless the test says otherwise. Subclassed rather than replaced, so the test context's
+// own connection still builds.
+const MINTED_EMAIL = 'sync.minted@sync.tamanu';
+const central = vi.hoisted(() => ({ logins: [], provisions: 0, rejectsSyncUser: false }));
 vi.mock('@tamanu/api-client', async importOriginal => {
   const original = await importOriginal();
   class TamanuApi extends original.TamanuApi {
     async login(email, _password, { scopes } = {}) {
       central.logins.push({ email, scopes });
+      if (email === MINTED_EMAIL && central.rejectsSyncUser) {
+        throw new Error('invalid credentials');
+      }
       return { ability: { can: () => true } };
     }
 
-    async post(endpoint, body) {
+    async post(endpoint) {
       if (endpoint === 'admin/syncCredentials') {
         central.provisions += 1;
-        return { email: 'sync.minted@sync.tamanu', password: 'minted-password' };
+        return { email: MINTED_EMAIL, password: 'minted-password' };
       }
-      if (endpoint === 'sync/bootstrap') return central.serveBootstrap(body);
       throw new Error(`Unexpected request to ${endpoint}`);
     }
   }
@@ -43,38 +44,27 @@ vi.mock('../../app/serverConfig', async importOriginal => ({
 const { createTestContext } = await import('../utilities');
 
 const ENDPOINT = '/api/public/setup/sync';
-const FACILITY_ID = 'setup-bootstrap-facility';
+const FACILITY_ID = 'setup-sync-credentials-facility';
 
 // spec: FSETUP#setup-wizard
-describe('setup wizard bootstrap', () => {
+describe('setup wizard sync credentials', () => {
   let ctx;
   let baseApp;
   let models;
 
   const submit = () =>
     baseApp.post(ENDPOINT).send({
-      host: 'https://central.bootstrap.example.com',
+      host: 'https://central.setup.example.com',
       email: 'admin@example.com',
       password: 'sup3r-secret-pw',
       facilityIds: [FACILITY_ID],
     });
-
-  const facilityRecord = () => ({
-    recordType: 'facilities',
-    recordId: FACILITY_ID,
-    isDeleted: false,
-    data: omit(
-      fake(models.Facility, { id: FACILITY_ID, name: FACILITY_ID }),
-      COLUMNS_EXCLUDED_FROM_SYNC,
-    ),
-  });
 
   const resetConfiguration = async () => {
     for (const fact of [FACT_CENTRAL_HOST, FACT_SYNC_EMAIL, FACT_FACILITY_IDS]) {
       await models.LocalSystemFact.set(fact, null);
     }
     await models.LocalSystemSecret.destroy({ where: { key: FACT_SYNC_PASSWORD }, force: true });
-    await models.Facility.destroy({ where: { id: FACILITY_ID }, force: true });
   };
 
   beforeAll(async () => {
@@ -85,6 +75,7 @@ describe('setup wizard bootstrap', () => {
   beforeEach(async () => {
     central.logins.length = 0;
     central.provisions = 0;
+    central.rejectsSyncUser = false;
     await resetConfiguration();
   });
   afterAll(async () => {
@@ -92,25 +83,20 @@ describe('setup wizard bootstrap', () => {
     await ctx.close();
   });
 
-  it('logs in as the minted sync user and saves its bootstrap with the configuration', async () => {
-    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
-
+  it('logs in as the minted sync user before saving the configuration', async () => {
     const result = await submit();
 
     expect(result).toHaveSucceeded();
     expect(central.logins).toContainEqual({
-      email: 'sync.minted@sync.tamanu',
+      email: MINTED_EMAIL,
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
-    expect(central.serveBootstrap).toHaveBeenCalledWith({ facilityIds: [FACILITY_ID] });
-    expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBe('sync.minted@sync.tamanu');
-    expect(await models.Facility.findByPk(FACILITY_ID)).not.toBeNull();
+    expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBe(MINTED_EMAIL);
   });
 
   // isServerConfigured is mocked false throughout, as it is on an API process that did not
   // handle the first submit.
   it('does not provision again when another process has already configured the server', async () => {
-    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
     expect(await submit()).toHaveSucceeded();
 
     const result = await submit();
@@ -120,16 +106,14 @@ describe('setup wizard bootstrap', () => {
   });
 
   it('completes on a server holding a sync email but no facilities', async () => {
-    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
     await models.LocalSystemFact.set(FACT_SYNC_EMAIL, 'legacy-admin@example.com');
 
     expect(await submit()).toHaveSucceeded();
 
-    expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBe('sync.minted@sync.tamanu');
+    expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBe(MINTED_EMAIL);
   });
 
   it('stops asking for setup once another process has configured the server', async () => {
-    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord()] }));
     const setupRequired = async () => (await baseApp.get('/api/public/ping')).body.setupRequired;
     expect(await setupRequired()).toBe(true);
 
@@ -138,37 +122,15 @@ describe('setup wizard bootstrap', () => {
     expect(await setupRequired()).toBe(false);
   });
 
-  it('stays unconfigured when the bootstrap cannot be fetched', async () => {
-    central.serveBootstrap = vi.fn(async () => {
-      throw new Error('central unreachable');
-    });
+  it('stays unconfigured when central refuses the minted sync user', async () => {
+    central.rejectsSyncUser = true;
 
     const result = await submit();
 
     expect(result.status).toBe(502);
     expect(result.body.error.message).toBe(
-      "Could not load this facility's data from the central server",
+      'Could not log in to the central server with the new sync credentials',
     );
     expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBeNull();
-  });
-
-  it('stays unconfigured when the bootstrap cannot be saved', async () => {
-    const orphan = {
-      recordType: 'user_facilities',
-      recordId: 'orphaned-user-facility',
-      isDeleted: false,
-      data: {
-        id: 'orphaned-user-facility',
-        userId: 'a-user-not-in-the-bootstrap',
-        facilityId: 'a-facility-not-in-the-bootstrap',
-      },
-    };
-    central.serveBootstrap = vi.fn(async () => ({ records: [facilityRecord(), orphan] }));
-
-    const result = await submit();
-
-    expect(result).not.toHaveSucceeded();
-    expect(await models.LocalSystemFact.get(FACT_SYNC_EMAIL)).toBeNull();
-    expect(await models.Facility.findByPk(FACILITY_ID)).toBeNull();
   });
 });

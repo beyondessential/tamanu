@@ -202,6 +202,7 @@ export function AiFormBuilderView() {
         const body = {
           async: true,
           sessionId: state.sessionId,
+          programId: selectedProgramId,
           programDefinition: generatedForm ?? undefined,
           message: [
             selectedProgramCode

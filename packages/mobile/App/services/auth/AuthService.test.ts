@@ -2,7 +2,12 @@ import { CentralServerConnection } from '../sync';
 import { AuthService } from './AuthService';
 import { MODELS_MAP } from '~/models/modelsMap';
 import { readConfig } from '~/services/config';
-import { AuthenticationError, invalidUserCredentialsMessage } from '../error';
+import {
+  AuthenticationError,
+  invalidUserCredentialsMessage,
+  signInOnlineFirstMessage,
+} from '../error';
+import { compare } from './bcrypt';
 
 jest.mock('../sync/CentralServerConnection', () => ({
   CentralServerConnection: jest.fn().mockImplementation(() => ({
@@ -14,6 +19,11 @@ jest.mock('../sync/CentralServerConnection', () => ({
     clearToken: jest.fn(),
     clearRefreshToken: jest.fn(),
   })),
+}));
+
+jest.mock('./bcrypt', () => ({
+  compare: jest.fn(),
+  hash: jest.fn(),
 }));
 
 jest.mock('~/services/config', () => ({
@@ -73,6 +83,25 @@ describe('AuthService', () => {
       const { email } = findOne.mock.calls[0][0].where;
       expect(email.objectLiteralParameters).toEqual({ normalisedEmail: 'john@example.com' });
       expect(email.getSql('"email"')).toBe('LOWER(TRIM("email")) = :normalisedEmail');
+    });
+
+    it('should refuse a user with no permissions cached on the device', async () => {
+      (readConfig as jest.Mock).mockResolvedValue('test-facility-id');
+      (compare as jest.Mock).mockResolvedValue(true);
+      const canAccessFacility = jest.fn();
+      const user = { id: 'user-id', password: 'hashed-password', canAccessFacility };
+      const models = { ...MODELS_MAP, User: { findOne: jest.fn().mockResolvedValue(user) } };
+      authService = new AuthService(models, centralServerConnection);
+      const generateAbilityForUser = jest.fn().mockReturnValue(null);
+
+      await expect(
+        authService.localSignIn(
+          { email: 'user@example.com', password: 'password' },
+          generateAbilityForUser,
+        ),
+      ).rejects.toThrow(new AuthenticationError(signInOnlineFirstMessage));
+      expect(generateAbilityForUser).toHaveBeenCalledWith(user);
+      expect(canAccessFacility).not.toHaveBeenCalled();
     });
   });
 });

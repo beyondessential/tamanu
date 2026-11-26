@@ -4,13 +4,32 @@ import asyncHandler from 'express-async-handler';
 import { JWT_TOKEN_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { SERVER_TYPES } from '@tamanu/constants/servers';
 import { log } from '@tamanu/shared/services/logging';
-import { BadAuthenticationError } from '@tamanu/errors';
+import { BadAuthenticationError, ForbiddenError } from '@tamanu/errors';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { initAuditActions } from '@tamanu/database/utils/audit';
+import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 
 import { version } from '../../serverInfo';
 import { verifyToken } from '../../auth/utils';
 import { getCanonicalHostName } from '@tamanu/shared/utils';
+
+const PORTAL_PERMITTED_ACTIONS = ['read', 'list'];
+
+// The records the suggesters on PORTAL_SUGGESTER_ALLOW_LIST read; an endpoint added there needs its
+// record here. The portal suggestions tests search every endpoint on that list.
+const PORTAL_READABLE_SUBJECTS = [
+  'ReferenceData',
+  'LabTestType',
+  'LabTestPanel',
+  'LocationGroup',
+  'Department',
+  'Facility',
+  'Location',
+];
+
+export const isPermittedForPortal = (action, subject) =>
+  PORTAL_PERMITTED_ACTIONS.includes(action) &&
+  PORTAL_READABLE_SUBJECTS.includes(getSubjectName(subject));
 
 export const patientPortalMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -83,12 +102,18 @@ export const patientPortalMiddleware = ({ secret }) =>
     });
 
     /**
-     * Stub out permission checks to always return true. Permission checks are not needed or supported
-     * in patient portal but these methods are called in shared code such as suggesters
+     * Portal users hold no role, but shared code such as the suggesters checks permissions, so
+     * stand in for them with a grant of read actions on the records those lookups need.
      */
-    req.checkPermission = () => true;
+    req.checkPermission = (action, subject) => {
+      if (!isPermittedForPortal(action, subject)) {
+        throw new ForbiddenError(
+          `No permission to perform action “${action}” on “${getSubjectName(subject)}” in the patient portal`,
+        );
+      }
+    };
     req.ability = {
-      can: () => true,
+      can: isPermittedForPortal,
     };
 
     const spanAttributes = {

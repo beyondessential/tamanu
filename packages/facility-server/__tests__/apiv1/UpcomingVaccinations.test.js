@@ -195,6 +195,45 @@ describe('Upcoming vaccinations', () => {
     expect(timezoneAfter).toEqual(timezoneBefore);
   });
 
+  describe('Search filters', () => {
+    const searchedPatient = {
+      displayId: 'srch_id%x',
+      firstName: 'Quillon_first%',
+      lastName: 'Vexmoor_last%',
+    };
+
+    beforeAll(async () => {
+      await createPatient(models, {
+        ...searchedPatient,
+        dateOfBirth: toDateString(subDays(new Date(), 1)),
+      });
+      await ctx.sequelize.query('REFRESH MATERIALIZED VIEW materialized_upcoming_vaccinations');
+    });
+
+    it.each([
+      ['displayId', 'SRCH'],
+      ['firstName', 'quillon'],
+      ['lastName', 'vexmoor'],
+    ])('should filter by %s', async (field, search) => {
+      const result = await app.get('/api/upcomingVaccinations').query({ [field]: search });
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map((row) => row.displayId)).toEqual([searchedPatient.displayId]);
+    });
+
+    it.each([
+      ['displayId', '_'],
+      ['displayId', '%'],
+      ['firstName', '_'],
+      ['firstName', '%'],
+      ['lastName', '_'],
+      ['lastName', '%'],
+    ])('should treat %s %s as a literal character, not a wildcard', async (field, search) => {
+      const result = await app.get('/api/upcomingVaccinations').query({ [field]: search });
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map((row) => row.displayId)).toEqual([searchedPatient.displayId]);
+    });
+  });
+
   describe('Refresh stats', () => {
     it('returns the last updated time and cron schedule for a upcoming vaccinations materialized view', async () => {
       const task = new RefreshUpcomingVaccinations(ctx);

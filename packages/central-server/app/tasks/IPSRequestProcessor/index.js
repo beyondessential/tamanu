@@ -14,7 +14,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 
 import { getRandomBase64String } from '../../auth/utils';
 import { generateIPSBundle } from '@tamanu/shared/routes/fhir/patientSummary/bundleGenerator';
-import { attachmentDir } from '../../utils/files';
+import { attachmentDir, toSafeFileName } from '../../utils/files';
 import { QRCodeToFileAsync } from './helpers';
 
 // SHL flag reference: https://docs.smarthealthit.org/smart-health-links/spec/#construct-a-shlink-payload
@@ -149,7 +149,11 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         // GENERATE QR
 
-        const qrCodeFileName = `International Patient Summary for ${patient.displayName}.png`;
+        // The display ID keeps patients who share a name from overwriting each other's QR code
+        // in the attachment folder before it is sent.
+        const qrCodeFileName = toSafeFileName(
+          `International Patient Summary for ${patient.displayName} (${patient.displayId}).png`,
+        );
         const folder = await attachmentDir();
         const qrCodeFilePath = path.join(folder, qrCodeFileName);
 

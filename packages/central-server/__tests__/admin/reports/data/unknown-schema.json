@@ -1,0 +1,10 @@
+{
+    "query": "select * from patients limit 0",
+    "queryOptions": {
+        "defaultDateRange": "allTime",
+        "parameters": []
+    },
+    "dbSchema": "not-a-schema",
+    "status": "published",
+    "notes": "Report on a reporting connection that does not exist"
+}
