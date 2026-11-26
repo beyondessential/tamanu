@@ -8,13 +8,12 @@ import { keyBy, mapValues } from 'es-toolkit/compat';
 
 import { createBrowserTelemetryIngest } from '@tamanu/shared/utils/browserTelemetryIngest';
 
-import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
 
 export const publicRoutes = express.Router();
 
-// Without cors.allowedOrigin set, external widgets like the COVID test results
-// are unavailable to browsers on other domains.
+// Public route responses name security.cors.allowedOrigin, when it is set, as the one
+// other origin a browser lets read them.
 publicRoutes.use(
   asyncHandler(async (req, res, next) => {
     const allowedOrigin = await req.settings.get('security.cors.allowedOrigin');
@@ -77,5 +76,4 @@ publicRoutes.post('/browser-support', async (req, res) => {
   );
 });
 
-publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);

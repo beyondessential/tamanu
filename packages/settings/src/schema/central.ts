@@ -773,26 +773,6 @@ export const centralSettings = {
         },
       },
     },
-    labResultWidget: {
-      name: 'Lab result widget',
-      description: 'Which lab results the public lab-result-by-display-ID widget may return',
-      properties: {
-        categoryWhitelist: {
-          name: 'Category whitelist',
-          description: 'Lab test category IDs the widget may return',
-          type: yup.array(yup.string().required()),
-          suggesterEndpoint: 'labTestCategory',
-          defaultValue: ['labTestCategory-COVID'],
-        },
-        testTypeWhitelist: {
-          name: 'Test type whitelist',
-          description: 'Lab test type IDs the widget may return',
-          type: yup.array(yup.string().required()),
-          suggesterEndpoint: 'labTestType',
-          defaultValue: ['labTestType-COVID'],
-        },
-      },
-    },
     schedules: {
       name: 'Scheduled tasks',
       description: 'Cron schedules and tuning for central-server background tasks',
@@ -955,7 +935,7 @@ export const centralSettings = {
       description: 'Security settings',
       properties: {
         cors: {
-          description: 'Cross-origin access to the public routes (e.g. the lab result widget)',
+          description: 'Cross-origin access to the public routes',
           properties: {
             allowedOrigin: {
               name: 'Allowed origin',

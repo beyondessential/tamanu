@@ -104,11 +104,6 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'supportDeskUrl',
     scope: SETTINGS_SCOPES.GLOBAL,
   },
-  {
-    config: 'localisation.labResultWidget',
-    setting: 'labResultWidget',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
   { config: 'cors', setting: 'security.cors', scope: SETTINGS_SCOPES.CENTRAL },
   { config: ['socket.io'], setting: 'websocket', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 's3', scope: SETTINGS_SCOPES.CENTRAL },
