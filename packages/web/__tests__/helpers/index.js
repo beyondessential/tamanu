@@ -1,1 +1,6 @@
-export { createQueryClient, createStubTheme, renderElementWithTranslatedText } from './render';
+export {
+  createQueryClient,
+  createStubTheme,
+  createTranslationContextWithReplacements,
+  renderElementWithTranslatedText,
+} from './render';

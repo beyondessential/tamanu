@@ -1617,6 +1617,31 @@ describe('Encounter', () => {
         expect(body.data[0].medication.code).toEqual('check');
       });
 
+      // spec: DQLIM#sending-to-pharmacy, DQLIM#discharging
+      it('should get the drug limits and units with each encounter medication', async () => {
+        await models.ReferenceDrug.create(
+          fake(models.ReferenceDrug, {
+            referenceDataId: testMedication.id,
+            isSensitive: false,
+            doseMax: 2,
+            dispensingQuantityMax: 100,
+            dosingUnit: 'Tablet',
+            dispensingUnit: 'Pack',
+          }),
+        );
+
+        const result = await app.get(`/api/encounter/${medicationEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        const row = result.body.data.find(item => item.medicationId === testMedication.id);
+        expect(Number(row.medication.referenceDrug.doseMax)).toBe(2);
+        expect(row.medication.referenceDrug.dispensingQuantityMax).toBe(100);
+        // A warning gives the limit in the drug's current units.
+        expect(row.medication.referenceDrug).toMatchObject({
+          dosingUnit: 'Tablet',
+          dispensingUnit: 'Pack',
+        });
+      });
+
       it('should reject creating medication when encounter is discharged', async () => {
         // Discharge the encounter first
         const endDate = getCurrentDateTimeString();

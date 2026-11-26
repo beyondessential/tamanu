@@ -9,6 +9,7 @@ import { AuthProvider } from '../../contexts/AuthContext';
 import { FacilityProvider } from '../../contexts/FacilityContext';
 import { LocalisationProvider } from '../../contexts/LocalisationContext';
 import { TranslationProvider } from '../../contexts/TranslationContext';
+import { UpdateProvider } from '../../contexts/UpdateContext';
 import { persistor, store } from '../../store/index';
 import { Core, type RootStackParamList } from './Core';
 import DetectIdleLayer from './DetectIdleLayer';
@@ -28,9 +29,11 @@ export const RootStack = (): ReactElement => {
                   <AuthProvider navRef={navigationRef}>
                     <SettingsProvider>
                       <FacilityProvider>
-                        <DetectIdleLayer>
-                          <Core />
-                        </DetectIdleLayer>
+                        <UpdateProvider>
+                          <DetectIdleLayer>
+                            <Core />
+                          </DetectIdleLayer>
+                        </UpdateProvider>
                       </FacilityProvider>
                     </SettingsProvider>
                   </AuthProvider>

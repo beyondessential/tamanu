@@ -23,6 +23,7 @@ import {
   DRUG_STOCK_STATUSES,
   USER_KINDS,
   ENCOUNTER_TYPE_PATIENT_STATUSES,
+  DRUG_LIMIT_FIELDS,
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
@@ -681,7 +682,13 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
         const referenceDrugs = await item.sequelize.models.ReferenceDrug.findAll({
           where: { referenceDataId: medicationIds },
-          attributes: ['referenceDataId', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
+          attributes: [
+            'referenceDataId',
+            'dosingUnit',
+            'dispensingUnit',
+            'unitConversion',
+            ...DRUG_LIMIT_FIELDS,
+          ],
         });
         const referenceDrugByMedicationId = new Map(
           referenceDrugs.map(referenceDrug => [

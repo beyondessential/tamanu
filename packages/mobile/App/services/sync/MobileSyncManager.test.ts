@@ -2,6 +2,11 @@ import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-k
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
+  clearUpdateState,
+  readPendingUpdate,
+  recordPendingUpdate,
+} from '~/services/update/pendingUpdate';
+import {
   getModelsForDirection,
   getSyncTick,
   pushOutgoingChanges,
@@ -56,8 +61,10 @@ describe('MobileSyncManager', () => {
   };
   let mobileSyncManager;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mobileSyncManager = new MobileSyncManager(centralServerConnection, mockSettingsService as any);
+    // An outstanding update is remembered for the whole module, so it is cleared between cases
+    await clearUpdateState();
     jest.clearAllMocks();
   });
 
@@ -87,6 +94,25 @@ describe('MobileSyncManager', () => {
       await expect(mobileSyncManager.runSync()).rejects.toThrow(
         'MobileSyncManager.runSync(): Tried to start syncing while sync in progress',
       );
+    });
+
+    it('should still try to sync while an app update is outstanding', async () => {
+      // The server's rejection is how the app learns which release it wants now
+      jest.spyOn(mobileSyncManager, 'runSync').mockImplementationOnce(jest.fn());
+      await recordPendingUpdate('https://meta.example.com/package');
+
+      await mobileSyncManager.triggerSync();
+
+      expect(mobileSyncManager.runSync).toBeCalledTimes(1);
+    });
+
+    it('should forget the update once the server accepts a sync', async () => {
+      jest.spyOn(mobileSyncManager, 'runSync').mockImplementationOnce(jest.fn());
+      await recordPendingUpdate('https://meta.example.com/package');
+
+      await mobileSyncManager.triggerSync();
+
+      expect(await readPendingUpdate()).toBeNull();
     });
   });
 

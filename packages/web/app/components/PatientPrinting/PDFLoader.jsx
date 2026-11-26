@@ -77,5 +77,5 @@ const PDFViewer = React.memo(({ id, children }) => {
 
 export const printPDF = elementId => {
   const iframe = document.getElementById(elementId);
-  iframe.contentWindow.print();
+  iframe?.contentWindow.print();
 };

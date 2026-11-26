@@ -14,6 +14,7 @@ import {
   IPS_REQUEST_STATUSES,
   ENCOUNTER_TYPES,
   DRUG_ROUTE_LABELS,
+  DRUG_LIMIT_FIELDS,
 } from '@tamanu/constants';
 import { isGeneratedDisplayId, isGeneratedIdFromPattern } from '@tamanu/utils/generateId';
 
@@ -634,7 +635,13 @@ patientRoute.get(
           include: {
             model: models.ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['referenceDataId', 'isSensitive'],
+            attributes: [
+              'referenceDataId',
+              'isSensitive',
+              'dosingUnit',
+              'dispensingUnit',
+              ...DRUG_LIMIT_FIELDS,
+            ],
             include: facilityId
               ? [
                   {
@@ -908,7 +915,13 @@ patientRoute.get(
           include: {
             model: ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['referenceDataId', 'isSensitive'],
+            attributes: [
+              'referenceDataId',
+              'isSensitive',
+              'dosingUnit',
+              'dispensingUnit',
+              ...DRUG_LIMIT_FIELDS,
+            ],
             required: false,
           },
         },
@@ -963,7 +976,15 @@ patientRoute.get(
 
     const referenceDrugs = await ReferenceDrug.findAll({
       where: { referenceDataId: { [Op.in]: medicationIds } },
-      attributes: ['id', 'isSensitive', 'referenceDataId'],
+      // spec: DQLIM#dispensing
+      attributes: [
+        'id',
+        'isSensitive',
+        'referenceDataId',
+        'dosingUnit',
+        'dispensingUnit',
+        ...DRUG_LIMIT_FIELDS,
+      ],
       include: {
         model: ReferenceDrugFacility,
         as: 'facilities',
