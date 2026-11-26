@@ -2,7 +2,7 @@ import express from 'express';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { capitalize } from 'es-toolkit/compat';
 import {
@@ -10,7 +10,13 @@ import {
   REPORT_STATUSES,
   REPORT_VERSION_EXPORT_FORMATS,
 } from '@tamanu/constants';
-import { readJSON, sanitizeFilename, verifyQuery } from './utils';
+import {
+  assertSchemaPermitted,
+  canEditReportSchema,
+  readJSON,
+  sanitizeFilename,
+  verifyQuery,
+} from './utils';
 import { createReportDefinitionVersion } from './createReportDefinitionVersion';
 import { DryRun } from '../errors';
 
@@ -33,7 +39,7 @@ reportsRouter.get(
     req.checkPermission('read', 'ReportDefinition');
     req.checkPermission('read', 'ReportDefinitionVersion');
 
-    const canEditSchema = req.ability.can('write', 'ReportDbSchema');
+    const canEditSchema = canEditReportSchema(req);
 
     const result = await store.sequelize.query(
       `SELECT rd.id,
@@ -122,7 +128,7 @@ reportsRouter.post(
       : body;
 
     const version = await createReportDefinitionVersion(
-      { store, reportSchemaStores },
+      { store, reportSchemaStores, canEditSchema: canEditReportSchema(req) },
       null,
       transformedBody,
       user.id,
@@ -142,7 +148,7 @@ reportsRouter.post(
 
     const { reportId } = params;
     const version = await createReportDefinitionVersion(
-      { store, reportSchemaStores },
+      { store, reportSchemaStores, canEditSchema: canEditReportSchema(req) },
       reportId,
       body,
       user.id,
@@ -214,90 +220,92 @@ reportsRouter.post(
 
     assertReportingSchemasAvailable(reportSchemaStores);
 
-    const canEditSchema = req.ability.can('write', 'ReportDbSchema');
+    const canEditSchema = canEditReportSchema(req);
 
-    const { name, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
-
-    const versionData = await readJSON(file);
-
-    if (versionData.versionNumber)
-      throw new InvalidOperationError('Cannot import a report with a version number');
-
-    if (!canEditSchema && versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
-      throw new InvalidOperationError(
-        'You do not have permission to import reports using the raw schema',
-      );
-    }
-
-    // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
-    const existingDefinition = await ReportDefinition.findOne({
-      where: { name },
-      paranoid: false,
-    });
-    if (existingDefinition?.deletedAt) {
-      throw new InvalidOperationError('A deleted report is still using this name');
-    }
-    if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
-      throw new InvalidOperationError('Cannot change a reporting schema for existing report');
-    }
-
-    await verifyQuery(
-      versionData.query,
-      versionData.queryOptions,
-      { store, reportSchemaStores },
-      versionData.dbSchema,
-    );
+    const { name, file, dryRun } = await getUploadedData(req);
+    assertUploadedFilePath(file);
 
     const feedback = {};
     try {
-      await sequelize.transaction(
-        {
-          // Prevents race condition when determining the next version number
-          isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-        },
-        async () => {
-          const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
-            where: { name, dbSchema: versionData.dbSchema },
-            include: [
-              {
-                model: ReportDefinitionVersion,
-                as: 'versions',
-                attributes: ['versionNumber'],
-                order: [['versionNumber', 'DESC']],
-                limit: 1,
-              },
-            ],
-          });
+      const fileData = await readJSON(file);
+      // A file that names no connection is a reporting one, as a report created through the form is.
+      const versionData = {
+        ...fileData,
+        dbSchema: fileData.dbSchema ?? REPORT_DB_CONNECTIONS.REPORTING,
+      };
 
-          const versionNumber = createdDefinition
-            ? 1
-            : (definition.versions?.[0]?.versionNumber || 0) + 1;
+      if (versionData.versionNumber)
+        throw new InvalidOperationError('Cannot import a report with a version number');
 
-          await ReportDefinitionVersion.create({
-            ...versionData,
-            userId: user.id,
-            versionNumber,
-            reportDefinitionId: definition.id,
-          });
+      assertSchemaPermitted(versionData.dbSchema, canEditSchema);
 
-          feedback.createdDefinition = createdDefinition;
-          feedback.versionNumber = versionNumber;
-
-          if (dryRun) {
-            throw new DryRun();
-          }
-
-          feedback.reportDefinitionId = definition.id;
-        },
-      );
-    } catch (err) {
-      if (!(err instanceof DryRun)) {
-        throw err;
+      // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
+      const existingDefinition = await ReportDefinition.findOne({
+        where: { name },
+        paranoid: false,
+      });
+      if (existingDefinition?.deletedAt) {
+        throw new InvalidOperationError('A deleted report is still using this name');
       }
-    }
-    if (deleteFileAfterImport) {
-      // eslint-disable-next-line no-unused-vars
-      await fs.unlink(file).catch(ignore => {});
+      if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
+        throw new InvalidOperationError('Cannot change a reporting schema for existing report');
+      }
+
+      await verifyQuery({
+        query: versionData.query,
+        parameters: versionData.queryOptions?.parameters,
+        dbSchema: versionData.dbSchema,
+        reportSchemaStores,
+      });
+
+      try {
+        await sequelize.transaction(
+          {
+            // Prevents race condition when determining the next version number
+            isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+          },
+          async () => {
+            const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
+              where: { name, dbSchema: versionData.dbSchema },
+              include: [
+                {
+                  model: ReportDefinitionVersion,
+                  as: 'versions',
+                  attributes: ['versionNumber'],
+                  order: [['versionNumber', 'DESC']],
+                  limit: 1,
+                },
+              ],
+            });
+
+            const versionNumber = createdDefinition
+              ? 1
+              : (definition.versions?.[0]?.versionNumber || 0) + 1;
+
+            await ReportDefinitionVersion.create({
+              ...versionData,
+              userId: user.id,
+              versionNumber,
+              reportDefinitionId: definition.id,
+            });
+
+            feedback.createdDefinition = createdDefinition;
+            feedback.versionNumber = versionNumber;
+
+            if (dryRun) {
+              throw new DryRun();
+            }
+
+            feedback.reportDefinitionId = definition.id;
+          },
+        );
+      } catch (err) {
+        if (!(err instanceof DryRun)) {
+          throw err;
+        }
+      }
+    } finally {
+      await fs.unlink(file).catch(() => {});
     }
     res.send(feedback);
   }),

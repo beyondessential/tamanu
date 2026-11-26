@@ -367,6 +367,36 @@ describe('ProgramRegistry', () => {
       ]);
     });
 
+    it('should apply other filters alongside the currently in filter', async () => {
+      const { id: programRegistryId } = await createProgramRegistry({ currentlyAtType: 'facility' });
+      const facility = await models.Facility.create(fake(models.Facility));
+      const [matchingPatient, otherPatient] = await Promise.all(
+        ['Currentlyinmatch', 'Currentlyinother'].map(firstName =>
+          models.Patient.create(fake(models.Patient, { firstName })),
+        ),
+      );
+      await Promise.all(
+        [matchingPatient, otherPatient].map(patient =>
+          models.PatientProgramRegistration.create(
+            fake(models.PatientProgramRegistration, {
+              programRegistryId,
+              patientId: patient.id,
+              clinicianId: app.user.id,
+              villageId: null,
+              facilityId: facility.id,
+            }),
+          ),
+        ),
+      );
+
+      const result = await app
+        .get(`/api/programRegistry/${programRegistryId}/registrations`)
+        .query({ firstName: matchingPatient.firstName, currentlyIn: facility.id });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(({ patientId }) => patientId)).toEqual([matchingPatient.id]);
+    });
+
     it('should exclude conditions with hidden condition categories', async () => {
       const { id: programRegistryId } = await createProgramRegistry();
 

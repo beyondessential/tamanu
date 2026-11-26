@@ -1,5 +1,6 @@
 export { generateId, generateIdFromPattern } from './generateId';
 export { parseScannedDisplayId } from './scannedDisplayId';
+export { LIKE_ESCAPE_CLAUSE, likePattern } from './likePattern';
 export * from './invoice';
 export {
   checkFormVisibilityCriteria,
@@ -17,3 +18,5 @@ export {
   type ProgramRegistryConditionAnswer,
   type ProgramRegistryConditionOptions,
 } from './programRegistryConditions';
+export { keepSocketConnected } from './keepSocketConnected';
+export { createCalculationPreparer } from './calculationExpression';

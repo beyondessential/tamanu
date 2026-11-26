@@ -4,7 +4,6 @@ Describes how a patient may be contacted, via email, SMS, or IM apps.
 At present, this is used for:
 - display in the application (all methods)
 - emailing the patient (`method=Email`)
-- sending Telegram reminders for appointments (`method=Telegram`)
 {% enddocs %}
 
 {% docs patient_contacts__name %}
@@ -20,7 +19,7 @@ What application the contact uses:
 - `Email`
 - `Sms`
 - `WhatsApp`
-- `Telegram`
+- `Telegram` (older rows only)
 {% enddocs %}
 
 {% docs patient_contacts__connection_details %}

@@ -84,8 +84,8 @@
     ]
   },
   "auth": {
-    // these secrets should be set if more than one process of the central-server is running
-    // otherwise, each process will use a different key and tokens won't match
+    // Token signing secrets. Prefer the AUTH_SECRET and AUTH_REFRESH_TOKEN_SECRET env vars;
+    // the central server refuses to start unless both are set to 16 or more random characters.
     "secret": null,
     "saltRounds": 12,
     "tokenDuration": "1h",
@@ -154,16 +154,6 @@
       // every 30seconds /!\
       "schedule": "*/30 * * * * *",
       "limit": 10
-    },
-    "vaccinationReminderProcessor": {
-     // every day at 1 AM
-     "schedule": "0 1 * * *",
-    },
-    "patientTelegramCommunicationProcessor": {
-      // every 30seconds /!\
-      "schedule": "*/30 * * * * *",
-      "batchSize": 100,
-      "batchSleepAsyncDurationInMilliseconds": 50
     },
     "portalCommunicationProcessor": {
       // every 30seconds /!\
@@ -412,14 +402,6 @@
   },
   "socket.io": {
     enabled: true,
-  },
-  "telegramBot": {
-    apiToken: "",
-    webhook: {
-      // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app/api/public/telegram-webhook"
-      url: "",
-      secret: ""
-    }
   },
   "patientCommunication": {
     "retryThreshold": 20

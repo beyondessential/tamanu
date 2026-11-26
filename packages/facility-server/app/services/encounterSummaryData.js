@@ -2,6 +2,11 @@ import { Op } from 'sequelize';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { differenceInYears, parseISO } from 'date-fns';
 
+import {
+  LAB_REQUEST_WITHOUT_SENSITIVE_TESTS,
+  PRESCRIPTION_OF_NON_SENSITIVE_DRUG,
+} from './summarySensitiveRecords';
+
 const ENCOUNTER_SUMMARY_DATA_LIMIT = 20;
 
 /**
@@ -68,6 +73,7 @@ export async function fetchEncounterSummaryData(encounterId, models) {
   });
 
   const prescriptions = await Prescription.findAll({
+    where: PRESCRIPTION_OF_NON_SENSITIVE_DRUG,
     include: [
       {
         association: 'encounterPrescription',
@@ -98,7 +104,7 @@ export async function fetchEncounterSummaryData(encounterId, models) {
   });
 
   const labRequests = await LabRequest.findAll({
-    where: { encounterId },
+    where: { [Op.and]: [{ encounterId }, LAB_REQUEST_WITHOUT_SENSITIVE_TESTS] },
     include: [
       { association: 'category' },
       { association: 'priority' },

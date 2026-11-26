@@ -25,8 +25,6 @@ import {
   recordScheduledTaskRuns,
 } from '@tamanu/shared/tasks';
 import { FormBuilderChatCleaner } from './FormBuilderChatCleaner';
-import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
-import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
 import { SurveyCompletionNotifierProcessor } from './SurveyCompletionNotifierProcessor';
 import { SyncLookupRefresher } from './SyncLookupRefresher';
 import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
@@ -63,8 +61,6 @@ export async function startScheduledTasks(context) {
     CertificateNotificationProcessor,
     IPSRequestProcessor,
     PatientMergeMaintainer,
-    PatientTelegramCommunicationProcessor,
-    VaccinationReminderProcessor,
     AutomaticLabTestResultPublisher,
     CovidClearanceCertificatePublisher,
     SnapshotTableCleaner,

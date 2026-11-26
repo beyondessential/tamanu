@@ -274,6 +274,13 @@ describe('EncounterCharting', () => {
       );
     });
 
+    it('should reject a chart readings order other than ascending or descending', async () => {
+      const result = await app
+        .get(`/api/encounter/${chartsEncounter.id}/charts/simple-chart-survey-0`)
+        .query({ order: 'body' });
+      expect(result).toHaveRequestError();
+    });
+
     it('should return a utility list about chart surveys with responses', async () => {
       const submissionDate = getCurrentDateTimeString();
       await app.post('/api/surveyResponse').send({

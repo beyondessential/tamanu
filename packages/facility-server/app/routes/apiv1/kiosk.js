@@ -7,12 +7,13 @@ import { z } from 'zod';
 import {
   APPOINTMENT_STATUSES,
   PATIENT_DATA_FIELD_LOCATIONS,
-  PORTAL_SUGGESTER_ALLOW_LIST,
+  KIOSK_SUGGESTER_ALLOW_LIST,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
+  SYNDROMIC_SURVEILLANCE_SURVEY_ID,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { EditConflictError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { getDayBoundaries, getCurrentDateStringInTimezone } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
@@ -79,7 +80,8 @@ const findKioskAppointment = async (req, facilitySettings) => {
 /**
  * The forms a patient completes for their appointment type, or for a location booking its booking
  * type: the current surveys the setting lists for it, in the order listed. Retired or missing
- * surveys are skipped, so a stale setting can't stop patients from checking in.
+ * surveys are skipped, so a stale setting can't stop patients from checking in. The syndromic
+ * surveillance form is skipped too, as it is completed only from the encounter it is for.
  */
 const getKioskSurveys = async (req, facilitySettings, { appointmentTypeId, bookingTypeId }) => {
   const formsByType = await facilitySettings.get('kiosk.forms');
@@ -93,7 +95,11 @@ const getKioskSurveys = async (req, facilitySettings, { appointmentTypeId, booki
     ),
   ];
   const surveys = await req.models.Survey.findAll({
-    where: { id: { [Op.in]: configuredIds }, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    where: {
+      // spec: SYND#the-syndromic-surveillance-form
+      id: { [Op.in]: configuredIds, [Op.ne]: SYNDROMIC_SURVEILLANCE_SURVEY_ID },
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
   });
   return configuredIds
     .map(surveyId => surveys.find(survey => survey.id === surveyId))
@@ -192,14 +198,17 @@ const auditPatientAccess = async (req, patients) => {
   }
 };
 
-/** The reference data a patient may search on a form: the same lists the patient portal offers. */
+/**
+ * The reference data a patient may search on a form: the same lists the patient portal offers,
+ * plus clinicians and the facility's clinics.
+ */
 kiosk.use(
   '/suggestions',
   asyncHandler(async (req, res, next) => {
     req.checkPermission('run', 'Kiosk');
     await getKioskSettings(req);
     const category = req.path.split('/')[1];
-    if (req.method !== 'GET' || !PORTAL_SUGGESTER_ALLOW_LIST.includes(category)) {
+    if (req.method !== 'GET' || !KIOSK_SUGGESTER_ALLOW_LIST.includes(category)) {
       throw new NotFoundError();
     }
     // The suggesters check `list` on their model, which a kiosk account doesn't have
@@ -358,7 +367,8 @@ kiosk.post(
       await models.Appointment.findByPk(req.params.id, { lock: true });
       const appointment = await findKioskAppointment(req, facilitySettings);
       if (isCheckedIn(appointment)) {
-        throw new InvalidOperationError('This appointment has already been checked in');
+        // A conflict, so the kiosk can tell the patient they're checked in rather than that it failed
+        throw new EditConflictError('This appointment has already been checked in');
       }
 
       const configuredSurveyIds = (await getKioskSurveys(req, facilitySettings, appointment)).map(

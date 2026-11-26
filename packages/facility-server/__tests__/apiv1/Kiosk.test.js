@@ -16,6 +16,7 @@ import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getCurrentDateStringInTimezone, getDayBoundaries } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
+import { setupSyndromicSurveillanceSurvey } from '../setupSurvey';
 import { createTestContext } from '../utilities';
 
 const shiftDate = (date, days) => format(addDays(parseISO(date), days), 'yyyy-MM-dd');
@@ -540,6 +541,41 @@ describe('Kiosk', () => {
       expect(checkIn).toHaveSucceeded();
     });
 
+    it('leaves out the syndromic surveillance form, and rejects a response to it', async () => {
+      const syndromicSurveillanceSurvey = await setupSyndromicSurveillanceSurvey(models);
+      await setKioskSettings({
+        enabled: true,
+        forms: [
+          {
+            appointmentTypeId: appointmentTypeWithForms.id,
+            surveyIds: [syndromicSurveillanceSurvey.id, survey.id],
+          },
+        ],
+      });
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+
+      const forms = await app.get(`/api/kiosk/appointments/${appointment.id}`);
+      expect(forms.body.forms.map(({ id }) => id)).toEqual([survey.id]);
+
+      const rejected = await app.post(`/api/kiosk/appointments/${appointment.id}/checkIn`).send({
+        responses: [
+          { surveyId: syndromicSurveillanceSurvey.id, answers: {} },
+          { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Fine' } },
+        ],
+      });
+      expect(rejected).toHaveRequestError();
+      expect(await findPatientResponses(patient)).toHaveLength(0);
+
+      const checkIn = await app.post(`/api/kiosk/appointments/${appointment.id}/checkIn`).send({
+        responses: [{ surveyId: survey.id, answers: { [requiredDataElement.id]: 'Fine' } }],
+      });
+      expect(checkIn).toHaveSucceeded();
+    });
+
     it('returns the patient and the forms for the appointment type', async () => {
       const patient = await createPatient({ lastName: 'Forms', dateOfBirth: '1980-01-01' });
       const appointment = await createAppointment({
@@ -617,9 +653,26 @@ describe('Kiosk', () => {
 
       const result = await checkIn(appointment.id, []);
 
-      expect(result).toHaveRequestError();
+      expect(result).toHaveStatus(409);
+      expect(result.body.type).toContain('conflict');
       await appointment.reload();
       expect(appointment.status).toEqual(APPOINTMENT_STATUSES.SEEN);
+    });
+
+    it('saves no responses when staff marked the appointment arrived during the forms', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+      await appointment.update({ status: APPOINTMENT_STATUSES.ARRIVED });
+
+      const result = await checkIn(appointment.id, [
+        { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
+      ]);
+
+      expect(result).toHaveStatus(409);
+      expect(await findPatientResponses(patient)).toHaveLength(0);
     });
 
     it('saves the forms and marks the appointment arrived', async () => {
@@ -1083,13 +1136,33 @@ describe('Kiosk', () => {
       expect(lookup.body).toMatchObject({ id: village.id, name: 'Kioskvale' });
     });
 
+    it('lets an account with only permission to run the kiosk search clinicians and clinics', async () => {
+      const clinician = await models.User.create(
+        fake(models.User, { displayName: 'Kioskclinician Smith' }),
+      );
+      const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
+
+      const clinicians = await kioskApp
+        .get('/api/kiosk/suggestions/practitioner')
+        .query({ q: 'Kioskclin' });
+      expect(clinicians).toHaveSucceeded();
+      expect(clinicians.body.map(({ id }) => id)).toEqual([clinician.id]);
+
+      // The kiosk sends its facility with every search, as staff web does
+      const clinics = await kioskApp
+        .get('/api/kiosk/suggestions/facilityLocationGroup')
+        .query({ q: locationGroup.name, facilityId });
+      expect(clinics).toHaveSucceeded();
+      expect(clinics.body.map(({ id }) => id)).toContain(locationGroup.id);
+    });
+
     it('offers a kiosk account no other suggestions, and no way to create them', async () => {
       const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
 
       expect(await kioskApp.get('/api/kiosk/suggestions/patient').query({ q: 'a' })).toHaveStatus(
         404,
       );
-      expect(await kioskApp.get('/api/kiosk/suggestions/practitioner')).toHaveStatus(404);
+      expect(await kioskApp.get('/api/kiosk/suggestions/user')).toHaveStatus(404);
       expect(
         await kioskApp.post('/api/kiosk/suggestions/village/create').send({ name: 'Newvale' }),
       ).toHaveStatus(404);

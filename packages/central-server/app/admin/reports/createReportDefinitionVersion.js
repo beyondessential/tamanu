@@ -1,9 +1,9 @@
 import Sequelize from 'sequelize';
-import { InvalidOperationError } from '@tamanu/errors';
-import { verifyQuery } from './utils';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { assertSchemaPermitted, verifyQuery } from './utils';
 
 export async function createReportDefinitionVersion(
-  { store, reportSchemaStores },
+  { store, reportSchemaStores, canEditSchema },
   reportId,
   definition,
   userId,
@@ -16,13 +16,21 @@ export async function createReportDefinitionVersion(
   if (definition.versionNumber) {
     throw new InvalidOperationError('Cannot create a report with a version number');
   }
-  const { parameters } = definition.queryOptions;
-  await verifyQuery(
-    definition.query,
-    { parameters },
-    { reportSchemaStores, store },
-    definition.dbSchema,
-  );
+  // A new version runs against its report's schema, whatever the request says.
+  const existingReport = reportId
+    ? await ReportDefinition.findByPk(reportId, { attributes: ['dbSchema'] })
+    : null;
+  if (reportId && !existingReport) {
+    throw new NotFoundError(`No report found with id ${reportId}`);
+  }
+  const dbSchema = existingReport?.dbSchema ?? definition.dbSchema;
+  assertSchemaPermitted(dbSchema, canEditSchema);
+  await verifyQuery({
+    query: definition.query,
+    parameters: definition.queryOptions.parameters,
+    dbSchema,
+    reportSchemaStores,
+  });
   return sequelize.transaction(
     {
       // Prevents race condition when determining the next version number

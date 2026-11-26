@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getDayBoundaries } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 import { checkNotePermission } from '../../utils/checkNotePermission';
 
@@ -80,11 +81,8 @@ export const noteListHandler = recordType =>
       replacements.noteTypeId = noteTypeId;
     }
     if (search) {
-      // Escape ILIKE wildcards (\ % _) so the user's input is matched literally
-      // rather than treated as a pattern (backslash is Postgres' default LIKE escape).
-      const escapedSearch = search.replace(/[\\%_]/g, '\\$&');
       filterClauses.push('latest.content ILIKE :search');
-      replacements.search = `%${escapedSearch}%`;
+      replacements.search = likePattern`%${search}%`;
     }
     if (authorId) {
       // Match if the selected user authored or edited any revision in the chain,

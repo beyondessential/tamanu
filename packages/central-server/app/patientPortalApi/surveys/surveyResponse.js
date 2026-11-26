@@ -33,21 +33,35 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
     models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
-    const { locationId, departmentId, ...payload } = body;
+    const { surveyId, answers, startTime, endTime } = body;
 
-    const updatedBody = {
+    // Claim the assignment first, so a repeated submission returns the response already recorded
+    const [claimedCount] = await models.PortalSurveyAssignment.update(
+      { status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED },
+      {
+        where: { id: assignedSurvey.id, status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING },
+      },
+    );
+    if (claimedCount === 0) {
+      const { surveyResponseId } = await assignedSurvey.reload();
+      return models.SurveyResponse.findByPk(surveyResponseId);
+    }
+
+    const surveyResponse = await models.SurveyResponse.createWithAnswers({
+      surveyId,
+      answers,
+      startTime,
+      endTime,
+      locationId: await getDefaultId('location'),
+      departmentId: await getDefaultId('department'),
       patientId: patient.id,
-      locationId: locationId || (await getDefaultId('location')),
-      departmentId: departmentId || (await getDefaultId('department')),
-      userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
       facilityId,
-      ...payload,
-    };
-    const surveyResponse = await models.SurveyResponse.createWithAnswers(updatedBody);
-    await assignedSurvey.update({
-      surveyResponseId: surveyResponse.id,
-      status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
+      userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
     });
+    await models.PortalSurveyAssignment.update(
+      { surveyResponseId: surveyResponse.id },
+      { where: { id: assignedSurvey.id } },
+    );
 
     return surveyResponse;
   });

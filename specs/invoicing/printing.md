@@ -59,6 +59,6 @@ Applies to printing an invoice from the encounter's invoicing tab, to hand to th
 ### Labels
 
 - Every label on the receipt is translatable, and so is the way a line item's quantity is shown beside its name.
-- Patient field labels follow the deployment's localised field names, so a deployment that renames the patient ID shows its own name for it on the receipt.
+- A patient field label is the name the deployment has given that field where it has given one, as on the A4 layout, so a deployment that renames the patient ID shows its own name for it on the receipt. Otherwise it is the default below.
 - Labels default to: Patient details, Name, Date of birth, Patient ID, Invoice number, Date, Details, Invoice total, Item adjustments, Insurance coverage, Patient subtotal, Fee scale adjustment - N% (where N is the invoice's fee scale percentage), Patient payments, Patient total due.
 - Labels printed in capitals are capitalised when printed, so a translation is entered in its normal case.

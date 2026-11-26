@@ -1,5 +1,6 @@
 import { initReporting } from '@tamanu/database/services/reporting';
 import { log } from '@tamanu/shared/services/logging';
+import { readConfigKeyFile } from '@tamanu/shared/utils/crypto';
 import { ReadSettings } from '@tamanu/settings/reader';
 import {
   getFhirWorkerSettings,
@@ -38,6 +39,10 @@ export class ApplicationContext {
   closePromise = null;
 
   async init({ appType, databaseOverrides, dbKey } = {}) {
+    // Fails before anything is served when the key is missing or refused, rather than at the
+    // first secret read.
+    await readConfigKeyFile();
+
     const key = dbKey ?? appType ?? 'main';
     this.store = await initDatabase(databaseOverrides ?? {}, key);
     this.sequelize = this.store.sequelize;
