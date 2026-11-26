@@ -448,19 +448,53 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         });
 
       it.each([
-        ['with a completing clinician', () => resources.practitioner.id],
-        ['without a completing clinician', () => null],
-      ])('adds a result alongside one entered by hand %s', (_, getCompletedById) =>
+        [
+          'entered by hand with a completing clinician',
+          {
+            description: 'Report written by the clinician',
+            resultImageUrl: null,
+            hasCompletingClinician: true,
+            externalCode: null,
+          },
+        ],
+        [
+          'entered by hand without a completing clinician',
+          {
+            description: 'Report written without a clinician',
+            resultImageUrl: null,
+            hasCompletingClinician: false,
+            externalCode: null,
+          },
+        ],
+        [
+          'recorded under an Accession Number',
+          {
+            description: 'Report recorded under an accession number',
+            resultImageUrl: 'http://example.com/accession-study',
+            hasCompletingClinician: false,
+            externalCode: 'ACCESSION',
+          },
+        ],
+        [
+          'completed by a clinician that an earlier study wrote a link onto',
+          {
+            description: 'Report with a link written by an earlier study',
+            resultImageUrl: 'http://example.com/earlier-study-link',
+            hasCompletingClinician: true,
+            externalCode: null,
+          },
+        ],
+      ])('adds a result alongside one %s', (_, { hasCompletingClinician, ...existingFields }) =>
         showError(async () => {
           // arrange
           const { ImagingResult } = ctx.store.models;
           const { imagingRequest, serviceRequest } = await createImagingRequest();
-          const manualResult = await ImagingResult.create(
-            fake(ImagingResult, {
-              imagingRequestId: imagingRequest.id,
-              completedById: getCompletedById(),
-              description: 'Report written by the clinician',
-            }),
+          const existingResultFields = {
+            ...existingFields,
+            completedById: hasCompletingClinician ? resources.practitioner.id : null,
+          };
+          const existingResult = await ImagingResult.create(
+            fake(ImagingResult, { imagingRequestId: imagingRequest.id, ...existingResultFields }),
           );
 
           // act
@@ -471,11 +505,10 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           const results = await findResults(imagingRequest);
           expect(results).toHaveLength(2);
 
-          await manualResult.reload();
-          expect(manualResult.description).toEqual('Report written by the clinician');
-          expect(manualResult.resultImageUrl).toBeNull();
+          await existingResult.reload();
+          expect(existingResult).toMatchObject(existingResultFields);
 
-          const integrationResult = results.find(result => result.id !== manualResult.id);
+          const integrationResult = results.find(result => result.id !== existingResult.id);
           expect(integrationResult).toMatchObject({
             description: INTEGRATION_NOTE,
             resultImageUrl: INTEGRATION_URL,
@@ -562,83 +595,6 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           expect(newerResult).toMatchObject({
             description: INTEGRATION_NOTE,
             resultImageUrl: INTEGRATION_URL,
-          });
-        }));
-
-      it('adds a result alongside one recorded under an Accession Number', () =>
-        showError(async () => {
-          // arrange
-          const { ImagingResult } = ctx.store.models;
-          const { imagingRequest, serviceRequest } = await createImagingRequest();
-          const accessionResult = await ImagingResult.create(
-            fake(ImagingResult, {
-              imagingRequestId: imagingRequest.id,
-              completedById: null,
-              externalCode: 'ACCESSION',
-              resultImageUrl: 'http://example.com/accession-study',
-              description: 'Report recorded under an accession number',
-            }),
-          );
-
-          // act
-          const response = await postLinkOnlyStudy(serviceRequest);
-
-          // assert
-          expect(response).toHaveSucceeded();
-          const results = await findResults(imagingRequest);
-          expect(results).toHaveLength(2);
-
-          await accessionResult.reload();
-          expect(accessionResult).toMatchObject({
-            description: 'Report recorded under an accession number',
-            resultImageUrl: 'http://example.com/accession-study',
-            externalCode: 'ACCESSION',
-          });
-
-          const integrationResult = results.find(result => result.id !== accessionResult.id);
-          expect(integrationResult).toMatchObject({
-            description: INTEGRATION_NOTE,
-            resultImageUrl: INTEGRATION_URL,
-            externalCode: null,
-          });
-        }));
-
-      it('adds a result alongside one entered by hand that already carries a link', () =>
-        showError(async () => {
-          // arrange
-          const { ImagingResult } = ctx.store.models;
-          const { imagingRequest, serviceRequest } = await createImagingRequest();
-          const manualResult = await ImagingResult.create(
-            fake(ImagingResult, {
-              imagingRequestId: imagingRequest.id,
-              completedById: resources.practitioner.id,
-              externalCode: null,
-              resultImageUrl: 'http://example.com/hand-entered-link',
-              description: 'Report written by the clinician',
-            }),
-          );
-
-          // act
-          const response = await postLinkOnlyStudy(serviceRequest);
-
-          // assert
-          expect(response).toHaveSucceeded();
-          const results = await findResults(imagingRequest);
-          expect(results).toHaveLength(2);
-
-          await manualResult.reload();
-          expect(manualResult).toMatchObject({
-            description: 'Report written by the clinician',
-            resultImageUrl: 'http://example.com/hand-entered-link',
-            completedById: resources.practitioner.id,
-          });
-
-          const integrationResult = results.find(result => result.id !== manualResult.id);
-          expect(integrationResult).toMatchObject({
-            description: INTEGRATION_NOTE,
-            resultImageUrl: INTEGRATION_URL,
-            completedById: null,
-            externalCode: null,
           });
         }));
     });
