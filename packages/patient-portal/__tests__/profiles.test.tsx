@@ -162,11 +162,12 @@ describe('Logging in', () => {
     await screen.findByText('Select a profile to continue');
 
     await router.navigate('/');
-    expect(await screen.findByText('Select a profile to continue')).toBeTruthy();
+    await waitFor(() => expect(router.state.location.pathname).toBe('/select-profile'));
+    const tui = await screen.findByRole('button', { name: /Tui Kamaka/ });
     expect(screen.queryByText('Dashboard')).toBeNull();
 
     api.post.mockResolvedValue({ token: 'tui-token' });
-    await userEvent.click(screen.getByRole('button', { name: /Tui Kamaka/ }));
+    await userEvent.click(tui);
     expect(await screen.findByText('Dashboard')).toBeTruthy();
     expect(isProfileChoicePending()).toBe(false);
   });
