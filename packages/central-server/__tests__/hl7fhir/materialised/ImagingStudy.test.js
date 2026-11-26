@@ -518,6 +518,40 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         }),
       );
 
+      it("does not touch another imaging request's link-only result", () =>
+        showError(async () => {
+          // arrange
+          const { ImagingResult } = ctx.store.models;
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const { imagingRequest: otherImagingRequest } = await createImagingRequest();
+          const otherResultFields = {
+            description: 'Report recorded for another request',
+            resultImageUrl: 'http://example.com/other-request-study',
+            completedById: null,
+            externalCode: null,
+          };
+          const otherResult = await ImagingResult.create(
+            fake(ImagingResult, { imagingRequestId: otherImagingRequest.id, ...otherResultFields }),
+          );
+
+          // act
+          const response = await postLinkOnlyStudy(serviceRequest);
+
+          // assert
+          expect(response).toHaveSucceeded();
+
+          await otherResult.reload();
+          expect(otherResult).toMatchObject(otherResultFields);
+          expect(await findResults(otherImagingRequest)).toHaveLength(1);
+
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(1);
+          expect(results[0]).toMatchObject({
+            description: INTEGRATION_NOTE,
+            resultImageUrl: INTEGRATION_URL,
+          });
+        }));
+
       it('updates the result an earlier study without an Accession Number recorded', () =>
         showError(async () => {
           // arrange
