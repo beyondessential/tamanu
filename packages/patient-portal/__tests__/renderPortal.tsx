@@ -7,7 +7,7 @@ import { ApiContext } from '@tamanu/ui-components';
 import { type Endpoint, resolveEndpoint } from '@tamanu/api-client';
 import { TranslationProvider } from '../src/contexts';
 import { PrivateRoute } from '../src/routes/PrivateRoute';
-import { PublicRoute } from '../src/routes/PublicRoute';
+import { PublicRoute, RegistrationRoute } from '../src/routes/PublicRoute';
 
 export const fakePatient = (overrides = {}) => ({
   id: 'patient-kamaka',
@@ -51,6 +51,12 @@ export const stubTranslations = (translations: Record<string, string> = {}) =>
     }),
   );
 
+const ROUTES_BY_ACCESS = {
+  private: PrivateRoute,
+  public: PublicRoute,
+  registration: RegistrationRoute,
+};
+
 /** Renders a page as the portal does, signed in for `private` pages, at `path`. */
 export const renderPortal = ({
   page,
@@ -63,11 +69,11 @@ export const renderPortal = ({
   page: React.ReactElement;
   path: string;
   routePath?: string;
-  access?: 'private' | 'public';
+  access?: keyof typeof ROUTES_BY_ACCESS;
   api: ReturnType<typeof createFakeApi>;
   routes?: RouteObject[];
 }) => {
-  const Route = access === 'private' ? PrivateRoute : PublicRoute;
+  const Route = ROUTES_BY_ACCESS[access];
   const defaultRoutes = [
     { path: '/', element: <p>Dashboard</p> },
     { path: '/login', element: <p>Login</p> },

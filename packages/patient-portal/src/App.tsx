@@ -16,7 +16,7 @@ import {
   SelectProfileView,
   SurveyView,
 } from './views';
-import { PublicRoute } from '@routes/PublicRoute';
+import { PublicRoute, RegistrationRoute } from '@routes/PublicRoute';
 import { PrivateRoute } from '@routes/PrivateRoute';
 import { PortalTelemetryRouteListener } from './telemetry';
 
@@ -38,7 +38,10 @@ const router = createBrowserRouter(
       <Route path="/select-profile" element={<PrivateRoute element={<SelectProfileView />} />} />
       <Route path="/login" element={<PublicRoute element={<RequestLoginTokenView />} />} />
       <Route path="/login-submit" element={<PublicRoute element={<LoginView />} />} />
-      <Route path="/register/:token" element={<PublicRoute element={<RegistrationView />} />} />
+      <Route
+        path="/register/:token"
+        element={<RegistrationRoute element={<RegistrationView />} />}
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Route>,
   ),
