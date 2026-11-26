@@ -204,13 +204,13 @@ department_info as (
                             'assignedTime', (case when eh.change_type is null
                                               then e.start_date::timestamp at time zone $timezone_string
                                               else eh.date::timestamp at time zone $timezone_string
-                                              end)) order by eh.change_type nulls first, eh.date)
+                                              end)) order by (eh.change_type is not null), eh.date, eh.created_at)
         as department_history
     from encounters e
     join encounter_history eh on eh.encounter_id = e.id
       and eh.deleted_at is null
     left join departments d on d.id = eh.department_id
-    where change_type isnull or 'department' = ANY(change_type)
+    where (eh.change_type isnull or 'department' = ANY(eh.change_type))
     and e.id = $encounter_id
     and e.deleted_at isnull
     group by eh.encounter_id
@@ -225,7 +225,7 @@ location_info as (
                         'facility', f.name,
                         'assignedTime', ((case when eh.change_type is null
                                             then e.start_date::timestamp at time zone $timezone_string
-                                            else eh.date::timestamp at time zone $timezone_string end))) order by eh.change_type nulls first, eh.date)
+                                            else eh.date::timestamp at time zone $timezone_string end))) order by (eh.change_type is not null), eh.date, eh.created_at)
     as location_history
   from encounters e
   join encounter_history eh on eh.encounter_id = e.id
@@ -233,7 +233,7 @@ location_info as (
   left join locations l on eh.location_id = l.id
   left join location_groups lg on l.location_group_id = lg.id
   left join facilities f on l.facility_id = f.id
-  where change_type isnull or 'location' = ANY(change_type)
+  where (eh.change_type isnull or 'location' = ANY(eh.change_type))
   and e.id = $encounter_id
   and e.deleted_at isnull
   group by eh.encounter_id
