@@ -13,6 +13,13 @@ Applies to a prescriber sending prescriptions to the pharmacy, whether selected 
 - An in-stock medication's stock status carries the on-hand quantity as supporting detail.
 - Stock status is informational only: a prescriber can select and send any prescription regardless of its stock status.
 
+## Sending from the prescribing form
+
+- Where the facility has pharmacy ordering turned on and the prescriber can raise pharmacy orders, the form for a new prescription in an encounter asks whether to send it to pharmacy, with two options: Send to pharmacy, and Do not send to pharmacy.
+- This choice is required: neither option is chosen when the form opens, and the prescription cannot be finalised until one is.
+- Choosing Send to pharmacy shows the prescription type choice, and makes a dispensing quantity of at least one required.
+- Choosing Do not send to pharmacy hides the prescription type choice, and the prescription is saved without a pharmacy order.
+
 ## Prescription type
 
 - An order sent from an active encounter is either Inpatient or Outpatient/Discharge, chosen by the prescriber when sending.
