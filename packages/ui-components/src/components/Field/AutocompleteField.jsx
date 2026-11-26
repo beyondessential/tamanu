@@ -554,9 +554,8 @@ export class AutocompleteInput extends Component {
     return groupedSuggestions;
   };
 
-  getSectionSuggestions = section => {
-    return section?.data;
-  };
+  // react-autosuggest can look up a highlighted section after a selection has cleared the list
+  getSectionSuggestions = section => section?.data ?? [];
 
   renderSectionTitle = section => {
     const { getSectionTitle } = this.props;
