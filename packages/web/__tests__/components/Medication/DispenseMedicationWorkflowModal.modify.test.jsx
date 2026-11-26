@@ -47,7 +47,7 @@ const dispensableItem = {
   },
 };
 
-const substitution = {
+const baseSubstitution = {
   medicationId: 'drug-2',
   medication: {
     id: 'drug-2',
@@ -59,6 +59,8 @@ const substitution = {
   quantity: 12,
   labelNotes: 'Take 1 capsule three times daily',
 };
+
+let substitution = baseSubstitution;
 
 const getMock = vi.fn();
 
@@ -138,6 +140,7 @@ const substituteDrug = async () => {
 
 describe('DispenseMedicationWorkflowModal after Modify prescription', () => {
   beforeEach(() => {
+    substitution = baseSubstitution;
     getMock.mockReset();
     getMock.mockImplementation(async endpoint => {
       if (endpoint === 'medication/dispensable-medications') return { data: [dispensableItem] };
@@ -174,5 +177,30 @@ describe('DispenseMedicationWorkflowModal after Modify prescription', () => {
     await substituteDrug();
 
     expect(await screen.findByDisplayValue(substitution.labelNotes)).toBeTruthy();
+  });
+
+  it('keeps the label text empty when the label notes are cleared', async () => {
+    substitution = { ...baseSubstitution, labelNotes: '' };
+    renderModal();
+    await screen.findByText('Amoxicillin 500mg capsule');
+    expect(screen.getByDisplayValue(/^Take 1/)).toBeTruthy();
+
+    await substituteDrug();
+
+    await screen.findByText('Cefalexin 250mg capsule');
+    expect(screen.queryByDisplayValue(/^Take 1/)).toBeNull();
+  });
+
+  it('keeps the stock column when the substituted drug has no stock record', async () => {
+    substitution = {
+      ...baseSubstitution,
+      medication: { ...baseSubstitution.medication, referenceDrug: { facilities: [] } },
+    };
+    renderModal();
+    await screen.findByText(DRUG_STOCK_STATUS_LABELS.in_stock);
+
+    await substituteDrug();
+
+    expect(await screen.findByText(DRUG_STOCK_STATUS_LABELS.unknown)).toBeTruthy();
   });
 });
