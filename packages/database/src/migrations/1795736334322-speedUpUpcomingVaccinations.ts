@@ -3,7 +3,7 @@ import { QueryInterface } from 'sequelize';
 // Must stay a single STABLE SQL statement so the planner inlines it: a call for one patient then
 // reads only that patient's records.
 const CREATE_FUNCTION = `
-CREATE FUNCTION public.upcoming_vaccinations_for_patients(patient_ids varchar[])
+CREATE OR REPLACE FUNCTION public.upcoming_vaccinations_for_patients(patient_ids varchar[])
 RETURNS TABLE (
     patient_id varchar,
     scheduled_vaccine_id varchar,
@@ -326,6 +326,6 @@ export async function up(query: QueryInterface): Promise<void> {
 export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query(PREVIOUS_UPCOMING_VACCINATIONS_VIEW);
   await query.sequelize.query(
-    `DROP FUNCTION public.upcoming_vaccinations_for_patients(varchar[]);`,
+    `DROP FUNCTION IF EXISTS public.upcoming_vaccinations_for_patients(varchar[]);`,
   );
 }

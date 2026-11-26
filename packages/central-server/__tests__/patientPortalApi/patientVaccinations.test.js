@@ -298,6 +298,75 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       ]);
     });
 
+    it("Should date the next dose from the signed-in patient's own last dose", async () => {
+      const { Patient, ReferenceData, ScheduledVaccine, Encounter, AdministeredVaccine } =
+        store.models;
+      const dateOfBirth = format(subWeeks(new Date(), 260), 'yyyy-MM-dd');
+      const child = await Patient.create(fake(Patient, { displayId: 'VAXCHILD02', dateOfBirth }));
+      const sibling = await Patient.create(
+        fake(Patient, { displayId: 'VAXSIBLING02', dateOfBirth }),
+      );
+      await store.models.PortalUser.create({
+        email: 'child2@test.com',
+        patientId: child.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const vaccine = await ReferenceData.create(
+        fake(ReferenceData, { type: 'drug', name: 'Typhoid', code: 'TYPHOID001' }),
+      );
+      const scheduleDose = (index, weeksFromLastVaccinationDue) =>
+        ScheduledVaccine.create(
+          fake(ScheduledVaccine, {
+            vaccineId: vaccine.id,
+            category: 'Campaign',
+            index,
+            weeksFromBirthDue: null,
+            weeksFromLastVaccinationDue,
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          }),
+        );
+      const firstDose = await scheduleDose(1, null);
+      const secondDose = await scheduleDose(2, 6);
+
+      const giveFirstDose = async (patient, date) => {
+        const encounter = await Encounter.create(
+          fake(Encounter, {
+            patientId: patient.id,
+            encounterType: 'clinic',
+            examinerId: testExaminer.id,
+            departmentId: testDepartment.id,
+            locationId: testLocation.id,
+          }),
+        );
+        await AdministeredVaccine.create({
+          encounterId: encounter.id,
+          scheduledVaccineId: firstDose.id,
+          date: `${date} 09:00:00`,
+          status: 'GIVEN',
+          recorderId: testExaminer.id,
+        });
+      };
+      const today = format(new Date(), 'yyyy-MM-dd');
+      await giveFirstDose(child, today);
+      await giveFirstDose(sibling, format(subWeeks(new Date(), 2), 'yyyy-MM-dd'));
+
+      const childAuthToken = await getPatientAuthToken(baseApp, store.models, 'child2@test.com');
+      const response = await baseApp
+        .get('/api/portal/me/vaccinations/upcoming')
+        .set('Authorization', `Bearer ${childAuthToken}`);
+
+      expect(response).toHaveSucceeded();
+      const typhoidDoses = response.body.data.filter(({ vaccine: { id } }) => id === vaccine.id);
+      expect(typhoidDoses).toEqual([
+        expect.objectContaining({
+          scheduledVaccine: expect.objectContaining({ id: secondDose.id }),
+          dueDate: format(addWeeks(parseISO(today), 6), 'yyyy-MM-dd'),
+          status: VACCINE_STATUS.SCHEDULED,
+        }),
+      ]);
+    });
+
     it('Should reject request without authorization header', async () => {
       const response = await baseApp.get('/api/portal/me/vaccinations/upcoming');
       expect(response).toHaveRequestError();

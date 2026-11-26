@@ -117,10 +117,9 @@ patientVaccineRoutes.get(
     let sortKey = sortKeys[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
-    const fromUpcomingVaccinations = `FROM upcoming_vaccinations uv
+    const fromUpcomingVaccinations = `FROM upcoming_vaccinations_for_patients(ARRAY[:patientId]::varchar[]) uv
     JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
-    WHERE uv.patient_id = :patientId
-    AND uv.status <> '${VACCINE_STATUS.MISSED}'`;
+    WHERE uv.status <> '${VACCINE_STATUS.MISSED}'`;
 
     let data;
     await req.db.transaction(async () => {
