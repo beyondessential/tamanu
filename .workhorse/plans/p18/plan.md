@@ -138,7 +138,54 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 - `useSurveySubmitMutation.spec.tsx` drops its `react-redux` mock for a mock of the hook. The note in that file about react-redux resolving a second copy of React no longer applies.
 - `SearchPatientTabs.spec.tsx` drops its `containers/Patient` mock.
 - `NewPatientScreen.spec.tsx` renders a navigator, which needs jest to resolve one copy of React: navigation's dependencies are hoisted to the repository root, where the web app's older React sits. `jest.config.js` maps `react` to the mobile package's copy.
-- On a device: the card's test focus list, with the upgrade check done by installing this build over the previous one while signed in with a patient selected.
+- On a device: the card's test focus list, with the upgrade check done by installing this build over the previous one while signed in with a patient selected. [Device run](#device-run) is the brief for it.
+
+## Device run
+
+Nothing on this card has run on a device. The cases are under "On a device" in the test cases, all unticked. This section is the brief for running them on a machine that has an Android emulator, with an agent driving the app through `adb` (screenshots, the view hierarchy, taps and typing) or Maestro.
+
+### What the machine needs
+
+- Android Studio with an emulator on Android 12 or later, and `adb` on the path. Match the emulator's architecture to the machine: arm64 on Apple silicon, x86_64 on Intel.
+- To build the app: Node 26, the Android SDK for API 36 and NDK 27.1.12297006. The first build compiles every native module's C++ and is slow. Pass `-PreactNativeArchitectures=arm64-v8a` (or `x86_64`) to Gradle to build the one architecture the emulator runs.
+- A central server on this release. A rig lease gives one, with facilities, users and reference data seeded, and needs Postgres on the machine. Its address is `info.centralUrl` in the lease, and its accounts are listed there too.
+
+### Builds
+
+Two debug builds, from two checkouts, both signed with the repository's debug key so one installs over the other:
+
+- **The previous build**: main without this card, from a worktree of `origin/main`. It still keeps its state in Redux and writes redux-persist's format, and it is on the same version as this branch, so one central server accepts both.
+- **This build**: the card's branch.
+
+A debug build loads its JavaScript from Metro, so run Metro from the checkout whose build is installed, and stop it before installing the other.
+
+The emulator reaches the machine's own `127.0.0.1` at `10.0.2.2`. Point each checkout at the rig's central server with a local edit to `packages/mobile/serverOverrides.json`, left uncommitted:
+
+```json
+{ "centralServers": [{ "label": "Rig", "value": "http://10.0.2.2:<central port>" }], "metaServer": null }
+```
+
+The app remembers the server it first signed in to, so the second build carries on against the same one.
+
+Release builds are the closer check but need CI, since a release build made without the signing secrets is unsigned. A pull request deployment builds this branch's package wired to its own central server and posts the link on the pull request. The previous build would come from running the Android packaging workflow by hand with that same server, from a branch that is not `main`, because a run on `main` publishes its package.
+
+### Order
+
+1. **Upgrade, signed in.** Install the previous build, sign in online, choose a facility, pass the welcome introduction and select a patient. Install this build over it with `adb install -r`. This is the case the card most needs: it proves a stored session and selection written by redux-persist are read back.
+2. **Upgrade, logged out, and upgrade, signed out by inactivity.** The same from those two states.
+3. **Relaunch.** Close this build fully and reopen it, and watch the sync that starts at launch through to the end. The launch read was moved to overlap the backend starting, and only a device shows whether the tokens reach the central server connection in time.
+4. **Session and selected patient cases**, in the order the test cases list them.
+5. **Out-of-date app**: skip unless a central server that requires a newer app is to hand.
+
+The fourth upgrade case, from a build older than per-user permissions, needs a central server that accepts that older build, and the same server then turns this build away as too new. Only its first half can be checked that way: this build opens on the log in screen.
+
+### What a field upgrade looks like
+
+A device on the previous release that syncs against an upgraded central server is turned away for its version, and that release signs the device out when that happens. So most devices will reach this build already signed out, carrying only the welcome introduction state and the selected patient. A device updated while offline, or before its central server is upgraded, arrives signed in. Both paths read the old format, which is why the signed-in case is first and the logged-out case is not skipped.
+
+### Recording it
+
+Tick each case in the test cases as it passes. Where one fails, file an issue on the card with the screenshot and the `adb logcat` lines that show it, and leave the case unticked.
 
 ## Left as it is
 

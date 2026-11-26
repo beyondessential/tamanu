@@ -72,12 +72,12 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 
 ### Upgrade
 
-The previous build in the first three cases is one that already keeps permissions per user, which arrived on release/2.69. An older build holds none for anybody, so its session is ended on the first launch whatever this card does; the fourth case covers it.
+The previous build in the first three cases is main without this card: it still writes redux-persist's format, already keeps permissions per user, and is on the same version, so one central server accepts both builds. A build from before per-user permissions holds none for anybody, so its session is ended on the first launch whatever this card does; the fourth case covers it. The plan's Device run section says how to get the builds and a server.
 
 - [ ] Install the previous build, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens signed in on the Patient tab with the same patient, and the welcome introduction does not show again
 - [ ] Repeat with the previous build signed out. This build opens on the log in screen, and signing in goes straight to the home screen without the welcome introduction
 - [ ] Repeat with the previous build signed out by inactivity. This build opens on the log in screen and a sync still runs in the background
-- [ ] Install a build from before per-user permissions, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens on the log in screen, and signing in online goes straight to the home screen without the welcome introduction, with the same patient still selected
+- [ ] Install a build from before per-user permissions, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens on the log in screen. Where the central server accepts this build, signing in online goes straight to the home screen without the welcome introduction, with the same patient still selected
 
 ### Session
 
