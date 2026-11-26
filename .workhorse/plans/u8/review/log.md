@@ -41,4 +41,29 @@ Checkpoint: eslint and prettier clean on the two changed code files; ImagingStud
 
 ## Round 2
 
-Cold round: every reviewer that applies, fresh agents, given no earlier findings. In flight.
+Five reviewers that found something in round 1 (bugs, security, design, BES Requirements, Integration tests), briefed with the ledger, head 97617f8832. Found after triage: 0 critical, 5 suggestions, 5 nits. Not clean. No finding matched a rejection.
+
+| Finding | Raised by | Severity | Decision |
+|---|---|---|---|
+| Runbook's RIS/PACS definition still keys on completed_by_id | design, BES, security | suggestion | Fixed in 94693a7fd7: either an accession number or a link means RIS/PACS posted. This replaces the round 1 wording, which was wrong for rows a study had written over. |
+| Nothing finds or repairs results already overwritten | security | suggestion | Needs a card: data recovery on live deployments. |
+| Spec's hand-entry rules read as rules for every result | design | suggestion | Fixed in 9ffb8d3409: first section retitled, two bullets added, two wordings corrected. |
+| Four add-alongside tests share one body; one misleading title | design | suggestion | Fixed in 890dd4913a: one table of four rows. |
+| No test pins the lookup to the study's own request | Integration tests | suggestion | Fixed in cd97b38f7e. |
+| Spec comment points at the whole spec; ordering unexplained | design | nit | Fixed in 9ffb8d3409. |
+| Literals repeated between act and assert | BES | nit | Fixed in 39e936d524. |
+| Ordering has no tie-breaker | bugs | nit | Skipped: a tie to the millisecond between two link-only results is not worth a second sort key. |
+| Type import shares its name with the destructured model | BES | nit | Skipped: the file already does this with ImagingRequest. |
+| No case with both a link-only and an accession result | Integration tests | nit | Skipped: raised as optional; the single-predicate cases cover it. |
+
+One bugs note (explicit createdAt relies on Sequelize honouring it) asked for no change, since the test already guards it, and is not counted.
+
+The runbook definition drew findings in both rounds. The round 2 wording drops the inference from completed_by_id altogether, so there is no heuristic left in it to pick at.
+
+Re-check of the test fixes, by the orchestrator: removing in turn the Completed by predicate, the accession-number predicate, the ordering (and flipping it), and the request scoping of the link-only branch each fails exactly one case, the one that names it.
+
+Checkpoint: eslint and prettier clean on the three changed code files; ImagingStudy and transaction bundle tests 35 of 35.
+
+## Round 3
+
+The same five reviewers with the ledger. In flight.
