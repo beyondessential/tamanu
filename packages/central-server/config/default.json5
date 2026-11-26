@@ -29,15 +29,7 @@
     "timeoutMs": 20000,
   },
   "updateUrls": {
-    "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
-  },
-  errors: {
-    // enable to send errors to a bug tracking service
-    enabled: false,
-    // right now the only supported service is bugsnag
-    type: 'bugsnag',
-    // paste your bugsnag API key here
-    apiKey: '',
+    "mobile": "https://meta.tamanu.app/versions/{minVersion}/mobile/package",
   },
   patientMerge:{
     updateDependentRecordsForResyncEnabled: true

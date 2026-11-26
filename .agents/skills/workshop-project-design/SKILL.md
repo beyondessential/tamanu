@@ -4,7 +4,7 @@ description: "Produce or refine a project-level mockup illustrating a section of
 label: "Workshop design"
 category: design
 surface: project
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Workshop design (project surface)
@@ -13,7 +13,7 @@ Produce or refine a project-level mockup. Project mockups live at `.workhorse/pr
 
 ### Pick the section first
 
-Project PRDs often contain more than one logical section (component-led or mixed shapes). **If the PRD has more than one section that could plausibly be the target, ask which section the mockup is for** before generating. If there's only one section, or the user has already named it, skip the question and proceed.
+Project PRDs often contain more than one logical section (component-led or mixed shapes). **If the PRD has more than one section that could plausibly be the target, ask which section the mockup is for** before generating, as `.agents/docs/asking-questions.md` says. If there's only one section, or the user has already named it, skip the question and proceed.
 
 ### Source the visual language before authoring
 

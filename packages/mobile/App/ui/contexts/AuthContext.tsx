@@ -12,6 +12,8 @@ import React, {
   useState,
 } from 'react';
 import { readConfig } from '~/services/config';
+import { OutdatedVersionError } from '~/services/error';
+import { recordPendingUpdate } from '~/services/update/pendingUpdate';
 import type { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { buildAbility } from '~/ui/helpers/ability';
@@ -236,7 +238,18 @@ export const AuthProvider = ({ navRef, children }: PropsWithChildren<AuthProvide
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
-    const errHandler = (): void => {
+    const errHandler = (error: Error): void => {
+      // An out-of-date app keeps working offline while its update downloads, so the rejection is
+      // remembered — which pauses sync and raises the banner — and the session is left alone.
+      if (error instanceof OutdatedVersionError) {
+        // No address means nothing to update to: the app is too new for its server, or the server
+        // has no update address set. Sync then reports the rejection as an ordinary sync error.
+        if (error.updateUrl) {
+          recordPendingUpdate(error.updateUrl);
+        }
+        return;
+      }
+
       const { shouldSignOut, nextPreventSignOutOnFailure } =
         resolveAuthErrorAction(preventSignOutOnFailure);
       // reset the flag so a subsequent auth error is no longer skipped

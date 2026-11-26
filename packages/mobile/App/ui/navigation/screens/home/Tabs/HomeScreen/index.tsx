@@ -1,6 +1,7 @@
 import React, { type ReactElement, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
+import { UpdateAlert } from '~/ui/components/UpdateAlert';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -127,6 +128,7 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
         <ConditionalRegisterPatientButton />
         <RecentlyViewedPatientTiles />
         <StyledView background={theme.colors.BACKGROUND_GREY}>
+          <UpdateAlert />
           <SyncInactiveAlert />
         </StyledView>
       </FullView>

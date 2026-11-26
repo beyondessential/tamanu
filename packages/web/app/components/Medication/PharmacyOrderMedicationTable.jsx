@@ -3,6 +3,8 @@ import styled from 'styled-components';
 
 import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import {
+  getDispensingQuantityLimitBreach,
+  getDoseLimitBreach,
   getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
@@ -25,6 +27,7 @@ import { getStockStatus } from '../../utils/medications';
 import { CheckInput } from '../Field';
 import { Table } from '../Table';
 import { LastSentCell } from './LastSentCell';
+import { renderLimitWarning } from './MedicationLimitWarning';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -164,12 +167,19 @@ const getColumns = (
       key: COLUMN_KEYS.DOSE,
       title: <TranslatedText stringId="medication.dose.label" fallback="Dose" />,
       sortable: false,
-      accessor: ({ doseAmount, dosingUnit, isVariableDose }) =>
-        getMedicationDoseDisplay(
-          { doseAmount, dosingUnit, isVariableDose },
-          getTranslation,
-          getEnumTranslation,
-        ),
+      accessor: ({ doseAmount, dosingUnit, isVariableDose, medication }) => (
+        <>
+          {getMedicationDoseDisplay(
+            { doseAmount, dosingUnit, isVariableDose },
+            getTranslation,
+            getEnumTranslation,
+          )}
+          {/* spec: DQLIM#sending-to-pharmacy */}
+          {renderLimitWarning(
+            getDoseLimitBreach({ doseAmount, isVariableDose }, medication?.referenceDrug),
+          )}
+        </>
+      ),
     },
     {
       key: COLUMN_KEYS.FREQUENCY,
@@ -263,7 +273,7 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ quantity, onChange, hasError, dispensingUnit }) => (
+      accessor: ({ quantity, onChange, hasError, dispensingUnit, medication }) => (
         <NumberInput
           min={1}
           unit={
@@ -276,8 +286,12 @@ const getColumns = (
           required
           error={hasError}
           helperText={
-            hasError && (
+            hasError ? (
               <TranslatedText stringId="validation.required.inline" fallback="*Required" />
+            ) : (
+              renderLimitWarning(
+                getDispensingQuantityLimitBreach(quantity, medication?.referenceDrug),
+              )
             )
           }
           data-testid="textinput-rxbh"

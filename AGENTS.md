@@ -1,4 +1,4 @@
-<!-- BEGIN:workhorse 0.8.2 -->
+<!-- BEGIN:workhorse 0.8.3 -->
 # Workhorse framework
 
 This workspace uses [Workhorse](https://github.com/beyondessential/workhorse), a spec-driven development workbench. Start with `.agents/docs/workhorse.md`, which says how Workhorse works and lists the docs that go into more detail.

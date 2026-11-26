@@ -18,4 +18,12 @@ export const testData = {
   // Provisioned by .github/scripts/e2e-test-setup.sh and provisioning.local-example.json5
   practitionerUser: { email: 'practitioner@tamanu.io', password: 'practitioner' },
   receptionUser: { email: 'reception@tamanu.io', password: 'reception' },
+  facilityId: 'facility-1',
+  // Seeded by `generate kioskDemo` in E2E setup. The kiosk asks for the Health questions form at a
+  // follow-up appointment, and portal specs send the same form.
+  kioskDemo: {
+    followUpAppointmentTypeId: 'appointmentType-kioskDemoFollowUp',
+    healthQuestionsSurveyId: 'program-kioskDemo-healthQuestions',
+    healthQuestionsSurveyName: 'Health questions',
+  },
 };

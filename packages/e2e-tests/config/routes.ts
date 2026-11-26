@@ -12,6 +12,13 @@ export const routes = {
   facilityAdmin: {
     recentlyDischargedPatients: '/facility-admin/recently-discharged-patients',
   },
+  patientPortal: {
+    dashboard: '/',
+    login: '/login',
+    loginSubmit: '/login-submit',
+    editDetails: '/details/edit',
+    form: '/survey/*',
+  },
 };
 
 export function wildcardToRegex(route: string): RegExp {

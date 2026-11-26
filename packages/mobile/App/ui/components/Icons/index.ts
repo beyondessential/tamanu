@@ -7,6 +7,7 @@ export * from './QRCode';
 export * from './ScheduledVaccine';
 export * from './GreenTick';
 export * from './Error';
+export * from './Pause';
 
 export * from './CameraOutline';
 export * from './Settings';
