@@ -66,4 +66,26 @@ Checkpoint: eslint and prettier clean on the three changed code files; ImagingSt
 
 ## Round 3
 
-The same five reviewers with the ledger. In flight.
+The same five reviewers with the ledger, head 2e02e75bc4. Found after triage: 0 critical, 6 suggestions, 5 nits. Not clean. Bugs came back with nothing; Integration tests with nits only. No finding matched a rejection.
+
+| Finding | Raised by | Severity | Decision |
+|---|---|---|---|
+| Runbook's test for an overwritten result misses results saved without a clinician | security | suggestion | Fixed in ae4d55fd36 by removing the passage. |
+| Runbook names an overwritten record with no safe next step | security | suggestion | Fixed in ae4d55fd36 by removing the passage. |
+| Runbook overstates what an overwritten result lost | design | suggestion | Fixed in ae4d55fd36 by removing the passage. |
+| Spec does not say what an update changes | design | suggestion | Fixed in ae7fd7f091. |
+| Spec note's reasoning rules out the update it justifies | design | suggestion | Fixed in ae7fd7f091. |
+| Spec defines the earlier result after the bullet that uses it | BES | suggestion | Fixed in ae7fd7f091: one bullet. |
+| Test table does not show which predicate each row guards | design, BES, Integration tests | nit | Fixed in 715aa13e23. |
+| Runbook pointer and return-path sentence | design, BES | nit | Fixed in ae4d55fd36. |
+| Completed means two things in adjacent spec bullets | design | nit | Fixed in ae7fd7f091. |
+| Table callback's unused argument and flag | BES | nit | Skipped: preference; the flag exists because the clinician's id is not known when the table is defined. |
+| Ordering untested on the accession-number branch | Integration tests | nit | Skipped: optional; needs concurrent posts to arise. |
+
+The runbook passage on overwritten results, added in round 2, drew findings in a third round running. It was guidance for work this card does not do (finding and reviewing those rows, recorded as needing a card), so it is removed and not reworded. What that card will want from these rounds: a result saved without a clinician cannot be told from a RIS/PACS result once a study has written over it; the description was replaced only where the study carried report text; the row must not be edited by hand.
+
+Checkpoint: eslint and prettier clean; ImagingStudy and transaction bundle tests 35 of 35.
+
+## Round 4
+
+Security, design, BES Requirements and Integration tests with the ledger. In flight.
