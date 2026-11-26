@@ -8,6 +8,6 @@
 ## Settings
 
 - [x] The central settings no longer include the lab result widget whitelists
-- [x] Upgrading deletes a deployment's stored lab result widget whitelists and leaves its other settings in place
+- [x] Upgrading makes no change to the database, so a deployment's stored lab result widget whitelists stay as they were for an earlier release to read
 - [x] A deployment with the whitelists still in its local config has them ignored, and nothing is carried into settings on upgrade
-- [ ] The admin panel's central settings no longer list Lab result widget
+- [ ] The admin panel's settings editor no longer lists Lab result widget under the central settings
