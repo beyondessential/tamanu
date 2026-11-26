@@ -9,6 +9,7 @@ import { OTHER_REFERENCE_TYPES, PROGRAM_REFERENCE_TYPES } from '@tamanu/constant
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { assertUploadedFilePath, getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
+import { retryWithBackoff } from '@tamanu/utils/retryWithBackoff';
 
 import { DataImportError, DryRun } from '../errors';
 import { coalesceStats } from '../stats';
@@ -69,6 +70,16 @@ export function normaliseSheetName(name, modelName) {
   return normMapping[norm] || norm;
 }
 
+// Postgres SQLSTATE for "could not serialize access due to concurrent update". The import runs
+// serialisable, so locking the sync tick raises it when a sync session moves the tick after the
+// transaction's snapshot was taken. The transaction has rolled back, so the import can run again.
+const SERIALIZATION_FAILURE_SQLSTATE = '40001';
+const SERIALIZATION_FAILURE_RETRY_MS = 10_000;
+
+const isSerializationFailure = error =>
+  error?.original?.code === SERIALIZATION_FAILURE_SQLSTATE ||
+  error?.parent?.code === SERIALIZATION_FAILURE_SQLSTATE;
+
 /** @internal exported for testing only */
 export async function importerTransaction({
   importer,
@@ -79,11 +90,12 @@ export async function importerTransaction({
   checkPermission,
   ...extraOptions
 }) {
-  const errors = [];
-  const stats = [];
-
-  try {
-    log.debug('Starting transaction');
+  // Each attempt starts with empty lists, so a retried attempt doesn't report the last one's work
+  let errors = [];
+  let stats = [];
+  const attemptImport = async () => {
+    errors = [];
+    stats = [];
     await models.ReferenceData.sequelize.transaction(
       {
         // strongest level to be sure to read/write good data
@@ -120,6 +132,16 @@ export async function importerTransaction({
         if (dryRun) throw new DryRun(); // roll back the transaction
       },
     );
+  };
+
+  try {
+    log.debug('Starting transaction');
+    await retryWithBackoff(attemptImport, {
+      maxElapsedMs: SERIALIZATION_FAILURE_RETRY_MS,
+      isRetryable: isSerializationFailure,
+      onRetry: ({ attempt, nextDelayMs }) =>
+        log.warn('importer: lost a serialisation race, retrying', { attempt, nextDelayMs }),
+    });
     log.debug('Ended transaction');
 
     return { errors: [], stats: coalesceStats(stats) };
@@ -169,10 +191,14 @@ export function createDataImporterEndpoint(importer) {
       throw error;
     }
 
+    let hasImporterStarted = false;
     let result;
     try {
       result = await importerTransaction({
-        importer,
+        importer: options => {
+          hasImporterStarted = true;
+          return importer(options);
+        },
         file,
         models: store.models,
         dryRun,
@@ -183,6 +209,12 @@ export function createDataImporterEndpoint(importer) {
     } finally {
       // we don't need the file any more
       await fs.unlink(file).catch(() => {});
+    }
+
+    if (!hasImporterStarted) {
+      // The import failed before the importer, and so its permission checks, ran. The response
+      // carries only that failure, so let it through rather than masking it as "unimplemented".
+      req.flagPermissionChecked();
     }
 
     result.errors =
