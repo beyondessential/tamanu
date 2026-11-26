@@ -196,6 +196,10 @@ latest_encounter_notes_info as (
   group by n.record_id
 ),
 
+-- History is ordered with the initial snapshot first, then by date. Rows sharing a date are
+-- ordered by created_at on a best-effort basis: created_at is excluded from sync, so a row
+-- synced in from a facility carries the time it arrived, not the time the change was made.
+-- id is the last tiebreak so that the order is at least stable between materialisations.
 department_info as (
   select
         eh.encounter_id,
@@ -204,7 +208,7 @@ department_info as (
                             'assignedTime', (case when eh.change_type is null
                                               then e.start_date::timestamp at time zone $timezone_string
                                               else eh.date::timestamp at time zone $timezone_string
-                                              end)) order by (eh.change_type is not null), eh.date, eh.created_at)
+                                              end)) order by (eh.change_type is not null), eh.date, eh.created_at, eh.id)
         as department_history
     from encounters e
     join encounter_history eh on eh.encounter_id = e.id
@@ -225,7 +229,7 @@ location_info as (
                         'facility', f.name,
                         'assignedTime', ((case when eh.change_type is null
                                             then e.start_date::timestamp at time zone $timezone_string
-                                            else eh.date::timestamp at time zone $timezone_string end))) order by (eh.change_type is not null), eh.date, eh.created_at)
+                                            else eh.date::timestamp at time zone $timezone_string end))) order by (eh.change_type is not null), eh.date, eh.created_at, eh.id)
     as location_history
   from encounters e
   join encounter_history eh on eh.encounter_id = e.id
