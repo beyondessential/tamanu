@@ -93,16 +93,20 @@ export const AuthProvider = ({ navRef, children }: PropsWithChildren<AuthProvide
     [setSession],
   );
 
+  /** Null when the user has no permissions cached on this device */
   const generateAbilityForUser = useCallback(
-    (userData: IUser): PureAbility => buildAbility(userData, backend.permissions.data),
+    (userData: IUser): PureAbility | null => {
+      const permissions = backend.permissions.getForUser(userData.id);
+      return permissions ? buildAbility(userData, permissions) : null;
+    },
     [backend],
   );
 
-  // A remote sign-in replaces the stored permissions just before it sets the user, so
+  // A remote sign-in stores the user's permissions just before it sets the user, so
   // rebuilding whenever the user changes picks them up
   const ability = useMemo(
-    () => (user ? buildAbility(user, backend.permissions.data) : null),
-    [user, backend.permissions.data],
+    () => (user ? generateAbilityForUser(user) : null),
+    [user, generateAbilityForUser],
   );
 
   const checkFirstSession = useCallback((): boolean => isFirstTime, [isFirstTime]);
@@ -123,9 +127,12 @@ export const AuthProvider = ({ navRef, children }: PropsWithChildren<AuthProvide
       // the database, we don't need or want to store it in app state as well.
       const userData = { ...authenticatedUser };
       delete userData.password;
+      if (!generateAbilityForUser(userData)) {
+        throw new Error('No permissions are stored on this device for the signing-in user');
+      }
       updateSession({ ...tokens, user: userData, signedIn: true });
     },
-    [updateSession],
+    [generateAbilityForUser, updateSession],
   );
 
   const localSignIn = useCallback(
@@ -145,8 +152,9 @@ export const AuthProvider = ({ navRef, children }: PropsWithChildren<AuthProvide
         token: newToken,
         refreshToken: newRefreshToken,
       } = await backend.auth.remoteSignIn(params);
-      setSettings(remoteSettings);
+      // first, so a sign-in it refuses leaves no session behind
       signInAs(usr, { token: newToken, refreshToken: newRefreshToken });
+      setSettings(remoteSettings);
     },
     [backend, signInAs],
   );
@@ -235,6 +243,16 @@ export const AuthProvider = ({ navRef, children }: PropsWithChildren<AuthProvide
     }
   }, [backend, isSessionRestored, token, refreshToken, user]);
 
+  // spec: MSIGN
+  // A stored session whose user has no permissions on this device cannot be used, so it is
+  // ended as a log out would end it. Nothing has rendered yet, so there is no screen to leave.
+  const isSessionUnusable = Boolean(user && (token || signedIn)) && !ability;
+  useEffect(() => {
+    if (!isSessionRestored || !isSessionUnusable) return;
+    backend.stopSyncService(); // we deliberately don't await this
+    updateSession({ token: null, refreshToken: null, signedIn: false });
+  }, [backend, isSessionRestored, isSessionUnusable, updateSession]);
+
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
@@ -299,8 +317,9 @@ export const AuthProvider = ({ navRef, children }: PropsWithChildren<AuthProvide
     ],
   );
 
-  // Nothing below can render correctly until the stored session has been read
-  if (!isSessionRestored) return null;
+  // Nothing below can render correctly until the stored session has been read, and ended
+  // where it cannot be used
+  if (!isSessionRestored || isSessionUnusable) return null;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

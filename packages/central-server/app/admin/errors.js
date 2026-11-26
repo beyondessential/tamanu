@@ -17,6 +17,7 @@ export class DataImportError extends Error {
 
     this.previous = previous;
     this.sheetName = sheetName;
+    this.rowIndex = rowIndex;
     this.rowNumber = rowNumber;
   }
 

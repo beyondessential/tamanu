@@ -1,21 +1,23 @@
-import { escapePatternWildcard, makeFilter } from './query';
+import { likePattern } from '@tamanu/utils/likePattern';
+
+import { makeFilter } from './query';
 
 export const createTriageFilters = filterParams => {
   return [
     makeFilter(
       filterParams.displayId,
       `UPPER(patients.display_id) LIKE UPPER(:displayId)`,
-      ({ displayId }) => ({ displayId: `%${escapePatternWildcard(displayId)}%` }),
+      ({ displayId }) => ({ displayId: likePattern`%${displayId}%` }),
     ),
     makeFilter(
       filterParams.firstName,
       `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
-      ({ firstName }) => ({ firstName: `%${escapePatternWildcard(firstName)}%` }),
+      ({ firstName }) => ({ firstName: likePattern`%${firstName}%` }),
     ),
     makeFilter(
       filterParams.lastName,
       `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
-      ({ lastName }) => ({ lastName: `%${escapePatternWildcard(lastName)}%` }),
+      ({ lastName }) => ({ lastName: likePattern`%${lastName}%` }),
     ),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),
     makeFilter(filterParams.score, `triages.score = :score`),

@@ -56,7 +56,15 @@ const asReduxPersistEntry = (state: Record<string, unknown>): string =>
     _persist: JSON.stringify({ version: -1, rehydrated: true }),
   });
 
-const createBackend = () => ({
+type Permission = { verb: string; noun: string };
+
+/** The permissions the device holds for each user, as their last online sign-in left them */
+const storedPermissions: Record<string, Permission[]> = {
+  'user-1': [{ verb: 'read', noun: 'Patient' }],
+  'user-2': [{ verb: 'write', noun: 'Patient' }],
+};
+
+const createBackend = (permissionsByUser: Record<string, Permission[]> = storedPermissions) => ({
   auth: {
     localSignIn: jest.fn(),
     remoteSignIn: jest.fn(),
@@ -64,7 +72,7 @@ const createBackend = () => ({
     endSession: jest.fn(),
     emitter: mitt(),
   },
-  permissions: { data: [{ verb: 'read', noun: 'Patient' }] },
+  permissions: { getForUser: jest.fn((userId: string) => permissionsByUser[userId]) },
   syncManager: { triggerSync: jest.fn() },
   stopSyncService: jest.fn(),
 });
@@ -211,6 +219,53 @@ describe('AuthProvider', () => {
       expect(backend.auth.startSession).not.toHaveBeenCalled();
     });
 
+    it('ends a stored session whose user has no permissions on the device', async () => {
+      const { result, backend, navigation } = await renderAuth({
+        stored: JSON.stringify(signedInSession),
+        backend: createBackend({}),
+      });
+
+      expect(result.current.signedIn).toBe(false);
+      expect(backend.stopSyncService).toHaveBeenCalledTimes(1);
+      expect(backend.auth.endSession).toHaveBeenCalled();
+      expect(navigation.current.reset).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(lastStoredSession()).toEqual({
+          ...signedInSession,
+          token: null,
+          refreshToken: null,
+          signedIn: false,
+        }),
+      );
+    });
+
+    it('ends a stored session with no permissions for a user who last signed in offline', async () => {
+      const { result, backend } = await renderAuth({
+        stored: JSON.stringify({ ...signedInSession, token: null, refreshToken: null }),
+        backend: createBackend({}),
+      });
+
+      expect(result.current.signedIn).toBe(false);
+      expect(backend.stopSyncService).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves a logged out device with no permissions stored as it is', async () => {
+      const { result, backend } = await renderAuth({
+        stored: JSON.stringify({
+          ...signedInSession,
+          token: null,
+          refreshToken: null,
+          signedIn: false,
+        }),
+        backend: createBackend({}),
+      });
+      await flushStorage();
+
+      expect(result.current.signedIn).toBe(false);
+      expect(backend.stopSyncService).not.toHaveBeenCalled();
+      expect(mockSetStored).not.toHaveBeenCalled();
+    });
+
     it('starts signed out when the stored session cannot be read', async () => {
       const { result } = await renderAuth({ stored: '{"token":' });
 
@@ -292,6 +347,9 @@ describe('AuthProvider', () => {
       expect(backend.auth.remoteSignIn).not.toHaveBeenCalled();
       expect(result.current.signedIn).toBe(true);
       expect(result.current.user).toEqual(otherUser);
+      // their own permissions, not those of the user who was signed in before them
+      expect(result.current.ability.can('write', 'Patient')).toBe(true);
+      expect(result.current.ability.can('read', 'Patient')).toBe(false);
       await waitFor(() =>
         expect(lastStoredSession()).toEqual({
           ...signedInSession,
@@ -299,6 +357,30 @@ describe('AuthProvider', () => {
           signedIn: true,
         }),
       );
+    });
+
+    it('refuses a user with no permissions on the device, leaving no session behind', async () => {
+      const { result, backend } = await renderAuth({ backend: createBackend({}) });
+      backend.auth.remoteSignIn.mockResolvedValue({
+        user,
+        token: 'token-2',
+        refreshToken: 'refresh-2',
+        settings: { vitals: true },
+      });
+
+      await act(async () => {
+        await expect(
+          result.current.signIn({ email: user.email, password: 'secret', server: 'ignored' }),
+        ).rejects.toThrow('No permissions are stored on this device');
+      });
+      await flushStorage();
+
+      expect(result.current.signedIn).toBe(false);
+      expect(result.current.user).toBeNull();
+      expect(result.current.settings).toEqual({});
+      expect(backend.auth.startSession).not.toHaveBeenCalled();
+      expect(backend.syncManager.triggerSync).not.toHaveBeenCalled();
+      expect(mockSetStored).not.toHaveBeenCalled();
     });
 
     it('does not start a sync before a facility is linked', async () => {

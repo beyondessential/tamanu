@@ -17,6 +17,7 @@ import type { MigrationStr, StepArgs } from './step.ts';
 export type * from './step.ts';
 export * from './step.js';
 export { normaliseMigrationStorageExtensions } from './normaliseMigrationStorage.js';
+export { checkConfigKey } from './checkConfigKey.js';
 
 const EARLIEST_MIGRATION = '1739968205100-addLSFFunction';
 const BASELINE_MIGRATION = '000_baseline';
@@ -79,7 +80,7 @@ async function runUpgrade({
   const upgradeRunId = crypto.randomUUID();
   log.info('Upgrade run id', { upgradeRunId });
 
-  await checkConfigKey(sequelize);
+  await checkConfigKey(sequelize, parentTransaction);
 
   // Databases migrated before the build-less switch hold `.js` migration-storage records; rewrite
   // them to `.ts` before any migration state is read (createMigrationInterface asserts this done).

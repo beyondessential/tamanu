@@ -1,19 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { PatientContact } from '~/models/PatientContact';
 import { type IPatientContact, ReferenceDataType } from '~/types';
 import { Button } from '~/ui/components/Button';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
-import { PlusIcon } from '~/ui/components/Icons/PlusIcon';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
@@ -33,15 +31,10 @@ import { ContactCard } from '../CustomComponents/ContactCard';
 export const ReminderContactScreen = ({ navigation }: BaseAppProps) => {
   const { selectedPatient } = useSelectedPatient();
   const { getTranslation, getReferenceDataTranslation } = useTranslation();
-  const { reminderContactList, isLoadingReminderContactList, afterAddContact, isFailedContact } =
-    useReminderContact();
+  const { reminderContactList, isLoadingReminderContactList } = useReminderContact();
 
   const { ability } = useAuth();
   const canWriteReminderContacts = ability.can('write', 'Patient');
-
-  const onNavigateAddReminderContact = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddReminderContact);
-  }, [navigation]);
 
   const queryClient = useQueryClient();
   const { mutate: removeReminderContact } = useMutation({
@@ -79,13 +72,6 @@ export const ReminderContactScreen = ({ navigation }: BaseAppProps) => {
     );
   };
 
-  const onRetryConnect = (contact: IPatientContact) => {
-    afterAddContact(contact);
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
-      contactId: contact.id,
-    });
-  };
-
   const patientName = joinNames(selectedPatient);
 
   const description = getTranslation(
@@ -95,8 +81,8 @@ export const ReminderContactScreen = ({ navigation }: BaseAppProps) => {
   );
 
   const emptyDescription = getTranslation(
-    'patient.details.reminderContacts.emptyDescription',
-    "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+    'patient.details.reminderContacts.noContacts',
+    'There are no contacts registered to receive reminders for :patientName.',
     { replacements: { patientName } },
   );
 
@@ -149,7 +135,6 @@ export const ReminderContactScreen = ({ navigation }: BaseAppProps) => {
                       <>
                         <StyledText>{emptyDescription.split(`${patientName}.`)[0]}</StyledText>
                         <StyledText fontWeight={600}>{patientName}.</StyledText>
-                        <StyledText>{emptyDescription.split(`${patientName}.`)[1]}</StyledText>
                       </>
                     )}
                   </StyledText>
@@ -158,29 +143,6 @@ export const ReminderContactScreen = ({ navigation }: BaseAppProps) => {
                   <StyledView key={x.id} marginTop={15} marginBottom={10}>
                     <ContactCard {...x} />
                     <RowView justifyContent="flex-end">
-                      {isFailedContact(x) && (
-                        <Button
-                          onPress={() => onRetryConnect(x)}
-                          height={screenPercentageToDP(4, Orientation.Height)}
-                          marginRight={canWriteReminderContacts ? 16 : 8}
-                          paddingTop={4}
-                          alignSelf="flex-end"
-                          backgroundColor={theme.colors.WHITE}
-                          maxWidth={100}
-                        >
-                          <StyledText
-                            color={theme.colors.PRIMARY_MAIN}
-                            textDecorationLine="underline"
-                            fontWeight={500}
-                            fontSize={screenPercentageToDP(2, Orientation.Height)}
-                          >
-                            <TranslatedText
-                              stringId="patient.details.reminderContacts.action.retry"
-                              fallback="Retry"
-                            />
-                          </StyledText>
-                        </Button>
-                      )}
                       {canWriteReminderContacts && (
                         <Button
                           onPress={() => confirmRemoveReminderContact(x)}
@@ -208,34 +170,6 @@ export const ReminderContactScreen = ({ navigation }: BaseAppProps) => {
                   </StyledView>
                 ))}
               </>
-            )}
-            {canWriteReminderContacts && !isLoadingReminderContactList && (
-              <Button
-                onPress={onNavigateAddReminderContact}
-                backgroundColor={theme.colors.WHITE}
-                borderColor={theme.colors.PRIMARY_MAIN}
-                borderWidth={1}
-                marginTop={15}
-                width={screenPercentageToDP(34, Orientation.Width)}
-                height={screenPercentageToDP(5, Orientation.Height)}
-                textColor={theme.colors.PRIMARY_MAIN}
-                fontSize={screenPercentageToDP(2, Orientation.Height)}
-                fontWeight={500}
-                alignItems="center"
-                buttonText={
-                  <TranslatedText
-                    stringId="patient.details.reminderContacts.action.add"
-                    fallback="Add contact"
-                  />
-                }
-              >
-                <StyledView marginRight={screenPercentageToDP(0.6, Orientation.Height)}>
-                  <PlusIcon
-                    width={screenPercentageToDP(1.8, Orientation.Height)}
-                    height={screenPercentageToDP(1.8, Orientation.Height)}
-                  />
-                </StyledView>
-              </Button>
             )}
           </StyledView>
         </StyledSafeAreaView>

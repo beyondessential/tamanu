@@ -4,6 +4,7 @@ import { ReadSettings } from '@tamanu/settings';
 import { settingsCache } from '@tamanu/settings/cache';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { log } from '@tamanu/shared/services/logging';
+import { readConfigKeyFile } from '@tamanu/shared/utils/crypto';
 import { initReporting } from '@tamanu/database/services/reporting';
 import {
   getFhirWorkerSettings,
@@ -16,7 +17,6 @@ import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 import { AIService } from './services/AIService';
-import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
@@ -52,9 +52,6 @@ export class ApplicationContext {
   /** @type {Promise<void> | null} */
   aiServiceRefresh = null;
 
-  /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
-  telegramBotService = null;
-
   integrations = null;
 
   /**@type {ReadSettings<CentralSettingPath> | null} */
@@ -67,6 +64,10 @@ export class ApplicationContext {
 
   async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
     this.appType = appType;
+    // Fails before anything is served when the key is missing or refused, rather than at the
+    // first secret read.
+    await readConfigKeyFile();
+
     this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 
     this.closePromise = new Promise(resolve => {
@@ -108,11 +109,6 @@ export class ApplicationContext {
     }
 
     await this.refreshAiService();
-
-    this.telegramBotService = await defineSingletonTelegramBotService({
-      models: this.store.models,
-      settings: this.settings,
-    });
 
     if (await isSyncTriggerDisabled(this.store.sequelize)) {
       log.warn('Sync Trigger is disabled in the database.');

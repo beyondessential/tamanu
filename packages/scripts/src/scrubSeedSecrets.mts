@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Clears the secrets migrate provisioned, so the snapshot taken from a seed build ships
-// none of them: they are encrypted with that build's key file, which never leaves it, and
+// none of them: they are encrypted with a throwaway key file, which never leaves it, and
 // a deploy restoring the snapshot provisions its own under its own key file.
 
 import config from 'config';

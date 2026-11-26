@@ -10,6 +10,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
+import { likePattern } from '@tamanu/utils/likePattern';
 import {
   getModelForType,
   getColumnsForModel,
@@ -237,10 +238,10 @@ referenceDataManageRouter.get(
       const fkNameCol = fkNameByKey.get(key);
       if (fkNameCol) {
         // search the associated record's name, not a column on this model
-        searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: `%${value}%` };
+        searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: likePattern`%${value}%` };
         continue;
       }
-      const match = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
+      const match = exactMatchKeys.has(key) ? value : { [Op.iLike]: likePattern`%${value}%` };
       // a key the base record can be searched by is the base record's; detail gets what's left
       if (searchableKeys.has(key)) {
         searchWhere[key] = match;

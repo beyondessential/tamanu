@@ -155,7 +155,7 @@ export const SearchPatientTabs = ({
           message={
             <TranslatedText
               stringId="modal.qrScanner.invalidCodeErrorMessage"
-              fallback="Not a valid QR Code"
+              fallback="Not a valid QR code"
             />
           }
           onClose={closeInvalidScanToast}

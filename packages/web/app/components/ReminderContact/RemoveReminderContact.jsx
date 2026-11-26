@@ -32,13 +32,7 @@ const StyledDivider = styled(Divider)`
   border-top: 1px solid ${Colors.outline};
 `;
 
-export const RemoveReminderContact = ({
-  selectedContact,
-  onBack,
-  onClose,
-  pendingContacts,
-  successContactIds,
-}) => {
+export const RemoveReminderContact = ({ selectedContact, onBack, onClose }) => {
   const api = useApi();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -73,8 +67,6 @@ export const RemoveReminderContact = ({
       <ContactDetails
         selectedContact={selectedContact}
         isRemoveModal
-        pendingContacts={pendingContacts}
-        successContactIds={successContactIds}
         data-testid="contactdetails-lsll"
       />
       <StyledFullWidthContainer data-testid="styledfullwidthcontainer-i1t0">

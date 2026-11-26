@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { matchPath, useBlocker } from 'react-router';
+import { useStore } from 'react-redux';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 
@@ -14,6 +15,7 @@ import { PATIENT_PATHS } from '../../constants/patientPaths';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
+import { checkIsLoggedIn } from '../../store/auth';
 import { NoteModalDialogTitle } from './NoteModalCommonComponents';
 import { route } from '@tamanu/api-client';
 
@@ -236,9 +238,17 @@ export const NoteModal = () => {
   const handleBeforeUnloadRef = React.useRef(null);
   const { getTranslation } = useTranslation();
 
+  const store = useStore();
+
   const blocker = useBlocker(({ nextLocation }) => {
     // Only block when the note modal is open and navigating outside the patient area
     if (!isNoteModalOpen) {
+      return false;
+    }
+    // Logging out redirects in the same tick as it ends the session, before this closure sees the
+    // modal close, so read the session from the store: once it has ended, the note is discarded
+    // and the redirect goes through.
+    if (!checkIsLoggedIn(store.getState())) {
       return false;
     }
     const nextPath = nextLocation?.pathname || '';
