@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -25,6 +25,14 @@ vi.mock('../../../app/components/WebcamCaptureModal', async importOriginal => {
     },
   };
 });
+
+const { zxingDecode } = vi.hoisted(() => ({ zxingDecode: vi.fn() }));
+
+vi.mock('@zxing/browser', () => ({
+  BrowserQRCodeReader: class {
+    decode = zxingDecode;
+  },
+}));
 
 vi.mock('../../../app/utils', async importOriginal => ({
   ...(await importOriginal()),
@@ -104,6 +112,54 @@ describe('QRCodeTextField', () => {
 
     await waitFor(() => expect(notifyError).toHaveBeenCalled());
     expect(screen.getByTestId(VALUE_PROBE).textContent).toBe('');
+  });
+});
+
+describe('repeated scans of one invalid QR code', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    delete window.BarcodeDetector;
+    zxingDecode.mockReset();
+    vi.mocked(notifyError).mockClear();
+  });
+
+  it('shows one toast when detections are slower than the scan interval', async () => {
+    const pendingDetections = [];
+    window.BarcodeDetector = class {
+      detect = () =>
+        new Promise(resolve => {
+          pendingDetections.push(resolve);
+        });
+    };
+    renderField();
+
+    await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
+    await act(async () => vi.advanceTimersByTime(2500));
+    await act(async () =>
+      pendingDetections.forEach(resolve => resolve([{ rawValue: SCANNED_VALUE }])),
+    );
+
+    expect(notifyError).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows one toast when the camera has been open for several scans without BarcodeDetector', async () => {
+    let isCodeInView = false;
+    zxingDecode.mockImplementation(() => {
+      if (!isCodeInView) throw new Error('No QR code in frame');
+      return { getText: () => SCANNED_VALUE };
+    });
+    renderField();
+
+    await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
+    await act(async () => vi.advanceTimersByTime(2500));
+    isCodeInView = true;
+    await act(async () => vi.advanceTimersByTime(2500));
+
+    expect(notifyError).toHaveBeenCalledTimes(1);
   });
 });
 
