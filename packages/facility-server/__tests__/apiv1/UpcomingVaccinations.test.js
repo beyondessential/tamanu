@@ -16,11 +16,16 @@ vi.mock('@tamanu/utils/dateTime', async () => ({
   getCurrentISO8601DateString: vi.fn(() => '2021-01-01 00:00:00.000Z'),
 }));
 
-const createPatient = async (models, overrides) => {
-  return models.Patient.create({
+const createPatient = async (models, overrides, { isMarkedForSync = true } = {}) => {
+  const patient = await models.Patient.create({
     ...fake(models.Patient),
     ...overrides,
   });
+  if (isMarkedForSync) {
+    const [facilityId] = selectFacilityIds(config);
+    await models.PatientFacility.create({ patientId: patient.id, facilityId });
+  }
+  return patient;
 };
 
 const createNewScheduledVaccine = async (models, overrides) => {
@@ -160,6 +165,18 @@ describe('Upcoming vaccinations', () => {
       dateOfBirth: toDateString(subDays(new Date(), 500)),
     });
     const result = await app.get(`/api/upcomingVaccinations`);
+    expect(result.body.data.length).toBe(6);
+  });
+
+  it('should exclude patients not marked for sync on this server', async () => {
+    await createPatient(
+      models,
+      { displayId: 'unsynced', dateOfBirth: toDateString(subDays(new Date(), 1)) },
+      { isMarkedForSync: false },
+    );
+    await ctx.sequelize.query('REFRESH MATERIALIZED VIEW materialized_upcoming_vaccinations');
+    const result = await app.get(`/api/upcomingVaccinations`);
+    expect(result.body.data.map(row => row.displayId)).not.toContain('unsynced');
     expect(result.body.data.length).toBe(6);
   });
 
