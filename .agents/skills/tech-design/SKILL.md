@@ -3,7 +3,7 @@ name: tech-design
 description: "Workshop the technical approach and capture notes in the plan"
 label: "Tech design"
 category: build
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Tech design workshop
@@ -14,7 +14,7 @@ Workshop the technical approach for this card interactively. The goal is to capt
 
 1. Read the card's specs and any existing plan at `.workhorse/plans/{card-id}/`
 2. Skim the relevant code in the target repo to anchor the conversation in what exists
-3. Surface the design choices that need making (architecture, data flow, component boundaries, migration steps) and ask the user focused questions one or two at a time
+3. Surface the design choices that need making (architecture, data flow, component boundaries, migration steps) and ask the user about them as `.agents/docs/asking-questions.md` says
 4. As decisions land, write them into the target document as prose notes under clear section headings. Don't force a checklist yet — notes are fine on their own
 5. If the target is the plan and none exists, create one at `.workhorse/plans/{card-id}/plan.md` — an H1 title, an optional summary, and sections of notes are enough for a first version
 

@@ -9,6 +9,7 @@ import { ModalCancelRow } from '../ModalActionRow';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
+import { escapeHtml } from '../../utils/escapeHtml';
 import { usePatient } from '../../contexts/Patient';
 import { useTelegramBotInfoQuery } from '../../api/queries';
 import { Colors } from '../../constants';
@@ -89,7 +90,7 @@ export const ReminderContactQR = ({ contact, onClose }) => {
           __html: getTranslation(
             'patient.details.reminderContactQr.description',
             'Please ask the contact to scan the QR code using their camera app to register their Telegram account to receive automated reminder messages for :patientName.',
-            { replacements: { patientName: `<span>${patientName}</span>` } },
+            { replacements: { patientName: `<span>${escapeHtml(patientName)}</span>` } },
           ),
         }}
         data-testid="styledtext-4inx"

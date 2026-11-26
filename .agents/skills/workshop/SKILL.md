@@ -4,7 +4,7 @@ description: "Workshop this idea with me"
 label: "Workshop this"
 category: spec
 surface: both
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Workshop ideas
@@ -15,7 +15,7 @@ If you don't already have the card's context (title, identifier, description) �
 
 On a project surface, keep to what `.agents/docs/project-surface.md` allows.
 
-The user wants to explore and refine an idea. Help them think through approaches, trade-offs, and possibilities. Generate mockups when a visual would help illustrate a concept. This is exploratory — follow the user's curiosity rather than driving toward a specific output.
+The user wants to explore and refine an idea. Help them think through approaches, trade-offs, and possibilities. Generate mockups when a visual would help illustrate a concept. This is exploratory — follow the user's curiosity rather than driving toward a specific output. Where a direction needs the user's call, ask as `.agents/docs/asking-questions.md` says.
 
 ### When generating mockups
 

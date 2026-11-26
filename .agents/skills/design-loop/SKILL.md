@@ -3,7 +3,7 @@ name: design-loop
 description: "Design this card's UI in loops, from references and three directions to a refined build, until fresh critiques find nothing above minor"
 label: "Design loop"
 category: design
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: design a UI in loops until it is refined
@@ -39,7 +39,7 @@ If the card needs no design, call `report_round` with `loop` `design_loop`, `sta
 
 ### 1. References
 
-1. Ask whether a product does this well, in prose, then carry on working: the user may already have gone, and a question panel would park the run. Name the screens and states you would capture, each with the decision it settles, and explain how to capture them. If the workspace has a skill for capturing that product, such as `match-linear` for Linear, follow it from here.
+1. Ask whether a product does this well, in prose as `.agents/docs/asking-questions.md` says, then carry on working: the user may already have gone, and a question panel would park the run. Name the screens and states you would capture, each with the decision it settles, and explain how to capture them. If the workspace has a skill for capturing that product, such as `match-linear` for Linear, follow it from here.
 2. Screenshot the app's own best neighbouring surfaces from the rig. They are the reference for consistency, and the only reference if no product one comes.
 3. Do not commit to a visual direction without a reference unless the user has said there is none. Do the work that does not depend on one while you wait.
 

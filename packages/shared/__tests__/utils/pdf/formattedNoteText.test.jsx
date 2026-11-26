@@ -1,10 +1,10 @@
 import React from 'react';
-import zlib from 'zlib';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { renderToBuffer } from '@react-pdf/renderer';
 
 import { EncounterRecordPrintout } from '../../../src/utils/patientCertificates/EncounterRecordPrintout';
 import { HandoverNotesPDF } from '../../../src/utils/handoverNotes/HandoverNotesPDF';
+import { readPdf } from './readPdf';
 
 const STYLED_CONTENT = '<b>Bold words</b> <i>Italic words</i> <u>Underlined</u> BP <120 <script>';
 const PLAIN_CONTENT = 'Bold words Italic words Underlined BP <120 <script>';
@@ -43,47 +43,6 @@ const renderHandoverNotes = content =>
       primaryTimeZone="Pacific/Auckland"
     />,
   );
-
-const readPdf = buffer => {
-  const pdf = buffer.toString('latin1');
-  const baseFontByObject = Object.fromEntries(
-    [...pdf.matchAll(/(\d+) 0 obj\s*<<(?:(?!endobj)[^])*?\/BaseFont \/([\w+-]+)/g)].map(
-      ([, id, name]) => [id, name],
-    ),
-  );
-  const fontByResource = Object.fromEntries(
-    [...pdf.matchAll(/\/(F\d+) (\d+) 0 R/g)].map(([, resource, id]) => [
-      resource,
-      baseFontByObject[id],
-    ]),
-  );
-
-  const textByFont = {};
-  let strokeCount = 0;
-  // react-pdf writes "\n" on both sides of the stream data, which is binary and can itself end in
-  // "\r": allowing "\r\n" here would cut that byte off and make the deflate stream unreadable.
-  for (const [, stream] of pdf.matchAll(/stream\n([^]*?)\nendstream/g)) {
-    let content;
-    try {
-      content = zlib.inflateSync(Buffer.from(stream, 'latin1')).toString('latin1');
-    } catch {
-      continue;
-    }
-    strokeCount += content.match(/^S$/gm)?.length ?? 0;
-    let font;
-    for (const [, resource, array] of content.matchAll(/\/(F\d+) [\d.]+ Tf|\[(.*?)\] TJ/g)) {
-      if (resource) {
-        font = fontByResource[resource];
-        continue;
-      }
-      const text = [...array.matchAll(/<([0-9a-f]*)>/g)]
-        .map(([, hex]) => Buffer.from(hex, 'hex').toString('latin1'))
-        .join('');
-      textByFont[font] = (textByFont[font] ?? '') + text;
-    }
-  }
-  return { textByFont, allText: Object.values(textByFont).join(''), strokeCount };
-};
 
 // The page footer prints the current time, so the PDF bytes depend on the clock. Pin it to a
 // minute whose page stream ends in "\r", which readPdf has to handle.

@@ -10,6 +10,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
+import { likePattern } from '@tamanu/utils/likePattern';
 import {
   getModelForType,
   getColumnsForModel,
@@ -18,6 +19,7 @@ import {
   assertValidType,
   assertValidEnumValues,
   assertValidIdAndCode,
+  assertValidDetail,
   splitWritableData,
   pickDetailValues,
   createMultiSelectRecords,
@@ -50,6 +52,7 @@ referenceDataManageRouter.post(
     const { base, detail } = splitWritableData(columns, rawData, false);
     assertValidEnumValues(columns, { ...base, ...detail });
     assertValidIdAndCode({ ...base, ...detail });
+    await assertValidDetail(req.store.models, referenceDataType, detail);
 
     try {
       if (columns.some(c => c.multiSelect)) {
@@ -100,6 +103,7 @@ referenceDataManageRouter.put(
     const { base, detail } = splitWritableData(columns, rawData, true);
     assertValidEnumValues(columns, { ...base, ...detail });
     assertValidIdAndCode({ ...base, ...detail }, record);
+    await assertValidDetail(req.store.models, referenceDataType, detail, record.id);
 
     let detailRecord = null;
     await model.sequelize.transaction(async () => {
@@ -234,10 +238,10 @@ referenceDataManageRouter.get(
       const fkNameCol = fkNameByKey.get(key);
       if (fkNameCol) {
         // search the associated record's name, not a column on this model
-        searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: `%${value}%` };
+        searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: likePattern`%${value}%` };
         continue;
       }
-      const match = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
+      const match = exactMatchKeys.has(key) ? value : { [Op.iLike]: likePattern`%${value}%` };
       // a key the base record can be searched by is the base record's; detail gets what's left
       if (searchableKeys.has(key)) {
         searchWhere[key] = match;

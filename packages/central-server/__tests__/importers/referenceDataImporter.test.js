@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { rm } from 'node:fs/promises';
+import { access, copyFile, mkdtemp, readdir, rm } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { Op } from 'sequelize';
 import { write, utils } from 'xlsx';
@@ -15,7 +16,7 @@ import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermis
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createAdministeredVaccine } from '@tamanu/database/demoData/vaccines';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
-import { tmpdir } from '@tamanu/shared/utils/tmpdir';
+import { tmpdir, uploadDirPath } from '@tamanu/shared/utils/tmpdir';
 import {
   ENCOUNTER_TYPES,
   REFERENCE_TYPES,
@@ -94,6 +95,50 @@ describe('Data definition import', () => {
         'message',
         'ForbiddenError: No permission to perform action “create” on “ReferenceData”',
       );
+    });
+
+    it.each([
+      [
+        'an import that runs',
+        [
+          { verb: 'write', noun: 'ReferenceData' },
+          { verb: 'create', noun: 'ReferenceData' },
+        ],
+        'dryRun',
+      ],
+      ['an import refused for permissions', [{ verb: 'write', noun: 'EncounterDiagnosis' }], 'validationFailed'],
+    ])('deletes the uploaded file after %s', async (_, permissions, didntSendReason) => {
+      await makeRoleWithPermissions(models, 'practitioner', permissions);
+
+      const result = await app
+        .post('/v1/admin/import/referenceData')
+        .attach('file', './__tests__/importers/refdata-valid.xlsx')
+        .field('includedDataTypes', 'allergy')
+        .field('dryRun', true);
+
+      expect(result.body.didntSendReason).toEqual(didntSendReason);
+      // the import is done with the upload either way, so nothing of it should
+      // be left in the upload directory
+      expect(await readdir(uploadDirPath())).toEqual([]);
+    });
+
+    it('refuses a file path sent in a JSON body and leaves the file in place', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'EncounterDiagnosis' },
+      ]);
+      const dir = await mkdtemp(path.join(os.tmpdir(), 'refdata-import-'));
+      const file = path.join(dir, 'refdata.xlsx');
+      await copyFile('./__tests__/importers/refdata-valid.xlsx', file);
+
+      const result = await app
+        .post('/v1/admin/import/referenceData')
+        .send({ file, deleteFileAfterImport: true, includedDataTypes: ['allergy'] });
+
+      // a validation error, so the client is told its request was invalid
+      expect(result.statusCode).toBe(422);
+      expect(result.body.didntSendReason).toBeUndefined();
+      await expect(access(file)).resolves.toBeUndefined();
+      await rm(dir, { recursive: true });
     });
 
     it('allows import if having sufficient permission for reference data', async () => {
@@ -336,6 +381,63 @@ describe('Data definition import', () => {
       5,
       'valid foreign key expected in column village (corresponding to villageId) but found: drug-id',
     );
+  });
+
+  describe('foreign keys given by name', () => {
+    const FACILITY_ID = 'facility-fk-by-name';
+
+    const importFacilityInCatchment = catchment =>
+      importerTransaction({
+        importer: referenceDataImporter,
+        workbook: {
+          SheetNames: ['Facilities'],
+          Sheets: {
+            Facilities: utils.aoa_to_sheet([
+              ['id', 'code', 'name', 'catchment'],
+              [FACILITY_ID, FACILITY_ID, 'Facility by catchment name', catchment],
+            ]),
+          },
+        },
+        models,
+        includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
+        checkPermission: () => true,
+      });
+
+    // The look-alike is created first, so a name read as a LIKE pattern would find it first.
+    const seedCatchment = (id, name) =>
+      models.ReferenceData.create({ id, code: id, name, type: REFERENCE_TYPES.CATCHMENT });
+
+    beforeEach(async () => {
+      await seedCatchment('catchment-fk-lookalike', 'Fk catchmentXA');
+      await seedCatchment('catchment-fk-underscore', 'Fk catchment_A');
+    });
+
+    afterEach(async () => {
+      await models.Facility.destroy({ where: { id: FACILITY_ID }, force: true });
+      await models.ReferenceData.destroy({
+        where: { id: ['catchment-fk-lookalike', 'catchment-fk-underscore'] },
+        force: true,
+      });
+    });
+
+    it('matches an underscore in the name literally', async () => {
+      const { errors } = await importFacilityInCatchment('fk CATCHMENT_A');
+
+      expect(errors).toEqual([]);
+      const facility = await models.Facility.findByPk(FACILITY_ID);
+      expect(facility.catchmentId).toBe('catchment-fk-underscore');
+    });
+
+    it('matches a percent sign in the name literally', async () => {
+      const { didntSendReason, errors } = await importFacilityInCatchment('Fk catchment%');
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainFkError(
+        'facility',
+        2,
+        'valid foreign key expected in column catchment (corresponding to catchmentId) but found: Fk catchment%',
+      );
+    });
   });
 
   it('should import visibility status', async () => {

@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 # The card's pull request
@@ -48,6 +48,8 @@ A card can carry several pull requests over its life, one at a time. Merging one
 A hold says work on the branch is part-way through. While one is on, Rerun until clean requests no review round and an armed merge does not fire.
 
 - A Workhorse turn holds for its length, and a loop run holds for its own length, so you never hold for either.
-- For work that runs over several turns before the branch is worth reviewing again, such as an update that may stop on a question or fixes from a review, call `hold_pr` with a short reason as you start, and `release_pr` once the last of it is pushed. A hold left behind is released once its conversation has been idle for a while, or from the PR section.
-- Outside a turn, `hold_pr` and `release_pr` are on the Workhorse MCP and take the card. The hold belongs to you: to your device at the local endpoint, or to you as a person at the remote one. Run `workhorse-local keep-alive <card>` in the background while the work goes on. It renews the hold, and exits once you release it or the hold has been lifted; if it says the hold was lifted and the work goes on, take it again. A hold never kept alive lapses after a while with no call about the card and no push to its branch.
+- For work that runs over several turns before the branch is worth reviewing again, such as an update that may stop on a question, call `hold_pr` with a short reason as you start, and `release_pr` once the last of it is pushed. A hold left behind is released once its conversation has been idle for a while, or from the PR section.
+- For work that fixes the card's issues over several turns, issues you filed yourself included, call `hold_pr` with `untilIssuesHandled` instead. That hold lasts until every issue on the current pull request, whatever raised it, is fixed, skipped or recorded as needing a card, so it ends with the work and there is no release to remember. It outlasts your turn and the conversation going idle, and ends sooner with `release_pr`, when the conversation is closed, or when the card is completed or cancelled. Taken while nothing is left to settle, it is released at once.
+- Review issues alone need no hold. Rerun until clean already waits for every review issue to be settled before it requests another round.
+- Outside a turn, `hold_pr` and `release_pr` are on the Workhorse MCP and take the card. The hold belongs to you: to your device at the local endpoint, or to you as a person at the remote one. Run `workhorse-local keep-alive <card>` in the background while the work goes on. It renews the hold, and exits once you release it or the hold has been lifted; if it says the hold was lifted and the work goes on, take it again. A hold never kept alive lapses after a while with no call about the card and no push to its branch. A hold taken with `untilIssuesHandled` never lapses and needs no keep-alive.
 - Where neither the tools nor the MCP are available, carry on without a hold.

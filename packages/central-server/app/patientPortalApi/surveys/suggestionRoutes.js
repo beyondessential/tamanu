@@ -6,7 +6,7 @@ export const suggestionRoutes = express.Router();
 
 export const allowListMiddleware = names => (req, res, next) => {
   const firstSegment = (req.path || '').replace(/^\//, '').split('/')[0];
-  if (!names.includes(firstSegment)) {
+  if (req.method !== 'GET' || !names.includes(firstSegment)) {
     res.status(404).end();
     return;
   }

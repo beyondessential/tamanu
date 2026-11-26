@@ -1267,6 +1267,49 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('specimenAttached', true);
   });
 
+  it('should clear sample fields sent as null', async () => {
+    const user = await app.get('/api/user/me');
+    const specimenType = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'specimenType',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const labSampleSite = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'labSampleSite',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, {
+        patientId,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        collectedById: user.body.id,
+        specimenTypeId: specimenType.id,
+        specimenAttached: true,
+        labSampleSiteId: labSampleSite.id,
+      }),
+    );
+
+    const response = await app.put(`/api/labRequest/${requestId}`).send({
+      sampleTime: '2023-06-13 09:30:00',
+      collectedById: null,
+      specimenTypeId: null,
+      labSampleSiteId: null,
+    });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(requestId);
+    expect(labRequest).toMatchObject({
+      sampleTime: '2023-06-13 09:30:00',
+      collectedById: null,
+      specimenTypeId: null,
+      specimenAttached: false,
+      labSampleSiteId: null,
+    });
+  });
+
   it('should publish a lab request', async () => {
     const user = await app.get('/api/user/me');
     const encounter = await models.Encounter.create({
@@ -2128,6 +2171,43 @@ describe('Labs', () => {
 
         const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);
         expect(hasOtherFacility).toBe(true);
+      });
+    });
+
+    describe('Filtering by publishedDate', () => {
+      let publishedOnDateId;
+      let publishedOnOtherDateId;
+
+      const createPublishedLabRequest = async publishedDate => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId,
+        });
+        const labRequest = await models.LabRequest.create({
+          ...fake(models.LabRequest),
+          encounterId: encounter.id,
+          requestedById: app.user.id,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          publishedDate,
+        });
+        return labRequest.id;
+      };
+
+      beforeAll(async () => {
+        await models.LabRequest.truncate({ cascade: true, force: true });
+
+        publishedOnDateId = await createPublishedLabRequest('2024-03-15 09:30:00');
+        publishedOnOtherDateId = await createPublishedLabRequest('2024-03-16 09:30:00');
+      });
+
+      it('should only return requests published on the given date', async () => {
+        const result = await app.get(
+          `/api/labRequest?allFacilities=true&statuses[]=${LAB_REQUEST_STATUSES.PUBLISHED}&publishedDate=2024-03-15`,
+        );
+        expect(result).toHaveSucceeded();
+        const labRequestIds = result.body.data.map(labRequest => labRequest.id);
+        expect(labRequestIds).toContain(publishedOnDateId);
+        expect(labRequestIds).not.toContain(publishedOnOtherDateId);
       });
     });
 

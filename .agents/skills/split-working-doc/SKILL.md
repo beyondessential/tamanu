@@ -3,7 +3,7 @@ name: split-working-doc
 description: "Split a working doc into the card's specs, plan, and test cases once its shape is clear"
 label: "Split working doc"
 category: plan
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Split the working doc
@@ -13,7 +13,7 @@ If you don't already have this card's context (title, identifier, description) �
 Separate the material in the card's working doc into its long-lived and card-scoped artefacts. Read `.agents/docs/working-doc-format.md` and `.agents/docs/spec-format.md` first.
 
 1. Read the working doc at `.workhorse/working-docs/{card-id}/working-doc.md`.
-2. **Check for unresolved open questions.** If any remain, warn the user and ask them to confirm before proceeding — specs can't carry open questions.
+2. **Check for unresolved open questions.** If any remain, warn the user and ask them to confirm before proceeding (see `.agents/docs/asking-questions.md`) — specs can't carry open questions.
 3. Fan the material out:
    - Behavioural material → the card's specs, rewritten from working voice into declarative spec voice, following the fold-vs-create rules and writing conventions in `.agents/docs/spec-format.md`. Default to editing existing specs.
    - Implementation options and trade-offs → the plan at `.workhorse/plans/{card-id}/plan.md` (see `.agents/docs/card-artefacts.md`).

@@ -198,3 +198,23 @@ describe('EditEncounterModal emergency patient type', () => {
     ).rejects.toThrow('Server error');
   });
 });
+
+describe('EditEncounterModal referral source', () => {
+  it.each(['admission', 'clinic'])(
+    'clears the referral source from the %s encounter form when the select is cleared',
+    async encounterType => {
+      const { onSubmit } = renderModal({
+        id: 'encounter-1',
+        encounterType,
+        referralSourceId: 'referral-source-private-clinic',
+      });
+
+      await onSubmit({ startDate: '2026-07-11 09:00:00', referralSourceId: undefined });
+
+      expect(apiPut).toHaveBeenCalledWith(
+        encounterRoute,
+        expect.objectContaining({ referralSourceId: null }),
+      );
+    },
+  );
+});

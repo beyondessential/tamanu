@@ -4,7 +4,7 @@ description: "Interview me about this card to develop the acceptance criteria"
 label: "Spec interview"
 category: spec
 surface: both
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Interview me
@@ -24,10 +24,10 @@ Methodology:
 
 **Where the write-up lands:** if a working doc exists for this card in `draft` status (`.workhorse/working-docs/{card-id}/working-doc.md`), write your findings into it — under the conventional sections in `.agents/docs/working-doc-format.md`, in working voice — rather than drafting specs directly. The working doc is the drafting home while the card is being shaped, and a later Split working doc turns it into specs. With no draft working doc, flow into drafting and editing the relevant spec files as normal.
 
-Ask focused questions, one or two at a time, not long lists. **Number your questions** so the user can reply by number, and keep a question's number if you ask it again. Example:
+Ask as `.agents/docs/asking-questions.md` says: a decision between known alternatives through the question panel, and open probing in prose. In prose, ask focused questions one or two at a time, not long lists. **Number your questions** so the user can reply by number, and keep a question's number if you ask it again. Example:
 
-1. Where can this action be triggered from: the board, the workspace, or both?
-2. Should there be a confirmation step before it happens?
+1. What should happen to items already in progress when this runs?
+2. Who needs to know once it has happened?
 
 **Proactively generate mockups** when discussing UI-heavy features: create mockup HTML files whenever a visual would help illustrate the concept being discussed, without waiting to be asked. Source them as `.agents/docs/design-sourcing.md` says, and do not skip its reading pass just because you are mid-interview.
 

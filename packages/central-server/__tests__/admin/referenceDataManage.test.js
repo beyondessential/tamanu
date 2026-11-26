@@ -1086,6 +1086,53 @@ describe('Reference Data Manage', () => {
       expect(names).not.toContain('Beta Drug');
     });
 
+    it('should match wildcard characters in a text field filter literally', async () => {
+      const namePrefix = `Wildcard ${Date.now().toString(36)}`;
+      const underscoreName = `${namePrefix} A_B`;
+      const lookalikeName = `${namePrefix} AxB`;
+      await Promise.all(
+        [underscoreName, lookalikeName].map(name =>
+          models.ReferenceData.create({
+            ...fake(models.ReferenceData),
+            type: TEST_TYPE,
+            name,
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          }),
+        ),
+      );
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        name: `${namePrefix} A_`,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(r => r.name)).toEqual([underscoreName]);
+      expect(response.body.count).toBe(1);
+    });
+
+    it('should match wildcard characters in a linked record name filter literally', async () => {
+      const facilityPrefix = `Wildcard ${Date.now().toString(36)}`;
+      const underscoreFacility = await models.Facility.create(
+        fake(models.Facility, { name: `${facilityPrefix} A_B` }),
+      );
+      const lookalikeFacility = await models.Facility.create(
+        fake(models.Facility, { name: `${facilityPrefix} AxB` }),
+      );
+      const [underscoreDepartment] = await Promise.all(
+        [underscoreFacility, lookalikeFacility].map(facility =>
+          models.Department.create(fake(models.Department, { facilityId: facility.id })),
+        ),
+      );
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: OTHER_REFERENCE_TYPES.DEPARTMENT,
+        facility: `${facilityPrefix} A_`,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(r => r.id)).toEqual([underscoreDepartment.id]);
+      expect(response.body.count).toBe(1);
+    });
+
     it('should filter by visibilityStatus with exact match', async () => {
       const response = await adminApp.get(BASE_URL).query({
         referenceDataType: TEST_TYPE,
@@ -1294,6 +1341,148 @@ describe('Reference Data Manage', () => {
       expect(row).toMatchObject({
         defaultSpecimenTypeId: specimenType.id,
         defaultSpecimenType: specimenType.name,
+      });
+    });
+  });
+
+  // spec: DQLIM#configuring-limits, DQLIM#medication-sets
+  describe('dose and dispensing quantity limits', () => {
+    const createDrugWithLimits = async limits => {
+      const drug = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+      });
+      await models.ReferenceDrug.create(
+        fake(models.ReferenceDrug, { referenceDataId: drug.id, ...limits }),
+      );
+      return drug;
+    };
+
+    it('should save a drug with limits', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-limits-code',
+        name: 'Test Drug Limits',
+        doseMin: 0.5,
+        doseMax: 2,
+        dispensingQuantityMin: 1,
+        dispensingQuantityMax: 100,
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(Number(referenceDrug.doseMin)).toBe(0.5);
+      expect(Number(referenceDrug.doseMax)).toBe(2);
+      expect(referenceDrug.dispensingQuantityMin).toBe(1);
+      expect(referenceDrug.dispensingQuantityMax).toBe(100);
+    });
+
+    it.each([
+      ['a limit that is not a number', { doseMax: true }],
+      ['a negative limit', { doseMin: -1 }],
+      ['a limit of 0', { dispensingQuantityMax: 0 }],
+      ['a dispensing quantity limit that is not a whole number', { dispensingQuantityMin: 1.5 }],
+      [
+        'a minimum greater than its maximum',
+        { dispensingQuantityMin: 30, dispensingQuantityMax: 4 },
+      ],
+    ])('should reject a drug with %s', async (_description, limits) => {
+      const code = `test-drug-bad-limits-${Object.keys(limits)[0]}`;
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code,
+        name: 'Test Drug Bad Limits',
+        ...limits,
+      });
+      expect(response).toHaveRequestError();
+      expect(await models.ReferenceData.findOne({ where: { code } })).toBe(null);
+    });
+
+    it('should check an edited limit against the stored limit it pairs with', async () => {
+      const drug = await createDrugWithLimits({ doseMin: 1, doseMax: 2 });
+
+      const response = await adminApp.put(`${BASE_URL}/${drug.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        doseMin: 3,
+      });
+      expect(response).toHaveRequestError();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: drug.id },
+      });
+      expect(Number(referenceDrug.doseMin)).toBe(1);
+    });
+
+    it('should unset a limit that is cleared', async () => {
+      const drug = await createDrugWithLimits({ doseMax: 2, dispensingQuantityMax: 30 });
+
+      const response = await adminApp.put(`${BASE_URL}/${drug.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        doseMax: '',
+        dispensingQuantityMax: '',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: drug.id },
+      });
+      expect(referenceDrug.doseMax).toBeNull();
+      expect(referenceDrug.dispensingQuantityMax).toBeNull();
+    });
+
+    describe('medication templates', () => {
+      const templateBody = (drug, overrides) => ({
+        referenceDataType: REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        name: 'Test Limits Template',
+        medicationId: drug.id,
+        route: DRUG_ROUTE_VALUES[0],
+        dosingUnit: DRUG_UNIT_VALUES[0],
+        frequency: Object.values(ADMINISTRATION_FREQUENCIES)[0],
+        ...overrides,
+      });
+
+      it.each([
+        ['within the limits', { code: 'test-template-limits-within', doseAmount: 2 }],
+        [
+          'variable',
+          { code: 'test-template-limits-variable', isVariableDose: true, doseAmount: null },
+        ],
+      ])('should save a template whose dose is %s', async (_description, overrides) => {
+        const drug = await createDrugWithLimits({ doseMin: 1, doseMax: 2 });
+        const response = await adminApp.post(BASE_URL).send(templateBody(drug, overrides));
+        expect(response).toHaveSucceeded();
+      });
+
+      it('should reject a template whose dose is outside its drug dose limits', async () => {
+        const drug = await createDrugWithLimits({ doseMin: 1, doseMax: 2 });
+        const response = await adminApp
+          .post(BASE_URL)
+          .send(templateBody(drug, { code: 'test-template-limits-high', doseAmount: 3 }));
+        expect(response).toHaveRequestError();
+        expect(
+          await models.ReferenceData.findOne({ where: { code: 'test-template-limits-high' } }),
+        ).toBe(null);
+      });
+
+      it('should check an edited dose against the drug the template already has', async () => {
+        const drug = await createDrugWithLimits({ doseMin: 1, doseMax: 2 });
+        const created = await adminApp
+          .post(BASE_URL)
+          .send(templateBody(drug, { code: 'test-template-limits-edit', doseAmount: 1 }));
+        expect(created).toHaveSucceeded();
+
+        const response = await adminApp.put(`${BASE_URL}/${created.body.id}`).send({
+          referenceDataType: REFERENCE_TYPES.MEDICATION_TEMPLATE,
+          doseAmount: 5,
+        });
+        expect(response).toHaveRequestError();
+
+        const template = await models.ReferenceMedicationTemplate.findOne({
+          where: { referenceDataId: created.body.id },
+        });
+        expect(Number(template.doseAmount)).toBe(1);
       });
     });
   });

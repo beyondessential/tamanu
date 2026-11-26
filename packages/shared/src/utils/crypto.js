@@ -2,6 +2,7 @@ import config from 'config';
 import { get as lodashGet } from 'es-toolkit/compat';
 import { CONFIG_TO_SECRET_SETTINGS } from '@tamanu/settings';
 import { promises as fs } from 'fs';
+import path from 'path';
 import { promisify } from 'util';
 import readSync from 'read';
 
@@ -148,9 +149,7 @@ export async function getConfigSecret(name) {
     throw new SecretNotConfiguredError(`Config value at ${name} is not an encrypted secret`);
   }
 
-  const keyFilePath = getConfigKeyFilePath();
-  const keyBuffer = await readKeyFile(keyFilePath);
-  return decryptSecret(keyBuffer, encryptedValue);
+  return decryptSecret(await readConfigKeyFile(), encryptedValue);
 }
 
 // Resolves the deployment-wide settings PSK as a hex string. Registered once
@@ -303,6 +302,13 @@ export function isEncryptedSecret(value) {
   return parts.length === 3 && parts[0] === SECRET_VERSION;
 }
 
+// The default crypto.keyFile. It sits beside the server's own config (the last NODE_CONFIG_DIR,
+// which defaults to config/ in the working directory) rather than resolving against the working
+// directory, so a script run from elsewhere with NODE_CONFIG_DIR reads the server's key.
+const DEFAULT_KEY_FILE = 'config/dev-secret.key';
+
+const isDefaultKeyFile = () => config.get('crypto.keyFile') === DEFAULT_KEY_FILE;
+
 /** Single source of truth for resolving the configured key file path. */
 export function getConfigKeyFilePath() {
   const keyFilePath = config.get('crypto.keyFile');
@@ -310,8 +316,83 @@ export function getConfigKeyFilePath() {
   if (!keyFilePath) {
     throw new Error('crypto.keyFile is not configured');
   }
+  if (!isDefaultKeyFile()) return keyFilePath;
 
-  return keyFilePath;
+  const configDirectories = config.util.getEnv('NODE_CONFIG_DIR').split(path.delimiter);
+  return path.resolve(configDirectories.at(-1), path.basename(DEFAULT_KEY_FILE));
+}
+
+// The development key that was once committed to the repository. It is public, so only development
+// environments accept it, and the upgrade re-encrypts whatever is still stored under it.
+export const PUBLISHED_DEVELOPMENT_KEY = Buffer.from(
+  '925a3b8ca2c44b9aa07e4ff3fc8d82be2f13b71a316aacb7d50d4bf98a52ea78',
+  'hex',
+);
+
+// Development environments name themselves. Anything else, an unset NODE_ENV included, is treated
+// as a deployment, since a shell on one carries no NODE_ENV.
+const DEVELOPMENT_ENVIRONMENTS = ['development', 'test', 'e2e'];
+const isDevelopmentEnvironment = () => DEVELOPMENT_ENVIRONMENTS.includes(process.env.NODE_ENV);
+
+/** How an operator gives a deployment a key of its own, for errors about a missing or refused key. */
+export const PROVIDE_KEY_ADVICE =
+  'Set CRYPTO_KEY_FILE to the path of a key file for this server, mounted where it runs. To generate one, run `configSecret init` with CRYPTO_KEY_FILE already set: it writes to that path.';
+
+// Written aside and linked into place, so concurrent readers (parallel test workers) never see a
+// partly written key, and the first writer wins.
+async function createDevelopmentKeyFile(keyFilePath) {
+  try {
+    await fs.access(keyFilePath);
+    return;
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+
+  const pendingPath = `${keyFilePath}.${crypto.randomUUID()}`;
+  await writeKeyFile(pendingPath, await generateSecretKey());
+  try {
+    await fs.link(pendingPath, keyFilePath);
+    log.info(`Generated a development key file at ${keyFilePath}`);
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err;
+  } finally {
+    await fs.unlink(pendingPath);
+  }
+}
+
+/** Reads the configured key file, refusing the published development key outside development. */
+export async function readConfigKeyFile() {
+  const keyFilePath = getConfigKeyFilePath();
+  // In a development environment a missing default key file is generated, so every checkout has
+  // a key of its own.
+  if (isDevelopmentEnvironment() && isDefaultKeyFile()) {
+    await createDevelopmentKeyFile(keyFilePath);
+  }
+
+  const keyBuffer = await readKeyFile(keyFilePath).catch(err => {
+    if (err.code !== 'ENOENT' || isDevelopmentEnvironment()) throw err;
+    // Keeps the code, so callers with more context (the upgrade) can still tell it apart.
+    throw Object.assign(
+      new Error(
+        [
+          `There is no key file at ${keyFilePath} (config crypto.keyFile).`,
+          PROVIDE_KEY_ADVICE,
+        ].join('\n'),
+        { cause: err },
+      ),
+      { code: err.code },
+    );
+  });
+  if (!isDevelopmentEnvironment() && keyBuffer.equals(PUBLISHED_DEVELOPMENT_KEY)) {
+    throw new Error(
+      [
+        `The key file at ${keyFilePath} (config crypto.keyFile) is the development key published in the Tamanu repository, which only development environments use (NODE_ENV is ${process.env.NODE_ENV ?? 'unset'}).`,
+        PROVIDE_KEY_ADVICE,
+        "Once the server has a key of its own, the next upgrade re-encrypts its stored secrets from the development key under that key.",
+      ].join('\n'),
+    );
+  }
+  return keyBuffer;
 }
 
 /** CLI helper: create a new key file. Throws if one already exists. */
@@ -337,9 +418,7 @@ export async function initConfigSecretKeyFile() {
 
 /** CLI helper: encrypt a value with the configured key file. */
 export async function encryptConfigValue(plaintext) {
-  const keyFilePath = getConfigKeyFilePath();
-  const keyBuffer = await readKeyFile(keyFilePath);
-  return encryptSecret(keyBuffer, plaintext);
+  return encryptSecret(await readConfigKeyFile(), plaintext);
 }
 
 /** CLI action: create a key file and optionally encrypt a settings PSK. */

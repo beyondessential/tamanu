@@ -398,6 +398,21 @@ describe('Schemas', () => {
     // The task list time frames are handed to date-fns as an hour count, which truncates
     // toward zero: a floor of 0.5 becomes 0 and puts the cut-off on the current instant,
     // hiding every overdue task. Whole hours only.
+    describe('Sync timeout', () => {
+      const timeout = value =>
+        validateSettings({ settings: { sync: { timeout: value } }, scope: 'facility' });
+
+      it('accepts a second or more', async () => {
+        await expect(timeout(1000)).resolves.not.toThrow();
+        await expect(timeout(30000)).resolves.not.toThrow();
+      });
+
+      it('rejects anything under a second', async () => {
+        await expect(timeout(1)).rejects.toThrow(yup.ValidationError);
+        await expect(timeout(999)).rejects.toThrow(yup.ValidationError);
+      });
+    });
+
     describe('Tasking time frames', () => {
       const tasking = settings =>
         validateSettings({ settings: { tasking: settings }, scope: 'facility' });
@@ -551,8 +566,16 @@ describe('Exposed keys', () => {
 
     it('should include facility keys', () => {
       expect(keys).toContain('patientDisplayIdPattern');
-      expect(keys).toContain('sync');
+      expect(keys).toContain('sync.urgentIntervalInSeconds');
+      expect(keys).not.toContain('sync.dynamicLimiter');
       expect(keys).toContain('vaccinations');
+    });
+
+    it('should expose only the two web-facing facility sync keys', () => {
+      const syncKeys = getKeysByFlag('exposedToWeb', [facilitySettings]).filter(
+        key => key === 'sync' || key.startsWith('sync.'),
+      );
+      expect(syncKeys).toEqual(['sync.syncAllLabRequests', 'sync.urgentIntervalInSeconds']);
     });
 
     it('should include central keys', () => {

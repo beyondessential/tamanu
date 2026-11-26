@@ -4,6 +4,7 @@ import { cloneDeep, get } from 'es-toolkit/compat';
 import { translationFactory } from '../translation/translationFactory';
 import { getEnumPrefix, toCamelCase } from '@tamanu/shared/utils/enumRegistry';
 import { registerFonts } from './registerFonts';
+import { GLOBAL_PDF_FONT, GLOBAL_PDF_FONT_BOLD } from './fonts';
 
 registerFonts();
 
@@ -26,8 +27,8 @@ export const withLanguageContext = Component => props => {
   }
 
   const isGlobalFontEnabled = getSetting('features.useGlobalPdfFont');
-  const pdfFont = isGlobalFontEnabled ? 'GlobalPdfFont' : 'Helvetica';
-  const pdfFontBold = isGlobalFontEnabled ? 'GlobalPdfFont-Bold' : 'Helvetica-Bold';
+  const pdfFont = isGlobalFontEnabled ? GLOBAL_PDF_FONT : 'Helvetica';
+  const pdfFontBold = isGlobalFontEnabled ? GLOBAL_PDF_FONT_BOLD : 'Helvetica-Bold';
 
   const contextValue = useMemo(() => {
     return {

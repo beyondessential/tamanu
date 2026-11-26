@@ -25,6 +25,7 @@ import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { getPermissionsForEachRole } from '@tamanu/shared/permissions/rolesToPermissions';
 import { subject } from '@casl/ability';
 import z from 'zod';
+import { likePattern } from '@tamanu/utils/likePattern';
 
 export const usersRouter = express.Router();
 
@@ -113,13 +114,13 @@ const createUserFilters = async (filterParams, models) => {
   const filters = [
     // Text search filters
     filterParams.displayName && {
-      [Op.or]: [{ displayName: { [Op.iLike]: `%${filterParams.displayName}%` } }],
+      [Op.or]: [{ displayName: { [Op.iLike]: likePattern`%${filterParams.displayName}%` } }],
     },
     filterParams.displayId && {
-      displayId: { [Op.iLike]: `%${filterParams.displayId}%` },
+      displayId: { [Op.iLike]: likePattern`%${filterParams.displayId}%` },
     },
     filterParams.email && {
-      email: { [Op.iLike]: `%${filterParams.email}%` },
+      email: { [Op.iLike]: likePattern`%${filterParams.email}%` },
     },
     // Exact match filters
     filterParams.roleId && {
@@ -311,7 +312,7 @@ usersRouter.post(
 
     const existingUserWithSameEmail = await User.findOne({
       where: {
-        email: fields.email,
+        email: User.emailMatches(fields.email),
       },
     });
     if (existingUserWithSameEmail) {
@@ -320,7 +321,7 @@ usersRouter.post(
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: { [Op.iLike]: fields.displayName },
+        displayName: { [Op.iLike]: likePattern`${fields.displayName}` },
       },
     });
     if (existingUserWithSameDisplayName) {
@@ -395,6 +396,8 @@ usersRouter.post(
 const VALIDATION = yup
   .object()
   .shape({
+    // Present when validating an edit, so the user being edited isn't flagged as a duplicate of itself.
+    id: yup.string().optional(),
     displayName: yup.string().trim().required(),
     email: yup.string().trim().email().required(),
     role: yup.string().required(),
@@ -441,15 +444,19 @@ usersRouter.post(
 
     const fields = await VALIDATION.validate(req.body);
 
+    const notCurrentUser = fields.id ? { id: { [Op.ne]: fields.id } } : {};
+
     const existingUserWithSameEmail = await User.findOne({
       where: {
-        email: fields.email,
+        email: User.emailMatches(fields.email),
+        ...notCurrentUser,
       },
     });
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: { [Op.iLike]: fields.displayName },
+        displayName: { [Op.iLike]: likePattern`${fields.displayName}` },
+        ...notCurrentUser,
       },
     });
 
@@ -525,7 +532,7 @@ usersRouter.put(
 
     const existingUserWithSameEmail = await User.findOne({
       where: {
-        email: fields.email,
+        email: User.emailMatches(fields.email),
         id: { [Op.ne]: id },
       },
     });
@@ -535,7 +542,7 @@ usersRouter.put(
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: { [Op.iLike]: fields.displayName },
+        displayName: { [Op.iLike]: likePattern`${fields.displayName}` },
         id: { [Op.ne]: id },
       },
     });

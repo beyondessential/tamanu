@@ -3,7 +3,7 @@ name: draft-test-cases
 description: "Draft or refine the test-cases checklist for this card"
 label: "Draft test cases"
 category: verify
-workhorse-version: 0.8.0
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Draft test cases
@@ -17,4 +17,4 @@ Produce or refine the card's test-cases checklist — the concrete scenarios tha
 3. If a test-cases file already exists, edit it in place — add, refine, or reorder scenarios. Don't replace work that still applies
 4. If none exists, create one at `.workhorse/test-cases/{card-id}/overview.md` with an H1 title, an optional summary, and one or more checklist sections
 5. Write each scenario, and cite spec ids, as the test-case rules in `.agents/docs/card-artefacts.md` say. Avoid vague items like "test the feature"
-6. Ask only the clarifying questions you genuinely need: one or two turns at most, not an extended interview
+6. Ask only the clarifying questions you genuinely need, as `.agents/docs/asking-questions.md` says: one or two turns at most, not an extended interview
