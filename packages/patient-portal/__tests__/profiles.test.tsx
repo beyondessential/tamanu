@@ -10,6 +10,13 @@ import { isProfileChoicePending, setProfileChoicePending } from '../src/api/prof
 import { PrivateRoute } from '../src/routes/PrivateRoute';
 import { createFakeApi, fakePatient, renderPortal, stubTranslations } from './renderPortal';
 
+// input-otp leaves timers running after unmount, which fire once the test environment is gone
+vi.mock('@components/VerificationCodeInput', () => ({
+  VerificationCodeInput: ({ name = 'verificationCode' }: { name?: string }) => (
+    <input name={name} />
+  ),
+}));
+
 const ANA = {
   portalUserId: 'portal-ana',
   displayId: 'KAMAKA01',
