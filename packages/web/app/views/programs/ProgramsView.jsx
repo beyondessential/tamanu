@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { getAnswersFromData, SelectInput, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { getCurrentUser } from '../../store/auth';
 import { SurveyView } from './SurveyView';
 import { SurveySelector } from './SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
@@ -309,7 +307,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
 export const ProgramsView = () => {
   const { patient, isLoading } = usePatient();
-  const currentUser = useSelector(getCurrentUser);
+  const { currentUser } = useAuth();
   if (isLoading || !patient) {
     return <LoadingIndicator data-testid="loadingindicator-cqsa" />;
   }

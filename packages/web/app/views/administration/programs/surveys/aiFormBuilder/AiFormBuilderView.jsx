@@ -1,11 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 
 import { AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { useApi } from '../../../../../api';
+import { useAuth } from '../../../../../contexts/Auth';
 import { notifyError, notifySuccess } from '../../../../../utils';
 import { saveFile } from '../../../../../utils/fileSystemAccess';
 import {
@@ -99,7 +99,7 @@ export function AiFormBuilderView() {
   const { getTranslation } = useTranslation();
   const api = useApi();
   const queryClient = useQueryClient();
-  const sessionKey = useSelector(state => state.auth.token);
+  const { token: sessionKey } = useAuth();
   const [state, setState] = useState(() => readSessionChatState(sessionKey));
   const [inputValue, setInputValue] = useState('');
   const [pendingFile, setPendingFile] = useState(null);

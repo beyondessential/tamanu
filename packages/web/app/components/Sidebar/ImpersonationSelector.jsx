@@ -1,12 +1,11 @@
 import React, { useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { Popover } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
-import { startImpersonation, stopImpersonation } from '../../store/auth';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledPopover = styled(Popover)`
   .MuiPaper-root {
@@ -86,11 +85,10 @@ const ActiveLabel = styled.div`
 `;
 
 export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
-  const dispatch = useDispatch();
   const api = useApi();
   const queryClient = useQueryClient();
-  const impersonatingRole = useSelector(state => state.auth.impersonatingRole);
-  const currentUserRole = useSelector(state => state.auth.user?.role);
+  const { currentUser, impersonatingRole, startImpersonation, stopImpersonation } = useAuth();
+  const currentUserRole = currentUser?.role;
 
   const { data: allRoles = [] } = useQuery(['admin', 'roles'], () => api.get('admin/roles'), {
     staleTime: 5 * 60 * 1000,
@@ -110,9 +108,9 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
     pendingRole.current = undefined;
     try {
       if (role) {
-        await dispatch(startImpersonation(role));
+        await startImpersonation(role);
       } else {
-        await dispatch(stopImpersonation());
+        await stopImpersonation();
       }
       refreshUI();
     } catch (e) {

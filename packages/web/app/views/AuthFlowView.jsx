@@ -1,11 +1,9 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Launch from '@mui/icons-material/Launch';
 import { Colors } from '../constants';
 import { LogoDark } from '../components';
 import { splashImages } from '../constants/images';
-import { restartPasswordResetFlow } from '../store';
 import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 import { Typography } from '@material-ui/core';
@@ -89,7 +87,6 @@ const DesktopVersionText = styled(Typography)`
 
 export const AuthFlowView = ({ children }) => {
   const api = useApi();
-  const dispatch = useDispatch();
   const { agentVersion } = api;
 
   // TODO: This is a temp fix to get the support desk URL into the app. It will be updated in the settings project
@@ -104,10 +101,7 @@ export const AuthFlowView = ({ children }) => {
       <ContentContainer data-testid="contentcontainer-hiui">
         <SyncHealthNotificationComponent data-testid="synchealthnotificationcomponent-lgpq" />
         <LogoContainer
-          onClick={() => {
-            window.location.reload();
-            dispatch(restartPasswordResetFlow());
-          }}
+          onClick={() => window.location.reload()}
           data-testid="logocontainer-4v5o"
         >
           <LogoDark size="140px" data-testid="logodark-rd0a" />

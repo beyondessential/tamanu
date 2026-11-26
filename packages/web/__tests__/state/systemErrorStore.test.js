@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SYSTEM_ERROR_RETENTION_MS, systemErrorStore } from '../../app/state/systemErrorStore';
-import { clearSystemErrorsOnAuthChange } from '../../app/store/initStore';
 
 const hoursAgo = hours => new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 
@@ -83,41 +82,5 @@ describe('systemErrorStore', () => {
     unsubscribe();
     systemErrorStore.add({ id: '2', timestamp: hoursAgo(0), message: 'b' });
     expect(listener).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe('clearSystemErrorsOnAuthChange middleware', () => {
-  beforeEach(() => systemErrorStore.clear());
-
-  const seed = () => systemErrorStore.add({ id: '1', timestamp: hoursAgo(0), message: 'boom' });
-
-  it('clears the store on LOGIN_SUCCESS, covering a fresh login and a restored session', () => {
-    seed();
-    const next = vi.fn(action => action);
-
-    clearSystemErrorsOnAuthChange()(next)({ type: 'LOGIN_SUCCESS' });
-
-    expect(systemErrorStore.getSnapshot()).toEqual([]);
-    expect(next).toHaveBeenCalledWith({ type: 'LOGIN_SUCCESS' });
-  });
-
-  it('clears the store on LOGOUT', () => {
-    seed();
-    const next = vi.fn(action => action);
-
-    clearSystemErrorsOnAuthChange()(next)({ type: 'LOGOUT' });
-
-    expect(systemErrorStore.getSnapshot()).toEqual([]);
-    expect(next).toHaveBeenCalledWith({ type: 'LOGOUT' });
-  });
-
-  it('leaves the store untouched for an unrelated action', () => {
-    seed();
-    const next = vi.fn(action => action);
-
-    clearSystemErrorsOnAuthChange()(next)({ type: 'SOME_OTHER_ACTION' });
-
-    expect(systemErrorStore.getSnapshot()).toHaveLength(1);
-    expect(next).toHaveBeenCalledWith({ type: 'SOME_OTHER_ACTION' });
   });
 });

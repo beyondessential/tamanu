@@ -8,7 +8,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { Provider } from 'react-redux';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { Slide } from 'react-toastify';
 import { StyleSheetManager, ThemeProvider } from 'styled-components';
@@ -29,18 +28,18 @@ import { TranslationProvider } from './contexts/Translation';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 
-const StateContextProviders = ({ children, store }) => (
+const StateContextProviders = ({ children }) => (
   <AuthProvider>
     <SettingsProvider>
       <DateTimeProvider>
         <ImagingRequestsProvider>
           <MedicationsProvider>
             <ProgramRegistryProvider>
-              <LabRequestProvider store={store}>
+              <LabRequestProvider>
                 <PatientSearchProvider>
                   <SyncStateProvider>
                     <TranslationProvider>
-                      <LocalisationProvider store={store}>
+                      <LocalisationProvider>
                         <NoteModalProvider>{children}</NoteModalProvider>
                       </LocalisationProvider>
                     </TranslationProvider>
@@ -86,7 +85,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function RootContent({ store }) {
+function RootContent() {
   return (
     <CacheProvider value={emotionCache}>
       <StylesProvider jss={jss}>
@@ -94,7 +93,7 @@ function RootContent({ store }) {
           <MuiThemeProvider theme={theme}>
             <StyledComponentsProvider>
               <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
-                <StateContextProviders store={store}>
+                <StateContextProviders>
                   <CustomToastContainer
                     hideProgressBar
                     transition={Slide}
@@ -119,7 +118,7 @@ function RootContent({ store }) {
   );
 }
 
-function Root({ api, store }) {
+function Root({ api }) {
   // We need to use the createBrowserRouter function to create the router in data mode
   // for the notes blocking feature @see https://reactrouter.com/start/modes
   const router = React.useMemo(
@@ -127,19 +126,17 @@ function Root({ api, store }) {
       createBrowserRouter([
         {
           path: '*',
-          element: <RootContent store={store} />,
+          element: <RootContent />,
         },
       ]),
-    [store],
+    [],
   );
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <ApiContext.Provider value={api}>
-          <RouterProvider router={router} />
-        </ApiContext.Provider>
-      </Provider>
+      <ApiContext.Provider value={api}>
+        <RouterProvider router={router} />
+      </ApiContext.Provider>
     </QueryClientProvider>
   );
 }

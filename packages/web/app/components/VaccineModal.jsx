@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
@@ -8,7 +7,6 @@ import { FormModal } from './FormModal';
 import { VaccineForm } from '../forms/VaccineForm';
 import { SegmentTabDisplay } from './SegmentTabDisplay';
 import { useApi, useSuggester } from '../api';
-import { getCurrentUser } from '../store/auth';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { AI_PATIENT_SUMMARY_QUERY_KEY } from '../api/queries/useAiPatientSummaryQuery';
@@ -19,9 +17,8 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
 
   const api = useApi();
   const queryClient = useQueryClient();
-  const { facilityId } = useAuth();
+  const { facilityId, currentUser } = useAuth();
   const countrySuggester = useSuggester('country');
-  const currentUser = useSelector(getCurrentUser);
 
   const handleCreateVaccine = useCallback(
     async data => {

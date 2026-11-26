@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 
 import { ContentPane } from './ContentPane';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -16,15 +15,10 @@ const DebugInfo = styled.pre`
 `;
 
 export const ErrorView = React.memo(({ error }) => {
-  const reduxState = useSelector(state => state);
   const logError = useCallback(() => {
     // eslint-disable-next-line no-console
     console.log(error);
   }, [error]);
-  const logState = useCallback(() => {
-    // eslint-disable-next-line no-console
-    console.log({ reduxState });
-  }, [reduxState]);
 
   return (
     <ContentPane data-testid="contentpane-3cof">
@@ -61,16 +55,6 @@ export const ErrorView = React.memo(({ error }) => {
       </p>
       <DebugInfo onClick={logError} data-testid="debuginfo-dnuz">
         {error.stack}
-      </DebugInfo>
-      <p>
-        <TranslatedText
-          stringId="error.boundary.state"
-          fallback="The contents of the application state are:"
-          data-testid="translatedtext-error-state"
-        />
-      </p>
-      <DebugInfo onClick={logState} data-testid="debuginfo-w6d2">
-        {JSON.stringify({ reduxState }, null, 2)}
       </DebugInfo>
     </ContentPane>
   );

@@ -6,12 +6,10 @@
 import Typography from '@material-ui/core/Typography';
 import React, { useEffect, useState } from 'react';
 import { useIdleTimer } from 'react-idle-timer';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { Modal, TranslatedText, useSettings } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
-import { checkIsLoggedIn } from '../store/auth';
 import { ModalActionRow } from './ModalActionRow';
 
 const WarningModalContainer = styled.div`
@@ -65,9 +63,9 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
 };
 
 export const UserActivityMonitor = () => {
-  const isUserLoggedIn = useSelector(checkIsLoggedIn);
+  const { currentUser, onTimeout, refreshToken } = useAuth();
+  const isUserLoggedIn = Boolean(currentUser);
   const [showWarning, setShowWarning] = useState(false);
-  const { onTimeout, refreshToken } = useAuth();
   const { getSetting } = useSettings();
 
   // Can't fetch localisation prior to login so add defaults

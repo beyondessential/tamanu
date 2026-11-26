@@ -1,12 +1,11 @@
 import React, { useState, useCallback, forwardRef } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { Avatar, CircularProgress } from '@material-ui/core';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
-import { getServerType } from '../store';
+import { useAuth } from '../contexts/Auth';
 
 const pulseRing = keyframes`
   0% { box-shadow: 0 0 0 0 rgba(247, 104, 83, 0.7); }
@@ -69,7 +68,8 @@ export const HiddenSyncAvatar = forwardRef(({ children, onClick, onMetaClick, im
   const [loading, setLoading] = useState(false);
   const api = useApi();
   // The sync shortcuts hit facility-only endpoints; central never syncs with itself
-  const isSyncAvailable = useSelector(getServerType) !== SERVER_TYPES.CENTRAL;
+  const { serverType } = useAuth();
+  const isSyncAvailable = serverType !== SERVER_TYPES.CENTRAL;
 
   const handleEvent = useCallback(
     async (cb) => {

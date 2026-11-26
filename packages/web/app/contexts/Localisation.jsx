@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { get, merge } from 'es-toolkit/compat';
+
+import { useAuth } from './Auth';
 
 const overrides = {}; // add keys to this object to help with development
 
@@ -12,10 +13,10 @@ export const useLocalisation = () => useContext(LocalisationContext);
 
 export const LocalisationProvider = ({ children }) => {
   const [localisation, setLocalisation] = useState({});
-  const reduxLocalisation = useSelector((state) => state.auth.localisation);
+  const { localisation: authLocalisation } = useAuth();
   useEffect(() => {
-    setLocalisation(merge(reduxLocalisation, overrides));
-  }, [reduxLocalisation]);
+    setLocalisation(merge(authLocalisation, overrides));
+  }, [authLocalisation]);
 
   return (
     <LocalisationContext.Provider

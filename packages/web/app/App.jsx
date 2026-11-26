@@ -1,8 +1,6 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
-import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
 import { useLocation } from 'react-router';
 
 import { TAMANU_COLORS } from '@tamanu/ui-components';
@@ -20,6 +18,7 @@ import {
   SettingUpStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
+import { useAuth } from './contexts/Auth';
 import { useBrowserSupport } from './api/queries/useBrowserSupport';
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
@@ -38,10 +37,10 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const { data: serverStatus, isLoading } = useCheckServerAliveQuery();
   const isServerAlive = Boolean(serverStatus);
-  const isUserLoggedIn = useSelector(checkIsLoggedIn);
-  const isFacilitySelected = useSelector(checkIsFacilitySelected);
+  const { currentUser, facilityId, serverType, isRestoring } = useAuth();
+  const isUserLoggedIn = Boolean(currentUser);
+  const isFacilitySelected = Boolean(facilityId);
   const location = useLocation();
-  const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
   const disableSingleTab =
     window?.localStorage?.getItem('DISABLE_SINGLE_TAB') ||
@@ -74,6 +73,7 @@ export function App({ sidebar, children }) {
   if (serverStatus?.setupRequired) return <SetupWizardView />;
   // spec: FSETUP#setting-up-screen
   if (serverStatus?.isSettingUp) return <SettingUpStatusPage />;
+  if (isRestoring) return <LoadingStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 

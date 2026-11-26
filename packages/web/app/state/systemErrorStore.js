@@ -1,12 +1,12 @@
 import { useSyncExternalStore } from 'react';
 
 // System errors (relegated, unclassified server errors — see specs/platform/system-errors.md)
-// live here rather than in redux because their producer is the API error handler wired at
+// live here rather than in React state because their producer is the API error handler wired at
 // bootstrap in index.js, outside the React tree.
 //
 // The list is in-memory and session-scoped: it is naturally lost on a page reload (module
-// memory), and is explicitly cleared on the auth lifecycle (login/logout) by a redux
-// middleware in store/initStore.js, matching the behaviour of the old redux slice.
+// memory), and is explicitly cleared on the auth lifecycle (login/logout) by the auth provider
+// in contexts/Auth.jsx.
 
 // spec: SYSERR#retention
 export const SYSTEM_ERROR_RETENTION_MS = 24 * 60 * 60 * 1000;

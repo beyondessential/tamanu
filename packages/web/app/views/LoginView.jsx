@@ -1,33 +1,35 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { getResetPasswordErrorMessage } from '@tamanu/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import { useApi } from '../api';
+import { useAuth } from '../contexts/Auth';
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
-import {
-  changePassword,
-  login,
-  requestPasswordReset,
-  restartPasswordResetFlow,
-  validateResetCode,
-} from '../store';
 
 import { AuthFlowView } from './AuthFlowView';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
+// The forms show a failed request from its mutation's error, so a submission settles either way.
+const ignoreRejection = () => {};
+
 export const LoginView = () => {
-  const dispatch = useDispatch();
+  const api = useApi();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const loginError = useSelector(state => state.auth.error);
-  const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
-  const requestPasswordResetSuccess = useSelector(state => state.auth.resetPassword.success);
-  const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
-  const changePasswordError = useSelector(state => state.auth.changePassword.error);
-  const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
-  const lastUserEmail = useSelector(state => state.auth.lastUserEmail);
+  const { login, authError: loginError, lastUserEmail } = useAuth();
+
+  const changePassword = useMutation({ mutationFn: data => api.changePassword(data) });
+  const requestPasswordReset = useMutation({
+    mutationFn: email => api.requestPasswordReset(email),
+    // The change password step starts afresh for each code sent
+    onSuccess: () => changePassword.reset(),
+  });
+  const requestPasswordResetError =
+    requestPasswordReset.error && getResetPasswordErrorMessage(requestPasswordReset.error);
+  const resetPasswordEmail = requestPasswordReset.isSuccess ? requestPasswordReset.variables : null;
 
   const rememberEmail = window?.localStorage?.getItem(REMEMBER_EMAIL);
 
@@ -42,7 +44,7 @@ export const LoginView = () => {
       navigate('/');
     }
 
-    const success = await dispatch(login(email, password));
+    const success = await login(email, password);
     if (rememberMe) {
       // Only remember the email on a successful login, otherwise the
       // LoginForm header would flip to "Welcome back" before the auth
@@ -53,7 +55,6 @@ export const LoginView = () => {
       // saved email doesn't require a successful auth.
       window?.localStorage?.removeItem(REMEMBER_EMAIL);
     }
-    dispatch(restartPasswordResetFlow());
   };
 
   return (
@@ -65,17 +66,17 @@ export const LoginView = () => {
           rememberEmail={rememberEmail}
           onNavToResetPassword={() => {
             setScreen('resetPassword');
-            dispatch(restartPasswordResetFlow());
+            requestPasswordReset.reset();
           }}
           data-testid="loginform-fp20"
         />
       )}
       {screen === 'resetPassword' && (
         <ResetPasswordForm
-          onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
-          onRestartFlow={() => dispatch(restartPasswordResetFlow())}
+          onSubmit={({ email }) => requestPasswordReset.mutateAsync(email).catch(ignoreRejection)}
+          onRestartFlow={requestPasswordReset.reset}
           errorMessage={requestPasswordResetError}
-          success={requestPasswordResetSuccess}
+          success={requestPasswordReset.isSuccess}
           initialEmail={rememberEmail}
           resetPasswordEmail={resetPasswordEmail}
           onNavToChangePassword={() => setScreen('changePassword')}
@@ -85,16 +86,16 @@ export const LoginView = () => {
       )}
       {screen === 'changePassword' && (
         <ChangePasswordForm
-          onSubmit={data => dispatch(changePassword(data))}
-          onRestartFlow={() => dispatch(restartPasswordResetFlow())}
-          errorMessage={changePasswordError}
-          success={changePasswordSuccess}
+          onSubmit={data => changePassword.mutateAsync(data).catch(ignoreRejection)}
+          onRestartFlow={requestPasswordReset.reset}
+          errorMessage={changePassword.error?.message}
+          success={changePassword.isSuccess}
           email={resetPasswordEmail}
           onNavToLogin={() => {
             setScreen('login');
           }}
           onNavToResetPassword={() => setScreen('resetPassword')}
-          onValidateResetCode={data => dispatch(validateResetCode(data))}
+          onValidateResetCode={data => api.post('changePassword/validate-reset-code', data)}
           data-testid="changepasswordform-2331"
         />
       )}

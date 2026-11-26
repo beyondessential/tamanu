@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route, Navigate, useMatch } from 'react-router';
-import { useSelector } from 'react-redux';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -19,9 +18,9 @@ import {
 } from './routes';
 import { Sidebar, useCentralSidebar, useFacilitySidebar } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
-import { getServerType } from './store';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { useSettings } from './contexts/Settings';
+import { useAuth } from './contexts/Auth';
 import { KioskView } from './views/kiosk/KioskView';
 import { TelemetryRouteListener } from './telemetry';
 import {
@@ -30,7 +29,8 @@ import {
 } from './contexts/PageSizePreferences';
 
 export const RoutingApp = () => {
-  const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
+  const { serverType } = useAuth();
+  const isCentralServer = serverType === SERVER_TYPES.CENTRAL;
   return (
     <>
       {/* spec: BTEL — times each in-app navigation */}

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { getAnswersFromData, FormGrid, useDateTime } from '@tamanu/ui-components';
 
@@ -10,7 +9,6 @@ import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
-import { getCurrentUser } from '../../store';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useAuth } from '../../contexts/Auth';
@@ -122,7 +120,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
 
 export const ReferralsView = () => {
   const { patient, isLoading } = usePatient();
-  const currentUser = useSelector(getCurrentUser);
+  const { currentUser } = useAuth();
   if (isLoading || !patient) {
     return <LoadingIndicator data-testid="loadingindicator-o7jr" />;
   }

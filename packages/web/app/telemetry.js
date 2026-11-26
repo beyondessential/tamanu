@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
 import { useLocation, matchPath } from 'react-router';
-import { useSelector } from 'react-redux';
 
 import { initBrowserTelemetry } from '@tamanu/ui-components';
 
-import { checkIsLoggedIn, checkIsFacilitySelected } from './store/auth';
 import { PATIENT_PATHS } from './constants/patientPaths';
 import { getDeviceId } from './utils';
 import { FULL_VERSION } from './utils/env';
 import { LOCAL_STORAGE_KEYS } from './constants';
+import { useAuth } from './contexts/Auth';
 
 // spec: BTEL
 // Wires browser performance telemetry for the web client (clinical + admin,
@@ -88,16 +87,18 @@ export function resolveNavigationRoute(pathname) {
 // changes. That is usually a path change, but `App` also swaps the login and
 // facility-selection screens in on the *same* URL, so the real page load only
 // begins once those gates clear — without them as dependencies the post-login
-// load would never start a navigation and all its requests would be dropped.
+// load would never start a navigation and all its requests would be dropped. While a stored
+// session is being restored, the page being shown isn't known yet, so none starts.
 export const TelemetryRouteListener = () => {
   const location = useLocation();
-  const isUserLoggedIn = useSelector(checkIsLoggedIn);
-  const isFacilitySelected = useSelector(checkIsFacilitySelected);
+  const { currentUser, facilityId, isRestoring } = useAuth();
+  const isUserLoggedIn = Boolean(currentUser);
+  const isFacilitySelected = Boolean(facilityId);
   useEffect(() => {
-    if (!telemetry) return;
+    if (!telemetry || isRestoring) return;
     const { route, pathParams } = resolveNavigationRoute(location.pathname);
     const query = Object.fromEntries(new URLSearchParams(location.search));
     telemetry.startNavigation(route, pathParams, query);
-  }, [location.pathname, location.search, isUserLoggedIn, isFacilitySelected]);
+  }, [location.pathname, location.search, isUserLoggedIn, isFacilitySelected, isRestoring]);
   return null;
 };

@@ -1,8 +1,7 @@
-import { useSelector } from 'react-redux';
 import { ASSET_NAMES, SETTING_KEYS } from '@tamanu/constants';
 import { useAssetQuery } from '../api/queries/useAssetQuery';
-import { getCurrentUser } from '../store';
 import { useSettings } from '../contexts/Settings';
+import { useAuth } from '../contexts/Auth';
 
 export const useCertificate = ({ footerAssetName } = {}) => {
   const { getSetting } = useSettings();
@@ -22,7 +21,7 @@ export const useCertificate = ({ footerAssetName } = {}) => {
   const isFetching =
     isLogoFetching || isWatermarkFetching || isFooterImgFetching || isDeathCertFooterImgFetching;
 
-  const currentUser = useSelector(getCurrentUser);
+  const { currentUser } = useAuth();
 
   const data = {
     title,

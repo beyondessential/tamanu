@@ -10,12 +10,14 @@ const state = vi.hoisted(() => ({
 }));
 
 vi.mock('typeface-roboto', () => ({}));
-vi.mock('react-redux', () => ({ useSelector: selector => selector() }));
 vi.mock('react-router', () => ({ useLocation: () => ({ pathname: '/' }) }));
-vi.mock('../../app/store/auth', () => ({
-  checkIsLoggedIn: () => state.isLoggedIn,
-  checkIsFacilitySelected: () => state.isFacilitySelected,
-  getServerType: () => SERVER_TYPES.FACILITY,
+vi.mock('../../app/contexts/Auth', () => ({
+  useAuth: () => ({
+    currentUser: state.isLoggedIn ? { id: 'user-1' } : null,
+    facilityId: state.isFacilitySelected ? 'facility-1' : null,
+    serverType: SERVER_TYPES.FACILITY,
+    isRestoring: false,
+  }),
 }));
 vi.mock('../../app/api/queries/useCheckServerAliveQuery', () => ({
   useCheckServerAliveQuery: () => ({ data: state.serverStatus, isLoading: false }),

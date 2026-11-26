@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 
-import { checkIsLoggedIn } from '../store/auth';
+import { useAuth } from './Auth';
 
 const NoteModalContext = createContext({
   openNoteModal: () => {},
@@ -34,7 +33,8 @@ export const NoteModalProvider = ({ children }) => {
 
   // A note in progress belongs to the session that opened it, so logging out (by hand or on idle
   // timeout) discards it rather than reopening it, and blocking navigation, at the next login.
-  const isUserLoggedIn = useSelector(checkIsLoggedIn);
+  const { currentUser } = useAuth();
+  const isUserLoggedIn = Boolean(currentUser);
   const [wasUserLoggedIn, setWasUserLoggedIn] = useState(isUserLoggedIn);
   if (isUserLoggedIn !== wasUserLoggedIn) {
     setWasUserLoggedIn(isUserLoggedIn);

@@ -29,9 +29,7 @@ vi.mock('../../../app/contexts/Auth', () => ({
   }),
 }));
 
-vi.mock('react-redux', () => ({ useDispatch: () => vi.fn() }));
 vi.mock('react-router', () => ({ useNavigate: () => vi.fn() }));
-vi.mock('../../../app/store', () => ({ reloadPatient: vi.fn() }));
 
 // The popper's children are stubbed out: this test is only about whether the popper itself
 // fetches patient data, and CheckInButton queries the same endpoint.

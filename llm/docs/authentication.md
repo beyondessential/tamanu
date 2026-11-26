@@ -10,7 +10,7 @@ The web authentication system uses both central server and local facility server
 - `packages/central-server/app/auth/` - Central server authentication modules
 - `packages/central-server/app/auth/userMiddleware.js` - Central server user middleware
 - `packages/web/app/views/LoginView.jsx` - Web login interface
-- `packages/web/app/store/auth.js` - Web authentication state management
+- `packages/web/app/contexts/Auth.jsx` - Web authentication state management (`AuthProvider`, `useAuth()`)
 
 # Architecture
 
