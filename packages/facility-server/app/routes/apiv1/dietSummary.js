@@ -8,13 +8,6 @@ import { InvalidOperationError } from '@tamanu/errors';
 // spec: DIETSUM
 export const dietSummary = express.Router();
 
-const DIET_SUMMARY_ENCOUNTER_TYPES = [
-  ENCOUNTER_TYPES.ADMISSION,
-  ENCOUNTER_TYPES.TRIAGE,
-  ENCOUNTER_TYPES.OBSERVATION,
-  ENCOUNTER_TYPES.EMERGENCY,
-];
-
 // Column key for the patients with no diet recorded when no diet is configured as the regular
 // meal. A deployment whose own diet carries this id simply shares the column, which is where
 // those patients belong anyway. The default provisioning data's Regular diet carries it on
@@ -71,7 +64,7 @@ const buildQuery = hasArea => `
     ))
     AND encounters.end_date IS NULL
     AND encounters.deleted_at IS NULL
-    AND encounters.encounter_type IN (:encounterTypes)
+    AND encounters.encounter_type = :encounterType
     AND patients.deleted_at IS NULL
   ORDER BY location_groups.name NULLS LAST, locations.name, patients.last_name, patients.first_name
 `;
@@ -131,7 +124,7 @@ dietSummary.get(
       replacements: {
         facilityId,
         dietType: REFERENCE_TYPES.DIET,
-        encounterTypes: DIET_SUMMARY_ENCOUNTER_TYPES,
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
         ...(areaId ? { areaId } : {}),
       },
       type: QueryTypes.SELECT,

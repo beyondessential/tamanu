@@ -405,8 +405,9 @@ describe('Diet summary', () => {
     expect(areas[0].subTotals).toEqual({ [protoDiet.id]: 1, [constructorDiet.id]: 1 });
   });
 
-  it('includes triage, active ED care and emergency encounters, leaving off clinic and closed ones', async () => {
-    await admit({ location: bed2, encounterType: ENCOUNTER_TYPES.TRIAGE });
+  it('lists open hospital admissions alone, leaving off emergency, clinic and closed encounters', async () => {
+    await admit({ location: bed2 });
+    await admit({ location: bed10, encounterType: ENCOUNTER_TYPES.TRIAGE });
     await admit({ location: bed10, encounterType: ENCOUNTER_TYPES.EMERGENCY });
     await admit({ location: maternityBed, encounterType: ENCOUNTER_TYPES.OBSERVATION });
     await admit({ location: bedWithoutArea, encounterType: ENCOUNTER_TYPES.CLINIC });
@@ -418,8 +419,9 @@ describe('Diet summary', () => {
     expect(result).toHaveSucceeded();
 
     const { areas, hospitalTotals } = result.body;
-    expect(areas.map(area => area.name)).toEqual(['Cardiology', 'Maternity']);
-    expect(hospitalTotals).toEqual({ regular: 3 });
+    expect(areas.map(area => area.name)).toEqual(['Cardiology']);
+    expect(areas[0].patients.map(patient => patient.bed)).toEqual(['Bed 2']);
+    expect(hospitalTotals).toEqual({ regular: 1 });
   });
 
   it('leaves off a deleted diet, counting its patient as regular', async () => {

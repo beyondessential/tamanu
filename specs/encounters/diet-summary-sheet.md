@@ -23,7 +23,8 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 
 ## Who appears on the sheet
 
-- Every patient with an open encounter at the facility appears, where the encounter is a hospital admission, a triage, an active ED care or an emergency short stay encounter.
+- Every patient with an open hospital admission at the facility appears.
+- Patients whose open encounter is a triage, an active ED care or an emergency short stay encounter are left off, as are those on any other encounter type.
 - A patient's ward is the area of their encounter's location, and their bed is the location itself. Locations of any occupancy count.
 - Patients whose location has no area are grouped under a **No area** section, which follows the named wards.
 - Wards with no patients on the sheet are left off it.
@@ -34,9 +35,9 @@ Applies to the diet summary sheet printed from Bed management: who it lists, how
 - A patient in a bed whose visibility status is not current still appears, even where Bed management's own list hides that bed.
 
 > [!NOTE]
-> Emergency patients are fed from the same kitchen as admitted ones, so leaving them off the sheet would under-count meals. A diet is recorded on a hospital admission, so emergency patients are counted as regular meals until they are admitted.
+> A diet can only be recorded on a hospital admission, so an emergency patient could only ever be counted as a regular meal. They are left off until they are admitted, rather than listed against a diet nobody chose for them.
 >
-> A deleted ward still feeds its patients because the sheet's job is to cover everyone with an open encounter, not to mirror Bed management's own ward list. A retired bed is kept for the same reason: the patient in it still needs feeding, whether or not the bed still shows on Bed management's own table.
+> A deleted ward still feeds its patients because the sheet's job is to cover everyone with an open admission, not to mirror Bed management's own ward list. A retired bed is kept for the same reason: the patient in it still needs feeding, whether or not the bed still shows on Bed management's own table.
 
 ## Layout
 
