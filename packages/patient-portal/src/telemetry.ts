@@ -35,10 +35,6 @@ export function setPortalTelemetryEnabled(enabled: boolean) {
   isTelemetryEnabled = enabled;
 }
 
-// One id per page load, standing in for the browser session. The portal is
-// served over HTTPS, so `crypto.randomUUID` is available (as in getDeviceId).
-const SESSION_ID = `portal-session-${crypto.randomUUID()}`;
-
 export function initPortalTelemetry(api: TamanuApi) {
   telemetry = initBrowserTelemetry({
     api,
@@ -48,7 +44,8 @@ export function initPortalTelemetry(api: TamanuApi) {
     getContextAttributes: () => ({
       deviceId: api.deviceId,
       appVersion: api.agentVersion,
-      sessionId: SESSION_ID,
+      // The user and session are only known once signed in, and change with each sign-in.
+      sessionId: api.signInId ? `portal-session-${api.signInId}` : null,
       userId: api.user?.id ?? null,
     }),
   });

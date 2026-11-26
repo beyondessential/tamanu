@@ -21,9 +21,24 @@ export const clearSystemErrorsOnAuthChange = () => next => action => {
   return next(action);
 };
 
+// spec: BTEL
+// Every way out of a session (logout, idle timeout, auth failure, incompatible version) ends in
+// one of these actions, so the api client forgets the user here rather than on each path. Browser
+// telemetry reads the user and sign-in from the api client, so the login screen sends neither.
+export const clearApiUserOnLogout = api => () => next => action => {
+  if (action.type === 'LOGOUT' || action.type === 'LOGOUT_WITH_ERROR') {
+    api.setUser(null);
+  }
+  return next(action);
+};
+
 export function initStore(api, initialState = {}) {
   const enhancers = compose(
-    applyMiddleware(thunk.withExtraArgument({ api }), clearSystemErrorsOnAuthChange),
+    applyMiddleware(
+      thunk.withExtraArgument({ api }),
+      clearSystemErrorsOnAuthChange,
+      clearApiUserOnLogout(api),
+    ),
   );
   const persistConfig = { key: 'tamanu', storage };
   if (!IS_DEVELOPMENT) {

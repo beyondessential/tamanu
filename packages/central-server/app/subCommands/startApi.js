@@ -4,15 +4,18 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { sweepStaleUploadDirs } from '@tamanu/shared/utils/tmpdir';
 import { syncDatabaseServerVersion } from '@tamanu/database';
 import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
 
+import { assertAuthSecretsConfigured } from '../auth/utils';
 import { createApp } from '../createApp';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { version } from '../serverInfo';
 
 export const startApi = async ({ skipMigrationCheck }) => {
   log.info(`Starting central server version ${version}`);
+  assertAuthSecretsConfigured();
 
   log.info(`Process info`, {
     execArgs: process.execArgs || '<empty>',
@@ -27,6 +30,7 @@ export const startApi = async ({ skipMigrationCheck }) => {
     serverVersion: version,
   });
 
+  await sweepStaleUploadDirs();
   const { express, server } = await createApp(context);
 
   await performTimeZoneChecks({
@@ -37,13 +41,16 @@ export const startApi = async ({ skipMigrationCheck }) => {
   const minConnectionPoolSnapshotHeadroom = 4;
   // Resolve so a pool size supplied via the connection-string query is seen here too.
   const poolMax = resolveDbConfig(config.db)?.pool?.max;
-  const connectionPoolSnapshotHeadroom = poolMax - config?.sync?.numberConcurrentPullSnapshots;
+  const numberConcurrentPullSnapshots = await context.settings.get(
+    'sync.numberConcurrentPullSnapshots',
+  );
+  const connectionPoolSnapshotHeadroom = poolMax - numberConcurrentPullSnapshots;
   if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
     log.warn(
-      `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,
+      `WARNING: config.db.pool.max is dangerously close to the sync.numberConcurrentPullSnapshots setting (within ${minConnectionPoolSnapshotHeadroom} connections)`,
       {
         'config.db.pool.max': poolMax,
-        'config.sync.numberConcurrentPullSnapshots': config.sync?.numberConcurrentPullSnapshots,
+        'sync.numberConcurrentPullSnapshots': numberConcurrentPullSnapshots,
         connectionPoolSnapshotHeadroom,
       },
     );

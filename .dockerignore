@@ -4,3 +4,4 @@ node_modules
 .tmp
 database/docs
 packages/supervisor/target
+**/config/dev-secret.key*

@@ -182,9 +182,11 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "diet-Regular",
+      // The diet summary sheet counts patients with no diet recorded under the id "regular", so
+      // this id is what puts them in one column with the patients who have this diet recorded.
+      "id": "regular",
       "code": "Regdiet",
-      "name": "Regular diet",
+      "name": "Regular",
       "visibilityStatus": "current"
     },
     {

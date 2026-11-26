@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
+import { isValidAdditionalSearchField, SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
 import {
   AutocompleteField,
   DateField,
@@ -39,7 +39,10 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
   const { getSetting } = useSettings();
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
-  const additionalSearchFields = getSetting('patientSearch.additionalSearchFields') ?? [];
+  // The server ignores a configured name it doesn't recognise, so don't offer a box for it either
+  const additionalSearchFields = (getSetting('patientSearch.additionalSearchFields') ?? []).filter(
+    isValidAdditionalSearchField,
+  );
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (

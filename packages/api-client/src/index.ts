@@ -13,6 +13,7 @@ export {
   buildTokenStorageKeyMaterial,
   packPersistedToken,
   readPersistedAuthToken,
+  renewPersistedAuthToken,
   unpackPersistedToken,
   writePersistedAuthToken,
 } from './browserTokenStorage';

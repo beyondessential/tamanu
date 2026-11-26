@@ -152,6 +152,9 @@ export default {
   },
   [REFERENCE_TYPES.MEDICATION_TEMPLATE]: {
     loader: medicationTemplateLoader,
+    // spec: DQLIM#medication-sets
+    // A template's dose is checked against its drug's limits, which must already be saved.
+    needs: [REFERENCE_TYPES.DRUG],
   },
   [REFERENCE_TYPES.MEDICATION_SET]: {
     loader: medicationSetLoader,

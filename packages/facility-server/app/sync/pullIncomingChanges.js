@@ -1,7 +1,7 @@
-import config from 'config';
 import { chunk } from 'es-toolkit/compat';
 import { log } from '@tamanu/shared/services/logging';
 import {
+  getSyncTuning,
   insertSnapshotRecords,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
@@ -10,10 +10,9 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
-const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
-
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   const start = Date.now();
+  const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = getSyncTuning();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes

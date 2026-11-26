@@ -4,7 +4,7 @@ import JSON5 from 'json5';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { CONFIG_TO_SETTINGS, settingPathOf } from '../src/configToSettings';
-import { getScopedSchema } from '../src/schema';
+import { facilityDefaults, getScopedSchema } from '../src/schema';
 import { getNodeAtPath, isSetting } from '../src/schema/utils';
 
 // A CONFIG_TO_SETTINGS subtree row only lifts config leaves that exist in the scoped
@@ -62,5 +62,22 @@ describe('CONFIG_TO_SETTINGS', () => {
       (CONFIG_FILES[row.scope] ?? []).flatMap(file => unmappedLeaves(row, file)),
     );
     expect([...new Set(unmapped)].sort()).toEqual([...NOT_SETTINGS].sort());
+  });
+});
+
+describe('facility sync timing defaults', () => {
+  it('match the facility config defaults', () => {
+    const configSync = loadConfig(CONFIG_FILES[SETTINGS_SCOPES.FACILITY][0]).sync;
+    const keys = [
+      'schedule',
+      'jitterTime',
+      'timeout',
+      'backoff',
+      'dynamicLimiter',
+      'assertIfPulledRecordsUpdatedAfterPushSnapshot',
+    ];
+    for (const key of keys) {
+      expect(facilityDefaults.sync[key]).toEqual(configSync[key]);
+    }
   });
 });

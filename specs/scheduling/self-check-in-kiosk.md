@@ -13,6 +13,7 @@ Applies to the tablet at a facility where patients check themselves in for today
 - Where the kiosk is turned off for the facility, the kiosk address shows only a short message that the kiosk is unavailable, without the kiosk header.
 - The kiosk keeps its staff sign-in alive while it is open, so it does not sign itself out between patients.
 - The kiosk can be open in one browser tab while Tamanu is open in another. Tamanu's limit of one open tab doesn't apply to kiosk tabs, so a kiosk tab neither blocks Tamanu nor is blocked by it.
+- Keeping the kiosk signed in leaves Tamanu's sign-in in other tabs as those tabs last set it: logging out of Tamanu, or signing in with another account, holds across a reload while the kiosk stays open.
 - Every kiosk action is limited to the facility the tablet is signed in to; the kiosk cannot be pointed at another facility.
 - The kiosk has its own permission, to run the kiosk, and needs no other: with it an account can find today's appointments, load their forms and check patients in from the kiosk. An account kept for the tablet can be given only this permission, so leaving the kiosk for the rest of Tamanu shows it no patient records.
 - The Self check-in kiosk item in Facility admin is shown only to accounts with permission to run the kiosk, and the kiosk address tells an account without it that it can't run the kiosk.
@@ -56,12 +57,13 @@ Applies to the tablet at a facility where patients check themselves in for today
 
 ## Forms
 
-- The forms a patient completes are set by the kiosk setting, per appointment type for outpatient appointments and per booking type for location bookings. Forms that have been retired are left out. A type with no forms goes straight to Ready to check in.
+- The forms a patient completes are set by the kiosk setting, per appointment type for outpatient appointments and per booking type for location bookings. Forms that have been retired are left out, as is the [syndromic surveillance form](../encounters/syndromic-surveillance.md), which is completed only from the encounter it is for. A type with no forms goes straight to Ready to check in.
 - Forms can be completed in any order. A "Your forms" list beside the open form shows each form's status (Completed, In progress with its current page where it has more than one, Not started) and how many are complete; tapping a form opens it.
 - After the patient confirms who they are, the first form opens.
 - The open form shows its own page progress ("Page 2 of 3") with a progress bar.
 - When a page is longer than the screen, the questions scroll while the form title, page progress and Back and Next stay in place.
 - Form questions use the question types that patient-facing forms support. Questions of other types are left out of the kiosk, as are questions that draw on a program registry, which a patient checking in is not within.
+- Search questions offer the same reference data lists as patient portal forms, and also clinicians and the clinics of the facility.
 - Questions that fill from the patient record show the patient's existing value. The tablet receives only the parts of the patient's record that the forms show, and only after the patient confirms who they are.
 - Required questions are marked with a red asterisk. Tapping Next with required questions unanswered keeps the patient on the page, scrolls to the first unanswered required question, and shows "This question is required" under each one.
 - A question's validation message clears as soon as it has a valid answer.
@@ -69,6 +71,7 @@ Applies to the tablet at a facility where patients check themselves in for today
 - Next on a form's last page completes the form and opens the next form that is not complete; when all are complete, the main panel shows Ready to check in.
 - Answers are kept on the tablet while the patient moves between forms and pages, so a completed form can be reopened and changed until the patient checks in. A form reopened from the forms list opens at its first page and is in progress again until the patient reaches its end.
 - Back from a form's first page returns to the previous form, which keeps the status it had.
+- A completed form whose answers are changed, wherever the patient reached it from, is in progress again until the patient reaches its end, so every required question is checked against the new answers before they can check in.
 - Every form must be complete before the patient can check in.
 
 ## Checking in
@@ -77,6 +80,7 @@ Applies to the tablet at a facility where patients check themselves in for today
 - Check in saves every completed form as a form response for the patient, recorded at this facility, and marks the appointment Arrived. Either all of these are saved or none are, and an appointment can only be checked in once.
 - Form responses are recorded against the staff account the kiosk is signed in with, each timed from when the patient opened that form to when they completed it.
 - Each patient record the kiosk puts on screen is recorded in the access audit, so the staff account the tablet is signed in with can be answered for.
+- If the appointment has moved past Confirmed by the time the patient checks in, for example staff marked it Arrived while the patient was completing their forms, the patient sees that they are already checked in and is directed to take a seat. None of their answers are saved.
 - If check-in fails, the patient is told to go to reception and their answers are kept so they or staff can try again.
 - After check-in, "You're checked in" asks the patient to take a seat. Done, or a short wait, returns to the landing page.
 

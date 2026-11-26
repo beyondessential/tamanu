@@ -65,7 +65,6 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'fhir.worker.enabled',
     scope: SETTINGS_SCOPES.FACILITY,
   },
-  { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
   {
     config: 'scheduledReports',
     setting: 'reporting.scheduledReports',
@@ -120,6 +119,16 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   { config: 'auth', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'updateUrls', setting: 'metaServer.updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'sync.numberConcurrentPullSnapshots', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'sync.schedule', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'sync.jitterTime', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'sync.timeout', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'sync.backoff', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'sync.dynamicLimiter', scope: SETTINGS_SCOPES.FACILITY },
+  {
+    config: 'sync.assertIfPulledRecordsUpdatedAfterPushSnapshot',
+    scope: SETTINGS_SCOPES.FACILITY,
+  },
 ];
 
 // Config paths are handled as segment arrays so a config key containing a dot
@@ -191,16 +200,6 @@ export const CONFIG_TO_SECRET_SETTINGS: ConfigToSecret[] = [
     setting: 'integrations.dhis2.password',
     scope: SETTINGS_SCOPES.CENTRAL,
     encryptedInConfig: true,
-  },
-  {
-    config: 'telegramBot.apiToken',
-    setting: 'integrations.telegram.apiToken',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'telegramBot.webhook.secret',
-    setting: 'integrations.telegram.webhook.secret',
-    scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'mailgun.apiKey', setting: 'mail.mailgun.apiKey', scope: SETTINGS_SCOPES.CENTRAL },
 ];

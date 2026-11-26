@@ -43,7 +43,7 @@ describe('Programs import - Permissions', () => {
 
     const result = await app
       .post('/v1/admin/import/program')
-      .attach(`./__tests__/importers/programs-valid.xlsx`)
+      .attach('file', './__tests__/importers/programs-valid.xlsx')
       .field('includedDataTypes', 'program');
 
     const { didntSendReason, errors } = result.body;
