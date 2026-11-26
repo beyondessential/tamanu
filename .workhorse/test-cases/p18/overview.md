@@ -38,6 +38,8 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [x] A log in the central server refuses signs the device out, discarding its tokens and stopping sync
 - [x] Reconnecting with a password signs in again as the same user and starts a sync
 - [x] The first refused log in after a reconnect attempt leaves the user signed in, and the next one signs them out
+- [x] The central server turning the app away for being out of date leaves the session as it is and records the update to fetch
+- [x] The central server turning the app away for being too new leaves the session as it is and records no update
 
 ### Selected patient (`contexts/SelectedPatientContext.spec.tsx`, verifies spec: MSELP)
 
@@ -80,6 +82,7 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [ ] Leave the app untouched for 30 minutes: the log in screen shows with "Logged out due to inactivity"
 - [ ] Background the app for over 30 minutes and return: the same
 - [ ] On the log in screen while online, enter a wrong password: an error shows and the log in screen stays
+- [ ] Against a central server that requires a newer app, sync: the user stays signed in, the update banner shows on the home screen, and the selected patient is still selected
 - [ ] With sync stopped by a rejected session, reconnect with a wrong password: an error shows in the form and the user stays signed in. Reconnect with the right password: sync resumes on the same screen
 - [ ] The user's name shows on the home screen, the More screen and the welcome introduction, and changes on all of them after signing in as someone else
 

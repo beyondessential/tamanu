@@ -50,5 +50,6 @@ Applies to the signed-in session the mobile app holds on a device: what it holds
 
 - When the central server rejects the device's tokens during a sync, the sync stops and the user stays signed in, with a prompt to reconnect.
 - A user whose sync has stopped can reconnect by entering their password, which signs them in again online, replaces the tokens and starts a sync, without leaving the screen they are on.
-- When the central server refuses a log in attempt, because the credentials are wrong, the user has no access to the device's facility or the app is too old to connect, the device is signed out as if the user had logged out, which discards any tokens it held and stops scheduled syncing.
+- When the central server refuses a log in attempt, because the credentials are wrong or the user has no access to the device's facility, the device is signed out as if the user had logged out, which discards any tokens it held and stops scheduled syncing.
 - The first refused log in that follows a reconnect attempt leaves the user signed in, so a wrong password shows an error in the reconnect form instead of signing them out.
+- When the central server turns the app away for the version it is running, the session is left as it is, and an out-of-date app goes on to [update itself](mobile-app-updates.md#detecting-an-out-of-date-app).

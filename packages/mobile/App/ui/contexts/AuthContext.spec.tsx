@@ -4,6 +4,8 @@ import mitt from 'mitt';
 import React, { type ReactNode } from 'react';
 import * as Keychain from 'react-native-keychain';
 import { readConfig } from '~/services/config';
+import { OutdatedVersionError } from '~/services/error';
+import { recordPendingUpdate } from '~/services/update/pendingUpdate';
 import { Routes } from '~/ui/helpers/routes';
 import { AuthProvider, preloadSession, useAuth } from './AuthContext';
 import { BackendContext } from './BackendContext';
@@ -21,6 +23,10 @@ jest.mock('@react-native-community/netinfo', () => ({
 
 jest.mock('~/services/config', () => ({
   readConfig: jest.fn(),
+}));
+
+jest.mock('~/services/update/pendingUpdate', () => ({
+  recordPendingUpdate: jest.fn(),
 }));
 
 jest.useRealTimers();
@@ -433,6 +439,32 @@ describe('AuthProvider', () => {
       await act(async () => backend.auth.emitter.emit('authError', new Error('refused')));
 
       expect(result.current.signedIn).toBe(false);
+    });
+
+    it('leaves the session as it is when the app is turned away for being out of date', async () => {
+      const { result, backend } = await renderAuth({ stored: JSON.stringify(signedInSession) });
+      mockSetStored.mockClear();
+      const updateUrl = 'https://meta.example.com/versions/2.70.1/mobile';
+
+      await act(async () =>
+        backend.auth.emitter.emit('authError', new OutdatedVersionError(updateUrl)),
+      );
+      await flushStorage();
+
+      expect(result.current.signedIn).toBe(true);
+      expect(backend.stopSyncService).not.toHaveBeenCalled();
+      expect(mockSetStored).not.toHaveBeenCalled();
+      expect(recordPendingUpdate).toHaveBeenCalledWith(updateUrl);
+    });
+
+    it('leaves the session as it is when the app is turned away for being too new', async () => {
+      const { result, backend } = await renderAuth({ stored: JSON.stringify(signedInSession) });
+
+      await act(async () => backend.auth.emitter.emit('authError', new OutdatedVersionError('')));
+
+      expect(result.current.signedIn).toBe(true);
+      expect(backend.stopSyncService).not.toHaveBeenCalled();
+      expect(recordPendingUpdate).not.toHaveBeenCalled();
     });
   });
 });

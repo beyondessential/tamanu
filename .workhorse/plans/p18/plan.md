@@ -34,6 +34,7 @@ With one `user`, `ability` is restored whenever a user is. Decided with Tom: let
 - The setter is stable (`useCallback`) and the value memoised, so a screen that only sets the patient does not re-render for an unrelated reason.
 - One context, not a split state/setter pair. The selection changes on navigation, not while a screen is being used, so the extra re-render of setter-only screens is not worth a second context.
 - The provider sits inside `NavigationContainer` and above `Core`. It has no dependency on auth, which matches the selection outliving sign-out.
+- The in-app update provider that main added (`UpdateProvider`) sits inside it, directly above the idle layer, where main had it.
 
 ## Reading storage at launch
 
@@ -122,7 +123,7 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 ### Checks
 
 - [x] Typecheck shows no errors beyond the ones already on the base (480 on the base, 477 now with main merged in, none from this card)
-- [x] Mobile jest suite passes (66 suites, 481 tests, run with three workers)
+- [x] Mobile jest suite passes (68 suites, 513 tests with main merged in, run with three workers)
 - [x] Lint passes on the mobile package with no errors
 - [x] Android JavaScript bundle builds, so every import resolves under Metro, with no Redux package in it
 - [ ] Run on a device or emulator, including the upgrade from the previous build
@@ -141,6 +142,7 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 ## Left as it is
 
 - A log in the central server refuses signs the device out even from the log in screen, so a wrong password on a device that was signed out by inactivity discards its tokens and stops its sync. The Mobile app session spec now says so.
+- A rejection for the app's version belongs to in-app updates, which arrived from main while this card was open. The auth provider leaves the session alone and records the update to fetch, and the Mobile app session spec says so by pointing at the Mobile app updates spec.
 - The launch sync can still start before the stored tokens reach the central server connection, as it can today. It fails on authentication and the next scheduled sync picks up.
 - A token refreshed mid-session is not written back to storage.
 - Scheduled sync does not restart after a log out and log in within one run. Recorded on the card as an issue needing its own card.
