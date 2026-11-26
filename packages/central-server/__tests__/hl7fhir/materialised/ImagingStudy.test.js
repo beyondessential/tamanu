@@ -426,10 +426,14 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         return { imagingRequest, serviceRequest };
       };
 
-      const postLinkOnlyStudy = (serviceRequest, { url = INTEGRATION_URL, note } = {}) =>
+      const postLinkOnlyStudy = (
+        serviceRequest,
+        { url = INTEGRATION_URL, note, identifier } = {},
+      ) =>
         app.post(PATH).send({
           resourceType: 'ImagingStudy',
           status: 'final',
+          ...(identifier && { identifier }),
           basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequest.id}` }],
           note: [{ text: note ?? INTEGRATION_NOTE }],
           contained: [
@@ -594,6 +598,38 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           expect(integrationResult).toMatchObject({
             description: AMENDED_NOTE,
             resultImageUrl: AMENDED_URL,
+          });
+        }));
+
+      it('treats a blank Accession Number as none', () =>
+        showError(async () => {
+          // arrange
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const identifier = [
+            {
+              use: 'usual',
+              system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+              value: '',
+            },
+          ];
+          const firstResponse = await postLinkOnlyStudy(serviceRequest, { identifier });
+          expect(firstResponse).toHaveSucceeded();
+
+          // act
+          const response = await postLinkOnlyStudy(serviceRequest, {
+            identifier,
+            url: AMENDED_URL,
+            note: AMENDED_NOTE,
+          });
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(1);
+          expect(results[0]).toMatchObject({
+            description: AMENDED_NOTE,
+            resultImageUrl: AMENDED_URL,
+            externalCode: null,
           });
         }));
 
