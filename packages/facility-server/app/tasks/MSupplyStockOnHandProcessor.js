@@ -1,3 +1,4 @@
+import { QueryTypes } from 'sequelize';
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -6,28 +7,28 @@ import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
 import { MSupplyClient } from '../utils/MSupplyClient';
 import { getServerFacilityIds } from '../serverConfig';
 
-// mSupply's stockLines query does not support first/offset pagination,
-// so we fetch all lines in a single request. Per-facility catalogues are
-// expected to be in the low thousands at most.
-function getStockLinesQuery(storeId) {
-  return `
-    query Stock {
-      stockLines(storeId: "${storeId}") {
-        ... on StockLineConnector {
-          nodes {
-            id
-            item {
-              code
-            }
-            availableNumberOfPacks
-            totalNumberOfPacks
-            packSize
-          }
+// The most items mSupply returns in one page
+export const ITEMS_PAGE_SIZE = 5000;
+
+// Sourced from items rather than stockLines: an item never stocked in the store
+// has no stock lines, so stockLines leaves it out, while items reports it with
+// an availableStockOnHand of 0.
+//
+// No sort is passed on purpose. Without one, mSupply orders items by id, the only
+// unique order it offers, so items sharing a code can't shift between pages.
+const ITEMS_STOCK_ON_HAND_QUERY = `
+  query ItemsStockOnHand($storeId: String!, $page: PaginationInput) {
+    items(storeId: $storeId, page: $page) {
+      ... on ItemConnector {
+        totalCount
+        nodes {
+          code
+          availableStockOnHand(storeId: $storeId)
         }
       }
     }
-  `;
-}
+  }
+`;
 
 function computeStockStatus(totalQuantity) {
   if (totalQuantity > 0) return DRUG_STOCK_STATUSES.IN_STOCK;
@@ -48,31 +49,47 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     this.client = new MSupplyClient(context);
   }
 
-  async fetchStockLines(host, storeId, authToken, backoff) {
+  async fetchItemsPage({ host, storeId, authToken, backoff, offset }) {
     const { data, errors } = await this.client.graphqlQuery({
       host,
-      query: getStockLinesQuery(storeId),
+      query: ITEMS_STOCK_ON_HAND_QUERY,
+      variables: { storeId, page: { first: ITEMS_PAGE_SIZE, offset } },
       authToken,
       backoff,
     });
 
     if (errors?.length) {
-      throw new Error(`mSupply stockLines query failed: ${errors[0].message}`);
+      throw new Error(`mSupply items query failed: ${errors[0].message}`);
     }
 
-    return data?.stockLines?.nodes ?? [];
+    return data.items;
   }
 
-  aggregateStockByCode(stockLines) {
+  async fetchItems(host, storeId, authToken, backoff) {
+    const items = [];
+    for (;;) {
+      const { nodes, totalCount } = await this.fetchItemsPage({
+        host,
+        storeId,
+        authToken,
+        backoff,
+        offset: items.length,
+      });
+      items.push(...nodes);
+      // An empty page ends it too, so a totalCount never delivered can't loop forever
+      if (nodes.length === 0 || items.length >= totalCount) return items;
+    }
+  }
+
+  // mSupply can hold more than one item with the same code
+  aggregateStockByCode(items) {
     const aggregated = new Map();
 
-    for (const line of stockLines) {
-      const code = line.item?.code;
+    for (const { code, availableStockOnHand } of items) {
       if (!code) continue;
 
-      const totalUnits = (line.availableNumberOfPacks ?? 0) * (line.packSize ?? 1);
       const current = aggregated.get(code) ?? 0;
-      aggregated.set(code, current + totalUnits);
+      aggregated.set(code, current + availableStockOnHand);
     }
 
     return aggregated;
@@ -101,29 +118,41 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     );
 
     const skipped = codes.length - matchingDrugs.length;
+    if (matchingDrugs.length === 0) return { updated: 0, skipped };
 
-    const records = matchingDrugs.map(drug => {
-      const quantity = stockByCode.get(drug.code);
-      return {
-        referenceDrugId: drug.referenceDrug.id,
-        facilityId,
-        quantity,
-        stockStatus: computeStockStatus(quantity),
-      };
-    });
+    const quantities = matchingDrugs.map(drug => stockByCode.get(drug.code));
 
-    if (records.length > 0) {
-      await Promise.all(
-        records.map(({ referenceDrugId, facilityId, quantity, stockStatus }) =>
-          this.models.ReferenceDrugFacility.update(
-            { quantity, stockStatus },
-            { where: { referenceDrugId, facilityId } },
-          ),
-        ),
-      );
-    }
+    // One statement for every drug, writing only rows whose stock has changed,
+    // so an unchanged drug adds nothing to the changelog
+    const updated = await this.context.sequelize.query(
+      `
+        UPDATE reference_drug_facilities
+        SET quantity = stock.quantity, stock_status = stock.stock_status
+        FROM unnest(
+          ARRAY[:referenceDrugIds]::uuid[],
+          ARRAY[:quantities]::integer[],
+          ARRAY[:stockStatuses]::text[]
+        ) AS stock (reference_drug_id, quantity, stock_status)
+        WHERE reference_drug_facilities.reference_drug_id = stock.reference_drug_id
+          AND reference_drug_facilities.facility_id = :facilityId
+          AND reference_drug_facilities.deleted_at IS NULL
+          AND (
+            reference_drug_facilities.quantity IS DISTINCT FROM stock.quantity
+            OR reference_drug_facilities.stock_status IS DISTINCT FROM stock.stock_status
+          )
+      `,
+      {
+        replacements: {
+          referenceDrugIds: matchingDrugs.map(drug => drug.referenceDrug.id),
+          quantities,
+          stockStatuses: quantities.map(computeStockStatus),
+          facilityId,
+        },
+        type: QueryTypes.BULKUPDATE,
+      },
+    );
 
-    return { updated: records.length, skipped };
+    return { updated, skipped };
   }
 
   async run() {
@@ -154,13 +183,13 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     }
 
     const authToken = await this.client.authenticate(facilityId);
-    const stockLines = await this.fetchStockLines(host, storeId, authToken, backoff);
+    const items = await this.fetchItems(host, storeId, authToken, backoff);
 
-    log.info('MSupplyStockOnHandProcessor: received stock lines from mSupply', {
-      totalLines: stockLines.length,
+    log.info('MSupplyStockOnHandProcessor: received items from mSupply', {
+      totalItems: items.length,
     });
 
-    const stockByCode = this.aggregateStockByCode(stockLines);
+    const stockByCode = this.aggregateStockByCode(items);
 
     log.info('MSupplyStockOnHandProcessor: aggregated stock by item code', {
       uniqueMedications: stockByCode.size,
