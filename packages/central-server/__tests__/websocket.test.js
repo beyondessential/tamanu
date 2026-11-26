@@ -212,7 +212,7 @@ describe('Websocket', () => {
       const contact = fake(models.PatientContact, {
         patientId: patient.id,
         relationshipId: relationship.id,
-        method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+        method: PATIENT_COMMUNICATION_CHANNELS.SMS,
       });
       return { patient, contact };
     };
@@ -237,7 +237,7 @@ describe('Websocket', () => {
         patientId: contact.patientId,
         relationshipId: contact.relationshipId,
         name: contact.name,
-        method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+        method: PATIENT_COMMUNICATION_CHANNELS.SMS,
       });
     });
 

@@ -20,7 +20,6 @@ vi.mock('../../app/api/mutations', () => ({
   useMarkAsRead: () => ({ mutateAsync: vi.fn(), isLoading: false }),
   useMarkAllAsRead: () => ({ mutate: vi.fn(), isLoading: false }),
 }));
-vi.mock('../../app/api/queries', () => ({ useTelegramBotInfoQuery: () => ({}) }));
 vi.mock('../../app/contexts/LabRequest', () => ({ useLabRequest: () => ({}) }));
 vi.mock('../../app/contexts/Auth', () => ({ useAuth: () => ({ ability: { can: () => true } }) }));
 vi.mock('../../app/utils/useSocket', () => ({
@@ -42,11 +41,7 @@ vi.mock('@tamanu/ui-components', async importOriginal => ({
 
 const { DeleteOngoingConditionModal } =
   await import('../../app/components/PatientInfoPane/DeleteOngoingConditionModal');
-const { AddReminderContact } =
-  await import('../../app/components/ReminderContact/AddReminderContact');
 const { ContactDetails } = await import('../../app/components/ReminderContact/ContactDetails');
-const { ReminderContactQR } =
-  await import('../../app/components/ReminderContact/ReminderContactQR');
 const { NotificationDrawer } = await import('../../app/components/Notification/NotificationDrawer');
 
 const translationContext = {
@@ -77,16 +72,6 @@ describe('translations rendered as HTML', () => {
     expect(subText.querySelector('b').textContent).toBe(MARKUP_NAME);
   });
 
-  it('shows the patient name when adding a reminder contact', () => {
-    mockPatient.firstName = 'Aroha';
-    mockPatient.lastName = '<b>Te Rangi</b>';
-    renderElementWithTranslatedText(<AddReminderContact />, undefined, translationContext);
-    const subHeading = screen.getByTestId('formsubheading-72l1');
-    expect(subHeading.textContent).not.toContain(':patientName');
-    expect(subHeading.querySelector('span').textContent).toBe('Aroha <b>Te Rangi</b>');
-    expect(subHeading.querySelector('b')).toBeNull();
-  });
-
   it('shows the patient name in the reminder contact list description', async () => {
     mockPatient.firstName = MARKUP_NAME;
     mockPatient.lastName = 'Te Rangi';
@@ -111,19 +96,6 @@ describe('translations rendered as HTML', () => {
       translationContext,
     );
     const description = await screen.findByTestId('styledtext-r6fj');
-    expect(description.querySelector('img')).toBeNull();
-    expect(description.querySelector('span').textContent).toBe(`${MARKUP_NAME} Te Rangi`);
-  });
-
-  it('shows the patient name in the reminder contact QR code description', () => {
-    mockPatient.firstName = MARKUP_NAME;
-    mockPatient.lastName = 'Te Rangi';
-    renderElementWithTranslatedText(
-      <ReminderContactQR contact={{ id: 'contact-1' }} onClose={() => {}} />,
-      undefined,
-      translationContext,
-    );
-    const description = screen.getByTestId('styledtext-4inx');
     expect(description.querySelector('img')).toBeNull();
     expect(description.querySelector('span').textContent).toBe(`${MARKUP_NAME} Te Rangi`);
   });
