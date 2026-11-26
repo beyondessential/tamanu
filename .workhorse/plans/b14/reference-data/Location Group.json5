@@ -1,0 +1,109 @@
+{
+  "sheetName": "Location Group",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus",
+    "isBookable",
+    "facilityId"
+  ],
+  "data": [
+    {
+      "id": "locationgroup-Reception",
+      "code": "Reception",
+      "name": "Reception",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-CoolockDaySurgeryUnit",
+      "code": "CoolockDaySurgeryUnit",
+      "name": "Coolock Day Surgery Unit",
+      "visibilityStatus": "current",
+      "isBookable": "weekly",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-OperatingTheatres",
+      "code": "OperatingTheatres",
+      "name": "Operating Theatres",
+      "visibilityStatus": "current",
+      "isBookable": "daily",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-PostAnaestheticCareUnit",
+      "code": "PostAnaestheticCareUnit",
+      "name": "Post Anaesthetic Care Unit",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-IntensiveCareUnit",
+      "code": "IntensiveCareUnit",
+      "name": "Intensive Care Unit",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-McAuleyWard",
+      "code": "McAuleyWard",
+      "name": "McAuley Ward",
+      "visibilityStatus": "current",
+      "isBookable": "weekly",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-CallaghanWard",
+      "code": "CallaghanWard",
+      "name": "Callaghan Ward",
+      "visibilityStatus": "current",
+      "isBookable": "weekly",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-MercyHeartCentre",
+      "code": "MercyHeartCentre",
+      "name": "Mercy Heart Centre",
+      "visibilityStatus": "current",
+      "isBookable": "daily",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-ManaakiDayStayUnit",
+      "code": "ManaakiDayStayUnit",
+      "name": "Manaaki Day Stay Unit",
+      "visibilityStatus": "current",
+      "isBookable": "daily",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-MercyCancerCare",
+      "code": "MercyCancerCare",
+      "name": "Mercy Cancer Care",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Physiotherapy",
+      "code": "Physiotherapy",
+      "name": "Physiotherapy",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-MarinotoClinic",
+      "code": "MarinotoClinic",
+      "name": "Marinoto Clinic",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-1"
+    }
+  ]
+}
