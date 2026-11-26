@@ -37,7 +37,17 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
         }
       };
 
-      const scan = async () => {
+      // Ticks keep firing while a detection is awaited, so skip them rather than overlap scans
+      let scanInFlight = null;
+
+      const scan = () => {
+        if (scanInFlight) return;
+        scanInFlight = scanFrame().finally(() => {
+          scanInFlight = null;
+        });
+      };
+
+      const scanFrame = async () => {
         const { onScan, onClose, parseCode } = callbacksRef.current;
         if (webcamRef.current && webcamRef.current.video) {
           const video = webcamRef.current.video;
@@ -52,8 +62,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
                 }
               } else if (zxingReader) {
                 try {
-                  const result = await zxingReader.decodeOnceFromVideoElement(video);
-                  rawValue = result?.getText();
+                  rawValue = zxingReader.decode(video).getText();
                 } catch (zxingError) {
                   // zxing throws when no QR code is found in the frame
                 }
