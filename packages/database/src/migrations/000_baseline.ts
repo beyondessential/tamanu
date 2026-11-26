@@ -55,7 +55,7 @@ export async function up(query: QueryInterface): Promise<void> {
   // Settings are PULL_FROM_CENTRAL: a facility server must not author its own
   // rows, or the first sync pull collides with central's copies (different ids,
   // same key/scope) on settings_alive_key_unique_without_facility_idx.
-  if (selectFacilityIds(config) ?? facilityIdsFromEnv()) {
+  if (facilityIdsFromEnv()?.length || selectFacilityIds(config)?.length) {
     await query.sequelize.query('DELETE FROM settings');
   }
 
