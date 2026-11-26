@@ -1,0 +1,1218 @@
+<!-- Styled rendering of the Tamanu v2.69 release notes. -->
+<!-- Companion to docs/release-notes/v2-69.md, which is the source of truth for the wording. -->
+<!-- Content sourced from origin/release/2.67...origin/release/2.69 (v2.68 was not released), the Linear v2.69.0 label, the Workhorse cards in the release branch history, and tamanu-source-dbt v2.67.4 to v2.69.0. -->
+<!-- Styling copied from docs/release-notes/v2-67.html. -->
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tamanu v2.69 release notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --page: #f8f7f4;
+        --surface: #ffffff;
+        --text: #1c1917;
+        --text-secondary: #57534e;
+        --text-muted: #78716c;
+        --border: #e7e5e4;
+        --border-strong: #d6d3d1;
+        --accent: #c2410c;
+        --accent-soft: #fff7ed;
+        --accent-border: #fed7aa;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--text);
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .page {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 48px 24px 96px;
+      }
+
+      /* Masthead */
+      .masthead {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 30px;
+        line-height: 1.25;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .lede {
+        margin: 0;
+        font-size: 16px;
+        color: var(--text-secondary);
+        line-height: 1.65;
+      }
+
+      /* Section rhythm */
+      section {
+        margin-top: 48px;
+      }
+
+      h2 {
+        margin: 0 0 24px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-strong);
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
+      h2 .marker {
+        margin-right: 8px;
+      }
+
+      h3 {
+        margin: 32px 0 12px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+      }
+
+      h3:first-of-type {
+        margin-top: 0;
+      }
+
+      /* Feature cards */
+      .feature {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+      }
+
+      .feature-title {
+        margin: 0 0 12px;
+        font-size: 17px;
+        font-weight: 600;
+        font-style: italic;
+      }
+
+      .feature p {
+        margin: 0 0 16px;
+        color: var(--text-secondary);
+      }
+
+      .label {
+        margin: 20px 0 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      li {
+        margin-bottom: 8px;
+        color: var(--text-secondary);
+      }
+
+      li:last-child {
+        margin-bottom: 0;
+      }
+
+      li strong,
+      p strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      li ul {
+        margin-top: 8px;
+      }
+
+      /* Plain grouped list (enhancements, fixes) */
+      .group {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+      }
+
+      .group > ul > li {
+        margin-bottom: 12px;
+      }
+
+      .platform {
+        margin: 0 0 12px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      /* Documentation placeholders */
+      .docs {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+      }
+
+      .placeholder {
+        display: inline-block;
+        background: #fafaf9;
+        border: 1px dashed var(--border-strong);
+        border-radius: 4px;
+        padding: 1px 8px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      /* Upgrade notes */
+      .required-tag,
+      .optional-tag {
+        display: inline-block;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 12px;
+      }
+
+      .required-tag {
+        background: var(--accent-soft);
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+      }
+
+      .optional-tag {
+        background: #f5f5f4;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-strong);
+      }
+
+      .upgrade-item {
+        margin-bottom: 20px;
+      }
+
+      .upgrade-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .upgrade-item .name {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: 600;
+        font-style: italic;
+      }
+
+      /* Behaviour-change callout */
+      .callout {
+        background: var(--accent-soft);
+        border: 1px solid var(--accent-border);
+        border-left: 3px solid var(--accent);
+        border-radius: 4px;
+        padding: 12px 16px;
+        margin: 0 0 16px;
+      }
+
+      .callout p {
+        margin: 0;
+        font-size: 14px;
+        color: #7c2d12;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+        background: #f5f5f4;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 4px;
+        color: var(--text);
+      }
+
+      footer {
+        margin-top: 64px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-strong);
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="masthead">
+        <h1>Tamanu v2.69 release notes</h1>
+        <p class="lede">
+          Tamanu&nbsp;v2.69 also carries the work of v2.68, which was not released separately. It
+          introduces a self check-in kiosk, syndromic surveillance with a new 'Diagnosis' tab on
+          encounters, a redesigned Patient Portal where patients keep their own details up to date,
+          receipt printing for invoices, and a 'Recently discharged patients' view. It also tightens
+          security across the servers, which changes what each server needs configured before it
+          will start. Custom reports that read insurer payments, the patient's insurer or the
+          sensitive datasets need updating.
+        </p>
+      </div>
+
+      <section>
+        <h2><span class="marker">🌟</span>Major features and changes</h2>
+        <h3>Tamanu Desktop</h3>
+        <div class="feature">
+          <p class="feature-title">Self check-in kiosk</p>
+          <p>
+            The self check-in kiosk runs on a tablet at a facility's reception, where patients check
+            themselves in for an appointment booked for today. A patient finds their appointment,
+            confirms who they are, completes the forms their appointment needs, and checks in, which
+            marks the appointment 'Arrived'. This takes routine check-in and form filling off
+            reception staff, and the forms are completed by the patient rather than transcribed.
+          </p>
+          <p class="label">Key features</p>
+          <ul>
+            <li>
+              <strong>Finding the appointment</strong> - The patient enters their last name and date
+              of birth. Outpatient appointments and location bookings for today at the facility are
+              both found, and a patient with no matching appointment is directed to reception.
+            </li>
+            <li>
+              <strong>Confirming identity</strong> - A single match asks 'Is this you?'. Where
+              several patients match, each is shown with its appointment time and a partly hidden
+              patient ID, and nothing more of anyone's record reaches the tablet until the patient
+              has chosen.
+            </li>
+            <li>
+              <strong>Forms before check-in</strong> - Each facility chooses which forms are
+              completed for each appointment type and location booking type. Patients complete them
+              in any order, questions that fill from the patient record show the existing value, and
+              every form must be complete before checking in.
+            </li>
+            <li>
+              <strong>Checking in</strong> - Checking in saves the forms to the patient's record and
+              marks the appointment 'Arrived'. A patient already checked in, including by reception
+              while they were filling in their forms, is told so and asked to take a seat.
+            </li>
+            <li>
+              <strong>Language and accessibility</strong> - Patients can choose from the
+              deployment's languages, enlarge the text and switch to high contrast. These reset for
+              the next patient.
+            </li>
+            <li>
+              <strong>Inactivity</strong> - A check-in left idle asks 'Are you still there?' and
+              then clears itself, so the next patient starts afresh. Facilities can set how long the
+              kiosk waits.
+            </li>
+            <li>
+              <strong>Opening the kiosk</strong> - Where the kiosk is on, 'Self check-in kiosk'
+              under Facility admin in the sidebar opens it in a new browser tab.
+            </li>
+          </ul>
+          <p class="label">Security considerations</p>
+          <p>
+            The kiosk is limited to the facility the tablet is signed in to. It has its own
+            permission, so the tablet's account can be given permission to run the kiosk and nothing
+            else, showing no patient records if someone leaves the kiosk for the rest of Tamanu.
+            Every patient record the kiosk shows is recorded in the access audit.
+          </p>
+          <p class="label">Keen to implement the self check-in kiosk?</p>
+          <p>
+            Please reach out to your Tamanu system administrator/project manager to discuss
+            implementation details.
+          </p>
+          <div class="docs">
+            <p class="label">Supporting documentation</p>
+            <ul>
+              <li>
+                Configuration guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span>
+              </li>
+              <li>User manual - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="feature">
+          <p class="feature-title">Syndromic surveillance and the 'Diagnosis' tab</p>
+          <p>
+            Syndromic surveillance records the symptoms a patient presents with, independent of a
+            formal diagnosis, so a deployment can watch for patterns across its patient population.
+            Each deployment designs its own syndromic surveillance form, and clinicians complete it
+            once per encounter from the encounter's new 'Diagnosis' tab or while discharging.
+          </p>
+          <p class="label">Key features</p>
+          <ul>
+            <li>
+              <strong>'Diagnosis' tab</strong> - An encounter's diagnoses are listed on their own
+              'Diagnosis' tab, showing each diagnosis's type, date, clinician and certainty, with
+              'Add diagnosis' beside them. Primary diagnoses are shown above the encounter's tabs,
+              and the encounter's details panel shows its less used fields under 'Show more'.
+            </li>
+            <li>
+              <strong>Completing the form</strong> - While the encounter is open, a 'Syndromic
+              surveillance' action on the 'Diagnosis' tab opens the form. Once completed, the tab
+              shows 'Syndromic surveillance: Completed', and the response can be viewed or edited
+              from there or from 'Forms'.
+            </li>
+            <li>
+              <strong>At discharge</strong> - The discharge form includes the syndromic surveillance
+              form until it has been completed for the encounter. Finalising a discharge with
+              answers that have not been submitted warns that they will be lost.
+            </li>
+            <li>
+              <strong>Required at discharge</strong> - A deployment can require syndromic
+              surveillance before a discharge can be finalised. Encounters the system discharges
+              automatically are not held up.
+            </li>
+            <li>
+              <strong>One response per encounter</strong> - The form is offered only on the
+              'Diagnosis' tab and the discharge form, and is left out of the forms users choose from
+              elsewhere, on desktop and mobile.
+            </li>
+            <li>
+              <strong>Permissions</strong> - The 'Diagnosis' tab follows the form's usual
+              permissions. Completing the form at discharge needs only the permissions to discharge.
+            </li>
+          </ul>
+          <div class="docs">
+            <p class="label">Supporting documentation</p>
+            <ul>
+              <li>
+                Configuration guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span>
+              </li>
+              <li>User manual - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="feature">
+          <p class="feature-title">Receipt printing for invoices</p>
+          <p>
+            Facilities that print at a point-of-sale printer can print invoices as receipts on 80 mm
+            thermal roll paper, in place of the full A4 page. Each facility chooses its layout, and
+            both layouts print the same figures.
+          </p>
+          <p class="label">Key features</p>
+          <ul>
+            <li>
+              <strong>Receipt layout</strong> - A continuous strip as long as its content, with the
+              facility's letterhead, the patient's name, date of birth and patient ID, the invoice
+              number and date, each item with its quantity and total, the invoice totals and the
+              patient total due.
+            </li>
+            <li>
+              <strong>Per-facility layout</strong> - Each facility prints in A4 or receipt layout.
+              A4 is the default.
+            </li>
+            <li>
+              <strong>Translated labels</strong> - Every label on the receipt can be translated, and
+              patient field labels follow the deployment's own names for them, as on the A4 invoice.
+            </li>
+          </ul>
+          <div class="docs">
+            <p class="label">Supporting documentation</p>
+            <ul>
+              <li>
+                Configuration guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="feature">
+          <p class="feature-title">Recently discharged patients</p>
+          <p>
+            A new 'Recently discharged patients' view lists patients discharged from the current
+            facility in the past 24 hours, showing where and by whom each was discharged. Staff can
+            find and follow up a recently discharged patient without already knowing who they are.
+          </p>
+          <p class="label">Key features</p>
+          <ul>
+            <li>
+              <strong>Who is listed</strong> - Inpatient, outpatient and emergency discharges at the
+              facility in the past 24 hours, including those the system makes automatically, such as
+              outpatient encounters closed overnight. Each patient appears once, for their most
+              recent discharge.
+            </li>
+            <li>
+              <strong>Table and search</strong> - The table shows the patient's details, encounter
+              type, area, department, discharging clinician and discharge date. It can be searched
+              by patient, encounter type, area, department and discharging clinician, and clicking a
+              row opens the patient.
+            </li>
+            <li>
+              <strong>Sidebar</strong> - The view is listed as 'Recently discharged' under Facility
+              admin, and a deployment can hide or move it in the sidebar layout settings.
+            </li>
+          </ul>
+          <div class="docs">
+            <p class="label">Supporting documentation</p>
+            <ul>
+              <li>User manual - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+            </ul>
+          </div>
+        </div>
+        <h3>Patient Portal</h3>
+        <div class="feature">
+          <p class="feature-title">Patient Portal redesign and patient details</p>
+          <p>
+            The Patient Portal has a new look, shared with the self check-in kiosk, and patients can
+            now keep their own details up to date. Patients see what they need to do, their upcoming
+            appointments, their details and their health record on one page, sized for a phone.
+          </p>
+          <p class="label">Key features</p>
+          <ul>
+            <li>
+              <strong>Redesigned dashboard</strong> - 'To do' lists the forms the patient has been
+              asked to complete, followed by upcoming appointments, the patient's details, and their
+              health record. Ongoing conditions, allergies, medications, vaccinations and procedures
+              each expand in place.
+            </li>
+            <li>
+              <strong>Editing their details</strong> - Patients can change their contact details,
+              address, emergency contact, insurance policy number and selected personal details such
+              as title, ethnicity and occupation. Their name, date of birth, sex, patient ID and
+              village cannot be changed through the portal.
+            </li>
+            <li>
+              <strong>Follows the deployment's patient fields</strong> - Fields the deployment hides
+              are hidden in the portal too, and fields it requires on 'Patient details' must be
+              filled in before saving.
+            </li>
+            <li>
+              <strong>Changes apply straight away</strong> - A patient's changes update their record
+              immediately, without staff review, and reach facilities through sync like any other
+              update. Changing the email on the record does not change the email the patient signs
+              in with.
+            </li>
+            <li>
+              <strong>Forms</strong> - Forms open page by page with a progress bar, check required
+              answers before moving on, and warn before discarding unsubmitted answers.
+            </li>
+          </ul>
+          <p class="label">Security considerations</p>
+          <p>
+            A patient can only view and edit their own record, and the server enforces the same
+            rules as the portal, refusing changes to hidden fields and to anything outside the
+            editable details. A form can only be opened by the patient it was sent to while it is
+            outstanding, and its response is always recorded against that patient.
+          </p>
+          <div class="docs">
+            <p class="label">Supporting documentation</p>
+            <ul>
+              <li>User manual - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="marker">🔧</span>System enhancements</h2>
+        <div class="group">
+          <p class="platform">Tamanu Desktop</p>
+          <ul>
+            <li>
+              <strong>'All patients' search</strong> - The 'All patients' listing shows no patients
+              until a search is run, with a 'Search for a patient' hint in their place. 'Search' and
+              'Clear' are available once a field is filled in, and the listing starts afresh each
+              time it is opened.
+            </li>
+            <li>
+              <strong>Remembered filters and sorting</strong> - The patient lists and worklists
+              remember each user's search filters and column sort at each facility, including after
+              logging out and on other devices. Searches for a single patient or request by name or
+              ID are not kept.
+            </li>
+            <li>
+              <strong>Table pages</strong> - Table footers read, for example, 'Showing 1–10 of 547'.
+              The patient lists, worklists and admin panel tables show 50 or 100 rows per page,
+              starting at 50, and remember each user's choice.
+            </li>
+            <li>
+              <strong>Patient lab results</strong> - The patient's lab results are filtered by 'Test
+              category' and by a 'Test or panel' field that picks several tests and panels at once.
+              Results are grouped under each panel, followed by 'Individual tests'.
+            </li>
+            <li>
+              <strong>STAT medications</strong> - Medications prescribed 'Immediately' carry a STAT
+              label on the medication administration record and are listed first.
+            </li>
+            <li>
+              <strong>Every 2 hours frequency</strong> - Medications can be prescribed 'Every 2
+              hours', with a dose in each of the day's twelve administration windows. Like other
+              frequencies, it can be turned off for a deployment.
+            </li>
+            <li>
+              <strong>Deleting a procedure</strong> - A procedure recorded in error can be deleted
+              from its row's actions menu, along with any forms attached to it. Where the procedure
+              was added to an in-progress invoice automatically, the invoice item is removed too.
+              This needs permission to delete procedures.
+            </li>
+            <li>
+              <strong>Program registries</strong> - A registry can require at least one related
+              condition at registration. A new form question records a related condition and its
+              category on the patient's registration, on desktop and mobile. 'Currently in' can be
+              set when registering and changed when updating a registration, and the conditions
+              column can be sorted.
+            </li>
+            <li>
+              <strong>QR code scanning</strong> - Patient ID fields can be filled by scanning a QR
+              code: on the new patient form, in 'Patient details' where the patient ID can be
+              edited, and in the patient search on 'All patients', the inpatient, outpatient and
+              emergency lists and program registries. Scans are checked against the deployment's
+              patient ID format.
+            </li>
+            <li>
+              <strong>Insurance</strong> - A patient's insurance is recorded as insurance plans on
+              their invoices, so the 'Insurer' field is removed from patient details, the new
+              patient form, patient search and Patient Portal. 'Insurance policy number' stays.
+              Payments from insurers are recorded against the invoice's insurance plan, and are
+              imported through 'Insurance plan payments' in the admin panel.
+            </li>
+            <li>
+              <strong>Areas to be imaged</strong> - On a new imaging request, 'Areas to be imaged'
+              shows how many areas are chosen, and the imaging request lists each area on its own
+              line.
+            </li>
+            <li>
+              <strong>Federated States of Micronesia death certificate</strong> - The certificate
+              prints on a single page.
+            </li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="platform">Tamanu Mobile</p>
+          <ul>
+            <li>
+              <strong>QR code search</strong> - Patient search has a 'Scan QR code' button that
+              finds a patient by their patient ID.
+            </li>
+            <li>
+              <strong>Screen kept awake during sync</strong> - The screen stays on for the whole of
+              every sync, whichever screen is showing, and returns to its normal timeout when the
+              sync ends.
+            </li>
+            <li>
+              <strong>Storage</strong> - Tamanu Mobile hands back unused storage in the background,
+              so its database no longer grows indefinitely on the device.
+            </li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="platform">System administration</p>
+          <ul>
+            <li>
+              <strong>User profiles</strong> - 'User profiles' shows the facilities each user can
+              log in to, and can be filtered by facility.
+            </li>
+            <li>
+              <strong>Experimental AI</strong> - AI features that send patient data to an external
+              model are grouped under 'Experimental AI' in settings, where only full administrators
+              can change them. The AI form builder has its own switch and model. Existing AI
+              settings are carried across. AI summaries leave out sensitive lab tests and sensitive
+              medications, whoever generates them.
+            </li>
+            <li>
+              <strong>Setting up a facility server</strong> - A new facility server shows its
+              setting-up screen in place of the login screen until its first sync completes, and the
+              setup wizard no longer logs the administrator in.
+            </li>
+            <li>
+              <strong>Browser performance telemetry</strong> - Tamanu can measure how long pages and
+              requests take in the browser, on Tamanu Desktop, the admin panel and Patient Portal,
+              and keep the measurements on the server for analysis. It is off by default, and kept
+              for a month once turned on.
+            </li>
+            <li>
+              <strong>FHIR resource identifiers</strong> - FHIR resources created from Tamanu
+              records get identifiers that are the same on every server, so an integration sees one
+              identifier for a record wherever it reads it. Resources that already exist keep their
+              identifiers.
+            </li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="platform">Security hardening</p>
+          <ul>
+            <li>
+              <strong>Server encryption key</strong> - Each server must have its own encryption key.
+              A deployment refuses the development key that ships with Tamanu and does not start
+              without a key of its own. The upgrade re-encrypts secrets held under the development
+              key once the server has its own.
+            </li>
+            <li>
+              <strong>Central authentication secrets</strong> - The central server does not start
+              unless both its authentication secrets are set, each at least 16 characters and not a
+              few characters repeated.
+            </li>
+            <li>
+              <strong>Live updates</strong> - Connections that carry live updates to Tamanu Desktop
+              and Tamanu Mobile need a valid sign-in and end when it expires, and updates reach only
+              the users and facilities they concern.
+            </li>
+            <li>
+              <strong>Facility sync server</strong> - A facility server's internal sync service
+              accepts connections only from the server itself, unless configured otherwise.
+            </li>
+            <li>
+              <strong>Reports</strong> - A report's query is checked when a version is saved,
+              without running it, and must be a single statement. Creating or importing a report
+              that reads Tamanu's own tables, rather than the reporting schema, needs permission to
+              change the report schema.
+            </li>
+            <li>
+              <strong>Form calculations</strong> - Calculated questions and results use a fixed set
+              of arithmetic, comparisons, conditions and maths functions. Importing a form rejects a
+              calculation outside that set and names the part it does not support.
+            </li>
+            <li>
+              <strong>Uploads</strong> - Uploaded files are limited to 50 MB, and attachments to
+              their existing smaller limit.
+            </li>
+            <li>
+              <strong>Mobile sign-in</strong> - Tamanu Mobile keeps each user's permissions
+              separately, so offline sign-in uses the permissions from that user's own last online
+              sign-in.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="marker">🐛</span>Tweaks and bug fixes</h2>
+        <div class="group">
+          <p class="platform">Desktop</p>
+          <ul>
+            <li>
+              <strong>Search</strong> - Typing an underscore or percent sign in a search no longer
+              matches every record, and spaces around a patient search are ignored. A slow response
+              to an earlier search no longer replaces the suggestions for what has since been typed.
+              Choosing '(item not in list)' creates the new item once, including when chosen with
+              the keyboard.
+            </li>
+            <li>
+              <strong>Encounters</strong> - Clearing 'Referral source' in 'Edit encounter details'
+              saves. A triage started from an appointment is linked to the appointment, and the
+              patient's check-in options update straight away.
+            </li>
+            <li>
+              <strong>Labs and imaging</strong> - Clearing 'Collected by', 'Specimen type' or 'Site'
+              when editing a sample saves the cleared value. A printout of a request that is
+              verified but not published no longer names the verifier as 'Published by'. 'View image
+              (external link)' shows again on imaging requests with results in an external imaging
+              system.
+            </li>
+            <li>
+              <strong>Medications</strong> - 'Finalise all &amp; print' no longer prints
+              prescriptions that failed to save.
+            </li>
+            <li>
+              <strong>Invoicing</strong> - An insured invoice that the patient has paid their share
+              of in full shows as 'Paid' rather than 'Partial'. Printed invoices follow the
+              deployment's translations.
+            </li>
+            <li><strong>Vaccinations</strong> - The COVID-19 vaccine certificate opens again.</li>
+            <li>
+              <strong>Program registries</strong> - The 'Currently in' filter combines with the
+              other filters.
+            </li>
+            <li>
+              <strong>Charts and forms</strong> - Long checkbox labels wrap rather than running into
+              the next question.
+            </li>
+            <li>
+              <strong>Dashboard</strong> - The tasks count loads at sites with many medication
+              tasks, where it could time out.
+            </li>
+            <li>
+              <strong>Notes</strong> - Logging out through inactivity with a note open no longer
+              blocks the sidebar after logging back in.
+            </li>
+            <li>
+              <strong>Tooltips</strong> - Long tooltips, such as a long list of facilities, no
+              longer flicker.
+            </li>
+            <li>
+              <strong>AI form builder</strong> - Form previews are checked against the same rules as
+              saving, and corrected before they are shown, so saving a preview no longer fails
+              unexpectedly.
+            </li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="platform">Mobile</p>
+          <ul>
+            <li>
+              <strong>Sync</strong> - A failed sync shows the error's details where they are
+              available, rather than 'Unknown error'.
+            </li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="platform">System</p>
+          <ul>
+            <li>
+              <strong>Certificates</strong> - Servers no longer trust the emSign ECC Root CA - G3
+              certificate authority, which browsers are removing after its intermediate keys were
+              found to be recoverable.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="marker">📊</span>Reporting schema changes</h2>
+        <p>
+          These are the changes for sites upgrading from v2.67. Most of the reporting work from the
+          v2.68 line already reached v2.67 through its patch releases. Insurer payments now belong
+          to insurance plans, the patient's insurer is removed, and data from sensitive facilities
+          is split by sensitive network, each network with its own copies of the sensitive datasets
+          and reports.
+        </p>
+        <div class="group">
+          <p class="platform">Breaking changes</p>
+          <ul>
+            <li>
+              <strong>Insurer payments</strong> - <code>invoice_insurer_payments</code> is removed.
+              Use <code>invoice_insurance_plan_payments</code>, where
+              <code>insurer_id</code> becomes <code>invoice_insurance_plan_id</code>, joining to
+              <code>invoice_insurance_plans</code>. Payments recorded before the upgrade keep their
+              old insurer reference in that column, so join those rows to
+              <code>reference_data</code> to name the payer.
+            </li>
+            <li>
+              <strong>Invoice payment status</strong> -
+              <code>invoices.insurer_payment_status</code> is renamed
+              <code>insurance_plan_payment_status</code>, with the same values.
+            </li>
+            <li>
+              <strong>Patient insurer</strong> - <code>insurer_id</code> is removed from
+              <code>patient_additional_data</code> and
+              <code>patient_additional_data_change_logs</code>, with no replacement on the patient
+              record. Insurance is recorded per invoice, through
+              <code>invoices_invoice_insurance_plans</code> and
+              <code>invoice_insurance_plans</code>. <code>insurer_policy_number</code> stays. A
+              report parameter using the <code>insurer</code> suggester stops working.
+            </li>
+            <li>
+              <strong>Sensitive datasets</strong> - The 20 <code>ds__sensitive_*</code> datasets are
+              removed. Each sensitive network has its own copies,
+              <code>ds__sn_&lt;network&gt;_*</code>, so a report covering every sensitive facility
+              unions the copies. The 'Sensitive' standard reports are replaced by a set for each
+              network.
+            </li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="platform">New</p>
+          <ul>
+            <li>
+              <strong>Survey question options</strong> -
+              <code>ref__survey_question_option</code> lists each survey question with each of its
+              answer options, as the app resolves them.
+            </li>
+            <li>
+              <strong>Per-network models</strong> - For each sensitive network a deployment lists:
+              copies of the facility-based base models
+              (<code>sn_&lt;network&gt;_&lt;base&gt;</code>), the sensitive datasets plus a new
+              <code>ds__sn_&lt;network&gt;_encounter_invoices</code>, the
+              <code>clinical__sn_&lt;network&gt;_*</code> models, and copies of
+              <code>metric__program_registry_enrolment</code>,
+              <code>metric__who_dak_anc_indicators</code> and
+              <code>metric__who_dak_hiv_indicators</code>.
+            </li>
+            <li>
+              <strong>Report parameters</strong> - New suggesters <code>patientLabTestTypes</code>,
+              <code>dischargeDepartment</code>, <code>dischargeLocationGroup</code> and
+              <code>dischargingClinician</code>.
+            </li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="platform">Changed</p>
+          <ul>
+            <li>
+              <strong>Rows from sensitive facilities</strong> - In a deployment with sensitive
+              networks, the base, <code>clinical__</code> and <code>metric__</code> models hold
+              standard facilities only, apart from the models below that cover every network.
+              <code>ds__births</code>, <code>ds__patient_program_registrations</code>,
+              <code>ds__patients_access_logs</code>, <code>ds__encounter_invoices</code> and
+              <code>ds__encounter_invoice_items</code> lose their sensitive rows, and
+              <code>ds__encounter_invoice_items</code> has no per-network copy.
+              <code>ds__invoice_products</code> lists standard facilities only.
+              <code>ds__patients</code> and
+              <code>ds__usage_quality_metrics_patient_registrations</code> keep every patient but
+              leave out birth details recorded at a sensitive facility.
+            </li>
+            <li>
+              <strong>Models covering every network</strong> - <code>ds__deaths</code>,
+              <code>metric__birth</code>, <code>metric__death</code>,
+              <code>metric__immunisation_dose</code>, <code>metric__immunisation_refusal</code>,
+              <code>metric__patient_condition</code>, <code>clinical__person</code> and
+              <code>clinical__observation_period</code> still cover every network the deployment
+              lists. A facility in a network the deployment does not list appears in no model.
+            </li>
+            <li>
+              <strong>WHO DAK HIV indicators</strong> - In
+              <code>metric__who_dak_hiv_indicators</code>, a death or transfer out recorded as the
+              registry's clinical status counts as a treatment outcome, ending ART.1 and keeping a
+              client who has died out of lost to follow-up. A treatment outcome answer counts only
+              when it is one of the WHO DAK's four outcomes.
+            </li>
+            <li>
+              <strong>Metric definitions</strong> - 42 entries in
+              <code>metric_definitions</code> move from <code>draft</code> to <code>approved</code>,
+              and <code>draft</code> is no longer a <code>status</code>.
+            </li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="platform">Supporting documentation</p>
+          <ul>
+            <li>
+              Reporting schema reference -
+              <span class="placeholder">[REPORTING_DOCS_LINK_PLACEHOLDER]</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="marker">⚠️</span>Critical upgrade notes</h2>
+        <div class="group">
+          <span class="required-tag">Required</span>
+          <div class="upgrade-item">
+            <p class="name">Server encryption key</p>
+            <ul>
+              <li>
+                Make sure every server has its own encryption key configured before upgrading. A
+                server with no key, or using the development key that ships with Tamanu, will not
+                start, and the upgrade stops and says how to provide one.
+              </li>
+              <li>
+                Once a key is in place, the upgrade re-encrypts any secrets held under the
+                development key, and names any configuration values it cannot decrypt so they can be
+                re-encrypted.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Central authentication secrets</p>
+            <ul>
+              <li>
+                Confirm both of the central server's authentication secrets are set, each at least
+                16 characters and not a few characters repeated. Without them the central server
+                will not start.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Patient insurer</p>
+            <ul>
+              <li>
+                The upgrade permanently removes each patient's recorded insurer, and the insurer
+                reference data type. Export anything you need from it before upgrading, as it cannot
+                be restored.
+              </li>
+              <li>An 'Insurer' field added to the 'All patients' search is removed.</li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Insurance plan payments</p>
+            <ul>
+              <li>
+                Payment import spreadsheets identify the invoice's insurance plan rather than the
+                insurer. Update any template your team uses.
+              </li>
+              <li>
+                Insurer payments recorded before the upgrade are not matched to an insurance plan.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Form calculations</p>
+            <ul>
+              <li>
+                Calculated questions and results that use anything outside the supported set of
+                operations calculate no value after the upgrade. Review your forms' calculations,
+                and re-import any form whose import now fails.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Mobile sign-in</p>
+            <ul>
+              <li>
+                After upgrading, each user signs in to Tamanu Mobile online once before they can
+                sign in offline on that device.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Facility sync server</p>
+            <ul>
+              <li>
+                If anything outside a facility server's own host starts syncs on it, configure the
+                address its sync service listens on, as it otherwise accepts connections only from
+                the server itself.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Report authors</p>
+            <ul>
+              <li>
+                Creating or importing reports that read Tamanu's own tables, rather than the
+                reporting schema, needs permission to change the report schema. Give it to the roles
+                that maintain these reports.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Syndromic surveillance</p>
+            <ul>
+              <li>
+                If your deployment already has a syndromic surveillance program, check its program
+                and form codes against the configuration guide. A program and form with the codes
+                the feature uses become its syndromic surveillance form.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Patient Portal</p>
+            <ul>
+              <li>
+                Patients using the portal can change their own contact, address, emergency contact,
+                insurance and some personal details, and the changes apply to their record without
+                staff review. Let staff know, so a changed phone number or address is not a
+                surprise.
+              </li>
+              <li>
+                Review which patient details your deployment requires and hides, as the portal
+                follows the same settings.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">All patients</p>
+            <ul>
+              <li>
+                The 'All patients' listing no longer shows patients until a search is run. Let staff
+                know before the upgrade.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Reports</p>
+            <ul>
+              <li>
+                Insurer payments, the invoice's insurer payment status, the patient's insurer and
+                the combined sensitive datasets are removed or renamed in the reporting schema.
+                Custom reports that use them will fail after the upgrade. Update them using the
+                reporting schema changes section.
+              </li>
+              <li>
+                Deployments with sensitive facilities: list every sensitive network in the
+                deployment's reporting configuration and generate its models. Then import each
+                network's sensitive reports, give roles permission to run them, and retire the old
+                'Sensitive' reports.
+              </li>
+              <li>
+                In those deployments, standard reports and dashboards no longer include sensitive
+                facilities' data, so their figures may drop.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="group">
+          <span class="optional-tag">Optional</span>
+          <div class="upgrade-item">
+            <p class="name">Self check-in kiosk</p>
+            <ul>
+              <li>
+                Decide whether the kiosk suits any of your facilities. It is off until turned on for
+                a facility.
+              </li>
+              <li>
+                Set up an account for each kiosk tablet with only the permission to run the kiosk,
+                and choose the forms patients complete for each appointment type and location
+                booking type.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Syndromic surveillance</p>
+            <ul>
+              <li>
+                Design your syndromic surveillance form and import it as a program, then decide
+                whether it must be completed before a discharge is finalised.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Receipt printing</p>
+            <ul>
+              <li>
+                Switch facilities that print invoices at a point-of-sale printer to the receipt
+                layout. Every facility prints A4 until changed.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Recently discharged patients</p>
+            <ul>
+              <li>
+                The view appears in the sidebar for every user who can list patients. Hide or move
+                it in the sidebar layout settings if it does not suit your deployment.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Experimental AI</p>
+            <ul>
+              <li>
+                Check that AI features you use are still turned on under 'Experimental AI' and the
+                AI form builder's own settings.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Program registries</p>
+            <ul>
+              <li>
+                Decide whether any registry should require a related condition at registration.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Browser performance telemetry</p>
+            <ul>
+              <li>
+                Telemetry is off by default. Turn it on if you want to collect page and request
+                timings for your deployment.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Upgrade steps and recommended testing</h2>
+        <div class="group">
+          <span class="required-tag">Required</span>
+          <div class="upgrade-item">
+            <p class="name">Upgrade window</p>
+            <ul>
+              <li>
+                Allow extra time for the central server's upgrade, which adds an index to its change
+                log, usually its largest table.
+              </li>
+              <li>
+                After upgrading, confirm the central server and every facility server start, and
+                check the upgrade's output for configuration values it could not decrypt.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Form calculations</p>
+            <ul>
+              <li>
+                Open forms that use calculated questions, such as a BMI calculation, and confirm the
+                values still calculate.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Mobile</p>
+            <ul>
+              <li>
+                Upgrade a Tamanu Mobile device, sign in online, then sign out and back in offline.
+                Record some data and sync, and confirm the records appear on Tamanu Desktop.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Patient Portal</p>
+            <ul>
+              <li>
+                Sign in to the portal as a test patient, change a contact detail and save. Confirm
+                the change appears on the patient's record in Tamanu Desktop once the facility has
+                synced.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Reports</p>
+            <ul>
+              <li>
+                Run the custom reports that read invoices, insurance or sensitive data, and confirm
+                they complete. In deployments with sensitive networks, run each network's sensitive
+                reports too.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="group">
+          <span class="optional-tag">Optional</span>
+          <div class="upgrade-item">
+            <p class="name">Self check-in kiosk</p>
+            <ul>
+              <li>
+                If turning the kiosk on, book a test patient an appointment for today, check them in
+                at the kiosk, and confirm the appointment shows 'Arrived' with the completed forms
+                on their record.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Syndromic surveillance</p>
+            <ul>
+              <li>
+                Once the form is set up, complete it from an encounter's 'Diagnosis' tab and from
+                the discharge form, and confirm each encounter holds one response.
+              </li>
+            </ul>
+          </div>
+          <div class="upgrade-item">
+            <p class="name">Receipt printing</p>
+            <ul>
+              <li>
+                At a facility using the receipt layout, print an invoice with insurance and a
+                payment, and confirm the totals match the A4 invoice.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
