@@ -531,6 +531,33 @@ describe(`Materialised - MediciReport`, () => {
       ]);
     });
 
+    it('orders moves recorded at the same time in the order they were made', async () => {
+      const [admissionLocation, firstMoveLocation, secondMoveLocation] = await makeLocations(3);
+
+      const { encounter } = await makeEncounter({
+        encounterType: 'admission',
+        locationId: admissionLocation.id,
+      });
+
+      // Both history rows get the same date, so only created_at separates them
+      await encounter.update({
+        locationId: firstMoveLocation.id,
+        submittedTime: '2023-11-11 10:00:00',
+      });
+      await encounter.update({
+        locationId: secondMoveLocation.id,
+        submittedTime: '2023-11-11 10:00:00',
+      });
+
+      const mediciReport = await materialiseReport(encounter.id);
+
+      expect(mediciReport.locations.map(({ location }) => location)).toEqual([
+        admissionLocation.name,
+        firstMoveLocation.name,
+        secondMoveLocation.name,
+      ]);
+    });
+
     it('keeps the admission location first when the start date is edited to after a move', async () => {
       const [admissionLocation, movedLocation] = await makeLocations(2);
 
