@@ -199,7 +199,7 @@ export class FhirImagingStudy extends FhirResource {
     // spec: IMGR
     // An accession number identifies the result to update. Without one, the only result this
     // study may update is the one an earlier link-only study recorded: a result entered by hand
-    // has a completedBy or no link, and must be left as the clinician wrote it.
+    // has a completedById or no link, and must be left as the clinician wrote it.
     const whereClause: WhereOptions<Attributes<ImagingResult>> = imagingAccessCode
       ? { imagingRequestId: imagingRequest.id, externalCode: imagingAccessCode }
       : {
