@@ -531,6 +531,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               imagingRequestId: imagingRequest.id,
               completedById: null,
               externalCode: 'ACCESSION',
+              resultImageUrl: 'http://example.com/accession-study',
               description: 'Report recorded under an accession number',
             }),
           );
@@ -544,8 +545,57 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           expect(results).toHaveLength(2);
 
           await accessionResult.reload();
-          expect(accessionResult.description).toEqual('Report recorded under an accession number');
-          expect(accessionResult.resultImageUrl).toBeNull();
+          expect(accessionResult).toMatchObject({
+            description: 'Report recorded under an accession number',
+            resultImageUrl: 'http://example.com/accession-study',
+            externalCode: 'ACCESSION',
+          });
+
+          const integrationResult = results.find(result => result.id !== accessionResult.id);
+          expect(integrationResult).toMatchObject({
+            description: INTEGRATION_NOTE,
+            resultImageUrl: INTEGRATION_URL,
+            externalCode: null,
+          });
+        }));
+
+      it('adds a result alongside one entered by hand that already carries a link', () =>
+        showError(async () => {
+          // arrange
+          const { ImagingResult } = ctx.store.models;
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const manualResult = await ImagingResult.create(
+            fake(ImagingResult, {
+              imagingRequestId: imagingRequest.id,
+              completedById: resources.practitioner.id,
+              externalCode: null,
+              resultImageUrl: 'http://example.com/hand-entered-link',
+              description: 'Report written by the clinician',
+            }),
+          );
+
+          // act
+          const response = await postLinkOnlyStudy(serviceRequest);
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(2);
+
+          await manualResult.reload();
+          expect(manualResult).toMatchObject({
+            description: 'Report written by the clinician',
+            resultImageUrl: 'http://example.com/hand-entered-link',
+            completedById: resources.practitioner.id,
+          });
+
+          const integrationResult = results.find(result => result.id !== manualResult.id);
+          expect(integrationResult).toMatchObject({
+            description: INTEGRATION_NOTE,
+            resultImageUrl: INTEGRATION_URL,
+            completedById: null,
+            externalCode: null,
+          });
         }));
     });
 
