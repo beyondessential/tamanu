@@ -4,7 +4,7 @@ description: "Workshop how to break this card into smaller spawned cards and cap
 label: "Draft card breakdown"
 category: plan
 surface: both
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 ## Your task: Draft card breakdown
@@ -28,7 +28,7 @@ Which one fits follows from how the work will land, so raise it in the workshop 
 
 1. Read the card's specs in `specs/`, the card description, and any existing breakdown at `.workhorse/breakdowns/{card-id}/breakdown.md`
 2. Skim the target repo where it helps you reason about boundaries between the children
-3. Talk through how to slice the work: natural seams, dependency order, what each child should own. Ask focused questions one or two at a time
+3. Talk through how to slice the work: natural seams, dependency order, what each child should own. Ask focused questions as `.agents/docs/asking-questions.md` says
 4. As entries become clear, write them into `breakdown.md`. Edit in place as the conversation refines them: adding, splitting, merging and reordering entries is normal
 5. If `breakdown.md` does not yet exist, create it at the path above with an H1 title and the entries underneath. Do not create or edit any other file
 6. **Suggest mockup carry-forward.** For each entry, pick the parent's mockups (slugs from `.workhorse/design/mockups/{card-id}/`) that fit it, and record them in the entry's mockups line. The user can adjust them later

@@ -39,8 +39,7 @@ static APP: LazyLock<Vec<(HeaderName, HeaderValue)>> = LazyLock::new(|| {
 /// - Styles allow inline: the apps' style libraries insert `<style>` elements as they render.
 /// - Workers, frames and images allow `blob:`: PDFs are rendered in workers and printed through
 ///   frames, from object URLs.
-/// - Connections go to the server itself, the websocket included, and to Bugsnag where it is
-///   configured.
+/// - Connections go to the server itself, the websocket included.
 fn csp() -> ContentSecurityPolicy {
 	ContentSecurityPolicy::new()
 		.default_src(["'self'"])
@@ -55,13 +54,7 @@ fn csp() -> ContentSecurityPolicy {
 		.font_src(["'self'", "data:"])
 		.directive("worker-src", ["'self'", "blob:"])
 		.frame_src(["'self'", "blob:"])
-		.connect_src([
-			"'self'",
-			"https://notify.bugsnag.com",
-			"https://sessions.bugsnag.com",
-			"https://notify.bugsnag.smartbear.com",
-			"https://sessions.bugsnag.smartbear.com",
-		])
+		.connect_src(["'self'"])
 }
 
 /// The camera is the apps' own, for scanning codes and taking photos; the other powerful features

@@ -314,7 +314,6 @@ fn env_js(env: impl Fn(&str) -> Option<String>) -> Bytes {
 	let var = |name| env(name).filter(|v| !v.is_empty());
 	let values = serde_json::json!({
 		"NODE_ENV": var("NODE_ENV").unwrap_or_else(|| "production".into()),
-		"BUGSNAG_API_KEY": var("BUGSNAG_API_KEY"),
 		"REVISION": var("REVISION"),
 	});
 	format!("window.env = {values};\n").into()
@@ -347,7 +346,7 @@ mod tests {
 		let js = env_js(|name| (name == "REVISION").then(|| "`${alert(1)}`\"</script>".into()));
 		assert_eq!(
 			std::str::from_utf8(&js).unwrap(),
-			"window.env = {\"BUGSNAG_API_KEY\":null,\"NODE_ENV\":\"production\",\"REVISION\":\"`${alert(1)}`\\\"</script>\"};\n"
+			"window.env = {\"NODE_ENV\":\"production\",\"REVISION\":\"`${alert(1)}`\\\"</script>\"};\n"
 		);
 	}
 }

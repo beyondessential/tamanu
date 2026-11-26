@@ -12,7 +12,12 @@ import { initTimesync } from '../services/initTimesync';
 import { resolveSchedules } from '../tasks';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
-import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
+import {
+  getServerFacilityIds,
+  getSyncApiConnection,
+  getSyncConfig,
+  isServerConfigured,
+} from '../serverConfig';
 import {
   setupSyncRuntime,
   startSyncRuntimeWhenConfigured,
@@ -88,7 +93,7 @@ const startApp =
         break;
       case APP_TYPES.SYNC: {
         ({ express, server } = await createSyncApp(context));
-        ({ port } = config.sync.syncApiConnection);
+        ({ port } = getSyncApiConnection());
 
         // start SyncTask as part of sync app so that it is in the same process with tamanu-sync process
         const startSyncTask = () =>

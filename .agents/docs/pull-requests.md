@@ -1,5 +1,5 @@
 ---
-workhorse-version: 0.8.2
+workhorse-version: 0.8.3
 ---
 
 # The card's pull request

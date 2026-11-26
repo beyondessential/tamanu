@@ -13,13 +13,14 @@ export async function initDeviceId({ context, deviceType }) {
   }
 
   const { LocalSystemFact } = context.store?.models || context.models;
+  const declaredDeviceId = process.env.TAMANU_DEVICE_ID || config.deviceId;
   let deviceId = await LocalSystemFact.get(FACT_DEVICE_ID);
   if (!deviceId) {
-    deviceId = config.deviceId ?? `${deviceType}-${shortid()}`;
+    deviceId = declaredDeviceId || `${deviceType}-${shortid()}`;
     await LocalSystemFact.setIfAbsent(FACT_DEVICE_ID, deviceId);
-  } else if (config.deviceId && deviceId !== config.deviceId) {
+  } else if (declaredDeviceId && deviceId !== declaredDeviceId) {
     throw new Error(
-      `Device ID mismatch: ${deviceId} (from database) vs ${config.deviceId} (from config)`,
+      `Device ID mismatch: ${deviceId} (from database) vs ${declaredDeviceId} (from TAMANU_DEVICE_ID or config)`,
     );
   }
   // eslint-disable-next-line require-atomic-updates

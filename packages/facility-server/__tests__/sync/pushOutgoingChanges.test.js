@@ -3,7 +3,7 @@ import * as fc from 'fast-check';
 
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 
-const makeLimitConfig = config => ({ default: { sync: { dynamicLimiter: config } } });
+const makeSyncSettings = config => ({ getSyncSettings: () => ({ dynamicLimiter: config }) });
 const limitConfig = fc.record({
   initialLimit: fc.integer({ min: 1, max: 1000 }),
   minLimit: fc.integer({ min: 1, max: 999 }),
@@ -22,8 +22,8 @@ describe('pushOutgoingChanges', () => {
             fc.array(fc.constant('change'), { minLength: 1 }),
             limitConfig,
             async (changes, config) => {
-              vi.doMock('config', () => makeLimitConfig(config));
-              // Have to load test function within test scope so that we can mock config per test case
+              vi.doMock('../../app/sync/syncSettings', () => makeSyncSettings(config));
+              // Have to load test function within test scope so that we can mock settings per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
               const { pushOutgoingChanges } = await import('../../app/sync/pushOutgoingChanges');
               const centralServer = {
@@ -51,8 +51,8 @@ describe('pushOutgoingChanges', () => {
               .tuple(fc.array(fc.constant('change'), { minLength: 1 }), limitConfig)
               .filter(([changes, config]) => changes.length > config.initialLimit),
             async ([changes, config]) => {
-              vi.doMock('config', () => makeLimitConfig(config));
-              // Have to load test function within test scope so that we can mock config per test case
+              vi.doMock('../../app/sync/syncSettings', () => makeSyncSettings(config));
+              // Have to load test function within test scope so that we can mock settings per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
               const { pushOutgoingChanges } = await import('../../app/sync/pushOutgoingChanges');
               const centralServer = {
@@ -79,8 +79,8 @@ describe('pushOutgoingChanges', () => {
             fc.array(fc.constant('change'), { minLength: 1 }),
             limitConfig,
             async (changes, config) => {
-              vi.doMock('config', () => makeLimitConfig(config));
-              // Have to load test function within test scope so that we can mock config per test case
+              vi.doMock('../../app/sync/syncSettings', () => makeSyncSettings(config));
+              // Have to load test function within test scope so that we can mock settings per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
               const { pushOutgoingChanges } = await import('../../app/sync/pushOutgoingChanges');
               const centralServer = {

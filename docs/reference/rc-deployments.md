@@ -54,6 +54,38 @@ Web login tries central first and falls back to the facility server
 instead, with an invalid-credentials error. Check that central is up before suspecting
 the password.
 
+## Rollouts
+
+The renderer channel (label `bes.tamanu/renderer-channel`, `stable` by default) moves only
+when someone promotes it, so a merged renderer fix does not reach an RC until then.
+A push to the release branch, a renderer promotion and a config change each start a sync
+that quiesces the workloads, runs the migrators and resumes, so an RC can roll three times
+in an hour. Treat a rollout as settled when the Application is `Synced` and `Healthy` and
+every pod is ready; `../runbooks/rc-pods-not-starting.md` covers one that does not.
+
+## Reading resource use
+
+`kubectl --context main top pod -n <ns>` and `top node` work once metrics-server is
+installed (`pulumi/k8s-essentials/metrics/`). History is in Prometheus in `metrics-system`,
+reachable read-only through the API server proxy:
+
+```
+kubectl --context main get --raw "/api/v1/namespaces/metrics-system/services/prometheus-server:80/proxy/api/v1/query?query=<url-encoded PromQL>"
+```
+
+Use `/query_range` with `start`, `end` and `step` for a series. Useful series:
+`container_cpu_usage_seconds_total` (labels `namespace`, `pod`, `container`),
+`kube_pod_container_resource_requests{resource="cpu"}`, and `node_cpu_seconds_total`
+(node-exporter).
+
+The `instance` label differs between these jobs: on the cluster's own scrape config it is
+the node name for container series and `[node IP]:9100` for node-exporter. To go from a
+pod to its node's series, read `node` and `host_ip` from `kube_pod_info{pod="<pod>"}`,
+then match `instance` to `node` for container series and to `[<host_ip>]:9100` for
+node-exporter.
+A container with no CPU limit has no CFS throttling series, so a pod starved of CPU by
+its neighbours shows low use and a small request, not throttling.
+
 ## Infra repository
 
 The renderer, templates and the Kubernetes support pack live in
