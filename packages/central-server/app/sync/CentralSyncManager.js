@@ -223,9 +223,12 @@ export class CentralSyncManager {
     }
 
     const { syncSessionTimeoutMs } = this.constructor.config.sync;
+    // a session that has already ended can't time out: ending it moves updatedAt on, which would
+    // otherwise let a later request stamp a timeout onto a session that completed cleanly
     if (
       syncSessionTimeoutMs &&
       !session.errors &&
+      !session.completedAt &&
       session.updatedAt - session.createdAt > syncSessionTimeoutMs
     ) {
       await session.markErrored(`Sync session ${sessionId} timed out`);
@@ -248,10 +251,27 @@ export class CentralSyncManager {
   }
 
   async endSession(sessionId, error) {
-    const session = await this.connectToSession(sessionId);
+    void trace.getActiveSpan()?.setAttributes({ 'app.sync.sessionId': sessionId });
+
+    // A client whose request got through but never saw the response will ask again, or report the
+    // missing response as an error, possibly while the first request is still being handled. Handle
+    //  only the first request; throw away any retries (should be rare).
+    log.debug('CentralSyncManager.completingSession', { sessionId });
+    const didEndSession = await completeSyncSession(this.store, sessionId, error);
+
+    const session = await this.store.sequelize.models.SyncSession.findByPk(sessionId);
+    if (!session) throw new Error(`Sync session '${sessionId}' not found`);
+
+    if (!didEndSession) {
+      log.warn('CentralSyncManager.endSession: Session already ended. Ignoring.', {
+        sessionId,
+        hasErrored: Boolean(session.errors),
+        error: error?.slice(0, 1000),
+      });
+      return;
+    }
+
     const durationMs = Date.now() - session.startTime;
-    log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
-    await completeSyncSession(this.store, sessionId, error);
     if (error) {
       log.error('CentralSyncManager.completedSession with error', {
         sessionId,

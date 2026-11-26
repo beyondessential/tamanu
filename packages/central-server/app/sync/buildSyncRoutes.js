@@ -259,7 +259,8 @@ export const buildSyncRoutes = ctx => {
   const postErrorBodySchema = z.object({
     error: z.string(),
   });
-  // mark session as errored, so server will record the error and cancel the sync
+  // mark session as errored, so server will record the error and cancel the sync. An error
+  // reported on a session that has already ended is ignored
   syncRoutes.post(
     '/:sessionId/error',
     asyncHandler(async (req, res) => {
@@ -268,7 +269,7 @@ export const buildSyncRoutes = ctx => {
       const { error } = await postErrorBodySchema.parseAsync(req.body);
 
       await syncManager.endSession(sessionId, error);
-      res.json({});
+      res.status(204).send();
     }),
   );
 
@@ -279,7 +280,7 @@ export const buildSyncRoutes = ctx => {
       const { params } = req;
       const { sessionId } = params;
       await syncManager.endSession(sessionId);
-      res.json({});
+      res.status(204).send();
     }),
   );
 
