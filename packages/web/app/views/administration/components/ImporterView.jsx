@@ -3,6 +3,7 @@ import { startCase, sum } from 'es-toolkit/compat';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { useFormikContext } from 'formik';
+import { route } from '@tamanu/api-client';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
@@ -255,7 +256,7 @@ export const ImporterView = memo(
         setIsLoading(true);
         try {
           const intermediateResult = await api.postWithFileUpload(
-            `admin/import/${endpoint}`,
+            route('admin/import/:endpoint', { endpoint }),
             file,
             data,
           );
@@ -298,11 +299,7 @@ export const ImporterView = memo(
           formType={FORM_TYPES.CREATE_FORM}
           validationSchema={yup.object().shape({
             includedDataTypes: dataTypesSelectable
-              ? yup
-                  .array()
-                  .of(yup.string())
-                  .required()
-                  .min(1)
+              ? yup.array().of(yup.string()).required().min(1)
               : undefined,
             file: yup
               .string()

@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useParams } from 'react-router';
+import { route } from '@tamanu/api-client';
 
 import { ContentUnavailableView, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import { VisibilityStatusCell } from '../components';
@@ -90,7 +91,10 @@ const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
 function ManageProgramRegistriesTable({ columns, endpointSuffix, noDataMessage, dataTestId }) {
   const { programRegistryId } = useParams();
   const endpoint = programRegistryId
-    ? `admin/programRegistry/${encodeURIComponent(programRegistryId)}/${endpointSuffix}`
+    ? route('admin/programRegistry/:programRegistryId/:endpointSuffix', {
+        programRegistryId,
+        endpointSuffix,
+      })
     : '';
 
   return (

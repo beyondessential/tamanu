@@ -239,6 +239,51 @@ export default [
           message:
             'Do not interpolate path params into the endpoint string. Use route() from @tamanu/api-client: api.get(route("patient/:patientId/allergies", { patientId }), query).',
         },
+        // Interpolating into a route() template defeats the point of route(): the
+        // template is the telemetry grouping key, so a value spliced into it makes a
+        // different key per value. The one exception is a fixed base path spliced at
+        // the start, as the admin call sites are written: route(`${ROLE_ENDPOINT}/:roleId`,
+        // { roleId }) in views/administration/users/roles/useRoleQuery.js. That base is
+        // one constant string, so it still groups as a single key. Anywhere after the
+        // first literal character is where a real path param goes, so forbid it.
+        {
+          selector:
+            "CallExpression[callee.name='route'] > TemplateLiteral[expressions.length>0][quasis.0.value.raw!='']",
+          message:
+            'Do not interpolate into a route() template except as a leading base-path constant. Pass the segment as a path param: route("admin/import/:endpoint", { endpoint }).',
+        },
+        // A leading interpolation only reads as a base path when it is a constant: a
+        // SCREAMING_SNAKE module constant, or a field holding one (Suggester's
+        // this.basePath). A local lowercase binding is a value like any other, so it
+        // gets no exception even though it sits at the start.
+        {
+          selector:
+            "CallExpression[callee.name='route'] > TemplateLiteral[expressions.length>0][quasis.0.value.raw=''][expressions.0.type!='MemberExpression'][expressions.0.name!=/^[A-Z][A-Z0-9_]*$/]",
+          message:
+            'A leading interpolation in a route() template is only allowed for a fixed base-path constant. Pass the segment as a path param: route("collection/:segment/updateStats", { segment }).',
+        },
+        // extendRoute takes the base path as its first argument, so a leading
+        // interpolation in its template is not a base path and gets no exception.
+        {
+          selector:
+            "CallExpression[callee.name='extendRoute'] > TemplateLiteral[expressions.length>0]",
+          message:
+            'Do not interpolate into an extendRoute() template. Pass the segment as a path param: extendRoute(endpoint, ":documentId", { documentId }).',
+        },
+        // The same, where the endpoint is held in a variable or passed down as a
+        // prop before it reaches the api call, which the selector above can't see.
+        {
+          selector:
+            'VariableDeclarator[id.name=/[eE]ndpoint$/] > TemplateLiteral.init[expressions.length>0]',
+          message:
+            'Do not interpolate path params into an endpoint string. Use route() from @tamanu/api-client: route("patient/:patientId/allergies", { patientId }).',
+        },
+        {
+          selector:
+            'JSXAttribute[name.name=/[eE]ndpoint$/] > JSXExpressionContainer > TemplateLiteral.expression[expressions.length>0]',
+          message:
+            'Do not interpolate path params into an endpoint prop. Use route() from @tamanu/api-client: route("patient/:patientId/allergies", { patientId }).',
+        },
       ],
     },
   },

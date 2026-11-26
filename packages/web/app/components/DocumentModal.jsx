@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { FormModal } from './FormModal';
 import { DocumentForm } from '../forms/DocumentForm';
+import { endpointPropType } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
@@ -71,7 +72,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
 DocumentModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
-  endpoint: PropTypes.string.isRequired,
+  endpoint: endpointPropType.isRequired,
   refreshTable: PropTypes.func.isRequired,
 };
 

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 import { useApi } from '../useApi';
 import { ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY } from '../queries/useEncounterDischargeDraftQuery';
 
@@ -12,7 +13,7 @@ export const useEncounterDischargeDraftMutation = (encounterId, { onSuccess } = 
   const api = useApi();
   const queryClient = useQueryClient();
   const queryKey = [ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY, encounterId];
-  const endpoint = `encounter/${encounterId}/dischargeDraft`;
+  const endpoint = route('encounter/:encounterId/dischargeDraft', { encounterId });
 
   const save = useMutation({
     mutationKey: ['saveDischargeDraft', encounterId],

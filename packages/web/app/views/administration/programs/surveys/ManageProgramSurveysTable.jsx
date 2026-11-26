@@ -5,6 +5,7 @@
 
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { route } from '@tamanu/api-client';
 
 import { VISIBILITY_STATUSES, TABLE_PAGE_SIZE_PREFERENCE_KEYS } from '@tamanu/constants';
 import {
@@ -163,7 +164,7 @@ const programSurveyColumns = /** @type {const} */ ([
 ]);
 
 export function ManageProgramSurveysTable({ programId, ...props }) {
-  const endpoint = `admin/program/${encodeURIComponent(programId)}/surveys`;
+  const endpoint = route('admin/program/:programId/surveys', { programId });
 
   return (
     <StyledDataFetchingTable

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { FormModal } from './FormModal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
+import { endpointPropType } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const PatientLetterModal = React.memo(
@@ -47,7 +48,7 @@ export const PatientLetterModal = React.memo(
 PatientLetterModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
-  endpoint: PropTypes.string.isRequired,
+  endpoint: endpointPropType.isRequired,
   refreshTable: PropTypes.func.isRequired,
   patient: PropTypes.object.isRequired,
   openDocumentPreview: PropTypes.func.isRequired,
