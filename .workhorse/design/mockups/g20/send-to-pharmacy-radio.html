@@ -1,0 +1,269 @@
+<!-- spec: medication/send-to-pharmacy.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New prescription with send to pharmacy as a required choice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#326699;      /* primary */
+  --darkest:#444444;      /* darkestText */
+  --dark:#666666;         /* darkText */
+  --mid:#888888;          /* midText */
+  --soft:#b8b8b8;         /* softText */
+  --alert:#f76853;        /* alert */
+  --safe:#47ca80;         /* safe */
+  --white:#ffffff;
+  --bg:#f3f5f7;           /* background */
+  --outline:#dedede;      /* outline */
+  --soft-outline:#ebebeb; /* softOutline */
+  --orange-10:#fef3e8;
+}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--darkest);background:rgba(68,68,68,0.28);line-height:1.4;}
+.stage{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;align-items:flex-start;padding:40px 24px 80px;}
+.frame{display:flex;flex-direction:column;gap:10px;}
+.frame-caption{font-size:12px;color:var(--white);}
+
+/* ---- Modal (FormModal) ---- */
+.modal{background:var(--white);border-radius:3px;box-shadow:0 8px 30px rgba(0,0,0,0.18);width:670px;max-width:100%;overflow:hidden;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 14px 32px;border-bottom:1px solid var(--soft-outline);}
+.modal-title{font-size:16px;font-weight:500;color:var(--darkest);}
+.modal-close{width:28px;height:28px;border:none;background:none;color:var(--mid);font-size:18px;border-radius:50%;line-height:1;display:flex;align-items:center;justify-content:center;}
+.modal-body{background:var(--bg);padding:18px 32px;}
+
+/* ---- Form grid ---- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem 1.2rem;align-items:start;}
+.full{grid-column:1 / -1;}
+.nested{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2rem;}
+hr.rule{grid-column:1 / -1;border:none;border-top:1px solid var(--outline);margin:0.5rem 0;width:100%;}
+hr.rule--bleed{width:calc(100% + 64px);margin-inline:-32px;}
+
+/* ---- Field ---- */
+.field{display:flex;flex-direction:column;min-width:0;}
+.field-label{display:flex;align-items:center;font-size:14px;line-height:18px;font-weight:500;color:var(--dark);margin-bottom:4px;}
+.field-req{color:var(--alert);font-weight:500;margin-left:2px;}
+.field-input{height:40px;padding:0 16px;border:1px solid var(--outline);border-radius:3px;background:var(--white);display:flex;align-items:center;gap:8px;font-size:14px;color:var(--darkest);}
+.field-input .ph{color:var(--soft);flex:1;}
+.field-input .val{flex:1;}
+.field-input .unit{color:var(--soft);}
+.field-input .icon{color:var(--mid);font-size:12px;}
+.field-input.is-disabled{background:var(--bg);}
+.field-msg{font-size:12px;line-height:15px;color:var(--alert);margin-top:4px;}
+.textarea{height:auto;min-height:40px;}
+
+/* ---- Allergies warning ---- */
+.allergies{grid-column:1 / -1;margin-block-end:1em;font-size:14px;color:var(--darkest);}
+.allergies strong{font-weight:500;}
+
+/* ---- Bordered check fields (StyledCheckField) ---- */
+.check-group{grid-column:1 / -1;display:flex;flex-direction:column;gap:20px;padding-bottom:1.2rem;border-bottom:1px solid var(--outline);}
+.check-row{display:flex;gap:16px;border:1px solid var(--outline);padding:12px 16px;border-radius:3px;}
+.check-row > *{flex:1;}
+.check-box{display:flex;align-items:center;gap:9px;height:44px;padding:10px 12px;background:var(--white);border:1px solid var(--outline);border-radius:3px;font-size:14px;color:var(--darkest);}
+.check-box .box{width:18px;height:18px;border:2px solid var(--soft);border-radius:2px;flex:none;}
+.check-box.is-bare{border:none;background:none;height:auto;padding:0;}
+.variable-dose{grid-column:1 / -1;width:290px;margin-bottom:-12px;}
+
+/* ---- Section heading (FieldLabel + FieldContent) ---- */
+.section-label{font-size:14px;font-weight:500;color:var(--dark);}
+.section-text{font-size:14px;color:var(--dark);margin-top:2px;}
+
+/* ---- Radio field (TranslatedRadioField, left aligned, fullWidth) ---- */
+.radio-group{display:flex;gap:10px;margin-top:2px;}
+.radio{flex:1;display:flex;align-items:center;gap:5px;padding:12px 20px 12px 15px;background:var(--white);border:1px solid var(--outline);border-radius:3px;font-size:14px;line-height:16px;color:var(--dark);cursor:pointer;}
+.radio input{position:absolute;opacity:0;pointer-events:none;}
+.radio .dot{width:18px;height:18px;border:2px solid var(--outline);border-radius:50%;flex:none;position:relative;}
+.radio:has(input:checked){border-color:var(--primary);color:var(--darkest);}
+.radio:has(input:checked) .dot{border-color:var(--primary);}
+.radio:has(input:checked) .dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--primary);}
+.radio:has(input:focus-visible){outline:2px solid var(--primary);outline-offset:2px;}
+.radio-group.is-error .radio{border-color:var(--alert);}
+
+/* Prescription type appears only when Send to pharmacy is chosen */
+.prescription-type{display:none;}
+.pharmacy:has(input[value="send"]:checked) .prescription-type{display:flex;}
+/* Dispensing quantity is required only when sending */
+.qty-req{display:none;}
+.modal:has(input[value="send"]:checked) .qty-req{display:inline;}
+
+/* ---- Buttons ---- */
+.button-row{grid-column:1 / -1;display:flex;justify-content:space-between;height:40px;}
+.button-row .end{display:flex;gap:16px;margin-left:auto;}
+.btn{font:500 14px/16px Roboto,sans-serif;padding:11px 18px 12px;min-width:100px;border-radius:3px;border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--primary);color:var(--white);border-color:var(--primary);}
+.btn-outlined{background:var(--white);color:var(--primary);border-color:var(--primary);}
+.btn-text{background:var(--white);color:var(--primary);border-color:var(--primary);}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- Frame 1: interactive -->
+  <div class="frame">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">New prescription</span>
+        <span class="modal-close" aria-hidden="true">&#10005;</span>
+      </div>
+      <div class="modal-body">
+        <div class="grid">
+          <div class="allergies"><strong>Patient allergies:</strong> Penicillin</div>
+
+          <div class="field full">
+            <span class="field-label">Medication<span class="field-req">*</span></span>
+            <div class="field-input"><span class="val">Amoxicillin 500mg capsule</span><span class="icon">&#9662;</span></div>
+          </div>
+
+          <div class="check-group">
+            <div class="check-row">
+              <div class="check-box"><span class="box"></span>Ongoing medication</div>
+              <div class="check-box"><span class="box"></span>PRN medication</div>
+            </div>
+          </div>
+
+          <div class="variable-dose">
+            <div class="check-box"><span class="box"></span>Variable dose</div>
+          </div>
+
+          <div class="field">
+            <span class="field-label">Dose amount<span class="field-req">*</span></span>
+            <div class="field-input"><span class="val">1</span><span class="unit">capsule</span></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Frequency<span class="field-req">*</span></span>
+            <div class="field-input"><span class="val">Three times daily (TID)</span><span class="icon">&#9662;</span></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Route of administration<span class="field-req">*</span></span>
+            <div class="field-input"><span class="val">Oral</span><span class="icon">&#9662;</span></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Prescription date<span class="field-req">*</span></span>
+            <div class="field-input"><span class="val">25/11/2026</span></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Start date &amp; time<span class="field-req">*</span></span>
+            <div class="field-input"><span class="val">25/11/2026 09:30 AM</span></div>
+          </div>
+          <div class="nested">
+            <div class="field">
+              <span class="field-label">Duration</span>
+              <div class="field-input"><span class="val">7</span></div>
+            </div>
+            <div class="field">
+              <span class="field-label">&nbsp;</span>
+              <div class="field-input"><span class="val">Days</span><span class="icon">&#9662;</span></div>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">Indication</span>
+            <div class="field-input"><span class="ph"></span></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Prescriber<span class="field-req">*</span></span>
+            <div class="field-input"><span class="val">Dr Ana Tuilagi</span><span class="icon">&#9662;</span></div>
+          </div>
+          <div class="full">
+            <div class="check-box is-bare"><span class="box"></span>Phone order</div>
+          </div>
+          <div class="field full">
+            <span class="field-label">Notes</span>
+            <div class="field-input textarea"><span class="ph"></span></div>
+          </div>
+
+          <hr class="rule">
+          <div class="full">
+            <div class="section-label">Medication administration schedule</div>
+            <div class="section-text">Administration times: 6:00 AM, 2:00 PM, 10:00 PM</div>
+          </div>
+
+          <!-- Changed region: send to pharmacy -->
+          <hr class="rule">
+          <div class="full pharmacy" style="display:flex;flex-direction:column;gap:0.7rem;">
+            <div class="field">
+              <span class="field-label">Send to pharmacy<span class="field-req">*</span></span>
+              <div class="radio-group" role="radiogroup" aria-label="Send to pharmacy">
+                <label class="radio"><input type="radio" name="sendToPharmacy-1" value="send"><span class="dot"></span>Send to pharmacy</label>
+                <label class="radio"><input type="radio" name="sendToPharmacy-1" value="doNotSend"><span class="dot"></span>Do not send to pharmacy</label>
+              </div>
+            </div>
+            <div class="field prescription-type">
+              <span class="field-label">Prescription type<span class="field-req">*</span></span>
+              <div class="radio-group" role="radiogroup" aria-label="Prescription type">
+                <label class="radio"><input type="radio" name="prescriptionType-1" value="outpatient"><span class="dot"></span>Outpatient/Discharge</label>
+                <label class="radio"><input type="radio" name="prescriptionType-1" value="inpatient" checked><span class="dot"></span>Inpatient</label>
+              </div>
+            </div>
+          </div>
+          <!-- /Changed region -->
+
+          <hr class="rule">
+          <div class="field">
+            <span class="field-label">Dispensing quantity<span class="field-req qty-req">*</span></span>
+            <div class="field-input"><span class="ph"></span><span class="unit">capsules</span></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Repeats on discharge</span>
+            <div class="field-input"><span class="ph"></span></div>
+          </div>
+
+          <hr class="rule rule--bleed">
+          <div class="button-row">
+            <span class="btn btn-outlined">&#128438;&nbsp;Finalise &amp; Print</span>
+            <div class="end">
+              <span class="btn btn-text">Cancel</span>
+              <span class="btn btn-primary">Finalise</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption">Neither option is chosen when the form opens. Choose Send to pharmacy to see the prescription type.</p>
+  </div>
+
+  <!-- Frame 2: validation on Finalise with nothing chosen (pharmacy section only) -->
+  <div class="frame">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">New prescription</span>
+        <span class="modal-close" aria-hidden="true">&#10005;</span>
+      </div>
+      <div class="modal-body">
+        <div class="grid">
+          <div class="full">
+            <div class="section-label">Medication administration schedule</div>
+            <div class="section-text">Administration times: 6:00 AM, 2:00 PM, 10:00 PM</div>
+          </div>
+          <hr class="rule">
+          <div class="field full">
+            <span class="field-label">Send to pharmacy<span class="field-req">*</span></span>
+            <div class="radio-group is-error" role="radiogroup" aria-label="Send to pharmacy">
+              <label class="radio"><input type="radio" name="sendToPharmacy-2" value="send" disabled><span class="dot"></span>Send to pharmacy</label>
+              <label class="radio"><input type="radio" name="sendToPharmacy-2" value="doNotSend" disabled><span class="dot"></span>Do not send to pharmacy</label>
+            </div>
+            <span class="field-msg">*Required</span>
+          </div>
+          <hr class="rule">
+          <div class="field">
+            <span class="field-label">Dispensing quantity</span>
+            <div class="field-input"><span class="ph"></span><span class="unit">capsules</span></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Repeats on discharge</span>
+            <div class="field-input"><span class="ph"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption">Finalise with neither option chosen (cropped to the changed section).</p>
+  </div>
+
+</div>
+</body>
+</html>
