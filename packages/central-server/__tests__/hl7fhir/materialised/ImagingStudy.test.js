@@ -404,6 +404,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
     describe('ImagingStudy with a contained Endpoint and no Accession Number', () => {
       const INTEGRATION_NOTE = 'Report from the integration';
       const INTEGRATION_URL = 'http://example.com/study';
+      const AMENDED_NOTE = 'Amended report from the integration';
+      const AMENDED_URL = 'http://example.com/amended-study';
 
       const createImagingRequest = async () => {
         const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
@@ -569,8 +571,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
 
           // act
           const response = await postLinkOnlyStudy(serviceRequest, {
-            url: 'http://example.com/amended-study',
-            note: 'Amended report from the integration',
+            url: AMENDED_URL,
+            note: AMENDED_NOTE,
           });
 
           // assert
@@ -584,8 +586,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
 
           const integrationResult = results.find(result => result.id !== manualResult.id);
           expect(integrationResult).toMatchObject({
-            description: 'Amended report from the integration',
-            resultImageUrl: 'http://example.com/amended-study',
+            description: AMENDED_NOTE,
+            resultImageUrl: AMENDED_URL,
           });
         }));
 
@@ -594,19 +596,28 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           // arrange
           const { ImagingResult } = ctx.store.models;
           const { imagingRequest, serviceRequest } = await createImagingRequest();
-          const createEarlierLinkOnlyResult = (name, createdAt) =>
-            ImagingResult.create(
-              fake(ImagingResult, {
-                imagingRequestId: imagingRequest.id,
-                completedById: null,
-                externalCode: null,
-                resultImageUrl: `http://example.com/${name}-study`,
-                description: `${name} report from the integration`,
-                createdAt,
-              }),
-            );
-          const olderResult = await createEarlierLinkOnlyResult('older', '2022-03-04 10:00:00');
-          const newerResult = await createEarlierLinkOnlyResult('newer', '2022-03-04 11:00:00');
+          const earlierLinkOnlyFields = {
+            completedById: null,
+            externalCode: null,
+          };
+          const olderResultFields = {
+            ...earlierLinkOnlyFields,
+            resultImageUrl: 'http://example.com/older-study',
+            description: 'older report from the integration',
+            createdAt: '2022-03-04 10:00:00',
+          };
+          const newerResultFields = {
+            ...earlierLinkOnlyFields,
+            resultImageUrl: 'http://example.com/newer-study',
+            description: 'newer report from the integration',
+            createdAt: '2022-03-04 11:00:00',
+          };
+          const olderResult = await ImagingResult.create(
+            fake(ImagingResult, { imagingRequestId: imagingRequest.id, ...olderResultFields }),
+          );
+          const newerResult = await ImagingResult.create(
+            fake(ImagingResult, { imagingRequestId: imagingRequest.id, ...newerResultFields }),
+          );
           await olderResult.reload();
           await newerResult.reload();
           expect(olderResult.createdAt.getTime()).toBeLessThan(newerResult.createdAt.getTime());
@@ -621,8 +632,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
 
           await olderResult.reload();
           expect(olderResult).toMatchObject({
-            description: 'older report from the integration',
-            resultImageUrl: 'http://example.com/older-study',
+            description: olderResultFields.description,
+            resultImageUrl: olderResultFields.resultImageUrl,
           });
 
           await newerResult.reload();
