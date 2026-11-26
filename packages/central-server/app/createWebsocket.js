@@ -18,11 +18,8 @@ export async function createWebsocket(server, ctx, dbNotifier, app) {
     dbNotifier,
   });
 
-  ctx.telegramBotService?.registerWebsocketService(websocketService);
-
   registerWebsocketEvents({
     websocketService,
-    telegramBotService: ctx.telegramBotService,
     models: store.models,
   });
 

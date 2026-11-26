@@ -10,7 +10,6 @@ import { createBrowserTelemetryIngest } from '@tamanu/shared/utils/browserTeleme
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
-import { telegramWebhookRoutes } from './telegramWebhook';
 
 export const publicRoutes = express.Router();
 
@@ -80,5 +79,3 @@ publicRoutes.post('/browser-support', async (req, res) => {
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);
-
-publicRoutes.use('/telegram-webhook', telegramWebhookRoutes);

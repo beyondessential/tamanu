@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AutocompleteInput } from '@tamanu/ui-components';
 
@@ -166,6 +166,40 @@ describe('AutocompleteInput', () => {
       expect(onChange).toHaveBeenLastCalledWith({
         target: { label: 'Peanuts', value: 'allergy-peanuts', name: 'allergyId' },
       });
+    });
+  });
+
+  it('picks a grouped option clicked straight after the pointer moves onto it', async () => {
+    const suggester = {
+      fetchCurrentOption: vi.fn().mockResolvedValue(undefined),
+      fetchSuggestions: vi.fn().mockResolvedValue([
+        { label: 'Check vitals', value: 'task-vitals', type: 'taskTemplate' },
+        { label: 'Admission tasks', value: 'task-set-admission', type: 'taskSet' },
+      ]),
+    };
+    const onChange = vi.fn();
+    renderElementWithTranslatedText(
+      <AutocompleteInput
+        name="taskId"
+        value=""
+        onChange={onChange}
+        suggester={suggester}
+        multiSection
+        groupByKey="type"
+        getSectionTitle={section => section.type}
+      />,
+    );
+    await userEvent.click(screen.getByRole('textbox'));
+    const option = await screen.findByText('Admission tasks');
+
+    // One batch, so the hover's highlight is applied after the click has cleared the list
+    act(() => {
+      option.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      option.click();
+    });
+
+    expect(onChange).toHaveBeenCalledWith({
+      target: expect.objectContaining({ value: 'task-set-admission', name: 'taskId' }),
     });
   });
 
