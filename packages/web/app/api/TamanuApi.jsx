@@ -15,6 +15,8 @@ import { ERROR_TYPE } from '@tamanu/errors';
 import { API_ERROR_TOAST, resolveApiErrorToast } from './classifyApiError';
 import { buildSystemError } from './relegateSystemError';
 
+// TODO: revert this commit
+
 const {
   TOKEN,
   LOCALISATION,
