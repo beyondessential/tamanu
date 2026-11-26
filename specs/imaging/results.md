@@ -30,9 +30,9 @@ Applies to recording a result on an imaging request, by hand or from an imaging 
 - Recording a result from a study changes the request's status to Completed.
 - A study with an accession number updates the result already recorded on the request under that accession number.
 - A study without an accession number updates the most recently added result on the request that has a link, no accession number and no Completed by, which is what an earlier study without an accession number leaves.
-- A study that updates a result replaces the result's description and link with the ones it carries.
+- A study that updates a result replaces the result's description and link with the ones it carries, and leaves as it was whichever of the two it does not carry.
 - A study with no result to update adds a new result alongside those the request already has.
-- A result entered by hand keeps its description and Completed by when a study arrives for its request.
+- A result entered by hand is left as it was entered when a study arrives for its request.
 
 > [!NOTE]
 > A study without an accession number carries nothing that says which result it belongs to. A study that is sent again or amended should replace what it recorded before, not add a duplicate, so it updates the one kind of result that only such a study leaves. Updating a result entered by hand would replace a clinician's report with the integration's text while the result still names the clinician, and updating a result recorded under an accession number would replace the report of a study it cannot be matched to.
