@@ -1,7 +1,13 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { TamanuApi as ApiClient, route } from '@tamanu/api-client';
+import {
+  TamanuApi as ApiClient,
+  readPersistedAuthToken,
+  route,
+  writePersistedAuthToken,
+} from '@tamanu/api-client';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { TamanuApi } from '../../app/api/TamanuApi';
+import { LOCAL_STORAGE_KEYS } from '../../app/constants';
 
 const { notifyError } = vi.hoisted(() => ({
   notifyError: vi.fn(),
@@ -129,5 +135,56 @@ describe('TamanuApi error toast relegation', () => {
 
     expect(notifyError).not.toHaveBeenCalled();
     expect(systemErrorHandler).not.toHaveBeenCalled();
+  });
+});
+
+describe('TamanuApi token renewal', () => {
+  let api;
+  let fetchSpy;
+
+  const readStoredToken = async () =>
+    (await readPersistedAuthToken(LOCAL_STORAGE_KEYS.TOKEN, 'test-device', 'webapp')).token;
+
+  beforeEach(async () => {
+    // Node's own localStorage global shadows jsdom's, and is undefined without a storage file
+    const items = new Map();
+    vi.stubGlobal('localStorage', {
+      getItem: key => items.get(key) ?? null,
+      setItem: (key, value) => items.set(key, value),
+      removeItem: key => items.delete(key),
+    });
+    api = new TamanuApi('test-version');
+    await api.setToken('first');
+    fetchSpy = vi.spyOn(ApiClient.prototype, 'fetch').mockResolvedValue({ token: 'second' });
+  });
+
+  afterEach(() => {
+    fetchSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it('stores the renewed token', async () => {
+    await api.refreshToken();
+
+    expect(api.getToken()).toBe('second');
+    expect(await readStoredToken()).toBe('second');
+  });
+
+  it('does not restore a sign-in logged out in another tab', async () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
+
+    await api.refreshToken();
+
+    expect(api.getToken()).toBe('second');
+    expect(localStorage.getItem(LOCAL_STORAGE_KEYS.TOKEN)).toBeNull();
+  });
+
+  it('does not replace a sign-in made in another tab', async () => {
+    await writePersistedAuthToken(LOCAL_STORAGE_KEYS.TOKEN, 'other user', 'test-device', 'webapp');
+
+    await api.refreshToken();
+
+    expect(api.getToken()).toBe('second');
+    expect(await readStoredToken()).toBe('other user');
   });
 });

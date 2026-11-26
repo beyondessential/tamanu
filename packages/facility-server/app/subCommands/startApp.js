@@ -2,8 +2,12 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
+import {
+  listenForBindAddresses,
+  listenForSyncBindAddresses,
+} from '@tamanu/shared/utils/bindAddress';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { sweepStaleUploadDirs } from '@tamanu/shared/utils/tmpdir';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
@@ -12,7 +16,12 @@ import { initTimesync } from '../services/initTimesync';
 import { resolveSchedules } from '../tasks';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
-import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
+import {
+  getServerFacilityIds,
+  getSyncApiConnection,
+  getSyncConfig,
+  isServerConfigured,
+} from '../serverConfig';
 import {
   setupSyncRuntime,
   startSyncRuntimeWhenConfigured,
@@ -80,15 +89,22 @@ const startApp =
       await setupSyncRuntime(context);
     }
 
-    let server, express, port;
+    await sweepStaleUploadDirs();
+
+    let server, express;
     switch (appType) {
       case APP_TYPES.API:
         ({ express, server } = await createApiApp(context));
-        ({ port } = config);
+        listenForBindAddresses({ server, app: express, fallbackPort: config.port });
         break;
       case APP_TYPES.SYNC: {
         ({ express, server } = await createSyncApp(context));
-        ({ port } = config.sync.syncApiConnection);
+        await listenForSyncBindAddresses({
+          server,
+          app: express,
+          port: getSyncApiConnection().port,
+          isStandalone: true,
+        });
 
         // start SyncTask as part of sync app so that it is in the same process with tamanu-sync process
         const startSyncTask = () =>
@@ -116,7 +132,6 @@ const startApp =
         throw new Error(`Unknown app type: ${appType}`);
     }
 
-    listenForBindAddresses({ server, app: express, fallbackPort: port });
     process.once('SIGTERM', () => {
       log.info('Received SIGTERM, closing HTTP server');
       cancelConfigPoll();

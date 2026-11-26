@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# Precompress static assets with Node's built-in zlib so Caddy can serve them
-# with `precompressed zstd br gzip`.
+# Precompress static assets with Node's built-in zlib so the supervisor can serve
+# them precompressed (packages/supervisor/src/files.rs).
 
 node - "${1:-.}" <<'NODE'
 const fs = require('fs');

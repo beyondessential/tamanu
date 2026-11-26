@@ -1,7 +1,6 @@
 {
   "auth": {
-    "useHardcodedPermissions": false,
-    "secret": "insecure"
+    "useHardcodedPermissions": false
   },
   "db": {
     "name": "tamanu-facility"

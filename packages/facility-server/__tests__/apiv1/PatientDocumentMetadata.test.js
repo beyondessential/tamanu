@@ -181,6 +181,80 @@ describe('PatientDocumentMetadata', () => {
     expect(result.body.count).toBe(2);
   });
 
+  it('should match _ and % literally when filtering by type', async () => {
+    const patient = await models.Patient.create(await createDummyPatient(models));
+
+    const [underscoreDocument, , percentDocument] = await models.DocumentMetadata.bulkCreate([
+      { name: 'A', type: 'text/x_report', attachmentId: 'fake-id-1', patientId: patient.id },
+      { name: 'B', type: 'text/xyreport', attachmentId: 'fake-id-2', patientId: patient.id },
+      { name: 'C', type: 'text/50%off', attachmentId: 'fake-id-3', patientId: patient.id },
+      { name: 'D', type: 'text/50xoff', attachmentId: 'fake-id-4', patientId: patient.id },
+    ]);
+
+    const underscoreResult = await app
+      .get(`/api/patient/${patient.id}/documentMetadata`)
+      .query({ type: 'x_r' });
+    expect(underscoreResult).toHaveSucceeded();
+    expect(underscoreResult.body.data.map(({ id }) => id)).toEqual([underscoreDocument.id]);
+
+    const percentResult = await app
+      .get(`/api/patient/${patient.id}/documentMetadata`)
+      .query({ type: '50%o' });
+    expect(percentResult).toHaveSucceeded();
+    expect(percentResult.body.data.map(({ id }) => id)).toEqual([percentDocument.id]);
+  });
+
+  it('should match _ and % literally when filtering by document owner', async () => {
+    const patient = await models.Patient.create(await createDummyPatient(models));
+
+    const [underscoreDocument, , percentDocument] = await models.DocumentMetadata.bulkCreate([
+      {
+        name: 'A',
+        type: 'application/pdf',
+        source: DOCUMENT_SOURCES.UPLOADED,
+        documentOwner: 'dr_smith',
+        attachmentId: 'fake-id-1',
+        patientId: patient.id,
+      },
+      {
+        name: 'B',
+        type: 'application/pdf',
+        source: DOCUMENT_SOURCES.UPLOADED,
+        documentOwner: 'drxsmith',
+        attachmentId: 'fake-id-2',
+        patientId: patient.id,
+      },
+      {
+        name: 'C',
+        type: 'application/pdf',
+        source: DOCUMENT_SOURCES.UPLOADED,
+        documentOwner: '100%owner',
+        attachmentId: 'fake-id-3',
+        patientId: patient.id,
+      },
+      {
+        name: 'D',
+        type: 'application/pdf',
+        source: DOCUMENT_SOURCES.UPLOADED,
+        documentOwner: '100xowner',
+        attachmentId: 'fake-id-4',
+        patientId: patient.id,
+      },
+    ]);
+
+    const underscoreResult = await app
+      .get(`/api/patient/${patient.id}/documentMetadata`)
+      .query({ documentOwner: 'dr_' });
+    expect(underscoreResult).toHaveSucceeded();
+    expect(underscoreResult.body.data.map(({ id }) => id)).toEqual([underscoreDocument.id]);
+
+    const percentResult = await app
+      .get(`/api/patient/${patient.id}/documentMetadata`)
+      .query({ documentOwner: '100%' });
+    expect(percentResult).toHaveSucceeded();
+    expect(percentResult.body.data.map(({ id }) => id)).toEqual([percentDocument.id]);
+  });
+
   it('should get a list of documents filtered by department id', async () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
     const department = await models.Department.findOne();

@@ -1160,13 +1160,75 @@ describe('Patient relations', () => {
     });
 
     it('shows only the picked tests when both a category and test ids are given', async () => {
-      const [testType] = labTestTypes;
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const category = await randomReferenceData(models, 'labTestCategory');
+      const [pickedType, otherType] = await createLabTestTypes(models, category.id);
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: category.id,
+          labTestTypeIds: [pickedType.id, otherType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+
       const response = await app
         .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
-        .query({ categoryId: randomCategory.id, testIds: [testType.id] });
+        .query({ categoryId: category.id, testIds: [pickedType.id] });
       expect(response).toHaveSucceeded();
-      // Picks take precedence over the category, so only the picked test is returned.
-      expect(response.body.data.map(row => row.testTypeId)).toEqual([testType.id]);
+      // The category's other resulted test is not shown once a test is picked.
+      expect(response.body.data.map(row => row.testTypeId)).toEqual([pickedType.id]);
+    });
+
+    it('scopes a picked panel to the picked category, leaving out its members in other categories', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const panelCategory = await randomReferenceData(models, 'labTestCategory');
+      const otherCategory = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [inCategoryType] = await createLabTestTypes(models, panelCategory.id);
+      const [otherCategoryType] = await createLabTestTypes(models, otherCategory.id);
+      const panel = await models.LabTestPanel.create({
+        ...fake(models.LabTestPanel),
+        categoryId: panelCategory.id,
+      });
+      await Promise.all(
+        [inCategoryType, otherCategoryType].map((testType, order) =>
+          models.LabTestPanelLabTestTypes.create({
+            labTestPanelId: panel.id,
+            labTestTypeId: testType.id,
+            order,
+          }),
+        ),
+      );
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: panelCategory.id,
+          labTestPanelId: panel.id,
+          labTestTypeIds: [inCategoryType.id, otherCategoryType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ categoryId: panelCategory.id, panelIds: [panel.id] });
+      expect(response).toHaveSucceeded();
+      expect(response.body.groups).toHaveLength(1);
+      expect(response.body.groups[0].testTypeIds).toEqual([inCategoryType.id]);
+      expect(response.body.data.map(row => row.testTypeId)).toEqual([inCategoryType.id]);
     });
 
     it('unions panel members and individual test ids, returning each distinct test once', async () => {

@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { NotFoundError, ValidationError } from '@tamanu/errors';
+import { InvalidOperationError, NotFoundError, ValidationError } from '@tamanu/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { mapQueryFilters } from '../../../database/utils';
 import {
@@ -11,6 +11,7 @@ import {
   COMMUNICATION_STATUSES,
   PORTAL_SURVEY_ASSIGNMENTS_STATUSES,
   PORTAL_USER_STATUSES,
+  SYNDROMIC_SURVEILLANCE_SURVEY_ID,
 } from '@tamanu/constants';
 import { PortalSurveyAssignmentsSchema } from '@tamanu/shared/schemas/facility/responses/portalSurveyAssignments.schema';
 import { SendPortalFormRequestSchema } from '@tamanu/shared/schemas/facility/requests/sendPortalForm.schema';
@@ -167,6 +168,12 @@ patientPortal.post(
     const survey = await models.Survey.findByPk(formId);
     if (!survey) {
       throw new NotFoundError('Survey not found');
+    }
+    // spec: SYND#the-syndromic-surveillance-form
+    if (survey.id === SYNDROMIC_SURVEILLANCE_SURVEY_ID) {
+      throw new InvalidOperationError(
+        'Syndromic surveillance can only be submitted from the encounter it is for.',
+      );
     }
 
     const portalUser = await models.PortalUser.findOne({

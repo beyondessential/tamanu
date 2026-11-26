@@ -12,6 +12,8 @@ import React, {
 import { compose } from 'redux';
 import type { User } from '~/models/User';
 import { readConfig } from '~/services/config';
+import { OutdatedVersionError } from '~/services/error';
+import { recordPendingUpdate } from '~/services/update/pendingUpdate';
 import type { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { withAuth } from '~/ui/containers/Auth';
 import { BackendContext } from '~/ui/contexts/BackendContext';
@@ -73,13 +75,14 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const generateAbilityForUser = (user: User): PureAbility => {
-    return buildAbility(user, backend.permissions.data);
+  /** Null when the user has no permissions cached on this device */
+  const generateAbilityForUser = (user: IUser): PureAbility | null => {
+    const permissions = backend.permissions.getForUser(user.id);
+    return permissions ? buildAbility(user, permissions) : null;
   };
 
-  const setContextUserAndAbility = (userData): void => {
+  const setContextUserAndAbility = (userData, abilityObject: PureAbility): void => {
     setUserData(userData);
-    const abilityObject = generateAbilityForUser(userData);
     setAbility(abilityObject);
   };
 
@@ -88,8 +91,12 @@ const Provider = ({
     // the database, we don't need or want to store it in app state as well.
     const userData = { ...authenticatedUser };
     delete userData.password;
+    const abilityObject = generateAbilityForUser(userData);
+    if (!abilityObject) {
+      throw new Error('No permissions are stored on this device for the signing-in user');
+    }
     setUser(userData);
-    setContextUserAndAbility(userData);
+    setContextUserAndAbility(userData, abilityObject);
     setSignedInStatus(true);
   };
 
@@ -112,10 +119,11 @@ const Provider = ({
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user: usr, settings, token, refreshToken } = await backend.auth.remoteSignIn(params);
+    // first, so a sign-in it refuses leaves no session behind
+    signInAs(usr);
     setToken(token);
     setSettings(settings);
     setRefreshToken(refreshToken);
-    signInAs(usr);
   };
 
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
@@ -176,15 +184,30 @@ const Provider = ({
 
   // sets state again after launching the app
   useEffect(() => {
-    if (props.token && props.user) {
-      setContextUserAndAbility(props.user);
+    if (!props.token || !props.user) return;
+    const abilityObject = generateAbilityForUser(props.user);
+    if (abilityObject) {
+      setContextUserAndAbility(props.user, abilityObject);
+    } else {
+      signOut();
     }
   }, []);
 
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
-    const errHandler = (): void => {
+    const errHandler = (error: Error): void => {
+      // An out-of-date app keeps working offline while its update downloads, so the rejection is
+      // remembered — which pauses sync and raises the banner — and the session is left alone.
+      if (error instanceof OutdatedVersionError) {
+        // No address means nothing to update to: the app is too new for its server, or the server
+        // has no update address set. Sync then reports the rejection as an ordinary sync error.
+        if (error.updateUrl) {
+          recordPendingUpdate(error.updateUrl);
+        }
+        return;
+      }
+
       const { shouldSignOut, nextPreventSignOutOnFailure } =
         resolveAuthErrorAction(preventSignOutOnFailure);
       // reset the flag so a subsequent auth error is no longer skipped

@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { getPatientDetailFieldSettings } from '@tamanu/shared/schemas/patientPortal';
+import {
+  getPatientDetailFieldSettings,
+  type PatientDetailFieldSetting,
+} from '@tamanu/shared/schemas/patientPortal';
 import { useApi } from '../useApi';
 
-export interface FieldSetting {
-  hidden?: boolean;
-  required?: boolean;
-}
+export type FieldSetting = PatientDetailFieldSetting;
 
 interface PortalSettings {
-  fields?: Record<string, FieldSetting>;
+  fields?: Record<string, { hidden?: boolean; requiredPatientData?: boolean }>;
   features?: { enablePatientInsurer?: boolean };
 }
 

@@ -4,7 +4,7 @@ import { FACT_CURRENT_SYNC_TICK, FACT_LAST_SUCCESSFUL_SYNC_PULL } from '@tamanu/
 import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 import { createTestContext } from '../utilities';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
-import { clearLocallyAuthoredSettings } from '../../app/sync/facilityBootstrap';
+import { clearLocallyAuthoredSettings } from '../../app/sync/clearLocallyAuthoredSettings';
 
 const HEARTBEAT_KEY = 'fhir.worker.heartbeat';
 const BASELINE_HEARTBEAT_ID = '44fbfb10-3019-44f8-b0c5-d02b860e521e';
@@ -67,15 +67,11 @@ describe('FacilitySyncManager settings on first sync', () => {
     data: { ...setting, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
   });
 
-  const makeSyncManager = ({ bootstrap, pulled = [], isQueued = false } = {}) =>
+  const makeSyncManager = ({ pulled = [], isQueued = false } = {}) =>
     new FacilitySyncManager({
       models,
       sequelize,
       centralServer: {
-        fetchBootstrap: async () => {
-          if (!bootstrap) throw new Error('central unreachable');
-          return bootstrap.map(asSyncRecord);
-        },
         startSyncSession: async () =>
           isQueued ? { status: 'queued' } : { sessionId: crypto.randomUUID(), startedAtTick: 200 },
         endSyncSession: async () => ({}),
@@ -97,38 +93,6 @@ describe('FacilitySyncManager settings on first sync', () => {
     expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
       { id: fromCentral.id, value: '2 minutes' },
     ]);
-  });
-
-  it("applies central's settings in the bootstrap of a facility that seeded its own", async () => {
-    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
-    const fromCentral = centralHeartbeat();
-
-    await makeSyncManager({ bootstrap: [fromCentral], isQueued: true }).runSync();
-
-    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
-      { id: fromCentral.id, value: '2 minutes' },
-    ]);
-  });
-
-  it('keeps settings the bootstrap delivered when the first pull follows it', async () => {
-    const REMINDER_KEY = 'features.reminderContactModule.enabled';
-    const fromBootstrap = centralHeartbeat();
-    await makeSyncManager({ bootstrap: [fromBootstrap], isQueued: true }).runSync();
-    await insertSetting({ key: REMINDER_KEY, value: 'false' });
-    const fromPull = {
-      id: crypto.randomUUID(),
-      key: REMINDER_KEY,
-      value: true,
-      scope: SETTINGS_SCOPES.GLOBAL,
-      facilityId: null,
-    };
-
-    await makeSyncManager({ pulled: [fromPull] }).runSync();
-
-    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
-      { id: fromBootstrap.id, value: '2 minutes' },
-    ]);
-    expect(await settingsWithKey(REMINDER_KEY)).toEqual([{ id: fromPull.id, value: true }]);
   });
 
   it('keeps seeded settings when the first pull fails to save', async () => {

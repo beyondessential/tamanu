@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { countBy } from 'es-toolkit/compat';
 import { isFhirPermission } from '@tamanu/shared/permissions/buildAbility';
 
 async function validatePermissions(models, rows, pushErrorFn) {
@@ -121,7 +122,46 @@ async function validateLabTestPanels(models, rows, pushErrorFn) {
   }
 }
 
+// Login matches emails ignoring case, so two users whose emails differ only by case can't be told
+// apart. A collision already in the database is left alone, so a deployment with legacy duplicates
+// can still re-import its user sheet.
+async function validateUserEmails(models, rows, pushErrorFn) {
+  const { User } = models;
+  const toComparableEmail = email => User.normaliseEmail(email).toLowerCase();
+
+  const userRows = rows.filter(({ model }) => model === 'User');
+  const existingUsers = await User.findAll({ attributes: ['id', 'email'] });
+  const existingEmailByUserId = new Map(
+    existingUsers.map(user => [user.id, toComparableEmail(user.email)]),
+  );
+
+  const importedEmailByUserId = new Map(existingEmailByUserId);
+  for (const { values } of userRows) {
+    if (values.deletedAt) {
+      importedEmailByUserId.delete(values.id);
+    } else {
+      importedEmailByUserId.set(values.id, toComparableEmail(values.email));
+    }
+  }
+  const userCountByEmail = countBy([...importedEmailByUserId.values()]);
+
+  for (const { model, values, sheetRow } of userRows) {
+    if (values.deletedAt) continue;
+    const email = toComparableEmail(values.email);
+    const isAlreadyThisUsersEmail = existingEmailByUserId.get(values.id) === email;
+    if (isAlreadyThisUsersEmail) continue;
+    if (userCountByEmail[email] > 1) {
+      pushErrorFn(
+        model,
+        sheetRow,
+        `Email "${values.email}" is already used by another user (letter case is ignored)`,
+      );
+    }
+  }
+}
+
 const MODEL_VALIDATION = {
+  'User': validateUserEmails,
   'Permission': validatePermissions,
   'LabTestType': validateLabTestTypes,
   'LabTestPanel': validateLabTestPanels,

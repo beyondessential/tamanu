@@ -14,6 +14,7 @@ import {
   getInvoiceSummary,
   getInvoicePatientPaymentStatus,
   isFixedPriceProduct,
+  withInsurancePlanItems,
 } from '@tamanu/utils/invoice';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
@@ -315,7 +316,9 @@ invoiceRoute.put(
       where: { encounterId: foundInvoice.encounterId },
       include: req.models.Invoice.getFullReferenceAssociations(invoicePriceListId),
     });
-    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoiceWithDetails);
+    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(
+      withInsurancePlanItems(invoiceWithDetails.get({ plain: true })),
+    );
     // Cap paidAmount at patientTotal in case a discount was applied after payments were recorded
     const effectivePaidAmount = Math.min(patientPaymentsTotal, patientTotal);
     await req.models.Invoice.update(

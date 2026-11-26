@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 
@@ -109,14 +109,11 @@ const StyledQuantityTextInput = styled(NumberInput)`
   }
 `;
 
-export const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-  return <StyledQuantityTextInput {...props} value={value} onChange={handleChange} />;
-});
+// Shows the row's quantity rather than a copy of what was typed, so a quantity changed elsewhere
+// (Modify prescription) shows straight away, and a typed decimal shows as the whole number saved.
+export const QuantityInput = memo(({ value, onChange, ...props }) => (
+  <StyledQuantityTextInput {...props} value={value} onChange={onChange} />
+));
 
 export const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`
   .MuiInputBase-input {
@@ -152,7 +149,7 @@ export const resolvePresetLabelText = (presetId, presetName, fallbackText) =>
 // Only drop the leading capital from ordinary capitalised words (e.g. 'Tablet' ->
 // 'tablet', 'Oral' -> 'oral', 'Two times daily' -> 'two times daily'). Acronym and
 // symbol units/routes such as 'IU', 'FFU', 'IM', 'S/C' and 'mL' keep their casing.
-const lowercaseFirstLetter = text =>
+export const lowercaseFirstLetter = text =>
   /^[A-Z][a-z]/.test(text ?? '') ? `${text.charAt(0).toLowerCase()}${text.slice(1)}` : text;
 
 // Shared sentence assembly for the Instructions and Label text defaults. The two

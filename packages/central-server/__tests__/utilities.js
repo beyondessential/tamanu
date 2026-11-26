@@ -36,6 +36,8 @@ class MockApplicationContext {
     // Mirrors startScheduledTasks, so tests can construct tasks directly
     this.schedules = await this.settings.get('schedules');
     this.integrationSettings = await this.settings.get('integrations');
+    this.telemetrySettings = await this.settings.get('telemetry');
+    this.globalSettings = this.settings;
     if (initFhir) {
       resetFhirSettings();
       await initFhirSettingsFromDb(this.settings);
@@ -86,7 +88,7 @@ export async function createTestContext({
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
-    const token = await buildToken({ userId: user.id }, null, {
+    const token = await buildToken({ userId: user.id }, config.auth.secret, {
       expiresIn: '1d',
       audience: JWT_TOKEN_TYPES.ACCESS,
       issuer: config.canonicalHostName,
@@ -113,6 +115,7 @@ export async function createTestContext({
       }),
   );
   ctx.baseApp = baseApp;
+  ctx.appServer = appServer;
 
   return ctx;
 }

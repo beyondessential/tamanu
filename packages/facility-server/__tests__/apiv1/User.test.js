@@ -189,6 +189,22 @@ describe('User', () => {
         expect(result).toHaveSucceeded();
       });
 
+      it('should ignore stray whitespace stored on the email', async () => {
+        const paddedUser = await models.User.create(createUser({ password: rawPassword }));
+        await models.UserFacility.create({ facilityId: facility1.id, userId: paddedUser.id });
+        // Legacy data written before emails were trimmed, bypassing model normalisation.
+        await models.User.sequelize.query('UPDATE users SET email = :email WHERE id = :id', {
+          replacements: { email: `  ${paddedUser.email.toUpperCase()}  `, id: paddedUser.id },
+        });
+
+        const result = await baseApp.post('/api/login').send({
+          email: paddedUser.email,
+          password: rawPassword,
+          deviceId: 'test-device-id',
+        });
+        expect(result).toHaveSucceeded();
+      });
+
       it('should fail to obtain a token for a wrong password', async () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,

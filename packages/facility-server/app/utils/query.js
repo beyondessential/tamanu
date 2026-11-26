@@ -1,3 +1,5 @@
+import { likePattern } from '@tamanu/utils/likePattern';
+
 export const makeFilter = (check, sql, transform) => {
   if (!check) return null;
 
@@ -13,7 +15,7 @@ export const makeSimpleTextFilterFactory = params => (paramKey, sqlField) => {
   return {
     sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
     transform: p => ({
-      [paramKey]: `${escapePatternWildcard(p[paramKey])}%`,
+      [paramKey]: likePattern`${p[paramKey]}%`,
     }),
   };
 };
@@ -24,7 +26,7 @@ export const makeSubstringTextFilterFactory = params => (paramKey, sqlField) => 
   return {
     sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
     transform: p => ({
-      [paramKey]: `%${escapePatternWildcard(p[paramKey])}%`,
+      [paramKey]: likePattern`%${p[paramKey]}%`,
     }),
   };
 };
@@ -33,13 +35,6 @@ export const makeDeletedAtIsNullFilter = table => {
   if (!table) return null;
 
   return makeFilter(true, `${table}.deleted_at IS NULL`, () => ({}));
-};
-
-// Escape wildcard characters _, % and backslash in pattern match
-const wildcardRegex = /([_%\\])/g;
-// String() keeps repeated query params (arrays) working as before, e.g. 'a,b'
-export const escapePatternWildcard = value => {
-  return String(value).replace(wildcardRegex, '\\$1');
 };
 
 export const getWhereClausesAndReplacementsFromFilters = (allFilters, params = {}) => {

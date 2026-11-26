@@ -72,9 +72,9 @@ export function App({ sidebar, children }) {
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (serverStatus?.setupRequired) return <SetupWizardView />;
-  if (!isUserLoggedIn) return <LoginView />;
   // spec: FSETUP#setting-up-screen
   if (serverStatus?.isSettingUp) return <SettingUpStatusPage />;
+  if (!isUserLoggedIn) return <LoginView />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 
   return (

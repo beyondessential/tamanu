@@ -26,6 +26,9 @@ export const AuthProvider = ({ children }) => {
 
   const cleanupSession = useCallback(() => {
     window?.localStorage?.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
+    // Telemetry reads its enablement from the saved settings, so a signed-out
+    // browser must not keep the last session's.
+    window?.localStorage?.removeItem(LOCAL_STORAGE_KEYS.SETTINGS);
     queries.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
     navigate('/');
   }, [queries, navigate]);

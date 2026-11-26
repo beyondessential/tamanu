@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import { Raw } from 'typeorm';
 
 import type { MODELS_MAP } from '~/models/modelsMap';
 import type { IUser, SyncConnectionParameters } from '~/types';
@@ -10,6 +11,7 @@ import {
   forbiddenFacilityMessage,
   invalidUserCredentialsMessage,
   OutdatedVersionError,
+  signInOnlineFirstMessage,
 } from '../error';
 import type { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import type { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
@@ -66,7 +68,7 @@ export class AuthService {
 
   async localSignIn(
     { email, password }: SyncConnectionParameters,
-    generateAbilityForUser: (user: User) => PureAbility,
+    generateAbilityForUser: (user: User) => PureAbility | null,
   ): Promise<IUser> {
     const deviceFacilityId = await readConfig('facilityId', null);
     if (!deviceFacilityId) {
@@ -77,9 +79,12 @@ export class AuthService {
 
     console.log('Signing in locally as', email);
     const { User } = this.models;
+    // Match email case-insensitively and ignore surrounding whitespace, so an account whose email
+    // was stored in a different case (or with stray whitespace) can still log in offline.
+    const normalisedEmail = email.trim().toLowerCase();
     const user = await User.findOne({
       where: {
-        email,
+        email: Raw(alias => `LOWER(TRIM(${alias})) = :normalisedEmail`, { normalisedEmail }),
         visibilityStatus: VisibilityStatus.Current,
       },
     });
@@ -89,16 +94,19 @@ export class AuthService {
     }
 
     if (!user.password) {
-      throw new AuthenticationError(
-        'You need to first login when connected to internet to use your account offline.',
-      );
+      throw new AuthenticationError(signInOnlineFirstMessage);
     }
 
     if (!(await compare(password, user.password))) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
+    // spec: MSIGN
     const ability = generateAbilityForUser(user);
+    if (!ability) {
+      throw new AuthenticationError(signInOnlineFirstMessage);
+    }
+
     const canAccessFacility = await user.canAccessFacility(deviceFacilityId, ability, this.models);
     if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);

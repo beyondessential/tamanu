@@ -1617,6 +1617,31 @@ describe('Encounter', () => {
         expect(body.data[0].medication.code).toEqual('check');
       });
 
+      // spec: DQLIM#sending-to-pharmacy, DQLIM#discharging
+      it('should get the drug limits and units with each encounter medication', async () => {
+        await models.ReferenceDrug.create(
+          fake(models.ReferenceDrug, {
+            referenceDataId: testMedication.id,
+            isSensitive: false,
+            doseMax: 2,
+            dispensingQuantityMax: 100,
+            dosingUnit: 'Tablet',
+            dispensingUnit: 'Pack',
+          }),
+        );
+
+        const result = await app.get(`/api/encounter/${medicationEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        const row = result.body.data.find(item => item.medicationId === testMedication.id);
+        expect(Number(row.medication.referenceDrug.doseMax)).toBe(2);
+        expect(row.medication.referenceDrug.dispensingQuantityMax).toBe(100);
+        // A warning gives the limit in the drug's current units.
+        expect(row.medication.referenceDrug).toMatchObject({
+          dosingUnit: 'Tablet',
+          dispensingUnit: 'Pack',
+        });
+      });
+
       it('should reject creating medication when encounter is discharged', async () => {
         // Discharge the encounter first
         const endDate = getCurrentDateTimeString();
@@ -2609,6 +2634,55 @@ describe('Encounter', () => {
               ),
             ),
           );
+        });
+
+        describe('order', () => {
+          const earlierDate = '2026-01-01 10:00:00';
+          const laterDate = '2026-01-02 10:00:00';
+
+          beforeEach(async () => {
+            for (const date of [earlierDate, laterDate]) {
+              await app.post('/api/surveyResponse').send({
+                surveyId: 'vitals-survey',
+                patientId: vitalsPatient.id,
+                startTime: date,
+                endTime: date,
+                answers: {
+                  'pde-PatientVitalsDate': date,
+                  'pde-PatientVitalsHeartRate': 80,
+                },
+                facilityId,
+              });
+            }
+          });
+
+          const getRecordedDates = async order => {
+            const result = await app
+              .get(`/api/encounter/${vitalsEncounter.id}/vitals`)
+              .query({ rowsPerPage: 1, ...(order && { order }) });
+            expect(result).toHaveSucceeded();
+            const dateElement = result.body.data.find(
+              ({ dataElementId }) => dataElementId === 'pde-PatientVitalsDate',
+            );
+            return Object.keys(dateElement.records);
+          };
+
+          it('should return the latest reading first by default', async () => {
+            expect(await getRecordedDates()).toEqual([laterDate]);
+          });
+
+          it('should return readings in the requested order, in either case', async () => {
+            expect(await getRecordedDates('ASC')).toEqual([earlierDate]);
+            expect(await getRecordedDates('asc')).toEqual([earlierDate]);
+            expect(await getRecordedDates('desc')).toEqual([laterDate]);
+          });
+
+          it('should reject an order other than ascending or descending', async () => {
+            const result = await app
+              .get(`/api/encounter/${vitalsEncounter.id}/vitals`)
+              .query({ order: 'body' });
+            expect(result).toHaveRequestError();
+          });
         });
       });
 

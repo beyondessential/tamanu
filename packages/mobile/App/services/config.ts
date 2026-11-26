@@ -23,3 +23,11 @@ export async function writeConfig(key: string, value: string): Promise<void> {
     console.warn(e);
   }
 }
+
+export async function removeConfig(key: string): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(key);
+  } catch (e) {
+    console.warn(e);
+  }
+}

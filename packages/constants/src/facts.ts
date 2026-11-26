@@ -44,6 +44,20 @@ export const FACT_CENTRAL_CONFIG_MIGRATED = 'centralConfigMigratedToSettings';
 // FacilitySettingMigration carrier to push up to central, so it runs only once.
 export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
 
+// Set once the central server has seeded the settings that left config after
+// FACT_CENTRAL_CONFIG_MIGRATED had already run, so those keys are lifted once too.
+export const FACT_CENTRAL_LATE_CONFIG_MIGRATED = 'centralLateConfigMigratedToSettings';
+
+// The facility counterpart: set once the late facility-scoped keys are in the carrier.
+export const FACT_FACILITY_LATE_CONFIG_MIGRATED = 'facilityLateConfigMigratedToSettings';
+
+// Browser telemetry aggregation (spec: BTAG): the receipt time up to which raw
+// spans have been rolled up (exclusive, ISO 8601), and the bucket size in
+// minutes that rollup was using, so a change of size can finish the old size's
+// buckets until the first boundary of the new one.
+export const FACT_BROWSER_TELEMETRY_ROLLED_UP_TO = 'browserTelemetryRolledUpTo';
+export const FACT_BROWSER_TELEMETRY_ROLLUP_BUCKET_MINUTES = 'browserTelemetryRollupBucketMinutes';
+
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
 

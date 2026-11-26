@@ -1,11 +1,18 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { BrowserQRCodeReader } from '@zxing/browser';
+import { ChecksumException, FormatException, NotFoundException } from '@zxing/library';
 import { parseScannedDisplayId } from '@tamanu/utils/scannedDisplayId';
 import { Button, TranslatedText, useSettings } from '@tamanu/ui-components';
 import { WebcamCaptureModal, CAMERA_STATUS } from './WebcamCaptureModal';
 import { notifyError } from '../utils/index.js';
 
 const MAX_FREE_TEXT_QR_LENGTH = 255;
+
+// zxing throws these when a frame holds no readable QR code
+const isUnreadableFrameError = error =>
+  error instanceof NotFoundException ||
+  error instanceof ChecksumException ||
+  error instanceof FormatException;
 
 const parseFreeText = raw => {
   const value = raw.trim();
@@ -37,7 +44,17 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
         }
       };
 
-      const scan = async () => {
+      // Ticks keep firing while a detection is awaited, so skip them rather than overlap scans
+      let scanInFlight = null;
+
+      const scan = () => {
+        if (scanInFlight) return;
+        scanInFlight = scanFrame().finally(() => {
+          scanInFlight = null;
+        });
+      };
+
+      const scanFrame = async () => {
         const { onScan, onClose, parseCode } = callbacksRef.current;
         if (webcamRef.current && webcamRef.current.video) {
           const video = webcamRef.current.video;
@@ -52,10 +69,9 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
                 }
               } else if (zxingReader) {
                 try {
-                  const result = await zxingReader.decodeOnceFromVideoElement(video);
-                  rawValue = result?.getText();
+                  rawValue = zxingReader.decode(video).getText();
                 } catch (zxingError) {
-                  // zxing throws when no QR code is found in the frame
+                  if (!isUnreadableFrameError(zxingError)) throw zxingError;
                 }
               }
 
@@ -69,7 +85,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan, matchDisplayIdPatter
                   notifyError(
                     <TranslatedText
                       stringId="modal.qrScanner.invalidCodeErrorMessage"
-                      fallback="Not a valid QR Code"
+                      fallback="Not a valid QR code"
                     />,
                   );
                 }
