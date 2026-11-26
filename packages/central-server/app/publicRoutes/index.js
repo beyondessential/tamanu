@@ -13,8 +13,8 @@ import { telegramWebhookRoutes } from './telegramWebhook';
 
 export const publicRoutes = express.Router();
 
-// Without security.cors.allowedOrigin set, the public routes are unavailable to
-// browsers on other domains.
+// Public route responses name security.cors.allowedOrigin, when it is set, as the one
+// other origin a browser lets read them.
 publicRoutes.use(
   asyncHandler(async (req, res, next) => {
     const allowedOrigin = await req.settings.get('security.cors.allowedOrigin');
