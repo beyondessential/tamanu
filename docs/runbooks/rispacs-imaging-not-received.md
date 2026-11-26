@@ -205,8 +205,8 @@ ORDER BY fj.errored_at DESC;
 ### 3.5 Has RIS/PACS posted a study/result back?
 
 **[diagnose]** Columns confirmed in `database/model/public/imaging_results.yml`
-(`imaging_request_id`, `completed_at`, `completed_by_id`, `external_code`,
-`result_image_url`, `created_at`). There is **no** `imaging_studies` table — results land in
+(`imaging_request_id`, `completed_at`, `external_code`, `result_image_url`,
+`created_at`). There is **no** `imaging_studies` table — results land in
 `imaging_results`.
 
 ```sql
@@ -215,7 +215,6 @@ SELECT ir.id, ir.display_id,
        ir.updated_at    AS request_updated_at,
        ires.id          AS result_id,
        ires.completed_at,
-       ires.completed_by_id,
        ires.external_code,
        ires.result_image_url,
        ires.created_at  AS result_created_at
@@ -228,11 +227,7 @@ No `imaging_results` row = RIS/PACS has not returned a result — either it has 
 processed the request yet, or it is not reading the `ServiceRequest`. A row is
 not proof RIS/PACS returned anything: staff can also enter a result by hand. A
 result RIS/PACS posted has an `external_code`, a `result_image_url`, or both; a
-result entered by hand has neither of those columns set (see 3.6). A row that
-has a `result_image_url` and also names a user in `completed_by_id` is a
-hand-entered result that RIS/PACS wrote over: older releases let a study without
-an accession number update any result on the request, so its `description` is
-the RIS/PACS text, not the clinician's. To check
+result entered by hand is saved with neither. To check
 whether RIS/PACS is actually **polling** the FHIR route at all, use the shared
 **Is the integration polling? — Caddy log** check in
 `../reference/query-cookbook.md` (attribute RIS/PACS vs SENAITE traffic by
@@ -243,8 +238,9 @@ differentiation and the `mSupply` caveat in the same section). **[diagnose]**
 
 Use this when the complaint is "image links / reports not appearing in Tamanu"
 rather than a single missing request. The return path is: RIS/PACS posts a FHIR
-`ImagingStudy` to central, central creates an `imaging_results` row (link in
-`result_image_url`, report in `description`) and completes the request
+`ImagingStudy` to central, central creates or updates an `imaging_results` row
+(accession number in `external_code`, link in `result_image_url`, report in
+`description`) and completes the request
 (`packages/database/src/models/fhir/FhirImagingStudy.ts:184-235`), the row syncs
 to the facility, and the facility renders the link when the request is opened
 (`packages/facility-server/app/routes/apiv1/imaging.js:20-56`).
