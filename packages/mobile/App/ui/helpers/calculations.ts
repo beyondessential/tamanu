@@ -1,6 +1,6 @@
 import { all as allMath, create } from 'mathjs';
 import { isNumber } from 'es-toolkit/compat';
-import { createCalculationPreparer } from '@tamanu/utils/calculationExpression';
+import { createCalculationPreparer } from '@tamanu/utils';
 import type { ISurveyScreenComponent } from '~/types/ISurvey';
 
 // set up math context
