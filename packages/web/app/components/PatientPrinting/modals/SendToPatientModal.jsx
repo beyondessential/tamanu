@@ -25,8 +25,7 @@ const RemoveAccessButton = styled(TextButton)`
   margin-block-end: 10px;
 `;
 
-const RemoveAccess = ({ patient, onRemoved }) => {
-  const [isConfirming, setIsConfirming] = useState(false);
+const RemoveAccessConfirmModal = ({ patient, open, onCancel, onRemoved }) => {
   const { mutate: removeAccess } = useRemovePatientPortalAccess(patient.id, {
     onSuccess: () => {
       toast.success(
@@ -41,49 +40,42 @@ const RemoveAccess = ({ patient, onRemoved }) => {
   });
 
   return (
-    <>
-      <RemoveAccessButton onClick={() => setIsConfirming(true)}>
+    <ConfirmModal
+      open={open}
+      onCancel={onCancel}
+      onConfirm={() => removeAccess()}
+      title={
         <TranslatedText
-          stringId="patientDetails.resources.patientPortalRegistration.modal.remove.action"
+          stringId="patientDetails.resources.patientPortalRegistration.modal.remove.title"
           fallback="Remove portal access"
         />
-      </RemoveAccessButton>
-      <ConfirmModal
-        open={isConfirming}
-        onCancel={() => setIsConfirming(false)}
-        onConfirm={() => removeAccess()}
-        title={
-          <TranslatedText
-            stringId="patientDetails.resources.patientPortalRegistration.modal.remove.title"
-            fallback="Remove portal access"
-          />
-        }
-        text={
-          <TranslatedText
-            stringId="patientDetails.resources.patientPortalRegistration.modal.remove.text"
-            fallback="Remove this patient's access to the patient portal?"
-          />
-        }
-        subText={
-          <TranslatedText
-            stringId="patientDetails.resources.patientPortalRegistration.modal.remove.subText"
-            fallback="Signing in with :email will no longer show this patient. Send a new registration link to give access again."
-            replacements={{ email: patient.portalUser.email }}
-          />
-        }
-        confirmButtonText={
-          <TranslatedText
-            stringId="patientDetails.resources.patientPortalRegistration.modal.remove.confirm"
-            fallback="Remove access"
-          />
-        }
-      />
-    </>
+      }
+      text={
+        <TranslatedText
+          stringId="patientDetails.resources.patientPortalRegistration.modal.remove.text"
+          fallback="Remove this patient's access to the patient portal?"
+        />
+      }
+      subText={
+        <TranslatedText
+          stringId="patientDetails.resources.patientPortalRegistration.modal.remove.subText"
+          fallback="Signing in with :email will no longer show this patient. Send a new registration link to give access again."
+          replacements={{ email: patient.portalUser.email }}
+        />
+      }
+      confirmButtonText={
+        <TranslatedText
+          stringId="patientDetails.resources.patientPortalRegistration.modal.remove.confirm"
+          fallback="Remove access"
+        />
+      }
+    />
   );
 };
 
 export const SendToPatientModal = ({ patient }) => {
   const [open, setOpen] = useState(true);
+  const [isConfirmingRemoval, setIsConfirmingRemoval] = useState(false);
   const isRegistered = patient?.portalUser?.status === 'registered';
 
   const onClose = () => setOpen(false);
@@ -108,56 +100,73 @@ export const SendToPatientModal = ({ patient }) => {
   };
 
   return (
-    <FormModal
-      title={
-        <TranslatedText
-          stringId="patientDetails.resources.patientPortalRegistration.modal.title"
-          fallback="Patient Portal registration"
-        />
-      }
-      open={open}
-      onClose={onClose}
-    >
-      {isRegistered ? (
-        <>
-          <Alert>Patient has successfully registered for the patient portal</Alert>
+    <>
+      <FormModal
+        title={
+          <TranslatedText
+            stringId="patientDetails.resources.patientPortalRegistration.modal.title"
+            fallback="Patient Portal registration"
+          />
+        }
+        open={open}
+        onClose={onClose}
+      >
+        {isRegistered ? (
+          <>
+            <Alert>Patient has successfully registered for the patient portal</Alert>
+            <Text>
+              <TranslatedText
+                stringId="patientDetails.resources.patientPortalRegistration.modal.registeredText"
+                fallback="To resend Patient Portal registration link, enter the patient's email address below."
+              />
+            </Text>
+          </>
+        ) : (
           <Text>
             <TranslatedText
-              stringId="patientDetails.resources.patientPortalRegistration.modal.registeredText"
-              fallback="To resend Patient Portal registration link, enter the patient's email address below."
+              stringId="patientDetails.resources.patientPortalRegistration.modal.text"
+              fallback="Enter the patient's email address below to email the link to the Patient Portal registration."
             />
           </Text>
-        </>
-      ) : (
-        <Text>
-          <TranslatedText
-            stringId="patientDetails.resources.patientPortalRegistration.modal.text"
-            fallback="Enter the patient's email address below to email the link to the Patient Portal registration."
-          />
-        </Text>
-      )}
-
-      {patient?.portalUser && <RemoveAccess patient={patient} onRemoved={onClose} />}
-      <SubText>
-        <TranslatedText
-          stringId="patientDetails.resources.patientPortalRegistration.modal.subText"
-          fallback="The Patient Portal uses email for account authentication during the login process. Please ensure the patient has access to this email address in order to access the portal."
-        />
-      </SubText>
-      <EmailAddressConfirmationForm
-        onSubmit={handleSubmit}
-        onCancel={onClose}
-        defaultEmail={patient?.email}
-        renderButtons={submitForm => (
-          <ModalGenericButtonRow>
-            <FormSubmitCancelRow
-              onConfirm={submitForm}
-              onCancel={onClose}
-              confirmText={<TranslatedText stringId="general.action.send" fallback="Send" />}
-            />
-          </ModalGenericButtonRow>
         )}
-      />
-    </FormModal>
+
+        {patient?.portalUser && (
+          <RemoveAccessButton onClick={() => setIsConfirmingRemoval(true)}>
+            <TranslatedText
+              stringId="patientDetails.resources.patientPortalRegistration.modal.remove.action"
+              fallback="Remove portal access"
+            />
+          </RemoveAccessButton>
+        )}
+        <SubText>
+          <TranslatedText
+            stringId="patientDetails.resources.patientPortalRegistration.modal.subText"
+            fallback="The Patient Portal uses email for account authentication during the login process. Please ensure the patient has access to this email address in order to access the portal."
+          />
+        </SubText>
+        <EmailAddressConfirmationForm
+          onSubmit={handleSubmit}
+          onCancel={onClose}
+          defaultEmail={patient?.email}
+          renderButtons={submitForm => (
+            <ModalGenericButtonRow>
+              <FormSubmitCancelRow
+                onConfirm={submitForm}
+                onCancel={onClose}
+                confirmText={<TranslatedText stringId="general.action.send" fallback="Send" />}
+              />
+            </ModalGenericButtonRow>
+          )}
+        />
+      </FormModal>
+      {patient?.portalUser && (
+        <RemoveAccessConfirmModal
+          patient={patient}
+          open={open && isConfirmingRemoval}
+          onCancel={() => setIsConfirmingRemoval(false)}
+          onRemoved={onClose}
+        />
+      )}
+    </>
   );
 };
