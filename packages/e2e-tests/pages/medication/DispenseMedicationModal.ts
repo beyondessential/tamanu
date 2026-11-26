@@ -47,6 +47,12 @@ export class DispenseMedicationModal {
     return this.page.getByTestId(`dispense-row-actions-${rowIndex}`);
   }
 
+  getLabelTextInput(rowIndex = 0): Locator {
+    return this.getRowActionsButton(rowIndex)
+      .locator('xpath=ancestor::tr[1]')
+      .locator('textarea:not([aria-hidden="true"])');
+  }
+
   getRowQuantityInput(rowIndex: number): Locator {
     return this.page.getByTestId('dispense-quantity').nth(rowIndex).locator('input');
   }

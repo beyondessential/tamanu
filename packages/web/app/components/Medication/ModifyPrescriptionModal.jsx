@@ -41,6 +41,7 @@ import {
 } from './PrescriptionFields';
 import { prescriptionClinicalValidation } from './prescriptionValidation';
 import { DispensingQuantityAutocalculator } from './DispensingQuantityAutocalculator';
+import { LabelNotesAutofill } from './LabelNotesAutofill';
 import { renderLimitWarning } from './MedicationLimitWarning';
 
 const StyledFormModal = styled(FormModal)`
@@ -120,6 +121,7 @@ export const ModifyPrescriptionModal = ({
   // Retains the dose amount when variable dose is toggled on (which clears the field), so
   // unticking it restores the previous value instead of leaving it empty.
   const retainedDoseAmount = useRef(null);
+  const pickedMedication = useRef(null);
 
   const defaultPharmacyNote = getTranslation(
     'medication.modify.defaultPharmacyNote',
@@ -136,17 +138,12 @@ export const ModifyPrescriptionModal = ({
 
   const source = modification ?? prescription;
 
-  const onSubmit = async values => {
-    const medication =
-      values.medicationId === prescription.medicationId
-        ? prescription.medication
-        : await drugSuggester.fetchCurrentOption(values.medicationId).then(option => ({
-            id: values.medicationId,
-            name: option?.label ?? '',
-            // spec: DQLIM#out-of-range-values
-            // The substituted drug's limits then apply to the fill's quantity in the dispense list.
-            referenceDrug: values.referenceDrug,
-          }));
+  const onSubmit = values => {
+    const medication = [
+      prescription.medication,
+      modification?.medication,
+      pickedMedication.current,
+    ].find(known => known?.id === values.medicationId);
     onConfirm({
       medicationId: values.medicationId,
       // Kept for display in the dispense workflow (table row, printed label) and for
@@ -214,11 +211,17 @@ export const ModifyPrescriptionModal = ({
               enabled={isDispensingQuantityAutocalculationEnabled}
               isOngoing={Boolean(prescription.isOngoing)}
             />
+            <LabelNotesAutofill prescription={prescription} />
             <div style={{ gridColumn: '1 / -1' }}>
               <MedicationAutocompleteField
                 suggester={drugSuggester}
                 onChange={e => {
                   const referenceDrug = e.target.referenceDrug;
+                  pickedMedication.current = {
+                    id: e.target.value,
+                    name: e.target.label,
+                    referenceDrug,
+                  };
                   setValues({
                     ...values,
                     medicationId: e.target.value,
