@@ -240,7 +240,7 @@ Use this when the complaint is "image links / reports not appearing in Tamanu"
 rather than a single missing request. The return path is: RIS/PACS posts a FHIR
 `ImagingStudy` to central, central creates an `imaging_results` row (link in
 `result_image_url`, report in `description`) and completes the request
-(`packages/database/src/models/fhir/FhirImagingStudy.ts:183-227`), the row syncs
+(`packages/database/src/models/fhir/FhirImagingStudy.ts:184-234`), the row syncs
 to the facility, and the facility renders the link when the request is opened
 (`packages/facility-server/app/routes/apiv1/imaging.js:20-56`).
 
@@ -287,7 +287,7 @@ ORDER BY wk, imaging_type;
 `logs.fhir_writes` before handling it, so rejected posts appear there too
 (`packages/shared/src/routes/fhir/handlers.js:25-35`). RIS/PACS may reference the
 request by identifier (the request's uuid or display ID) rather than a
-`ServiceRequest/<id>` reference (`FhirImagingStudy.ts:72-92`), so match all three.
+`ServiceRequest/<id>` reference (`FhirImagingStudy.ts:73-93`), so match all three.
 Run on central; it scans `logs.fhir_writes` once, so narrow the date on a large
 log. **[diagnose]**
 
@@ -316,7 +316,7 @@ ORDER BY 1, 2;
 
 Writes missing for the affected modality and weeks = RIS/PACS is not sending them.
 Writes present but no matching `imaging_results` = central is rejecting them; read
-one `body` against the checks in `FhirImagingStudy.ts:63-181`.
+one `body` against the checks in `FhirImagingStudy.ts:64-182`.
 
 ## 4. Interpret
 

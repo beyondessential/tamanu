@@ -1,4 +1,4 @@
-import { DataTypes, type Attributes, type WhereOptions } from 'sequelize';
+import { DataTypes, Op, type Attributes, type WhereOptions } from 'sequelize';
 import * as yup from 'yup';
 
 import {
@@ -16,6 +16,7 @@ import { FhirResource } from './Resource';
 import { FHIR_ENDPOINT_SCHEMA, type FhirEndpointType } from './fhirEndpoint';
 import type { InitOptions, Models } from '../../types/model';
 import type { ImagingRequest } from '../../models/ImagingRequest';
+import type { ImagingResult } from '../../models/ImagingResult';
 
 export class FhirImagingStudy extends FhirResource {
   declare identifier?: { system: string; value: string }[];
@@ -195,15 +196,22 @@ export class FhirImagingStudy extends FhirResource {
     }
 
     const { ImagingResult } = this.sequelize.models;
-    const whereClause: WhereOptions<Attributes<ImagingRequest>> = {
-      imagingRequestId: imagingRequest.id,
-    };
-    if (imagingAccessCode) {
-      whereClause.externalCode = imagingAccessCode;
-    }
+    // spec: IMGR
+    // An accession number identifies the result to update. Without one, the only result this
+    // study may update is the one an earlier link-only study recorded: a result entered by hand
+    // has a completedBy or no link, and must be left as the clinician wrote it.
+    const whereClause: WhereOptions<Attributes<ImagingResult>> = imagingAccessCode
+      ? { imagingRequestId: imagingRequest.id, externalCode: imagingAccessCode }
+      : {
+          imagingRequestId: imagingRequest.id,
+          externalCode: null,
+          completedById: null,
+          resultImageUrl: { [Op.ne]: null },
+        };
 
     let result = await ImagingResult.findOne({
       where: whereClause,
+      order: [['createdAt', 'DESC']],
     });
     const resultNotes = this.note?.map(n => n.text).join('\n\n');
     if (result) {
