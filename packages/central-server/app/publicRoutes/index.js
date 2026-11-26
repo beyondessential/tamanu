@@ -8,14 +8,13 @@ import { keyBy, mapValues } from 'es-toolkit/compat';
 
 import { createBrowserTelemetryIngest } from '@tamanu/shared/utils/browserTelemetryIngest';
 
-import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
 import { telegramWebhookRoutes } from './telegramWebhook';
 
 export const publicRoutes = express.Router();
 
-// Without cors.allowedOrigin set, external widgets like the COVID test results
-// are unavailable to browsers on other domains.
+// Without cors.allowedOrigin set, the public routes are unavailable to browsers
+// on other domains.
 publicRoutes.use(
   asyncHandler(async (req, res, next) => {
     const allowedOrigin = await req.settings.get('security.cors.allowedOrigin');
@@ -78,7 +77,6 @@ publicRoutes.post('/browser-support', async (req, res) => {
   );
 });
 
-publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);
 
 publicRoutes.use('/telegram-webhook', telegramWebhookRoutes);
