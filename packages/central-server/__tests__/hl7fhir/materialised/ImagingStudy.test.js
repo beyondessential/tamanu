@@ -497,7 +497,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               description: 'Report written by the clinician',
             }),
           );
-          await postLinkOnlyStudy(serviceRequest);
+          const firstResponse = await postLinkOnlyStudy(serviceRequest);
+          expect(firstResponse).toHaveSucceeded();
 
           // act
           const response = await postLinkOnlyStudy(serviceRequest, {
@@ -518,6 +519,49 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           expect(integrationResult).toMatchObject({
             description: 'Amended report from the integration',
             resultImageUrl: 'http://example.com/amended-study',
+          });
+        }));
+
+      it('updates the newest of several results an earlier study recorded', () =>
+        showError(async () => {
+          // arrange
+          const { ImagingResult } = ctx.store.models;
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+          const createEarlierLinkOnlyResult = (name, createdAt) =>
+            ImagingResult.create(
+              fake(ImagingResult, {
+                imagingRequestId: imagingRequest.id,
+                completedById: null,
+                externalCode: null,
+                resultImageUrl: `http://example.com/${name}-study`,
+                description: `${name} report from the integration`,
+                createdAt,
+              }),
+            );
+          const olderResult = await createEarlierLinkOnlyResult('older', '2022-03-04 10:00:00');
+          const newerResult = await createEarlierLinkOnlyResult('newer', '2022-03-04 11:00:00');
+          await olderResult.reload();
+          await newerResult.reload();
+          expect(olderResult.createdAt.getTime()).toBeLessThan(newerResult.createdAt.getTime());
+
+          // act
+          const response = await postLinkOnlyStudy(serviceRequest);
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(2);
+
+          await olderResult.reload();
+          expect(olderResult).toMatchObject({
+            description: 'older report from the integration',
+            resultImageUrl: 'http://example.com/older-study',
+          });
+
+          await newerResult.reload();
+          expect(newerResult).toMatchObject({
+            description: INTEGRATION_NOTE,
+            resultImageUrl: INTEGRATION_URL,
           });
         }));
 
