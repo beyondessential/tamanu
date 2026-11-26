@@ -1,6 +1,3 @@
-// Shared by every bundle in seedling/, as identical copies that
-// scripts/check-seedling-bundles.mjs keeps in step.
-
 // spec: SDPUB#published-version
 // Publishing adds the build's image tag and the Tamanu version it carries to the
 // metadata table of seedling.toml. A definition run from the repository has
@@ -23,6 +20,12 @@ let release_of = |tag| {
 
 // Comparing a version with () throws, so a missing release is found by its type.
 let same_minor = |a, b| type_of(a) != "()" && a.major() == b.major() && a.minor() == b.minor();
+
+// A required parameter can be unset while the definition is first registered,
+// and reading one with value() then throws, so the parts read it empty instead.
+let stored = |param| {
+    try { return param.value(); } catch { return ""; }
+};
 
 let hex_secret = |v| {
     if v.len() != 64 { throw "must be 64 hexadecimal digits"; }

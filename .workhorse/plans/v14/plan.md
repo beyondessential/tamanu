@@ -24,9 +24,9 @@ The Retry upgrade action is gone: Seedling retries a failed gate on its own, and
 
 `seedling/central/` and `seedling/facility/` are a first draft, written to read rather than run. Each bundle's `seedling.toml` lists its script files in order, and Seedling joins them into one script.
 
-`helpers.rhai`, `params.rhai` and `gates.rhai` are shared by both bundles, as identical copies. A bundle can only read files beneath its own root, and the Seedling CLI refuses symlinks, so the files can't be shared any other way for now. `scripts/check-seedling-bundles.mjs`, which a workflow runs on every PR that touches `seedling/`, keeps the copies identical. Seedling/S6 looks at sharing code between bundles on Seedling's side.
+`helpers.rhai`, `params.rhai` and `gates.rhai` are shared by both bundles. They live in `seedling/shared`, which each bundle's `seedling.toml` includes, and the Seedling CLI assembles the include whether it reads the folder or a GitHub URL. Publishing packs each bundle with `seedling-ctl definitions pack`, which assembles the include, and pushes the packed layer with an OCI tool.
 
-The draft can't yet be checked without a running Seedling server. Seedling/T6 adds an offline check to the CLI, which Tamanu's CI would run beside the copy check. The canonical URLs take Seedling's `url-origin` kind. The database URL takes the `url` kind, which accepts the `user@/db?host=/dir` socket form Tamanu accepts, and `socket_dir` reads the socket directory from its parsed query.
+`seedling-ctl definitions check` checks a bundle offline. Once a Seedling release carries it, a workflow runs it on both bundles, with sample values for their required parameters, on every PR that touches `seedling/`. A build of Seedling's main branch calls itself 0.12.0, which the bundles' `>0.12` requirement refuses, so the workflow waits on that release. The canonical URLs take Seedling's `url-origin` kind. The database URL takes the `url` kind, which accepts the `user@/db?host=/dir` socket form Tamanu accepts, and `socket_dir` reads the socket directory from its parsed query.
 
 Both bundles declare `seedling = ">0.12"`: they use gates, `std` helpers and the metadata table, none of which v0.12.0 has, and no later Seedling release exists yet.
 

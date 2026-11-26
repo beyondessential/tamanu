@@ -1,6 +1,3 @@
-// Shared by every bundle in seedling/, as identical copies that
-// scripts/check-seedling-bundles.mjs keeps in step.
-
 let version = app.param("version")
     .required(true)
     .description("Tamanu image tag, such as v2.71.3; changing it upgrades the server, with downtime")
@@ -95,8 +92,11 @@ let timezone = app.param("timezone")
 // below throws on an unset one.
 let canonical = if canonical_url.is_set() { canonical_url.parsed() } else { () };
 
-let image = |name| `ghcr.io/beyondessential/tamanu-${name}:${version.value()}`;
+// Run from the repository, the version has no default, and an empty tag names no
+// image, so an unset version stands in as a tag that names none.
+let version_tag = || { let tag = stored.call(version); if tag == "" { "unset" } else { tag } };
+let image = |name| `ghcr.io/beyondessential/tamanu-${name}:${version_tag.call()}`;
 let frontend_image = |name| {
-    let tag = if frontend_version.is_set() { frontend_version.value() } else { version.value() };
+    let tag = if frontend_version.is_set() { frontend_version.value() } else { version_tag.call() };
     `ghcr.io/beyondessential/tamanu-${name}:${tag}`
 };

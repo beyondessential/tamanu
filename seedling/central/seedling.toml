@@ -1,11 +1,14 @@
 seedling = ">0.12"
 
 script = [
-    "helpers.rhai",
-    "params.rhai",
+    "shared/helpers.rhai",
+    "shared/params.rhai",
     "central.rhai",
     "ingress.rhai",
     "parts.rhai",
-    "gates.rhai",
+    "shared/gates.rhai",
     "actions.rhai",
 ]
+
+[include]
+"shared" = "../shared"

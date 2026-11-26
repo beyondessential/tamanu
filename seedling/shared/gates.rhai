@@ -1,26 +1,23 @@
-// Shared by every bundle in seedling/, as identical copies that
-// scripts/check-seedling-bundles.mjs keeps in step.
-
 // Gates are declared in the order Seedling runs them when several are due at
 // once.
 
 // spec: SDDEF#readiness-check
 let readiness_check = configure.call(app.job("readiness-check"))
     .arg(["checkReadiness"])
-    .deadline(60);
+    .deadline("1m");
 
 let readiness = app.gate("readiness")
-    .key([database_url.value(), crypto_key.value()])
-    .check(readiness_check, #{ interval: 300 });
+    .key([stored.call(database_url), stored.call(crypto_key)])
+    .check(readiness_check, #{ interval: "5m" });
 
 // spec: SDUPG#checking-the-migrations
 let migrations_check = configure.call(app.job("migrations-check"))
     .arg(["just-migrate", "list", "--pending", "--check"])
-    .deadline(120);
+    .deadline("2m");
 
 // spec: SDUPG#the-upgrade
 let upgrade = app.gate("upgrade")
-    .key(version.value())
+    .key(stored.call(version))
     .after(readiness)
     .exclusive(app.select(#{ types: [ResourceType.Deployment], names: parts }))
     .check(migrations_check)

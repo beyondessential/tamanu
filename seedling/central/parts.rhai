@@ -1,8 +1,8 @@
 let configure = |c| {
     c.image(image.call("central"))
         .env("TZ", timezone.value())
-        .env("DATABASE_URL", database_url.value())
-        .env("CRYPTO_KEY", crypto_key.value())
+        .env("DATABASE_URL", stored.call(database_url))
+        .env("CRYPTO_KEY", stored.call(crypto_key))
         .env("AUTH_SECRET", auth_secret)
         .env("AUTH_REFRESH_TOKEN_SECRET", refresh_secret)
         .env("PROXY_TRUSTED", TRUSTED_PROXIES)
