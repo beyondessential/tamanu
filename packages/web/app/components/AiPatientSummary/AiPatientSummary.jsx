@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Collapse } from '@material-ui/core';
 
-import { Colors } from '../../constants';
 import { useAiPatientSummaryQuery } from '../../api/queries/useAiPatientSummaryQuery';
 import {
   useGenerateAiPatientSummary,
@@ -15,8 +14,8 @@ import { DiscardAiSummaryConfirmModal } from '../DiscardAiSummaryConfirmModal';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const Container = styled.div`
-  background: ${Colors.white};
-  border-bottom: 1px solid ${Colors.outline};
+  display: flex;
+  flex-direction: column;
 `;
 
 export const AiPatientSummary = ({ patient }) => {
@@ -156,8 +155,18 @@ export const AiPatientSummary = ({ patient }) => {
         </Collapse>
       </Container>
       <DiscardAiSummaryConfirmModal
-        title={<TranslatedText stringId="ai.patientSummary.discardModal.title" fallback="Discard AI summary" />}
-        subText={<TranslatedText stringId="ai.patientSummary.discardModal.text" fallback="Are you sure you would like to discard the AI patient summary? You can regenerate a new AI summary at any time." />}
+        title={
+          <TranslatedText
+            stringId="ai.patientSummary.discardModal.title"
+            fallback="Discard AI summary"
+          />
+        }
+        subText={
+          <TranslatedText
+            stringId="ai.patientSummary.discardModal.text"
+            fallback="Are you sure you would like to discard the AI patient summary? You can regenerate a new AI summary at any time."
+          />
+        }
         open={isDiscardConfirmOpen}
         onCancel={handleCancelDiscard}
         onConfirm={handleConfirmDiscard}

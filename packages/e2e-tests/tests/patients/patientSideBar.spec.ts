@@ -1,5 +1,11 @@
 import { test, expect } from '../../fixtures/baseFixture';
-import { fillMuiDateField, fillMuiDateTimeField, normalizeToIsoDate } from '@utils/testHelper';
+import {
+  convertDateFormat,
+  fillMuiDateField,
+  fillMuiDateTimeField,
+  normalizeToIsoDate,
+} from '@utils/testHelper';
+import { recordPatientDeathViaApi } from '../../utils/apiHelpers';
 
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, newPatient }) => {
@@ -14,7 +20,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(patientDetailsPage.firstListItem).toContainText('Sleep apnea');
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Sleep apnea');
     expect(
@@ -32,7 +38,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(patientDetailsPage.firstListItem).toContainText('Jaw dislocation');
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Jaw dislocation');
     expect(
@@ -64,7 +70,7 @@ test.describe('Patient Side Bar', () => {
       'Temporary note',
     );
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await patientDetailsPage.savedOnGoingConditionNote.fill('Edited note');
 
@@ -72,7 +78,7 @@ test.describe('Patient Side Bar', () => {
       patientDetailsPage.getOngoingConditionEditSubmitButton(),
     );
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue(
       'Eating habits inadequate',
@@ -95,26 +101,37 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.firstListItem.click();
 
-    await expect(patientDetailsPage.resolvedCheckbox).not.toBeChecked();
-
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     await patientDetailsPage.resolveOngoingCondition('Initial Admin', 'Resolved note');
 
-    await expect(patientDetailsPage.firstListItem).toContainText('Pain in hand (resolved)');
-
-    await patientDetailsPage.firstListItem.click();
-
-    await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Pain in hand');
-    expect(
-      normalizeToIsoDate(await patientDetailsPage.savedOnGoingConditionDate.inputValue()),
-    ).toBe('2024-08-14');
-    await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
-    await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue(
+    await expect(patientDetailsPage.firstListItem).toContainText('Pain in hand');
+    await expect(patientDetailsPage.firstListItem).toContainText('Resolved');
+    await expect(patientDetailsPage.markConditionResolvedButton).toBeHidden();
+    await expect(patientDetailsPage.itemDetailsValue('note')).toHaveText(
       'This is to test resolving a note',
     );
+    await expect(patientDetailsPage.itemDetailsValue('resolutionDate')).toHaveText(
+      convertDateFormat(currentBrowserDate),
+    );
+    await expect(patientDetailsPage.itemDetailsValue('resolutionClinician')).toHaveText(
+      'Initial Admin',
+    );
+    await expect(patientDetailsPage.itemDetailsValue('resolutionNote')).toHaveText('Resolved note');
+  });
 
-    await expect(patientDetailsPage.resolvedCheckbox).toBeChecked();
-    await expect(patientDetailsPage.resolvedClinician).toHaveValue('Initial Admin');
-    await expect(patientDetailsPage.resolvedNote).toHaveValue('Resolved note');
+  test('Deceased patient shows the Deceased tag and no Add', async ({ patientDetailsPage, newPatient, api }) => {
+    const ongoingConditionsAddButton =
+      patientDetailsPage.ongoingConditionsSection.getByTestId('addbutton-b0ln');
+    await expect(patientDetailsPage.deceasedTag).toBeHidden();
+    await expect(ongoingConditionsAddButton).toHaveCount(1);
+
+    await recordPatientDeathViaApi(api, patientDetailsPage.page, newPatient.id);
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
+
+    await expect(patientDetailsPage.deceasedTag).toHaveText('Deceased');
+    await expect(patientDetailsPage.ongoingConditionsSection).toBeVisible();
+    await expect(ongoingConditionsAddButton).toHaveCount(0);
   });
 
   test('[T-0042][AT-0101]Add allergy with just the required fields', async ({ patientDetailsPage }) => {
@@ -124,7 +141,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(patientDetailsPage.firstListItem).toContainText('Dust mites');
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedAllergyName).toHaveValue('Dust mites');
     expect(normalizeToIsoDate(await patientDetailsPage.savedAllergyDate.inputValue())).toBe(
@@ -139,12 +156,12 @@ test.describe('Patient Side Bar', () => {
   test('[AT-0103]Edit allergy', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Eggs');
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await patientDetailsPage.savedAllergyNote.fill('Edited to add a note');
     await patientDetailsPage.getAllergyEditSubmitButton().click();
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedAllergyName).toHaveValue('Eggs');
     await expect(patientDetailsPage.savedAllergyNote).toHaveValue('Edited to add a note');
@@ -152,7 +169,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.savedAllergyNote.fill('Second edit');
     await patientDetailsPage.getAllergyEditSubmitButton().click();
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedAllergyName).toHaveValue('Eggs');
     await expect(patientDetailsPage.savedAllergyNote).toHaveValue('Second edit');
@@ -173,7 +190,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(patientDetailsPage.firstListItem).toContainText(newAllergy);
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedAllergyName).toHaveValue(newAllergy);
   });
@@ -185,7 +202,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(patientDetailsPage.firstListItem).toContainText('Hair alopecia');
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
     expect(
@@ -204,7 +221,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(patientDetailsPage.firstListItem).toContainText('Ear burn (Mother)');
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Ear burn');
     expect(
@@ -218,7 +235,7 @@ test.describe('Patient Side Bar', () => {
   test('[AT-0107]Edit family history', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await fillMuiDateField(patientDetailsPage.savedFamilyHistoryDateRecorded, '2025-05-25');
     await patientDetailsPage.savedFamilyHistoryRelationship.fill('Mother');
@@ -227,7 +244,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.savedFamilyHistoryNote.fill('First edit to note');
     await patientDetailsPage.getFamilyHistoryEditSubmitButton().click();
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
     expect(
@@ -240,7 +257,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.savedFamilyHistoryNote.fill('Second edit to note');
     await patientDetailsPage.getFamilyHistoryEditSubmitButton().click();
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
     expect(
@@ -263,7 +280,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(patientDetailsPage.firstListItem).toContainText('New issue note');
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedIssueType).toContainText('Issue');
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('New issue note');
@@ -306,7 +323,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
     await patientDetailsPage.warningModalOkayButton.click();
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Test warning');
 
@@ -314,7 +331,7 @@ test.describe('Patient Side Bar', () => {
     await fillMuiDateField(patientDetailsPage.savedOtherPatientIssueDate, '2025-09-17');
     await patientDetailsPage.getOtherPatientIssuesEditSubmitButton().click();
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Edited warning');
 
@@ -329,7 +346,7 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.warningModalOkayButton.click();
 
-    await patientDetailsPage.firstListItem.click();
+    await patientDetailsPage.openFirstListItemForEdit();
 
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Edited warning');
     expect(

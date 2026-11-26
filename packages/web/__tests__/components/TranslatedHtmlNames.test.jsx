@@ -39,8 +39,6 @@ vi.mock('@tamanu/ui-components', async importOriginal => ({
   TimeDisplay: () => null,
 }));
 
-const { DeleteOngoingConditionModal } =
-  await import('../../app/components/PatientInfoPane/DeleteOngoingConditionModal');
 const { ContactDetails } = await import('../../app/components/ReminderContact/ContactDetails');
 const { NotificationDrawer } = await import('../../app/components/Notification/NotificationDrawer');
 
@@ -57,20 +55,6 @@ describe('translations rendered as HTML', () => {
     delete window.__injected;
   });
 
-  it('shows a condition name containing markup as text', () => {
-    renderElementWithTranslatedText(
-      <DeleteOngoingConditionModal
-        open
-        onClose={() => {}}
-        conditionToDelete={{ id: 'c1', condition: { name: MARKUP_NAME } }}
-      />,
-      undefined,
-      translationContext,
-    );
-    const subText = screen.getByTestId('subtext-delete-condition');
-    expect(subText.querySelector('img')).toBeNull();
-    expect(subText.querySelector('b').textContent).toBe(MARKUP_NAME);
-  });
 
   it('shows the patient name in the reminder contact list description', async () => {
     mockPatient.firstName = MARKUP_NAME;

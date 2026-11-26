@@ -6,12 +6,12 @@ import {
   TranslatedSelectField,
   Form,
   FormGrid,
-  FormSubmitCancelRow,
   useDateTime,
 } from '@tamanu/ui-components';
 import { DateField, Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
+import { InfoPaneFormActions } from '../components/PatientInfoPane/InfoPaneFormActions';
 import { trimToDate } from '@tamanu/utils/dateTime';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
@@ -62,6 +62,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
               component={TextField}
               multiline
               minRows={2}
+              required
               data-testid="field-nj3s"
             />
             <Field
@@ -77,24 +78,9 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
               required
               data-testid="field-urg2"
             />
-            <FormSubmitCancelRow
+            <InfoPaneFormActions
               onCancel={onCancel}
-              onConfirm={submitForm}
-              confirmText={
-                editedObject ? (
-                  <TranslatedText
-                    stringId="general.action.save"
-                    fallback="Save"
-                    data-testid="translatedtext-bail"
-                  />
-                ) : (
-                  <TranslatedText
-                    stringId="general.action.add"
-                    fallback="Add"
-                    data-testid="translatedtext-x6gk"
-                  />
-                )
-              }
+              onSubmit={submitForm}
               data-testid="formsubmitcancelrow-x2a0"
             />
           </NoteModalActionBlocker>

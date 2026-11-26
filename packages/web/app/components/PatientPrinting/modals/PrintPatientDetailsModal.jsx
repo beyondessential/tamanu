@@ -328,6 +328,14 @@ const StyledSubHeading = styled(Typography)`
   color: ${Colors.midText};
 `;
 
+const PatientResourcesButton = styled(OutlinedButton)`
+  height: 35px;
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 18px;
+`;
+
 const PrintOptionButton = styled(ButtonBase)`
   display: flex;
   justify-content: flex-start;
@@ -466,17 +474,17 @@ export const PrintPatientDetailsModal = ({ patient }) => {
 
   return (
     <>
-      <OutlinedButton
+      <PatientResourcesButton
         onClick={openModal}
         data-testid="button-kdtv"
-        startIcon={<BookUserIcon size={20} />}
+        startIcon={<BookUserIcon size={18} />}
       >
         <TranslatedText
           stringId="patient.detailsSidebar.action.patientResources"
           fallback="Patient resources"
           data-testid="translatedtext-wcdb"
         />
-      </OutlinedButton>
+      </PatientResourcesButton>
       {mainComponent}
     </>
   );

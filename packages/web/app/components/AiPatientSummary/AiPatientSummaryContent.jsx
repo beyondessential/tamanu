@@ -13,32 +13,35 @@ import { BodyText } from '../Typography';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const Content = styled.div`
-  padding: 0 23px 16px;
+  padding-top: 16px;
 `;
 
-const SummaryBox = styled.div`
-  background: ${Colors.background2};
-  border: 1px solid ${Colors.softOutline};
-  border-radius: 4px;
-  padding: 12px;
+const Box = styled.div`
+  box-sizing: border-box;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background: ${Colors.background};
+`;
+
+const SummaryBox = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
 `;
 
 const SummaryText = styled(BodyText)`
   color: ${Colors.darkestText};
-  line-height: 22px;
+  font-size: 14px;
+  line-height: 18px;
   white-space: pre-wrap;
 `;
 
 const Footer = styled.div`
   display: flex;
-  flex-direction: column;
-  margin-top: 10px;
-`;
-
-const FooterBottomRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
 
   .MuiIconButton-root {
     padding: 0;
@@ -46,39 +49,38 @@ const FooterBottomRow = styled.div`
 `;
 
 const Disclaimer = styled.div`
-  font-size: 10px;
-  color: ${Colors.darkText};
-  font-weight: 500;
-`;
-
-const EditedText = styled.span`
-  margin-right: auto;
+  color: ${Colors.darkestText};
   font-size: 11px;
-  color: ${Colors.darkText};
   font-weight: 500;
+  line-height: 15px;
 `;
 
 const StyledEditIcon = styled(EditIcon)`
   color: ${Colors.primary};
+  font-size: 20px;
+`;
+
+const EditBox = styled(Box)`
+  padding: 8px;
 `;
 
 const EditTextarea = styled.textarea`
+  box-sizing: border-box;
   width: 100%;
-  min-height: 120px;
-  padding: 12px;
-  border: 1px solid ${Colors.primary};
-  border-radius: 4px;
+  min-height: 146px;
+  padding: 10px 16px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background: ${Colors.white};
+  color: ${Colors.darkestText};
   font-family: inherit;
   font-size: 14px;
-  line-height: 22px;
-  color: ${Colors.darkestText};
+  line-height: 18px;
   resize: vertical;
   outline: none;
-  box-sizing: border-box;
 
   &:focus {
     border-color: ${Colors.primary};
-    box-shadow: 0 0 0 1px ${Colors.primary};
   }
 `;
 
@@ -86,90 +88,88 @@ const EditActions = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 12px;
+  margin-top: 20px;
 `;
 
 const EditActionsRight = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 `;
 
-const DiscardButton = styled(TextButton)`
-  color: ${Colors.darkText};
-  font-size: 14px;
-  padding: 4px 8px;
-  text-transform: none;
+const LinkButton = styled(TextButton)`
   min-width: 0;
-  text-decoration: underline;
+  padding: 0;
+  font-size: 14px;
+  line-height: 18px;
+  text-transform: none;
 
   .MuiButton-startIcon {
     margin-right: 4px;
   }
-  &:hover {
-    text-decoration: underline;
-  }
 
   & .MuiButton-iconSizeMedium > *:first-of-type {
-    font-size: 15px;
+    font-size: 12px;
   }
+
+  :hover {
+    font-weight: inherit;
+  }
+`;
+
+const DiscardButton = styled(LinkButton)`
+  color: ${Colors.darkestText};
+  font-weight: 400;
+  text-decoration: underline;
+
+  :hover {
+    color: ${Colors.darkestText};
+    text-decoration: underline;
+  }
+`;
+
+const CancelButton = styled(LinkButton)`
+  color: ${Colors.primary};
+  font-weight: 500;
 `;
 
 const SaveButton = styled(Button)`
-  font-size: 14px;
-  padding: 10px 16px;
-  text-transform: none;
+  height: 36px;
   min-width: 0;
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 18px;
+  text-transform: none;
 `;
 
-const CancelButton = styled(TextButton)`
-  font-size: 14px;
-  padding: 4px 8px;
-  text-transform: none;
-  min-width: 0;
-`;
-
-const LoadingContainer = styled.div`
+const LoadingContainer = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${Colors.background2};
-  border: 1px solid ${Colors.softOutline};
-  border-radius: 4px;
-  min-height: 96px;
+  padding: 16px;
 `;
 
-const DiscardedBox = styled.div`
+const DiscardedBox = styled(Box)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: ${Colors.background2};
-  border: 1px solid ${Colors.softOutline};
-  border-radius: 4px;
-  padding: 12px;
+  gap: 10px;
+  padding: 16px;
 `;
 
 const DiscardedText = styled.p`
-  color: ${({ $error }) => ($error ? Colors.alert : Colors.darkText)};
+  margin: 0;
+  color: ${({ $error }) => ($error ? Colors.alert : Colors.darkestText)};
   font-size: 14px;
+  line-height: 18px;
   text-align: center;
 `;
 
-const RegenerateButton = styled(TextButton)`
-  color: ${Colors.primary};
-  font-size: 14px;
-  padding: 4px 0;
-  text-transform: none;
-  min-width: 0;
+const RegenerateButton = styled(LinkButton)`
   align-self: center;
-
-  .MuiButton-startIcon {
-    margin-right: 4px;
-  }
-
-  & .MuiButton-iconSizeMedium > *:first-of-type {
-    font-size: 15px;
-  }
+  color: ${Colors.primary};
+  font-weight: 500;
 `;
 
 const ErrorMessage = ({ error }) => {
@@ -246,22 +246,21 @@ export const AiPatientSummaryContent = ({
               stringId="ai.patientSummary.disclaimer"
               fallback="This is AI generated and may contain inaccuracies."
             />
-          </Disclaimer>
-          <FooterBottomRow>
             {isHumanEdited && (
-              <EditedText>
+              <>
+                {' '}
                 <TranslatedText stringId="ai.patientSummary.edited" fallback="(edited)" />
-              </EditedText>
+              </>
             )}
-            <IconButton size="small" onClick={onEdit} data-testid="ai-summary-edit">
-              <StyledEditIcon fontSize="small" />
-            </IconButton>
-          </FooterBottomRow>
+          </Disclaimer>
+          <IconButton size="small" onClick={onEdit} data-testid="ai-summary-edit">
+            <StyledEditIcon />
+          </IconButton>
         </Footer>
       </SummaryBox>
     )}
     {isEditing && (
-      <>
+      <EditBox>
         <EditTextarea
           value={editContent}
           onChange={e => setEditContent(e.target.value)}
@@ -290,7 +289,7 @@ export const AiPatientSummaryContent = ({
             </SaveButton>
           </EditActionsRight>
         </EditActions>
-      </>
+      </EditBox>
     )}
   </Content>
 );

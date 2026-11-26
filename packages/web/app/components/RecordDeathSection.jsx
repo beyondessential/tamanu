@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -9,19 +8,18 @@ import {
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
   TranslatedText,
+  UnstyledHtmlButton,
 } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import { route } from '@tamanu/api-client';
 
-const TypographyLink = styled(Typography)`
-  color: ${Colors.primary};
-  font-weight: 500;
+const DeathActionLink = styled(UnstyledHtmlButton)`
+  align-self: center;
+  color: ${Colors.alert};
   font-size: 14px;
+  font-weight: 500;
   line-height: 18px;
-  text-align: right;
   cursor: pointer;
-  padding-top: 10px;
-  margin-top: auto;
 
   &:hover {
     text-decoration: underline;
@@ -81,12 +79,13 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
 
   return (
     <>
-      <TypographyLink
+      <DeathActionLink
+        type="button"
         onClick={isPatientDead ? openRevertModal : openDeathModal}
         data-testid="typographylink-6nzn"
       >
         {actionText}
-      </TypographyLink>
+      </DeathActionLink>
       <ConfirmModal
         open={isRevertModalOpen}
         title="Revert patient death"
