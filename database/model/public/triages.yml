@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_triages_from_sync_lookup
+              - flag_triages_for_lookup_rebuild
               - record_triages_changelog
               - set_triages_updated_at
               - set_triages_updated_at_sync_tick

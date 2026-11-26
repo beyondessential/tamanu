@@ -110,7 +110,7 @@ export function isServerConfigured() {
 // setting up.
 let hasCompletedFirstSync = false;
 export async function isSettingUp(models) {
-  if (hasCompletedFirstSync || !config.sync.enabled || !isServerConfigured()) return false;
+  if (hasCompletedFirstSync || !isSyncEnabled() || !isServerConfigured()) return false;
   try {
     const pullCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL);
     if (!pullCursor) return true;
@@ -119,6 +119,21 @@ export async function isSettingUp(models) {
     return false;
   } catch (error) {
     log.warn('isSettingUp.failed', { error: error.message });
+    return false;
+  }
+}
+
+// isServerConfigured() reads this process's holder, which misses a setup another API process
+// has just completed. The legacy upgrade step can record the email without facility ids, which
+// is not a configured server.
+export async function isSetUpInDatabase(models) {
+  const email = await models.LocalSystemFact.get(FACT_SYNC_EMAIL);
+  const facilityIds = await models.LocalSystemFact.get(FACT_FACILITY_IDS);
+  if (!email || !facilityIds) return false;
+  try {
+    return JSON.parse(facilityIds).length > 0;
+  } catch {
+    // An unreadable fact is not a configured server; the wizard overwrites it.
     return false;
   }
 }
@@ -185,4 +200,26 @@ function configValue(key) {
 
 function configFacilityIds() {
   return selectFacilityIds(config) ?? null;
+}
+
+export function isSyncEnabled(syncConfig = config.sync) {
+  const fromEnv = process.env.SYNC_ENABLED;
+  if (!fromEnv) return Boolean(syncConfig.enabled);
+  if (fromEnv !== 'true' && fromEnv !== 'false') {
+    throw new Error(`SYNC_ENABLED must be "true" or "false", got "${fromEnv}"`);
+  }
+  return fromEnv === 'true';
+}
+
+export function getSyncApiConnection() {
+  const rawPort = process.env.SYNC_API_PORT;
+  const port = rawPort ? Number(rawPort) : config.sync.syncApiConnection.port;
+  if (!Number.isInteger(port) || port <= 0) {
+    const source = rawPort ? 'SYNC_API_PORT' : 'sync.syncApiConnection.port';
+    throw new Error(`${source} must be a port number, got "${rawPort ?? port}"`);
+  }
+  return {
+    host: process.env.SYNC_API_HOST || config.sync.syncApiConnection.host,
+    port,
+  };
 }

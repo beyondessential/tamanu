@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_surveys_from_sync_lookup
+              - flag_surveys_for_lookup_rebuild
               - record_surveys_changelog
               - set_surveys_updated_at
               - set_surveys_updated_at_sync_tick

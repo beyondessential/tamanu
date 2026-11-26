@@ -2,6 +2,7 @@ import { expect, Locator, Page } from '@playwright/test';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
 import { NewPrescriptionModal } from '../modals/NewPrescriptionModal';
 import { MedicationDetailsModal } from '../modals/MedicationDetailsModal';
+import { MarPage } from '../MarPage';
 
 export class EncounterMedicationPane extends BasePatientPane {
   readonly contentPane!: Locator;
@@ -91,6 +92,13 @@ export class EncounterMedicationPane extends BasePatientPane {
   lastSentCellForMedication(medicationName: string): Locator {
     const row = this.tableBody.locator('tr').filter({ hasText: medicationName });
     return row.locator('[data-testid$="-pharmacyRequestAt"]');
+  }
+
+  async openMedicationAdminRecord(): Promise<MarPage> {
+    await this.medicationAdminRecordButton.click();
+    const marPage = new MarPage(this.page);
+    await marPage.waitForPageToLoad();
+    return marPage;
   }
 
   async clickFirstMedicationRow(): Promise<MedicationDetailsModal> {

@@ -8,7 +8,7 @@ import {
   isReferenceDataSearchField,
 } from '@tamanu/constants';
 
-import { makeDeletedAtIsNullFilter, makeFilter } from './query';
+import { escapePatternWildcard, makeDeletedAtIsNullFilter, makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
   const filters = [
@@ -21,24 +21,24 @@ export const createPatientFilters = filterParams => {
           : ''
       })`,
       ({ displayId }) => ({
-        displayId: `%${displayId}%`,
+        displayId: `%${escapePatternWildcard(displayId)}%`,
         secondaryDisplayId: displayId,
       }),
     ),
     makeFilter(
       filterParams.firstName,
       `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
-      ({ firstName }) => ({ firstName: `%${firstName}%` }),
+      ({ firstName }) => ({ firstName: `%${escapePatternWildcard(firstName)}%` }),
     ),
     makeFilter(
       filterParams.lastName,
       `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
-      ({ lastName }) => ({ lastName: `%${lastName}%` }),
+      ({ lastName }) => ({ lastName: `%${escapePatternWildcard(lastName)}%` }),
     ),
     makeFilter(
       filterParams.culturalName,
       `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
-      ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
+      ({ culturalName }) => ({ culturalName: `${escapePatternWildcard(culturalName)}%` }),
     ),
     makeFilter(
       !filterParams.deceased || filterParams.deceased === 'false',
@@ -120,7 +120,7 @@ export const createAdditionalSearchFilters = (filterParams, configuredFields = [
       // used where present; substring search would need expression indexes / collation.
       filters.push(
         makeFilter(true, `UPPER(${table}.${column}) LIKE UPPER(:${paramKey})`, () => ({
-          [paramKey]: `${filterParams[fieldName]}%`,
+          [paramKey]: `${escapePatternWildcard(filterParams[fieldName])}%`,
         })),
       );
     }

@@ -1,4 +1,3 @@
-import config from 'config';
 import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 
@@ -19,16 +18,16 @@ import { SYNC_SESSION_DIRECTION } from './constants';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { saveCreates, saveUpdates } from './saveChanges';
-
-const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
+import { getSyncTuning } from './syncTuning';
 
 export const saveChangesForModel = async (
   model: typeof Model,
   changes: SyncSnapshotAttributes[],
   isCentralServer: boolean,
   log: Logger,
+  sessionId?: string,
 ) => {
-  const sanitizeContext = await model.prepareSanitizeContext(changes);
+  const sanitizeContext = await model.prepareSanitizeContext(changes, sessionId);
   const sanitizeData = (d: ModelSanitizeArgs) => {
     /**
      * Discard value from client. (Applies only to mobile, which doesn’t strip deleted_at.) Enforces
@@ -141,6 +140,8 @@ const saveChangesForModelInBatches = async (
     model.tableName,
   );
 
+  const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } =
+    getSyncTuning();
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
   log.debug('Sync: saveIncomingChanges', {
     total: syncRecordsCount,
@@ -168,7 +169,7 @@ const saveChangesForModelInBatches = async (
 
       const { snapshotRecords, changelogRecords } =
         extractChangelogFromSnapshotRecords(batchRecords);
-      await saveChangesForModel(model, snapshotRecords, isCentralServer, log);
+      await saveChangesForModel(model, snapshotRecords, isCentralServer, log, sessionId);
       await insertChangelogRecords(model.sequelize.models, changelogRecords);
 
       await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);

@@ -154,6 +154,49 @@ test.describe('Medication requests', () => {
     await expect(medicationDispensesPage.modifiedFootnote).toBeVisible();
   });
 
+  test('Dispensed medication details show the prescription type in the pharmacy and patient lists', async ({
+    page,
+    api,
+    newPatient,
+    medicationRequestsPage,
+    medicationDispensesPage,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    // An Outpatient/Discharge order: the window reads a missing type as Inpatient, so only this
+    // type shows the type actually reached it.
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id, {
+      isDischargePrescription: true,
+    });
+
+    await medicationRequestsPage.goto();
+
+    const dispenseModal = await medicationRequestsPage.clickRowForPatient(newPatient.displayId);
+    await dispenseModal.waitForModalToLoad();
+    await dispenseModal.dispenseWithoutLabelsButton.click();
+    await expect(page.getByText('Medication successfully dispensed')).toBeVisible();
+
+    await medicationDispensesPage.goto();
+
+    const pharmacyListDetails = await medicationDispensesPage.openDetailsForPatient(
+      newPatient.displayId,
+    );
+    await expect(pharmacyListDetails.field('Prescription type')).toContainText(
+      'Outpatient/Discharge',
+    );
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const patientMedicationPane = await patientDetailsPage.navigateToPatientMedicationTab();
+
+    const patientListDetails = await patientMedicationPane.openFirstDispensedMedication();
+    await expect(patientListDetails.field('Prescription type')).toContainText(
+      'Outpatient/Discharge',
+    );
+  });
+
   test('Review and print labels flow', async ({
     page,
     api,

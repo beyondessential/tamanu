@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_invoice_payments_from_sync_lookup
+              - flag_invoice_payments_for_lookup_rebuild
               - record_invoice_payments_changelog
               - set_invoice_payments_updated_at
               - set_invoice_payments_updated_at_sync_tick
@@ -65,6 +66,8 @@ sources:
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in invoice_payments."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in invoice_payments."

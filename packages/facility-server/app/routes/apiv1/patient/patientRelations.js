@@ -3,6 +3,7 @@ import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
+import { toArrayParam } from '@tamanu/utils/toArrayParam';
 import {
   permissionCheckingRouter,
   runPaginatedQuery,
@@ -16,6 +17,7 @@ import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../../utils/getPermittedSurveyIds';
 import { makeFilter, getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
+import { labTestChangelogHasValueSql, labTestResultCellEditedSql } from '../../../utils/labTestEdited';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -399,25 +401,106 @@ patientRelations.get(
       query,
     } = req;
 
-    const { categoryId, panelId, status = 'published' } = query;
+    const { categoryId, status = 'published' } = query;
+    const panelIds = toArrayParam(query.panelIds);
+    const testIds = toArrayParam(query.testIds);
+
+    // A picked category, or picked tests/panels, drive a grouped view the frontend assembles from
+    // the `groups` metadata returned below (panels first, then individual tests). Picks take
+    // precedence: once tests or panels are picked the table shows only those, whether or not a
+    // category is also picked. With no filter at all (the initial load that checks whether the
+    // patient has any results), every published result is returned.
+    let selectionClause = '';
+    // The same filter, expressed against lab_tests/lab_requests, narrows the changelog scan in the
+    // edited-entry CTE to just the tests being displayed instead of the patient's whole history.
+    let cteSelectionClause = '';
+    const replacements = { patientId: params.id, status, canListSensitive };
+
+    // Panel members (in the panel's configured order) for a set of panels — used both for the
+    // panels the user picked and, in category mode, for the panels the patient ordered under in
+    // that category. Drives both the fetched results and the grouping metadata.
+    const fetchPanelMembers = panelIdList =>
+      db.query(
+        `SELECT
+           lab_test_panels.id AS panel_id,
+           lab_test_panels.name AS panel_name,
+           lab_test_panel_lab_test_types.lab_test_type_id AS test_type_id,
+           lab_test_panel_lab_test_types."order" AS member_order
+         FROM lab_test_panels
+         INNER JOIN lab_test_panel_lab_test_types
+           ON lab_test_panel_lab_test_types.lab_test_panel_id = lab_test_panels.id
+         WHERE lab_test_panels.id IN (:panelIds)
+           AND lab_test_panels.deleted_at IS NULL
+           AND lab_test_panel_lab_test_types.deleted_at IS NULL
+         ORDER BY lab_test_panels.name ASC, lab_test_panel_lab_test_types."order" ASC`,
+        { replacements: { panelIds: panelIdList }, type: QueryTypes.SELECT },
+      );
+
+    let panelMembers = [];
+    if (panelIds.length || testIds.length) {
+      if (panelIds.length) {
+        panelMembers = await fetchPanelMembers(panelIds);
+      }
+      const panelMemberTypeIds = [...new Set(panelMembers.map(member => member.test_type_id))];
+      const testTypeIds = [...new Set([...testIds, ...panelMemberTypeIds])];
+      // An empty IN () is invalid SQL; a single NULL matches nothing, which is the intended result.
+      replacements.testTypeIds = testTypeIds.length ? testTypeIds : [null];
+      selectionClause = 'AND lab_test_types.id IN (:testTypeIds)';
+      cteSelectionClause = 'AND lab_tests.lab_test_type_id IN (:testTypeIds)';
+    } else if (categoryId) {
+      replacements.categoryId = categoryId;
+      // Group the category's panels the patient has a published, sampled lab request ordered under;
+      // the frontend shows the category's remaining resulted tests as individual tests.
+      const orderedPanels = await db.query(
+        `SELECT DISTINCT lab_test_panels.id AS panel_id
+         FROM lab_test_panel_requests
+         INNER JOIN lab_requests ON lab_requests.id = lab_test_panel_requests.lab_request_id
+         INNER JOIN encounters ON encounters.id = lab_requests.encounter_id
+         INNER JOIN lab_test_panels ON lab_test_panels.id = lab_test_panel_requests.lab_test_panel_id
+         WHERE encounters.patient_id = :patientId
+           AND lab_requests.status = :status
+           AND lab_requests.sample_time IS NOT NULL
+           AND encounters.deleted_at IS NULL
+           AND lab_requests.deleted_at IS NULL
+           AND lab_test_panel_requests.deleted_at IS NULL
+           AND lab_test_panels.deleted_at IS NULL
+           AND lab_test_panels.category_id = :categoryId`,
+        { replacements: { patientId: params.id, status, categoryId }, type: QueryTypes.SELECT },
+      );
+      const orderedPanelIds = orderedPanels.map(panel => panel.panel_id);
+      if (orderedPanelIds.length) {
+        panelMembers = await fetchPanelMembers(orderedPanelIds);
+      }
+      selectionClause = 'AND lab_test_types.lab_test_category_id = :categoryId';
+      cteSelectionClause =
+        'AND lab_tests.lab_test_type_id IN (SELECT id FROM lab_test_types WHERE lab_test_category_id = :categoryId)';
+    }
 
     const results = await db.query(
       `WITH edited_tests AS (
     SELECT
       record_id,
-      COUNT(DISTINCT (record_data->>'result')) >= 2 AS is_edited
+      -- The result cell surfaces both the result and its secondary result, so it is edited when
+      -- either has taken more than one non-empty value over its audit history (first filling in a
+      -- blank is not an edit). Shares the edited-field SQL with labs.js so the asterisk, the modal
+      -- change log and the lab request table always agree.
+      ${labTestResultCellEditedSql()} AS is_edited
     FROM logs.changes
     WHERE table_schema = 'public'
       AND table_name = 'lab_tests'
-      AND record_data->>'result' IS NOT NULL
-      AND TRIM(record_data->>'result') != ''
+      -- Discard rows where neither tracked field holds a value before aggregating, so far fewer
+      -- changelog rows are scanned and grouped (is_edited is unchanged).
+      AND ${labTestChangelogHasValueSql(['result', 'secondary_result'])}
       AND record_id IN (
         SELECT lab_tests.id::text
         FROM lab_tests
         INNER JOIN lab_requests ON lab_tests.lab_request_id = lab_requests.id
         WHERE lab_requests.encounter_id IN (
-          SELECT id FROM encounters WHERE patient_id = :patientId
+          SELECT id FROM encounters WHERE patient_id = :patientId AND deleted_at IS NULL
         )
+        AND lab_tests.deleted_at IS NULL
+        AND lab_requests.deleted_at IS NULL
+        ${cteSelectionClause}
       )
     GROUP BY record_id
   )
@@ -448,7 +531,6 @@ patientRelations.get(
         'referenceRangeText', lab_tests.reference_range_text
       )
     ) AS results
-    ${panelId ? ', panel_join."order" AS panel_order' : ''}
   FROM
     lab_tests
   INNER JOIN
@@ -467,15 +549,6 @@ patientRelations.get(
     edited_tests
   ON
     edited_tests.record_id = lab_tests.id::text
-  ${
-    panelId
-      ? `LEFT JOIN
-    lab_test_panel_lab_test_types AS panel_join
-  ON
-    panel_join.lab_test_type_id = lab_test_types.id
-    AND panel_join.lab_test_panel_id = :panelId`
-      : ''
-  }
   WHERE
   encounter_id IN (
       SELECT id
@@ -483,32 +556,23 @@ patientRelations.get(
         encounters
       WHERE
         patient_id = :patientId
+        AND deleted_at IS NULL
     )
   AND lab_requests.status = :status
   AND lab_requests.sample_time IS NOT NULL
   AND lab_requests.deleted_at IS NULL
+  AND lab_tests.deleted_at IS NULL
   AND CASE WHEN :canListSensitive IS TRUE
     THEN TRUE
     ELSE lab_test_types.is_sensitive IS FALSE
     END
-  ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
-  ${
-    panelId
-      ? `AND lab_test_types.id IN (
-         SELECT lab_test_type_id
-         FROM
-           lab_test_panel_lab_test_types
-         WHERE
-           lab_test_panel_id = :panelId
-       )`
-      : ''
-  }
+  ${selectionClause}
   GROUP BY
-    test_category, test_type, test_options, test_type_id ${panelId ? ', panel_order' : ''}
+    test_category, test_type, test_options, test_type_id
   ORDER BY
-    ${panelId ? 'panel_order ASC,' : ''} test_category`,
+    test_type ASC`,
       {
-        replacements: { patientId: params.id, status, categoryId, panelId, canListSensitive },
+        replacements,
         model: LabTest,
         type: QueryTypes.SELECT,
         mapToModel: true,
@@ -517,9 +581,27 @@ patientRelations.get(
 
     const formattedData = results.map(x => renameObjectKeys(x.forResponse()));
 
+    // Group metadata for the picked panels: each panel, A–Z, with its member tests (in configured
+    // order) that the patient actually has results for. The frontend renders a heading row per
+    // group and the "Individual tests" group from the testIds it picked.
+    const presentTypeIds = new Set(formattedData.map(row => row.testTypeId));
+    const groupsById = new Map();
+    for (const member of panelMembers) {
+      if (!presentTypeIds.has(member.test_type_id)) continue;
+      if (!groupsById.has(member.panel_id)) {
+        groupsById.set(member.panel_id, {
+          id: member.panel_id,
+          name: member.panel_name,
+          testTypeIds: [],
+        });
+      }
+      groupsById.get(member.panel_id).testTypeIds.push(member.test_type_id);
+    }
+
     res.send({
       count: results.length,
       data: formattedData,
+      groups: [...groupsById.values()],
     });
   }),
 );

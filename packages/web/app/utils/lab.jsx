@@ -143,3 +143,14 @@ export const getPriority = ({ priorityName, priorityId, priority }) =>
 export const getDateWithTimeTooltip = ({ requestedDate }) => (
   <DateDisplay date={requestedDate} timeOnlyTooltip />
 );
+
+// The printout needs each request's tests and the user who published it, neither of which travels
+// with the request. Both arrive as parallel per-request arrays, so they are zipped back onto the
+// requests by position. A request whose details haven't arrived yet keeps its place with those
+// fields unset, so the printout's order never depends on what has loaded.
+export const withLabRequestPrintoutDetails = (labRequests, { testsResponses, publishedLogs }) =>
+  labRequests.map((labRequest, index) => ({
+    ...labRequest,
+    tests: testsResponses[index]?.data,
+    publishedBy: publishedLogs[index]?.updatedBy,
+  }));

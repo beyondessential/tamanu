@@ -16,6 +16,7 @@ export const ProgramRegistryConditionField = ({
   label,
   ariaLabelledby = null,
   optionsFilter = () => true,
+  required = false,
 }) => {
   const { getTranslation } = useTranslation();
   const { data: conditions } = useProgramRegistryConditionsQuery(programRegistryId);
@@ -57,6 +58,7 @@ export const ProgramRegistryConditionField = ({
       options={options}
       disabled={!conditions || conditions.length === 0}
       aria-labelledby={ariaLabelledby}
+      required={required}
     />
   );
 };

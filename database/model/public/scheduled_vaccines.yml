@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_scheduled_vaccines_from_sync_lookup
+              - flag_scheduled_vaccines_for_lookup_rebuild
               - record_scheduled_vaccines_changelog
               - set_scheduled_vaccines_updated_at
               - set_scheduled_vaccines_updated_at_sync_tick

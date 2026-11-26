@@ -34,10 +34,13 @@ export const isFixedPriceItem = (invoiceItem: InvoiceItem): boolean => {
 
 /**
  * Get the price of an invoice item row
+ *
+ * The quantity can be an empty string while the user has cleared the form input to type a new
+ * value, which Decimal rejects, so anything that isn't a number counts as 0.
  */
 export const getInvoiceItemTotalPrice = (invoiceItem: InvoiceItem): number => {
   const price = getInvoiceItemPrice(invoiceItem) || 0;
-  const quantity = isFixedPriceItem(invoiceItem) ? 1 : invoiceItem.quantity ?? 0;
+  const quantity = isFixedPriceItem(invoiceItem) ? 1 : Number(invoiceItem.quantity) || 0;
   return new Decimal(price).times(quantity).toNumber();
 };
 

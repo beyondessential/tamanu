@@ -109,15 +109,19 @@ EOF
                         enabled: true,
                     },
                     enableTasking: true,
+                    patientPortal: true,
                     invoicing: {
                         enabled: true,
                     },
                 },
-                patientSummary: {
+                experimentalAi: {
                     enabled: true,
-                },
-                encounterSummary: {
-                    enabled: true,
+                    patientSummary: {
+                        enabled: true,
+                    },
+                    encounterSummary: {
+                        enabled: true,
+                    },
                 },
                 medications: {
                     dispensing: {
@@ -132,6 +136,16 @@ EOF
                 // unrelated to any change under test.
                 browserSupport: {
                     versionsBack: 12,
+                },
+            },
+            central: {
+                mail: {
+                    // Patient portal sign-in emails a code; the JSON transport accepts the email
+                    // and delivers nothing, and the portal specs issue the code themselves.
+                    from: "tamanu-e2e@tamanu.io",
+                    transport: {
+                        jsonTransport: true,
+                    },
                 },
             },
             facilities: {
@@ -165,6 +179,11 @@ EOF
 
     npm run --workspace @tamanu/central-server start upgrade
     npm run --workspace @tamanu/central-server start provision provisioning.json5
+
+    # The kiosk demo's forms, appointment types and kiosk form settings are what the kiosk and
+    # patient portal specs fill in. Seeding them before the facility's initial sync carries them
+    # to the facility.
+    TAMANU_ALLOW_FAKE_DATA=true npm run --workspace @tamanu/central-server start generate kioskDemo -- --facility facility-1
 
     # Rebuild sync_lookup now that provisioning has created data (facilities, reference data,
     # users, programs). Without this, a facility syncing immediately after central starts can pass

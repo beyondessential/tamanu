@@ -1,6 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { constructFacilityUrl } from '@utils/navigation';
+import { MedicationDispenseDetailsModal } from './MedicationDispenseDetailsModal';
 
 export class MedicationDispensesPage extends BasePage {
   readonly table: Locator;
@@ -46,5 +47,19 @@ export class MedicationDispensesPage extends BasePage {
         .click({ timeout: 5000 });
       await this.historyModalCurrentCard.waitFor({ state: 'visible', timeout: 5000 });
     }).toPass({ timeout: 30000 });
+  }
+
+  // Clicks the patient's row to open its Dispensed medication details window. The click lands on
+  // the patient ID cell, clear of the actions cell, which does not open the window. Retried for the
+  // same auto-refresh reason as above.
+  async openDetailsForPatient(patientDisplayId: string): Promise<MedicationDispenseDetailsModal> {
+    const row = this.rowForPatient(patientDisplayId);
+    await row.waitFor({ state: 'visible' });
+    const detailsModal = new MedicationDispenseDetailsModal(this.page, 'Dispensed medication');
+    await expect(async () => {
+      await row.getByText(patientDisplayId, { exact: true }).click({ timeout: 5000 });
+      await detailsModal.title.waitFor({ state: 'visible', timeout: 5000 });
+    }).toPass({ timeout: 30000 });
+    return detailsModal;
   }
 }

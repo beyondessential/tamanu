@@ -29,6 +29,23 @@ const createStubTranslationContext = () => {
   };
 };
 
+/**
+ * A translation context that fills in replacements and translates enum values to their labels, for
+ * tests asserting on text assembled from both, such as "Above expected max of 2 tablets".
+ */
+export const createTranslationContextWithReplacements = () => ({
+  getTranslation: (_stringId, fallback, { replacements = {} } = {}) =>
+    Object.entries(replacements).reduce(
+      (text, [key, value]) => text.replaceAll(`:${key}`, String(value)),
+      fallback,
+    ),
+  getEnumTranslation: (enumValues, value) => enumValues[value],
+  getReferenceDataTranslation: ({ fallback }) => fallback,
+  updateStoredLanguage: () => {},
+  storedLanguage: 'aa',
+  translations: {},
+});
+
 /** The “minimum” context providers needed to render `<TranslatedText>` elements. */
 const CompositeTranslationProvider = ({
   translationContext = createStubTranslationContext(),

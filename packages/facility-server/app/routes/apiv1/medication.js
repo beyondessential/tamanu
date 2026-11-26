@@ -25,6 +25,7 @@ import {
   DRUG_STOCK_STATUSES,
   SYSTEM_USER_UUID,
   PHARMACY_PRESCRIPTION_TYPES,
+  DRUG_LIMIT_FIELDS,
 } from '@tamanu/constants';
 import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
@@ -2313,11 +2314,6 @@ medication.get(
           association: 'dispensedBy',
           attributes: ['id', 'displayName'],
         },
-        {
-          association: 'medicationPresetLabel',
-          attributes: ['id', 'code', 'name'],
-          required: false,
-        },
         // The dispensed medication for this fill (differs from the prescription's when modified)
         {
           association: 'medication',
@@ -2427,7 +2423,15 @@ medication.get(
 
     const referenceDrugs = await models.ReferenceDrug.findAll({
       where: { referenceDataId: { [Op.in]: medicationIds } },
-      attributes: ['id', 'isSensitive', 'referenceDataId'],
+      // spec: DQLIM#dispensing
+      attributes: [
+        'id',
+        'isSensitive',
+        'referenceDataId',
+        'dosingUnit',
+        'dispensingUnit',
+        ...DRUG_LIMIT_FIELDS,
+      ],
       include: {
         model: models.ReferenceDrugFacility,
         as: 'facilities',
@@ -2700,7 +2704,13 @@ medication.get(
                 {
                   model: models.ReferenceDrug,
                   as: 'referenceDrug',
-                  attributes: ['id', 'isSensitive'],
+                  attributes: [
+                    'id',
+                    'isSensitive',
+                    'dosingUnit',
+                    'dispensingUnit',
+                    ...DRUG_LIMIT_FIELDS,
+                  ],
                   required: true,
                   include: [
                     {

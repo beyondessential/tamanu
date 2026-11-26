@@ -54,3 +54,5 @@ Applies to how often a prescribed medication is given: how many doses fall in a 
 
 - The first dose on the MAR is the earliest ideal administration time after the prescription's start, or in the same window as the start.
 - Later doses fall at the selected ideal administration times, on each day the frequency is due.
+- An Immediately medication shows a STAT label alongside its name and dose on the MAR.
+- Each MAR list shows active Immediately medications first, then other active medications, then discontinued medications, each group in order of prescription date.

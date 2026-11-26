@@ -1,6 +1,7 @@
 export { DashboardPage } from './DashboardPage';
 export { KioskPage } from './kiosk/KioskPage';
 export { LoginPage } from './LoginPage';
+export { PatientSurveyFormPane } from './patientForm/PatientSurveyFormPane';
 export { SetupWizardPage } from './SetupWizardPage';
 export { SidebarPage } from './SidebarPage';
 
@@ -12,4 +13,5 @@ export * from './labs';
 export * from './immunisation';
 export * from './medication';
 export * from './patients';
+export * from './patientPortal';
 export * from './scheduling';

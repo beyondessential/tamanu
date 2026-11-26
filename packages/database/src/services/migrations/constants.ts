@@ -21,6 +21,7 @@ export const NON_SYNCING_TABLES = [
   'public.one_time_logins',
   'public.patient_vrs_data',
   'public.refresh_tokens',
+  'public.scheduled_task_states',
   'public.signers_historical',
   'public.sync_device_ticks',
   'public.sync_lookup',
@@ -78,6 +79,18 @@ export const NON_LOGGED_TABLES = [
 
   // facility sync attempt history — operational, written on every sync
   'public.sync_facility_runs',
+
+  // scheduled task run state — operational, written on every task run
+  'public.scheduled_task_states',
+
+  // websocket broadcast payloads too large for NOTIFY, written by @socket.io/postgres-adapter and
+  // cleaned up by it; the table has no updated_at / deleted_at for the changelog to record
+  'public.socket_io_attachments',
+
+  // browser telemetry aggregates — operational, rewritten whenever a bucket is rolled up again
+  'public.browser_telemetry_trends',
+  'public.browser_telemetry_slow_events',
+  'public.browser_telemetry_slow_event_requests',
 ];
 
 // Tables with a `table_changed` listener on central: the settings cache and admin SettingsRefresher.

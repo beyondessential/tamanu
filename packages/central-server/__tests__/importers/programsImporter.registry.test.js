@@ -208,6 +208,18 @@ describe('Programs import - Program Registry', () => {
     );
   });
 
+  it('should reject a related condition question when no registry exists', async () => {
+    const { errors } = await doImport({
+      file: 'registry-invalid-condition-q-no-registry',
+      xml: true,
+      dryRun: false,
+    });
+    expect(errors.length).toEqual(1);
+    expect(errors[0].message).toEqual(
+      'ProgramRegistryCondition question but no program registry configured on Import Registry With Survey at row 3',
+    );
+  });
+
   describe('conditions', () => {
     it('should import valid conditions', async () => {
       const { errors, stats } = await doImport({
@@ -222,6 +234,18 @@ describe('Programs import - Program Registry', () => {
         ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
         ProgramRegistryCondition: { created: 2, updated: 0, errored: 0 },
       });
+    });
+
+    it('should import mandatoryConditionEnabled, defaulting to false', async () => {
+      const { ProgramRegistry } = ctx.store.models;
+
+      await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
+      const defaultRegistry = await ProgramRegistry.findOne({ where: { code: 'ValidRegistry' } });
+      expect(defaultRegistry.mandatoryConditionEnabled).toBe(false);
+
+      await doImport({ file: 'registry-valid-with-conditions', xml: true, dryRun: false });
+      const mandatoryRegistry = await ProgramRegistry.findOne({ where: { code: 'ValidRegistry' } });
+      expect(mandatoryRegistry.mandatoryConditionEnabled).toBe(true);
     });
 
     it('should validate conditions', async () => {

@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_roles_from_sync_lookup
+              - flag_roles_for_lookup_rebuild
               - record_roles_changelog
               - set_roles_updated_at
               - set_roles_updated_at_sync_tick
@@ -25,9 +26,13 @@ sources:
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in roles."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in roles."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in roles."

@@ -104,7 +104,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             fallback="Related conditions"
           />
         ),
-        sortable: false,
         accessor: ({ conditions }) => (
           <ConditionsCell conditions={conditions} getTranslation={getTranslation} />
         ),

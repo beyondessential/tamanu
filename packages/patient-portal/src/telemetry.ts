@@ -26,13 +26,13 @@ import type { TamanuApi } from '@api/TamanuApi';
 
 let telemetry: { startNavigation: Function; shutdown: Function } | null = null;
 
-// Off until the server's setting arrives, matching the schema default (opt-in):
-// nothing is collected, including before sign-in, unless an operator turns it on.
-let isTelemetryEnabled = false;
+// On until the server's setting arrives, matching the schema default, so the
+// first load (before sign-in) is measured too.
+let isTelemetryEnabled = true;
 
 /** Called once the portal's settings load, so operators can turn capture on/off. */
 export function setPortalTelemetryEnabled(enabled: boolean) {
-  isTelemetryEnabled = enabled === true;
+  isTelemetryEnabled = enabled;
 }
 
 // One id per page load, standing in for the browser session. The portal is

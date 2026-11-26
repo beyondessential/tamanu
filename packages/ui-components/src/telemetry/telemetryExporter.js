@@ -33,6 +33,7 @@ function spanToPayload(span) {
     parentId: readParentSpanId(span),
     kind: attributes[SPAN_ATTR.KIND],
     route: attributes[SPAN_ATTR.ROUTE],
+    navigationRoute: attributes[SPAN_ATTR.NAVIGATION_ROUTE] ?? null,
     parameters,
     method: attributes[SPAN_ATTR.METHOD] ?? null,
     statusCode: attributes[SPAN_ATTR.STATUS_CODE] ?? null,

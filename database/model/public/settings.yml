@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_settings_from_sync_lookup
+              - flag_settings_for_lookup_rebuild
               - notify_settings_changed
               - record_settings_changelog
               - set_settings_updated_at

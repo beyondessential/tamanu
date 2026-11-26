@@ -10,3 +10,6 @@ Example:
 ```bash
 git branch -r --list '*/release/2.*' --sort=version:refname | tail -5
 ```
+
+User guides and configuration guides are raised against the release branch they document; see
+`.agents/docs/guide-release-targeting.md`.

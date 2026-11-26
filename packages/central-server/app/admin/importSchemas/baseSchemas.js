@@ -113,7 +113,7 @@ export const PatientFieldValue = yup.object().shape({
 });
 
 export const User = Base.shape({
-  email: yup.string().required(),
+  email: yup.string().trim().required(),
   displayId: yup.string(),
   displayName: yup.string().required(),
   password: yup.string(),
@@ -411,6 +411,7 @@ export const ProgramRegistry = Base.shape({
   visibilityStatus,
   lossToFollowUpEnabled: yup.boolean().default(false),
   lossToFollowUpThresholdDays: yup.number().integer().positive().default(90),
+  mandatoryConditionEnabled: yup.boolean().default(false),
 });
 
 export const ProgramRegistryClinicalStatus = Base.shape({

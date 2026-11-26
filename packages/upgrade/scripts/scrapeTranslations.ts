@@ -52,12 +52,23 @@ const flattenDefaultText = (defaultText: string) => {
 const files = readAllFilesRecursive(tamanuPackagesPath);
 
 const translatedTextRegex = /stringId="([^"]*)"\s*?fallback="([^"]*)"/gms;
-const getTranslationRegex = /getTranslation\(\s*?["'](.*?)["'],.*?["'](.*?)["'].*?\)/gms;
+// The string ID can't run past its closing quote or onto another line, so a call without a literal
+// fallback is skipped rather than read through into the code after it
+const getTranslationRegex = /getTranslation\(\s*?["']([^"'\n]*)["'],.*?["'](.*?)["'].*?\)/gms;
 
 const translations = new Map<string, { stringId: string; defaultText: string; fileName: string }>();
 const duplicates = new Map<string, { stringId: string; defaultText: string; fileName: string }[]>();
 
+// Facilities reject a translated string whose ID contains these when it syncs, so fail the build
+// here instead
+const INVALID_STRING_ID_CHARACTERS = /[;\s]/;
+
 const addTranslation = (stringId: string, defaultText: string, fileName: string) => {
+  if (INVALID_STRING_ID_CHARACTERS.test(stringId)) {
+    throw new Error(
+      `Invalid translation string ID ${JSON.stringify(stringId)} in ${fileName}: string IDs cannot contain ';' or whitespace`,
+    );
+  }
   const sanitizedDefaultText = flattenDefaultText(defaultText);
   if (
     translations.has(stringId) &&

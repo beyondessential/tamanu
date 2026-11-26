@@ -4,7 +4,7 @@ description: "Interview me about this project to develop the PRD"
 label: "PRD interview"
 category: plan
 surface: project
-workhorse-version: 0.7.14
+workhorse-version: 0.8.3
 ---
 
 ## Your task: PRD interview
@@ -13,7 +13,7 @@ Produce or refine the project's PRD at `.workhorse/projects/{hash}-{slug}/prd.md
 
 Work as an interview that writes as it goes, rather than a single drafting pass. Draft first and ask second: produce a sensible structure from the project description and conversation history straight away, so the user has something concrete to react to, then interview them to develop it.
 
-Do not open with a list of questions. Once a draft exists, ask about the parts of it you are least sure of, one or two at a time, and fold each answer back into the PRD as it arrives.
+Do not open with a list of questions. Once a draft exists, ask about the parts of it you are least sure of, as `.agents/docs/asking-questions.md` says, and fold each answer back into the PRD as it arrives.
 
 ### Default scaffolding
 
@@ -44,12 +44,4 @@ The opening section is always **Overview** — state the operator, workflow, tec
 
 ### Restrictions on this surface
 
-You are working on the **project surface**, not a card workspace. Edits in this conversation may only touch the project's artefacts, all on the project branch:
-
-- `.workhorse/projects/{hash}-{slug}/prd.md`
-- `.workhorse/projects/{hash}-{slug}/mockups/`
-- `.workhorse/projects/{hash}-{slug}/breakdown.md`
-
-Do **not** edit specs, per-card plans, test cases, card working docs, or any code. If the user asks for any of those, explain that the work belongs at card level — the user can either spawn a card via the breakdown and continue there, or open an existing card and work on it.
-
-You may **read** anything from the workspace's main branch for context.
+You are working on the project surface, not a card. Keep to what `.agents/docs/project-surface.md` allows.

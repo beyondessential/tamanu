@@ -1,3 +1,5 @@
+import { COLORS } from './colors.js';
+
 export const PATIENT_ISSUE_TYPES = {
   ISSUE: 'issue',
   WARNING: 'warning',
@@ -43,6 +45,24 @@ export const DIAGNOSIS_CERTAINTY_LABELS = {
   [DIAGNOSIS_CERTAINTY.CONFIRMED]: 'Confirmed',
   [DIAGNOSIS_CERTAINTY.DISPROVEN]: 'Disproven',
   [DIAGNOSIS_CERTAINTY.ERROR]: 'Recorded in error',
+} as const;
+
+export const DIAGNOSIS_CERTAINTY_CONFIG = {
+  [DIAGNOSIS_CERTAINTY.CONFIRMED]: {
+    color: COLORS.green,
+  },
+  [DIAGNOSIS_CERTAINTY.SUSPECTED]: {
+    color: COLORS.darkOrange,
+  },
+  [DIAGNOSIS_CERTAINTY.EMERGENCY]: {
+    color: COLORS.pink,
+  },
+  [DIAGNOSIS_CERTAINTY.DISPROVEN]: {
+    color: COLORS.blue,
+  },
+  [DIAGNOSIS_CERTAINTY.ERROR]: {
+    color: COLORS.grey,
+  },
 } as const;
 
 export const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);

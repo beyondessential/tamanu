@@ -2,6 +2,7 @@ export { ClientIncompatibleError } from './ClientIncompatibleError';
 export { DatabaseError } from './DatabaseError';
 export { EditConflictError } from './EditConflictError';
 export { ForbiddenError } from './ForbiddenError';
+export { GoneError } from './GoneError';
 export { InsufficientStorageError } from './InsufficientStorageError';
 export { NotFoundError } from './NotFoundError';
 export { RateLimitedError } from './RateLimitedError';

@@ -83,6 +83,7 @@ const FIELD_HANDLERS = {
   varchar: fakeString,
   text: fakeString,
   Boolean: () => Math.random() < 0.5,
+  boolean: () => Math.random() < 0.5,
   Date: fakeDate,
   datetime: fakeDate,
   bigint: fakeNumber,
@@ -105,6 +106,8 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
       // ignore relations
     } else if (column.propertyName === 'id') {
       record.id = id;
+    } else if (column.propertyName === 'deletedAt') {
+      record.deletedAt = null;
     } else if (FIELD_HANDLERS[typeId]) {
       record[column.propertyName] = FIELD_HANDLERS[typeId](column, id);
     } else {

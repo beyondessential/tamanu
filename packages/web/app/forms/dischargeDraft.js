@@ -1,3 +1,5 @@
+import { stripNoteContentStyles } from '@tamanu/shared/utils/noteContent';
+
 /**
  * Reading and writing the clinician's saved discharge form.
  *
@@ -37,11 +39,14 @@ export const IS_DISCHARGE_DRAFT_ENABLED = false;
  */
 export const buildDischargeNote = ({ draft, dischargeNotes }) => {
   const notes = dischargeNotes ?? [];
-  if (!draft) return notes.map(note => note.content).join('\n\n');
+  if (!draft) return notes.map(note => stripNoteContentStyles(note.content)).join('\n\n');
 
   const seededNoteIds = new Set(draft.seededNoteIds ?? []);
   const notesAddedSinceDraft = notes.filter(note => !seededNoteIds.has(note.id));
-  return [draft.note ?? '', ...notesAddedSinceDraft.map(note => note.content)]
+  return [
+    draft.note ?? '',
+    ...notesAddedSinceDraft.map(note => stripNoteContentStyles(note.content)),
+  ]
     .filter(Boolean)
     .join('\n\n');
 };

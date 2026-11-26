@@ -33,21 +33,58 @@ import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { DateField, Field, Form, TAMANU_COLORS, useDateTime } from '@tamanu/ui-components';
+import {
+  DateField,
+  Field,
+  Form,
+  TAMANU_COLORS,
+  UnstyledHtmlButton,
+  useDateTime,
+} from '@tamanu/ui-components';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { useAuth } from '../../../contexts/Auth';
+import { PlannedMoveActions } from '../components/PlannedMoveActions';
+import { PrimaryDiagnoses } from '../components/PrimaryDiagnoses';
 
-const InfoCardFirstColumn = styled.div`
+// The details are two columns, then a row of the less-used details beneath them. A grid keeps
+// that row's two details in line with each other, however tall the columns above them grow, such
+// as with a long reason for encounter.
+const DetailsGrid = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  column-gap: 50px;
+  row-gap: 10px;
+  width: 100%;
+`;
+
+const InfoCardColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 40%;
 `;
 
-const InfoCardSecondColumn = styled(InfoCardFirstColumn)`
-  width: 60%;
+// Sits in the bottom right corner of the encounter details, on their last line.
+const MoreDetailsToggle = styled(UnstyledHtmlButton)`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 500;
+  color: ${TAMANU_COLORS.primary};
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const DietCardValue = styled.div`
@@ -211,237 +248,304 @@ const LengthOfStayDisplay = ({ startDate, endDate }) => {
 export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => {
   const { ability } = useAuth();
   const [isEstimatedDischargeModalOpen, setIsEstimatedDischargeModalOpen] = useState(false);
+  // Held here rather than remembered, so the less-used details are hidden again whenever the
+  // encounter is opened.
+  const [areMoreDetailsShown, setAreMoreDetailsShown] = useState(false);
   const canWriteEncounter = ability.can('write', 'Encounter');
+  // Emergency encounters show neither of the less-used details, so there is nothing to reveal.
+  const hasMoreDetails = !isEmergencyPatient(encounter.encounterType);
 
   const triage = encounter.triages?.[0];
 
   return (
-    <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
-      <InfoCardFirstColumn data-testid="infocardfirstcolumn-u3u3">
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="encounter.summary.encounterType.label"
-              fallback="Encounter type"
-              data-testid="translatedtext-zxo7"
-            />
-          }
-          value={
-            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounter.encounterType} />
-          }
-          icon={encounterTypeIcon}
-          data-testid="infocarditem-us9s"
-        />
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="general.department.label"
-              fallback="Department"
-              data-testid="translatedtext-0lrt"
-            />
-          }
-          value={getDepartmentName(encounter)}
-          icon={departmentIcon}
-          data-testid="infocarditem-in64"
-        />
-        {isEmergencyPatient(encounter.encounterType) && (
+    <InfoCard
+      inlineValues
+      contentPadding={25}
+      paddingTop={0}
+      headerContent={encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
+      footerContent={<PrimaryDiagnoses diagnoses={encounter.diagnoses} />}
+      data-testid="infocard-o4i8"
+    >
+      <DetailsGrid data-testid="detailsgrid-encounter">
+        <InfoCardColumn data-testid="infocardfirstcolumn-u3u3">
           <InfoCardItem
             label={
               <TranslatedText
-                stringId="encounter.summary.triageScore.label"
-                fallback="Triage score"
-                data-testid="translatedtext-l4wd"
-              />
-            }
-            value={triage?.score || '—'}
-            icon={triageScoreIcon}
-            data-testid="infocarditem-p5t5"
-          />
-        )}
-        {!isEmergencyPatient(encounter.encounterType) && (
-          <InfoCardItem
-            label={
-              <TranslatedText
-                stringId="encounter.summary.patientType.label"
-                fallback="Patient type"
-                data-testid="translatedtext-vk46"
-              />
-            }
-            value={patientBillingType}
-            icon={patientTypeIcon}
-            data-testid="infocarditem-3svu"
-          />
-        )}
-        {isInpatient(encounter?.encounterType) && (
-          <InfoCardItem
-            label={
-              <TranslatedText
-                stringId="encounter.summary.diet.label"
-                fallback="Diet"
-                data-testid="translatedtext-49f7"
-              />
-            }
-            value={getDiet(encounter)}
-            icon={dietIcon}
-            data-testid="infocarditem-m5lp"
-          />
-        )}
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="general.location.label"
-              fallback="Location"
-              data-testid="translatedtext-iwqn"
-            />
-          }
-          value={getFullLocationName(encounter?.location)}
-          icon={locationIcon}
-          data-testid="infocarditem-82xq"
-        />
-      </InfoCardFirstColumn>
-      <InfoCardSecondColumn data-testid="infocardsecondcolumn-oh1m">
-        <InfoCardItem
-          label={getEncounterStartDateLabel(encounter.encounterType)}
-          value={
-            <>
-              <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />{' '}
-              {isInpatient(encounter?.encounterType) && (
-                <LengthOfStayDisplay startDate={encounter.startDate} endDate={encounter.endDate} />
-              )}
-            </>
-          }
-          icon={arrivalDateIcon}
-          data-testid="infocarditem-18xs"
-        />
-        {isInpatient(encounter.encounterType) && (
-          <InfoCardItem
-            label={
-              <TranslatedText
-                stringId="encounter.summary.estimatedDischargeDate.label"
-                fallback="Estimated discharge date"
-                data-testid="translatedtext-49f7"
+                stringId="encounter.summary.encounterType.label"
+                fallback="Encounter type"
+                data-testid="translatedtext-zxo7"
               />
             }
             value={
-              encounter.estimatedEndDate ? (
-                <DateDisplay date={encounter.estimatedEndDate} data-testid="datedisplay-fa08" />
-              ) : (
-                canWriteEncounter && (
-                  <>
-                    <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
-                      <PlusIcon fill={TAMANU_COLORS.darkestText} />
-                      <AddButtonText>
-                        <TranslatedText
-                          stringId="encounter.summary.addEstimatedDischargeDate"
-                          fallback="Add"
-                        />
-                      </AddButtonText>
-                    </AddButton>
-                    <SetDischargeDateModal
-                      open={isEstimatedDischargeModalOpen}
-                      onClose={() => setIsEstimatedDischargeModalOpen(false)}
-                      encounter={encounter}
-                    />
-                  </>
-                )
-              )
+              <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounter.encounterType} />
             }
-            icon={dischargeDateIcon}
+            icon={encounterTypeIcon}
+            data-testid="infocarditem-us9s"
           />
-        )}
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="general.supervisingClinician.label"
-              fallback="Supervising :clinician"
-              replacements={{
-                clinician: (
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label.short"
-                    fallback="Clinician"
-                    casing="lower"
-                    data-testid="translatedtext-fktj"
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="general.department.label"
+                fallback="Department"
+                data-testid="translatedtext-0lrt"
+              />
+            }
+            value={getDepartmentName(encounter)}
+            icon={departmentIcon}
+            data-testid="infocarditem-in64"
+          />
+          {isEmergencyPatient(encounter.encounterType) && (
+            <InfoCardItem
+              label={
+                <TranslatedText
+                  stringId="encounter.summary.triageScore.label"
+                  fallback="Triage score"
+                  data-testid="translatedtext-l4wd"
+                />
+              }
+              value={triage?.score || '—'}
+              icon={triageScoreIcon}
+              data-testid="infocarditem-p5t5"
+            />
+          )}
+          {/* Emergency encounters have no more details, and their price list follows the patient type */}
+          {isEmergencyPatient(encounter.encounterType) && (
+            <InfoCardItem
+              label={
+                <TranslatedText
+                  stringId="encounter.summary.patientType.label"
+                  fallback="Patient type"
+                  data-testid="translatedtext-vk46"
+                />
+              }
+              value={patientBillingType}
+              icon={patientTypeIcon}
+              data-testid="infocarditem-3svu"
+            />
+          )}
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="general.location.label"
+                fallback="Location"
+                data-testid="translatedtext-iwqn"
+              />
+            }
+            value={getFullLocationName(encounter?.location)}
+            icon={locationIcon}
+            data-testid="infocarditem-82xq"
+          />
+          {isInpatient(encounter?.encounterType) && (
+            <InfoCardItem
+              label={
+                <TranslatedText
+                  stringId="encounter.summary.diet.label"
+                  fallback="Diet"
+                  data-testid="translatedtext-49f7"
+                />
+              }
+              value={getDiet(encounter)}
+              icon={dietIcon}
+              data-testid="infocarditem-m5lp"
+            />
+          )}
+        </InfoCardColumn>
+        <InfoCardColumn data-testid="infocardsecondcolumn-oh1m">
+          <InfoCardItem
+            label={getEncounterStartDateLabel(encounter.encounterType)}
+            value={
+              <>
+                <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />{' '}
+                {isInpatient(encounter?.encounterType) && (
+                  <LengthOfStayDisplay
+                    startDate={encounter.startDate}
+                    endDate={encounter.endDate}
                   />
-                ),
-              }}
-              data-testid="translatedtext-ok8u"
+                )}
+              </>
+            }
+            icon={arrivalDateIcon}
+            data-testid="infocarditem-18xs"
+          />
+          {isInpatient(encounter.encounterType) && (
+            <InfoCardItem
+              label={
+                <TranslatedText
+                  stringId="encounter.summary.estimatedDischargeDate.label"
+                  fallback="Estimated discharge date"
+                  data-testid="translatedtext-49f7"
+                />
+              }
+              value={
+                encounter.estimatedEndDate ? (
+                  <DateDisplay date={encounter.estimatedEndDate} data-testid="datedisplay-fa08" />
+                ) : (
+                  canWriteEncounter && (
+                    <>
+                      <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
+                        <PlusIcon fill={TAMANU_COLORS.darkestText} />
+                        <AddButtonText>
+                          <TranslatedText
+                            stringId="encounter.summary.addEstimatedDischargeDate"
+                            fallback="Add"
+                          />
+                        </AddButtonText>
+                      </AddButton>
+                      <SetDischargeDateModal
+                        open={isEstimatedDischargeModalOpen}
+                        onClose={() => setIsEstimatedDischargeModalOpen(false)}
+                        encounter={encounter}
+                      />
+                    </>
+                  )
+                )
+              }
+              icon={dischargeDateIcon}
             />
-          }
-          value={encounter.examiner?.displayName || 'Unknown'}
-          icon={supervisingClinicianIcon}
-          data-testid="infocarditem-fmd5"
-        />
-        {!getSetting(`referralSourceId.hidden`) && !isEmergencyPatient(encounter.encounterType) && (
+          )}
           <InfoCardItem
             label={
               <TranslatedText
-                stringId="general.localisedField.referralSourceId.label"
-                fallback="Referral source"
-                data-testid="translatedtext-cwip"
+                stringId="general.supervisingClinician.label"
+                fallback="Supervising :clinician"
+                replacements={{
+                  clinician: (
+                    <TranslatedText
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Clinician"
+                      casing="lower"
+                      data-testid="translatedtext-fktj"
+                    />
+                  ),
+                }}
+                data-testid="translatedtext-ok8u"
               />
             }
-            value={getReferralSource(encounter)}
-            icon={referralSourceIcon}
-            data-testid="infocarditem-n7q6"
+            value={encounter.examiner?.displayName || 'Unknown'}
+            icon={supervisingClinicianIcon}
+            data-testid="infocarditem-fmd5"
           />
-        )}
-        {isEmergencyPatient(encounter.encounterType) ? (
+          {isEmergencyPatient(encounter.encounterType) ? (
+            <>
+              <InfoCardItem
+                label={
+                  <TranslatedText
+                    stringId="triage.chiefComplaint.label"
+                    fallback="Chief complaint"
+                    data-testid="translatedtext-3602"
+                  />
+                }
+                value={
+                  <TranslatedReferenceData
+                    category="triageReason"
+                    value={triage?.chiefComplaint?.id}
+                    fallback={triage?.chiefComplaint?.name}
+                    placeholder="—"
+                  />
+                }
+                icon={reasonForEncounterIcon}
+                data-testid="infocarditem-chiefComplaint"
+              />
+              <InfoCardItem
+                label={
+                  <TranslatedText
+                    stringId="triage.secondaryComplaint.label"
+                    fallback="Secondary complaint"
+                    data-testid="translatedtext-3602"
+                  />
+                }
+                value={
+                  <TranslatedReferenceData
+                    category="triageReason"
+                    value={triage?.secondaryComplaint?.id}
+                    fallback={triage?.secondaryComplaint?.name}
+                    placeholder="—"
+                  />
+                }
+                icon={reasonForEncounterIcon}
+                data-testid="infocarditem-secondaryComplaint"
+              />
+            </>
+          ) : (
+            <InfoCardItem
+              label={
+                <TranslatedText
+                  stringId="encounter.reasonForEncounter.label"
+                  fallback="Reason for encounter"
+                  data-testid="translatedtext-3602"
+                />
+              }
+              value={encounter.reasonForEncounter}
+              icon={reasonForEncounterIcon}
+              $whiteSpace="normal"
+              // Keeps a long reason clear of the toggle for more details.
+              style={{ paddingRight: 104 }}
+              data-testid="infocarditem-axjq"
+            />
+          )}
+        </InfoCardColumn>
+        {hasMoreDetails && areMoreDetailsShown && (
           <>
-            <InfoCardItem
-              label={
-                <TranslatedText
-                  stringId="triage.chiefComplaint.label"
-                  fallback="Chief complaint"
-                  data-testid="translatedtext-3602"
-                />
-              }
-              value={
-                <TranslatedReferenceData
-                  category="triageReason"
-                  value={triage?.chiefComplaint?.id}
-                  fallback={triage?.chiefComplaint?.name}
-                  placeholder="—"
-                />
-              }
-              icon={reasonForEncounterIcon}
-              data-testid="infocarditem-chiefComplaint"
-            />
-            <InfoCardItem
-              label={
-                <TranslatedText
-                  stringId="triage.secondaryComplaint.label"
-                  fallback="Secondary complaint"
-                  data-testid="translatedtext-3602"
-                />
-              }
-              value={
-                <TranslatedReferenceData
-                  category="triageReason"
-                  value={triage?.secondaryComplaint?.id}
-                  fallback={triage?.secondaryComplaint?.name}
-                  placeholder="—"
-                />
-              }
-              icon={reasonForEncounterIcon}
-              data-testid="infocarditem-secondaryComplaint"
-            />
-          </>
-        ) : (
-          <InfoCardItem
-            label={
-              <TranslatedText
-                stringId="encounter.reasonForEncounter.label"
-                fallback="Reason for encounter"
-                data-testid="translatedtext-3602"
+            <InfoCardColumn data-testid="infocardcolumn-more-details-first">
+              <InfoCardItem
+                label={
+                  <TranslatedText
+                    stringId="encounter.summary.patientType.label"
+                    fallback="Patient type"
+                    data-testid="translatedtext-vk46"
+                  />
+                }
+                value={patientBillingType}
+                icon={patientTypeIcon}
+                data-testid="infocarditem-3svu"
               />
-            }
-            value={encounter.reasonForEncounter}
-            icon={reasonForEncounterIcon}
-            $whiteSpace="normal"
-            data-testid="infocarditem-axjq"
-          />
+            </InfoCardColumn>
+            <InfoCardColumn data-testid="infocardcolumn-more-details-second">
+              {!getSetting(`referralSourceId.hidden`) && (
+                <InfoCardItem
+                  label={
+                    <TranslatedText
+                      stringId="general.localisedField.referralSourceId.label"
+                      fallback="Referral source"
+                      data-testid="translatedtext-cwip"
+                    />
+                  }
+                  value={getReferralSource(encounter)}
+                  icon={referralSourceIcon}
+                  data-testid="infocarditem-n7q6"
+                />
+              )}
+            </InfoCardColumn>
+          </>
         )}
-      </InfoCardSecondColumn>
+      </DetailsGrid>
+      {hasMoreDetails && (
+        <MoreDetailsToggle
+          aria-expanded={areMoreDetailsShown}
+          onClick={() => setAreMoreDetailsShown(isShown => !isShown)}
+          data-testid="moredetailstoggle-encounter"
+        >
+          {areMoreDetailsShown ? (
+            <>
+              <TranslatedText
+                stringId="general.action.showLess"
+                fallback="Show less"
+                data-testid="translatedtext-show-less"
+              />
+              <ExpandLessIcon fontSize="small" aria-hidden />
+            </>
+          ) : (
+            <>
+              <TranslatedText
+                stringId="general.action.showMore"
+                fallback="Show more"
+                data-testid="translatedtext-show-more"
+              />
+              <ExpandMoreIcon fontSize="small" aria-hidden />
+            </>
+          )}
+        </MoreDetailsToggle>
+      )}
     </InfoCard>
   );
 });

@@ -297,6 +297,30 @@ describe('Generic survey export line list report', () => {
     });
   });
 
+  describe('Submission ID', () => {
+    it('exports the survey response id between Village and Submission Time', async () => {
+      const { survey: submissionSurvey } = await setupSurvey('an answer');
+      const response = await models.SurveyResponse.findOne({
+        where: { surveyId: submissionSurvey.id },
+      });
+      await response.update({ endTime: getCurrentDateTimeString() });
+
+      const permissions = [
+        ['run', 'ReportDefinition', GENERIC_SURVEY_EXPORT_REPORT_ID],
+        ['read', 'Survey', submissionSurvey.id],
+      ];
+      app = await baseApp.asNewRole(permissions);
+      const result = await app.post(`/api/reports/${reportVersionId}`).send({
+        parameters: { surveyId: submissionSurvey.id },
+      });
+
+      expect(result).toHaveSucceeded();
+      const [headerRow, row] = result.body;
+      expect(headerRow.slice(6, 9)).toEqual(['Village', 'Submission ID', 'Submission Time']);
+      expect(row[7]).toBe(response.id);
+    });
+  });
+
   describe('Signature answers', () => {
     let signatureSurvey;
 

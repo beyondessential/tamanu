@@ -39,18 +39,40 @@
           enabled: true,
         },
         enableTasking: true,
+        patientPortal: true,
+        invoicing: {
+          enabled: true,
+        },
       },
-      patientSummary: {
+      experimentalAi: {
         enabled: true,
-      },
-      encounterSummary: {
-        enabled: true,
+        patientSummary: {
+          enabled: true,
+        },
+        encounterSummary: {
+          enabled: true,
+        },
       },
       medications: {
         dispensing: {
           // Auto-calculate the dispensing quantity from dose, frequency and duration when
           // prescribing (exercised by the medication prescribe e2e spec).
           dispensingQuantityAutocalculation: true,
+        },
+      },
+      // Playwright's bundled Chromium lags the latest Chrome major, which the support floor
+      // tracks; at the default the suite lands on the browser-unsupported page.
+      browserSupport: {
+        versionsBack: 12,
+      },
+    },
+    central: {
+      mail: {
+        // Patient portal sign-in emails a code; the JSON transport accepts the email and delivers
+        // nothing, and the portal specs issue the code themselves (utils/centralDatabase.ts).
+        from: "tamanu-e2e@tamanu.io",
+        transport: {
+          jsonTransport: true,
         },
       },
     },

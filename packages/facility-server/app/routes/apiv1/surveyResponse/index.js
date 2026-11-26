@@ -7,7 +7,11 @@ import { surveyResponsePatchHandler } from './surveyResponse.patch';
 import { surveyResponsePostHandler } from './surveyResponse.post';
 import { surveyResponseChangesGetHandler } from './changes';
 
-export { createSurveyResponse, surveyResponsePostHandler } from './surveyResponse.post';
+export {
+  createSurveyResponse,
+  createSurveyResponseWithoutPermissionCheck,
+  surveyResponsePostHandler,
+} from './surveyResponse.post';
 
 export const surveyResponse = express.Router();
 

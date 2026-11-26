@@ -47,6 +47,13 @@ describe('ProgramRegistry', () => {
       expect(result.body).toHaveProperty('name', 'Hepatitis Registry');
     });
 
+    it('should include mandatoryConditionEnabled', async () => {
+      const { id } = await createProgramRegistry({ mandatoryConditionEnabled: true });
+      const result = await app.get(`/api/programRegistry/${id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('mandatoryConditionEnabled', true);
+    });
+
     describe('Permissions', () => {
       disableHardcodedPermissionsForSuite();
 
@@ -314,6 +321,52 @@ describe('ProgramRegistry', () => {
       ]);
     });
 
+    it('should include the currently in ids', async () => {
+      const { id: programRegistryId } = await createProgramRegistry({ currentlyAtType: 'village' });
+      const village = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: 'village' }),
+      );
+      const patient = await models.Patient.create(fake(models.Patient));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId,
+          patientId: patient.id,
+          clinicianId: app.user.id,
+          villageId: village.id,
+          facilityId: null,
+        }),
+      );
+
+      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toMatchObject([
+        { villageId: village.id, facilityId: null, village: { name: village.name } },
+      ]);
+    });
+
+    it('should include the currently in facility id', async () => {
+      const { id: programRegistryId } = await createProgramRegistry({ currentlyAtType: 'facility' });
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId,
+          patientId: patient.id,
+          clinicianId: app.user.id,
+          villageId: null,
+          facilityId: facility.id,
+        }),
+      );
+
+      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toMatchObject([
+        { villageId: null, facilityId: facility.id, facility: { name: facility.name } },
+      ]);
+    });
+
     it('should exclude conditions with hidden condition categories', async () => {
       const { id: programRegistryId } = await createProgramRegistry();
 
@@ -516,6 +569,69 @@ describe('ProgramRegistry', () => {
             { name: relevantCondition.name, id: relevantCondition.id },
           ]),
         },
+      ]);
+    });
+
+    it('should sort by conditions', async () => {
+      const { id: programRegistryId } = await createProgramRegistry();
+      const category = await models.ProgramRegistryConditionCategory.create(
+        fake(models.ProgramRegistryConditionCategory, {
+          programRegistryId,
+          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+        }),
+      );
+      const createCondition = name =>
+        models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId, name }),
+        );
+      const asthma = await createCondition('Asthma');
+      const diabetes = await createCondition('diabetes');
+      const hypertension = await createCondition('Hypertension');
+
+      const register = async (displayId, conditions) => {
+        const patient = await models.Patient.create(fake(models.Patient, { displayId }));
+        const registration = await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId,
+            patientId: patient.id,
+            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+            clinicianId: app.user.id,
+          }),
+        );
+        for (const condition of conditions) {
+          await models.PatientProgramRegistrationCondition.create(
+            fake(models.PatientProgramRegistrationCondition, {
+              patientProgramRegistrationId: registration.id,
+              programRegistryConditionId: condition.id,
+              programRegistryConditionCategoryId: category.id,
+            }),
+          );
+        }
+      };
+      await register('hypertension', [hypertension]);
+      await register('none', []);
+      await register('diabetes-asthma', [diabetes, asthma]);
+      await register('diabetes', [diabetes]);
+
+      const getOrder = async order => {
+        const result = await app
+          .get(`/api/programRegistry/${programRegistryId}/registrations`)
+          .query({ orderBy: 'conditions', order });
+        expect(result).toHaveSucceeded();
+        return result.body.data.map(({ patient }) => patient.displayId);
+      };
+
+      expect(await getOrder('asc')).toEqual([
+        'none',
+        'diabetes-asthma',
+        'diabetes',
+        'hypertension',
+      ]);
+      expect(await getOrder('desc')).toEqual([
+        'hypertension',
+        'diabetes',
+        'diabetes-asthma',
+        'none',
       ]);
     });
 

@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_contributing_death_causes_from_sync_lookup
+              - flag_contributing_death_causes_for_lookup_rebuild
               - record_contributing_death_causes_changelog
               - set_contributing_death_causes_updated_at
               - set_contributing_death_causes_updated_at_sync_tick
@@ -54,9 +55,13 @@ sources:
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in contributing_death_causes."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in contributing_death_causes."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in contributing_death_causes."

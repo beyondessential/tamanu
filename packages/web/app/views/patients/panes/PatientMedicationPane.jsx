@@ -581,18 +581,17 @@ export const PatientMedicationPane = ({ patient }) => {
         instructions,
         dispensedAt,
         dispensedBy,
-        medicationPresetLabel,
       } = dispenseData;
       const mappedItem = {
         id,
         displayId: pharmacyOrderPrescription?.displayId,
+        isDischargePrescription: pharmacyOrderPrescription?.pharmacyOrder?.isDischargePrescription,
         quantity,
         instructions,
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         dispensedAt,
         dispensedBy,
         prescription: getDispensedPrescription(dispenseData),
-        medicationPresetLabel,
         patient,
       };
       setSelectedDetailItem(mappedItem);
@@ -776,6 +775,7 @@ export const PatientMedicationPane = ({ patient }) => {
               order: 'desc',
             }}
             onClickRow={handleDispensedMedicationClick}
+            data-testid="dispensed-medications-table"
             $maxHeight={'320px'}
           />
         </TableContainer>

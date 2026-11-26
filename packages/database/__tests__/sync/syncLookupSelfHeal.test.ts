@@ -6,6 +6,12 @@ import { FACT_CURRENT_SYNC_TICK, FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/const
 import { log } from '@tamanu/shared/services/logging/log';
 import { closeDatabase, createTestDatabase } from '../utilities';
 import { runPostMigration } from '../../src/services/migrations/hooks';
+import {
+  DELETE_TRIGGER_PREFIX,
+  DELETE_TRIGGER_SUFFIX,
+  FLAG_TRIGGER_PREFIX,
+  FLAG_TRIGGER_SUFFIX,
+} from '../../src/services/migrations/hooks/postMigrationHooks';
 
 let nextSyncLookupId = 1;
 const createLookupRow = (models, overrides) =>
@@ -104,6 +110,24 @@ describe('sync_lookup self healing (trigger level)', () => {
       expect(lookupRow.isDeleted).toBe(false);
     });
 
+    it('flags a table whose id is a stored generated column when disabled', async () => {
+      // generated columns are NULL in a BEFORE ROW trigger, so this needs the AFTER trigger
+      await disableSyncTrigger();
+      const translatedString = await models.TranslatedString.create({
+        stringId: 'selfHeal.generatedId',
+        language: 'en',
+        text: 'Generated id',
+      });
+      await enableSyncTrigger();
+
+      expect(translatedString.id).toBe('selfHeal.generatedId;en');
+      const lookupRow = await models.SyncLookup.findOne({
+        where: { recordId: 'selfHeal.generatedId;en', recordType: 'translated_strings' },
+      });
+      expect(lookupRow).not.toBeNull();
+      expect(lookupRow.needsRebuild).toBe(true);
+    });
+
     it('does not flag or stub a push-only table even when disabled', async () => {
       const user = await models.User.create(fake(models.User));
 
@@ -186,23 +210,48 @@ describe('sync_lookup self healing (trigger level)', () => {
     expect(rows[0].indexdef).toContain('WHERE needs_rebuild');
   });
 
+  it('keeps the per-table sync_lookup trigger names within the 63 character identifier limit', () => {
+    // Postgres silently truncates longer names, so the installed trigger no longer matches the name
+    // the post-migration hook looks for, and the truncated fragment lands in the dbt models. If this
+    // fails, a table name is too long for the trigger prefix and suffix: shorten the suffix in
+    // postMigrationHooks.ts or the table name.
+    const tooLong = Object.values(sequelize.models).flatMap(({ tableName }) =>
+      [
+        `${DELETE_TRIGGER_PREFIX}${tableName}${DELETE_TRIGGER_SUFFIX}`,
+        `${FLAG_TRIGGER_PREFIX}${tableName}${FLAG_TRIGGER_SUFFIX}`,
+      ].filter(name => name.length > 63),
+    );
+    expect(tooLong).toEqual([]);
+  });
+
   describe('trigger install axes (server type)', () => {
-    it('installs the tick trigger without the lookup-tracked arg on a facility server', async () => {
+    const triggerNamesOn = async table => {
+      const rows = await sequelize.query(
+        `
+          SELECT t.tgname AS name
+          FROM pg_trigger t
+          JOIN pg_class c ON c.oid = t.tgrelid
+          WHERE c.relname = :table AND NOT t.tgisinternal
+        `,
+        { type: QueryTypes.SELECT, replacements: { table } },
+      );
+      return rows.map(row => row.name);
+    };
+
+    it('installs the disabled-mode flag trigger on lookup-tracked tables on a central server', async () => {
+      expect(await triggerNamesOn('patients')).toContain('flag_patients_for_lookup_rebuild');
+      expect(await triggerNamesOn('user_login_attempts')).not.toContain(
+        'flag_user_login_attempts_for_lookup_rebuild',
+      );
+    });
+
+    it('does not install the disabled-mode flag trigger on a facility server', async () => {
       const originalServerFacilityId = config.serverFacilityId;
       config.serverFacilityId = 'test-facility';
       try {
         await runPostMigration(log, sequelize);
 
-        const [row] = await sequelize.query(
-          `
-            SELECT pg_get_triggerdef(t.oid) AS definition
-            FROM pg_trigger t
-            JOIN pg_class c ON c.oid = t.tgrelid
-            WHERE c.relname = 'patients' AND t.tgname = 'set_patients_updated_at_sync_tick'
-          `,
-          { type: QueryTypes.SELECT },
-        );
-        expect(row.definition).not.toContain(`'true'`);
+        expect(await triggerNamesOn('patients')).not.toContain('flag_patients_for_lookup_rebuild');
       } finally {
         // eslint-disable-next-line require-atomic-updates -- single-threaded test, no concurrent writers
         config.serverFacilityId = originalServerFacilityId;

@@ -35,6 +35,7 @@ export const FieldTypes = {
   PHOTO: 'Photo',
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
   GEOLOCATE: 'Geolocate',
+  PROGRAM_REGISTRY_CONDITION: 'ProgramRegistryCondition',
   COMPLEX_CHART_INSTANCE_NAME: 'ComplexChartInstanceName',
   COMPLEX_CHART_DATE: 'ComplexChartDate',
   COMPLEX_CHART_TYPE: 'ComplexChartType',

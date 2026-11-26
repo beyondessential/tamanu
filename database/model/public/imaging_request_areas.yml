@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_imaging_request_areas_from_sync_lookup
+              - flag_imaging_request_areas_for_lookup_rebuild
               - record_imaging_request_areas_changelog
               - set_imaging_request_areas_updated_at
               - set_imaging_request_areas_updated_at_sync_tick

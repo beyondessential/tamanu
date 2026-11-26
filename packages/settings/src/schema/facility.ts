@@ -1,13 +1,17 @@
 import * as yup from 'yup';
 import {
+  SETTING_EDITORS,
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
   INPATIENT_BUNDLED_CATEGORY_VALUES,
+  INVOICE_PRINT_LAYOUTS,
 } from '@tamanu/constants';
 
 import { extractDefaults } from './utils';
 import {
   batchingProperties,
+  cronExpressionSchema,
+  dietSummaryProperties,
   emailSchema,
   letterheadProperties,
   nationalityIdSchema,
@@ -18,6 +22,7 @@ import {
   datelessTimeStringSchema,
   durationStringSchema,
   fhirResourceMaterialisationSchema,
+  msDurationSchema,
 } from './definitions';
 
 export const facilitySettings = {
@@ -267,17 +272,21 @@ export const facilitySettings = {
         // Retention horizon lives in the global `telemetry.retentionDays` setting,
         // read by the cleanup task; this entry only controls the schedule.
         cleanupBrowserTelemetry: scheduledTaskSchema({ schedule: '31 3 * * *' }),
+        // spec: BTAG. Rolls closed buckets of raw telemetry up into aggregates; the
+        // bucket size and slow-event settings live in the global `telemetry` group.
+        rollupBrowserTelemetry: scheduledTaskSchema({ schedule: '*/15 * * * *' }),
       },
     },
     sync: {
-      description: 'Facility sync settings',
-      exposedToWeb: true,
+      description:
+        'Facility sync settings. A bad value can stop the facility syncing, and then a fix made on central can’t reach it. On a server that serves several facilities, the first facility’s values apply.',
       highRisk: true,
       properties: {
         syncAllLabRequests: {
           description: '_',
           type: yup.boolean(),
           defaultValue: false,
+          exposedToWeb: true,
         },
         urgentIntervalInSeconds: {
           name: 'Sync urgent interval',
@@ -285,6 +294,95 @@ export const facilitySettings = {
           description: 'Mobile urgent sync interval',
           type: yup.number().integer().positive(),
           defaultValue: 10,
+          exposedToWeb: true,
+        },
+        schedule: {
+          name: 'Sync schedule',
+          description: 'Cron expression for when the facility server syncs with central',
+          type: cronExpressionSchema,
+          defaultValue: '*/1 * * * *',
+          editor: SETTING_EDITORS.CRON,
+          requiresRestart: true,
+        },
+        jitterTime: {
+          name: 'Sync jitter',
+          description: 'Maximum random delay added to each scheduled sync, e.g. ‘1s’',
+          type: msDurationSchema,
+          defaultValue: '1s',
+          requiresRestart: true,
+        },
+        timeout: {
+          name: 'Central request timeout',
+          description: 'How long a request to central can take before it fails',
+          type: yup.number().integer().min(1000),
+          defaultValue: 10000,
+          unit: 'ms',
+          requiresRestart: true,
+        },
+        backoff: {
+          name: 'Login retry backoff',
+          description: 'How the facility server retries logging in to central',
+          requiresRestart: true,
+          properties: {
+            multiplierMs: {
+              description: 'Base delay, multiplied by the attempt number',
+              type: yup.number().integer().min(0),
+              defaultValue: 300,
+              unit: 'ms',
+            },
+            maxAttempts: {
+              description: 'Attempts before giving up',
+              type: yup.number().integer().positive(),
+              defaultValue: 15,
+            },
+            maxWaitMs: {
+              description: 'Longest delay between attempts',
+              type: yup.number().integer().min(0),
+              defaultValue: 10000,
+              unit: 'ms',
+            },
+          },
+        },
+        dynamicLimiter: {
+          name: 'Page size limiter',
+          description: 'How the facility server sizes each page of records it pushes or pulls',
+          requiresRestart: true,
+          properties: {
+            initialLimit: {
+              description: 'Records in the first page',
+              type: yup.number().integer().positive(),
+              defaultValue: 10,
+            },
+            minLimit: {
+              description: 'Fewest records in a page',
+              type: yup.number().integer().positive(),
+              defaultValue: 1,
+            },
+            maxLimit: {
+              description: 'Most records in a page',
+              type: yup.number().integer().positive(),
+              defaultValue: 10000,
+            },
+            optimalTimePerPageMs: {
+              description: 'Time each page should take; the page size moves toward it',
+              type: yup.number().integer().positive(),
+              defaultValue: 2000,
+              unit: 'ms',
+            },
+            maxLimitChangePerPage: {
+              description: 'Largest change in page size from one page to the next, as a fraction',
+              type: yup.number().positive().max(1),
+              defaultValue: 0.2,
+            },
+          },
+        },
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: {
+          name: 'Restart sync on concurrent edits',
+          description:
+            'Abort and restart a sync when a pulled record was edited locally after the push snapshot, so the edit is pushed first',
+          type: yup.boolean(),
+          defaultValue: true,
+          requiresRestart: true,
         },
       },
     },
@@ -310,6 +408,18 @@ export const facilitySettings = {
           type: yup.number().integer().positive().nullable(),
           unit: 'hours',
           defaultValue: null,
+        },
+      },
+    },
+    bedManagement: {
+      name: 'Bed management',
+      description: 'Settings related to bed management',
+      properties: {
+        dietSummary: {
+          name: 'Diet summary sheet',
+          description:
+            'Settings for the diet summary sheet printed from bed management. Overrides the deployment-wide regular diet for this facility.',
+          properties: dietSummaryProperties,
         },
       },
     },
@@ -447,6 +557,18 @@ export const facilitySettings = {
               defaultValue: '02:00',
             },
           },
+        },
+        printLayout: {
+          name: 'Invoice print layout',
+          description:
+            'Layout used when printing an invoice at this facility. Receipt prints on 80mm thermal roll paper.',
+          exposedToWeb: true,
+          type: yup.string().oneOf(Object.values(INVOICE_PRINT_LAYOUTS)),
+          defaultValue: INVOICE_PRINT_LAYOUTS.A4,
+          options: [
+            { value: INVOICE_PRINT_LAYOUTS.A4, label: 'A4' },
+            { value: INVOICE_PRINT_LAYOUTS.RECEIPT, label: 'Receipt' },
+          ],
         },
       },
     },

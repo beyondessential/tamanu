@@ -15,6 +15,15 @@ describe('buildDischargeNote', () => {
     expect(buildDischargeNote({ draft: null, dischargeNotes })).toEqual('first\n\nsecond');
   });
 
+  it('drops text styling from the planning notes, since the discharge note is plain text', () => {
+    const dischargeNotes = [note('a', '<b>first</b>'), note('b', 'BP <120 <u>today</u>')];
+
+    expect(buildDischargeNote({ draft: null, dischargeNotes })).toEqual('first\n\nBP <120 today');
+    expect(
+      buildDischargeNote({ draft: { note: 'mine', seededNoteIds: ['a'] }, dischargeNotes }),
+    ).toEqual('mine\n\nBP <120 today');
+  });
+
   it('is empty when there is neither a draft nor any planning note', () => {
     expect(buildDischargeNote({ draft: null, dischargeNotes: [] })).toEqual('');
     expect(buildDischargeNote({ draft: null, dischargeNotes: undefined })).toEqual('');

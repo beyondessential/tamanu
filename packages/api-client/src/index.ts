@@ -1,5 +1,5 @@
 export { TamanuApi } from './TamanuApi';
-export { route, expandRoute, resolveEndpoint, isRouteDescriptor } from './route';
+export { route, extendRoute, expandRoute, resolveEndpoint, isRouteDescriptor } from './route';
 export type { Endpoint, RouteDescriptor } from './route';
 export type {
   TelemetryEvent,

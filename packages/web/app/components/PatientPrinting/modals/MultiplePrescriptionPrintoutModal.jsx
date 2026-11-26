@@ -13,7 +13,7 @@ import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { route } from '@tamanu/api-client';
 
 export const MultiplePrescriptionPrintoutModal = ({
@@ -46,12 +46,8 @@ export const MultiplePrescriptionPrintoutModal = ({
   const { data: additionalData, isLoading: isAdditionalDataLoading } =
     usePatientAdditionalDataQuery(encounter.patientId);
 
-  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
-    ['village', encounter.patientId],
-    () => api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
-    {
-      enabled: !!patient?.villageId,
-    },
+  const { data: village = {}, isLoading: isVillageLoading } = useReferenceDataQuery(
+    patient?.villageId,
   );
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>

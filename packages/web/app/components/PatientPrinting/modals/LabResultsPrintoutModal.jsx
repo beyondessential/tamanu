@@ -1,107 +1,169 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 
 import { Modal, TranslatedText, useTranslation, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { useApi } from '../../../api';
-import {
-  useEncounterDataQuery,
-  useLabRequestNotesQuery,
-  usePatientAdditionalDataQuery,
-} from '../../../api/queries';
+import { combineQueries, useApi } from '../../../api';
+import { useEncounterDataQuery, usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
+import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
+import { ModalActionRow } from '../../ModalActionRow';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useSettings } from '../../../contexts/Settings';
+import { withLabRequestPrintoutDetails } from '../../../utils/lab';
 import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { route } from '@tamanu/api-client';
 
-export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, onClose }) => {
-  const { translations } = useTranslation();
-  const { getSetting } = useSettings();
-  const { primaryTimeZone } = useDateTime();
+// What a caller must hold before offering the printout, listed beside the fetches that enforce it
+// so the two can't drift: the encounter's request list, each request's tests, and the results.
+// Reading the status log is deliberately absent — that fetch degrades to "n/a" rather than
+// blocking the document, so it must not hide the action either.
+export const RESULTS_PRINTOUT_PERMISSIONS = [
+  ['read', 'LabTestResult'],
+  ['read', 'LabRequest'],
+  ['list', 'LabRequest'],
+  ['list', 'LabTest'],
+];
+
+// The printout needs each request's tests grouped and ordered the way the results table shows
+// them, and the user who published it, neither of which travels with the request itself.
+const useLabRequestDetailsQueries = labRequests => {
   const api = useApi();
-  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
-  const { data: encounter, isLoading: isEncounterLoading } = useEncounterDataQuery(
-    labRequest.encounterId,
-  );
+  const testsQueries = useQueries({
+    queries: labRequests.map(({ id }) => ({
+      queryKey: ['labRequest', id, 'tests'],
+      queryFn: () => api.get(route('labRequest/:labRequestId/tests', { labRequestId: id })),
+    })),
+  });
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } =
-    usePatientAdditionalDataQuery(patient.id);
+  const publishedLogQueries = useQueries({
+    queries: labRequests.map(({ id }) => ({
+      queryKey: ['labRequestLog', id, 'latest-published'],
+      queryFn: () =>
+        api.get(
+          route('labRequestLog/labRequest/:labRequestId/latest-published', { labRequestId: id }),
+        ),
+    })),
+  });
 
-  const { data: notes, isLoading: areNotesLoading } = useLabRequestNotesQuery(labRequest.id);
+  const tests = combineQueries(testsQueries);
+  const publishedLogs = combineQueries(publishedLogQueries);
 
-  const { data: testsData, isLoading: areTestsLoading } = useQuery(
-    ['labRequest', labRequest.id, 'tests'],
-    () => api.get(route('labRequest/:labRequestId/tests', { labRequestId: labRequest.id })),
-  );
-
-  const isVillageEnabled = !!patient.villageId;
-  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
-    ['referenceData', patient.villageId],
-    () => api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
-    { enabled: isVillageEnabled },
-  );
-
-  const { data: publishedLog, isLoading: isPublishedLogLoading } = useQuery(
-    ['labRequestLog', labRequest.id, 'latest-published'],
-    () =>
-      api.get(
-        route('labRequestLog/labRequest/:labRequestId/latest-published', {
-          labRequestId: labRequest.id,
-        }),
-      ),
-  );
-
-  const isLoading =
-    isEncounterLoading ||
-    areTestsLoading ||
-    areNotesLoading ||
-    isAdditionalDataLoading ||
-    (isVillageEnabled && isVillageLoading) ||
-    isCertificateFetching ||
-    isPublishedLogLoading;
-
-  const labRequestWithDetails = {
-    ...labRequest,
-    tests: testsData?.data,
-    notes: notes?.data || [],
-    publishedBy: publishedLog?.updatedBy,
+  return {
+    // Results are the document: a request whose tests failed to load would print as a block with
+    // no results at all, so these are fatal. The publisher is one field of the request's header —
+    // reading the status log needs its own permission, and without it the field reads "n/a".
+    requiredQueries: testsQueries,
+    optionalQueries: publishedLogQueries,
+    labRequestsWithDetails: withLabRequestPrintoutDetails(labRequests, {
+      testsResponses: tests.data,
+      publishedLogs: publishedLogs.data,
+    }),
   };
+};
 
-  return (
-    <Modal
-      title={
+export const LabResultsPrintoutModal = React.memo(
+  ({ labRequests, patient, open, onClose, isSingleRequestPrintout = false }) => {
+    const { translations } = useTranslation();
+    const { getSetting } = useSettings();
+    const { primaryTimeZone } = useDateTime();
+    const api = useApi();
+    const certificateQuery = useCertificate();
+
+    const encounterQuery = useEncounterDataQuery(labRequests[0]?.encounterId);
+    const additionalDataQuery = usePatientAdditionalDataQuery(patient.id);
+
+    const isVillageEnabled = !!patient.villageId;
+    const villageQuery = useQuery(
+      ['referenceData', patient.villageId],
+      () => api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
+      { enabled: isVillageEnabled },
+    );
+
+    const { requiredQueries, optionalQueries, labRequestsWithDetails } =
+      useLabRequestDetailsQueries(labRequests);
+
+    // useCertificate isn't a react-query result: it contributes isFetching and nothing else, so a
+    // letterhead that fails to load leaves the printout without a logo rather than erroring.
+    const requiredList = [certificateQuery, encounterQuery, additionalDataQuery].concat(
+      isVillageEnabled ? [villageQuery] : [],
+      requiredQueries,
+    );
+    const required = combineQueries(requiredList);
+    // Everything the preview waits on, fatal or not, so the document doesn't render half-filled.
+    const everything = combineQueries(requiredList.concat(optionalQueries));
+
+    const modalProps = {
+      title: (
         <TranslatedText
           stringId="lab.modal.results.title"
           fallback="Lab results"
           data-testid="translatedtext-lab-results-title"
         />
-      }
-      open={open}
-      onClose={onClose}
-      width="md"
-      color={Colors.white}
-      printable
-      onPrint={() => printPDF('lab-results-printout')}
-      data-testid="modal-lab-results-printout"
-    >
-      <PDFLoader
-        isLoading={isLoading}
-        id="lab-results-printout"
-        data-testid="pdfloader-lab-results-printout"
+      ),
+      open,
+      onClose,
+      width: 'md',
+      color: Colors.white,
+      // A failed fetch would leave a request's results silently missing, so don't offer to print one.
+      printable: !required.isError && !everything.isFetching,
+    };
+
+    if (required.isError) {
+      // The api client throws Problem, not the error classes it was built from, so match on status.
+      const isForbidden = required.errors.some(error => error?.status === 403);
+      return (
+        <Modal {...modalProps} data-testid="modal-lab-results-printout-error">
+          {isForbidden ? (
+            <ForbiddenErrorModalContents
+              onConfirm={onClose}
+              data-testid="forbiddenerrormodalcontents-lab-results"
+            />
+          ) : (
+            <>
+              <p>
+                <TranslatedText
+                  stringId="lab.modal.results.error.message"
+                  fallback="Part of this printout could not be loaded, so it would be incomplete. Please try again, and contact your system administrator if the problem continues."
+                  data-testid="translatedtext-lab-results-error"
+                />
+              </p>
+              <ModalActionRow onConfirm={onClose} data-testid="modalactionrow-lab-results-error" />
+            </>
+          )}
+        </Modal>
+      );
+    }
+
+    return (
+      <Modal
+        {...modalProps}
+        onPrint={() => printPDF('lab-results-printout')}
+        data-testid="modal-lab-results-printout"
       >
-        <LabResultsPrintout
-          certificateData={certificateData}
-          patientData={{ ...patient, additionalData, village }}
-          encounter={encounter}
-          labRequest={labRequestWithDetails}
-          getSetting={getSetting}
-          translations={translations}
-          primaryTimeZone={primaryTimeZone}
-          data-testid="labresultsprintout-component"
-        />
-      </PDFLoader>
-    </Modal>
-  );
-});
+        <PDFLoader
+          isLoading={everything.isFetching}
+          id="lab-results-printout"
+          data-testid="pdfloader-lab-results-printout"
+        >
+          <LabResultsPrintout
+            certificateData={certificateQuery.data}
+            patientData={{
+              ...patient,
+              additionalData: additionalDataQuery.data,
+              village: villageQuery.data ?? {},
+            }}
+            encounter={encounterQuery.data}
+            labRequests={labRequestsWithDetails}
+            isSingleRequestPrintout={isSingleRequestPrintout}
+            getSetting={getSetting}
+            translations={translations}
+            primaryTimeZone={primaryTimeZone}
+            data-testid="labresultsprintout-component"
+          />
+        </PDFLoader>
+      </Modal>
+    );
+  },
+);

@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - delete_tasks_from_sync_lookup
+              - flag_tasks_for_lookup_rebuild
               - record_tasks_changelog
               - set_tasks_updated_at
               - set_tasks_updated_at_sync_tick

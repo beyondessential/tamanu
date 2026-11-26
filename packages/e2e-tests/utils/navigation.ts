@@ -3,6 +3,7 @@ import 'dotenv/config';
 
 export const facilityFrontend = process.env.FACILITY_FRONTEND_URL ?? 'http://localhost:5173';
 export const adminFrontend = process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:5174';
+export const patientPortalFrontend = process.env.PATIENT_PORTAL_URL ?? 'http://localhost:5175';
 
 export const goToFacilityFrontend = async (page: Page) => {
   await page.goto(facilityFrontend);
@@ -18,4 +19,8 @@ export const constructFacilityUrl = (url: string) => {
 
 export const constructAdminUrl = (url: string) => {
   return `${adminFrontend}${url}`;
+};
+
+export const constructPatientPortalUrl = (url: string) => {
+  return `${patientPortalFrontend}${url}`;
 };

@@ -136,7 +136,7 @@ export const encounterSummaryProperties = {
   properties: {
     enabled: {
       name: 'Enabled',
-      description: 'Enable or disable the encounter summary',
+      description: 'Enable or disable the encounter summary. Experimental AI must also be enabled.',
       type: yup.boolean(),
       defaultValue: false,
       exposedToWeb: true,

@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/e2e-tests",
-  "version": "2.69.0",
+  "version": "2.70.0",
   "private": true,
   "scripts": {
     "test": "NODE_OPTIONS=\"--import tsx ${NODE_OPTIONS:-}\" playwright test",
@@ -15,8 +15,10 @@
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@types/node": "^26.2.0",
+    "@types/pg": "^8.23.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.0.0",
+    "pg": "^8.23.1",
     "tsx": "^4.20.6"
   }
 }

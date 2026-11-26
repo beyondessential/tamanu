@@ -34,6 +34,7 @@ jobs:
       run-mobile: ${{ steps.plan.outputs.run-mobile }}
       run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
       run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
+      run-supervisor: ${{ steps.plan.outputs.run-supervisor }}
       allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
     steps:
       - uses: actions/checkout@v6
@@ -134,13 +135,13 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install --include-workspace-root --workspace=${{ matrix.package }}
-
-      - name: Install and start postgres if needed
-        if: matrix.postgres
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
+      - parallel:
+          - run: npm install --include-workspace-root --workspace=${{ matrix.package }}
+          - name: Install and start postgres if needed
+            if: matrix.postgres
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+              .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
 
       - name: Run tests
         env:
@@ -196,12 +197,12 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install --include-workspace-root --workspace=@tamanu/${{ matrix.server }}
-
-      - name: Install and start postgres ${{ matrix.postgres }}
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          .github/scripts/setup-postgres-for-one-package.sh migrations
+      - parallel:
+          - run: npm install --include-workspace-root --workspace=@tamanu/${{ matrix.server }}
+          - name: Install and start postgres ${{ matrix.postgres }}
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+              .github/scripts/setup-postgres-for-one-package.sh migrations
 
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
@@ -245,17 +246,18 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - name: Install dependencies
-        run: |
-          npm install \
-            --include-workspace-root \
-            --workspace=@tamanu/central-server \
-            --workspace=@tamanu/facility-server
+      - parallel:
+          - name: Install dependencies
+            run: |
+              npm install \
+                --include-workspace-root \
+                --workspace=@tamanu/central-server \
+                --workspace=@tamanu/facility-server
+          - name: Install and start postgres
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh 18
+              .github/scripts/test-facility-offline.sh setup-postgres
 
-      - name: Install and start postgres
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh 18
-          .github/scripts/test-facility-offline.sh setup-postgres
       - name: Start a central server
         run: .github/scripts/test-facility-offline.sh central-start
       - name: Start a facility server
@@ -290,6 +292,20 @@ jobs:
       - run: npm install --include-workspace-root
       - run: git diff --exit-code
 
+  # The release cut refreshes the lockfile with --legacy-peer-deps, which drops
+  # peers npm installed implicitly, so every peer must be declared explicitly.
+  lockfile-peers:
+    name: Check package-lock.json has no implicit peers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+      - run: node scripts/check-lockfile-peers.mjs
+
   dbt-model:
     needs: [plan, node_modules_cache]
     if: needs.plan.outputs.run-dbt-model == 'true'
@@ -308,20 +324,34 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - name: Install and start postgres
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh 18
+      # ubuntu-latest now ships Python 3.14, which the pinned dbt can't import
+      # on; match the Python that cd-deploy-dbt-docs uses
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
 
-          createuser --superuser tamanu
-          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
-          createdb -O tamanu central
-          createdb -O tamanu facility
+      - parallel:
+          - name: Install and start postgres
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh 18
 
-      - run: |
-          npm install \
-            --include-workspace-root \
-            --workspace=@tamanu/central-server \
-            --workspace=scripts
+              createuser --superuser tamanu
+              psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+              createdb -O tamanu central
+              createdb -O tamanu facility
+          - name: Install npm dependencies
+            run: |
+              npm install \
+                --include-workspace-root \
+                --workspace=@tamanu/central-server \
+                --workspace=scripts
+          - name: Install dbt
+            run: |
+              pip3 install \
+                "dbt-core==1.10.13" \
+                "dbt-postgres==1.9.1" \
+                "dbt-adapters==1.16.7" \
+                "dbt-common==1.35.0"
 
       - name: Configure Tamanu
         run: |
@@ -341,20 +371,8 @@ jobs:
               exit 1
           fi
 
-      # ubuntu-latest now ships Python 3.14, which the pinned dbt can't import
-      # on; match the Python that cd-deploy-dbt-docs uses
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-
       - name: Check model is valid (ie that docs can generate)
-        run: |
-          pip3 install \
-            "dbt-core==1.10.13" \
-            "dbt-postgres==1.9.1" \
-            "dbt-adapters==1.16.7" \
-            "dbt-common==1.35.0"
-          npm run dbt-generate-docs
+        run: npm run dbt-generate-docs
 
   dbt-todos:
     needs: node_modules_cache
@@ -375,6 +393,47 @@ jobs:
 
       - run: npm install --include-workspace-root --workspace=scripts
       - run: npm run dbt-check-todos
+
+  test-supervisor:
+    needs: plan
+    if: needs.plan.outputs.run-supervisor == 'true'
+    name: Test supervisor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/supervisor
+    env:
+      CARGO_AUDIT_VERSION: 0.23.0
+    steps:
+      # The event's own commit rather than the branch head, as the job can save the build cache.
+      - uses: actions/checkout@v6
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component clippy,rustfmt --target x86_64-pc-windows-gnu --no-self-update
+          rustup default stable
+      # Only main saves the cache, so what a branch restores and runs was built from main's own
+      # code, cargo-audit included.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/supervisor
+          save-if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked
+      # The Windows images build the supervisor on a Windows runner; linting its
+      # Windows-only code here finds a break before then. The gnu target stands in
+      # for the MSVC one the images ship, as both compile the same cfg(windows)
+      # code. zstd's C sources need a C compiler for the target.
+      - name: Lint for Windows
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends gcc-mingw-w64-x86-64
+          cargo clippy --locked --all-targets --target x86_64-pc-windows-gnu -- -D warnings
+      - name: Check dependencies against the RustSec advisories
+        run: |
+          cargo audit --version 2>/dev/null | grep -qF " $CARGO_AUDIT_VERSION" \
+            || cargo install --locked "cargo-audit@$CARGO_AUDIT_VERSION"
+          cargo audit
 
   typos:
     name: Spellcheck
@@ -400,8 +459,10 @@ jobs:
       - test-mobile
       - test-facility-offline
       - test-package-lock
+      - lockfile-peers
       - dbt-model
       - dbt-todos
+      - test-supervisor
       - typos
     runs-on: ubuntu-latest
     steps:

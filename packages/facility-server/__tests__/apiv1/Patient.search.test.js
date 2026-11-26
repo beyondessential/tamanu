@@ -72,6 +72,7 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'I' },
   { firstName: 'locale-test', lastName: 'Böhm' },
   { firstName: 'locale-test', lastName: 'Brunet' },
+  { firstName: 'search-wildcard', lastName: 'under_score' },
   {
     firstName: 'more-than-one-open-encounter',
     encounters: [
@@ -307,6 +308,19 @@ describe('Patient search', () => {
     response.body.data.forEach((responsePatient) => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
+  });
+
+  it.each([
+    ['lastName', '_', 1],
+    ['lastName', '%', 0],
+    ['firstName', '_', 0],
+    ['displayId', '%', 0],
+  ])('should treat %s %s as a literal character, not a wildcard', async (field, value, count) => {
+    const response = await app
+      .get(`/api/patient?facilityId=${facilityId}&isAllPatientsListing=true`)
+      .query({ [field]: value });
+    expect(response).toHaveSucceeded();
+    expect(response.body.count).toEqual(count);
   });
 
   describe('Age filtering', () => {

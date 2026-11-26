@@ -25,16 +25,20 @@ export const SearchBar = ({ columns, onSearch, selectedType }) => {
       columns
         .filter(
           col =>
-            // Relation-backed and detail columns aren't real columns on the model, so they
-            // can't be searched server-side.
+            // Relation-backed columns aren't real columns on the model, so they can't be searched
+            // server-side. Detail columns can: the list query filters them through the join.
             !col.isRelationBacked &&
-            !col.detail &&
             (SEARCHABLE_COLUMN_TYPES.includes(col.type) ||
               col.suggesterEndpoint ||
               col.enumValues ||
               col.key === AVAILABLE_FACILITIES_KEY),
         )
-        .sort((a, b) => getFieldSortOrder(a) - getFieldSortOrder(b)),
+        .sort(
+          (a, b) =>
+            // detail fields sort after the record's own, so surfacing them never displaces a
+            // filter that was already on screen
+            (a.detail ? 1 : 0) - (b.detail ? 1 : 0) || getFieldSortOrder(a) - getFieldSortOrder(b),
+        ),
     [columns],
   );
 

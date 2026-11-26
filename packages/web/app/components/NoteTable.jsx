@@ -19,6 +19,7 @@ import { TranslatedReferenceData, TranslatedText } from './Translation';
 import { useNoteModal } from '../contexts/NoteModal';
 import { NoteChangelogModal } from './NoteChangelogModal';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
+import { FormattedNoteContent } from './FormattedNoteContent';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
@@ -200,14 +201,7 @@ const NoteContent = ({
           ref={noteContentContainerRef}
           data-testid="notecontentcontainer-cgxg"
         >
-          {note?.content?.split('\n').map((line, i) => {
-            return (
-              <span key={i}>
-                {line}
-                {'\n'}
-              </span>
-            );
-          })}
+          <FormattedNoteContent content={note?.content} />
         </NoteContentContainer>
         {hasIndividualNotePermission &&
           hasEncounterNoteWritePermission &&

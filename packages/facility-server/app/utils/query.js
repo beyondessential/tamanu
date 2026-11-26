@@ -13,7 +13,7 @@ export const makeSimpleTextFilterFactory = params => (paramKey, sqlField) => {
   return {
     sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
     transform: p => ({
-      [paramKey]: `${p[paramKey]}%`,
+      [paramKey]: `${escapePatternWildcard(p[paramKey])}%`,
     }),
   };
 };
@@ -24,7 +24,7 @@ export const makeSubstringTextFilterFactory = params => (paramKey, sqlField) => 
   return {
     sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
     transform: p => ({
-      [paramKey]: `%${p[paramKey]}%`,
+      [paramKey]: `%${escapePatternWildcard(p[paramKey])}%`,
     }),
   };
 };
@@ -37,8 +37,9 @@ export const makeDeletedAtIsNullFilter = table => {
 
 // Escape wildcard characters _, % and backslash in pattern match
 const wildcardRegex = /([_%\\])/g;
+// String() keeps repeated query params (arrays) working as before, e.g. 'a,b'
 export const escapePatternWildcard = value => {
-  return value.replace(wildcardRegex, '\\$1');
+  return String(value).replace(wildcardRegex, '\\$1');
 };
 
 export const getWhereClausesAndReplacementsFromFilters = (allFilters, params = {}) => {

@@ -1,5 +1,4 @@
 import { endOfDay, startOfDay } from 'date-fns';
-import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
 import { ReadSettings } from '@tamanu/settings';
 import {
@@ -15,10 +14,17 @@ import {
   DEFAULT_LANGUAGE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
+  DRUG_LIMIT_FIELDS,
 } from '@tamanu/constants';
+import {
+  getTemplateDoseLimitError,
+  parseDrugLimit,
+  validateDrugLimits,
+} from '@tamanu/shared/utils/medication';
 import __cjs_inflection from 'inflection';
 const { pluralize } = __cjs_inflection;
 import { isEmpty, isNil } from 'es-toolkit/compat';
+import { getDateFromExcel } from '../../utils/excelUtils';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -89,6 +95,48 @@ function parseConsent(consent, pushError) {
   return false;
 }
 
+// The export writes the array as JSON (`["a","b"]`); a hand-filled sheet is more likely to use a
+// comma-separated list. Either way the column needs an array, which the raw cell text is not.
+// An unreadable list throws, which skips the row rather than clearing the record's circumstances.
+function parseCircumstanceIds(circumstanceIds) {
+  if (Array.isArray(circumstanceIds)) return circumstanceIds;
+  const text = String(circumstanceIds ?? '').trim();
+  if (text === '') return [];
+  if (text.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(text);
+      const isListOfIds =
+        Array.isArray(parsed) &&
+        parsed.every(id => typeof id === 'string' || typeof id === 'number');
+      if (isListOfIds) return parsed.map(id => String(id).trim()).filter(Boolean);
+    } catch {
+      // Fall through to throw an error below.
+    }
+    throw new Error(
+      `Unrecognised circumstanceIds value "${circumstanceIds}", expected a list of ids`,
+    );
+  }
+  return text
+    .split(',')
+    .map(id => id.trim())
+    .filter(Boolean);
+}
+
+async function loadCircumstanceIds(circumstanceIds, { models, pushError }) {
+  const ids = parseCircumstanceIds(circumstanceIds);
+  if (ids.length === 0) return ids;
+
+  const existingIds = await models.ReferenceData.findAll({
+    attributes: ['id'],
+    where: { id: { [Op.in]: ids }, type: REFERENCE_TYPES.VACCINE_CIRCUMSTANCE },
+  }).then(circumstances => circumstances.map(({ id }) => id));
+  const unknownIds = ids.filter(id => !existingIds.includes(id));
+  if (unknownIds.length > 0) {
+    pushError(`Vaccine circumstances ${unknownIds.join(', ')} not found`, 'AdministeredVaccine');
+  }
+  return ids;
+}
+
 export async function administeredVaccineLoader(item, { models, pushError }) {
   const {
     encounterId,
@@ -96,13 +144,14 @@ export async function administeredVaccineLoader(item, { models, pushError }) {
     date: excelDate,
     reason,
     consent,
+    circumstanceIds,
     locationId,
     departmentId,
     examinerId,
     patientId,
     ...data
   } = item;
-  const date = excelDate ? getJsDateFromExcel(excelDate) : null;
+  const date = excelDate ? getDateFromExcel(excelDate) : null;
 
   const startDate = date ? startOfDay(date) : null;
   const endDate = date ? endOfDay(date) : null;
@@ -142,6 +191,10 @@ export async function administeredVaccineLoader(item, { models, pushError }) {
         date,
         reason,
         consent: parseConsent(consent, pushError),
+        // An absent column leaves the record's circumstances as they are.
+        ...(circumstanceIds === undefined
+          ? {}
+          : { circumstanceIds: await loadCircumstanceIds(circumstanceIds, { models, pushError }) }),
         ...data,
 
         // relationships
@@ -204,7 +257,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
     model: 'Patient',
     values: {
       id: patientId,
-      dateOfBirth: dateOfBirth && getJsDateFromExcel(dateOfBirth),
+      dateOfBirth: dateOfBirth && getDateFromExcel(dateOfBirth),
       ...otherFields,
     },
   });
@@ -644,6 +697,7 @@ const DRUG_COLUMNS = [
   'unitConversion',
   'notes',
   'isSensitive',
+  ...DRUG_LIMIT_FIELDS,
 ];
 
 // The set of facilities where mSupply is the stock-on-hand source of truth is fixed for
@@ -679,6 +733,33 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
   } = item;
   const rows = [];
 
+  let existingDrug;
+  if (drugId) {
+    existingDrug = await models.ReferenceDrug.findOne({
+      where: { referenceDataId: drugId },
+    });
+  }
+
+  // spec: DQLIM#configuring-limits
+  // Only the limit columns the sheet has are written, so re-importing a sheet from before the limits
+  // existed keeps them; in a column the sheet has, a blank cell unsets the limit. A kept limit is
+  // checked with the imported ones, and like an invalid unit, an invalid limit rejects the row.
+  const sheetColumns = new Set(header.map(column => column.trim()));
+  const importedLimitFields = DRUG_LIMIT_FIELDS.filter(field => sheetColumns.has(field));
+  const limitErrors = validateDrugLimits({
+    ...Object.fromEntries(DRUG_LIMIT_FIELDS.map(field => [field, existingDrug?.[field]])),
+    ...Object.fromEntries(importedLimitFields.map(field => [field, item[field]])),
+  });
+  if (limitErrors.length > 0) {
+    for (const message of limitErrors) {
+      pushError(`Drug "${drugId}": ${message}.`);
+    }
+    return [];
+  }
+  const importedLimits = Object.fromEntries(
+    importedLimitFields.map(field => [field, parseDrugLimit(item[field])]),
+  );
+
   const validDrugUnits = Object.values(DRUG_UNITS);
   if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
     pushError(
@@ -693,13 +774,6 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
     return [];
   }
 
-  let existingDrug;
-  if (drugId) {
-    existingDrug = await models.ReferenceDrug.findOne({
-      where: { referenceDataId: drugId },
-    });
-  }
-
   const referenceDrugId = existingDrug?.id || crypto.randomUUID();
   const newDrug = {
     id: referenceDrugId,
@@ -710,6 +784,7 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
     unitConversion,
     notes,
     isSensitive: !!isSensitive,
+    ...importedLimits,
   };
   rows.push({
     model: 'ReferenceDrug',
@@ -807,8 +882,11 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
 
   const rows = [];
 
+  // spec: DQLIM#medication-sets
+  // The Drug sheet is imported first (see dependencies.js), so the drug's limits are its saved ones.
   const drug = await models.ReferenceData.findOne({
     where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
+    include: { association: 'referenceDrug', attributes: DRUG_LIMIT_FIELDS },
   });
   if (!drug) {
     pushError(
@@ -817,12 +895,20 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     );
   }
 
-  if (isNaN(doseAmount) && doseAmount?.toString().toLowerCase() !== 'variable') {
+  const isVariableDose = doseAmount?.toString().toLowerCase() === 'variable';
+  if (isNaN(doseAmount) && !isVariableDose) {
     pushError(
       `Dose amount must be a number or the string "variable".`,
       'ReferenceMedicationTemplate',
     );
   }
+
+  const doseLimitError = getTemplateDoseLimitError(
+    { doseAmount, isVariableDose },
+    drug?.referenceDrug,
+    drugReferenceDataId,
+  );
+  if (doseLimitError) pushError(doseLimitError, 'ReferenceMedicationTemplate');
 
   const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
     where: { referenceDataId },
@@ -835,7 +921,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     referenceDataId,
     medicationId: drugReferenceDataId,
     isPrn: prnMedication,
-    isVariableDose: doseAmount?.toString().toLowerCase() === 'variable',
+    isVariableDose,
     doseAmount: parseFloat(doseAmount) || null,
     dosingUnit,
     frequency,

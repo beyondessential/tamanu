@@ -38,7 +38,7 @@ describe('AI settings listener', () => {
   });
 
   it('rebuilds the service when an AI setting is written', async () => {
-    await models.Setting.set('ai.anthropicModel', 'claude-opus-5', SETTINGS_SCOPES.CENTRAL);
+    await models.Setting.set('formBuilder.model', 'claude-opus-5', SETTINGS_SCOPES.CENTRAL);
 
     await waitForRefresh(refresh);
 
@@ -46,7 +46,11 @@ describe('AI settings listener', () => {
   });
 
   it('rebuilds the service when a prompt it reads is written', async () => {
-    await models.Setting.set('patientSummary.prompts', 'summarise this', SETTINGS_SCOPES.GLOBAL);
+    await models.Setting.set(
+      'experimentalAi.patientSummary.prompts',
+      'summarise this',
+      SETTINGS_SCOPES.GLOBAL,
+    );
 
     await waitForRefresh(refresh);
 
@@ -86,7 +90,7 @@ describe('AI settings save', () => {
     const result = await adminApp.put('/v1/admin/settings').send({
       scope: SETTINGS_SCOPES.CENTRAL,
       facilityId: null,
-      settings: { ai: { anthropicModel: 'claude-opus-5' } },
+      settings: { formBuilder: { model: 'claude-opus-5' } },
     });
 
     expect(result).toHaveSucceeded();

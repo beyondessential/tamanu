@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_referrals_from_sync_lookup
+              - flag_referrals_for_lookup_rebuild
               - record_referrals_changelog
               - set_referrals_updated_at
               - set_referrals_updated_at_sync_tick

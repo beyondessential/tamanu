@@ -45,7 +45,7 @@ import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { route } from '@tamanu/api-client';
 
-const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
+const ImagingRequestSection = ({ currentStatus, imagingRequest, onStatusChange }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
@@ -106,6 +106,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
           disabled={isCancelled}
           isClearable={false}
           required
+          onChange={onStatusChange}
           data-testid="field-mfc2"
         />
       </NoteModalActionBlocker>
@@ -269,7 +270,7 @@ const ImagingResultsSection = ({ results }) => {
 
 const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { facilityId, currentUser } = useAuth();
   const { getCurrentDateTime } = useDateTime();
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
@@ -307,13 +308,25 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
           .required()
           .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
       })}
-      render={({ values }) => {
+      render={({ values, setFieldValue }) => {
         const canAddResult = getCanAddResult(values);
+        const onStatusChange = ({ target: { value } }) => {
+          // spec: IMGR#recording-a-result
+          // Default the clinician to the current user when the status changes to completed, only
+          // when empty so a clinician already chosen is never overwritten.
+          const isBeingCompleted =
+            value === IMAGING_REQUEST_STATUS_TYPES.COMPLETED &&
+            values.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+          if (isBeingCompleted && !values.newResult.completedById) {
+            setFieldValue('newResult.completedById', currentUser.id);
+          }
+        };
         return (
           <>
             <ImagingRequestSection
               currentStatus={values.status}
               imagingRequest={imagingRequest}
+              onStatusChange={onStatusChange}
               data-testid="imagingrequestsection-dv93"
             />
             <ImagingResultsSection

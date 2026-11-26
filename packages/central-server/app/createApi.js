@@ -1,6 +1,5 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import config from 'config';
 import defineExpress from 'express';
 import asyncHandler from 'express-async-handler';
 import helmet from 'helmet';
@@ -8,6 +7,7 @@ import helmet from 'helmet';
 import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
+import { supervisorRoutes } from '@tamanu/shared/routes/supervisor';
 import { getTrustedProxy, requireHttps } from '@tamanu/shared/utils';
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -69,16 +69,6 @@ export async function createApi(ctx) {
   // tests that rely on Express 4's extended (qs) parsing.
   express.set('query parser', 'extended');
 
-  let errorMiddleware = null;
-  if (config.errors?.enabled) {
-    if (config.errors?.type === 'bugsnag') {
-      const { default: Bugsnag } = await import('@bugsnag/js');
-      const middleware = Bugsnag.getPlugin('express');
-      express.use(middleware.requestHandler);
-      errorMiddleware = middleware.errorHandler;
-    }
-  }
-
   express.use(
     helmet({
       crossOriginEmbedderPolicy: true,
@@ -132,6 +122,10 @@ export async function createApi(ctx) {
     });
   });
 
+  // spec: SUPV#talking-to-the-server
+  // Before user auth and the HTTPS check: it has its own credential and calls over plain HTTP.
+  express.use('/api/supervisor', limiters.authLimiter, supervisorRoutes({ version }));
+
   // Reject non-HTTPS requests when the security.requireHttps setting is enabled
   express.use(requireHttps);
 
@@ -152,10 +146,6 @@ export async function createApi(ctx) {
   express.use((req, res) => {
     res.status(404).end();
   });
-
-  if (errorMiddleware) {
-    express.use(errorMiddleware);
-  }
 
   express.use(defaultErrorHandler);
 

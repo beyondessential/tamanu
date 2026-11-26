@@ -6,10 +6,10 @@ Guides describe how Tamanu works. How your own site has been set up is separate,
 options look different depending on your site's configuration. If you cannot do something you
 believe you should be able to, contact your system administrator.
 
-| Platform | Covers |
-| --- | --- |
-| [Desktop](desktop/) | Using Tamanu on a computer |
-| [Mobile](mobile/) | Using Tamanu on a mobile device |
+| Platform            | Covers                          |
+| :------------------ | :------------------------------ |
+| [Desktop](desktop/) | Using Tamanu on a computer      |
+| [Mobile](mobile/)   | Using Tamanu on a mobile device |
 
 Guides to configuring Tamanu for a deployment, written for system administrators, are in
 [Configuration guides](config-guides/).

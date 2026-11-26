@@ -1,4 +1,8 @@
-import { FHIR_QUANTITY_COMPARATOR, SEX_VALUES } from '@tamanu/constants';
+import {
+  FHIR_QUANTITY_COMPARATOR,
+  INTERIM_LAB_REQUEST_STATUSES,
+  SEX_VALUES,
+} from '@tamanu/constants';
 import { isNil } from 'es-toolkit/compat';
 
 // These types are structurally compatible with the Database models but defined here
@@ -247,4 +251,39 @@ export const getLabRequestTestAndPanelNames = ({
     .map(test => test.labTestType?.name)
     .filter((name): name is string => Boolean(name));
   return [...panelNames, ...individualTestNames].sort((a, b) => a.localeCompare(b));
+};
+
+export type LabRequestStatusLike = { status?: string | null };
+
+// A request is interim while its results are still provisional — it has not reached Verified or
+// Published — so a printout holding one has to say its results may yet change.
+export const isInterimLabRequest = ({ status }: LabRequestStatusLike = {}): boolean =>
+  INTERIM_LAB_REQUEST_STATUSES.includes(status as string);
+
+export const hasInterimLabResults = (labRequests: LabRequestStatusLike[] = []): boolean =>
+  labRequests.some(isInterimLabRequest);
+
+export type LabTestResultLike = {
+  result?: string | number | null;
+  secondaryResult?: string | null;
+  labTestType?: { unit?: string | null; supportsSecondaryResults?: boolean | null } | null;
+};
+
+// A lab test's result as the printout's Result column shows it: the value with its unit, and a
+// secondary result in brackets after it where the test type supports one. A test with no result
+// yet renders blank rather than a stray unit, so an unresulted row reads as unresulted.
+export const formatLabTestResult = ({
+  result,
+  secondaryResult,
+  labTestType,
+}: LabTestResultLike = {}): string => {
+  if (result === undefined || result === null || result === '') return '';
+
+  const unit = labTestType?.unit;
+  const resultWithUnit = unit ? `${result} ${unit}` : `${result}`;
+
+  if (labTestType?.supportsSecondaryResults && secondaryResult) {
+    return `${resultWithUnit} (${secondaryResult})`;
+  }
+  return resultWithUnit;
 };

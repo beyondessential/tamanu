@@ -8,7 +8,7 @@ import { closeDatabase, createTestDatabase } from '../utilities';
 // (migrations, manual SQL, bulk loads) still get valid timestamps. This test walks the live
 // migrated schema and asserts the DB-level default is in place, catching any new table that
 // forgets it.
-describe('created_at / updated_at column defaults', () => {
+describe('created_at / updated_at columns', () => {
   let sequelize;
 
   beforeAll(async () => {
@@ -44,6 +44,33 @@ describe('created_at / updated_at column defaults', () => {
         column: column_name,
         default: column_default,
       }));
+
+    expect(offenders).toEqual([]);
+  });
+
+  // logs.record_change() copies created_at / updated_at into logs.changes, where both are NOT
+  // NULL, so a NULL in a logged table would make the row impossible to update or hard-delete.
+  it('every changelog-logged table has NOT NULL created_at and updated_at', async () => {
+    const columns = await sequelize.query(
+      `
+      SELECT c.table_name, c.column_name
+      FROM information_schema.columns c
+      WHERE c.table_schema = 'public'
+        AND c.column_name IN ('created_at', 'updated_at')
+        AND c.is_nullable = 'YES'
+        AND EXISTS (
+          SELECT 1 FROM pg_trigger t
+          JOIN pg_class r ON r.oid = t.tgrelid
+          JOIN pg_namespace n ON n.oid = r.relnamespace
+          WHERE n.nspname = c.table_schema AND r.relname = c.table_name
+            AND t.tgname = 'record_' || c.table_name || '_changelog'
+        )
+      ORDER BY c.table_name, c.column_name
+      `,
+      { type: QueryTypes.SELECT },
+    );
+
+    const offenders = columns.map(({ table_name, column_name }) => `${table_name}.${column_name}`);
 
     expect(offenders).toEqual([]);
   });

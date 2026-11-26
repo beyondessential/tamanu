@@ -5,7 +5,7 @@ import { useApi } from '../../api';
 import { usePatient } from '../../contexts/Patient';
 import { Suggester } from '../../utils/suggester';
 import { PANE_SECTION_IDS } from './paneSections';
-import { route } from '@tamanu/api-client';
+import { extendRoute } from '@tamanu/api-client';
 
 const FormContainer = styled.div`
   margin: 1rem 0;
@@ -42,7 +42,7 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
     async data => {
       if (data.id) {
         // don't need to include patientId as the existing record will already have it
-        await api.put(route(`${endpoint}/:dataId`, { dataId: data.id }), data);
+        await api.put(extendRoute(endpoint, ':dataId', { dataId: data.id }), data);
       } else {
         await api.post(endpoint, { ...data, patientId: patient?.id });
       }

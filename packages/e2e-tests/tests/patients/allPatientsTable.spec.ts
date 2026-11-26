@@ -8,6 +8,41 @@ test.describe('All patient table tests', () => {
     await allPatientsPage.goto();
   });
 
+  test.describe('before a search', () => {
+    test('[AT-0142]Shows the guided empty state until a search with criteria runs', async ({
+      newPatient,
+      allPatientsPage,
+      patientDetailsPage,
+    }) => {
+      await expect(allPatientsPage.emptyState).toBeVisible();
+      await expect(allPatientsPage.patientTable.rows).toHaveCount(0);
+      await expect(allPatientsPage.searchBtn).toBeDisabled();
+      await expect(allPatientsPage.clearSearchBtn).toBeDisabled();
+      await expect(allPatientsPage.pagination).toBeHidden();
+      await expect(allPatientsPage.downloadButton).toBeHidden();
+
+      await allPatientsPage.advanceSearchIcon.click();
+      await allPatientsPage.includeDeceasedChk.check();
+      await expect(allPatientsPage.searchBtn).toBeDisabled();
+      await expect(allPatientsPage.clearSearchBtn).toBeDisabled();
+      await allPatientsPage.includeDeceasedChk.uncheck();
+      await allPatientsPage.advanceSearchIcon.click();
+
+      await allPatientsPage.searchTable({ NHN: newPatient.displayId, advancedSearch: false });
+      await allPatientsPage.validateFirstRowContainsNHN(newPatient.displayId);
+      await expect(allPatientsPage.emptyState).toBeHidden();
+      await expect(allPatientsPage.downloadButton).toBeVisible();
+
+      await allPatientsPage.clearSearch();
+      await expect(allPatientsPage.emptyState).toBeVisible();
+
+      await allPatientsPage.navigateToPatientDetailsPage(newPatient.displayId);
+      await patientDetailsPage.navigateToAllPatientsPage();
+      await expect(allPatientsPage.emptyState).toBeVisible();
+      await expect(allPatientsPage.NHNInput).toHaveValue('');
+    });
+  });
+
   test.describe('search', () => {
     test('[T-0027][AT-0001]Search by NHN', async ({ newPatient, allPatientsPage }) => {
       await allPatientsPage.searchTable({ NHN: newPatient.displayId, advancedSearch: false });
@@ -66,6 +101,10 @@ test.describe('All patient table tests', () => {
   });
 
   test.describe('pagination', () => {
+    test.beforeEach(async ({ allPatientsPage }) => {
+      await allPatientsPage.searchAllPatients();
+    });
+
     test('[AT-0013]number of patient in patient list defaulted to 10', async ({
       allPatientsPage,
     }) => {
@@ -107,6 +146,10 @@ test.describe('All patient table tests', () => {
   });
 
   test.describe('sorting', () => {
+    test.beforeEach(async ({ allPatientsPage }) => {
+      await allPatientsPage.searchAllPatients();
+    });
+
     test('[AT-0024]Sort table by DOB in descending order', async ({ allPatientsPage }) => {
       await allPatientsPage.dobSortButton.click();
       await allPatientsPage.patientTable.waitForTableToLoad();

@@ -22,6 +22,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { FormattedNoteText } from '../pdf/FormattedNoteText';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 import { getReferenceDataStringId } from '../translation/getReferenceDataStringId';
 
@@ -357,7 +358,9 @@ const NotesSection = ({ notes, continued = false }) => {
                 <NotesCell>
                   <NoteTypeHeading note={note} />
                   <View style={{ width: '100%', marginBottom: 10 }}>
-                    <Text style={textStyles.tableCellContent}>{note.content}</Text>
+                    <Text style={textStyles.tableCellContent}>
+                      <FormattedNoteText content={note.content} />
+                    </Text>
                   </View>
                   <NoteFooter note={note} />
                 </NotesCell>

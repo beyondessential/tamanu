@@ -33,6 +33,7 @@ import { certificateNotification } from './certificateNotification';
 import { changePassword } from './changePassword';
 import { department } from './department';
 import { diagnosis } from './diagnosis';
+import { dietSummary } from './dietSummary';
 import { encounter } from './encounter';
 import { facility } from './facility';
 import { familyHistory } from './familyHistory';
@@ -59,7 +60,7 @@ import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { setupSyncHandler } from './setup';
-import { isServerConfigured, isSettingUp } from '../../serverConfig';
+import { isServerConfigured, isSetUpInDatabase, isSettingUp } from '../../serverConfig';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -116,7 +117,9 @@ export function createApiv1({ authLimiter } = {}) {
       // web app already makes rather than a separate endpoint/request.
       return res.send({
         ok: 'ok',
-        setupRequired: !isServerConfigured(),
+        // The alive check answers without the database, so a failed read reports not set up.
+        setupRequired:
+          !isServerConfigured() && !(await isSetUpInDatabase(req.models).catch(() => false)),
         isSettingUp: await isSettingUp(req.models),
       });
     }),
@@ -300,6 +303,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/allergy', allergy);
   patientDataRoutes.use('/appointments', appointments);
   patientDataRoutes.use('/diagnosis', diagnosis);
+  patientDataRoutes.use('/dietSummary', dietSummary);
   patientDataRoutes.use('/encounter', encounter);
   patientDataRoutes.use('/kiosk', kiosk);
   patientDataRoutes.use('/familyHistory', familyHistory);

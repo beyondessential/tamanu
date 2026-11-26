@@ -23,6 +23,11 @@ import { LoadingScreen } from '../../LoadingScreen';
 import Form from '../Form';
 import { FormFields } from './FormFields';
 import { getFormInitialValues, getFormSchema } from './helpers';
+import {
+  ProgramRegistryConditionContext,
+  useProgramRegistryConditionForm,
+} from './SurveyProgramRegistryConditionField';
+import { getInvalidConditionQuestionCodes } from '@tamanu/utils';
 import { checkVisibilityCriteria } from '/helpers/fields';
 import { authUserSelector } from '/helpers/selectors';
 
@@ -157,6 +162,10 @@ export const SurveyForm = ({
     [encounter?.encounterType],
   );
   const hasCalculations = useMemo(() => components.some(c => c.calculation), [components]);
+  const { conditionContext, isConditionRequired } = useProgramRegistryConditionForm(
+    components,
+    patient.id,
+  );
 
   const validateVisibleFields = useCallback(
     async (values: Record<string, any>) => {
@@ -177,9 +186,17 @@ export const SurveyForm = ({
           return yupToFormErrors(error);
         }
       })();
-      return { ...schemaErrors, ...(await validate?.(values)) };
+      const conditionErrors = Object.fromEntries(
+        getInvalidConditionQuestionCodes(
+          components,
+          values,
+          component => checkVisibilityCriteria(component, components, values),
+          isConditionRequired,
+        ).map(code => [code, getTranslation('validation.required.inline', '*Required')]),
+      );
+      return { ...schemaErrors, ...conditionErrors, ...(await validate?.(values)) };
     },
-    [components, encounter?.encounterType, getTranslation, validate],
+    [components, encounter?.encounterType, getTranslation, validate, isConditionRequired],
   );
 
   const submitVisibleValues = useCallback(
@@ -212,16 +229,18 @@ export const SurveyForm = ({
       onSubmit={submitVisibleValues}
       validate={validateVisibleFields}
     >
-      <SurveyFormInner
-        components={components}
-        hasCalculations={hasCalculations}
-        patient={patient}
-        encounterProp={encounterProp}
-        onCancel={onCancel}
-        setCurrentScreenIndex={setCurrentScreenIndex}
-        currentScreenIndex={currentScreenIndex}
-        onGoBack={onGoBack}
-      />
+      <ProgramRegistryConditionContext.Provider value={conditionContext}>
+        <SurveyFormInner
+          components={components}
+          hasCalculations={hasCalculations}
+          patient={patient}
+          encounterProp={encounterProp}
+          onCancel={onCancel}
+          setCurrentScreenIndex={setCurrentScreenIndex}
+          currentScreenIndex={currentScreenIndex}
+          onGoBack={onGoBack}
+        />
+      </ProgramRegistryConditionContext.Provider>
     </Form>
   );
 };

@@ -12,6 +12,7 @@ sources:
           meta:
             triggers:
               - delete_program_data_elements_from_sync_lookup
+              - flag_program_data_elements_for_lookup_rebuild
               - record_program_data_elements_changelog
               - set_program_data_elements_updated_at
               - set_program_data_elements_updated_at_sync_tick

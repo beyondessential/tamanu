@@ -57,7 +57,7 @@ export class NewNoteModal extends BaseNoteModal {
     const dateTime = format(new Date(), 'yyyy-MM-dd\'T\'HH:mm');
     await this.waitForModalToLoad();
     await this.selectType(noteType);
-    await this.noteContentTextarea.fill(content);
+    await this.noteContentInput.fill(content);
     await this.confirmButton.click();
     await this.waitForModalToClose();
     return dateTime;

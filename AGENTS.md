@@ -1,15 +1,13 @@
-<!-- BEGIN:workhorse 0.7.14 -->
+<!-- BEGIN:workhorse 0.8.3 -->
 # Workhorse framework
 
-This workspace uses [Workhorse](https://github.com/beyondessential/workhorse), a spec-driven development workbench. Workhorse ships skills (invokable prompts) and reference docs into this repo to shape how AI agents work here.
+This workspace uses [Workhorse](https://github.com/beyondessential/workhorse), a spec-driven development workbench. Start with `.agents/docs/workhorse.md`, which says how Workhorse works and lists the docs that go into more detail.
 
-- **Skills** live at `.agents/skills/` — each skill is a folder containing a `SKILL.md` with YAML frontmatter and a prompt body. `.claude/skills/` is a symlink to the same folder so Claude Code picks them up natively
-- **Reference docs** live at `.agents/docs/` — long-form guidance that skill bodies cite by path (spec format conventions and similar)
-- **Specs** live at `specs/` — acceptance criteria for each piece of work, organised into areas by subdirectory
+- **Skills** live at `.agents/skills/`, a folder each with a `SKILL.md`. For a task, read the skill whose folder name matches it. `.claude/skills/` is a symlink to the same folder so Claude Code picks them up natively
+- **Reference docs** live at `.agents/docs/`
+- **Specs** live at `specs/`
 
-When picking up a task, read the skill whose folder name matches what you're being asked to do — its `SKILL.md` describes how to approach the work and which reference docs to follow.
-
-Workhorse keeps this section, the skills, and the reference docs current automatically: the first agent turn of a session smart-merges the latest release over your local edits, so your deliberate changes survive. Edit or remove it freely.
+Workhorse keeps this section, the skills and the reference docs current through a pull request of its own, which replaces each Workhorse file whole. To keep your own copy of a skill or doc, remove its `workhorse-version` field and updates leave it alone. An edit to this section, or to a file that keeps the field, is replaced by the next update.
 <!-- END:workhorse -->
 
 # Tamanu - Development Guidelines for AI Assistants
@@ -25,12 +23,14 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Release Branches**: See @llm/project-rules/release-branches.md for finding releases
 - **Configuration Guides**: See @.agents/docs/config-guide-format.md for user configuration guides (written by the `draft-config-guide` skill)
 - **User Guides**: See @.agents/docs/user-guide-format.md for end user guides (written by the `draft-user-guide` skill)
+- **Guide Release Targeting**: See @.agents/docs/guide-release-targeting.md for which branch a user or configuration guide is raised against
 - **Important Rules**: See @llm/project-rules/important-project-rules.md for coding preferences and conventions
 - **Coding Rules**: See @llm/project-rules/coding-rules.md for domain-specific rules and antipatterns
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows
 - **Translations**: See @llm/project-rules/translations.md for the TranslatedText / TranslatedEnum / TranslatedReferenceData system and string ID conventions
 - **Sequelize Transactions**: See @llm/project-rules/sequelize-transactions.md for managed transactions and CLS (do not pass transaction object)
 - **Settings**: See @llm/project-rules/settings.md for the settings schemas, reading settings (central vs facility readers), and why new config belongs in settings rather than config files
+- **Component Customisations**: See @llm/project-rules/customisations.md for swapping a React component in the web app per deployment via the `Customisations` wrapper, and when to suggest it over a flag or a fork
 - **Endpoint (integration) tests**: See @llm/project-rules/endpoint-integration-tests.md for central/facility HTTP route tests (supertest, auth, CRUD, validation)
 - **Playwright E2E**: See @llm/project-rules/playwright-e2e.md for E2E test structure, page objects, and Playwright best practices (`packages/e2e-tests`)
 

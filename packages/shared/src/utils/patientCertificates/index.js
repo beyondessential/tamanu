@@ -11,6 +11,7 @@ export * from './DeathCertificatePrintout';
 export * from './DischargeSummaryPrintout';
 export * from './EncounterRecordPrintout';
 export * from './InvoiceRecordPrintout';
+export * from './InvoiceReceiptPrintout';
 export * from './MultipleImagingRequestsPrintout'
 export * from './MultipleLabRequestsPrintout'
 export * from './LabResultsPrintout'
