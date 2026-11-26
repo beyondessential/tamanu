@@ -14,7 +14,8 @@ A behaviour-preserving refactor of `packages/mobile`. The auth session moves int
 
 - `AuthProvider` holds the persisted session as one state object: `token`, `refreshToken`, `user`, `signedIn`, `isFirstTime`. One object rather than five `useState` calls so a sign-in that sets three fields is one state change and one write to storage.
 - There is one `user`, the one in the session. The provider's second copy goes.
-- `ability` is derived from that user and `backend.permissions.data` with a memo, so it exists whenever a user does. `permissions.data` is a plain property on a service, not something React tracks, but a remote sign-in replaces it just before the provider sets the new user, so rebuilding when the user changes picks it up. The notes first had `ability` as state set at restore and sign-in; the memo does the same with no second piece of state to keep in step.
+- `ability` is derived with a memo from that user and the permissions the device holds for them (`backend.permissions.getForUser`), so it exists whenever a usable session does. The permissions sit on a service, not in anything React tracks, but a remote sign-in stores them just before the provider sets the new user, so rebuilding when the user changes picks them up. The notes first had `ability` as state set at restore and sign-in; the memo does the same with no second piece of state to keep in step.
+- Permissions are held per user (release 2.69, merged in from main while this card was open). A sign-in for a user with none stored is refused before the session changes. A stored session whose user has none is ended as a log out would end it, before anything renders: the provider holds its children back until that has happened, so no screen sees a signed-in user with no `ability`, and there is no navigator to reset. Main does the same from an effect after the first screen has rendered.
 - `settings`, `resetPasswordLastEmailUsed` and `preventSignOutOnFailure` stay as they are: separate, in memory only.
 - The context keeps its current names (`checkFirstSession`, `setUserFirstSignIn`, `isUserAuthenticated` and the rest), so the thirty existing `useAuth()` callers are untouched. `SignIn.tsx` reads `checkFirstSession()` in place of `authSelector`.
 - `useSelector(authUserSelector)` becomes `useAuth().user` in the twelve files that use it.
@@ -25,7 +26,7 @@ A behaviour-preserving refactor of `packages/mobile`. The auth session moves int
 
 Today the provider's copy of `user`, and `ability` with it, is restored at launch only when a token is also stored. A device that logs out (tokens discarded), signs in offline, then closes and reopens the app comes up signed in on the home screen with a null `ability`, and the screens that call `ability.can(...)` have no guard for that. Read from the code, not reproduced on a device.
 
-With one `user`, `ability` is restored whenever a user is. Decided with Tom: let the refactor fix this instead of writing the token condition back in. The Mobile app session spec carries a criterion for it under Opening the app.
+With one `user`, `ability` is restored whenever a user is, tokens or not. Decided with Tom: let the refactor fix this instead of writing the token condition back in. The Mobile app session spec carries a criterion for it under Opening the app.
 
 ## Selected patient context
 
@@ -122,8 +123,8 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ### Checks
 
-- [x] Typecheck shows no errors beyond the ones already on the base (480 on the base, 477 now with main merged in, none from this card)
-- [x] Mobile jest suite passes (68 suites, 513 tests with main merged in, run with three workers)
+- [x] Typecheck shows no errors beyond the ones already on main (481 with main merged in, none from this card)
+- [x] Mobile jest suite passes (69 suites, 537 tests with main merged in, run with three workers)
 - [x] Lint passes on the mobile package with no errors
 - [x] Android JavaScript bundle builds, so every import resolves under Metro, with no Redux package in it
 - [ ] Run on a device or emulator, including the upgrade from the previous build

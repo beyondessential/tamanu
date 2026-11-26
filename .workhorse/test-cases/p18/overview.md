@@ -24,6 +24,10 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 - [x] A session stored by an earlier build through redux-persist opens signed in the same way
 - [x] Stored tokens are handed to the central server when nobody is signed in to the screens
 - [x] A user who last signed in offline reopens with their permissions loaded (the one behaviour change)
+- [x] A stored session whose user has no permissions on the device is ended before the first screen: tokens discarded, sync stopped, nobody signed in (verifies spec: MSIGN)
+- [x] A logged out device with no permissions stored is left as it is
+- [x] An offline sign-in holds the signing-in user's own permissions, not the previous user's (verifies spec: MSIGN)
+- [x] A sign-in for a user with no permissions on the device is refused and leaves no session behind
 - [x] A stored session that cannot be read starts signed out, and is left in storage as it is
 - [x] Nothing renders, reaches the central server or is stored until the session has been read
 - [x] A session read before the provider mounted is picked up without a second read
@@ -68,9 +72,12 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 
 ### Upgrade
 
+The previous build in the first three cases is one that already keeps permissions per user, which arrived on release/2.69. An older build holds none for anybody, so its session is ended on the first launch whatever this card does; the fourth case covers it.
+
 - [ ] Install the previous build, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens signed in on the Patient tab with the same patient, and the welcome introduction does not show again
 - [ ] Repeat with the previous build signed out. This build opens on the log in screen, and signing in goes straight to the home screen without the welcome introduction
 - [ ] Repeat with the previous build signed out by inactivity. This build opens on the log in screen and a sync still runs in the background
+- [ ] Install a build from before per-user permissions, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens on the log in screen, and signing in online goes straight to the home screen without the welcome introduction, with the same patient still selected
 
 ### Session
 
