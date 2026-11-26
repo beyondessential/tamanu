@@ -13,7 +13,7 @@ All cases post a FHIR ImagingStudy with a contained Endpoint and no accession nu
 - [x] A request has a manual result and a result from an earlier link-only study. Post a second link-only study with a different link and notes. The earlier link-only result takes the new link and notes, the manual result is unchanged, and no third result appears.
 - [x] Another request holds a result from an earlier link-only study. Post a link-only study for a request with no results. The other request's result is unchanged, and the study's request gets one new result.
 - [x] A request has two results from earlier link-only studies. Post a link-only study. The newer of the two takes the new link and notes, and the older is unchanged.
-- [ ] A request has no results. Post a study with a link and an accession number identifier whose value is blank, twice, the second with a different link and notes. One result holds the second study's link and notes, with no accession number.
+- [x] A request has no results. Post a study with a link and an accession number identifier whose value is blank, twice, the second with a different link and notes. One result holds the second study's link and notes, with no accession number.
 - [x] A request has a result recorded under an accession number, with a link. Post a link-only study. The accession result keeps its description, link and accession number, and a second result is added.
 - [x] A request has a result recorded under an accession number. Post a study with the same accession number. That result's description is updated (existing test, unchanged behaviour).
 - [x] A request has no results. Post a link-only study. One result is created with the link and notes (existing test, unchanged behaviour).
