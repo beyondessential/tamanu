@@ -14,7 +14,7 @@ Applies to report definitions, generation, and exports.
 - The name is saved without leading or trailing spaces, cannot be blank, and must not match the name of any other report, including a deleted one.
 - The name is a single line of visible text: it cannot hold control or formatting characters, and a name made only of invisible characters counts as blank.
 - Where a user's permission to write report definitions covers only particular reports, they can rename only those reports.
-- A report using the raw schema can be renamed only by a user with permission to edit the raw schema.
+- A report on the raw connection can be renamed only by a user with permission to write the report schema.
 - A renamed report shows its new name in the admin panel's report list and edit screen straight away, and on facilities once they have synced.
 - Every export generated after a rename carries the new name.
 

@@ -204,8 +204,7 @@ reportsRouter.patch(
     // report and the noun on its own cannot honour that.
     req.checkPermission('write', report);
 
-    const canEditSchema = req.ability.can('write', 'ReportDbSchema');
-    if (!canEditSchema && report.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
+    if (!canEditReportSchema(req) && report.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
       throw new InvalidOperationError(
         'You do not have permission to rename reports using the raw schema',
       );
