@@ -226,7 +226,8 @@ WHERE ir.display_id = 'IMAGING_REQUEST_DISPLAY_ID';
 No `imaging_results` row = RIS/PACS has not returned a result — either it has not
 processed the request yet, or it is not reading the `ServiceRequest`. A row is
 not proof RIS/PACS returned anything: staff can also enter a result by hand. A
-result posted by RIS/PACS has `completed_by_id IS NULL`; a manual one names the
+result posted by RIS/PACS has `completed_by_id IS NULL` and an `external_code`,
+a `result_image_url`, or both; a manual one has neither and usually names the
 user (see 3.6). To check
 whether RIS/PACS is actually **polling** the FHIR route at all, use the shared
 **Is the integration polling? — Caddy log** check in
@@ -266,7 +267,10 @@ auth). Run on the facility or central. **[diagnose]**
 WITH r AS (
   SELECT ir.id, ir.imaging_type,
          date_trunc('week', ir.created_at) AS wk,
-         bool_or(res.id IS NOT NULL AND res.completed_by_id IS NULL) AS has_pacs_result
+         bool_or(
+           res.completed_by_id IS NULL
+           AND (res.external_code IS NOT NULL OR res.result_image_url IS NOT NULL)
+         ) AS has_pacs_result
   FROM imaging_requests ir
   LEFT JOIN imaging_results res
          ON res.imaging_request_id = ir.id AND res.deleted_at IS NULL
@@ -316,7 +320,7 @@ ORDER BY 1, 2;
 
 Writes missing for the affected modality and weeks = RIS/PACS is not sending them.
 Writes present but no matching `imaging_results` = central is rejecting them; read
-one `body` against the checks in `FhirImagingStudy.ts:64-182`.
+one `body` against the checks in `FhirImagingStudy.ts:64-196`.
 
 ## 4. Interpret
 
