@@ -9,7 +9,6 @@ export const getUpcomingVaccinations = asyncHandler(async (req, res) => {
   const { patient } = req;
   const { sequelize } = req.store;
 
-  // Query the upcoming_vaccinations view with scheduled vaccine and vaccine reference data
   const results = await sequelize.query(
     `
     SELECT
@@ -29,11 +28,10 @@ export const getUpcomingVaccinations = asyncHandler(async (req, res) => {
       uv.due_date "dueDate",
       uv.days_till_due "daysTillDue",
       uv.status
-    FROM upcoming_vaccinations uv
+    FROM upcoming_vaccinations_for_patients(ARRAY[:patientId]::varchar[]) uv
     JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
     JOIN reference_data rd ON rd.id = uv.vaccine_id
-    WHERE uv.patient_id = :patientId
-      AND uv.status != :missedStatus
+    WHERE uv.status != :missedStatus
     ORDER BY uv.due_date ASC, sv.label
     `,
     {

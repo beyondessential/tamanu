@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { addWeeks, format, parseISO, subWeeks } from 'date-fns';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
+import { VACCINE_STATUS } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
@@ -234,6 +236,68 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       expect(data.length).toBe(0);
     });
 
+    it("Should return only the signed-in patient's doses still to be given", async () => {
+      const { Patient, ReferenceData, ScheduledVaccine, Encounter, AdministeredVaccine } =
+        store.models;
+      const dateOfBirth = format(subWeeks(new Date(), 10), 'yyyy-MM-dd');
+      const child = await Patient.create(fake(Patient, { displayId: 'VAXCHILD01', dateOfBirth }));
+      await Patient.create(fake(Patient, { displayId: 'VAXSIBLING01', dateOfBirth }));
+      await store.models.PortalUser.create({
+        email: 'child@test.com',
+        patientId: child.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const vaccine = await ReferenceData.create(
+        fake(ReferenceData, { type: 'drug', name: 'Polio', code: 'POLIO001' }),
+      );
+      const scheduleDose = (index, weeksFromBirthDue) =>
+        ScheduledVaccine.create(
+          fake(ScheduledVaccine, {
+            vaccineId: vaccine.id,
+            category: 'Routine',
+            index,
+            weeksFromBirthDue,
+            weeksFromLastVaccinationDue: null,
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          }),
+        );
+      const givenDose = await scheduleDose(1, 6);
+      const nextDose = await scheduleDose(2, 16);
+
+      const encounter = await Encounter.create(
+        fake(Encounter, {
+          patientId: child.id,
+          encounterType: 'clinic',
+          examinerId: testExaminer.id,
+          departmentId: testDepartment.id,
+          locationId: testLocation.id,
+        }),
+      );
+      await AdministeredVaccine.create({
+        encounterId: encounter.id,
+        scheduledVaccineId: givenDose.id,
+        date: new Date().toISOString(),
+        status: 'GIVEN',
+        recorderId: testExaminer.id,
+      });
+
+      const childAuthToken = await getPatientAuthToken(baseApp, store.models, 'child@test.com');
+      const response = await baseApp
+        .get('/api/portal/me/vaccinations/upcoming')
+        .set('Authorization', `Bearer ${childAuthToken}`);
+
+      expect(response).toHaveSucceeded();
+      const polioDoses = response.body.data.filter(({ vaccine: { id } }) => id === vaccine.id);
+      expect(polioDoses).toEqual([
+        expect.objectContaining({
+          scheduledVaccine: expect.objectContaining({ id: nextDose.id }),
+          dueDate: format(addWeeks(parseISO(dateOfBirth), 16), 'yyyy-MM-dd'),
+          status: VACCINE_STATUS.SCHEDULED,
+        }),
+      ]);
+    });
+
     it('Should reject request without authorization header', async () => {
       const response = await baseApp.get('/api/portal/me/vaccinations/upcoming');
       expect(response).toHaveRequestError();
@@ -447,7 +511,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       const response = await baseApp
         .get('/api/portal/me/vaccinations/administered')
         .set('Authorization', `Bearer ${newAuthToken}`);
-      
+
       expect(response).toHaveSucceeded();
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThan(0);
