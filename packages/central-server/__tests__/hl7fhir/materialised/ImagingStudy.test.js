@@ -5,6 +5,7 @@ import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 import { showError } from '@tamanu/shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES, FHIR_IMAGING_STUDY_STATUS } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../../utilities';
@@ -350,6 +351,61 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         expect(ires.description).toEqual('This is a fine note\n\nThis is another note');
       }));
 
+    it('leaves the description and link as they were when a study carries neither', () =>
+      showError(async () => {
+        // arrange
+        const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: encounter.id,
+            locationId: resources.location.id,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            priority: 'routine',
+            requestedDate: '2022-03-04 15:30:00',
+          }),
+        );
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        const ires = await ImagingResult.create(
+          fake(ImagingResult, {
+            imagingRequestId: ir.id,
+            externalCode: 'ACCESSION',
+            description: 'Earlier report',
+            resultImageUrl: 'http://example.com/earlier-study',
+          }),
+        );
+
+        // act
+        const response = await app.post(PATH).send({
+          resourceType: 'ImagingStudy',
+          status: 'final',
+          identifier: [
+            {
+              system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+              value: 'ACCESSION',
+            },
+          ],
+          basedOn: [
+            {
+              type: 'ServiceRequest',
+              reference: `ServiceRequest/${mat.id}`,
+            },
+          ],
+        });
+
+        // assert
+        expect(response).toHaveSucceeded();
+        const results = await ImagingResult.findAll({ where: { imagingRequestId: ir.id } });
+        expect(results).toHaveLength(1);
+        await ires.reload();
+        expect(ires.description).toEqual('Earlier report');
+        expect(ires.resultImageUrl).toEqual('http://example.com/earlier-study');
+      }));
+
     it('can set the image result url via a contained Endpoint in an ImagingStudy', () =>
       showError(async () => {
         // arrange
@@ -407,14 +463,16 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
       const AMENDED_NOTE = 'Amended report from the integration';
       const AMENDED_URL = 'http://example.com/amended-study';
 
-      const createImagingRequest = async () => {
+      const createImagingRequest = async ({
+        status = IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+      } = {}) => {
         const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
         const imagingRequest = await ImagingRequest.create(
           fake(ImagingRequest, {
             requestedById: resources.practitioner.id,
             encounterId: encounter.id,
             locationId: resources.location.id,
-            status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+            status,
             priority: 'routine',
             requestedDate: '2022-03-04 15:30:00',
           }),
@@ -426,16 +484,17 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         return { imagingRequest, serviceRequest };
       };
 
-      const postLinkOnlyStudy = (
+      const postStudyWithLink = (
         serviceRequest,
-        { url = INTEGRATION_URL, note, identifier } = {},
+        { url = INTEGRATION_URL, note = INTEGRATION_NOTE, identifier, started } = {},
       ) =>
         app.post(PATH).send({
           resourceType: 'ImagingStudy',
           status: 'final',
           ...(identifier && { identifier }),
+          ...(started && { started }),
           basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequest.id}` }],
-          note: [{ text: note ?? INTEGRATION_NOTE }],
+          note: [{ text: note }],
           contained: [
             {
               address: url,
@@ -510,7 +569,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           );
 
           // act
-          const response = await postLinkOnlyStudy(serviceRequest);
+          const response = await postStudyWithLink(serviceRequest);
 
           // assert
           expect(response).toHaveSucceeded();
@@ -547,7 +606,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           );
 
           // act
-          const response = await postLinkOnlyStudy(serviceRequest);
+          const response = await postStudyWithLink(serviceRequest);
 
           // assert
           expect(response).toHaveSucceeded();
@@ -576,11 +635,11 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               description: 'Report written by the clinician',
             }),
           );
-          const firstResponse = await postLinkOnlyStudy(serviceRequest);
+          const firstResponse = await postStudyWithLink(serviceRequest);
           expect(firstResponse).toHaveSucceeded();
 
           // act
-          const response = await postLinkOnlyStudy(serviceRequest, {
+          const response = await postStudyWithLink(serviceRequest, {
             url: AMENDED_URL,
             note: AMENDED_NOTE,
           });
@@ -612,11 +671,11 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               value: '',
             },
           ];
-          const firstResponse = await postLinkOnlyStudy(serviceRequest, { identifier });
+          const firstResponse = await postStudyWithLink(serviceRequest, { identifier });
           expect(firstResponse).toHaveSucceeded();
 
           // act
-          const response = await postLinkOnlyStudy(serviceRequest, {
+          const response = await postStudyWithLink(serviceRequest, {
             identifier,
             url: AMENDED_URL,
             note: AMENDED_NOTE,
@@ -665,7 +724,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           expect(olderResult.createdAt.getTime()).toBeLessThan(newerResult.createdAt.getTime());
 
           // act
-          const response = await postLinkOnlyStudy(serviceRequest);
+          const response = await postStudyWithLink(serviceRequest);
 
           // assert
           expect(response).toHaveSucceeded();
@@ -683,6 +742,57 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
             description: INTEGRATION_NOTE,
             resultImageUrl: INTEGRATION_URL,
           });
+        }));
+
+      it('completes a pending imaging request', () =>
+        showError(async () => {
+          // arrange
+          const { imagingRequest, serviceRequest } = await createImagingRequest({
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          });
+
+          // act
+          const response = await postStudyWithLink(serviceRequest);
+
+          // assert
+          expect(response).toHaveSucceeded();
+          await imagingRequest.reload();
+          expect(imagingRequest.status).toEqual(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+        }));
+
+      it("records the study's start time as when the result was completed", () =>
+        showError(async () => {
+          // arrange
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+
+          // act
+          const response = await postStudyWithLink(serviceRequest, {
+            started: '2022-03-04T09:15:30',
+          });
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(1);
+          expect(results[0].completedAt).toEqual('2022-03-04 09:15:30');
+        }));
+
+      it('records when the study arrived as the completed time when it gives no start time', () =>
+        showError(async () => {
+          // arrange
+          const { imagingRequest, serviceRequest } = await createImagingRequest();
+
+          // act
+          const before = getCurrentDateTimeString();
+          const response = await postStudyWithLink(serviceRequest);
+          const after = getCurrentDateTimeString();
+
+          // assert
+          expect(response).toHaveSucceeded();
+          const results = await findResults(imagingRequest);
+          expect(results).toHaveLength(1);
+          expect(results[0].completedAt >= before).toBe(true);
+          expect(results[0].completedAt <= after).toBe(true);
         }));
     });
 
