@@ -44,7 +44,7 @@ const settings = {
   ageDisplayFormat: [{ as: 'years', range: { min: { duration: { days: 0 } } } }],
 };
 
-const renderSheetText = async props => {
+const renderSheet = async props => {
   const buffer = await renderToBuffer(
     <DietSummaryPDF
       {...sheet}
@@ -54,8 +54,10 @@ const renderSheetText = async props => {
       {...props}
     />,
   );
-  return readPdf(buffer).allText;
+  return readPdf(buffer);
 };
+
+const renderSheetText = async props => (await renderSheet(props)).allText;
 
 const countOf = (text, phrase) => text.split(phrase).length - 1;
 
@@ -102,5 +104,14 @@ describe('DietSummaryPDF', () => {
     expect(text).toMatch(/Sione Tupou \(\d+ years\)/);
     expect(text).toContain('Mele Fifita');
     expect(text).not.toContain('Mele Fifita (');
+  });
+
+  it('keeps a two-word bed name on one line', async () => {
+    const [ward] = sheet.areas;
+    const patients = [{ ...ward.patients[0], bed: 'Waiting Area' }];
+
+    const { textLines } = await renderSheet({ areas: [{ ...ward, patients }] });
+
+    expect(textLines).toContain('Waiting Area');
   });
 });

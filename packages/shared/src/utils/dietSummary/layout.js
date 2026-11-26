@@ -11,8 +11,11 @@ export const CELL_PADDING_VERTICAL = 4;
 // and age wrap their column.
 export const NAME_CHAR_WIDTH = 4.4;
 
-export const NHN_WIDTH = 60;
-export const BED_WIDTH = 35;
+// An id is one unbreakable word, so one too long for its column runs on over the bed beside it.
+// Room for 13 characters.
+export const NHN_WIDTH = 75;
+// Room for a two-word bed name on one line, since a word too long for the column is split mid-word.
+export const BED_WIDTH = 60;
 export const PATIENT_COLUMNS_WIDTH = NAME_WIDTH + NHN_WIDTH + BED_WIDTH;
 export const BORDER_WIDTH = 1;
 const CONTENT_WIDTH = 742;
