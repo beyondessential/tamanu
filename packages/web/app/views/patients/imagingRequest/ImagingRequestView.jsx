@@ -311,7 +311,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
       render={({ values, setFieldValue }) => {
         const canAddResult = getCanAddResult(values);
         const onStatusChange = ({ target: { value } }) => {
-          // spec: IMGR#recording-a-result
+          // spec: IMGR#recording-a-result-by-hand
           // Default the clinician to the current user when the status changes to completed, only
           // when empty so a clinician already chosen is never overwritten.
           const isBeingCompleted =

@@ -6,7 +6,7 @@ id: IMGR
 
 Applies to recording a result on an imaging request, by hand or from an imaging integration: who completed it, when it was completed, and its description.
 
-## Recording a result
+## Recording a result by hand
 
 - A result records who completed it (Completed by), when it was completed (Completed), and a result description.
 - A result can be entered only while the request's status is Completed.
@@ -21,10 +21,12 @@ Applies to recording a result on an imaging request, by hand or from an imaging 
 
 - An imaging integration records a result on a request by sending an imaging study that carries an accession number, a link to the images, or both, along with any report text.
 - A result recorded from a study holds the study's report as its description, its accession number and its link, and has no Completed by.
+- A result a study adds takes the study's start time as its Completed, or the time the study arrived when the study gives none.
+- Recording a result from a study makes the request Completed.
 - A study with an accession number updates the result already recorded on the request under that accession number.
-- A study without an accession number updates the most recent result that an earlier study without one recorded on the request.
+- A study without an accession number updates the most recently added result that an earlier study without one recorded on the request.
 - A result counts as recorded by a study without an accession number when it has a link, no accession number and no Completed by.
-- A study with no such result to update adds a new result alongside those the request already has.
+- A study with no result to update adds a new result alongside those the request already has.
 - A result entered by hand keeps its description and Completed by when a study arrives for its request.
 
 > [!NOTE]
