@@ -3,6 +3,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NotFoundException } from '@zxing/library';
 import { SettingsContext } from '@tamanu/ui-components';
 import { Field } from '../../../app/components/Field';
 import { QRCodeTextField } from '../../../app/components/Field/QRCodeTextField';
@@ -149,7 +150,7 @@ describe('repeated scans of one invalid QR code', () => {
   it('shows one toast when the camera has been open for several scans without BarcodeDetector', async () => {
     let isCodeInView = false;
     zxingDecode.mockImplementation(() => {
-      if (!isCodeInView) throw new Error('No QR code in frame');
+      if (!isCodeInView) throw new NotFoundException();
       return { getText: () => SCANNED_VALUE };
     });
     renderField();
@@ -160,6 +161,47 @@ describe('repeated scans of one invalid QR code', () => {
     await act(async () => vi.advanceTimersByTime(2500));
 
     expect(notifyError).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('zxing decode errors', () => {
+  let consoleError;
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    consoleError.mockRestore();
+    zxingDecode.mockReset();
+  });
+
+  it('keeps scanning quietly while frames hold no QR code', async () => {
+    zxingDecode.mockImplementation(() => {
+      throw new NotFoundException();
+    });
+    renderField();
+
+    await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
+    await act(() => vi.advanceTimersByTimeAsync(1500));
+
+    expect(zxingDecode).toHaveBeenCalledTimes(3);
+    expect(consoleError).not.toHaveBeenCalledWith('Barcode detection failed', expect.anything());
+  });
+
+  it('logs an error that is not about the frame', async () => {
+    const decodeError = new Error('Canvas unavailable');
+    zxingDecode.mockImplementation(() => {
+      throw decodeError;
+    });
+    renderField();
+
+    await userEvent.click(screen.getByTestId('qr-scanner-button-code'));
+    await act(async () => vi.advanceTimersByTime(500));
+
+    expect(consoleError).toHaveBeenCalledWith('Barcode detection failed', decodeError);
   });
 });
 
