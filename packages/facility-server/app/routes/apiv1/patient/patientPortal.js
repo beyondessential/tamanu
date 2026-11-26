@@ -35,6 +35,10 @@ const registerPatient = async ({ patientId, email, models }) => {
   }
 
   if (portalUser.email !== email) {
+    // A new address only signs in to this patient once its own registration link is opened
+    if (portalUser.email.toLowerCase() !== email.toLowerCase()) {
+      portalUser.status = PORTAL_USER_STATUSES.PENDING;
+    }
     portalUser.email = email;
     await portalUser.save();
   }

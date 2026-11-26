@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
+import { PORTAL_USER_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
@@ -54,6 +55,43 @@ describe('Patient portal registration', () => {
 
     const portalUser = await models.PortalUser.findOne({ where: { patientId: patient.id } });
     expect(portalUser.email).toBe(email);
+  });
+
+  it('asks a registered patient moved to a new email to register again', async () => {
+    const patient = await models.Patient.create(fake(models.Patient));
+    await models.PortalUser.create({
+      patientId: patient.id,
+      email: 'before@test.com',
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+
+    const response = await app
+      .post(`/api/patient/${patient.id}/portal/register`)
+      .send({ email: 'after@test.com', facilityId });
+    expect(response).toHaveSucceeded();
+
+    const portalUser = await models.PortalUser.findOne({ where: { patientId: patient.id } });
+    expect(portalUser.status).toBe(PORTAL_USER_STATUSES.PENDING);
+  });
+
+  it.each([
+    ['the same email', 'same@test.com'],
+    ['the email in other letter cases', 'Same@Test.com'],
+  ])('keeps a patient registered when sent %s', async (_, sentEmail) => {
+    const patient = await models.Patient.create(fake(models.Patient));
+    await models.PortalUser.create({
+      patientId: patient.id,
+      email: 'same@test.com',
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+
+    const response = await app
+      .post(`/api/patient/${patient.id}/portal/register`)
+      .send({ email: sentEmail, facilityId });
+    expect(response).toHaveSucceeded();
+
+    const portalUser = await models.PortalUser.findOne({ where: { patientId: patient.id } });
+    expect(portalUser.status).toBe(PORTAL_USER_STATUSES.REGISTERED);
   });
 
   it('requires an email', async () => {
