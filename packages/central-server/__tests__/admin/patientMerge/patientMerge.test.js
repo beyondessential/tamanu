@@ -191,14 +191,14 @@ describe('Patient merge', () => {
   describe('Patient', () => {
     it('Should preserve fields and grab missing fields', async () => {
       const [keep, merge] = await makeTwoPatients(models, { middleName: '', culturalName: null });
-      const mergedFirstName = merge.firstName;
+      const keepFirstName = keep.firstName;
       const mergeMiddleName = merge.middleName;
       const mergeCulturalName = merge.culturalName;
 
       await mergePatient(models, keep.id, merge.id);
       await keep.reload({ paranoid: false });
 
-      expect(keep.firstName).not.toBe(mergedFirstName);
+      expect(keep).toHaveProperty('firstName', keepFirstName);
       expect(keep).toHaveProperty('middleName', mergeMiddleName);
       expect(keep).toHaveProperty('culturalName', mergeCulturalName);
     });
