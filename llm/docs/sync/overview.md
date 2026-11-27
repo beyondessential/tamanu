@@ -167,7 +167,6 @@ Two details in step 3 exist to stop pulled records being mistaken for local edit
 - **Incoming tick:** Pulled rows are written with a tick of `-1`, which the trigger stores as `-999`.
 - **Deletes ride along:** Deletes and restores are written in the same statement as the rest of the record. A separate delete statement would not carry the `-1`, so the trigger would stamp it as a local edit.
 
-The cursor is stored inside the same transaction as the records for a similar reason. If it were stored separately and that failed, the records would be pulled and saved a second time.
 
 ## What syncs where
 
