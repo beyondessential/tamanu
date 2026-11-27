@@ -2,7 +2,7 @@
 
 The card is a behaviour-preserving refactor, so every case here is a check that something still works as it did. The one exception is marked.
 
-Cases ticked under "Covered by automated tests" are exercised by jest specs in `packages/mobile`. Nothing has been run on a device or emulator yet, so every case under "On a device" is still owed.
+Cases ticked under "Covered by automated tests" are exercised by jest specs in `packages/mobile`. Cases under "On a device" are ticked as they pass on the emulator rig described in the plan's Device run section.
 
 ## Covered by automated tests
 
@@ -74,7 +74,7 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 
 The previous build in the first three cases is main without this card: it still writes redux-persist's format, already keeps permissions per user, and is on the same version, so one central server accepts both builds. A build from before per-user permissions holds none for anybody, so its session is ended on the first launch whatever this card does; the fourth case covers it. The plan's Device run section says how to get the builds and a server.
 
-- [ ] Install the previous build, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens signed in on the Patient tab with the same patient, and the welcome introduction does not show again
+- [x] Install the previous build, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens signed in on the home screen, the Patient tab shows the same patient, and the welcome introduction does not show again
 - [ ] Repeat with the previous build signed out. This build opens on the log in screen, and signing in goes straight to the home screen without the welcome introduction
 - [ ] Repeat with the previous build signed out by inactivity. This build opens on the log in screen and a sync still runs in the background
 - [ ] Install a build from before per-user permissions, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens on the log in screen. Where the central server accepts this build, signing in online goes straight to the home screen without the welcome introduction, with the same patient still selected
@@ -82,8 +82,8 @@ The previous build in the first three cases is main without this card: it still 
 ### Session
 
 - [ ] Sign in online on a fresh install: facility selection shows, then the welcome introduction, then the home screen
-- [ ] Close the app fully and reopen it: it opens signed in on the home screen with no password asked for, and the sync that starts at launch completes
-- [ ] Log out from the More screen: the log in screen shows. Sign in again: the home screen shows without the welcome introduction
+- [x] Close the app fully and reopen it: it opens signed in on the home screen with no password asked for, and the sync that starts at launch completes
+- [x] Log out from the More screen: the log in screen shows. Sign in again: the home screen shows without the welcome introduction
 - [ ] Sign in offline (aeroplane mode) as a user who has signed in online before
 - [ ] After logging out, sign in offline, close the app and reopen it: screens that check permissions (patient home, program registry, lab requests) open without error (the one behaviour change)
 - [ ] Leave the app untouched for 30 minutes: the log in screen shows with "Logged out due to inactivity"
@@ -103,5 +103,5 @@ The previous build in the first three cases is main without this card: it still 
 - [ ] Edit the selected patient's details: the patient home screen shows the saved details
 - [ ] Record vitals, a vaccine, a program form, a referral, a lab request, a diagnosis and a prescription against the selected patient: each saves against that patient and their name shows in each screen's header
 - [ ] Submit a program form that writes back to patient fields: the patient home screen shows the new values straight away
-- [ ] Close and reopen the app with a patient selected: the Patient tab opens on that patient
+- [x] Close and reopen the app with a patient selected: the Patient tab shows that patient
 - [ ] Log out and sign in as another user with a patient selected: the same patient is still selected

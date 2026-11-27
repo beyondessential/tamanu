@@ -142,7 +142,7 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ## Device run
 
-Nothing on this card has run on a device. The cases are under "On a device" in the test cases, all unticked. This section is the brief for running them on a machine that has an Android emulator, with an agent driving the app through `adb` (screenshots, the view hierarchy, taps and typing) or Maestro.
+The cases are under "On a device" in the test cases. The rig below is set up on the developer's Intel Mac and has run the first upgrade case. This section is the brief for running them on a machine that has an Android emulator, with an agent driving the app through `adb` (screenshots, the view hierarchy, taps and typing) or Maestro.
 
 ### What the machine needs
 
@@ -152,22 +152,33 @@ Nothing on this card has run on a device. The cases are under "On a device" in t
 
 ### Builds
 
-Two debug builds, from two checkouts, both signed with the repository's debug key so one installs over the other:
+Two builds, from two checkouts:
 
 - **The previous build**: main without this card, from a worktree of `origin/main`. It still keeps its state in Redux and writes redux-persist's format, and it is on the same version as this branch, so one central server accepts both.
 - **This build**: the card's branch.
 
-A debug build loads its JavaScript from Metro, so run Metro from the checkout whose build is installed, and stop it before installing the other.
+The card removes only JavaScript packages, so the native side of the two builds is the same, and one debug package serves both. A debug build loads its JavaScript from Metro, so the checkout Metro runs from is the build under test. Upgrading is: reinstall the package over itself with `adb install -r` (which keeps the app's data, as a store update does), switch Metro to the card's checkout, and launch. Building a second package would add half an hour and test nothing more.
 
-The emulator reaches the machine's own `127.0.0.1` at `10.0.2.2`. Point each checkout at the rig's central server with a local edit to `packages/mobile/serverOverrides.json`, left uncommitted:
-
-```json
-{ "centralServers": [{ "label": "Rig", "value": "http://10.0.2.2:<central port>" }], "metaServer": null }
-```
-
-The app remembers the server it first signed in to, so the second build carries on against the same one.
+The emulator reaches the machine's own `127.0.0.1` at `10.0.2.2`, and a debug build offers "Local central server (port 3000)" at `http://10.0.2.2:3000` on the log in screen. A small forwarder on the machine's port 3000 passes that to the lease's central server, so neither checkout needs a `serverOverrides.json` edit. The app remembers the server it first signed in to, so the second build carries on against the same one.
 
 Release builds are the closer check but need CI, since a release build made without the signing secrets is unsigned. A pull request deployment builds this branch's package wired to its own central server and posts the link on the pull request. The previous build would come from running the Android packaging workflow by hand with that same server, from a branch that is not `main`, because a run on `main` publishes its package.
+
+### The rig on this machine
+
+Everything except the repository changes lives in the card's rig work directory (`workhorse-local rig workdir`), which is cleared with the card.
+
+- **Toolchain.** Node 26 from nvm, a Temurin JDK 17 in the work directory (the machine's default Java is 11, which this Gradle refuses), and NDK 27.1, build tools 36 and the command-line tools added to the SDK.
+- **Emulator.** An AVD named `tamanu-rig`: Pixel 5, Android 13, x86_64, 3 GB, hardware keyboard on, run headless with software rendering and animations off. Error dialogs are suppressed, because System UI stalls under load on this 4-core machine and its "isn't responding" dialog sits over the app.
+- **Builds.** The previous build is a detached worktree at the merge base with main, `0561d172e1`, inside the work directory. Gradle's `assembleDebug` for `x86_64` only took 28 minutes cold.
+- **Server.** A lease held as `device-run/central` for eight hours, with the forwarder above. The accounts are the rig's: `admin@tamanu.io` / `admin`, plus a practitioner and a reception user. Link the device to `facility-1`. The rig seeds no patients, so register one.
+- **Driving.** Shell scripts beside each other in the work directory's `scripts/`: `env.sh` (sourced by the rest), `emulator-up.sh`, `metro.sh prev|this|stop`, `app.sh install|launch|stop|clear|logcat`, `ui.sh` (the screen's labels and tap centres from a view hierarchy dump), `tap.sh "<label>"`, `type.sh "<field>" "<text>"`, `shot.sh <name>` and `storage.sh` (the app's AsyncStorage entries; the Keychain is encrypted and not readable). The bottom tab bar reports no position to the dump, so its tabs are tapped by position: Home, Sync, Patient, Reports and More across the bottom at y 2188.
+- **Maestro** is downloaded too, for writing flows as files rather than driving step by step, but nothing uses it yet.
+
+Setting it up turned up three things outside the card's own code:
+
+- The rig recipe could no longer seed against current main: with no `NODE_ENV`, the servers count as a deployment, so they make no development key file and refuse weak token secrets. The recipe now makes a key file and token secrets once per build.
+- Metro cannot resolve a package-exports subpath with no extension, so `@tamanu/utils/calculationExpression`, which arrived with the 2.69 merge, stopped every debug and release bundle of the mobile app. Main fixed it in #11846, after this card last merged main. It is cherry-picked onto the branch, and applied uncommitted in the previous build's worktree.
+- A debug build of this branch bundles with none of the Redux packages in it, and the previous build's bundle has them, which confirms the two Metro servers are serving what they should.
 
 ### Order
 
