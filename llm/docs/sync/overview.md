@@ -172,7 +172,7 @@ Two details in step 3 exist to stop pulled records being mistaken for local edit
 
 ### Direction
 
-Every model declares a sync direction, which says whether its table syncs at all, and which way. There are five (`SYNC_DIRECTIONS`:
+Every model declares a sync direction, which says whether its table syncs at all, and which way. There are five`SYNC_DIRECTIONS`:
 
 | Direction | Meaning |
 | --- | --- |
