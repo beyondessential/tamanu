@@ -130,7 +130,7 @@ This is `persistIncomingChanges`, on central. Everything in the numbered list ha
 5. **Record that this device pushed at T**, as a row in `sync_device_ticks`.
 6. **Tick-tock again**, so that nothing written after this point can be stamped T (this is important; see "the two tick-tocks" below).
 
-After the transaction commits, two more things run: `adjustDataPostSyncPush`, which lets a model make follow-up changes, and `bumpSyncTickForRepull`, which re-stamps any record a hook changed so that it is sent back to the client that pushed it XXX [sidestepping the removing of echoed changes stuff]
+After the transaction commits, two more things run: `adjustDataPostSyncPush`, which lets a model make follow-up changes, and `bumpSyncTickForRepull`, which re-stamps any record a hook changed so that it is sent back to the client that pushed it XXX [sidestepping the removing of echoed changes stuff with ink to not sending a client...] XXX [sidestepping the removing of echoed changes stuff]
 
 **The two tick-tocks:** T has to be unique to this push, so that all records pushed in this session, _and only_ records pushed in this session, are stamped with that tick. The first tick-tock happens inside the transaction, so until the transaction commits, no other transaction can see T as the current tick XXX [and nor can they advance the current tick, if that's important?]. The second moves the clock past T before the commit, so nobody can see it afterwards either. So any row stamped T can only have been written by this push.
 
