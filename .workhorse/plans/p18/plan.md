@@ -170,7 +170,8 @@ Everything except the repository changes lives in the card's rig work directory 
 - **Emulator.** An AVD named `tamanu-rig`: Pixel 5, Android 13, x86_64, 3 GB, hardware keyboard on, run headless with software rendering and animations off. Error dialogs are suppressed, because System UI stalls under load on this 4-core machine and its "isn't responding" dialog sits over the app.
 - **Builds.** The previous build is a detached worktree at the merge base with main, `0561d172e1`, inside the work directory. Gradle's `assembleDebug` for `x86_64` only took 28 minutes cold.
 - **Server.** A lease held as `device-run/central` for eight hours, with the forwarder above. The accounts are the rig's: `admin@tamanu.io` / `admin`, plus a practitioner and a reception user. Link the device to `facility-1`. The rig seeds no patients, so register one.
-- **Driving.** Shell scripts beside each other in the work directory's `scripts/`: `env.sh` (sourced by the rest), `emulator-up.sh`, `metro.sh prev|this|stop`, `app.sh install|launch|stop|clear|logcat`, `ui.sh` (the screen's labels and tap centres from a view hierarchy dump), `tap.sh "<label>"`, `type.sh "<field>" "<text>"`, `shot.sh <name>` and `storage.sh` (the app's AsyncStorage entries; the Keychain is encrypted and not readable). The bottom tab bar reports no position to the dump, so its tabs are tapped by position: Home, Sync, Patient, Reports and More across the bottom at y 2188.
+- **Driving.** Shell scripts beside each other in the work directory's `scripts/`: `env.sh` (sourced by the rest), `emulator-up.sh`, `metro.sh prev|this|stop`, `app.sh install|launch|stop|clear|logcat`, `ui.sh` (the screen's labels and tap centres from a view hierarchy dump), `tap.sh "<label>"`, `type.sh "<field>" "<text>"`, `shot.sh <name>`, `storage.sh` (the app's AsyncStorage entries; the Keychain is encrypted and not readable), `db.sh "<sql>"` (the app's own SQLite database), `login.sh <email> <password>`, `tab.sh <tab>`, `central.sh on|off`, `hidekb.sh`, `scroll.sh` and `slowtype.sh`. The bottom tab bar reports no position to the dump, so its tabs are tapped by position: Home, Sync, Patient, Reports and More across the bottom at y 2188.
+- **Driving pitfalls.** The soft keyboard is switched off (`show_ime_with_hard_keyboard` 0), because its glide typing read swipes as words and its autocomplete changed what was typed. Pick from a dropdown by tapping the listed option, not by typing its text: typed text alone leaves the value unset and the form refuses to submit without saying why off screen. Android's back button leaves a form when no keyboard is up.
 - **Maestro** is downloaded too, for writing flows as files rather than driving step by step, but nothing uses it yet.
 
 Setting it up turned up three things outside the card's own code:
@@ -187,6 +188,14 @@ Setting it up turned up three things outside the card's own code:
 4. **Out-of-date app**: skip unless a central server that requires a newer app is to hand.
 
 A debug build cannot be relaunched in aeroplane mode, because it loads its JavaScript from Metro over the network. For the offline cases that need a relaunch, `central.sh off` stops the forwarder instead, which leaves the central server unreachable while Metro still answers.
+
+### Where the run stands
+
+Passed so far: the update from the previous build, relaunch with the launch sync, log out and back in, a wrong password, signing in as another user, offline sign-in and reopening offline, the name on each screen, and every selected patient case except two. Of the clinical screens, vitals, a diagnosis and a prescription have saved against the selected patient with their name in the header; a vaccine, a program form, a referral and a lab request are still to do.
+
+Still to run: those four screens, a program form that writes back to patient fields (the rig's programs may hold none), sign-in on a fresh install, the two inactivity cases (thirty minutes each), and reconnecting after a rejected session. The out-of-date app case is skipped.
+
+Vitals keeps only the first character of a number typed one key at a time, on main as well as here. It is recorded on the card as needing a card of its own.
 
 ### Recording it
 

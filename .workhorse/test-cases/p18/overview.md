@@ -95,7 +95,7 @@ The previous build is main without this card. It stores the session and the sele
 - [x] Go back from the patient's home screen: the Patient tab shows search again
 - [x] Open search from the home screen with a patient selected: the selection is cleared
 - [x] Register a new patient: the confirmation screen shows their name and display id, and "Start Visit" leads to their home screen
-- [ ] Edit the selected patient's details: the patient home screen shows the saved details
+- [x] Edit the selected patient's details: the patient home screen shows the saved details
 - [ ] Record vitals, a vaccine, a program form, a referral, a lab request, a diagnosis and a prescription against the selected patient: each saves against that patient and their name shows in each screen's header
 - [ ] Submit a program form that writes back to patient fields: the patient home screen shows the new values straight away
 - [x] Close and reopen the app with a patient selected: the Patient tab shows that patient
