@@ -7,14 +7,17 @@
  * for them.
  *
  * With `--baseline <lockfile>`, also fail when a required peer dependency that
- * resolves in the baseline no longer resolves. This guards a lockfile rewritten
- * with `--legacy-peer-deps`, which neither installs new peers nor keeps implicit
- * ones. Only presence is checked, not whether the version satisfies the range.
+ * resolves to a version in its range in the baseline no longer does. This guards
+ * a lockfile rewritten with `--legacy-peer-deps`, which neither installs new
+ * peers nor keeps implicit ones, and hoists packages past the copy of a peer
+ * they need.
  *
  * Usage: node scripts/check-lockfile-peers.mjs [--baseline <lockfile>] [lockfile]
  */
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { posix } from 'node:path';
+import { createRequire } from 'node:module';
+import { join, posix } from 'node:path';
 import { parseArgs } from 'node:util';
 
 const { values, positionals } = parseArgs({
@@ -26,26 +29,41 @@ function readPackages(lockfilePath) {
   return JSON.parse(readFileSync(lockfilePath, 'utf8')).packages;
 }
 
-function resolvesFrom(packages, location, name) {
+function resolveFrom(packages, location, name) {
   let directory = location;
   for (;;) {
-    if (packages[posix.join(directory, 'node_modules', name)]) return true;
-    if (directory === '' || directory === '.') return false;
+    const resolved = packages[posix.join(directory, 'node_modules', name)];
+    if (resolved) return resolved;
+    if (directory === '' || directory === '.') return null;
     directory = posix.dirname(directory);
   }
 }
 
-// Keyed by package name rather than location, so a package moving within the
-// tree between two lockfiles doesn't read as a new missing peer.
-function findMissingPeers(packages) {
+// CI runs this without installing dependencies, so it borrows the semver that npm ships with
+function loadSemver() {
+  const globalModules = execFileSync('npm', ['root', '-g'], { encoding: 'utf8' }).trim();
+  return createRequire(join(globalModules, 'npm', 'package.json'))('semver');
+}
+
+// Keyed by package names and whether the peer is missing, not location or range, so a
+// package moving within the tree or changing the range of a peer already unmet the same
+// way doesn't read as a new problem.
+function findUnmetPeers(packages, semver) {
   return new Set(
     Object.entries(packages).flatMap(([location, entry]) => {
       if (entry.link) return [];
       const dependentName = location.split('node_modules/').at(-1) || location;
-      return Object.keys(entry.peerDependencies ?? {})
-        .filter(name => !entry.peerDependenciesMeta?.[name]?.optional)
-        .filter(name => !resolvesFrom(packages, location, name))
-        .map(name => `${name}, required by ${dependentName}`);
+      return Object.entries(entry.peerDependencies ?? {})
+        .filter(([name]) => !entry.peerDependenciesMeta?.[name]?.optional)
+        .flatMap(([name, range]) => {
+          const peer = `${name}, required by ${dependentName}`;
+          const resolved = resolveFrom(packages, location, name);
+          if (!resolved) return [`${peer}, is missing`];
+          const isCheckable = resolved.version && semver.validRange(range);
+          return isCheckable && !semver.satisfies(resolved.version, range)
+            ? [`${peer}, is out of range`]
+            : [];
+        });
     }),
   );
 }
@@ -63,12 +81,15 @@ if (implicitPeers.length) {
 }
 
 if (values.baseline) {
-  const missingInBaseline = findMissingPeers(readPackages(values.baseline));
-  const newlyMissing = [...findMissingPeers(packages)].filter(peer => !missingInBaseline.has(peer));
-  if (newlyMissing.length) {
+  const semver = loadSemver();
+  const unmetInBaseline = findUnmetPeers(readPackages(values.baseline), semver);
+  const newlyUnmet = [...findUnmetPeers(packages, semver)].filter(
+    peer => !unmetInBaseline.has(peer),
+  );
+  if (newlyUnmet.length) {
     failed = true;
-    console.error('Required peer dependencies no longer in the tree:');
-    for (const peer of newlyMissing) console.error(`  ${peer}`);
+    console.error('Required peer dependencies missing or out of range:');
+    for (const peer of newlyUnmet) console.error(`  ${peer}`);
   }
 }
 
