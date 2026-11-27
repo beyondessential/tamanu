@@ -29,3 +29,5 @@ A refactor with no intended behaviour change. These cases confirm that printing 
 - [x] Empty children (`null`, `false`) print no blank label (`LabelPrintFrame.test.jsx`).
 - [ ] The printed page size follows the frame's width and height. Not testable in jsdom, where the test build of styled-components writes no global styles, so this rests on the manual print checks above.
 - [x] Existing `LabRequestSummaryPane` and medication label tests pass unchanged.
+- [ ] E2E: printing a label from the lab request view prints one label page holding the request ID, from the label frame and not the app window (`tests/patients/labRequest.spec.ts`).
+- [ ] E2E: dispensing and printing a medication label prints one label page holding the patient's name, from the label frame and not the app window (`tests/medication/medication.spec.ts`).
