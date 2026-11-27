@@ -11,6 +11,8 @@ import { Icon, ExpandMoreIcon } from './FieldCommonComponents';
 
 import { Select, SelectDropdownIndicator, SelectMultiValueRemove } from './Select';
 import { TranslatedEnumField } from '../Translation';
+import { extractTranslationFromComponent } from '../Translation/utils';
+import { useTranslation } from '../../contexts/TranslationContext';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -109,6 +111,8 @@ export const MultiselectInput = ({
   form: { initialValues },
   ...props
 }) => {
+  const { getTranslation } = useTranslation();
+
   // If value is already set, keep that value, otherwise attempt to load any initial values
   const values = getValues(value) || getValues(initialValues[name]) || [];
 
@@ -132,7 +136,11 @@ export const MultiselectInput = ({
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
-    const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
+    // The value is a list, so matching it against a single option's value finds nothing and the
+    // field reads as empty. List every selected label instead.
+    const valueText = selected
+      .map(option => extractTranslationFromComponent(option.label, getTranslation))
+      .join(', ');
     return (
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField

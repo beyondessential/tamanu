@@ -109,32 +109,61 @@ export const getInsurancePlanPaymentsWithRemainingBalance = (
 export const getInsurancePlanPaymentsWithRemainingBalanceDisplay = (
   invoice: Invoice,
 ): Array<PaymentWithDisplayAmounts> => {
-  return formatPaymentsWithRemainingBalanceDisplay(getInsurancePlanPaymentsWithRemainingBalance(invoice));
+  return formatPaymentsWithRemainingBalanceDisplay(
+    getInsurancePlanPaymentsWithRemainingBalance(invoice),
+  );
 };
 
 /**
  * What one insurance plan still owes on an invoice. Coverage comes from the invoice's items, the
  * same basis the invoice screen and the printout show, so a plan that covers nothing on this
  * invoice owes nothing and can take no payment.
+ *
+ * Pass `invoiceSectionId` to select one of the plan's attachments: a section's id for the
+ * attachment covering that section, `null` for the one covering the whole invoice. The two are
+ * exclusive, a plan covering the whole invoice having no per-section attachment, so asking a
+ * whole-invoice plan about a section answers zero. Leave it out and the balance spans every
+ * attachment the plan has, which is what an invoice with no sections has always meant.
  */
 export const getInsurancePlanPaymentBalance = (
   invoice: Invoice,
   invoiceInsurancePlanId: string,
+  invoiceSectionId?: string | null,
 ): {
   planCoverageTotal: number;
   planPaymentsTotal: number;
   planPaymentRemainingBalance: number;
 } => {
-  const planCoverageTotal =
-    getCoverageAmountPerInsurancePlan(invoice)
-      .get(invoiceInsurancePlanId)
-      ?.toNumber() ?? 0;
+  // An invoice whose plans were not loaded with their attachment rows carries no section on any
+  // of them, so naming one would match nothing and report the plan as owing nothing. Refused
+  // rather than answered, because a silent zero reads as a settled plan.
+  if (invoiceSectionId !== undefined) {
+    const plans = invoice.insurancePlans || [];
+    if (plans.length && plans.some(plan => !plan.attachmentId)) {
+      throw new Error(
+        "Pass an invoice loaded with its insurance plan attachments to ask for one section's balance",
+      );
+    }
+  }
+
+  const coversThisSection = (section: string | null | undefined) =>
+    invoiceSectionId === undefined || (section ?? null) === (invoiceSectionId ?? null);
+
+  const coverageByKey = getCoverageAmountPerInsurancePlan(invoice);
+  const planCoverageTotal = (invoice.insurancePlans || [])
+    .filter(plan => plan.id === invoiceInsurancePlanId && coversThisSection(plan.invoiceSectionId))
+    .reduce(
+      (total, plan) => total.plus(coverageByKey.get(plan.attachmentId ?? plan.id) ?? 0),
+      new Decimal(0),
+    )
+    .toNumber();
 
   const planPaymentsTotal = (invoice.payments || [])
     .filter(
       payment =>
         payment?.insurancePlanPayment?.id &&
-        payment.insurancePlanPayment.invoiceInsurancePlanId === invoiceInsurancePlanId,
+        payment.insurancePlanPayment.invoiceInsurancePlanId === invoiceInsurancePlanId &&
+        coversThisSection(payment.insurancePlanPayment.invoiceSectionId),
     )
     .filter(payment => !payment?.refundPayment?.id) // refunded payments are not included in the total
     .filter(payment => !payment?.originalPayment?.id) // refund payments are not included in the total

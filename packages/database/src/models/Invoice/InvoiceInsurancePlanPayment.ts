@@ -14,6 +14,7 @@ export class InvoiceInsurancePlanPayment extends Model {
   declare status: string;
   declare reason?: string;
   declare invoicePaymentId?: string;
+  declare invoiceSectionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -45,6 +46,10 @@ export class InvoiceInsurancePlanPayment extends Model {
       foreignKey: 'invoiceInsurancePlanId',
       as: 'insurancePlan',
       constraints: false,
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'invoiceSectionId',
+      as: 'invoiceSection',
     });
   }
 

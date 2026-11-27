@@ -8,7 +8,12 @@ import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constant
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
 import { useSettings } from '../../../../../contexts/Settings';
 
-export const GenericLocationFields = ({ filterByMandatory }) => {
+export const GenericLocationFields = ({
+  filterByMandatory,
+  heading,
+  headingTestId,
+  gridTestId,
+}) => {
   const { getSetting } = useSettings();
 
   const isUsingLocationHierarchy = getSetting('features.patientDetailsLocationHierarchy');
@@ -47,7 +52,11 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         component: AutocompleteField,
         suggester: divisionSuggester,
         label: (
-          <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" data-testid="translatedtext-s0p5" />
+          <TranslatedText
+            stringId="general.localisedField.divisionId.label"
+            fallback="Division"
+            data-testid="translatedtext-s0p5"
+          />
         ),
       },
     }),
@@ -147,20 +156,25 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
     filterByMandatory,
   });
 
+  const showsHierarchyFields = isUsingLocationHierarchy && locationHierarchyFieldsToShow.length > 0;
+
   return (
-    <>
-      {isUsingLocationHierarchy && (
-        <HierarchyFields
-          relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
-          leafNodeType={REFERENCE_TYPES.VILLAGE}
-          fields={locationHierarchyFieldsToShow}
-        />
-      )}
-      <ConfiguredMandatoryPatientFields
-        fields={LOCATION_FIELDS}
-        filterByMandatory={filterByMandatory}
-        data-testid="configuredmandatorypatientfields-kh6c"
-      />
-    </>
+    <ConfiguredMandatoryPatientFields
+      fields={LOCATION_FIELDS}
+      filterByMandatory={filterByMandatory}
+      heading={heading}
+      headingTestId={headingTestId}
+      gridTestId={gridTestId}
+      extraFields={
+        showsHierarchyFields ? (
+          <HierarchyFields
+            relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
+            leafNodeType={REFERENCE_TYPES.VILLAGE}
+            fields={locationHierarchyFieldsToShow}
+          />
+        ) : null
+      }
+      data-testid="configuredmandatorypatientfields-kh6c"
+    />
   );
 };

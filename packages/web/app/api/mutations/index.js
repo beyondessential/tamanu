@@ -4,6 +4,7 @@ export { useImagingRequestMutation } from './useImagingRequestMutation';
 export { useLocationBookingMutation } from './useLocationBookingMutation';
 export * from './useEncounterMutation';
 export * from './usePatientMove';
+export { useSavePatientDetails } from './useSavePatientDetails';
 export * from './usePatientPaymentsMutation';
 export * from './useNotificationsMutation';
 export { useUserPreferencesMutation } from './useUserPreferencesMutation';

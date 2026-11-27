@@ -57,3 +57,7 @@ Snapshotted at finalisation: when true, this line is charged as a flat fee (pric
 {% docs invoice_items__approved %}
 A boolean field that enables clinicians to track the approval status of individual invoice line items
 {% enddocs %}
+
+{% docs invoice_items__invoice_section_id %}
+The section of a split invoice this item belongs to, recorded when the item is added and never changed afterwards. Null where the encounter's type is never sectioned, where the deployment has not configured that section, or where the item predates invoice sections.
+{% enddocs %}

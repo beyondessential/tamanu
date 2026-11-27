@@ -7,7 +7,7 @@ import {
   INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
-import { getInvoiceDiscountReason } from '@tamanu/utils/invoice';
+import { getDistinctInsurancePlans, getInvoiceDiscountReason } from '@tamanu/utils/invoice';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
@@ -32,7 +32,9 @@ const getInvoicePaymentStatus = (invoice, getEnumTranslation) => {
 
   return (
     patientLabel +
-    (insurancePlanPaymentStatus === INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED ? `/${insurancePlanLabel}` : '')
+    (insurancePlanPaymentStatus === INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED
+      ? `/${insurancePlanLabel}`
+      : '')
   );
 };
 
@@ -40,7 +42,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
   const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
 
-  const invoiceInsurancePlans = invoice?.insurancePlans || [];
+  const invoiceInsurancePlans = getDistinctInsurancePlans(invoice ?? {});
   const hasInvoicePlans = invoiceInsurancePlans.length > 0;
   const insurancePlanNames = invoiceInsurancePlans.map(p => p.name || p.code).join(', ');
 

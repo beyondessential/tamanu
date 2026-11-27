@@ -21,6 +21,7 @@ import { LoadingIndicator } from '../components/LoadingIndicator';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { Colors } from '../constants/styles';
 import { getPatientDetailsValidation } from '../validations';
+import { useSlidingFeeScalePlanId } from '../api/queries/useInvoiceInsurancePlansQuery';
 import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
 import { useLayoutComponents } from './PatientDetailsForm';
 
@@ -72,17 +73,27 @@ export const NewPatientForm = memo(
     const [patientRegistryType, setPatientRegistryType] = useState(
       PATIENT_REGISTRY_TYPES.NEW_PATIENT,
     );
-    const { data: fieldDefinitions, error, isLoading } = usePatientFieldDefinitionQuery();
+    const { data: fieldDefinitions, error, isLoading: isLoadingFieldDefinitions } =
+      usePatientFieldDefinitionQuery();
 
     const { getSetting } = useSettings();
     const { getTranslation } = useTranslation();
+    const {
+      slidingFeeScalePlanId,
+      isLoading: isLoadingInsurancePlans,
+      error: insurancePlansError,
+    } = useSlidingFeeScalePlanId();
+    const isLoading = isLoadingFieldDefinitions || isLoadingInsurancePlans;
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
     const isRequiredPatientData = fieldName =>
       getSetting(`fields.${fieldName}.requiredPatientData`);
 
-    if (error) {
-      return <pre>{error.stack}</pre>;
+    // A failed plans fetch leaves the sliding fee scale requirement unresolved, so it is shown
+    // rather than letting a patient be created without the answers that plan requires.
+    const loadError = error ?? insurancePlansError;
+    if (loadError) {
+      return <pre>{loadError.stack}</pre>;
     }
 
     const handleSubmit = async data => {
@@ -233,6 +244,7 @@ export const NewPatientForm = memo(
           patientRegistryType,
           getSetting,
           getTranslation,
+          { slidingFeeScalePlanId },
         )}
         data-testid="form-60mo"
       />

@@ -27,7 +27,11 @@ export const useUpdateEncounterMutation = encounterId => {
     mutationKey: ['updateEncounter', encounterId],
     mutationFn: data => api.put(route('encounter/:encounterId', { encounterId }), data),
     onSuccess: async () => {
-      await queryClient.invalidateQueries([ENCOUNTER_QUERY_KEY, encounterId], { exact: true });
+      // A change of encounter type can split the invoice into sections, so read it again too.
+      await Promise.all([
+        queryClient.invalidateQueries([ENCOUNTER_QUERY_KEY, encounterId], { exact: true }),
+        queryClient.invalidateQueries([`encounter/${encounterId}/invoice`]),
+      ]);
     },
   });
 };

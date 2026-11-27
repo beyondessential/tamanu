@@ -9,6 +9,7 @@ import { tmpdir } from '@tamanu/shared/utils/tmpdir';
 import {
   INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_STATUSES,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
@@ -199,9 +200,7 @@ describe('Insurance plan payment import', () => {
       const { invoice, plan } = await setupInvoice();
 
       const { errors } = await doImport(
-        await writeSheet([
-          paymentRow({ invoice, plan, amount: 0, reason: 'Policy lapsed' }),
-        ]),
+        await writeSheet([paymentRow({ invoice, plan, amount: 0, reason: 'Policy lapsed' })]),
       );
 
       expect(errors).toHaveLength(0);
@@ -210,6 +209,68 @@ describe('Insurance plan payment import', () => {
         status: INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED,
         reason: 'Policy lapsed',
       });
+    });
+  });
+
+  describe('a split invoice', () => {
+    // Moves the invoice's items into two sections and reattaches its plan section by section, so
+    // the plan's coverage is keyed per attachment rather than once for the invoice.
+    const splitInvoice = async sectionsForPlan => {
+      const { invoice, plan } = await setupInvoice();
+      const [emergency, inpatient] = await Promise.all(
+        ['emergency', 'inpatient'].map(code =>
+          models.ReferenceData.create(
+            fake(models.ReferenceData, { type: REFERENCE_TYPES.INVOICE_SECTION, code }),
+          ),
+        ),
+      );
+      const items = await models.InvoiceItem.findAll({
+        where: { invoiceId: invoice.id },
+        order: [['createdAt', 'ASC']],
+      });
+      // The item covered at the plan's default goes to Emergency, the overridden one to Inpatient.
+      await items[0].update({ invoiceSectionId: emergency.id });
+      await items[1].update({ invoiceSectionId: inpatient.id });
+
+      await models.InvoicesInvoiceInsurancePlan.destroy({ where: { invoiceId: invoice.id } });
+      for (const section of sectionsForPlan === 'both' ? [emergency, inpatient] : [emergency]) {
+        await models.InvoicesInvoiceInsurancePlan.create({
+          invoiceId: invoice.id,
+          invoiceInsurancePlanId: plan.id,
+          invoiceSectionId: section.id,
+        });
+      }
+      return { invoice, plan };
+    };
+
+    it("holds a plan on one section to that section's coverage alone", async () => {
+      const { invoice, plan } = await splitInvoice('one');
+
+      const tooMuch = await doImport(
+        await writeSheet([paymentRow({ invoice, plan, amount: PLAN_DEFAULT_COVERAGE + 1 })]),
+      );
+      expect(tooMuch.errors).toHaveLength(1);
+
+      const owed = await doImport(
+        await writeSheet([paymentRow({ invoice, plan, amount: PLAN_DEFAULT_COVERAGE })]),
+      );
+      expect(owed.errors).toHaveLength(0);
+      expect(await findPaymentsFor(invoice)).toHaveLength(1);
+    });
+
+    it('adds up a plan attached to two sections', async () => {
+      const { invoice, plan } = await splitInvoice('both');
+
+      const tooMuch = await doImport(
+        await writeSheet([paymentRow({ invoice, plan, amount: PLAN_OWES + 1 })]),
+      );
+      expect(tooMuch.errors).toHaveLength(1);
+
+      const owed = await doImport(
+        await writeSheet([paymentRow({ invoice, plan, amount: PLAN_OWES })]),
+      );
+      expect(owed.errors).toHaveLength(0);
+      expect(await findPaymentsFor(invoice)).toHaveLength(1);
     });
   });
 
@@ -257,10 +318,7 @@ describe('Insurance plan payment import', () => {
     it('rejects an invoice that is not finalised', async () => {
       const { invoice, plan } = await setupInvoice({ status: INVOICE_STATUSES.IN_PROGRESS });
 
-      await expectRejected(
-        await writeSheet([paymentRow({ invoice, plan })]),
-        /must be finalised/,
-      );
+      await expectRejected(await writeSheet([paymentRow({ invoice, plan })]), /must be finalised/);
       expect(await findPaymentsFor(invoice)).toHaveLength(0);
     });
 
@@ -268,9 +326,7 @@ describe('Insurance plan payment import', () => {
       const { invoice, plan } = await setupInvoice();
 
       await expectRejected(
-        await writeSheet([
-          paymentRow({ invoice, plan, invoiceNumber: 'NOT-AN-INVOICE' }),
-        ]),
+        await writeSheet([paymentRow({ invoice, plan, invoiceNumber: 'NOT-AN-INVOICE' })]),
         /Invoice 'NOT-AN-INVOICE' not found/,
       );
     });
@@ -340,12 +396,18 @@ describe('Insurance plan payment import', () => {
 
       const { errors } = await doImport(
         await writeSheet([
-          { ...row, invoiceNumber: second.invoice.displayId, invoiceInsurancePlanId: second.plan.id },
+          {
+            ...row,
+            invoiceNumber: second.invoice.displayId,
+            invoiceInsurancePlanId: second.plan.id,
+          },
         ]),
       );
 
       expect(errors).toHaveLength(1);
-      expect(errors[0].message).toEqual(expect.stringMatching(/already exists on a different invoice/));
+      expect(errors[0].message).toEqual(
+        expect.stringMatching(/already exists on a different invoice/),
+      );
       expect(await findPaymentsFor(second.invoice)).toHaveLength(0);
       expect(await findPaymentsFor(first.invoice)).toHaveLength(1);
     });

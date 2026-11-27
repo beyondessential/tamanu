@@ -80,6 +80,8 @@ export async function insurancePlanPaymentImporter({
       continue;
     }
 
+    // Loaded without the encounter's price list: only finalised invoices are accepted below, and
+    // their items are priced from the snapshot taken at finalisation, not the price list
     const matchingInvoices = await models.Invoice.findAll({
       where: { displayId: data.invoiceNumber },
       include: models.Invoice.getFullReferenceAssociations(),
@@ -117,7 +119,15 @@ export async function insurancePlanPaymentImporter({
       continue;
     }
 
-    const invoicePlanIds = (invoice?.insurancePlans ?? []).map(plan => plan.id);
+    // Straight off the attachment rows, which is what the invoice carries: pricing it maps every
+    // item against every plan, and a row naming a plan the invoice does not hold needs none of it.
+    const invoicePlanIds = [
+      ...new Set(
+        (invoice.insurancePlanAttachments ?? []).map(
+          attachment => attachment.invoiceInsurancePlanId,
+        ),
+      ),
+    ];
     if (!invoicePlanIds.includes(data.invoiceInsurancePlanId)) {
       errors.push(
         new ValidationError(

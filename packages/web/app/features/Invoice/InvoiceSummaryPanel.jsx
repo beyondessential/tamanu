@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import {
+  getCoverageTotalBySection,
   getInvoiceDiscountReason,
   getInvoiceSummary,
   isInvoiceEditable,
+  isInvoiceSectioned,
 } from '@tamanu/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components';
@@ -12,6 +14,7 @@ import { useSettings } from '../../contexts/Settings';
 import { useUpdateInvoice } from '../../api/mutations/useInvoiceMutation';
 import { Price } from './Price';
 import { InvoiceDiscountModal } from './InvoiceDiscountModal/InvoiceDiscountModal';
+import { useSectionName } from './InvoiceForm/SectionTitle';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -62,9 +65,26 @@ const RemoveLinkText = styled.span`
   }
 `;
 
-export const InvoiceSummaryPanel = ({ invoice }) => {
+// Every listed section shows a line, an uncovered one included, so the sections read in the same
+// order as the invoice above. What is left over — coverage on items carrying no section, or one
+// the invoice no longer lists — falls to a trailing plain line, shown only when there is any.
+const buildSectionCoverageLines = (sections, coverageBySection) => {
+  const listed = sections.map(section => ({
+    key: section.invoiceSectionId,
+    section,
+    total: coverageBySection.get(section.invoiceSectionId) ?? 0,
+  }));
+  const listedIds = new Set(sections.map(section => section.invoiceSectionId));
+  const unlisted = [...coverageBySection]
+    .filter(([sectionId]) => !listedIds.has(sectionId))
+    .reduce((sum, [, total]) => sum + total, 0);
+  return unlisted ? [...listed, { key: 'unlabelled', section: null, total: unlisted }] : listed;
+};
+
+export const InvoiceSummaryPanel = ({ invoice, patientId }) => {
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
   const { getSetting } = useSettings();
+  const sectionName = useSectionName();
   const isSlidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
   const { mutateAsync: updateInvoice } = useUpdateInvoice(invoice);
 
@@ -94,6 +114,14 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
     patientPaymentRemainingBalance,
   } = getInvoiceSummary(invoice);
 
+  // A split invoice reads its coverage a section at a time, so a section's share can be checked
+  // against the plans set on it. Coverage carried by items outside the listed sections keeps the
+  // plain line, so every share still adds up to the subtotal below.
+  const sections = isInvoiceSectioned(invoice.sections, invoice.items) ? invoice.sections : null;
+  const coverageLines = sections
+    ? buildSectionCoverageLines(sections, getCoverageTotalBySection(invoice))
+    : [{ key: 'invoice', section: null, total: insuranceCoverageTotal }];
+
   return (
     <Container>
       <Row>
@@ -104,14 +132,27 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
         <TranslatedText stringId="invoice.summary.itemAdjustments" fallback="Item adjustments" />
         <Price price={itemAdjustmentsTotal} data-testid="invoice-summary-itemAdjustments" />
       </Row>
-      <Row>
-        <TranslatedText stringId="invoice.summary.insuranceTotal" fallback="Insurance coverage" />
-        <Price
-          price={insuranceCoverageTotal}
-          displayAsNegative
-          data-testid="invoice-summary-insuranceTotal"
-        />
-      </Row>
+      {coverageLines.map(({ key, section, total }) => (
+        <Row key={key}>
+          {section ? (
+            <TranslatedText
+              stringId="invoice.summary.insuranceTotal.section"
+              fallback="Insurance coverage (:section)"
+              replacements={{ section: sectionName(section) }}
+            />
+          ) : (
+            <TranslatedText
+              stringId="invoice.summary.insuranceTotal"
+              fallback="Insurance coverage"
+            />
+          )}
+          <Price
+            price={total}
+            displayAsNegative
+            data-testid={`invoice-summary-insuranceTotal${section ? `-${key}` : ''}`}
+          />
+        </Row>
+      ))}
       <Divider />
       <Row $bold>
         <TranslatedText stringId="invoice.summary.patientSubtotal" fallback="Patient subtotal" />
@@ -180,6 +221,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
       </Row>
       {isSlidingFeeScaleEnabled && (
         <InvoiceDiscountModal
+          patientId={patientId}
           open={discountModalOpen}
           onClose={() => setDiscountModalOpen(false)}
           handleUpdateDiscount={handleUpdateDiscount}

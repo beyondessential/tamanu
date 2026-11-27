@@ -8,6 +8,7 @@ export * from './useVitalsSurveyQuery';
 export * from './useReferenceDataQuery';
 export { default as useDispensingUnit } from './useDispensingUnit';
 export * from './usePatientAdditionalDataQuery';
+export * from './usePatientBirthDataQuery';
 export * from './useEncounterDataQuery';
 export * from './useEncounterQuery';
 export * from './useLabRequestNotesQuery';
@@ -40,5 +41,10 @@ export { useLabTestResultHistoryQuery } from './useLabTestResultHistoryQuery';
 export { useFacilityQuery } from './useFacilityQuery';
 export { usePatientInsurancePlansQuery } from './usePatientInsurancePlansQuery';
 export { usePatientInsurancePlansInUseQuery } from './usePatientInsurancePlansInUseQuery';
+export {
+  useInvoiceInsurancePlansQuery,
+  usePatientAvailableInsurancePlansQuery,
+  useSlidingFeeScalePlanId,
+} from './useInvoiceInsurancePlansQuery';
 export { useAiPatientSummaryQuery } from './useAiPatientSummaryQuery';
 export { useSurveyResponseChangesQuery } from './useSurveyResponseChangesQuery';

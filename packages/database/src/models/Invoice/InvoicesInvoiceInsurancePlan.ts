@@ -12,6 +12,7 @@ export class InvoicesInvoiceInsurancePlan extends Model {
   declare id: string;
   declare invoiceId: string;
   declare invoiceInsurancePlanId: string;
+  declare invoiceSectionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -29,11 +30,7 @@ export class InvoicesInvoiceInsurancePlan extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        indexes: [
-          { fields: ['invoiceId'] },
-          { fields: ['invoiceInsurancePlanId'] },
-          { unique: true, fields: ['invoiceId', 'invoiceInsurancePlanId'] },
-        ],
+        indexes: [{ fields: ['invoiceId'] }, { fields: ['invoiceInsurancePlanId'] }],
       },
     );
   }
@@ -47,6 +44,11 @@ export class InvoicesInvoiceInsurancePlan extends Model {
     this.belongsTo(models.InvoiceInsurancePlan, {
       foreignKey: 'invoiceInsurancePlanId',
       as: 'invoiceInsurancePlan',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'invoiceSectionId',
+      as: 'invoiceSection',
     });
   }
 

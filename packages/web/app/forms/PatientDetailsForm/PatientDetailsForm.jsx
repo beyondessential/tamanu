@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { isEmpty } from 'es-toolkit/compat';
 import { useQuery } from '@tanstack/react-query';
+import { useFormikContext } from 'formik';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 import { Form, ButtonRow, FormSubmitButton } from '@tamanu/ui-components';
@@ -13,6 +14,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 import { usePatientInsurancePlansInUseQuery } from '../../api/queries/usePatientInsurancePlansInUseQuery';
+import { useSlidingFeeScalePlanId } from '../../api/queries/useInvoiceInsurancePlansQuery';
 import { useTranslation } from '../../contexts/Translation';
 import { useSettings } from '../../contexts/Settings';
 import { route } from '@tamanu/api-client';
@@ -69,12 +71,46 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
+/**
+ * Reports the form's actions and state out to a caller that owns the buttons itself. Rendered
+ * inside the form so it can read formik, and renders nothing of its own.
+ *
+ * `submitForm` must be the Form's own handler rather than formik's: only that one marks the
+ * submit as attempted, which is what lets fields show their validation messages.
+ */
+const FormActionsBridge = ({ actionsRef, onStateChange, submitForm }) => {
+  const { dirty, isSubmitting, resetForm, values } = useFormikContext();
+
+  // Written after the render commits, not during it: a render React discards or replays would
+  // otherwise leave the ref holding a closure from a render that never happened.
+  useEffect(() => {
+    if (actionsRef) actionsRef.current = { submitForm, resetForm: () => resetForm({ values }) };
+  });
+
+  useEffect(() => {
+    onStateChange?.({ dirty, isSubmitting });
+  }, [dirty, isSubmitting, onStateChange]);
+
+  return null;
+};
+
+/**
+ * `hideSubmitButton`, `formActionsRef` and `onFormStateChange` are for a caller that owns the
+ * form's actions itself — the invoicing patient details modal, whose Cancel and Save sit in the
+ * modal's fixed bottom row, outside this form element. `formActionsRef` is filled with the
+ * form's `submitForm` and `resetForm`, and `onFormStateChange` is called with its `dirty` and
+ * `isSubmitting` as they change, so the caller can drive its own buttons and unsaved-changes
+ * prompt without formik leaking out of here.
+ */
 export const PatientDetailsForm = ({
   patient,
   additionalData,
   birthData,
   insurancePlans,
   onSubmit,
+  hideSubmitButton = false,
+  formActionsRef,
+  onFormStateChange,
 }) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
@@ -118,11 +154,22 @@ export const PatientDetailsForm = ({
   const { data: insurancePlansInUse, error: insurancePlansInUseError } =
     usePatientInsurancePlansInUseQuery({ patientId: patient.id });
 
-  const errors = [fieldDefError, fieldValError, insurancePlansInUseError].filter(e => Boolean(e));
+  const {
+    slidingFeeScalePlanId,
+    isLoading: isLoadingInsurancePlans,
+    error: insurancePlansError,
+  } = useSlidingFeeScalePlanId();
+
+  const errors = [
+    fieldDefError,
+    fieldValError,
+    insurancePlansInUseError,
+    insurancePlansError,
+  ].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
-  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
+  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues || isLoadingInsurancePlans;
 
   if (isLoading) {
     return <LoadingIndicator data-testid="loadingindicator-6mh5" />;
@@ -130,7 +177,7 @@ export const PatientDetailsForm = ({
 
   return (
     <Form
-      render={({ values = {} }) => (
+      render={({ values = {}, submitForm }) => (
         <>
           <PrimaryDetails
             registeredBirthPlace={values.registeredBirthPlace}
@@ -152,16 +199,23 @@ export const PatientDetailsForm = ({
             fieldValues={fieldValuesResponse?.data}
             data-testid="patientfields-csd1"
           />
-          <ButtonRow data-testid="buttonrow-92zi">
-            <NoteModalActionBlocker>
-              <FormSubmitButton
-                variant="contained"
-                color="primary"
-                text="Save"
-                data-testid="formsubmitbutton-dzgy"
-              />
-            </NoteModalActionBlocker>
-          </ButtonRow>
+          {!hideSubmitButton && (
+            <ButtonRow data-testid="buttonrow-92zi">
+              <NoteModalActionBlocker>
+                <FormSubmitButton
+                  variant="contained"
+                  color="primary"
+                  text="Save"
+                  data-testid="formsubmitbutton-dzgy"
+                />
+              </NoteModalActionBlocker>
+            </ButtonRow>
+          )}
+          <FormActionsBridge
+            actionsRef={formActionsRef}
+            onStateChange={onFormStateChange}
+            submitForm={submitForm}
+          />
         </>
       )}
       initialValues={{
@@ -175,12 +229,10 @@ export const PatientDetailsForm = ({
         ),
       }}
       onSubmit={handleSubmit}
-      validationSchema={getPatientDetailsValidation(
-        patientRegistryType,
-        getSetting,
-        getTranslation,
+      validationSchema={getPatientDetailsValidation(patientRegistryType, getSetting, getTranslation, {
         insurancePlansInUse,
-      )}
+        slidingFeeScalePlanId,
+      })}
       data-testid="form-9v1j"
     />
   );
