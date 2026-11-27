@@ -36,7 +36,7 @@ const mockSetStored = Keychain.setGenericPassword as jest.Mock;
 const mockNetInfoFetch = NetInfo.fetch as jest.Mock;
 const mockReadConfig = readConfig as jest.Mock;
 
-const KEYCHAIN_SERVICE = 'tamanu-persist.persist:auth';
+const KEYCHAIN_SERVICE = 'tamanu.session';
 
 const user = { id: 'user-1', email: 'ana@example.com', displayName: 'Ana', role: 'practitioner' };
 const signedInSession = {
@@ -46,15 +46,6 @@ const signedInSession = {
   signedIn: true,
   isFirstTime: false,
 };
-
-/** The shape redux-persist wrote: each value a JSON string of its own, plus `_persist` */
-const asReduxPersistEntry = (state: Record<string, unknown>): string =>
-  JSON.stringify({
-    ...Object.fromEntries(
-      Object.entries(state).map(([key, value]) => [key, JSON.stringify(value)]),
-    ),
-    _persist: JSON.stringify({ version: -1, rehydrated: true }),
-  });
 
 type Permission = { verb: string; noun: string };
 
@@ -187,17 +178,6 @@ describe('AuthProvider', () => {
       expect(backend.auth.startSession).toHaveBeenCalledWith('token-1', 'refresh-1');
     });
 
-    it('opens signed in from a session an earlier build stored through redux-persist', async () => {
-      const { result, backend } = await renderAuth({
-        stored: asReduxPersistEntry(signedInSession),
-      });
-
-      expect(result.current.signedIn).toBe(true);
-      expect(result.current.user).toEqual(user);
-      expect(result.current.checkFirstSession()).toBe(false);
-      expect(backend.auth.startSession).toHaveBeenCalledWith('token-1', 'refresh-1');
-    });
-
     it('hands stored tokens to the central server with nobody signed in', async () => {
       const { result, backend } = await renderAuth({
         stored: JSON.stringify({ ...signedInSession, signedIn: false }),
@@ -281,14 +261,14 @@ describe('AuthProvider', () => {
     });
 
     it('does not store again the session it has just read', async () => {
-      await renderAuth({ stored: asReduxPersistEntry(signedInSession) });
+      await renderAuth({ stored: JSON.stringify(signedInSession) });
       await flushStorage();
 
       expect(mockSetStored).not.toHaveBeenCalled();
     });
 
     it('stores the session once it changes', async () => {
-      const { result } = await renderAuth({ stored: asReduxPersistEntry(signedInSession) });
+      const { result } = await renderAuth({ stored: JSON.stringify(signedInSession) });
 
       await act(async () => result.current.signOutClient(true));
 
@@ -327,7 +307,7 @@ describe('AuthProvider', () => {
           isFirstTime: true,
         }),
       );
-      expect(mockSetStored).toHaveBeenLastCalledWith('persist:auth', expect.any(String), {
+      expect(mockSetStored).toHaveBeenLastCalledWith('session', expect.any(String), {
         service: KEYCHAIN_SERVICE,
       });
     });

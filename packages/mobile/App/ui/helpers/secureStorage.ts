@@ -1,7 +1,7 @@
 import * as Keychain from 'react-native-keychain';
 import type { StringStorage } from './storedState';
 
-const SERVICE_PREFIX = 'tamanu-persist';
+const SERVICE_PREFIX = 'tamanu';
 
 /**
  * String storage backed by the platform secure store

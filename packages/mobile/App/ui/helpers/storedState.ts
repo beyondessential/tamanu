@@ -14,35 +14,20 @@ export interface StoredState<T> {
   write(state: T): Promise<void>;
 }
 
-const REDUX_PERSIST_KEY = '_persist';
-
 // How long a read may take before the app carries on as though nothing were stored, so that
-// storage which never answers cannot hold the first screen forever. redux-persist allowed
-// the same.
+// storage which never answers cannot hold the first screen forever
 const READ_TIMEOUT_MS = 5000;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/**
- * Parses a stored state entry.
- *
- * Builds that kept this state in Redux wrote it through redux-persist, which stores each
- * top-level value as a JSON string of its own beside a `_persist` entry. A device updating
- * from one of those builds still holds that format, so it is unwrapped here.
- */
+/** Parses a stored state entry, or returns null when it is missing or not an object */
 export const parseStoredState = <T>(raw: string | null): Partial<T> | null => {
   if (!raw) return null;
 
   try {
     const stored: unknown = JSON.parse(raw);
-    if (!isRecord(stored)) return null;
-    if (!(REDUX_PERSIST_KEY in stored)) return stored as Partial<T>;
-
-    const { [REDUX_PERSIST_KEY]: _persist, ...values } = stored;
-    return Object.fromEntries(
-      Object.entries(values).map(([key, value]) => [key, JSON.parse(value as string)]),
-    ) as Partial<T>;
+    return isRecord(stored) ? (stored as Partial<T>) : null;
   } catch {
     return null;
   }

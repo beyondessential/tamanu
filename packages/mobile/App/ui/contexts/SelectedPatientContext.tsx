@@ -9,7 +9,7 @@ import React, {
 import type { Patient } from '~/models/Patient';
 import { readConfig, writeConfig } from '~/services/config';
 import type { IPatient } from '~/types';
-import { createStoredState, type StoredState } from '~/ui/helpers/storedState';
+import { createStoredState } from '~/ui/helpers/storedState';
 import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
 import { useStoredState } from '~/ui/hooks/useStoredState';
 import queryClient from '~/ui/queryClient';
@@ -31,23 +31,10 @@ export interface SelectedPatientContextData extends SelectedPatientState {
 
 const initialState: SelectedPatientState = { selectedPatient: null };
 
-// The key redux-persist kept the Redux state under, kept so that an app update finds the
-// selection an earlier build stored
-const rootStore = createStoredState<SelectedPatientState & { patient?: SelectedPatientState }>(
+const selectedPatientStore = createStoredState<SelectedPatientState>(
   AsyncStorage,
-  'persist:root',
+  'selectedPatient',
 );
-
-const selectedPatientStore: StoredState<SelectedPatientState> = {
-  preload: rootStore.preload,
-  async read() {
-    const stored = await rootStore.read();
-    // Those earlier builds stored the whole Redux state, with the selection inside its
-    // patient slice
-    return stored?.patient ?? stored;
-  },
-  write: rootStore.write,
-};
 
 /** Starts reading the stored selection, for `SelectedPatientProvider` to pick up when it mounts */
 export const preloadSelectedPatient = (): void => selectedPatientStore.preload();

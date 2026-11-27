@@ -1,6 +1,6 @@
 # Remove Redux from the mobile app: test cases
 
-The card is a behaviour-preserving refactor, so every case here is a check that something still works as it did. The one exception is marked.
+The card is a behaviour-preserving refactor, so every case here is a check that something still works as it did. There are two exceptions: a user who signed in offline reopens with their permissions loaded (marked below), and an update from a build that kept this state in Redux starts afresh, because the state those builds stored is not read.
 
 Cases ticked under "Covered by automated tests" are exercised by jest specs in `packages/mobile`. Cases under "On a device" are ticked as they pass on the emulator rig described in the plan's Device run section.
 
@@ -8,8 +8,7 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 
 ### Stored state (`helpers/storedState.spec.ts`)
 
-- [x] A plain JSON entry is read as it is
-- [x] An entry written by redux-persist is unwrapped, including nested state and null values
+- [x] A plain JSON entry is read as it is, including null values
 - [x] A missing entry, an entry that does not parse, and an entry that is not an object all read as nothing stored
 - [x] Writes land in the order the changes were made, and a failed write does not block the next
 - [x] A read started ahead of time is handed to the next read, and the read after that goes to storage again
@@ -21,7 +20,6 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 
 - [x] With nothing stored, the app starts signed out with the welcome introduction still to show
 - [x] A stored session opens signed in and hands its tokens to the central server
-- [x] A session stored by an earlier build through redux-persist opens signed in the same way
 - [x] Stored tokens are handed to the central server when nobody is signed in to the screens
 - [x] A user who last signed in offline reopens with their permissions loaded (the one behaviour change)
 - [x] A stored session whose user has no permissions on the device is ended before the first screen: tokens discarded, sync stopped, nobody signed in (verifies spec: MSIGN)
@@ -49,7 +47,7 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 
 - [x] With nothing stored, no patient is selected
 - [x] A stored selection is restored
-- [x] A selection stored by an earlier build through redux-persist is restored, including an empty one
+- [x] An empty selection is restored as empty
 - [x] Restoring a selection does not count as viewing the patient again
 - [x] A stored selection that cannot be read starts with no patient selected, and is left in storage as it is
 - [x] Nothing renders or is stored until the selection has been read
@@ -70,38 +68,35 @@ Cases ticked under "Covered by automated tests" are exercised by jest specs in `
 
 ## On a device
 
-### Upgrade
+### Update from a build with Redux
 
-The previous build in the first three cases is main without this card: it still writes redux-persist's format, already keeps permissions per user, and is on the same version, so one central server accepts both builds. A build from before per-user permissions holds none for anybody, so its session is ended on the first launch whatever this card does; the fourth case covers it. The plan's Device run section says how to get the builds and a server.
+The previous build is main without this card. It stores the session and the selected patient where this build does not look, so whatever state it is left in, this build starts as a fresh install does, apart from the facility the device is linked to, which is kept elsewhere. The plan's Device run section says how to get the builds and a server.
 
-- [x] Install the previous build, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens signed in on the home screen, the Patient tab shows the same patient, and the welcome introduction does not show again
-- [ ] Repeat with the previous build signed out. This build opens on the log in screen, and signing in goes straight to the home screen without the welcome introduction
-- [ ] Repeat with the previous build signed out by inactivity. This build opens on the log in screen and a sync still runs in the background
-- [ ] Install a build from before per-user permissions, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens on the log in screen. Where the central server accepts this build, signing in online goes straight to the home screen without the welcome introduction, with the same patient still selected
+- [x] Install the previous build, sign in, dismiss the welcome introduction and select a patient. Install this build over it. The app opens on the log in screen, and signing in online leads into the welcome introduction, then the home screen, with no patient selected
 
 ### Session
 
 - [ ] Sign in online on a fresh install: facility selection shows, then the welcome introduction, then the home screen
 - [x] Close the app fully and reopen it: it opens signed in on the home screen with no password asked for, and the sync that starts at launch completes
 - [x] Log out from the More screen: the log in screen shows. Sign in again: the home screen shows without the welcome introduction
-- [ ] Sign in offline (aeroplane mode) as a user who has signed in online before
-- [ ] After logging out, sign in offline, close the app and reopen it: screens that check permissions (patient home, program registry, lab requests) open without error (the one behaviour change)
+- [x] Sign in offline (aeroplane mode) as a user who has signed in online before
+- [x] After logging out, sign in offline, close the app and reopen it: screens that check permissions (patient home, program registry, lab requests) open without error (the one behaviour change)
 - [ ] Leave the app untouched for 30 minutes: the log in screen shows with "Logged out due to inactivity"
 - [ ] Background the app for over 30 minutes and return: the same
-- [ ] On the log in screen while online, enter a wrong password: an error shows and the log in screen stays
+- [x] On the log in screen while online, enter a wrong password: an error shows and the log in screen stays
 - [ ] Against a central server that requires a newer app, sync: the user stays signed in, the update banner shows on the home screen, and the selected patient is still selected
 - [ ] With sync stopped by a rejected session, reconnect with a wrong password: an error shows in the form and the user stays signed in. Reconnect with the right password: sync resumes on the same screen
-- [ ] The user's name shows on the home screen, the More screen and the welcome introduction, and changes on all of them after signing in as someone else
+- [x] The user's name shows on the home screen, the More screen and the welcome introduction, and changes on all of them after signing in as someone else
 
 ### Selected patient
 
-- [ ] Select a patient from search results: their home screen opens and they appear first in recently viewed
-- [ ] Select a patient from the recently viewed list in search, and from the recently viewed tiles on the home screen
-- [ ] Go back from the patient's home screen: the Patient tab shows search again
-- [ ] Open search from the home screen with a patient selected: the selection is cleared
-- [ ] Register a new patient: the confirmation screen shows their name and display id, and "Start Visit" leads to their home screen
+- [x] Select a patient from search results: their home screen opens and they appear first in recently viewed
+- [x] Select a patient from the recently viewed list in search, and from the recently viewed tiles on the home screen
+- [x] Go back from the patient's home screen: the Patient tab shows search again
+- [x] Open search from the home screen with a patient selected: the selection is cleared
+- [x] Register a new patient: the confirmation screen shows their name and display id, and "Start Visit" leads to their home screen
 - [ ] Edit the selected patient's details: the patient home screen shows the saved details
 - [ ] Record vitals, a vaccine, a program form, a referral, a lab request, a diagnosis and a prescription against the selected patient: each saves against that patient and their name shows in each screen's header
 - [ ] Submit a program form that writes back to patient fields: the patient home screen shows the new values straight away
 - [x] Close and reopen the app with a patient selected: the Patient tab shows that patient
-- [ ] Log out and sign in as another user with a patient selected: the same patient is still selected
+- [x] Log out and sign in as another user with a patient selected: the same patient is still selected

@@ -52,9 +52,7 @@ const initialSession: Session = {
   isFirstTime: true,
 };
 
-// The key redux-persist kept the auth state under, kept so that an app update finds the
-// session an earlier build stored
-const sessionStore = createStoredState<Session>(secureStorage, 'persist:auth');
+const sessionStore = createStoredState<Session>(secureStorage, 'session');
 
 /** Starts reading the stored session, for `AuthProvider` to pick up when it mounts */
 export const preloadSession = (): void => sessionStore.preload();

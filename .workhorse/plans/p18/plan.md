@@ -45,7 +45,7 @@ With one `user`, `ability` is restored whenever a user is, tokens or not. Decide
 - The hook settles what the state starts as on its first render, so a caller passing a fresh object each render cannot send the read round again.
 - A read that fails, finds nothing, or has not settled after five seconds starts from the initial state (signed out, welcome introduction not shown, no patient), as redux-persist does.
 - After the read, each provider stores its state whenever it changes, from an effect. This is the external-store case the coding rules allow an effect for, and it means no setter can forget to persist.
-- The restored state itself is not stored again. redux-persist wrote it back straight after rehydrating, which replaced an entry it had failed to read with the initial state. Leaving the entry alone until something changes means a passing storage error, or an entry from an earlier build that this reader gets wrong, does not cost the device its session.
+- The restored state itself is not stored again. redux-persist wrote it back straight after rehydrating, which replaced an entry it had failed to read with the initial state. Leaving the entry alone until something changes means a passing storage error does not cost the device its session.
 - Writes go through a small queue in the storage helper so two changes in quick succession land in order. redux-persist serialises its writes, and Keychain writes are slow enough that an out-of-order pair is possible without it.
 - Both providers do this through one hook, `useStoredState`, over a `createStoredState(storage, key)` helper that owns the parse and the write queue.
 - `store/secureStorage.ts` moves to `helpers/secureStorage.ts` as a plain helper, without the redux-persist `Storage` type.
@@ -53,14 +53,13 @@ With one `user`, `ability` is restored whenever a user is, tokens or not. Decide
 
 ## Storage format and the update path
 
-Decided with Tom: keep the storage keys, write plain JSON, and have the reader accept redux-persist's format as well.
+Decided with Tom: an update from a build that kept this state in Redux does not carry the session or the selection over. Nothing reads the state those builds stored, and nothing removes it. The notes first kept redux-persist's keys and had the reader unwrap its format, and that version passed the signed-in upgrade on the emulator before it was dropped.
 
-- The session stays in the Keychain under the service `tamanu-persist.persist:auth`, and the selected patient in AsyncStorage under `persist:root`. Keeping the keys means an update needs no migration step and leaves no old entry to clean up.
-- redux-persist's format is a JSON object whose values are each a JSON string, plus a `_persist` entry. For the session that is `token`, `refreshToken`, `user`, `signedIn` and `isFirstTime`. For the root entry it is a single `patient` value holding `{ selectedPatient }`.
-- The reader tells the two apart by the `_persist` entry. With it present, each other value is parsed a second time and `_persist` is dropped. Without it, the object is used as read.
-- The plain shapes are the session object as held in state, and `{ selectedPatient }`.
-- An entry in the old format is replaced with the plain one the first time the state changes after an update, not at launch. The legacy branch has to stay in the reader for as long as devices can update from a build that used Redux.
-- The parse is a pure function with its own unit tests for both formats, a missing entry, and an entry that does not parse.
+- The session is in the Keychain under the service `tamanu.session`, and the selected patient in AsyncStorage under `selectedPatient`, both as plain JSON: the session object as held in state, and `{ selectedPatient }`.
+- The keys have to differ from redux-persist's `persist:auth` and `persist:root`. Its format wraps each value in a JSON string of its own, so a plain read of an old entry would come back with the text `"true"` for `signedIn` and a string for `user`.
+- After the update, the device opens on the log in screen with the welcome introduction to show again and no patient selected. A device signed out for inactivity loses its stored tokens with the rest, so its background sync stops until someone signs in. The linked facility, the server address and recently viewed are separate AsyncStorage entries and are kept.
+- The entries those builds left stay on the device unread: the old tokens in the Keychain, and in `persist:root` the last selected patient's record in plain text. Removing them was offered and declined.
+- The Mobile app session spec's criterion that an update keeps the session holds from this build on, so it is unchanged. The one-off sign-out belongs in the release notes.
 - Downgrade is not a concern. Android will not install an older build over a newer one without an uninstall, which clears both stores.
 
 > A restored patient is a plain object, not a `Patient` model instance, and its dates are strings. That is already true after any relaunch today, so screens reading the selected patient already cope with it.
@@ -91,7 +90,7 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ### Auth
 
-- [x] `storedState` helper: parse both formats, queued writes
+- [x] `storedState` helper: plain JSON parse, queued writes
 - [x] `useStoredState` hook
 - [x] `secureStorage` moved out of the store folder
 - [x] Session state, storage and memoised value in `AuthProvider`
@@ -123,26 +122,26 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 
 ### Checks
 
-- [x] Typecheck shows no errors beyond the ones already on main (481 with main merged in, none from this card)
-- [x] Mobile jest suite passes (69 suites, 537 tests with main merged in, run with three workers)
+- [x] Typecheck shows no errors beyond the ones already on main (543 against 547 at the merge base, none from this card). Main's shared `common.tsconfig.json` targets `es2025`, which the repository's TypeScript 5.9 and TypeScript 6 both reject, so the check runs with those targets lowered for the run only
+- [x] Mobile jest suite passes (532 tests after the old-format tests went, run with three workers)
 - [x] Lint passes on the mobile package with no errors
 - [x] Android JavaScript bundle builds, so every import resolves under Metro, with no Redux package in it
-- [ ] Run on a device or emulator, including the upgrade from the previous build
+- [ ] Run on a device or emulator, including the update from the previous build (under way: see Device run and the test cases)
 
 > The full jest suite fails a handful of unrelated suites on this machine at the default eight workers, on the base as well as on this branch. Each passes on its own and the whole suite passes at three workers.
 
 ## Testing
 
-- `AuthProvider`: restore from storage in both formats, restore of a user with no token (ability present), sign in online and offline, sign out, inactivity sign-out keeping tokens, the welcome introduction flag, and what is written to storage after each. Rendered with the mocked Keychain already in `jest.setup.ts`.
+- `AuthProvider`: restore from storage, restore of a user with no token (ability present), sign in online and offline, sign out, inactivity sign-out keeping tokens, the welcome introduction flag, and what is written to storage after each. Rendered with the mocked Keychain already in `jest.setup.ts`.
 - `SelectedPatientProvider`: set, clear, restore, the recently viewed update, and what is written.
 - `useSurveySubmitMutation.spec.tsx` drops its `react-redux` mock for a mock of the hook. The note in that file about react-redux resolving a second copy of React no longer applies.
 - `SearchPatientTabs.spec.tsx` drops its `containers/Patient` mock.
 - `NewPatientScreen.spec.tsx` renders a navigator, which needs jest to resolve one copy of React: navigation's dependencies are hoisted to the repository root, where the web app's older React sits. `jest.config.js` maps `react` to the mobile package's copy.
-- On a device: the card's test focus list, with the upgrade check done by installing this build over the previous one while signed in with a patient selected. [Device run](#device-run) is the brief for it.
+- On a device: the card's test focus list, with the update check done by installing this build over the previous one while signed in with a patient selected. [Device run](#device-run) is the brief for it.
 
 ## Device run
 
-The cases are under "On a device" in the test cases. The rig below is set up on the developer's Intel Mac and has run the first upgrade case. This section is the brief for running them on a machine that has an Android emulator, with an agent driving the app through `adb` (screenshots, the view hierarchy, taps and typing) or Maestro.
+The cases are under "On a device" in the test cases. The rig below is set up on the developer's Intel Mac, and most of the session and selected patient cases have passed on it. This section is the brief for running them on a machine that has an Android emulator, with an agent driving the app through `adb` (screenshots, the view hierarchy, taps and typing) or Maestro.
 
 ### What the machine needs
 
@@ -154,7 +153,7 @@ The cases are under "On a device" in the test cases. The rig below is set up on 
 
 Two builds, from two checkouts:
 
-- **The previous build**: main without this card, from a worktree of `origin/main`. It still keeps its state in Redux and writes redux-persist's format, and it is on the same version as this branch, so one central server accepts both.
+- **The previous build**: main without this card, from a worktree of `origin/main`. It still keeps its state in Redux under redux-persist's keys, and it is on the same version as this branch, so one central server accepts both.
 - **This build**: the card's branch.
 
 The card removes only JavaScript packages, so the native side of the two builds is the same, and one debug package serves both. A debug build loads its JavaScript from Metro, so the checkout Metro runs from is the build under test. Upgrading is: reinstall the package over itself with `adb install -r` (which keeps the app's data, as a store update does), switch Metro to the card's checkout, and launch. Building a second package would add half an hour and test nothing more.
@@ -182,17 +181,12 @@ Setting it up turned up three things outside the card's own code:
 
 ### Order
 
-1. **Upgrade, signed in.** Install the previous build, sign in online, choose a facility, pass the welcome introduction and select a patient. Install this build over it with `adb install -r`. This is the case the card most needs: it proves a stored session and selection written by redux-persist are read back.
-2. **Upgrade, logged out, and upgrade, signed out by inactivity.** The same from those two states.
-3. **Relaunch.** Close this build fully and reopen it, and watch the sync that starts at launch through to the end. The launch read was moved to overlap the backend starting, and only a device shows whether the tokens reach the central server connection in time.
-4. **Session and selected patient cases**, in the order the test cases list them.
-5. **Out-of-date app**: skip unless a central server that requires a newer app is to hand.
+1. **Update.** Install the previous build, sign in online, choose a facility, pass the welcome introduction and select a patient. Install this build over it with `adb install -r`. It opens on the log in screen, and signing in leads into the welcome introduction.
+2. **Relaunch.** Close this build fully and reopen it, and watch the sync that starts at launch through to the end. The launch read was moved to overlap the backend starting, and only a device shows whether the tokens reach the central server connection in time.
+3. **Session and selected patient cases**, in the order the test cases list them.
+4. **Out-of-date app**: skip unless a central server that requires a newer app is to hand.
 
-The fourth upgrade case, from a build older than per-user permissions, needs a central server that accepts that older build, and the same server then turns this build away as too new. Only its first half can be checked that way: this build opens on the log in screen.
-
-### What a field upgrade looks like
-
-A device on the previous release that syncs against an upgraded central server is turned away for its version, and that release signs the device out when that happens. So most devices will reach this build already signed out, carrying only the welcome introduction state and the selected patient. A device updated while offline, or before its central server is upgraded, arrives signed in. Both paths read the old format, which is why the signed-in case is first and the logged-out case is not skipped.
+A debug build cannot be relaunched in aeroplane mode, because it loads its JavaScript from Metro over the network. For the offline cases that need a relaunch, `central.sh off` stops the forwarder instead, which leaves the central server unreachable while Metro still answers.
 
 ### Recording it
 

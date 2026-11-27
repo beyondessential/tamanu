@@ -18,20 +18,11 @@ jest.useRealTimers();
 
 const mockInvalidateQueries = queryClient.invalidateQueries as jest.Mock;
 
-const STORAGE_KEY = 'persist:root';
+const STORAGE_KEY = 'selectedPatient';
 const RECENTLY_VIEWED_KEY = 'recentlyViewedPatients';
 
 const mele = { id: 'patient-1', firstName: 'Mele', lastName: 'Tuala' } as IPatient;
 const sione = { id: 'patient-2', firstName: 'Sione', lastName: 'Fonoti' } as IPatient;
-
-/** The shape redux-persist wrote: each value a JSON string of its own, plus `_persist` */
-const asReduxPersistEntry = (state: Record<string, unknown>): string =>
-  JSON.stringify({
-    ...Object.fromEntries(
-      Object.entries(state).map(([key, value]) => [key, JSON.stringify(value)]),
-    ),
-    _persist: JSON.stringify({ version: -1, rehydrated: true }),
-  });
 
 const renderSelectedPatientHook = () =>
   renderHook(() => useSelectedPatient(), { wrapper: SelectedPatientProvider });
@@ -91,10 +82,7 @@ describe('SelectedPatientProvider', () => {
     });
 
     it('picks up a selection that was read before it mounted', async () => {
-      await AsyncStorage.setItem(
-        STORAGE_KEY,
-        asReduxPersistEntry({ patient: { selectedPatient: mele } }),
-      );
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedPatient: mele }));
       preloadSelectedPatient();
       // Nothing is stored after this, so the selection can only have come from the earlier read
       await AsyncStorage.clear();
@@ -112,22 +100,8 @@ describe('SelectedPatientProvider', () => {
       expect(result.current.selectedPatient).toEqual(mele);
     });
 
-    it('restores a selection an earlier build stored through redux-persist', async () => {
-      await AsyncStorage.setItem(
-        STORAGE_KEY,
-        asReduxPersistEntry({ patient: { selectedPatient: mele } }),
-      );
-
-      const result = await renderSelectedPatient();
-
-      expect(result.current.selectedPatient).toEqual(mele);
-    });
-
-    it('restores an empty selection an earlier build stored through redux-persist', async () => {
-      await AsyncStorage.setItem(
-        STORAGE_KEY,
-        asReduxPersistEntry({ patient: { selectedPatient: null } }),
-      );
+    it('restores an empty selection', async () => {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedPatient: null }));
 
       const result = await renderSelectedPatient();
 

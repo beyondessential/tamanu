@@ -8,15 +8,6 @@ const session = {
   isFirstTime: false,
 };
 
-/** The shape redux-persist wrote: each value a JSON string of its own, plus `_persist` */
-const asReduxPersistEntry = (state: Record<string, unknown>): string =>
-  JSON.stringify({
-    ...Object.fromEntries(
-      Object.entries(state).map(([key, value]) => [key, JSON.stringify(value)]),
-    ),
-    _persist: JSON.stringify({ version: -1, rehydrated: true }),
-  });
-
 describe('parseStoredState', () => {
   it('returns null when nothing is stored', () => {
     expect(parseStoredState(null)).toBeNull();
@@ -26,20 +17,10 @@ describe('parseStoredState', () => {
     expect(parseStoredState(JSON.stringify(session))).toEqual(session);
   });
 
-  it('unwraps an entry written by redux-persist', () => {
-    expect(parseStoredState(asReduxPersistEntry(session))).toEqual(session);
-  });
-
-  it('unwraps nested state written by redux-persist', () => {
-    const rootState = { patient: { selectedPatient: { id: 'patient-1', firstName: 'Mele' } } };
-
-    expect(parseStoredState(asReduxPersistEntry(rootState))).toEqual(rootState);
-  });
-
-  it('keeps null values from a redux-persist entry', () => {
+  it('keeps null values', () => {
     const signedOut = { ...session, token: null, refreshToken: null, signedIn: false };
 
-    expect(parseStoredState(asReduxPersistEntry(signedOut))).toEqual(signedOut);
+    expect(parseStoredState(JSON.stringify(signedOut))).toEqual(signedOut);
   });
 
   it('returns null for an entry that does not parse', () => {
@@ -49,12 +30,6 @@ describe('parseStoredState', () => {
   it('returns null for an entry that is not an object', () => {
     expect(parseStoredState('"token-1"')).toBeNull();
     expect(parseStoredState('[1, 2]')).toBeNull();
-  });
-
-  it('returns null for a redux-persist entry holding a value that does not parse', () => {
-    const entry = JSON.stringify({ token: 'not json', _persist: '{"version":-1}' });
-
-    expect(parseStoredState(entry)).toBeNull();
   });
 });
 
@@ -66,11 +41,11 @@ describe('createStoredState', () => {
 
   it('reads the entry stored under its key', async () => {
     const storage = createStorage();
-    storage.getItem.mockResolvedValue(asReduxPersistEntry(session));
+    storage.getItem.mockResolvedValue(JSON.stringify(session));
 
-    const stored = await createStoredState(storage, 'persist:auth').read();
+    const stored = await createStoredState(storage, 'session').read();
 
-    expect(storage.getItem).toHaveBeenCalledWith('persist:auth');
+    expect(storage.getItem).toHaveBeenCalledWith('session');
     expect(stored).toEqual(session);
   });
 
@@ -78,7 +53,7 @@ describe('createStoredState', () => {
     const storage = createStorage();
     storage.getItem.mockRejectedValue(new Error('locked'));
 
-    expect(await createStoredState(storage, 'persist:auth').read()).toBeNull();
+    expect(await createStoredState(storage, 'session').read()).toBeNull();
   });
 
   it('reads what a write still in the queue is storing, not what was there before', async () => {
@@ -93,7 +68,7 @@ describe('createStoredState', () => {
         };
       }),
     );
-    const storedState = createStoredState<{ signedIn: boolean }>(storage, 'persist:auth');
+    const storedState = createStoredState<{ signedIn: boolean }>(storage, 'session');
 
     storedState.write({ signedIn: false });
     const read = storedState.read();
@@ -109,7 +84,7 @@ describe('createStoredState', () => {
     const storage = createStorage();
     storage.getItem.mockReturnValue(new Promise(() => {}));
 
-    const read = createStoredState(storage, 'persist:auth').read();
+    const read = createStoredState(storage, 'session').read();
     jest.advanceTimersByTime(4999);
     const settled = jest.fn();
     read.then(settled);
@@ -124,7 +99,7 @@ describe('createStoredState', () => {
   it('starts reading on preload and hands the result to the next read', async () => {
     const storage = createStorage();
     storage.getItem.mockResolvedValue(JSON.stringify(session));
-    const storedState = createStoredState(storage, 'persist:auth');
+    const storedState = createStoredState(storage, 'session');
 
     storedState.preload();
     storedState.preload();
@@ -137,7 +112,7 @@ describe('createStoredState', () => {
   it('goes back to storage for a read after the preloaded one', async () => {
     const storage = createStorage();
     storage.getItem.mockResolvedValue(JSON.stringify(session));
-    const storedState = createStoredState(storage, 'persist:auth');
+    const storedState = createStoredState(storage, 'session');
     storedState.preload();
     await storedState.read();
     storage.getItem.mockResolvedValue(JSON.stringify({ ...session, signedIn: false }));
@@ -148,9 +123,9 @@ describe('createStoredState', () => {
   it('writes plain JSON under its key', async () => {
     const storage = createStorage();
 
-    await createStoredState(storage, 'persist:auth').write(session);
+    await createStoredState(storage, 'session').write(session);
 
-    expect(storage.setItem).toHaveBeenCalledWith('persist:auth', JSON.stringify(session));
+    expect(storage.setItem).toHaveBeenCalledWith('session', JSON.stringify(session));
   });
 
   it('writes in the order the changes were made', async () => {
@@ -169,7 +144,7 @@ describe('createStoredState', () => {
     storage.setItem.mockImplementation(async (_key, value) => {
       written.push(value);
     });
-    const storedState = createStoredState<{ signedIn: boolean }>(storage, 'persist:auth');
+    const storedState = createStoredState<{ signedIn: boolean }>(storage, 'session');
 
     storedState.write({ signedIn: true });
     const lastWrite = storedState.write({ signedIn: false });
@@ -185,12 +160,12 @@ describe('createStoredState', () => {
     const storage = createStorage();
     storage.setItem.mockRejectedValueOnce(new Error('full'));
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    const storedState = createStoredState<{ signedIn: boolean }>(storage, 'persist:auth');
+    const storedState = createStoredState<{ signedIn: boolean }>(storage, 'session');
 
     storedState.write({ signedIn: true });
     await storedState.write({ signedIn: false });
 
-    expect(storage.setItem).toHaveBeenLastCalledWith('persist:auth', '{"signedIn":false}');
+    expect(storage.setItem).toHaveBeenLastCalledWith('session', '{"signedIn":false}');
     warn.mockRestore();
   });
 });
