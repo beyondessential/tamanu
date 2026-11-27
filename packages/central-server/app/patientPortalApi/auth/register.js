@@ -1,7 +1,11 @@
 import asyncHandler from 'express-async-handler';
 import { BadAuthenticationError } from '@tamanu/errors';
 import { z } from 'zod';
-import { PORTAL_ONE_TIME_TOKEN_TYPES, PORTAL_USER_STATUSES } from '@tamanu/constants';
+import {
+  PORTAL_ONE_TIME_TOKEN_TYPES,
+  PORTAL_USER_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 
 const RegistrationTokenSchema = z.string().refine(token => token.split('.').length === 2, {
@@ -31,7 +35,7 @@ export const register = asyncHandler(async (req, res) => {
   const [portalUserId, oneTimeToken] = parseRegistrationToken(token);
 
   const portalUser = await models.PortalUser.findByPk(portalUserId);
-  if (!portalUser) {
+  if (!portalUser || portalUser.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
     throw new BadAuthenticationError('Invalid registration token');
   }
 

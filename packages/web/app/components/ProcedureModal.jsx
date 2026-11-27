@@ -110,15 +110,18 @@ export const ProcedureModal = ({
     const { startTime, endTime, timeIn, timeOut, locationGroup, ...rest } = data; // eslint-disable-line no-unused-vars
     const startDateTime = toPersisted(startTime);
 
-    await api[rest.id ? 'put' : 'post'](rest.id ? `procedure/${rest.id}` : 'procedure', {
-      ...rest,
-      date: startDateTime,
-      startTime: startDateTime,
-      endTime: toPersisted(endTime),
-      timeIn: toPersisted(timeIn),
-      timeOut: toPersisted(timeOut),
-      encounterId: encounter.id,
-    });
+    await api[rest.id ? 'put' : 'post'](
+      rest.id ? route('procedure/:procedureId', { procedureId: rest.id }) : 'procedure',
+      {
+        ...rest,
+        date: startDateTime,
+        startTime: startDateTime,
+        endTime: toPersisted(endTime),
+        timeIn: toPersisted(timeIn),
+        timeOut: toPersisted(timeOut),
+        encounterId: encounter.id,
+      },
+    );
 
     onSaved();
   };

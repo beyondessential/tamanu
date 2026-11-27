@@ -2,12 +2,12 @@ import React from 'react';
 import { vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMemoryRouter, RouterProvider } from 'react-router';
+import { createMemoryRouter, type RouteObject, RouterProvider } from 'react-router';
 import { ApiContext } from '@tamanu/ui-components';
 import { type Endpoint, resolveEndpoint } from '@tamanu/api-client';
 import { TranslationProvider } from '../src/contexts';
 import { PrivateRoute } from '../src/routes/PrivateRoute';
-import { PublicRoute } from '../src/routes/PublicRoute';
+import { PublicRoute, RegistrationRoute } from '../src/routes/PublicRoute';
 
 export const fakePatient = (overrides = {}) => ({
   id: 'patient-kamaka',
@@ -51,6 +51,12 @@ export const stubTranslations = (translations: Record<string, string> = {}) =>
     }),
   );
 
+const ROUTES_BY_ACCESS = {
+  private: PrivateRoute,
+  public: PublicRoute,
+  registration: RegistrationRoute,
+};
+
 /** Renders a page as the portal does, signed in for `private` pages, at `path`. */
 export const renderPortal = ({
   page,
@@ -58,20 +64,23 @@ export const renderPortal = ({
   routePath = path,
   access = 'private',
   api,
+  routes = [],
 }: {
   page: React.ReactElement;
   path: string;
   routePath?: string;
-  access?: 'private' | 'public';
+  access?: keyof typeof ROUTES_BY_ACCESS;
   api: ReturnType<typeof createFakeApi>;
+  routes?: RouteObject[];
 }) => {
-  const Route = access === 'private' ? PrivateRoute : PublicRoute;
+  const Route = ROUTES_BY_ACCESS[access];
+  const defaultRoutes = [
+    { path: '/', element: <p>Dashboard</p> },
+    { path: '/login', element: <p>Login</p> },
+    { path: '/select-profile', element: <p>Select profile</p> },
+  ].filter(route => !routes.some(({ path: overridden }) => overridden === route.path));
   const router = createMemoryRouter(
-    [
-      { path: routePath, element: <Route element={page} /> },
-      { path: '/', element: <p>Dashboard</p> },
-      { path: '/login', element: <p>Login</p> },
-    ],
+    [{ path: routePath, element: <Route element={page} /> }, ...routes, ...defaultRoutes],
     { initialEntries: [path] },
   );
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });

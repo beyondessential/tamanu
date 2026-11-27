@@ -155,16 +155,6 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
-    "vaccinationReminderProcessor": {
-     // every day at 1 AM
-     "schedule": "0 1 * * *",
-    },
-    "patientTelegramCommunicationProcessor": {
-      // every 30seconds /!\
-      "schedule": "*/30 * * * * *",
-      "batchSize": 100,
-      "batchSleepAsyncDurationInMilliseconds": 50
-    },
     "portalCommunicationProcessor": {
       // every 30seconds /!\
       "schedule": "*/30 * * * * *",
@@ -352,10 +342,6 @@
   // Legacy block: these values have moved into settings (see CONFIG_TO_SETTINGS);
   // anything still set here is served as a fallback until migrated on upgrade.
   "localisation": {
-    "labResultWidget": {
-      "categoryWhitelist": ["labTestCategory-COVID"],
-      "testTypeWhitelist": ["labTestType-COVID"]
-    },
     "data": {
       // To do: review this section when implementing the patient charts feature
       "units": {
@@ -416,14 +402,6 @@
   },
   "socket.io": {
     enabled: true,
-  },
-  "telegramBot": {
-    apiToken: "",
-    webhook: {
-      // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app/api/public/telegram-webhook"
-      url: "",
-      secret: ""
-    }
   },
   "patientCommunication": {
     "retryThreshold": 20

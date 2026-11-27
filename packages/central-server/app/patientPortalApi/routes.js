@@ -19,7 +19,14 @@ import {
   getUpcomingVaccinations,
   getProcedures,
 } from './patientData';
-import { register, login, requestLoginToken, patientPortalMiddleware } from './auth';
+import {
+  register,
+  login,
+  requestLoginToken,
+  patientPortalMiddleware,
+  getProfiles,
+  selectProfile,
+} from './auth';
 import { portalTelemetryIngest } from './telemetry';
 import { getAuthSecret } from '@tamanu/shared/utils';
 
@@ -48,6 +55,9 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
 
   // Portal auth middleware
   router.use(patientPortalMiddleware({ secret }));
+
+  router.get('/profiles', getProfiles);
+  router.post('/profiles/:portalUserId/select', selectProfile({ secret }));
 
   // Patient data routes
   router.get('/me', getPatient);

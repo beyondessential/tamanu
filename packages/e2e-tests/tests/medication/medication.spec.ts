@@ -53,8 +53,14 @@ test.describe('Medication requests', () => {
     const dispenseModal = await medicationRequestsPage.clickRowForPatient(newPatient.displayId);
     await dispenseModal.waitForModalToLoad();
 
+    const labelText = dispenseModal.getLabelTextInput(0);
+    const originalLabelText = await labelText.inputValue();
+
     // Modify the fill's prescription details (dose, route + mandatory reason) before dispensing.
     await dispenseModal.modifyPrescription(0);
+
+    await expect(labelText).not.toHaveValue(originalLabelText);
+    await expect(labelText).toHaveValue(/\b2\b/);
 
     // Dispensing then proceeds, recording the modification on the dispense record.
     await dispenseModal.dispenseWithoutLabelsButton.click();

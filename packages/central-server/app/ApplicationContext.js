@@ -17,7 +17,6 @@ import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 import { AIService } from './services/AIService';
-import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
@@ -52,9 +51,6 @@ export class ApplicationContext {
 
   /** @type {Promise<void> | null} */
   aiServiceRefresh = null;
-
-  /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
-  telegramBotService = null;
 
   integrations = null;
 
@@ -113,11 +109,6 @@ export class ApplicationContext {
     }
 
     await this.refreshAiService();
-
-    this.telegramBotService = await defineSingletonTelegramBotService({
-      models: this.store.models,
-      settings: this.settings,
-    });
 
     if (await isSyncTriggerDisabled(this.store.sequelize)) {
       log.warn('Sync Trigger is disabled in the database.');

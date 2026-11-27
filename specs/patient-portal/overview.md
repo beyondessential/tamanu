@@ -8,7 +8,7 @@ Applies to the patient portal, where a patient signs in on their own phone or co
 
 ## Layout
 
-- Every signed-in page has a header with the Tamanu logo, which returns to the dashboard, and a menu button that opens the patient's name and Log out.
+- Every signed-in page has a header with the Tamanu logo, which returns to the dashboard, and a menu button. The menu shows the email signed in with, the current patient's name with their date of birth, sex initial and display ID, and Log out. Switch profile, which opens Select profile, shows only when the email has more than one profile.
 - Content is a single column the width of a phone, centred on wider screens.
 - The portal uses the [self check-in kiosk](../scheduling/self-check-in-kiosk.md)'s palette: a light grey page, content on white outlined panels, and Tamanu blue for actions. Controls are large enough to use by touch and sized for a phone rather than a tablet.
 - Every page other than the dashboard and forms has a back link to the dashboard. A form's own Back leads there from its first page.
@@ -23,6 +23,15 @@ Applies to the patient portal, where a patient signs in on their own phone or co
 - A session the server no longer accepts is forgotten, so the portal asks the patient to sign in again.
 - Log in is held while a code is being checked, so the code is sent once however many times it is tapped.
 - Every portal tab on a device shares one session: signing in moves any other tab on a sign-in page on to the dashboard, and logging out signs every tab out.
+
+## Profiles
+
+- Several patients can share one email, such as a parent and their children. Each patient registered with the email is a profile, and the email signs in to all of them. A patient whose registration link hasn't been used, who is deceased, or whose portal access is deactivated is not a profile.
+- After signing in with more than one profile, Select profile lists each by name, date of birth (dd/mm/yyyy), sex initial and display ID, and the chosen patient opens on the dashboard. No other signed-in page opens until a profile is chosen. With one profile, sign-in goes straight to the dashboard.
+- Switching profile keeps the session's original expiry, and every portal tab on the device follows the switch.
+- A registration link works whether or not someone is signed in on the device, and the patient it registers joins Select profile straight away.
+- Staff can register a patient with an email another patient already uses. Moving a registered patient to a different email makes them register again from the new email's link. A session on a patient ends once that patient is moved to another email.
+- Staff can remove a patient's portal access from Patient portal registration. The patient no longer appears for their email, any session on them ends, and their unused registration link stops working. Sending a new registration link gives access again once it is opened.
 
 ## Dashboard
 

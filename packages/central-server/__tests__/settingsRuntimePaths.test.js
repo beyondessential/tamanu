@@ -73,14 +73,12 @@ describe('Settings-driven runtime paths', () => {
     it('a recorded setting overrides the config fallback, without a restart', async () => {
       await models.Setting.set(
         'security.cors.allowedOrigin',
-        'https://widgets.example.com',
+        'https://app.example.com',
         SETTINGS_SCOPES.CENTRAL,
       );
       const response = await baseApp.get('/api/public/ping');
       expect(response).toHaveSucceeded();
-      expect(response.headers['access-control-allow-origin']).toEqual(
-        'https://widgets.example.com',
-      );
+      expect(response.headers['access-control-allow-origin']).toEqual('https://app.example.com');
     });
   });
 

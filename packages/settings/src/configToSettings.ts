@@ -65,7 +65,6 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'fhir.worker.enabled',
     scope: SETTINGS_SCOPES.FACILITY,
   },
-  { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
   {
     config: 'scheduledReports',
     setting: 'reporting.scheduledReports',
@@ -104,11 +103,6 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     config: 'localisation.data.supportDeskUrl',
     setting: 'supportDeskUrl',
     scope: SETTINGS_SCOPES.GLOBAL,
-  },
-  {
-    config: 'localisation.labResultWidget',
-    setting: 'labResultWidget',
-    scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'cors', setting: 'security.cors', scope: SETTINGS_SCOPES.CENTRAL },
   { config: ['socket.io'], setting: 'websocket', scope: SETTINGS_SCOPES.CENTRAL },
@@ -201,16 +195,6 @@ export const CONFIG_TO_SECRET_SETTINGS: ConfigToSecret[] = [
     setting: 'integrations.dhis2.password',
     scope: SETTINGS_SCOPES.CENTRAL,
     encryptedInConfig: true,
-  },
-  {
-    config: 'telegramBot.apiToken',
-    setting: 'integrations.telegram.apiToken',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'telegramBot.webhook.secret',
-    setting: 'integrations.telegram.webhook.secret',
-    scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'mailgun.apiKey', setting: 'mail.mailgun.apiKey', scope: SETTINGS_SCOPES.CENTRAL },
 ];

@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { extendRoute, route } from '@tamanu/api-client';
 
 import { OutlinedButton, ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
@@ -32,9 +33,18 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const isFromEncounter = !!encounter?.id;
 
-  const baseRoute = isFromEncounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
-  const documentMetadataEndpoint = `${baseRoute}/documentMetadata`;
-  const createPatientLetterEndpoint = `${baseRoute}/createPatientLetter`;
+  // Memoised so the descriptors keep their identity across renders: the children
+  // taking them are memoised, and a fresh object each render fails that comparison
+  // where the string endpoint these replaced compared equal.
+  const { documentMetadataEndpoint, createPatientLetterEndpoint } = useMemo(() => {
+    const baseRoute = isFromEncounter
+      ? route('encounter/:encounterId', { encounterId: encounter.id })
+      : route('patient/:patientId', { patientId: patient.id });
+    return {
+      documentMetadataEndpoint: extendRoute(baseRoute, 'documentMetadata'),
+      createPatientLetterEndpoint: extendRoute(baseRoute, 'createPatientLetter'),
+    };
+  }, [isFromEncounter, encounter?.id, patient?.id]);
 
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
   const openDocumentPreview = useCallback(

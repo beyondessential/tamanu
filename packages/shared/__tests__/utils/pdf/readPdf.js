@@ -1,6 +1,7 @@
 import zlib from 'zlib';
 
-// Reads back what a rendered PDF draws: its text by font, and how many lines it strokes.
+// Reads back what a rendered PDF draws: its text by font and by line, and how many lines it
+// strokes.
 export const readPdf = buffer => {
   const pdf = buffer.toString('latin1');
   const baseFontByObject = Object.fromEntries(
@@ -16,6 +17,7 @@ export const readPdf = buffer => {
   );
 
   const textByFont = {};
+  const textLines = [];
   let strokeCount = 0;
   // react-pdf writes "\n" on both sides of the stream data, which is binary and can itself end in
   // "\r": allowing "\r\n" here would cut that byte off and make the deflate stream unreadable.
@@ -37,7 +39,8 @@ export const readPdf = buffer => {
         .map(([, hex]) => Buffer.from(hex, 'hex').toString('latin1'))
         .join('');
       textByFont[font] = (textByFont[font] ?? '') + text;
+      textLines.push(text);
     }
   }
-  return { textByFont, allText: Object.values(textByFont).join(''), strokeCount };
+  return { textByFont, textLines, allText: Object.values(textByFont).join(''), strokeCount };
 };

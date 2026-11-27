@@ -105,7 +105,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
     setSelectedReferral(referral);
   }, []);
 
-  const endpoint = `patient/${patientId}/referrals`;
+  const endpoint = route('patient/:patientId/referrals', { patientId });
 
   const onCancelReferral = useCallback(async () => {
     await api.put(

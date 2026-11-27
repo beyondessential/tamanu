@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 import {
@@ -58,8 +58,14 @@ vi.mock('../../../app/components/Field', async importOriginal => {
         toggle
       </button>
     ),
-    AutocompleteField: ({ field, ['data-testid']: testId }) => (
-      <input data-testid={`${testId}-input`} value={field?.value ?? ''} readOnly />
+    AutocompleteField: ({ field, onChange, ['data-testid']: testId }) => (
+      <input
+        data-testid={`${testId}-input`}
+        value={field?.value ?? ''}
+        onChange={e =>
+          onChange?.({ target: { ...pickableOptions[e.target.value], value: e.target.value } })
+        }
+      />
     ),
   };
 });
@@ -83,12 +89,21 @@ vi.mock('@tamanu/ui-components', async importOriginal => {
 // to avoid pulling the whole medications util graph into the test.
 vi.mock('../../../app/utils/medications', () => ({
   getDrugUnitLabel: () => '',
+  buildLabelText: ({ isVariableDose, doseAmount }) =>
+    isVariableDose ? 'Take as directed' : `Take ${doseAmount}`,
 }));
+
+const substituteReferenceDrug = { facilities: [{ stockStatus: 'out_of_stock', quantity: 0 }] };
+const pickableOptions = {
+  'drug-2': { label: 'Ibuprofen', referenceDrug: substituteReferenceDrug },
+};
+
+const fetchCurrentOption = vi.fn();
 
 vi.mock('../../../app/api', () => ({
   useSuggester: () => ({
     fetchSuggestions: vi.fn().mockResolvedValue([]),
-    fetchCurrentOption: vi.fn().mockResolvedValue(null),
+    fetchCurrentOption,
   }),
 }));
 
@@ -142,6 +157,72 @@ describe('ModifyPrescriptionModal form logic', () => {
     expect(screen.getByTestId('modify-prescription-label-notes-input').value).toBe(
       'Take with food in the morning',
     );
+  });
+
+  it('rebuilds generated label notes when the dose changes', () => {
+    renderModal({ labelNotes: 'Take 5' });
+    fireEvent.click(screen.getByTestId('modify-prescription-variable-dose'));
+    expect(screen.getByTestId('modify-prescription-label-notes-input').value).toBe(
+      'Take as directed',
+    );
+  });
+
+  it('leaves hand-written label notes alone when the dose changes', () => {
+    renderModal();
+    fireEvent.click(screen.getByTestId('modify-prescription-variable-dose'));
+    expect(screen.getByTestId('modify-prescription-label-notes-input').value).toBe(
+      'Take with food in the morning',
+    );
+  });
+
+  it('confirms a substituted drug with its stock record', async () => {
+    const onConfirm = vi.fn();
+    renderModal({
+      onConfirm,
+      modification: {
+        ...prescription,
+        modifiedReasonId: 'reason-1',
+        modifiedById: 'user-1',
+      },
+    });
+
+    fireEvent.change(screen.getByTestId('modify-prescription-medication-input'), {
+      target: { value: 'drug-2' },
+    });
+    fireEvent.click(screen.getByTestId('modify-prescription-confirm'));
+
+    await waitFor(() => expect(onConfirm).toHaveBeenCalled());
+    expect(onConfirm.mock.calls[0][0].medication).toEqual({
+      id: 'drug-2',
+      name: 'Ibuprofen',
+      referenceDrug: substituteReferenceDrug,
+    });
+    expect(fetchCurrentOption).not.toHaveBeenCalled();
+  });
+
+  it('keeps the substituted drug already chosen when confirmed again', async () => {
+    const medication = {
+      id: 'drug-2',
+      name: 'Ibuprofen',
+      referenceDrug: { facilities: [{ stockStatus: 'in_stock', quantity: 8 }] },
+    };
+    const onConfirm = vi.fn();
+    renderModal({
+      onConfirm,
+      modification: {
+        ...prescription,
+        medicationId: 'drug-2',
+        medication,
+        modifiedReasonId: 'reason-1',
+        modifiedById: 'user-1',
+      },
+    });
+
+    fireEvent.click(screen.getByTestId('modify-prescription-confirm'));
+
+    await waitFor(() => expect(onConfirm).toHaveBeenCalled());
+    expect(onConfirm.mock.calls[0][0].medication).toBe(medication);
+    expect(fetchCurrentOption).not.toHaveBeenCalled();
   });
 
   it('auto-selects and disables the "Display on MAR" checkbox', () => {

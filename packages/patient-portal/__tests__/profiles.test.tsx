@@ -1,0 +1,198 @@
+import React from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { resolveEndpoint } from '@tamanu/api-client';
+import { LoginView } from '../src/views/LoginView';
+import { SelectProfileView } from '../src/views/SelectProfileView';
+import { RegistrationView } from '../src/views/RegistrationView';
+import { isProfileChoicePending, setProfileChoicePending } from '../src/api/profileChoice';
+import { PrivateRoute } from '../src/routes/PrivateRoute';
+import { createFakeApi, fakePatient, renderPortal, stubTranslations } from './renderPortal';
+
+// input-otp leaves timers running after unmount, which fire once the test environment is gone
+vi.mock('@components/VerificationCodeInput', () => ({
+  VerificationCodeInput: ({ name = 'verificationCode' }: { name?: string }) => (
+    <input name={name} />
+  ),
+}));
+
+const ANA = {
+  portalUserId: 'portal-ana',
+  displayId: 'KAMAKA01',
+  firstName: 'Ana',
+  lastName: 'Kamaka',
+  dateOfBirth: '1990-05-15',
+  sex: 'female',
+};
+const TUI = {
+  portalUserId: 'portal-tui',
+  displayId: 'KAMAKA02',
+  firstName: 'Tui',
+  lastName: 'Kamaka',
+  dateOfBirth: '2018-02-03',
+  sex: 'male',
+};
+const profilesOf = (...data: (typeof ANA)[]) => ({ email: 'kamaka.family@example.com', data });
+
+const createProfilesApi = (responses: Record<string, unknown>) =>
+  Object.assign(createFakeApi(responses), {
+    setToken: vi.fn(async () => {}),
+    logout: vi.fn(async () => {}),
+    tokenLogin: vi.fn(async () => ({ token: 'login-token', user: fakePatient() })),
+  });
+
+const privateDashboard = { path: '/', element: <PrivateRoute element={<p>Dashboard</p>} /> };
+
+afterEach(() => setProfileChoicePending(false));
+
+describe('Select profile', () => {
+  it('lists each profile and switches to the one chosen', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient(), profiles: profilesOf(ANA, TUI) });
+    api.post.mockResolvedValue({ token: 'tui-token' });
+    renderPortal({ page: <SelectProfileView />, path: '/select-profile', api });
+
+    expect(await screen.findByText('Ana Kamaka')).toBeTruthy();
+    expect(screen.getByText('03/02/2018 • M • KAMAKA02')).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: /Tui Kamaka/ }));
+
+    expect(await screen.findByText('Dashboard')).toBeTruthy();
+    expect(resolveEndpoint(api.post.mock.calls[0][0])).toBe('profiles/portal-tui/select');
+    expect(api.setToken).toHaveBeenCalledWith('tui-token');
+    const profileFetches = api.get.mock.calls.filter(([e]) => resolveEndpoint(e) === 'profiles');
+    expect(profileFetches).toHaveLength(1);
+  });
+
+  it('says so when the profile chosen cannot be opened', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient(), profiles: profilesOf(ANA, TUI) });
+    api.post.mockRejectedValue(new Error('Profile not found'));
+    renderPortal({ page: <SelectProfileView />, path: '/select-profile', api });
+
+    await userEvent.click(await screen.findByRole('button', { name: /Tui Kamaka/ }));
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/couldn't be opened/);
+    expect(api.setToken).not.toHaveBeenCalled();
+    expect(screen.queryByText('Dashboard')).toBeNull();
+  });
+
+  it('says so when the profiles cannot be loaded', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient() });
+    renderPortal({ page: <SelectProfileView />, path: '/select-profile', api });
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/couldn't be loaded/);
+    expect(screen.queryByText('Dashboard')).toBeNull();
+  });
+
+  it('goes to the dashboard when the email has one profile', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient(), profiles: profilesOf(ANA) });
+    renderPortal({ page: <SelectProfileView />, path: '/select-profile', api });
+    expect(await screen.findByText('Dashboard')).toBeTruthy();
+  });
+});
+
+describe('Menu', () => {
+  const openMenu = async (profiles: ReturnType<typeof profilesOf>) => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient(), profiles });
+    renderPortal({ page: <p>Records</p>, path: '/records', api });
+    await userEvent.click(await screen.findByRole('button', { name: 'Open menu' }));
+    expect(await screen.findByText('kamaka.family@example.com')).toBeTruthy();
+    expect(screen.getByText('Ana Kamaka')).toBeTruthy();
+  };
+
+  it('offers to switch profile when the email has several', async () => {
+    await openMenu(profilesOf(ANA, TUI));
+    await userEvent.click(screen.getByRole('button', { name: 'Switch profile' }));
+    expect(await screen.findByText('Select profile')).toBeTruthy();
+  });
+
+  it('leaves out switching profile when the email has one', async () => {
+    await openMenu(profilesOf(ANA));
+    expect(screen.queryByRole('button', { name: 'Switch profile' })).toBeNull();
+  });
+
+  it('forgets an unchosen profile on logging out', async () => {
+    await openMenu(profilesOf(ANA, TUI));
+    setProfileChoicePending(true);
+    await userEvent.click(screen.getByRole('button', { name: /Log out/ }));
+    expect(await screen.findByText('Login')).toBeTruthy();
+    expect(isProfileChoicePending()).toBe(false);
+  });
+});
+
+describe('Logging in', () => {
+  const logIn = async (profiles: ReturnType<typeof profilesOf>) => {
+    stubTranslations();
+    const responses: Record<string, unknown> = { profiles };
+    const api = createProfilesApi(responses);
+    api.tokenLogin.mockImplementation(async () => {
+      responses.me = fakePatient();
+      return { token: 'login-token', user: fakePatient() };
+    });
+    const { router } = renderPortal({
+      page: <LoginView />,
+      path: '/login-submit',
+      access: 'public',
+      api,
+      routes: [
+        { path: '/select-profile', element: <PrivateRoute element={<SelectProfileView />} /> },
+        privateDashboard,
+      ],
+    });
+    await userEvent.type(
+      await screen.findByLabelText(/Email address/),
+      'kamaka.family@example.com',
+    );
+    await userEvent.type(document.querySelector('input[name="verificationCode"]')!, '123456');
+    await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    await waitFor(() => expect(api.tokenLogin).toHaveBeenCalled());
+    return { api, router };
+  };
+
+  it('asks which profile to open when the email has several', async () => {
+    await logIn(profilesOf(ANA, TUI));
+    expect(await screen.findByText('Select a profile to continue')).toBeTruthy();
+    expect(screen.queryByText('Dashboard')).toBeNull();
+  });
+
+  it('goes straight to the dashboard when the email has one', async () => {
+    await logIn(profilesOf(ANA));
+    expect(await screen.findByText('Dashboard')).toBeTruthy();
+  });
+
+  it('keeps the dashboard from opening until a profile is chosen', async () => {
+    const { api, router } = await logIn(profilesOf(ANA, TUI));
+    await screen.findByText('Select a profile to continue');
+
+    await router.navigate('/');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/select-profile'));
+    const tui = await screen.findByRole('button', { name: /Tui Kamaka/ });
+    expect(screen.queryByText('Dashboard')).toBeNull();
+
+    api.post.mockResolvedValue({ token: 'tui-token' });
+    await userEvent.click(tui);
+    expect(await screen.findByText('Dashboard')).toBeTruthy();
+    expect(isProfileChoicePending()).toBe(false);
+  });
+});
+
+describe('Registering', () => {
+  it('registers a patient whose link is opened while someone is signed in', async () => {
+    stubTranslations();
+    const api = createProfilesApi({ me: fakePatient(), profiles: profilesOf(ANA) });
+    renderPortal({
+      page: <RegistrationView />,
+      path: '/register/portal-tui.123456',
+      routePath: '/register/:token',
+      access: 'registration',
+      api,
+    });
+
+    expect(await screen.findByText('Account successfully created!')).toBeTruthy();
+    expect(resolveEndpoint(api.post.mock.calls[0][0])).toBe('verify-registration');
+  });
+});

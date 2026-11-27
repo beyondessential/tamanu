@@ -61,8 +61,13 @@ export const PublicRoute = ({ element }: { element: React.ReactElement }) => {
   }
 
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/select-profile" replace />;
   }
 
   return <PublicPageLayout>{element}</PublicPageLayout>;
 };
+
+/** Registers whoever the link is for, whether or not someone is already signed in. */
+export const RegistrationRoute = ({ element }: { element: React.ReactElement }) => (
+  <PublicPageLayout>{element}</PublicPageLayout>
+);

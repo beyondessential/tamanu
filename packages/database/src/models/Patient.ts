@@ -1,5 +1,10 @@
 import { Op, DataTypes, type FindOptions, Sequelize } from 'sequelize';
-import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS, VACCINE_STATUS } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  SYNC_DIRECTIONS,
+  VACCINE_STATUS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import {
   getCovidClearanceCertificateFilter,
   getLabTestsFromLabRequests,
@@ -135,6 +140,7 @@ export class Patient extends Model {
     this.hasOne(models.PortalUser, {
       foreignKey: 'patientId',
       as: 'portalUser',
+      scope: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
   }
 

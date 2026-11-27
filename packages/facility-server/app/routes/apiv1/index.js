@@ -73,7 +73,6 @@ import { user } from './user';
 import { vitals } from './vitals';
 import { translation } from './translation';
 import { upcomingVaccinations } from './upcomingVaccinations';
-import { telegramRoutes } from './telegram/telegramRoutes';
 import { tasks } from './task/tasks';
 import { notifications } from './notifications';
 import { random } from './random';
@@ -297,7 +296,6 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.use(patientDataRoutes); // see below for specifics
   apiv1.use(referenceDataRoutes); // see below for specifics
   apiv1.use(syncRoutes); // see below for specifics
-  apiv1.use('/telegram', telegramRoutes);
 
   // patient data endpoints
   patientDataRoutes.use('/allergy', allergy);

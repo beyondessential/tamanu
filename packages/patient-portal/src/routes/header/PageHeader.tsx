@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Link } from 'react-router';
 import { Menu } from 'lucide-react';
 import { useTranslation } from '@tamanu/ui-components';
-import { useCurrentUser } from '@routes/PrivateRoute';
 import { MainMenu } from './MainMenu';
 import tamanuLogoBlue from '../../assets/images/tamanu_logo_blue.svg';
 
@@ -49,7 +48,6 @@ const MenuButton = styled.button.attrs({ type: 'button' })`
 
 export const PageHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { firstName, lastName } = useCurrentUser();
   const { getTranslation } = useTranslation();
 
   return (
@@ -65,11 +63,7 @@ export const PageHeader = () => {
           <Menu aria-hidden />
         </MenuButton>
       </HeaderContent>
-      <MainMenu
-        open={isMenuOpen}
-        userName={`${firstName} ${lastName}`}
-        onClose={() => setIsMenuOpen(false)}
-      />
+      <MainMenu open={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </HeaderBar>
   );
 };
