@@ -10,8 +10,9 @@ carries `centralUrl`, `facilityUrl`, `facility2Url`, and the same web build poin
   they resolve into the deps copy of the source, so a later commit with the same lockfile runs
   stale workspace code.
 - `build.sh`: the web app and the bundled default translations. The servers run from source with tsx.
-- `seed`: a key file for the build (`secret.key` beside its source, which every server of the build
-  reads through `CRYPTO_KEY_FILE`), then central `upgrade`, `provision` with `provisioning.json5`,
+- `seed`: a key file and token signing secrets for the build (`secret.key` and `auth-secrets.env`
+  beside its source, which every server of the build reads through `CRYPTO_KEY_FILE`,
+  `AUTH_SECRET` and `AUTH_REFRESH_TOKEN_SECRET`), then central `upgrade`, `provision` with `provisioning.json5`,
   `rebuildSyncLookup`. Then a template database per facility (`tamanu_rig_ft1_*`,
   `tamanu_rig_ft2_*`), upgraded and synced once against a central started on the template.
 - `serve`: clones the lease's facility databases (`tamanu_rig_f1_*`, `tamanu_rig_f2_*`) from those
