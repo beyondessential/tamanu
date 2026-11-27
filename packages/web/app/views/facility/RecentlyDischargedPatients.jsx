@@ -27,17 +27,7 @@ import {
 
 // spec: RDISCH#table
 const COLUMNS = [
-  {
-    ...displayId,
-    title: (
-      <TranslatedText
-        stringId="general.patientId.label"
-        fallback="Patient ID"
-        data-testid="translatedtext-rdp-col-patient-id"
-      />
-    ),
-    sortable: false,
-  },
+  { ...displayId, sortable: false },
   firstName,
   lastName,
   dateOfBirth,
