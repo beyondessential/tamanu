@@ -4,7 +4,11 @@ import { Op } from 'sequelize';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
-import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import {
+  SYNC_SESSION_DIRECTION,
+  countSyncSnapshotRecords,
+  getSnapshotTableName,
+} from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData';
@@ -358,6 +362,85 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       expect(sessionTwoEncounterIds).toHaveLength(1);
       expect(sessionTwoEncounterIds[0]).toEqual(encounter2.id);
     });
+
+    it('stores the total to pull so pull metadata does not count the snapshot', async () => {
+      const [facility] = await prepareRecordsForSync();
+
+      const centralSyncManager = await initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        { since: -1, facilityIds: [facility.id] },
+        () => true,
+      );
+
+      const totalInSnapshot = await countSyncSnapshotRecords(
+        sequelize,
+        sessionId,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      expect(Number(totalInSnapshot)).toBeGreaterThan(0);
+
+      // emptying the snapshot shows metadata answers from the stored total, not a fresh count
+      await sequelize.query(`DELETE FROM ${getSnapshotTableName(sessionId)}`);
+
+      const { totalToPull } = await centralSyncManager.fetchPullMetadata(sessionId);
+      expect(totalToPull).toEqual(totalInSnapshot);
+    });
+
+    it.each([
+      ['without', false],
+      ['with', true],
+    ])(
+      'leaves changes echoed back from the push out of the stored total %s the lookup table',
+      async (_, lookupTableEnabled) => {
+        const [facility] = await prepareRecordsForSync();
+        const patient = await models.Patient.create(fake(models.Patient));
+        const pushedPatientFacility = {
+          id: `${patient.id};${facility.id}`,
+          patientId: patient.id,
+          facilityId: facility.id,
+        };
+
+        const centralSyncManager = await initializeCentralSyncManager({
+          sync: {
+            lookupTable: { enabled: lookupTableEnabled },
+            maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+          },
+        });
+        if (lookupTableEnabled) await centralSyncManager.updateLookupTable();
+      const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.addIncomingChanges(sessionId, [
+          {
+            direction: SYNC_SESSION_DIRECTION.OUTGOING,
+            isDeleted: false,
+            recordType: 'patient_facilities',
+            recordId: pushedPatientFacility.id,
+            data: pushedPatientFacility,
+          },
+        ]);
+        await centralSyncManager.completePush(sessionId, facility.id);
+        await waitForPushCompleted(centralSyncManager, sessionId);
+        if (lookupTableEnabled) await centralSyncManager.updateLookupTable();
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          { since: 1, facilityIds: [facility.id], deviceId: facility.id },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        expect(outgoingChanges.map(change => change.recordId)).not.toContain(
+          pushedPatientFacility.id,
+        );
+        const { totalToPull } = await centralSyncManager.fetchPullMetadata(sessionId);
+        expect(Number(totalToPull)).toEqual(outgoingChanges.length);
+      },
+    );
   });
 
   describe('handles concurrent transactions', () => {
