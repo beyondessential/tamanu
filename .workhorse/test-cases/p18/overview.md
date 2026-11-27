@@ -76,16 +76,16 @@ The previous build is main without this card. It stores the session and the sele
 
 ### Session
 
-- [ ] Sign in online on a fresh install: facility selection shows, then the welcome introduction, then the home screen
+- [x] Sign in online on a fresh install: facility selection shows, then the welcome introduction, then the home screen
 - [x] Close the app fully and reopen it: it opens signed in on the home screen with no password asked for, and the sync that starts at launch completes
 - [x] Log out from the More screen: the log in screen shows. Sign in again: the home screen shows without the welcome introduction
 - [x] Sign in offline (aeroplane mode) as a user who has signed in online before
 - [x] After logging out, sign in offline, close the app and reopen it: screens that check permissions (patient home, program registry, lab requests) open without error (the one behaviour change)
-- [ ] Leave the app untouched for 30 minutes: the log in screen shows with "Logged out due to inactivity"
-- [ ] Background the app for over 30 minutes and return: the same
+- [x] Leave the app untouched for 30 minutes: the log in screen shows with "Logged out due to inactivity"
+- [x] Background the app for over 30 minutes and return: the same
 - [x] On the log in screen while online, enter a wrong password: an error shows and the log in screen stays
-- [ ] Against a central server that requires a newer app, sync: the user stays signed in, the update banner shows on the home screen, and the selected patient is still selected
-- [ ] With sync stopped by a rejected session, reconnect with a wrong password: an error shows in the form and the user stays signed in. Reconnect with the right password: sync resumes on the same screen
+- [x] Against a central server that requires a newer app, sync: the user stays signed in, the update banner shows on the home screen, and the selected patient is still selected
+- [x] With sync stopped by a rejected session, reconnect with a wrong password: an error shows in the form and the user stays signed in. Reconnect with the right password: sync resumes on the same screen
 - [x] The user's name shows on the home screen, the More screen and the welcome introduction, and changes on all of them after signing in as someone else
 
 ### Selected patient
@@ -96,7 +96,7 @@ The previous build is main without this card. It stores the session and the sele
 - [x] Open search from the home screen with a patient selected: the selection is cleared
 - [x] Register a new patient: the confirmation screen shows their name and display id, and "Start Visit" leads to their home screen
 - [x] Edit the selected patient's details: the patient home screen shows the saved details
-- [ ] Record vitals, a vaccine, a program form, a referral, a lab request, a diagnosis and a prescription against the selected patient: each saves against that patient and their name shows in each screen's header
-- [ ] Submit a program form that writes back to patient fields: the patient home screen shows the new values straight away
+- [x] Record vitals, a vaccine, a program form, a referral, a lab request, a diagnosis and a prescription against the selected patient: each saves against that patient and their name shows in each screen's header
+- [x] Submit a program form that writes back to patient fields: the patient home screen shows the new values straight away
 - [x] Close and reopen the app with a patient selected: the Patient tab shows that patient
 - [x] Log out and sign in as another user with a patient selected: the same patient is still selected

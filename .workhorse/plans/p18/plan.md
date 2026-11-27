@@ -126,7 +126,7 @@ The root `react-redux` override in the top-level `package.json` stays. The web a
 - [x] Mobile jest suite passes (532 tests after the old-format tests went, run with three workers)
 - [x] Lint passes on the mobile package with no errors
 - [x] Android JavaScript bundle builds, so every import resolves under Metro, with no Redux package in it
-- [ ] Run on a device or emulator, including the update from the previous build (under way: see Device run and the test cases)
+- [x] Run on an emulator, including the update from the previous build: every device case passed (see Device run and the test cases)
 
 > The full jest suite fails a handful of unrelated suites on this machine at the default eight workers, on the base as well as on this branch. Each passes on its own and the whole suite passes at three workers.
 
@@ -158,7 +158,7 @@ Two builds, from two checkouts:
 
 The card removes only JavaScript packages, so the native side of the two builds is the same, and one debug package serves both. A debug build loads its JavaScript from Metro, so the checkout Metro runs from is the build under test. Upgrading is: reinstall the package over itself with `adb install -r` (which keeps the app's data, as a store update does), switch Metro to the card's checkout, and launch. Building a second package would add half an hour and test nothing more.
 
-The emulator reaches the machine's own `127.0.0.1` at `10.0.2.2`, and a debug build offers "Local central server (port 3000)" at `http://10.0.2.2:3000` on the log in screen. A small forwarder on the machine's port 3000 passes that to the lease's central server, so neither checkout needs a `serverOverrides.json` edit. The app remembers the server it first signed in to, so the second build carries on against the same one.
+The emulator reaches the machine's own `127.0.0.1` at `10.0.2.2`, and a debug build offers "Local central server (port 3000)" at `http://10.0.2.2:3000` on the log in screen. A small HTTP proxy on the machine's port 3000 passes that to the lease's central server, so neither checkout needs a `serverOverrides.json` edit. The app remembers the server it first signed in to, so the second build carries on against the same one.
 
 Release builds are the closer check but need CI, since a release build made without the signing secrets is unsigned. A pull request deployment builds this branch's package wired to its own central server and posts the link on the pull request. The previous build would come from running the Android packaging workflow by hand with that same server, from a branch that is not `main`, because a run on `main` publishes its package.
 
@@ -185,17 +185,24 @@ Setting it up turned up three things outside the card's own code:
 1. **Update.** Install the previous build, sign in online, choose a facility, pass the welcome introduction and select a patient. Install this build over it with `adb install -r`. It opens on the log in screen, and signing in leads into the welcome introduction.
 2. **Relaunch.** Close this build fully and reopen it, and watch the sync that starts at launch through to the end. The launch read was moved to overlap the backend starting, and only a device shows whether the tokens reach the central server connection in time.
 3. **Session and selected patient cases**, in the order the test cases list them.
-4. **Out-of-date app**: skip unless a central server that requires a newer app is to hand.
+4. **Out-of-date app**, staged through the forwarder as below.
 
 A debug build cannot be relaunched in aeroplane mode, because it loads its JavaScript from Metro over the network. For the offline cases that need a relaunch, `central.sh off` stops the forwarder instead, which leaves the central server unreachable while Metro still answers.
 
 ### Where the run stands
 
-Passed so far: the update from the previous build, relaunch with the launch sync, log out and back in, a wrong password, signing in as another user, offline sign-in and reopening offline, the name on each screen, and every selected patient case except two. Of the clinical screens, vitals, a diagnosis and a prescription have saved against the selected patient with their name in the header; a vaccine, a program form, a referral and a lab request are still to do.
+Every device case has run and passed. Results are in the test cases and in comments on the card with screenshots.
 
-Still to run: those four screens, a program form that writes back to patient fields (the rig's programs may hold none), sign-in on a fresh install, the two inactivity cases (thirty minutes each), and reconnecting after a rejected session. The out-of-date app case is skipped.
+Some cases were staged rather than waited out:
 
-Vitals keeps only the first character of a number typed one key at a time, on main as well as here. It is recorded on the card as needing a card of its own.
+- **Inactivity.** The thirty minutes is a constant measured against the clock, so the emulator's clock was moved forward thirty-one minutes (`adb root`, then `date -u`, with automatic time off and back on afterwards). Left untouched, the app signed out within the minute's check; brought back from the background, it signed out on returning. `adb root` restarts the device's debug connection, which drops Metro's port forward, so `adb reverse tcp:8081 tcp:8081` again afterwards.
+- **A rejected session.** The rig's central server was given a one-minute token lifetime (`auth.tokenDuration` in its settings table), the device signed in online, and its refresh token was deleted from `refresh_tokens`. The next sync is refused and the refresh fails, which raises "Sync inactive" on the home and patient screens. Delete the setting afterwards.
+- **An out-of-date app.** Central decides that from a file in its build and reads the update address at startup, so it was not touched. The port 3000 forwarder is an HTTP proxy, and while a file named `outdated` sits in the work directory it answers every mobile request but log in with central's own out-of-date response. The rig has no package at the update address, so the banner takes its "no update available" form.
+- **A form writing back to patient fields.** The rig's programs have none, so one question on the nutrition form was turned into a `PatientData` question writing the first name, in the rig's central database, and synced down.
+
+In a debug build with the hardware keyboard, R pressed twice reloads the JavaScript, which leaves the database connection open and every screen failing with "DataSource is not set for this entity" until the app is restarted. Only type with a field focused.
+
+Vitals keeps only the first character of a number typed one key at a time, on main as well as here. It is recorded on the card as needing a card of its own, as is the mobile typecheck being unable to run on main's shared TypeScript config.
 
 ### Recording it
 
