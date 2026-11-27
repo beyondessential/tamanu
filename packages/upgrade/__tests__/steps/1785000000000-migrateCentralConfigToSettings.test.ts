@@ -149,6 +149,10 @@ describe('mergeConfigUnderExisting', () => {
 });
 
 describe('1785000000000-migrateCentralConfigToSettings', () => {
+  it('runs after the settings PSK is provisioned, so the secrets copy can encrypt', () => {
+    expect(step.after).toContain('upgrade/1785100000000-provisionCentralSettingsPsk/0');
+  });
+
   beforeEach(() => vi.clearAllMocks());
 
   describe('check', () => {
