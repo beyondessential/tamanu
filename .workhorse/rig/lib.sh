@@ -10,8 +10,22 @@ SERVER_CONFIG='"rateLimit": { "enabled": false }'
 unset PORT
 export NODE_CONFIG="{ $SERVER_CONFIG }"
 
-exec_central() { cd "$RIG_SOURCE/packages/central-server" && exec node --import tsx app "$@"; }
-exec_facility() { cd "$RIG_SOURCE/packages/facility-server" && exec node --import tsx app "$@"; }
+# The servers refuse to start without a key file (config crypto.keyFile). One per kind of server is
+# made once per build, beside its source, so the seeded templates and every lease cloned from them
+# read the secrets they hold with the same key.
+key_file() {
+  file="$RIG_SOURCE/../$1-secret.key"
+  [ -s "$file" ] || head -c 32 /dev/urandom > "$file"
+  printf '%s' "$file"
+}
+exec_central() {
+  CRYPTO_KEY_FILE=$(key_file central) && export CRYPTO_KEY_FILE
+  cd "$RIG_SOURCE/packages/central-server" && exec node --import tsx app "$@"
+}
+exec_facility() {
+  CRYPTO_KEY_FILE=$(key_file facility) && export CRYPTO_KEY_FILE
+  cd "$RIG_SOURCE/packages/facility-server" && exec node --import tsx app "$@"
+}
 central() { (exec_central "$@"); }
 facility() { (exec_facility "$@"); }
 # The servers listen on every interface unless BIND_ADDRESS says otherwise.
