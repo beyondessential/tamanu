@@ -1,7 +1,11 @@
 import asyncHandler from 'express-async-handler';
 import { z } from 'zod';
 
-import { COMMUNICATION_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
+import {
+  COMMUNICATION_STATUSES,
+  PORTAL_ONE_TIME_TOKEN_TYPES,
+  PORTAL_USER_STATUSES,
+} from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/errors';
@@ -44,30 +48,20 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     throw new BadAuthenticationError('Invalid email address');
   }
 
-  // Validate that the portal user exists
-  const portalUser = await models.PortalUser.getForAuthByEmail(email);
+  const portalUsers = await models.PortalUser.getLivingByEmail(email);
 
-  if (!portalUser) {
-    log.debug('Patient portal login: Invalid email address', { email });
+  if (portalUsers.length === 0) {
+    log.debug('Patient portal login: no living patient for email - suppressing issuing token', {
+      email,
+    });
     // Avoid email enumeration by always returning a success response for invalid email addresses
     return res.status(200).json({
       message: 'One-time token sent successfully',
     });
   }
 
-  // Do not issue login tokens for deceased patients
-  const patient = await portalUser.getPatient();
-  if (patient?.dateOfDeath) {
-    log.debug('Patient portal login: Deceased patient - suppressing issuing token', {
-      email,
-      patientId: patient.id,
-    });
-    return res.status(200).json({
-      message: 'One-time token sent successfully',
-    });
-  }
-
-  if (portalUser.status !== PORTAL_USER_STATUSES.REGISTERED) {
+  const portalUser = portalUsers.find(({ status }) => status === PORTAL_USER_STATUSES.REGISTERED);
+  if (!portalUser) {
     throw new BadAuthenticationError('Email is not verified');
   }
 
@@ -97,39 +91,34 @@ export const login = ({ secret }) =>
     const { models } = store;
     const { loginToken, email } = body;
 
-    const portalUser = await models.PortalUser.getForAuthByEmail(email);
-    const patient = await portalUser?.getPatient();
-
-    let portalUserIdParam = portalUser?.id;
-    if (!portalUser) {
-      log.debug('Patient portal login: suppressing issuing token for unknown user', {
-        email,
-      });
-      // If the email is unknown, pass undefined so the service throws a generic auth error.
-      portalUserIdParam = undefined;
-    } else if (patient?.dateOfDeath) {
-      log.debug('Patient portal login: suppressing issuing token for deceased patient', {
-        email,
-        patientId: patient.id,
-        portalUserId: portalUser.id,
-      });
-      // If the patient is deceased, pass undefined so the service throws a generic auth error.
-      portalUserIdParam = undefined;
-    }
+    const portalUsers = await models.PortalUser.getLivingByEmail(email);
+    // The code was issued against one of the email's portal users; an unknown email or one with
+    // only deceased patients finds none, so the service throws a generic auth error.
+    const issuedToken = await models.PortalOneTimeToken.findOne({
+      where: {
+        type: PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN,
+        portalUserId: portalUsers.map(({ id }) => id),
+      },
+      order: [['createdAt', 'DESC']],
+    });
 
     const oneTimeTokenService = new PortalOneTimeTokenService(models);
-    await oneTimeTokenService.verifyAndConsume({
+    const portalUser = await oneTimeTokenService.verifyAndConsume({
       token: loginToken,
-      portalUserId: portalUserIdParam,
+      portalUserId: issuedToken?.portalUserId,
     });
 
     const patientPortalTokenDuration = await settings.get('patientPortal.tokenDuration');
 
-    const token = await buildToken({ portalUserId: portalUser.id }, secret, {
-      expiresIn: patientPortalTokenDuration,
-      audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
-      issuer: canonicalHostName,
-    });
+    const token = await buildToken(
+      { portalUserId: portalUser.id, email: portalUser.email },
+      secret,
+      {
+        expiresIn: patientPortalTokenDuration,
+        audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
+        issuer: canonicalHostName,
+      },
+    );
 
     return res.status(200).json({ token });
   });

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import { styled, Typography } from '@mui/material';
 
@@ -47,9 +47,12 @@ const RegistrationErrorMessage = ({ error }: { error: unknown }) => {
 
 const useVerifyRegistration = () => {
   const api = useApi();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (token: string) => api.post('verify-registration', { token } as any),
+    // Someone already signed in has just gained a profile to choose from
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
   });
 };
 

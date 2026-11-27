@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { JWT_TOKEN_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { SERVER_TYPES } from '@tamanu/constants/servers';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/errors';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
@@ -72,6 +73,15 @@ export const patientPortalMiddleware = ({ secret }) =>
       );
     }
 
+    if (portalUser.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new BadAuthenticationError('Portal access has been removed');
+    }
+
+    const sessionEmail = contents.payload.email ?? portalUser.email;
+    if (sessionEmail.toLowerCase() !== portalUser.email.toLowerCase()) {
+      throw new BadAuthenticationError('Portal user is no longer on the signed-in email');
+    }
+
     const patient = await portalUser.getPatient({ include: ['additionalData'] });
 
     if (!patient) {
@@ -87,6 +97,8 @@ export const patientPortalMiddleware = ({ secret }) =>
 
     /* eslint-disable require-atomic-updates */
     req.portalUser = portalUser;
+    req.portalSessionExpiresAt = contents.payload.exp;
+    req.portalSessionEmail = sessionEmail;
     req.patient = patient;
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */

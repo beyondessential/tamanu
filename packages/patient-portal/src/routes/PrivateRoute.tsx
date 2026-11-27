@@ -1,8 +1,9 @@
 import React, { createContext, useContext } from 'react';
-import { Navigate, ScrollRestoration } from 'react-router';
+import { Navigate, ScrollRestoration, useLocation } from 'react-router';
 import { PageLoading, PortalGlobalStyle, PortalRoot } from '@components/layout';
 import { PageHeader } from './header/PageHeader';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
+import { isProfileChoicePending } from '@api/profileChoice';
 import { type PatientWithAdditionalData } from '@tamanu/shared/schemas/patientPortal';
 
 const CurrentUserContext = createContext<PatientWithAdditionalData | undefined>(undefined);
@@ -20,6 +21,7 @@ const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => (
 
 export const PrivateRoute = ({ element }: { element: React.ReactElement }) => {
   const { data: user, isError, isPending } = useCurrentUserQuery();
+  const { pathname } = useLocation();
 
   if (isPending) {
     return <PageLoading />;
@@ -27,6 +29,10 @@ export const PrivateRoute = ({ element }: { element: React.ReactElement }) => {
 
   if (isError || !user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (pathname !== '/select-profile' && isProfileChoicePending()) {
+    return <Navigate to="/select-profile" replace />;
   }
 
   return (

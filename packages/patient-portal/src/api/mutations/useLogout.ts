@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useApi } from '../useApi';
+import { setProfileChoicePending } from '../profileChoice';
 
 export const useLogout = () => {
   const api = useApi();
@@ -10,6 +11,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: () => api.logout(),
     onSuccess: () => {
+      setProfileChoicePending(false);
       // completely clear the react-query cache
       queryClient.clear();
       // Redirect to login page
