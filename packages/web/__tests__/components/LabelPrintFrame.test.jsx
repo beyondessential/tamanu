@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { LabelPrintFrame } from '../../app/components/PatientPrinting/printouts/LabelPrintFrame';
 
@@ -18,6 +18,21 @@ const renderFrame = (labels, ref = React.createRef()) => {
 };
 
 describe('LabelPrintFrame', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('skips empty children rather than printing a blank label', () => {
+    const ref = React.createRef();
+    render(
+      <LabelPrintFrame ref={ref} width={40} height={28} data-testid="frame">
+        {null}
+        <span className="label">Only</span>
+        {false}
+      </LabelPrintFrame>,
+    );
+    const pages = [...screen.getByTestId('frame').contentDocument.body.children];
+    expect(pages.map(page => page.textContent)).toEqual(['Only']);
+  });
+
   it('puts each label on its own page of the frame document, and nothing in the app', () => {
     const { frame } = renderFrame(['First', 'Second', 'Third']);
     const frameBody = frame.contentDocument.body;
@@ -50,6 +65,5 @@ describe('LabelPrintFrame', () => {
     finishPrinting();
     await printing;
     expect(settled).toBe(true);
-    appPrint.mockRestore();
   });
 });

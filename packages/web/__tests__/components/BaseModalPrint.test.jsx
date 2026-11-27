@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BaseModal, TranslationContext } from '@tamanu/ui-components';
 
 const PRINT_BUTTON = 'styledbutton-z2pp';
@@ -20,6 +20,8 @@ const renderModal = props =>
   );
 
 describe('BaseModal printing', () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it('prints through onPrint, never the app window', () => {
     const onPrint = vi.fn();
     const appPrint = vi.spyOn(window, 'print').mockImplementation(() => {});
@@ -30,7 +32,6 @@ describe('BaseModal printing', () => {
     expect(onPrint).toHaveBeenCalledTimes(1);
     expect(onPrint).toHaveBeenCalledWith();
     expect(appPrint).not.toHaveBeenCalled();
-    appPrint.mockRestore();
   });
 
   it('shows no print button unless printable', () => {
@@ -39,10 +40,9 @@ describe('BaseModal printing', () => {
   });
 
   it('refuses to render a printable modal with nothing to print', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => renderModal({ printable: true })).toThrow(
       'A printable modal needs an onPrint handler',
     );
-    consoleError.mockRestore();
   });
 });

@@ -26,5 +26,6 @@ A refactor with no intended behaviour change. These cases confirm that printing 
 
 - [x] Unit test for the shared label frame: it portals one page per label into the frame document and none into the app, and `print()` prints the frame and resolves on its `afterprint` (`LabelPrintFrame.test.jsx`).
 - [x] Unmounting the frame removes its labels cleanly (`LabelPrintFrame.test.jsx`, through test cleanup).
+- [x] Empty children (`null`, `false`) print no blank label (`LabelPrintFrame.test.jsx`).
 - [ ] The printed page size follows the frame's width and height. Not testable in jsdom, where the test build of styled-components writes no global styles, so this rests on the manual print checks above.
 - [x] Existing `LabRequestSummaryPane` and medication label tests pass unchanged.

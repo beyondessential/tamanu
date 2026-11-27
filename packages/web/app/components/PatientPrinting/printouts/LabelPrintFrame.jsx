@@ -136,8 +136,8 @@ export const LabelPrintFrame = forwardRef(
             <StyleSheetManager target={frameDocument.head}>
               <>
                 <FrameStyles $width={width} $height={height} />
-                {Children.map(children, label => (
-                  <LabelPage>{label}</LabelPage>
+                {Children.toArray(children).map(label => (
+                  <LabelPage key={label.key}>{label}</LabelPage>
                 ))}
               </>
             </StyleSheetManager>,
