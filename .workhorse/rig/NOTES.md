@@ -21,6 +21,7 @@ carries `centralUrl`, `facilityUrl`, `facility2Url`, and the same web build poin
 - Key files: central and the facilities each need one (`crypto.keyFile`). `lib.sh` makes
   `central-secret.key` and `facility-secret.key` beside the build's source the first time a server
   starts, and points `CRYPTO_KEY_FILE` at them, so every lease reads the key its templates were seeded with.
+  Central's token signing secrets (`AUTH_SECRET`, `AUTH_REFRESH_TOKEN_SECRET`) are made and kept the same way.
 - `teardown`: drops the lease's facility databases.
 
 Runs on macOS and Linux; on Windows, inside WSL2. The servers' primary timezone is the caller's `TZ`,

@@ -18,8 +18,17 @@ key_file() {
   [ -s "$file" ] || head -c 32 /dev/urandom > "$file"
   printf '%s' "$file"
 }
+# Central refuses weak or missing token signing secrets. Kept per build too, so a session survives
+# a lease's restart.
+secret() {
+  file="$RIG_SOURCE/../$1.secret"
+  [ -s "$file" ] || head -c 32 /dev/urandom | base64 | tr -d '\n=' > "$file"
+  cat "$file"
+}
 exec_central() {
   CRYPTO_KEY_FILE=$(key_file central) && export CRYPTO_KEY_FILE
+  AUTH_SECRET=$(secret auth) && export AUTH_SECRET
+  AUTH_REFRESH_TOKEN_SECRET=$(secret auth-refresh) && export AUTH_REFRESH_TOKEN_SECRET
   cd "$RIG_SOURCE/packages/central-server" && exec node --import tsx app "$@"
 }
 exec_facility() {
