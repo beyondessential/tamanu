@@ -158,7 +158,8 @@ export const BaseModal = memo(
    *   printable?: boolean;
    *   onPrint?: () => void;
    *   width?: keyof typeof MODAL_MAX_WIDTHS | false;
-   * }} props
+   * }} props `onPrint` is required whenever `printable` is set: the modal throws at render
+   * without it, as there is no fallback to printing the app window.
    */
   ({
     title,
