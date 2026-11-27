@@ -26,7 +26,6 @@ const CONFIG_FILES = {
 const NOT_SETTINGS = [
   'auth.secret', // AUTH_SECRET
   'auth.refreshToken.secret', // AUTH_REFRESH_TOKEN_SECRET
-  'auth.saltRounds', // SALT_ROUNDS
   // Fiji VRS connection details: deployment wiring, not operator-tunable behaviour. Its
   // flags and timings are settings (see the integrations.fijiVrs row).
   'integrations.fijiVrs.host',

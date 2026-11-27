@@ -4,6 +4,8 @@ import { addHooks } from './hooks';
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
 import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
 
+const DEFAULT_SALT_ROUNDS = 12;
+
 const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'main') => {
   const store = await openDatabase(key, {
     ...resolveDbConfig(config.db),
@@ -28,8 +30,7 @@ export async function initDatabase({ testMode = false, dbKey = 'main' }) {
   return await getOrCreateConnection(
     {
       testMode,
-      // bcrypt cost for password + refresh-token hashing; config key is transitional
-      saltRounds: +process.env.SALT_ROUNDS || config.auth.saltRounds,
+      saltRounds: +process.env.SALT_ROUNDS || DEFAULT_SALT_ROUNDS,
     },
     dbKey,
   );
