@@ -32,4 +32,4 @@ What is left is a refactor with no behaviour change, so no spec change.
 - [x] Run the web unit tests touching the frames (`LabRequestSummaryPane.test.jsx`, the medication label tests) and lint the changed files.
 - [x] Render the portal before the iframe, so unmounting removes the labels before the frame. jsdom empties a removed frame's document, which made the old frames throw on unmount under test.
 - [x] Unit tests for the shared frame and for BaseModal's print guard.
-- [ ] Print by hand from each entry point in a browser to confirm the output is unchanged (see test cases).
+- [x] Print from each entry point in a browser to confirm the output is unchanged: done as a browser regression run against rigs at this branch and at main, posted as Test Cases 1 to 6 on the card.
