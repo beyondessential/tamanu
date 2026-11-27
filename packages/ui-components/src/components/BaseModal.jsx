@@ -156,8 +156,10 @@ export const BaseModal = memo(
    * @param {import('@material-ui/core/Dialog').DialogProps & {
    *   actions?: React.ReactNode;
    *   printable?: boolean;
+   *   onPrint?: () => void;
    *   width?: keyof typeof MODAL_MAX_WIDTHS | false;
-   * }} props
+   * }} props `onPrint` is required whenever `printable` is set: the modal throws at render
+   * without it, as there is no fallback to printing the app window.
    */
   ({
     title,
@@ -180,16 +182,11 @@ export const BaseModal = memo(
     bottomRowContent,
     ...props
   }) => {
-    const handlePrint = () => {
-      // If a custom print handler has been passed use that. For example for printing the contents
-      // of an iframe. Otherwise use the default electron print page
-      if (onPrint) {
-        onPrint();
-      } else {
-        // eslint-disable-next-line no-undef
-        print();
-      }
-    };
+    // There is deliberately no fallback to printing the app window: that prints the view behind
+    // the modal too, and lays out only the modal's first page. Print a document of its own instead.
+    if (printable && !onPrint) {
+      throw new Error('A printable modal needs an onPrint handler');
+    }
 
     const onDialogClose = (event, reason) => {
       switch (reason) {
@@ -222,7 +219,7 @@ export const BaseModal = memo(
           <ModalTitle>{title}</ModalTitle>
           <Actions>
             {cornerExitButton && <CloseButton onClick={onClose} disabled={!isClosable} />}
-            {printable && <PrintButton onClick={handlePrint} />}
+            {printable && <PrintButton onClick={() => onPrint()} />}
             {additionalActions}
           </Actions>
         </Header>

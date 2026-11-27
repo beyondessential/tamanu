@@ -11,6 +11,11 @@ import { selectFieldOption } from '@utils/fieldHelpers';
 import { labTestData } from '@utils/labTestData';
 import { testData } from '@utils/testData';
 import {
+  getPrintedLabels,
+  interceptLabelPrint,
+  wasAppWindowPrinted,
+} from '@utils/labelPrintHelpers';
+import {
   fillMuiDateTimeField,
   formatDateTimeForDisplay,
   getTableItems,
@@ -419,6 +424,30 @@ test.describe('Lab Request Tests', () => {
       await patientDetailsPage.labsTab.click();
       await labRequestPane.waitForTableToLoad();
       await expect(labRequestPane.tableRows.locator('td')).toHaveText('No lab requests found');
+    });
+
+    test('Print label prints the sample label from its own frame', async ({ page }) => {
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.createBasicIndividualLabRequest();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.tableRows.first().click();
+      const labRequestDetailsPage = new LabRequestDetailsPage(page);
+      await labRequestDetailsPage.waitForPageToLoad();
+      const requestId = (await labRequestDetailsPage.getLabTestId()).trim();
+
+      await labRequestDetailsPage.threeDotsButton.click();
+      await labRequestDetailsPage.printLabelButton.click();
+      const { printLabelModal } = labRequestDetailsPage;
+      await printLabelModal.waitForModalToLoad();
+      await interceptLabelPrint(printLabelModal.labelPrintFrame);
+      await printLabelModal.printLabelsButton.click();
+
+      // Printing closes the modal once the browser has taken the job.
+      await expect(printLabelModal.dialog).toBeHidden();
+      const printedLabels = await getPrintedLabels(page);
+      expect(printedLabels).toHaveLength(1);
+      expect(printedLabels![0]).toContain(requestId);
+      expect(await wasAppWindowPrinted(page)).toBe(false);
     });
 
     test('[T-0220][AT-0070]You should not be able to change status of lab request without entering sample details', async ({

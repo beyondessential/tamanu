@@ -6,6 +6,7 @@ import { StatusLogModal } from './modals/StatusLogModal';
 import { ChangeLaboratoryModal } from './modals/ChangeLaboratoryModal';
 import { ChangePriorityModal } from './modals/ChangePriorityModal';
 import { EnterResultsModal } from './modals/EnterResultsModal';
+import { PrintLabelModal } from './modals/PrintLabelModal';
 
 // Lab Request Status Constants
 export const LAB_REQUEST_STATUS = {
@@ -27,6 +28,7 @@ export class LabRequestDetailsPage {
   
   // Action buttons
   readonly cancelRequestButton!: Locator;
+  readonly printLabelButton!: Locator;
   readonly threeDotsButton!: Locator;
   readonly statusThreeDotsbutton!: Locator;
   readonly sampleCollectedThreeDotsbutton!: Locator;
@@ -74,6 +76,9 @@ export class LabRequestDetailsPage {
   //enter results modal
   readonly enterResultsModal: EnterResultsModal;
 
+  //print label modal
+  readonly printLabelModal: PrintLabelModal;
+
   constructor(page: Page) {
     this.page = page;
     
@@ -100,6 +105,7 @@ export class LabRequestDetailsPage {
     
     // Special cases that need additional processing
     this.cancelRequestButton = page.getByTestId('item-8ybn-1').getByText('Cancel request');
+    this.printLabelButton = page.getByTestId('item-8ybn-0').getByText('Print label');
     this.threeDotsButton = page.getByTestId('box-qy3e').getByTestId('openbutton-d1ec');
     this.statusThreeDotsbutton = page.getByTestId('text-u1af').filter({ hasText: 'Status' }).locator('..').getByTestId('header-7mhd').getByTestId('openbutton-d1ec');
     this.viewStatusLogsButton = page.getByTestId('item-8ybn-1').getByText('View status log');
@@ -131,6 +137,9 @@ export class LabRequestDetailsPage {
     
     //enter results modal
     this.enterResultsModal = new EnterResultsModal(page);
+
+    //print label modal
+    this.printLabelModal = new PrintLabelModal(page);
   }
 
   async waitForPageToLoad() {

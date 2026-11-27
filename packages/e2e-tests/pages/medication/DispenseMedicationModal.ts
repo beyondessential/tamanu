@@ -8,6 +8,7 @@ export class DispenseMedicationModal {
   readonly backButton: Locator;
   readonly cancelButton: Locator;
   readonly dispenseAndPrintButton: Locator;
+  readonly labelPrintFrame: Locator;
   readonly dispensedByInput: Locator;
   readonly selectAllCheckbox: Locator;
   readonly patientSummaryPanel: Locator;
@@ -26,6 +27,7 @@ export class DispenseMedicationModal {
     this.backButton = page.getByTestId('dispense-review-back-button');
     this.cancelButton = page.getByTestId('dispense-cancel-button');
     this.dispenseAndPrintButton = page.getByTestId('dispense-and-print-button');
+    this.labelPrintFrame = page.getByTestId('medication-label-print-frame');
     this.dispensedByInput = page.getByTestId('dispense-dispensed-by-input');
     this.selectAllCheckbox = page.getByTestId('dispense-select-all-checkbox-controlcheck');
     this.patientSummaryPanel = page.getByTestId('dispense-modal-patient-context');

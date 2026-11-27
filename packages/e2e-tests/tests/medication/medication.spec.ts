@@ -5,6 +5,11 @@ import {
   createPharmacyOrderViaApi,
   getFacilityId,
 } from '@utils/apiHelpers';
+import {
+  getPrintedLabels,
+  interceptLabelPrint,
+  wasAppWindowPrinted,
+} from '@utils/labelPrintHelpers';
 
 test.describe('Medication requests', () => {
   test.describe.configure({ mode: 'parallel' });
@@ -236,8 +241,16 @@ test.describe('Medication requests', () => {
     await expect(dispenseModal.dispenseWithoutLabelsButton).toBeVisible();
     await expect(dispenseModal.reviewAndPrintButton).toBeVisible();
 
-    // Close the modal
-    await dispenseModal.cancelButton.click();
+    // Back to review, then dispense and print the label
+    await dispenseModal.reviewAndPrintButton.click();
+    await interceptLabelPrint(dispenseModal.labelPrintFrame);
+    await dispenseModal.dispenseAndPrintButton.click();
+
+    // The modal closes once the browser has taken the print job.
     await expect(page.getByRole('dialog')).toBeHidden();
+    const printedLabels = await getPrintedLabels(page);
+    expect(printedLabels).toHaveLength(1);
+    expect(printedLabels![0]).toContain(newPatient.lastName);
+    expect(await wasAppWindowPrinted(page)).toBe(false);
   });
 });
