@@ -23,11 +23,13 @@ What is left is a refactor with no behaviour change, so no spec change.
 
 ## Checklist
 
-- [ ] Add `PatientPrinting/printouts/LabelPrintFrame.jsx`: the off-screen iframe, document adoption (callback ref plus the `load` re-adopt), `FrameStyles` with `@page` from `width`/`height` props, one `LabelPage` per child, and the `print()` handle resolving on `afterprint`. Carry the medication frame's explanatory comments across once, here.
-- [ ] Give the frame `width`, `height`, `children` (one element per label) and a `data-testid` prop. Throw a not-ready error that names the frame generically.
-- [ ] Reduce `MedicationLabelPrintFrame` to a wrapper: read dimensions from `useLabelDimensions`, render a `MedicationLabel` per label keyed `label.id || index`, and forward the ref.
-- [ ] Reduce `LabRequestLabelPrintFrame` to a wrapper: `LAB_LABEL_DIMENSIONS`, a `LabRequestPrintLabel` per label keyed `label.requestId || index`, and forward the ref.
-- [ ] BaseModal: delete the `print()` fallback in `handlePrint`, document `onPrint` as required when `printable` is set, and assert on it rather than silently doing nothing.
-- [ ] Check every `printable` caller still passes `onPrint` (`git grep -ln printable -- packages/web/app`), including `HandoverNotesButton` → `HandoverNotesModal`.
-- [ ] Run the web unit tests touching the frames (`LabRequestSummaryPane.test.jsx`, the medication label tests) and lint the changed files.
+- [x] Add `PatientPrinting/printouts/LabelPrintFrame.jsx`: the off-screen iframe, document adoption (callback ref plus the `load` re-adopt), `FrameStyles` with `@page` from `width`/`height` props, one `LabelPage` per child, and the `print()` handle resolving on `afterprint`. Carry the medication frame's explanatory comments across once, here.
+- [x] Give the frame `width`, `height`, `children` (one element per label) and a `data-testid` prop. Throw a not-ready error that names the frame generically.
+- [x] Reduce `MedicationLabelPrintFrame` to a wrapper: read dimensions from `useLabelDimensions`, render a `MedicationLabel` per label keyed `label.id || index`, and forward the ref.
+- [x] Reduce `LabRequestLabelPrintFrame` to a wrapper: `LAB_LABEL_DIMENSIONS`, a `LabRequestPrintLabel` per label keyed `label.requestId || index`, and forward the ref.
+- [x] BaseModal: delete the `print()` fallback in `handlePrint`, document `onPrint` as required when `printable` is set, and throw at render when it is missing rather than silently doing nothing. The button calls `onPrint()` with no arguments, as before.
+- [x] Check every `printable` caller still passes `onPrint` (`git grep -ln printable -- packages/web/app`), including `HandoverNotesButton` → `HandoverNotesModal`.
+- [x] Run the web unit tests touching the frames (`LabRequestSummaryPane.test.jsx`, the medication label tests) and lint the changed files.
+- [x] Render the portal before the iframe, so unmounting removes the labels before the frame. jsdom empties a removed frame's document, which made the old frames throw on unmount under test.
+- [x] Unit tests for the shared frame and for BaseModal's print guard.
 - [ ] Print by hand from each entry point in a browser to confirm the output is unchanged (see test cases).

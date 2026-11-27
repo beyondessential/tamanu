@@ -19,9 +19,12 @@ A refactor with no intended behaviour change. These cases confirm that printing 
 ## Printable modals
 
 - [ ] Each printable modal's print button still prints its document (e.g. encounter record, lab results printout, handover notes).
-- [ ] A modal given `printable` without `onPrint` fails loudly in development rather than printing the app window.
+- [x] A modal given `printable` without `onPrint` refuses to render rather than printing the app window (`BaseModalPrint.test.jsx`).
+- [x] The print button calls `onPrint` with no arguments and never prints the app window (`BaseModalPrint.test.jsx`).
 
 ## Automated
 
-- [ ] Unit test for the shared label frame: it portals one page per label into the frame document, and `print()` resolves on the frame's `afterprint`.
-- [ ] Existing `LabRequestSummaryPane` and medication label tests pass unchanged.
+- [x] Unit test for the shared label frame: it portals one page per label into the frame document and none into the app, and `print()` prints the frame and resolves on its `afterprint` (`LabelPrintFrame.test.jsx`).
+- [x] Unmounting the frame removes its labels cleanly (`LabelPrintFrame.test.jsx`, through test cleanup).
+- [ ] The printed page size follows the frame's width and height. Not testable in jsdom, where the test build of styled-components writes no global styles, so this rests on the manual print checks above.
+- [x] Existing `LabRequestSummaryPane` and medication label tests pass unchanged.
