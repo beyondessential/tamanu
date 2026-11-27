@@ -132,7 +132,7 @@ This is `persistIncomingChanges`, on central. Everything in the numbered list ha
 
 After the transaction commits, two more things run: `adjustDataPostSyncPush`, which lets a model make follow-up changes, and `bumpSyncTickForRepull`, which re-stamps any record a hook changed so that it is sent back to the client that pushed it XXX [sidestepping the removing of echoed changes stuff]
 
-**The two tick-tocks:** T has to be unique to this push, so that all records pushed in this session, _and only_ records pushed in this session, are stamped with that tick. The first tick-tock happens inside the transaction, so until the transaction commits, no other transaction can see T as the current tick XXX [and nor can they advance the current tick, . The second moves the clock past T before the commit, so nobody can see it afterwards either. So any row stamped T can only have been written by this push.
+**The two tick-tocks:** T has to be unique to this push, so that all records pushed in this session, _and only_ records pushed in this session, are stamped with that tick. The first tick-tock happens inside the transaction, so until the transaction commits, no other transaction can see T as the current tick XXX [and nor can they advance the current tick, if that's important?]. The second moves the clock past T before the commit, so nobody can see it afterwards either. So any row stamped T can only have been written by this push.
 
 Central relies on that later, to avoid sending a device its own changes back (see [Not sending a client its own changes](#not-sending-a-client-its-own-changes)). It is also why the two follow-up steps run after the transaction and not inside it: their changes need a different tick, so that they do go back to the client.
 
