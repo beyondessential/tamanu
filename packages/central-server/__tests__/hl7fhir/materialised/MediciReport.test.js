@@ -431,4 +431,154 @@ describe(`Materialised - MediciReport`, () => {
       });
     });
   });
+
+  describe('orders location and department history by time', () => {
+    async function makeLocations(count) {
+      const { Location } = ctx.store.models;
+      return Promise.all(
+        Array.from({ length: count }, () =>
+          Location.create(
+            fake(Location, {
+              facilityId: resources.facility.id,
+              locationGroupId: resources.locationGroup.id,
+            }),
+          ),
+        ),
+      );
+    }
+
+    async function makeDepartments(count) {
+      const { Department } = ctx.store.models;
+      return Promise.all(
+        Array.from({ length: count }, () =>
+          Department.create(
+            fake(Department, {
+              facilityId: resources.facility.id,
+              locationId: resources.location.id,
+            }),
+          ),
+        ),
+      );
+    }
+
+    async function materialiseReport(encounterId) {
+      const { MediciReport } = ctx.store.models;
+      await MediciReport.materialiseFromUpstream(encounterId);
+      await MediciReport.resolveUpstreams();
+      return MediciReport.findOne();
+    }
+
+    it('orders locations by time when an earlier move also changed the department', async () => {
+      const [admissionLocation, firstMoveLocation, secondMoveLocation] = await makeLocations(3);
+      const [admissionDepartment, firstMoveDepartment] = await makeDepartments(2);
+
+      const { encounter } = await makeEncounter({
+        encounterType: 'admission',
+        locationId: admissionLocation.id,
+        departmentId: admissionDepartment.id,
+      });
+
+      // change_type {location,department}
+      await encounter.update({
+        locationId: firstMoveLocation.id,
+        departmentId: firstMoveDepartment.id,
+        submittedTime: '2023-11-11 10:00:00',
+      });
+      // change_type {location}
+      await encounter.update({
+        locationId: secondMoveLocation.id,
+        submittedTime: '2023-11-11 14:00:00',
+      });
+
+      const mediciReport = await materialiseReport(encounter.id);
+
+      expect(mediciReport.locations.map(({ location }) => location)).toEqual([
+        admissionLocation.name,
+        firstMoveLocation.name,
+        secondMoveLocation.name,
+      ]);
+    });
+
+    it('orders departments by time when an earlier change also moved the location', async () => {
+      const [admissionLocation, firstMoveLocation] = await makeLocations(2);
+      const [admissionDepartment, firstMoveDepartment, secondMoveDepartment] =
+        await makeDepartments(3);
+
+      const { encounter } = await makeEncounter({
+        encounterType: 'admission',
+        locationId: admissionLocation.id,
+        departmentId: admissionDepartment.id,
+      });
+
+      // change_type {location,department}
+      await encounter.update({
+        locationId: firstMoveLocation.id,
+        departmentId: firstMoveDepartment.id,
+        submittedTime: '2023-11-11 10:00:00',
+      });
+      // change_type {department}
+      await encounter.update({
+        departmentId: secondMoveDepartment.id,
+        submittedTime: '2023-11-11 14:00:00',
+      });
+
+      const mediciReport = await materialiseReport(encounter.id);
+
+      expect(mediciReport.departments.map(({ department }) => department)).toEqual([
+        admissionDepartment.name,
+        firstMoveDepartment.name,
+        secondMoveDepartment.name,
+      ]);
+    });
+
+    it('orders moves recorded at the same time in the order they were made', async () => {
+      const [admissionLocation, firstMoveLocation, secondMoveLocation] = await makeLocations(3);
+
+      const { encounter } = await makeEncounter({
+        encounterType: 'admission',
+        locationId: admissionLocation.id,
+      });
+
+      // Both history rows get the same date, so only created_at separates them
+      await encounter.update({
+        locationId: firstMoveLocation.id,
+        submittedTime: '2023-11-11 10:00:00',
+      });
+      await encounter.update({
+        locationId: secondMoveLocation.id,
+        submittedTime: '2023-11-11 10:00:00',
+      });
+
+      const mediciReport = await materialiseReport(encounter.id);
+
+      expect(mediciReport.locations.map(({ location }) => location)).toEqual([
+        admissionLocation.name,
+        firstMoveLocation.name,
+        secondMoveLocation.name,
+      ]);
+    });
+
+    it('keeps the admission location first when the start date is edited to after a move', async () => {
+      const [admissionLocation, movedLocation] = await makeLocations(2);
+
+      const { encounter } = await makeEncounter({
+        encounterType: 'admission',
+        locationId: admissionLocation.id,
+      });
+
+      await encounter.update({
+        locationId: movedLocation.id,
+        submittedTime: '2023-11-11 10:00:00',
+      });
+      // Editing the start date records no history row, so the initial entry's assigned time moves past the move's
+      await encounter.update({ startDate: '2023-11-11 12:00:00' });
+
+      const mediciReport = await materialiseReport(encounter.id);
+
+      expect(mediciReport.locations.map(({ location }) => location)).toEqual([
+        admissionLocation.name,
+        movedLocation.name,
+      ]);
+    });
+  });
 });
