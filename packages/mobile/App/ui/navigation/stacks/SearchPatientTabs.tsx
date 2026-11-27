@@ -3,7 +3,6 @@ import { parseScannedDisplayId } from '@tamanu/utils';
 import { useFormikContext } from 'formik';
 import React, { type ReactElement, useCallback, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { compose } from 'redux';
 import { ErrorToast } from '~/ui/components/ErrorToast';
 import { QRCodeScannerModal } from '~/ui/components/QRCodeScannerModal';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -19,10 +18,9 @@ import { Field } from '/components/Forms/FormField';
 import { ArrowLeftIcon, QRCodeIcon } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
 import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
-import { withPatient } from '/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import type { WithPatientStoreProps } from '/store/ducks/patient';
 import { FullView, RowView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 
@@ -78,16 +76,16 @@ const SearchPatientHeader = ({
   );
 };
 
-interface SearchPatientTabsProps extends WithPatientStoreProps {
+interface SearchPatientTabsProps {
   navigation: NavigationProp<any>;
   routingFrom: (typeof PatientFromRoute)[keyof typeof PatientFromRoute];
 }
 
-export const DumbSearchPatientTabs = ({
+export const SearchPatientTabs = ({
   navigation,
   routingFrom,
-  setSelectedPatient,
 }: SearchPatientTabsProps): ReactElement => {
+  const { setSelectedPatient } = useSelectedPatient();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const { setFieldValue } = useFormikContext();
@@ -166,5 +164,3 @@ export const DumbSearchPatientTabs = ({
     </FullView>
   );
 };
-
-export const SearchPatientTabs = compose(withPatient)(DumbSearchPatientTabs);

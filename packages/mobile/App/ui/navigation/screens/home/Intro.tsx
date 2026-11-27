@@ -1,12 +1,11 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '../../../components/Button';
 import { AppIntro1Icon, AppIntro2Icon, AppIntro3Icon } from '../../../components/Icons';
 import { StepMarker } from '../../../components/StepMarker';
 import { useDisableAndroidBackButton } from '../../../helpers/android';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
-import { authUserSelector } from '../../../helpers/selectors';
 import type { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
 import { CenterView, StyledSafeAreaView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
@@ -19,7 +18,7 @@ export const Intro = ({
     params: { message, nextRoute, step, title },
   },
 }: IntroScreenProps) => {
-  const user = useSelector(authUserSelector);
+  const { user } = useAuth();
   useDisableAndroidBackButton(step === 1);
 
   const Icon = icons[step - 1] ?? icons[0];

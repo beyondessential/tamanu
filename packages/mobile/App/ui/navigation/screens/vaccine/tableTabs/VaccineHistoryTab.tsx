@@ -4,9 +4,7 @@ import type { NavigationProp } from '@react-navigation/native';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { VaccinesTable } from '/components/VaccinesTable';
 import { Routes } from '/helpers/routes';
-import { compose } from 'redux';
-import { withPatient } from '~/ui/containers/Patient';
-import type { IPatient } from '~/types';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { VaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineHistoryTabProps {
@@ -14,14 +12,10 @@ interface VaccineHistoryTabProps {
   route: {
     name: string;
   };
-  selectedPatient: IPatient;
 }
 
-export const VaccineHistoryTabComponent = ({
-  route,
-  navigation,
-  selectedPatient,
-}: VaccineHistoryTabProps): ReactElement => {
+export const VaccineHistoryTab = ({ route, navigation }: VaccineHistoryTabProps): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const category = route.name.split('/')[route.name.split('/').length - 1];
   const onNavigateToClickedCell = useCallback(item => {
     if (item.status === VaccineStatus.SCHEDULED) {
@@ -50,5 +44,3 @@ export const VaccineHistoryTabComponent = ({
     </StyledSafeAreaView>
   );
 };
-
-export const VaccineHistoryTab = compose(withPatient)(VaccineHistoryTabComponent);

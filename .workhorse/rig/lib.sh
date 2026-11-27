@@ -5,6 +5,23 @@ if [ "$node_major" != "$wanted_major" ]; then
   exit 1
 fi
 
+# With no NODE_ENV the servers count as a deployment: they generate no key file and refuse to
+# start without strong token secrets. Seed makes both once per build, so every database cloned
+# from the build's templates is read with the key that wrote it.
+export CRYPTO_KEY_FILE="$RIG_SOURCE/../secret.key"
+AUTH_SECRETS_FILE="$RIG_SOURCE/../auth-secrets.env"
+make_build_secrets() {
+  [ -f "$CRYPTO_KEY_FILE" ] || head -c 32 /dev/urandom > "$CRYPTO_KEY_FILE"
+  [ -f "$AUTH_SECRETS_FILE" ] || node -e '
+    const random = () => require("node:crypto").randomBytes(32).toString("base64url");
+    console.log(`AUTH_SECRET=${random()}\nAUTH_REFRESH_TOKEN_SECRET=${random()}`);' > "$AUTH_SECRETS_FILE"
+}
+if [ -f "$AUTH_SECRETS_FILE" ]; then
+  set -a
+  . "$AUTH_SECRETS_FILE"
+  set +a
+fi
+
 SERVER_CONFIG='"rateLimit": { "enabled": false }'
 # The servers bind PORT over their config's port, and the rig sets PORT to the lease's.
 unset PORT

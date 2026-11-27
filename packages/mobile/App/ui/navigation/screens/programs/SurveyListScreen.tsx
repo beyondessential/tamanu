@@ -4,14 +4,13 @@ import { Not } from 'typeorm';
 import { SYNDROMIC_SURVEILLANCE_SURVEY_ID } from '@tamanu/constants';
 import { type RouteProp, useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '/styled/common';
-import { compose } from 'redux';
 import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
-import { withPatient } from '/containers/Patient';
-import { type IPatient, SurveyTypes } from '~/types';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
+import { SurveyTypes } from '~/types';
 import { joinNames } from '/helpers/user';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
@@ -35,10 +34,10 @@ type SurveyListScreenRouteProps = RouteProp<SurveyListScreenParams, 'SurveyListS
 
 type SurveyListScreenProps = {
   route: SurveyListScreenRouteProps;
-  selectedPatient: IPatient;
 };
 
-const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement => {
+export const SurveyListScreen = ({ route }: SurveyListScreenProps): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const navigation = useNavigation();
   const { programId, programName } = route.params;
   const { ability, user } = useAuth();
@@ -133,5 +132,3 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
     </FullView>
   );
 };
-
-export const SurveyListScreen = compose(withPatient)(Screen);

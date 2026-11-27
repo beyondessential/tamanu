@@ -1,7 +1,7 @@
 import React, { type FunctionComponent } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
-import { useSelector } from 'react-redux';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -11,7 +11,6 @@ import { SignInForm } from '/components/Forms/SignInForm';
 import { TamanuComboMark } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { authSelector } from '/helpers/selectors';
 import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import {
   FullView,
@@ -23,7 +22,7 @@ import {
 import { theme } from '/styled/theme';
 
 export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProps) => {
-  const authState = useSelector(authSelector);
+  const { checkFirstSession } = useAuth();
   const { getTranslation } = useTranslation();
 
   const { signedOutFromInactivity } = route.params;
@@ -68,7 +67,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProp
             onSuccess={(): void => {
               if (!facilityId) {
                 navigation.navigate(Routes.SignUpStack.SelectFacility);
-              } else if (authState.isFirstTime) {
+              } else if (checkFirstSession()) {
                 navigation.navigate(Routes.HomeStack.Index);
               } else {
                 navigation.navigate(Routes.HomeStack.Index, {

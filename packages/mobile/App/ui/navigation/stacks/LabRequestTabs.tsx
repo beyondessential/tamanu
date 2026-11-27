@@ -1,9 +1,8 @@
 import type { NavigationProp } from '@react-navigation/native';
 import React, { type ReactElement } from 'react';
-import { compose } from 'redux';
 import type { IPatient } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { joinNames } from '~/ui/helpers/user';
 import { AddLabRequestScreen, ViewHistoryScreen } from '../screens/labRequests/tabs';
 import { StackHeader } from '/components/StackHeader';
@@ -12,15 +11,12 @@ import { Routes } from '/helpers/routes';
 
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
-  selectedPatient: IPatient;
 };
 
 const getPatientName = (patient: IPatient): string => joinNames(patient);
 
-const DumbLabRequestTabs = ({
-  navigation,
-  selectedPatient,
-}: NewProgramEntryTabsProps): ReactElement => {
+export const LabRequestTabs = ({ navigation }: NewProgramEntryTabsProps): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   return (
     <>
       <StackHeader
@@ -54,5 +50,3 @@ const DumbLabRequestTabs = ({
     </>
   );
 };
-
-export const LabRequestTabs = compose(withPatient)(DumbLabRequestTabs);

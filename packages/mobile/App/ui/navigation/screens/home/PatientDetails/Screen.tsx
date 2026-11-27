@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { compose } from 'redux';
 import { SETTING_KEYS } from '~/constants';
 import { Database } from '~/infra/db';
 import { Button } from '~/ui/components/Button';
@@ -9,7 +8,7 @@ import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { UserAvatar } from '~/ui/components/UserAvatar';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { type AgeDisplayFormat, getDisplayAge } from '~/ui/helpers/date';
 import { Routes } from '~/ui/helpers/routes';
@@ -30,7 +29,8 @@ import { useSettings } from '/contexts/SettingsContext';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
 import { PatientDetails } from './PatientDetails';
 
-const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
+export const PatientDetailsScreen = ({ navigation }: BaseAppProps) => {
+  const { selectedPatient } = useSelectedPatient();
   const { ability } = useAuth();
   const canReadReminderContacts = ability.can('read', 'Patient');
 
@@ -127,5 +127,3 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     </FullView>
   );
 };
-
-export const PatientDetailsScreen = compose(withPatient)(Screen);

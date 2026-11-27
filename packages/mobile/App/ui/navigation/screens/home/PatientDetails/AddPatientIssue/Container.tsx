@@ -1,23 +1,21 @@
 import React, { type ReactElement, useCallback } from 'react';
 import { formatISO9075 } from 'date-fns';
-import { compose } from 'redux';
 import type { NavigationProp } from '@react-navigation/native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
-import { type IPatient, type IPatientIssue, PatientIssueType } from '~/types';
-import { withPatient } from '~/ui/containers/Patient';
+import { type IPatientIssue, PatientIssueType } from '~/types';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { Screen } from './Screen';
 
 export type AddPatientIssueProps = {
   navigation: NavigationProp<any>;
-  selectedPatient: IPatient;
 };
 
-const Container = ({
+export const AddPatientIssueScreen = ({
   navigation,
-  selectedPatient,
 }: AddPatientIssueProps): ReactElement<AddPatientIssueProps> => {
+  const { selectedPatient } = useSelectedPatient();
   const { models } = useBackend();
 
   const queryClient = useQueryClient();
@@ -50,5 +48,3 @@ const Container = ({
     />
   );
 };
-
-export const AddPatientIssueScreen = compose(withPatient)(Container);

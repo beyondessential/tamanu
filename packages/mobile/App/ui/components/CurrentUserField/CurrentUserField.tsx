@@ -1,7 +1,6 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
 import type { TranslatedTextElement } from '../Translations/TranslatedText';
@@ -19,7 +18,7 @@ export const CurrentUserField = ({
   labelFontSize,
   valueKey = 'displayName',
 }: CurrentUserFieldProps) => {
-  const user = useSelector(authUserSelector);
+  const { user } = useAuth();
 
   return (
     <Field

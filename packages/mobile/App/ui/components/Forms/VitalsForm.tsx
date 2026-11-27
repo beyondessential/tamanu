@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { SurveyTypes } from '~/types';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
@@ -11,8 +10,7 @@ import { ErrorScreen } from '/components/ErrorScreen';
 import { SurveyForm } from '/components/Forms/SurveyForm';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { VitalsDataElements } from '/helpers/constants';
-import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '/store/ducks/patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { theme } from '/styled/theme';
 
 interface VitalsFormProps {
@@ -23,9 +21,7 @@ export const VitalsForm = ({ onAfterSubmit }: VitalsFormProps) => {
   const { getTranslation } = useTranslation();
   const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
-  const { selectedPatient } = useSelector(
-    (state: ReduxStoreProps): PatientStateProps => state.patient,
-  );
+  const { selectedPatient } = useSelectedPatient();
   const { mutateAsync: submitVitals } = useSurveySubmitMutation({ surveyType: SurveyTypes.Vitals });
   const {
     data: vitalsSurvey,

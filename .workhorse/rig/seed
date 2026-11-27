@@ -2,6 +2,11 @@
 set -eu
 . "$RIG_RECIPE_DIR/lib.sh"
 
+make_build_secrets
+set -a
+. "$AUTH_SECRETS_FILE"
+set +a
+
 central upgrade
 central provision "$RIG_RECIPE_DIR/provisioning.json5"
 central rebuildSyncLookup

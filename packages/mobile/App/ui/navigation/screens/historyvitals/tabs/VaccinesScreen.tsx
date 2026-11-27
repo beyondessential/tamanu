@@ -1,9 +1,8 @@
 import React, { type ReactElement } from 'react';
-import { compose } from 'redux';
 import { groupBy } from 'es-toolkit/compat';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { PatientVaccineHistoryAccordion } from '~/ui/components/PatientVaccineHistoryAccordion';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import usePatientAdministeredVaccinesQuery from '~/ui/hooks/queries/usePatientAdministeredVaccinesQuery';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -11,7 +10,8 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
 
-export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
+export const VaccinesScreen = (): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const { getTranslation } = useTranslation();
 
   const { data: administeredVaccines, error } = usePatientAdministeredVaccinesQuery(
@@ -41,5 +41,3 @@ export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
     </StyledSafeAreaView>
   );
 };
-
-export const VaccinesScreen = compose(withPatient)(VaccineScreenComponent);

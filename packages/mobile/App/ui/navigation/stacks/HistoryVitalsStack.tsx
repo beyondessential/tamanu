@@ -3,11 +3,10 @@ import type { NavigationProp } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
 import { FullView } from '/styled/common';
-import { compose } from 'redux';
 import { HistoryVitalsTabs } from './HistoryVitalsTabs';
 import { ErrorBoundary } from '/components/ErrorBoundary';
 import type { BaseAppProps } from '/interfaces/BaseAppProps';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { joinNames } from '~/ui/helpers/user';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -18,7 +17,8 @@ interface HistoryVitalsStackProps extends BaseAppProps {
   navigation: NavigationProp<any>;
 }
 
-const TabNavigator = ({ navigation, selectedPatient }: HistoryVitalsStackProps): ReactElement => {
+export const HistoryVitalsStack = ({ navigation }: HistoryVitalsStackProps): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   return (
     <ErrorBoundary>
       <FullView>
@@ -37,5 +37,3 @@ const TabNavigator = ({ navigation, selectedPatient }: HistoryVitalsStackProps):
     </ErrorBoundary>
   );
 };
-
-export const HistoryVitalsStack = compose(withPatient)(TabNavigator);

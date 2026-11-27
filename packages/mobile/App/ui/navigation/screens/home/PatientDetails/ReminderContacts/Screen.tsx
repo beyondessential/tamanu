@@ -2,14 +2,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { compose } from 'redux';
 import { PatientContact } from '~/models/PatientContact';
 import { type IPatientContact, ReferenceDataType } from '~/types';
 import { Button } from '~/ui/components/Button';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -29,7 +28,8 @@ import {
 import { theme } from '~/ui/styled/theme';
 import { ContactCard } from '../CustomComponents/ContactCard';
 
-const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
+export const ReminderContactScreen = ({ navigation }: BaseAppProps) => {
+  const { selectedPatient } = useSelectedPatient();
   const { getTranslation, getReferenceDataTranslation } = useTranslation();
   const { reminderContactList, isLoadingReminderContactList } = useReminderContact();
 
@@ -177,5 +177,3 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     </FullView>
   );
 };
-
-export const ReminderContactScreen = compose(withPatient)(Screen);

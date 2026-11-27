@@ -1,8 +1,8 @@
 import type { NavigationProp } from '@react-navigation/native';
 import React, { useState } from 'react';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { type AgeDisplayFormat, getDisplayAge } from '~/ui/helpers/date';
 import { getGender, joinNames } from '~/ui/helpers/user';
-import { store } from '~/ui/store';
 import { Button } from '/components/Button';
 import { CrossIcon } from '/components/Icons';
 import { useSettings } from '/contexts/SettingsContext';
@@ -12,9 +12,10 @@ import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/
 import { theme } from '/styled/theme';
 
 export const NewPatientScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
-  // Snapshot patient at mount so clearing Redux on back from patient view
-  // does not re-render this screen while RegisterPatientStack is still mounted.
-  const [patient] = useState(() => store.getState().patient.selectedPatient);
+  const { selectedPatient } = useSelectedPatient();
+  // Snapshot patient at mount so clearing the selection on back from patient view
+  // does not blank this screen while RegisterPatientStack is still mounted.
+  const [patient] = useState(selectedPatient);
   const { getSetting } = useSettings();
 
   if (!patient) return null;

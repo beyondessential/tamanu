@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import React, { type ReactElement, useCallback } from 'react';
 import { Alert } from 'react-native';
-import { useSelector } from 'react-redux';
 import { Database } from '~/infra/db';
 import { type GenericFormValues, type IPatientAdditionalData, SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
@@ -14,25 +13,21 @@ import { StackHeader } from '~/ui/components/StackHeader';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helpers/navigators';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { joinNames } from '~/ui/helpers/user';
 import { patientKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 import useSurveySubmitMutation from '~/ui/hooks/useSurveySubmitMutation';
-import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '~/ui/store/ducks/patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { FullView } from '~/ui/styled/common';
 import { Routes } from '/helpers/routes';
 import type { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
 
 export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, surveyType } = route.params;
-  const { selectedPatient } = useSelector(
-    (state: ReduxStoreProps): PatientStateProps => state.patient,
-  );
+  const { selectedPatient } = useSelectedPatient();
   const navigation = useNavigation();
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
   const canReadRegistration = ability.can('read', 'PatientProgramRegistration');
   const { currentScreenIndex, onNavigatePrevious, setCurrentScreenIndex } = useCurrentScreen();
   const { getTranslation } = useTranslation();
@@ -64,8 +59,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     error: padError,
     isPending: isPadLoading,
   } = usePatientAdditionalDataRecordQuery(selectedPatient.id);
-
-  const user = useSelector(authUserSelector);
 
   const {
     data: patientProgramRegistration,

@@ -5,8 +5,6 @@ import { Formik } from 'formik';
 import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
-import { compose } from 'redux';
 import * as Yup from 'yup';
 import {
   ADMINISTRATION_FREQUENCIES,
@@ -27,13 +25,12 @@ import { Dropdown } from '~/ui/components/Dropdown';
 import { FrequencySearchField } from '~/ui/components/FrequencySearchField/FrequencySearchField';
 import { NumberField } from '~/ui/components/NumberField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getDefaultIdealTimes } from '~/ui/helpers/medicationHelpers';
 import { Routes } from '~/ui/helpers/routes';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
@@ -69,10 +66,10 @@ const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => (
   label,
 }));
 
-export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): ReactElement => {
+export const PrescribeMedicationScreen = ({ navigation }): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const { models } = useBackend();
-  const { ability } = useAuth();
-  const user = useSelector(authUserSelector);
+  const { ability, user } = useAuth();
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
@@ -583,5 +580,3 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     </FullView>
   );
 };
-
-export const PrescribeMedicationScreen = compose(withPatient)(DumbPrescribeMedicationScreen);

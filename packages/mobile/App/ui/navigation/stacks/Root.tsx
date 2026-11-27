@@ -2,15 +2,13 @@ import { NavigationContainer, type NavigationContainerRef } from '@react-navigat
 import React, { type ReactElement } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
 import { SettingsProvider } from '~/ui/contexts/SettingsContext';
 import { AuthProvider } from '../../contexts/AuthContext';
 import { FacilityProvider } from '../../contexts/FacilityContext';
 import { LocalisationProvider } from '../../contexts/LocalisationContext';
+import { SelectedPatientProvider } from '../../contexts/SelectedPatientContext';
 import { TranslationProvider } from '../../contexts/TranslationContext';
 import { UpdateProvider } from '../../contexts/UpdateContext';
-import { persistor, store } from '../../store/index';
 import { Core, type RootStackParamList } from './Core';
 import DetectIdleLayer from './DetectIdleLayer';
 
@@ -21,27 +19,25 @@ export const RootStack = (): ReactElement => {
   return (
     <GestureHandlerRootView style={gestureHandlerRootViewStyle}>
       <SafeAreaProvider>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <NavigationContainer ref={navigationRef}>
-              <LocalisationProvider>
-                <TranslationProvider>
-                  <AuthProvider navRef={navigationRef}>
-                    <SettingsProvider>
-                      <FacilityProvider>
-                        <UpdateProvider>
-                          <DetectIdleLayer>
-                            <Core />
-                          </DetectIdleLayer>
-                        </UpdateProvider>
-                      </FacilityProvider>
-                    </SettingsProvider>
-                  </AuthProvider>
-                </TranslationProvider>
-              </LocalisationProvider>
-            </NavigationContainer>
-          </PersistGate>
-        </Provider>
+        <NavigationContainer ref={navigationRef}>
+          <LocalisationProvider>
+            <TranslationProvider>
+              <AuthProvider navRef={navigationRef}>
+                <SettingsProvider>
+                  <FacilityProvider>
+                    <SelectedPatientProvider>
+                      <UpdateProvider>
+                        <DetectIdleLayer>
+                          <Core />
+                        </DetectIdleLayer>
+                      </UpdateProvider>
+                    </SelectedPatientProvider>
+                  </FacilityProvider>
+                </SettingsProvider>
+              </AuthProvider>
+            </TranslationProvider>
+          </LocalisationProvider>
+        </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

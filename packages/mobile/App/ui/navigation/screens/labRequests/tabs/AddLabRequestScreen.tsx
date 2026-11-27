@@ -3,15 +3,12 @@ import { Formik } from 'formik';
 import { customAlphabet } from 'nanoid/non-secure';
 import React, { type ReactElement, useCallback } from 'react';
 import { ToastAndroid } from 'react-native';
-import { useSelector } from 'react-redux';
-import { compose } from 'redux';
 import * as Yup from 'yup';
-import type { IPatient } from '~/types';
 import type { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
 import { getCombinedDateString } from '/helpers/date';
@@ -43,15 +40,12 @@ interface LabRequestFormData {
   labTestTypeIds: string[];
 }
 
-interface DumbAddLabRequestScreenProps {
-  selectedPatient: IPatient;
+interface AddLabRequestScreenProps {
   navigation: any;
 }
 
-export const DumbAddLabRequestScreen = ({
-  selectedPatient,
-  navigation,
-}: DumbAddLabRequestScreenProps): ReactElement => {
+export const AddLabRequestScreen = ({ navigation }: AddLabRequestScreenProps): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const { getTranslation } = useTranslation();
   const displayId = generateDisplayId();
 
@@ -62,7 +56,7 @@ export const DumbAddLabRequestScreen = ({
     });
   }, [navigation]);
 
-  const user = useSelector(authUserSelector);
+  const { user } = useAuth();
 
   const { models } = useBackend();
 
@@ -184,5 +178,3 @@ export const DumbAddLabRequestScreen = ({
     </StyledSafeAreaView>
   );
 };
-
-export const AddLabRequestScreen = compose(withPatient)(DumbAddLabRequestScreen);

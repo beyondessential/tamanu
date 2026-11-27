@@ -1,8 +1,7 @@
 import React, { memo, useState } from 'react';
 import { differenceInMonths, differenceInWeeks, differenceInYears, parseISO } from 'date-fns';
 import type { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
-import type { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '../../store/ducks/patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { Table, type TableCells } from '../Table';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
@@ -18,7 +17,6 @@ import { VitalsTableCell } from './VitalsTableCell';
 import type { SurveyScreenValidationCriteria } from '~/types';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import type { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
-import { useSelector } from 'react-redux';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface VitalsTableProps {
@@ -72,9 +70,7 @@ const checkNeedsAttention = (
 };
 
 export const VitalsTable = memo(({ data, columns }: VitalsTableProps) => {
-  const { selectedPatient } = useSelector(
-    (state: ReduxStoreProps): PatientStateProps => state.patient,
-  );
+  const { selectedPatient } = useSelectedPatient();
   const { data: vitalsSurvey, error } = useVitalsSurveyQuery({ includeAllVitals: true });
   const [showNeedsAttentionInfo, setShowNeedsAttentionInfo] = useState(false);
 

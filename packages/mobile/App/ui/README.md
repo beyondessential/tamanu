@@ -8,8 +8,8 @@ mental steps to understand the logic in the files.
 | ---------- | ------------------------------------------------------------------------------------------------------- |
 | assets     | Images and other assets required in the app                                                             |
 | components | React components built according to the figma design                                                    |
-| containers | Container logic to centralize redux imports                                                             |
-| contexts   | Context component that centralize all implementations of actions of a specific resource.                |
+| contexts   | Context providers that hold app state and the actions on it, each with a hook to read it.               |
+| hooks      | Shared hooks, including the query and mutation hooks                                                    |
 | helpers    | helper methods and constants                                                                            |
 | interfaces | Types and interfaces for components, navigators and screens.                                            |
 | models     | Interfaces for Data Transfer Objects from the remote API (might be moved to models iside domain folder) |
@@ -62,26 +62,6 @@ Blocks:
 | `StyledScrollView`       | Component with scroll                                    |
 | `StyledTouchableOpacity` | TouchableOpacity component with StyledView properties.   |
 
-### store
-
-Folder responsible for redux configuration and its dependencies. Redux usually requires a lot of
-boilerplate and repetitive code. Thinking about this problem redux community created
-[redux-toolkit](https://redux-toolkit.js.org/usage/usage-with-typescript) with helper methods and
-interfaces to make the actions and reducers cleaner than the traditional code split. This library
-gives a more opinionated strategy with redux, which can help to give consistency in the long run.
-
-Methods used in this project so far:
-
-|                  |                                       |
-| ---------------- | ------------------------------------- |
-| `CreateSlice`    | Creates both actions and reducers.    |
-| `configureStore` | Helper method to create store object. |
-
-|       |                                                                 |
-| ----- | --------------------------------------------------------------- |
-| index | gathers all reducers and exports the store object               |
-| ducks | Pattern used where actions and reducer are all in the same file |
-
 ### navigation
 
 This project uses the version 5 of
@@ -92,10 +72,10 @@ This project uses the version 5 of
 - [Tab navigation](https://reactnavigation.org/docs/tab-based-navigation)
 - [Drawer Navigator (side menu)](https://reactnavigation.org/docs/drawer-based-navigation/)
 
-|      |                                                                                                |
-| ---- | ---------------------------------------------------------------------------------------------- |
-| Root | File used to centralize imports of Contexts Providers: redux, redux-persist, react-navigation. |
-| Core | Higher navigator component.                                                                    |
+|      |                                                                                   |
+| ---- | --------------------------------------------------------------------------------- |
+| Root | File used to centralize the context providers and the react-navigation container. |
+| Core | Higher navigator component.                                                       |
 
 |         |                                                                             |
 | ------- | --------------------------------------------------------------------------- |
@@ -116,7 +96,11 @@ big is to split the code between Container, Screen, CustomComponents and helpers
 
 ### context
 
-Since Context API has improved it makes sense to use it as a pattern to make Context.Provider
-components to centralize access of redux actions and implementation of methods that requires access
-from redux actions. This way using useContext we can isolate the implementation from screen
-containers. Check authContext for an example.
+App state that more than one screen needs lives in a Context.Provider component, which also holds
+the methods that change it. Screens read it through the context's hook, such as `useAuth()` or
+`useSelectedPatient()`, which keeps the implementation out of the screens.
+
+State that has to survive the app closing goes through the `useStoredState` hook, which takes on
+what is in storage and stores every change after that. The read is started as the app loads, in
+`App/index.tsx`, so it is not still to do when the provider mounts. `AuthContext` keeps the
+signed-in session this way and `SelectedPatientContext` the selected patient.

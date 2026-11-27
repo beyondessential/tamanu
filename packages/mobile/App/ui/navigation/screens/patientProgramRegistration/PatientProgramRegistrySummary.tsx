@@ -1,5 +1,4 @@
 import React, { type ReactElement } from 'react';
-import { compose } from 'redux';
 import styled from 'styled-components/native';
 import { subject } from '@casl/ability';
 
@@ -11,7 +10,7 @@ import { CircleAdd } from '~/ui/components/Icons';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientProgramRegistrationList } from './PatientProgramRegistrationList';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import usePatientProgramRegistriesQuery from '~/ui/hooks/queries/usePatientProgramRegistriesQuery';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
@@ -29,7 +28,8 @@ const Row = styled.View`
   align-items: center;
 `;
 
-const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
+export const PatientProgramRegistrySummary = (): ReactElement => {
+  const { selectedPatient } = useSelectedPatient();
   const navigation = useNavigation();
   const { ability } = useAuth();
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
@@ -83,5 +83,3 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
     </StyledView>
   );
 };
-
-export const PatientProgramRegistrySummary = compose(withPatient)(PatientProgramRegistrySummary_);

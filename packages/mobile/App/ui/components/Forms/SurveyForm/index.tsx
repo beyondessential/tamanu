@@ -9,11 +9,11 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { useSelector } from 'react-redux';
 import { Database } from '~/infra/db';
 import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import type { GenericFormValues } from '~/types/Forms';
 import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
@@ -29,7 +29,6 @@ import {
 } from './SurveyProgramRegistryConditionField';
 import { getInvalidConditionQuestionCodes } from '@tamanu/utils';
 import { checkVisibilityCriteria } from '/helpers/fields';
-import { authUserSelector } from '/helpers/selectors';
 
 const EMPTY_CALCULATED_VALUES = {};
 
@@ -122,7 +121,7 @@ export const SurveyForm = ({
   onGoBack,
 }: SurveyFormProps): ReactElement => {
   const { getTranslation } = useTranslation();
-  const currentUser = useSelector(authUserSelector);
+  const { user: currentUser } = useAuth();
   const { customPatientFieldValues } = usePatientAdditionalData(patient?.id);
   const initialValues = useMemo(
     () =>

@@ -1,7 +1,6 @@
 import React, { type ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
-import { compose } from 'redux';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import { getAgeFromDate } from '~/ui/helpers/date';
@@ -11,7 +10,7 @@ import { theme } from '~/ui/styled/theme';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { PatientTile } from '/components/PatientTile';
-import { withPatient } from '/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { Routes } from '/helpers/routes';
 import { joinNames } from '/helpers/user';
 import type { RecentViewedScreenProps } from '/interfaces/Screens/PatientSearchStack/RecentViewedScreenProps';
@@ -34,7 +33,8 @@ const NoPatientsCard = (): ReactElement => (
   </StyledText>
 );
 
-const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): ReactElement => {
+export const RecentViewedScreen = ({ navigation }: RecentViewedScreenProps): ReactElement => {
+  const { setSelectedPatient } = useSelectedPatient();
   const { data: recentlyViewedPatients, error } = useRecentlyViewedPatients();
 
   useEffect(() => {
@@ -88,5 +88,3 @@ const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): Re
     </FullView>
   );
 };
-
-export const RecentViewedScreen = compose(withPatient)(Screen);

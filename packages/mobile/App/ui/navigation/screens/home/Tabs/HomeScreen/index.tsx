@@ -1,10 +1,9 @@
 import React, { type ReactElement, useEffect } from 'react';
 import { StatusBar } from 'react-native';
-import { compose } from 'redux';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { UpdateAlert } from '~/ui/components/UpdateAlert';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
-import { withPatient } from '~/ui/containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
@@ -12,7 +11,6 @@ import { ConditionalRegisterPatientButton } from './RegisterPatientButton';
 import { SearchIcon, TamanuComboMark } from '/components/Icons';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { UserAvatar } from '/components/UserAvatar';
-import { withAuth } from '/containers/Auth';
 import { useDisableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
@@ -48,9 +46,10 @@ const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElemen
   </StyledTouchableOpacity>
 );
 
-const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps): ReactElement => {
+export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
+  const { setSelectedPatient } = useSelectedPatient();
   useDisableAndroidBackButton();
-  const { checkFirstSession, setUserFirstSignIn } = useAuth();
+  const { user, checkFirstSession, setUserFirstSignIn } = useAuth();
   const { facilityName, facilityId } = useFacility();
 
   useEffect(() => {
@@ -136,5 +135,3 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
     </StyledSafeAreaView>
   );
 };
-
-export const HomeScreen = compose(withPatient(compose(withAuth)(BaseHomeScreen)));

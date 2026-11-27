@@ -1,11 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { type ReactNode, createContext, useContext } from 'react';
-import { compose } from 'redux';
 import { Database } from '~/infra/db';
 import type { IPatientContact } from '~/types';
-import { withPatient } from '../containers/Patient';
+import { useSelectedPatient } from '~/ui/contexts/SelectedPatientContext';
 import { patientKeys } from '../hooks/queries/queryKeys';
-import type { BaseAppProps } from '../interfaces/BaseAppProps';
 
 interface ReminderContactData {
   reminderContactList: IPatientContact[];
@@ -33,7 +31,8 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
   });
 };
 
-const Provider = ({ children, selectedPatient }: BaseAppProps & { children: ReactNode }) => {
+export const ReminderContactProvider = ({ children }: { children: ReactNode }) => {
+  const { selectedPatient } = useSelectedPatient();
   const { data: reminderContactList = [], isPending: isLoading } = useQuery({
     queryKey: patientKeys.contacts(selectedPatient.id),
     queryFn: () => getAllContacts(Database.models, selectedPatient.id),
@@ -50,5 +49,3 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
     </ReminderContactContext.Provider>
   );
 };
-
-export const ReminderContactProvider = compose(withPatient)(Provider);
