@@ -109,7 +109,7 @@ Four of those steps do most of the work, and each has a section below, in the or
 
 This is the client's side of step 3. It is described here as a facility server does it (`FacilitySyncManager.js`). Mobile follows the same outline, and where it differs is covered in [The mobile app as a client](#the-mobile-app-as-a-client).
 
-1. **Swap the clock.** Read the current local tick (call it the old tick), then replace it with the tick central issued for this session. From here on, new local writes are stamped with the new tick.
+1. **Update the clock.** Read the current local tick (call it the old tick), then replace it with the tick central issued for this session. From here on, new local writes are stamped with the new tick.
 2. **Wait for pending edits** on the old tick, so that every transaction that stamped a row with it has finished.
 3. **Take the snapshot.** In a repeatable read transaction, read every row in a pushable table whose tick is above the push cursor. There is no scope filter going up: everything changed locally is pushed. The snapshot is held in memory, which is fine because a facility only ever pushes what has changed since last time.
 4. **Send it**, in pages, with each record's changelog rows attached. The page size adjusts itself based on how long the last page took.
