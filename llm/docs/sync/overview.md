@@ -193,7 +193,7 @@ Scope is worked out when the row is copied into the lookup table, XXX [not when 
 | Everywhere | All. | No scope columns set. Reference data, users, surveys, and every `patients` row. |
 | Patient | Those with the patient marked for sync. | `patient_id` column set. Patient found directly or through the row's encounter. |
 | Facility | Those serving that facility. | `facility_id` column set. Only for records that belong to one facility: settings, `patient_facilities`, appointments. |
-| Sensitive network | Those whose facilities are in the same network. | `sensitive_network_id` set to true, for every encounter-linked model. See `specs/sync/sensitive-networks.md`. |
+| Sensitive network | Those whose facilities are in the same network. | `sensitive_network_id` set to id of the network, for every encounter-linked model. See `specs/sync/sensitive-networks.md`. |
 | Lab request | Any facility with `sync.syncAllLabRequests` on. | `is_lab_request` set to true. For a facility that runs the lab for others, without syncing every patient in the country. |
 
 Two things to be careful of:
