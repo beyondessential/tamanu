@@ -158,7 +158,7 @@ Note that the client doesn't tell central which patients it wants in each sync s
 
 This is the client's side of step 6, again as a facility server does it.
 
-1. **Download the snapshot** in pages into a local snapshot table. Staging it in a table means a large sync (e.g. initial sync) does not have to fit in memory, and the real tables are never left half updated.
+1. **Download the snapshot** in pages into a local snapshot table. Staging it in a table means a large sync (e.g. initial sync) does not have to fit in memory.
 2. **Check for local edits since the push** (`assertIfPulledRecordsUpdatedAfterPushSnapshot`). If any record about to be overwritten has been edited locally since the push snapshot, the session fails here, as described under [Conflict resolution](#conflict-resolution).
 3. **Save everything in one transaction.** Audit logging is paused, because central's changelog rows arrive with the records and are inserted as they are. The records are saved with `saveIncomingChanges`, the same function central uses to persist a push, with the same constraints deferred. Finally `pullUntil` is stored as the pull cursor.
 
