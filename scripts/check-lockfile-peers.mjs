@@ -45,8 +45,9 @@ function loadSemver() {
   return createRequire(join(globalModules, 'npm', 'package.json'))('semver');
 }
 
-// Keyed by package names, not location or range, so a package moving within the tree or
-// changing a peer range that was already unmet doesn't read as a new problem.
+// Keyed by package names and whether the peer is missing, not location or range, so a
+// package moving within the tree or changing the range of a peer already unmet the same
+// way doesn't read as a new problem.
 function findUnmetPeers(packages, semver) {
   return new Set(
     Object.entries(packages).flatMap(([location, entry]) => {

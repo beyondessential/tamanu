@@ -23,7 +23,7 @@
     "./services/fhirTypes/*": "./src/services/fhirTypes/*",
     "./services/logging/*": "./src/services/logging/*",
     "./services/suggestions/*": "./src/services/suggestions/*",
-    "./schemas/types": "./src/schemas/types",
+    "./schemas/types": "./src/schemas/types.js",
     "./schemas/facility/requests/*": "./src/schemas/facility/requests/*",
     "./subCommands/*": "./src/subCommands/*",
     "./sync/*": "./src/sync/*",

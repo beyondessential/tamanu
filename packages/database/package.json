@@ -14,7 +14,7 @@
     "./dataMigrations/*": "./src/dataMigrations/*",
     "./services/migrations": "./src/services/migrations/index.js",
     "./services/migrations/*": "./src/services/migrations/*",
-    "./services/database": "./src/services/database",
+    "./services/database": "./src/services/database.js",
     "./sync": "./src/sync/index.ts",
     "./utils/fhir": "./src/utils/fhir/index.ts",
     "./utils/audit": "./src/utils/audit/index.ts"
