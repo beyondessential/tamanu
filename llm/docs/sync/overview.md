@@ -186,7 +186,7 @@ Every model declares a sync direction, which says whether its table syncs at all
 
 Within a table that is pulled, not every row goes to every client. Each row has a scope, which decides which clients receive it.
 
-Scope is worked out when the row is copied into the lookup table, [not when a client asks. Each model has a `buildSyncLookupQueryDetails` method that fills in the lookup row's scope columns:
+Scope is worked out when the row is copied into the lookup table, [not when a client asks sounds ]. Each model has a `buildSyncLookupQueryDetails` method that fills in the lookup row's scope columns:
 
 | Scope | Which clients receive the row | How |
 | --- | --- | --- |
