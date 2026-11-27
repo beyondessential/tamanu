@@ -2,6 +2,25 @@ import { facilityIdsFromEnv, selectFacilityIds } from '../src/selectFacilityIds'
 import { afterEach, describe, expect, it } from 'vitest';
 
 describe('selectFacilityIds', () => {
+  afterEach(() => {
+    delete process.env.TAMANU_FACILITY_IDS;
+  });
+
+  it('should prefer TAMANU_FACILITY_IDS over config', () => {
+    process.env.TAMANU_FACILITY_IDS = 'env-a,env-b';
+    expect(selectFacilityIds({ serverFacilityIds: ['config-a'] })).toEqual(['env-a', 'env-b']);
+  });
+
+  it('should fall back to config when TAMANU_FACILITY_IDS names no facility', () => {
+    process.env.TAMANU_FACILITY_IDS = ' , ';
+    expect(selectFacilityIds({ serverFacilityIds: ['config-a'] })).toEqual(['config-a']);
+  });
+
+  it('should return the env ids when config has none', () => {
+    process.env.TAMANU_FACILITY_IDS = 'env-a';
+    expect(selectFacilityIds({})).toEqual(['env-a']);
+  });
+
   it('should return an array with serverFacilityId if only serverFacilityId is provided', () => {
     const config = { serverFacilityId: 'facility1' };
     expect(selectFacilityIds(config)).toEqual(['facility1']);

@@ -9,6 +9,7 @@ import {
 } from '@tamanu/constants';
 
 import { ApplicationContext } from '../ApplicationContext';
+import { clearLocallyAuthoredSettings } from '../utils/clearLocallyAuthoredSettings';
 import { getServerFacilityIds, getSyncConfig } from '../serverConfig';
 
 // Writes the given sync host/credentials/facilities to local system facts. The
@@ -31,6 +32,7 @@ export const writeSyncConfig = async (context, { host, email, password, facility
     await LocalSystemFact.set(FACT_CENTRAL_HOST, host);
     await LocalSystemFact.set(FACT_SYNC_EMAIL, email);
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(facilityIds));
+    await clearLocallyAuthoredSettings(context.sequelize);
     await LocalSystemSecret.set(FACT_SYNC_PASSWORD, password);
   });
 

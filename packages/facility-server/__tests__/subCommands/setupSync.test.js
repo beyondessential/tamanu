@@ -27,6 +27,12 @@ describe('setupSync', () => {
   });
   afterAll(() => ctx.close());
 
+  const seedGlobalSetting = key =>
+    ctx.sequelize.query(`INSERT INTO settings (id, key, value) VALUES (:id, :key, 'true')`, {
+      replacements: { id: crypto.randomUUID(), key },
+    });
+  const settingExists = async key => Boolean(await models.Setting.findOne({ where: { key } }));
+
   beforeEach(async () => {
     await models.LocalSystemFact.destroy({
       where: { key: [FACT_CENTRAL_HOST, FACT_SYNC_EMAIL, FACT_FACILITY_IDS] },
@@ -69,6 +75,15 @@ describe('setupSync', () => {
 
     expect(wrote).toBe(true);
     expect(await models.LocalSystemSecret.get(FACT_SYNC_PASSWORD)).toBe('rotated-pw');
+  });
+
+  it('clears global settings the server added before it was set up', async () => {
+    const key = 'features.setupSyncTestSeeded';
+    await seedGlobalSetting(key);
+
+    await writeSyncConfig(ctx, config);
+
+    expect(await settingExists(key)).toBe(false);
   });
 
   it('throws when required sync config is missing', async () => {

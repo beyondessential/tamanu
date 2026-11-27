@@ -22,6 +22,7 @@ import {
   isSetUpInDatabase,
   initServerConfig,
 } from '../../serverConfig';
+import { clearLocallyAuthoredSettings } from '../../utils/clearLocallyAuthoredSettings';
 import { version } from '../../serverInfo';
 
 // POST /public/setup/sync is unauthenticated (a fresh server has no users), so it's
@@ -204,6 +205,7 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     await LocalSystemFact.set(FACT_CENTRAL_HOST, normalisedHost);
     await LocalSystemFact.set(FACT_SYNC_EMAIL, syncCredentials.email);
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
+    await clearLocallyAuthoredSettings(req.db);
     // Password encrypted at rest, out of local_system_facts and the raw reporting role.
     await LocalSystemSecret.set(FACT_SYNC_PASSWORD, syncCredentials.password);
     // Deployment-wide settings PSK, pulled from central. Absent when talking to

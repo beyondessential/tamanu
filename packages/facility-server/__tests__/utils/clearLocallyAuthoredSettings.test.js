@@ -1,0 +1,157 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { FACT_FACILITY_IDS, SETTINGS_SCOPES } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, FACT_LAST_SUCCESSFUL_SYNC_PULL } from '@tamanu/constants/facts';
+import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
+import { createTestContext } from '../utilities';
+import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
+import { clearLocallyAuthoredSettings } from '../../app/utils/clearLocallyAuthoredSettings';
+
+const HEARTBEAT_KEY = 'fhir.worker.heartbeat';
+const BASELINE_HEARTBEAT_ID = '44fbfb10-3019-44f8-b0c5-d02b860e521e';
+
+describe('clearLocallyAuthoredSettings', () => {
+  let ctx;
+  let models;
+  let sequelize;
+
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    models = ctx.models;
+    sequelize = ctx.sequelize;
+  });
+
+  afterAll(() => ctx.close());
+
+  beforeEach(async () => {
+    await sequelize.query('DELETE FROM settings');
+    await models.FacilitySettingMigration.destroy({ where: {}, force: true });
+    await models.LocalSystemFact.destroy({
+      where: { key: FACT_LAST_SUCCESSFUL_SYNC_PULL },
+      force: true,
+    });
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '50');
+  });
+
+  const insertSetting = ({
+    id = crypto.randomUUID(),
+    key,
+    value,
+    scope = SETTINGS_SCOPES.GLOBAL,
+    facilityId = null,
+  }) =>
+    sequelize.query(
+      `INSERT INTO settings (id, key, value, scope, facility_id)
+       VALUES (:id, :key, :value, :scope, :facilityId)`,
+      { replacements: { id, key, value, scope, facilityId } },
+    );
+
+  const settingsWithKey = async key =>
+    (await models.Setting.findAll({ where: { key }, raw: true })).map(({ id, value }) => ({
+      id,
+      value,
+    }));
+
+  const centralHeartbeat = () => ({
+    id: crypto.randomUUID(),
+    key: HEARTBEAT_KEY,
+    value: '2 minutes',
+    scope: SETTINGS_SCOPES.GLOBAL,
+    facilityId: null,
+  });
+
+  const asSyncRecord = (setting, index) => ({
+    id: String(index + 1),
+    recordType: 'settings',
+    recordId: setting.id,
+    isDeleted: false,
+    data: { ...setting, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
+  });
+
+  const makeSyncManager = ({ pulled = [] } = {}) =>
+    new FacilitySyncManager({
+      models,
+      sequelize,
+      centralServer: {
+        startSyncSession: async () => ({ sessionId: crypto.randomUUID(), startedAtTick: 200 }),
+        endSyncSession: async () => ({}),
+        initiatePull: async () => ({ totalToPull: pulled.length, pullUntil: 200 }),
+        pull: async () => pulled.map(asSyncRecord),
+        push: vi.fn(),
+        completePush: vi.fn(),
+        markSessionErrored: vi.fn(),
+        fetch: vi.fn(),
+      },
+    });
+
+  it("lets the first sync save central's copies of settings the server seeded", async () => {
+    await insertSetting({ id: BASELINE_HEARTBEAT_ID, key: HEARTBEAT_KEY, value: '"1 minute"' });
+    const fromCentral = centralHeartbeat();
+
+    await sequelize.transaction(() => clearLocallyAuthoredSettings(sequelize));
+    await makeSyncManager({ pulled: [fromCentral] }).runSync();
+
+    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
+      { id: fromCentral.id, value: '2 minutes' },
+    ]);
+  });
+
+  it('keeps settings central has already sent', async () => {
+    const fromCentral = centralHeartbeat();
+    await makeSyncManager({ pulled: [fromCentral] }).runSync();
+
+    await sequelize.transaction(() => clearLocallyAuthoredSettings(sequelize));
+
+    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([
+      { id: fromCentral.id, value: '2 minutes' },
+    ]);
+  });
+
+  it('keeps facility-scoped and central-scoped settings and settings migration carriers', async () => {
+    const [facilityId] = JSON.parse(await models.LocalSystemFact.get(FACT_FACILITY_IDS));
+    const facilitySettingId = crypto.randomUUID();
+    await insertSetting({
+      id: facilitySettingId,
+      key: 'templates.letterhead.title',
+      value: '"Clinic"',
+      scope: SETTINGS_SCOPES.FACILITY,
+      facilityId,
+    });
+    const carrier = await models.FacilitySettingMigration.create({
+      key: 'templates.letterhead.title',
+      value: 'Clinic',
+      facilityId,
+    });
+
+    const centralScopedId = crypto.randomUUID();
+    await insertSetting({
+      id: centralScopedId,
+      key: 'sync.maxFlaggedPatientsPerBuild',
+      value: '500',
+      scope: SETTINGS_SCOPES.CENTRAL,
+    });
+
+    await sequelize.transaction(() => clearLocallyAuthoredSettings(sequelize));
+
+    expect(await settingsWithKey('templates.letterhead.title')).toEqual([
+      { id: facilitySettingId, value: 'Clinic' },
+    ]);
+    expect(await settingsWithKey('sync.maxFlaggedPatientsPerBuild')).toEqual([
+      { id: centralScopedId, value: 500 },
+    ]);
+    expect(await models.FacilitySettingMigration.findByPk(carrier.id)).not.toBeNull();
+  });
+
+  it('keeps the cleared settings out of the changelog', async () => {
+    const id = crypto.randomUUID();
+    await insertSetting({ id, key: HEARTBEAT_KEY, value: '"1 minute"' });
+
+    await sequelize.transaction(() => clearLocallyAuthoredSettings(sequelize));
+
+    expect(await settingsWithKey(HEARTBEAT_KEY)).toEqual([]);
+    const [deletions] = await sequelize.query(
+      'SELECT id FROM logs.changes WHERE record_id = :id AND is_hard_delete',
+      { replacements: { id } },
+    );
+    expect(deletions).toEqual([]);
+  });
+});

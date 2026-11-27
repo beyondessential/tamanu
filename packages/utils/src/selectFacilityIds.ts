@@ -1,7 +1,11 @@
+// TAMANU_FACILITY_IDS wins over config when it names any facility.
 export const selectFacilityIds = (config: {
   serverFacilityId?: string;
   serverFacilityIds?: string[];
 }) => {
+  const fromEnv = facilityIdsFromEnv();
+  if (fromEnv?.length) return fromEnv;
+
   const { serverFacilityId, serverFacilityIds } = config;
   if (serverFacilityId && serverFacilityIds) {
     throw new Error(
