@@ -5,13 +5,13 @@
   "description": "BES - Settings",
   "main": "./src/index",
   "exports": {
-    ".": "./src",
-    "./cache": "./src/cache",
-    "./schema": "./src/schema",
-    "./types": "./src/types",
-    "./test": "./src/test",
-    "./reader": "./src/reader",
-    "./middleware": "./src/middleware"
+    ".": "./src/index.ts",
+    "./cache": "./src/cache/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./types": "./src/types/index.ts",
+    "./test": "./src/test/index.ts",
+    "./reader": "./src/reader/index.ts",
+    "./middleware": "./src/middleware/index.ts"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",

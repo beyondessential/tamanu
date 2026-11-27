@@ -5,7 +5,7 @@
   "description": "Shared constants",
   "main": "./src/index",
   "exports": {
-    ".": "./src",
+    ".": "./src/index.ts",
     "./*": "./src/*"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",

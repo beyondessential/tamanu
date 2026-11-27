@@ -5,7 +5,7 @@
   "description": "Tamanu upgrade files",
   "main": "./src/index",
   "exports": {
-    ".": "./src"
+    ".": "./src/index.ts"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
