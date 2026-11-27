@@ -10,7 +10,7 @@ import {
 import { cloneDeep, get as getAtPath, isArray, isEmpty, mergeWith } from 'es-toolkit/compat';
 
 import type { Steps, StepArgs } from '../step.ts';
-import { END } from '../step.js';
+import { END, needsStep } from '../step.js';
 
 // Merge config overrides under the recorded settings so an existing setting always
 // wins — an operator's value is never overwritten, config only fills the gaps.
@@ -101,6 +101,8 @@ export const migrateSecrets = async (
 export const STEPS: Steps = [
   {
     at: END,
+    // The secrets copy needs the settings PSK, and skips every secret for good without it.
+    after: [needsStep('1785100000000-provisionCentralSettingsPsk/0')],
     async check({ serverType, models: { LocalSystemFact } }: StepArgs) {
       return serverType === 'central' && !(await LocalSystemFact.get(FACT_CENTRAL_CONFIG_MIGRATED));
     },
