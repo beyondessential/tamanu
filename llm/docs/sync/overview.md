@@ -117,7 +117,7 @@ This is the client's side of step 3. It is described here as a facility server d
 6. **Delete local copies** of any "push to central then delete" records.
 7. **Store the push cursor**, which is the old tick from step 1. Everything stamped up to the old tick was in the snapshot, and anything written since has the new tick, so it will be picked up next time.
 
-Step 7 happens before the pull starts, and is not inside any transaction. So a push counts as done even if the pull fails afterwards.
+Step 7 happens before the pull starts, and is not inside any transaction. So a push counts as successful even if the pull fails afterwards.
 
 ### Persisting a push
 
