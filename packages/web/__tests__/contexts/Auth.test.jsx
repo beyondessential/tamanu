@@ -36,6 +36,8 @@ const createApi = (overrides = {}) => ({
   setAuthFailureHandler: vi.fn(),
   setVersionIncompatibleHandler: vi.fn(),
   refreshToken: vi.fn(),
+  post: vi.fn(async () => ({ token: 'token-2', permissions: [] })),
+  setToken: vi.fn(),
   ...overrides,
 });
 
@@ -52,8 +54,7 @@ const renderAuth = async api => {
       </QueryClientProvider>
     ),
   });
-  // Nothing under the provider renders until the stored session is restored
-  await waitFor(() => expect(result.current).not.toBeNull());
+  await waitFor(() => expect(result.current.isRestoring).toBe(false));
   return result;
 };
 
@@ -173,6 +174,38 @@ describe('AuthProvider', () => {
       act(() => result.current.onLogout());
 
       expect(systemErrorStore.getSnapshot()).toEqual([]);
+    });
+  });
+
+  describe('impersonation', () => {
+    const role = { id: 'role-1', name: 'Nurse' };
+
+    // Read the result outside act, which would flush a pending render itself
+    let wasActEnvironment;
+    beforeEach(() => {
+      wasActEnvironment = globalThis.IS_REACT_ACT_ENVIRONMENT;
+      globalThis.IS_REACT_ACT_ENVIRONMENT = false;
+    });
+    afterEach(() => {
+      globalThis.IS_REACT_ACT_ENVIRONMENT = wasActEnvironment;
+    });
+
+    it('renders the role before starting resolves, so the caller refreshes against it', async () => {
+      const result = await renderSignedIn(createApi());
+
+      await result.current.startImpersonation(role);
+
+      expect(result.current.impersonatingRole).toEqual(role);
+    });
+
+    it('renders the user before stopping resolves, so the caller refreshes against it', async () => {
+      const result = await renderSignedIn(createApi());
+      await result.current.startImpersonation(role);
+      await waitFor(() => expect(result.current.impersonatingRole).toEqual(role));
+
+      await result.current.stopImpersonation();
+
+      expect(result.current.impersonatingRole).toBeNull();
     });
   });
 

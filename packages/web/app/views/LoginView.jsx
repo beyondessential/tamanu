@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getResetPasswordErrorMessage } from '@tamanu/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useApi } from '../api';
@@ -12,8 +12,8 @@ import { ChangePasswordForm } from '../forms/ChangePasswordForm';
 import { AuthFlowView } from './AuthFlowView';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
-const INITIAL_RESET_PASSWORD = { success: false, error: null, lastEmailUsed: null };
-const INITIAL_CHANGE_PASSWORD = { success: false, error: null };
+// The forms show a failed request from its mutation's error, so a submission settles either way.
+const ignoreRejection = () => {};
 
 export const LoginView = () => {
   const api = useApi();
@@ -21,37 +21,15 @@ export const LoginView = () => {
   const queryClient = useQueryClient();
   const { login, authError: loginError, lastUserEmail } = useAuth();
 
-  const [resetPassword, setResetPassword] = useState(INITIAL_RESET_PASSWORD);
-  const [changePassword, setChangePassword] = useState(INITIAL_CHANGE_PASSWORD);
-
-  const restartPasswordResetFlow = () => setResetPassword(INITIAL_RESET_PASSWORD);
-
-  const requestPasswordReset = async email => {
-    setResetPassword(INITIAL_RESET_PASSWORD);
-    try {
-      await api.requestPasswordReset(email);
-      setResetPassword({ ...INITIAL_RESET_PASSWORD, success: true, lastEmailUsed: email });
-      // The change password step starts afresh for each code sent
-      setChangePassword(INITIAL_CHANGE_PASSWORD);
-    } catch (error) {
-      setResetPassword({ ...INITIAL_RESET_PASSWORD, error: getResetPasswordErrorMessage(error) });
-    }
-  };
-
-  const submitChangePassword = async data => {
-    setChangePassword(INITIAL_CHANGE_PASSWORD);
-    try {
-      await api.changePassword(data);
-      setResetPassword(INITIAL_RESET_PASSWORD);
-      setChangePassword({ ...INITIAL_CHANGE_PASSWORD, success: true });
-    } catch (error) {
-      setChangePassword({ ...INITIAL_CHANGE_PASSWORD, error: error.message });
-    }
-  };
-
-  const validateResetCode = async data => {
-    await api.post('changePassword/validate-reset-code', data);
-  };
+  const changePassword = useMutation({ mutationFn: data => api.changePassword(data) });
+  const requestPasswordReset = useMutation({
+    mutationFn: email => api.requestPasswordReset(email),
+    // The change password step starts afresh for each code sent
+    onSuccess: () => changePassword.reset(),
+  });
+  const requestPasswordResetError =
+    requestPasswordReset.error && getResetPasswordErrorMessage(requestPasswordReset.error);
+  const resetPasswordEmail = requestPasswordReset.isSuccess ? requestPasswordReset.variables : null;
 
   const rememberEmail = window?.localStorage?.getItem(REMEMBER_EMAIL);
 
@@ -77,7 +55,7 @@ export const LoginView = () => {
       // saved email doesn't require a successful auth.
       window?.localStorage?.removeItem(REMEMBER_EMAIL);
     }
-    restartPasswordResetFlow();
+    requestPasswordReset.reset();
   };
 
   return (
@@ -89,19 +67,19 @@ export const LoginView = () => {
           rememberEmail={rememberEmail}
           onNavToResetPassword={() => {
             setScreen('resetPassword');
-            restartPasswordResetFlow();
+            requestPasswordReset.reset();
           }}
           data-testid="loginform-fp20"
         />
       )}
       {screen === 'resetPassword' && (
         <ResetPasswordForm
-          onSubmit={({ email }) => requestPasswordReset(email)}
-          onRestartFlow={restartPasswordResetFlow}
-          errorMessage={resetPassword.error}
-          success={resetPassword.success}
+          onSubmit={({ email }) => requestPasswordReset.mutateAsync(email).catch(ignoreRejection)}
+          onRestartFlow={requestPasswordReset.reset}
+          errorMessage={requestPasswordResetError}
+          success={requestPasswordReset.isSuccess}
           initialEmail={rememberEmail}
-          resetPasswordEmail={resetPassword.lastEmailUsed}
+          resetPasswordEmail={resetPasswordEmail}
           onNavToChangePassword={() => setScreen('changePassword')}
           onNavToLogin={() => setScreen('login')}
           data-testid="resetpasswordform-eka3"
@@ -109,16 +87,16 @@ export const LoginView = () => {
       )}
       {screen === 'changePassword' && (
         <ChangePasswordForm
-          onSubmit={submitChangePassword}
-          onRestartFlow={restartPasswordResetFlow}
-          errorMessage={changePassword.error}
-          success={changePassword.success}
-          email={resetPassword.lastEmailUsed}
+          onSubmit={data => changePassword.mutateAsync(data).catch(ignoreRejection)}
+          onRestartFlow={requestPasswordReset.reset}
+          errorMessage={changePassword.error?.message}
+          success={changePassword.isSuccess}
+          email={resetPasswordEmail}
           onNavToLogin={() => {
             setScreen('login');
           }}
           onNavToResetPassword={() => setScreen('resetPassword')}
-          onValidateResetCode={validateResetCode}
+          onValidateResetCode={data => api.post('changePassword/validate-reset-code', data)}
           data-testid="changepasswordform-2331"
         />
       )}

@@ -37,7 +37,7 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const { data: serverStatus, isLoading } = useCheckServerAliveQuery();
   const isServerAlive = Boolean(serverStatus);
-  const { currentUser, facilityId, serverType } = useAuth();
+  const { currentUser, facilityId, serverType, isRestoring } = useAuth();
   const isUserLoggedIn = Boolean(currentUser);
   const isFacilitySelected = Boolean(facilityId);
   const location = useLocation();
@@ -57,6 +57,7 @@ export function App({ sidebar, children }) {
     descriptor,
   } = useBrowserSupport({ enabled: !isDebugMode });
 
+  if (isRestoring) return <LoadingStatusPage />;
   if (!isDebugMode) {
     if (browserSupportStatus === 'loading') return <LoadingStatusPage />;
     if (browserSupportStatus === 'unsupported') {
