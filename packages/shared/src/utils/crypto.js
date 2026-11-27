@@ -187,6 +187,7 @@ async function resolveSettingsPsk() {
   if (fromStore != null) return fromStore;
 
   const fromConfig = await getConfigSecret('crypto.settingsPsk');
+  // After the read: getConfigSecret throws when unset, so this only fires when config is the source.
   log.warn('settings PSK resolved from legacy crypto.settingsPsk config');
   return fromConfig;
 }
