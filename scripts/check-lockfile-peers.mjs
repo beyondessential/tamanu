@@ -45,8 +45,8 @@ function loadSemver() {
   return createRequire(join(globalModules, 'npm', 'package.json'))('semver');
 }
 
-// Keyed by package name and range rather than location or resolved version, so a
-// package moving within the tree between two lockfiles doesn't read as a new problem.
+// Keyed by package names only, so a package moving within the tree or changing a peer
+// range that was already unmet doesn't read as a new problem.
 function findUnmetPeers(packages, semver) {
   return new Set(
     Object.entries(packages).flatMap(([location, entry]) => {
@@ -54,18 +54,13 @@ function findUnmetPeers(packages, semver) {
       const dependentName = location.split('node_modules/').at(-1) || location;
       return Object.entries(entry.peerDependencies ?? {})
         .filter(([name]) => !entry.peerDependenciesMeta?.[name]?.optional)
-        .flatMap(([name, range]) => {
+        .filter(([name, range]) => {
           const resolved = resolveFrom(packages, location, name);
-          if (!resolved) return [`${name}, required by ${dependentName}, is missing`];
+          if (!resolved) return true;
           const isCheckable = resolved.version && semver.validRange(range);
-          if (
-            isCheckable &&
-            !semver.satisfies(resolved.version, range, { includePrerelease: true })
-          ) {
-            return [`${name}@${range}, required by ${dependentName}, is out of range`];
-          }
-          return [];
-        });
+          return isCheckable && !semver.satisfies(resolved.version, range);
+        })
+        .map(([name]) => `${name}, required by ${dependentName}`);
     }),
   );
 }
@@ -90,7 +85,7 @@ if (values.baseline) {
   );
   if (newlyUnmet.length) {
     failed = true;
-    console.error('Required peer dependencies no longer met:');
+    console.error('Required peer dependencies missing or out of range:');
     for (const peer of newlyUnmet) console.error(`  ${peer}`);
   }
 }
