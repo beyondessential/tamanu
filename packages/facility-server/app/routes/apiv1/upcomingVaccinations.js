@@ -4,6 +4,7 @@ import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
 import { likePattern } from '@tamanu/utils/likePattern';
 import { makeFilter } from '../../utils/query';
+import { getServerFacilityIds } from '../../serverConfig';
 import {
   MATERIALIZED_VIEWS,
   MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE,
@@ -73,7 +74,7 @@ upcomingVaccinations.get(
           ...current,
           ...transform(current),
         }),
-        filterParams,
+        { ...filterParams, serverFacilityIds: getServerFacilityIds() },
       );
 
     // Use the materialized version of the view if the regular refresh task is enabled, otherwise use the regular live view (not recommended for performance reasons)
@@ -89,6 +90,10 @@ upcomingVaccinations.get(
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
         FROM ${tableName} uv
         WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
+        -- Vaccinations only sync for patients marked for sync here; anyone else shows every dose as due
+        AND uv.patient_id IN (
+          SELECT patient_id FROM patient_facilities WHERE facility_id IN (:serverFacilityIds)
+        )
       )
     `;
 
