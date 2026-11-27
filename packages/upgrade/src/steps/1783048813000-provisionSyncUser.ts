@@ -19,10 +19,9 @@ const legacySyncConfig = (): LegacySyncConfig => (config as { sync?: LegacySyncC
 export const STEPS: Steps = [
   {
     at: END,
-    // Copy the legacy config credentials into facts verbatim. Local writes only, so
-    // it can't fail — the config fallback can only go once every server is guaranteed
-    // to have these. Swapping them for a dedicated sync user needs central, so it
-    // rides a sync session instead (facility-server convergeSyncUser).
+    // Copy the sync credentials from the config file into facts as they are. This doesn't need
+    // central, so it works when the facility is offline for its upgrade.
+    // Swapping them for a sync user does need central, so convergeSyncUser does that during sync.
     async check({ serverType, models: { LocalSystemFact } }: StepArgs) {
       if (serverType !== 'facility') return false;
       const { host, email, password } = legacySyncConfig();

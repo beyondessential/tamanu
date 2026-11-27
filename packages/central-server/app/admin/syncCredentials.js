@@ -79,9 +79,9 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
     }
   });
 
-  // Hand the facility the deployment-wide settings PSK so secrets central
-  // encrypts into synced settings are decryptable there. Generated here if this
-  // is the first server to need it; facilities never mint their own.
+  // Send the facility the settings PSK (the pre-shared key that secret settings are encrypted
+  // with), so that it can decrypt the secrets central puts in synced settings. Central creates
+  // the key here if it doesn't have one yet.
   await ensureSettingsPsk(LocalSystemSecret);
   const settingsPsk = await LocalSystemSecret.get(FACT_SETTINGS_PSK);
 
@@ -89,19 +89,16 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   res.set('Cache-Control', 'no-store').send({ email, password, settingsPsk });
 });
 
-// Returns the deployment-wide settings PSK to a facility server that already has
-// sync credentials but no PSK yet (provisioned before the PSK existed). Read-only:
-// central mints the PSK on its own upgrade and when provisioning sync credentials,
-// so a GET only reads it. If it's somehow absent this returns null and the facility
-// retries on its next sync — the GET never writes. Unlike provisionSyncCredentials
-// it doesn't rotate the sync password, so a facility can call it repeatedly.
+// Gives the settings PSK to a facility that has sync credentials but was set up before the PSK
+// existed. This only reads the key: if central doesn't have one yet it returns null, and the
+// facility asks again on its next sync.
+// The sync password isn't changed here, so a facility can call this as often as it needs.
 export const getSettingsPsk = asyncHandler(async (req, res) => {
   req.checkPermission('manage', 'all');
 
-  // manage:all alone isn't enough: mobile and facility servers share the sync_client
-  // device scope, and the isMobile flag is client-supplied, so a person's admin
-  // credentials on any client would otherwise read the deployment key. kind is set by
-  // central when it mints the account, which is the only part a caller can't choose.
+  // Only a sync user can read the key here. Mobile and facility servers both log in with the
+  // sync_client scope, and isMobile is sent by the client, so neither tells us the caller is a
+  // facility server. `kind` is set by central when it creates the account.
   if (req.user?.kind !== USER_KINDS.SYNC) {
     throw new ForbiddenError('Only a sync user may read the settings PSK');
   }

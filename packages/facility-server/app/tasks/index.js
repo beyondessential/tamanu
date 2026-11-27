@@ -34,11 +34,10 @@ const DEFAULT_TASK_CLASSES = [
   RollupBrowserTelemetry,
 ];
 
-// Resolved once at startup (idempotent); schedule changes apply on server restart.
-// Tasks are server-wide, so on a multi-facility server the first facility's settings
-// apply — same rule the mSupply tasks use. Uses the resolved facility ids (facts/env/
-// config), which key context.settings; a server booted unconfigured (pre-wizard) has
-// none yet, so it runs on the schema defaults until its post-setup restart.
+// The schedules are read once and kept, so a change to them needs a restart.
+// Tasks belong to the server rather than a facility, so on a server with several facilities we use
+// the first one's settings, as the mSupply tasks do. A server that started unconfigured has no
+// facility yet and uses the schema defaults until it is restarted.
 export async function resolveSchedules(context) {
   const [primaryFacilityId] = getServerFacilityIds() ?? [];
   // eslint-disable-next-line require-atomic-updates
