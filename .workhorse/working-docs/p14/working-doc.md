@@ -201,7 +201,7 @@ Not proposed for this card beyond two small things: correct the lookup table spe
 
 - `llm/docs/sync/overview.md`: first draft written, under review.
 - `llm/docs/sync/legacy-model-snapshot.md`: drafted by a subagent, then reviewed against the code and rewritten.
-- `llm/docs/sync/dragons.md`: not started. The overview links to it. It must carry, as its own section, the write-up on the clock row lock from `ledger/00-concurrency-analysis.md` F8: what each holder needs from it, why the importer cannot simply rely on pending edits, and what has to stay true if contention on central is ever reduced.
+- `llm/docs/sync/dragons.md`: not started. The overview links to it. It must carry, as its own section, the write-up on the clock row lock from `ledger/00-concurrency-analysis.md` F8: what each holder needs from it, why the importer cannot simply rely on pending edits, and what has to stay true if contention on central is ever reduced. It must also carry deterministic ids (the overview's section of that name): the user flagged this as an important strategy that was missed in the transcript, with the mobile and server id builders having to match as the thing to guard.
 - `facts/`: the fact sheets the overview was written from. Working material, to be removed with the ledgers before the card merges.
 
 ## Open questions
