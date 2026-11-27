@@ -3,6 +3,7 @@ import config from 'config';
 import shortid from 'shortid';
 import os from 'os';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getCanonicalHostName } from '../../utils/canonicalHostName';
 
 export const ENV = process.env.NODE_ENV ?? 'development';
 export const PROCESS_ID = shortid();
@@ -23,9 +24,15 @@ const SemanticAttributes = {
   SOURCE_DATE_ISO: 'source.date.iso',
 };
 
+// SYNC_URL carries credentials, so only its origin is kept
+const syncHostFromEnv = () =>
+  process.env.SYNC_URL && URL.canParse(process.env.SYNC_URL)
+    ? new URL(process.env.SYNC_URL).origin
+    : undefined;
+
 export function serviceContext() {
   const { serverType = 'unknown', version = '0.0.0' } = global?.serverInfo || {};
-  const deploymentHost = config?.canonicalHostName || config?.sync?.host;
+  const deploymentHost = getCanonicalHostName() || syncHostFromEnv() || config?.sync?.host;
   const deployment =
     deploymentHost && new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
   const serverFacilityIds = selectFacilityIds(config);
